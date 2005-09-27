@@ -1,10 +1,13 @@
-This is GNU FreeDink, a free software version of the Dink Smallwood
-game engine.
+This is GNU FreeDink, a portable and enhanced version of the Dink
+Smallwood game engine.
 
 This is not a new, revolutionary game engine. Instead, it tries to do
 all the marvelous things the original Dink engine does but in an
 improved way, with an emphasis on portability and perfect (hopefully)
 backward compatibility.
+
+FreeDink is free software, and you are welcome to redistribute it
+under certain conditions; see COPYING for details.
 
 
 Planned new features, besides running on new platforms, include new
@@ -24,8 +27,9 @@ scrolling) would be quite complex to add without breaking
 compatibility.
 
 If you want to make something completely new, I suggest you simply use
-another game engine, such as Windemere, which is built in the spirit
-of the Dink engine.
+another game engine, such as Windemere
+(http://windemere.dinkworld.com/), which is built in the spirit of the
+Dink engine.
 
 If however you just like the current engine and just want to:
 - play it on your favorite operating system
@@ -40,7 +44,7 @@ Last but not least, FreeDink is part of the GNU project, whose aim is
 to create "GNU", a completely free (as in freedom) operating system -
 whose most famous variant is GNU/Linux. A engine to play the Dink
 Smallwood game and DMods is definitely a must for the GNU OS ;) Check
-http://www.gnu.org for more information.
+www.gnu.org for more information.
 
 ---
 Copying and distribution of this file, with or without modification,

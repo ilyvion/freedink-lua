@@ -18,3 +18,10 @@ That means, in a nutshell:
     already have an engine and backward compatibility constraints
   * gettext for internationalization (i18n)
   * Possibly use the DejaGNU testing framework
+  * The Texinfo documentation system
+
+- Project public places:
+  * http://www.gnu.org/software/freedink/ : homepage.
+  * http://savannah.gnu.org/projects/freedink : project page at
+    Savannah, the GNU project's SourceForge clone, where I (Beuc) am
+    incidentally admin.
