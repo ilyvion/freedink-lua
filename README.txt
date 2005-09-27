@@ -7,18 +7,18 @@ improved way, with an emphasis on portability and perfect (hopefully)
 backward compatibility.
 
 
-Planned new features include new scripting language(s),
-internationalization capabilities, support for more graphical and
-sound formats, new graphical primitives such as rotation (mainly to
-avoid the need to precalculate such special effects), more screen
-color modes and a more advanced game editor.
+Planned new features, besides running on new platforms, include new
+scripting language(s), internationalization capabilities, support for
+more graphical and sound formats, new graphical primitives such as
+rotation (mainly to avoid the need to precalculate such special
+effects), more screen color modes and a more advanced game editor.
 
 It should also fix bugs (unless they were used as 'features' by DMod
 authors - a DMod is a Dink MODule, or add-on).
 
 
 When we say it is not revolutionary, this means that we won't
-complexify the engine with feature that were never meant for the
+complexify the engine with features that were never meant for the
 game. For example, free scrolling (by contrast to screen-based
 scrolling) would be quite complex to add without breaking
 compatibility.
@@ -30,7 +30,7 @@ of the Dink engine.
 If however you just like the current engine and just want to:
 - play it on your favorite operating system
 - program it with a more powerful language
-- make handy changes that do not change the engine foundations
+- get handy enhancements that do not change the engine foundations
 then GNU FreeDink is for you :)
 
 Check the doc/ directory for more technical considerations.
