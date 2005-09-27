@@ -2,3 +2,4 @@
 ddutil.cpp
 ddutil.h
 *.res
+*.exe
