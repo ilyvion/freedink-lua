@@ -26,8 +26,6 @@ freedink.o:  		freedink.h dinkvar.h update_frame.h bgm.h sfx.h
 freedinkedit.o:		dinkvar.h bgm.h sfx.h
 dinkvar.o:		dinkvar.h bgm.h sfx.h
 update_frame.o:		update_frame.h dinkvar.h freedink.h
-fastfile.o:		fastfile.h ffent.h
-ffcreate.o:		ffent.h
 dsutil.o:		dsutil.h
 bgm.o:			bgm.h
 sfx.o:			sfx.h
