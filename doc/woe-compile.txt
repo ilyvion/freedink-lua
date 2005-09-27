@@ -12,9 +12,15 @@ Use the Makefile
 The .dsw is a workspace, use that to edit it with VC++.
 
 
-Seth says the code is dirty. In practice, this means you cannot compile it g++. The idea is to fix those compilation errors first. Get a VC++ under the hand to be able to test its behavior in the situations where g++ won't compile.
+Seth says the code is dirty. In practice, this means you cannot
+compile it g++. The idea is to fix those compilation errors first. Get
+a VC++ under the hand to be able to test its behavior in the
+situations where g++ won't compile.
 
-It's no use to fix VC++'s warnings and errors. Try to only change the minimum needed to compile the game, so we can start porting it to SDL. Cleaning up, such as
+It's no use to fix VC++'s warnings and errors. Try to only change the
+minimum needed to compile the game, so we can start porting it to
+SDL. Cleaning up, such as
+
 - splitting the code in several files,
 - fixing remaining warnings
 - making it ANSI C-compliant
@@ -22,7 +28,15 @@ It's no use to fix VC++'s warnings and errors. Try to only change the minimum ne
 should be done only once we have the code run under SDL/GNU/Linux.
 
 
-Make tests. Make tests. Make tests! Since the goal of the project is to be backward compatible, and since we're up to non-trivially change the code, we need to check that we didn't introduce incompatibilities. Regression tests are not easy to perform on an interactive programs. However, we can test each non-interactive part independently. For example, we could start a game in memory, change a few sprite, save the game, the check if the saved game is exactly (modulo the timestamp) to a saved game generated likewise using the current Dink version, that is patch dink.exe v1.07.
+Make tests. Make tests. Make tests! Since the goal of the project is
+to be backward compatible, and since we're up to non-trivially change
+the code, we need to check that we didn't introduce
+incompatibilities. Regression tests are not easy to perform on an
+interactive programs. However, we can test each non-interactive part
+independently. For example, we could start a game in memory, change a
+few sprite, save the game, the check if the saved game is exactly
+(modulo the timestamp) to a saved game generated likewise using the
+current Dink version, that is patch dink.exe v1.07.
 
 
 

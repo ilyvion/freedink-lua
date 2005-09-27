@@ -1,0 +1,35 @@
+CVS Access
+==========
+
+Anonymous:
+----------
+
+For GNU/Linux:
+$ export CVS_RSH=ssh
+$ cvs -d:ext:anoncvs@savannah.gnu.org:/cvsroot/freedink co freedink
+
+For Woe, I suggest you use TortoiseCVS (www.tortoisecvs.org - GNU
+GPL'd). After the installation, right-click in a folder and click "CVS
+Checkout...".  Check tortoise-anonymous.png for the parameters.
+
+
+Developper:
+-----------
+
+For GNU/Linux:
+$ ssh-keygen -t dsa # Generates the key pair
+$ ssh-add # Have the agent remember your passphrase
+
+Upload ~/.ssh/id_dsa.pub to the Savannah web interface:
+https://savannah.gnu.org/account/editsshkeys.php
+
+$ export CVS_RSH=ssh
+$ cvs -d:ext:SAVANNAH_USERNAME@savannah.gnu.org:/cvsroot/freedink co freedink
+
+
+For Woe, install TortoiseCVS and check tortoise-dev.png. You than have
+to install PuTTY from
+http://www.chiark.greenend.org.uk/~sgtatham/putty/ (Expat-like
+license). Use PuTTYgen to generate your SSH key pair, and pageant.exe
+to register and remember your key. You can import your OpenSSH private
+key in PuTTYgen to convert it to PuTTY's own format.
