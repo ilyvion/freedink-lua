@@ -1,0 +1,20 @@
+Since FreeDink is part of the GNU project, we need to stick to its
+principles and integrate into the rest of the operating system.
+
+That means, in a nutshell:
+
+- Follow the following documents:
+  * Information for maintainers of GNU software
+    http://www.gnu.org/prep/maintain/
+  * GNU coding standards 
+    http://www.gnu.org/prep/standards/
+
+- Prefer GNU technologies:
+  * The autotools build system (autoconf, automake, libtool)
+  * The Gtk+ 2 GUI library
+  * The Guile extension language (Scheme-like, although translators
+    from other languages to Scheme exists)
+  * No need to use GNU Leg (Libraries and Engines for Games), since we
+    already have an engine and backward compatibility constraints
+  * gettext for internationalization (i18n)
+  * Possibly use the DejaGNU testing framework

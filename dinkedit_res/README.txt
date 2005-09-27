@@ -1,0 +1,12 @@
+Sound files used by Dinkedit. There were included in v1.06 as
+Dinkedit.exe resources (included in the executable).
+
+The resources were forgotten in v1.07, so if you noticed that sound
+and application icon were missing, that's the reason :)
+
+
+stop.wav (now stop-orig.wav) had to be re-written using Audacity to
+make it compatible with SDL_Mixer.
+
+
+Legal: not necessarily freely distributable. I need to ask Seth.

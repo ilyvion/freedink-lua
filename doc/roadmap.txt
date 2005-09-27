@@ -1,0 +1,140 @@
+[X] Port the game to a free compiler
+
+The game now compiles with both VC6 and MinGW (Minimal GNU for
+Windows). Keeping compatibily for VC6 will come in handy in case we
+suspect a MinGW-specific issue and need another compiler.
+
+[X] Port the build system to make
+
+Both make and the Dev-Cpp semi-free IDE can be used to compile GNU
+FreeDink.
+
+[O] Get rid of Windows-specific dependencies (ongoing)
+
+Port the game from DirectX to SDL
+(check sdl.txt for consideration on the library choice)
+
+[ ] Handle remaining portability issues
+
+Use autoconf for this, and switch to automake along the way.
+"autoconfiscate"
+Fix the probable additional compilation errors.
+
+
+[Milestone 1]: we have a portable game engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Action: Make the result available. The engine relies on free software,
+we can publish it.
+
+[ ] Clean-up the code
+
+Fix warnings, port it to C, make it compile -Wall -ansi -pedantic
+(strict ANSI C compliance is a nice asset for portability), split it
+in several files, convert the common (FreeDink and FreeDinkedit) code
+to a library that could be reused by other tools (WDE).
+
+[ ] Make (automatic) non-regression tests
+
+This is needed to keep the compatibility. We'll need to compare
+FreeDink with the Dink engine v1.07 from RTsoft. Most probably tests
+will be possible for the script engine and the internal calls. If you
+find a way to automatically test the game interactively, then please
+contact us :)
+
+Do not forget FreeDinkedit!! The last port resulted in a completely
+broken Dinkedit. We don't want.
+
+[ ] Add a guile interface to the game engine
+[ ] Add a translator from a clean version of DinkC to Guile
+
+We'll need to separate the (untouched) DinkC parser. Avoid messing
+with the DinkC engine ever again! The problem is not that it's buggy,
+but that lots of people relied on this bogosity to create scripts that
+wouldn't be accepted by a clean-up/fixed version of the language.
+
+With the translator we have a good migration path for the current
+Dinkers :)
+
+Use another extension (.fdc freedinkc?) for cleaned-up DinkC, and .scm
+for Guile.
+
+Adding new DinkC commands depend on this task.
+
+[Milestone 2]: we have a robust framework
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Action: encourage people to contribute. Promote discussions and vote.
+
+[ ] Merge 24/32 bit color support from Invertigo
+
+Well, merge the _idea_, the code is for DirectX anyway
+
+[ ] Merge interesting changes from redink1's reDink and toa's unDink
+
+Some stuff need to discussed, namely bugs that are used as features in
+some DMods (eg the moving background bug that erase dead sprites is
+used by Mike Snyder to make a special floor where Slayers
+automatically disappear when dead - I can't remember the exact DMod
+though). Publicly discuss those issues (Wiki, board).
+
+[ ] Add translation support
+
+Needed for Dink Translation, especially to translate DMods that evolve
+over time.
+
+For DinkC, via gettext(3). Instead of looking for any strings, we
+could restrict the search of translatable text to the arguments of
+say*() and other user-interface functions.
+
+We need a solution to get pictures translations (check my Mystery
+Island translation for examples); we could do something like Apache's
+content-negociation (much simpler though): if pic01.fr.bmp exists and
+language is French, then use it instead of pic01.bmp.
+
+[ ] Add new audio and graphics formats
+
+[ ] Add new graphics primitives such as rotations, flip, fade to
+white...
+
+[ ] Add new audio features such as fading
+
+[ ] Freedom
+
+Get Seth to officially free enough of the original game (the graphics
+not in the Graphics Pack, such as the original game end Boss, the
+reusable (not part of the story) scripts and the sounds from the
+original game) so that DMod can use completely free material. Foster
+the use of free material. Avoid illegal (even if tolerated) rips. It
+should be able to include legal DMods in OS distros such as Debian
+GNU/Linux.
+
+[Milestone 3]: the current engine flaws are fixed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[ ] Port existing Dink utilities, that usually only work for MS Woe.
+
+DinkSay, Savegame editor, Dinkspell (use aspell instead of MS Word),
+the DMod installer...
+
+[ ] Port WinDinkedit to Gtk+ 2
+
+Gtk+ 2 is cross-platform now.
+
+[ ] Improve WinDinkedit
+
+Make GNU FreeDink the most easiest way to create your own 2d game.
+
+I think FreeDinkedit should not be modified further. Users tend to
+like it just as it is (cf. reluctance to switch to WDE).
+
+[Milestone 4]: FreeDink rules the world!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Action: consider commercial (but still free-as-in-freedom) use.
+
+[ ] Maintain the stability and portability to new platforms
+
+[ ] Add new features as needed
+
+[ ] Hopefully a new engine will be created by then.
+
+Create a migration path to this new engine of choice (Windemere?) with
+the creation of a translator.

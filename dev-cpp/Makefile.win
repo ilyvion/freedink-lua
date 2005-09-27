@@ -1,0 +1,45 @@
+# Project: FreeDink
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
+WINDRES = windres.exe
+RES  = freedink_private.res
+OBJ  = ../ddutil.o ../dsutil.o ../fastfile.o ../freedink.o ../string_util.o $(RES)
+LINKOBJ  = ../ddutil.o ../dsutil.o ../fastfile.o ../freedink.o ../string_util.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -L"C:/dx7sdk/lib" -mwindows -ldxguid -lddraw -ldinput -ldsound -lwinmm -lSDL  -lgmon -pg  -g3 
+INCS =  -I"C:/Dev-Cpp/include"  -I"C:/dx7sdk/include"  -I"C:/Dev-Cpp/include/SDL" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/dx7sdk/include"  -I"C:/Dev-Cpp/include/SDL" 
+BIN  = freedink.exe
+CXXFLAGS = $(CXXINCS) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_WINDOWS -D_MBCS   -pg -g3
+CFLAGS = $(INCS) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_WINDOWS -D_MBCS   -pg -g3
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before freedink.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "freedink.exe" $(LIBS)
+
+../ddutil.o: ../ddutil.cpp
+	$(CPP) -c ../ddutil.cpp -o ../ddutil.o $(CXXFLAGS)
+
+../dsutil.o: ../dsutil.c
+	$(CC) -c ../dsutil.c -o ../dsutil.o $(CFLAGS)
+
+../fastfile.o: ../fastfile.c
+	$(CC) -c ../fastfile.c -o ../fastfile.o $(CFLAGS)
+
+../freedink.o: ../freedink.cpp
+	$(CPP) -c ../freedink.cpp -o ../freedink.o $(CXXFLAGS)
+
+../string_util.o: ../string_util.c
+	$(CC) -c ../string_util.c -o ../string_util.o $(CFLAGS)
+
+freedink_private.res: freedink_private.rc ../freedink.rc 
+	$(WINDRES) -i freedink_private.rc --input-format=rc -o freedink_private.res -O coff 

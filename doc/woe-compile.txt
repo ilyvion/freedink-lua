@@ -1,0 +1,35 @@
+2005-09-16
+Get the source from codedojo.com (http://www.codedojo.com/files/dink/dink_source.zip)
+#Install MinGW (www.mingw.org) and MSys
+
+Install Dev-C++ and then MSys. When MSys asks where MinGW is, point it
+to the Dev-C++ directory. That way, you can use Dev-C++'s packaging
+system and integrate it with MSys.
+
+Get dx7docs.exe and dx7libhdr.exe (unknown source, cfiles/prog/win32/)
+Use the Makefile
+
+The .dsw is a workspace, use that to edit it with VC++.
+
+
+Seth says the code is dirty. In practice, this means you cannot compile it g++. The idea is to fix those compilation errors first. Get a VC++ under the hand to be able to test its behavior in the situations where g++ won't compile.
+
+It's no use to fix VC++'s warnings and errors. Try to only change the minimum needed to compile the game, so we can start porting it to SDL. Cleaning up, such as
+- splitting the code in several files,
+- fixing remaining warnings
+- making it ANSI C-compliant
+- remove unused variables
+should be done only once we have the code run under SDL/GNU/Linux.
+
+
+Make tests. Make tests. Make tests! Since the goal of the project is to be backward compatible, and since we're up to non-trivially change the code, we need to check that we didn't introduce incompatibilities. Regression tests are not easy to perform on an interactive programs. However, we can test each non-interactive part independently. For example, we could start a game in memory, change a few sprite, save the game, the check if the saved game is exactly (modulo the timestamp) to a saved game generated likewise using the current Dink version, that is patch dink.exe v1.07.
+
+
+
+TODO:
+mode is not initialized in dinkvar.h.
+It is, I think, first initialized in dink.cpp in doInit().
+process_line() from dinkvar.h also set its value.
+
+At a point, mode needs to be properly initialized somewhere, to avoid
+"duplicating" the variable in each object file that uses it.

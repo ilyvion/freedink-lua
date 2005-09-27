@@ -1,0 +1,14 @@
+If cd is not present and use a midi > 1000, then play that midi, and
+not #midi-1000. That's what is done with playmidi() - although this is
+actually a bug :) The code should also play #midi-1000 there, but
+there's a missing "return;", and thus the game plays #midi right
+after.
+
+If a cd is present, it is taken into account (for playing 100X tracks)
+even if it doesn't have exactly 19 tracks.
+
+The two WAVE files played by Dinkedit were extracted from Dinkedit.exe
+v1.06's resources and are now external. Incidentally those were
+missing (as well as the application icon) in Dinkedit v1.07. Also,
+stop.wav had to be converted by Audacity to get accepted by SDL_Mixer
+("Complex WAVE files not supported").

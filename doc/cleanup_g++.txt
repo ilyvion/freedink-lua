@@ -1,0 +1,151 @@
+Here, we keep track of the changes made to clean-up the code so it compiles with g++.
+
+
+dinkvar.h:73: ISO C++ forbids declaration of `dversion' with no type
+dinkvar.h:118: ISO C++ forbids declaration of `num_soundbanks' with no type
+dinkvar.h:125: ISO C++ forbids declaration of `old_burn' with no type
+dinkvar.h:220: ISO C++ forbids declaration of `max_idata' with no type
+dinkvar.h:248: ISO C++ forbids declaration of `max_sounds' with no type
+dinkvar.h:278: ISO C++ forbids declaration of `max_vars' with no type
+dinkvar.h:346: ISO C++ forbids declaration of `text_timer' with no type
+dinkvar.h:347: ISO C++ forbids declaration of `text_min' with no type
+dinkvar.h:348: ISO C++ forbids declaration of `max_sprites' with no type
+dinkvar.h:350: ISO C++ forbids declaration of `max_sprites_at_once' with no type
+dinkvar.h:351: ISO C++ forbids declaration of `max_callbacks' with no type
+dinkvar.h:352: ISO C++ forbids declaration of `max_scripts' with no type
+dinkvar.h:353: ISO C++ forbids declaration of `max_sequences' with no type
+dinkvar.h:354: ISO C++ forbids declaration of `max_game' with no type
+dinkvar.h:703: ISO C++ forbids declaration of `tile_screens' with no type
+dink.cpp:34
+
+Those use "const" without type. Apparently VC++ uses 'int' in those cases (sizeof = 4). I used 'int' instead.
+
+Those should be converted to #define eventually. The fact they didn't have type information makes me think Seth wanted to use that.
+
+---
+
+dinkvar.h: In function `BOOL CreateBufferFromWaveFile(char*, long unsigned 
+   int)':
+dinkvar.h:1452: warning: return to non-pointer type `BOOL' from NULL
+dinkvar.h:1452: warning: argument to non-pointer type `int' from NULL
+
+s/NULL/FALSE/
+BOOL (=int), FALSE (=0) and TRUE (=1) come from Vc98/Include/Windef.h
+
+---
+
+dinkvar.h: In function `void save_game(int)':
+dinkvar.h:2337: warning: assignment to `int' from `double'
+dinkvar.h:2337: warning: argument to `int' from `double'
+
+dinkvar.h: In function `bool add_time_to_saved_game(int)':
+dinkvar.h:2455: warning: assignment to `int' from `double'
+dinkvar.h:2455: warning: argument to `int' from `double'
+
+Added (int) to explicitely cast the double result.
+
+---
+
+dinkvar.h:4805: warning: name lookup of `k' changed
+dinkvar.h:761: warning:   matches this `k' under ISO standard rules
+dinkvar.h:4798: warning:   matches this `k' under old rules
+[Error (not warnings) follows]dinkvar.h: In function `void 
+
+dinkvar.h:4830: warning: name lookup of `k' changed
+dinkvar.h:761: warning:   matches this `k' under ISO standard rules
+dinkvar.h:4823: warning:   matches this `k' under old rules
+[Error (not warnings) follows]
+
+dinkvar.h: In function `void kill_returning_stuff(int)':
+dinkvar.h:6194: name lookup of `i' changed for new ISO `for' scoping
+dinkvar.h:6182:   using obsolete binding at `i'
+
+dink.cpp: In function `void process_item()':
+dink.cpp:5050: name lookup of `i' changed for new ISO `for' scoping
+dink.cpp:5044:   using obsolete binding at `i'
+
+for (int k...);
+for (k...);
+=>
+// BAD! Doesn't compile anymore with VC++, actually ambiguous
+for (int k...);
+for (int k...);
+=>
+int k;
+for (k...);
+for (k...);
+
+
+---
+
+dinkvar.h:5036: warning: name lookup of `k' changed
+dinkvar.h:761: warning:   matches this `k' under ISO standard rules
+dinkvar.h:5019: warning:   matches this `k' under old rules
+[Error (not warnings) follows]
+
+for (int k=...);
+k = ...;
+=> 
+int k=...;
+for (;...);
+k = ...;
+
+---
+
+dinkvar.h: In function `int var_equals(char*, char*, char, int, char*)':
+dinkvar.h:5902: name lookup of `i' changed for new ISO `for' scoping
+dinkvar.h:5857:   using obsolete binding at `i'
+
+dinkvar.h: In function `int playbank(int, int, int, int, bool)':
+dinkvar.h:8027: name lookup of `i' changed for new ISO `for' scoping
+dinkvar.h:8004:   using obsolete binding at `i'
+
+for (int i...); => int i...; for(;...);
+...
+...[i]
+
+---
+
+dinkvar.h: In function `void get_right(char*, char*, char*)':
+dinkvar.h:6963: warning: NULL used in arithmetic
+
+NULL=>0 (ie the result of strcpsn())
+
+---
+
+const WM_IMDONE = WM_USER+110;
+=> #define WM_IMDONE WM_USER+110;
+
+---
+
+ffile.h
+ffile.c
+LPVOID => LPFILEHANDLE
+(y compris le typedef de HFASTFILE)
+
+---
+
+update_frame.c
+Added #include <windows.h> to get the 'byte' definition.
+Added #include <ddraw.h> for similar reasons.
+
+Added prototypes for all used global variables and functions, from dinkvar.h and dink.cpp.
+
+---
+
+dinkedit.c
+38 C:\Documents and Settings\WOLF1\Mes documents\w\dinkedit.cpp ISO C++ forbids declaration of `NUM_SOUND_EFFECTS' with no type
+=> int
+
+finiObjects() undeclared - it's not meant to be shared.
+
+---
+
+freedink.cpp and update_frame.cpp
+Used constants from windows.h->winuser.h, VK_*, to replace GetKeyboard
+numerical parameters with something humans can understand :)
+
+---
+
+Used separate compilation instead of file inclusion (dinkvar and
+update_frame).

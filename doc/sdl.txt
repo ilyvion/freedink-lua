@@ -1,0 +1,147 @@
+From a game library point of view, the game has 3 parts:
+
+- sound
+  BGM = Audio CD + MIDI;
+  SFX = WAV with multiple channels/banks, pseudo-3D positionning
+  (per-channel volume and panning), real-time frequency change
+
+- graphics
+  - 2D, 640*480*256
+  - windowed or full-screen
+  - stretching/scaling (SDL doesn't do that alone)
+  - fonts (TTF)
+
+- input
+  - keyboard
+  - joystick
+
+
+([TODO] means I need to actually test the libraries.)
+
+
+Choice:
+~~~~~~~
+
+If chose SDL because the previous port was made using SDL, so there is
+already a semi-working port that I can study during the initial port
+to the GNU OS.
+
+So there is no definite, justified choice to use SDL. It really was
+the easier way for me to perform an initial and clean cross-platform
+port.
+
+
+
+Alternatives:
+~~~~~~~~~~~~~
+
+General-purpose:
+
+- Allegro is another interesting alternative. I think it would be good
+  to eventually get FreeDink be able to compile with either library -
+  at least that would make the code more flexible if SDL ever get
+  replaced by something else. Allegro tend to get everything included
+  in the main library, while SDL separates a core library from
+  additional ones (SDL_mixer, SDL_image, SDL_gfx, SDL_ttf...).
+
+- DX: that what we come from, it's proprietary and not portable, so of
+  course we won't use it back.
+
+
+Some component-specific libraries are:
+
+- Graphics: Mesa (OpenGL), that apparently could take care of all the
+  2D graphical part.
+
+- SFX: OpenAL for a good SFX (no MIDI, no audio CD) mixer.
+
+
+
+Comparison:
+~~~~~~~~~~~
+
+It would be good to make a spreadsheet and show the possible combinations.
+
+The conclusion is that no library does _everything_ we need, but the
+sum of all their features do.
+
+Required: SDL for audio CD.
+
+- Stretching:
+
+  [V] [TODO] SDL_strech or SDL_gfx should do.
+
+  [V] [TODO] Allegro does.
+
+  [V] [TODO] Mesa does.
+
+- Fonts (TTF):
+
+  [V] [TODO] SDL_ttf does.
+
+  [V] [TODO] Allegro should do.
+
+  [V] [TODO] OpenGL+SDL_ttf+an SDL surface rendered as a texture. Or
+  use FreeType2 directly.
+
+
+- Input (keyboard, joystick):
+
+  [V] [TODO] SDL should do.
+
+  [V] [TODO] Allegro should do.
+
+  [V] [TODO] GLUT (Mesa, freeglut, OpenGlut) should do.
+
+
+- Sound Frequency:
+
+  [ ] SDL(_Mixer) does not provide an equivalent to DX' SetFrequency, and
+  [TODO] I don't think it can be implement on top of it (check
+  sound.txt)
+
+  [V] [TODO] Allegro does.
+
+  [V] [TODO] OpenAL does.
+
+- MIDIs:
+
+  [V] SDL_Mixer does that perfectly, independently from SFX.
+
+  [V] [TODO] Allegro does.
+
+  [ ] OpenAL doesn't.
+  
+- Audio CD:
+
+  [V] SDL does that perfectly, independently.
+
+  [ ] Allegro doesnt.
+
+  [ ] OpenAL doesn't.
+
+
+Wishes:
+~~~~~~~
+
+Features we plan to add afterwhile...
+
+- Fixed rate
+
+  [V] [TODO] SDL_gfx does.
+
+- 16/24/32 bits support
+
+  [V] [TODO] SDL does.
+
+  [V] Allegro does.
+
+  [?] Mesa
+
+- Graphics rotation:
+
+  [V] [TODO] SDL_gfx does.
+
+  [V] [TODO] Allegro does.
+
+  [V] [TODO] Mesa does.

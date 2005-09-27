@@ -1,0 +1,17 @@
+Bugs that existed in v1.07 and needs to be fixed:
+
+- [UNCONFIRMED] repeating sounds are kept alive when you "restart from
+  scratch"
+
+- Do not take [space] into account for killing a text if the text just
+  appeared on the screen
+
+- When saying a text near the border of a screen, it isn't place
+  correctly the very first time it's displayed
+
+=====
+Fixed
+=====
+
+- Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
+external .wav, grabbed in Dinkedit 1.06 resources.

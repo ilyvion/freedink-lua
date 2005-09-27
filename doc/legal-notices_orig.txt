@@ -1,0 +1,30 @@
+For reference, this is the original copyright and license notice from
+Seth.  It was replaced by the (legally compatible) GNU GPL notice. The
+copyright years were also precised.
+
+Thanks again, Seth, for freeing the code!
+
+/*==========================================================================
+
+ 
+Dink Smallwood Source Code: Copyright (C) Seth A. Robinson, 1997-2003
+www.rtsoft.com
+
+This software is provided "as is" without express or implied
+warranties. You may freely use, modify and distribute this
+source provided that the copyright text below is included in
+the resulting source code, for example:
+"Portions Copyright (C) Seth A. Robinson, 1997-2003
+ 
+If you use any of this source in a commercial product, you are gently asked
+to donate a few bucks to Seth.  Check www.codedojo.com for info on how to do that.
+
+Donations:  If you find this source helpful in some way and use it in a product you are selling, you are
+gently asked to donate a couple bucks via codedojo.com.  This cash will be used to maintain the site
+and hopefully inspire me to get off my duff and release more source.
+
+
+Check the license.txt for more info.
+
+
+*/
