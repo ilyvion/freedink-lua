@@ -140,10 +140,6 @@ SOURCE=..\fastfile.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\ffcreate.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\ffent.h
 # End Source File
 # Begin Source File
