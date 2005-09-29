@@ -2,7 +2,8 @@ Records of which significant portions were written by whom:
 
 
 Shawn Betts wrote the first version of fastfile.c.
-I copied from his version: part of the MIDI support (functions: ), part of the SFX support (initsound, playing, )
+I got inspiration from his work for part of the SFX support
+(InitSound, playing, SoundStopEffect).
 
 
 Sylvain Beucler did the rest.

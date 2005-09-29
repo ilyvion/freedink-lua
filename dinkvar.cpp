@@ -47,11 +47,9 @@
 
 
 #include <mmsystem.h>
-#include <ddraw.h>
 #define DIRECTINPUT_VERSION 0x0700
 #include <dinput.h>
 #include <ddraw.h>
-#include <dsound.h>
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -59,8 +57,6 @@
 #include "ddutil.h"
 #include "fastfile.h"
 
-
-//#include "midi.h"
 
 #include "freedink.h"
 #include "dinkvar.h"
@@ -84,6 +80,8 @@ char dversion_string[7] = "v1.07";
 void init_scripts(void);
 int load_script(char filename[15], int sprite, bool set_sprite);
 void strchar(char *string, char ch);
+/* Path where Dink is installed. Used to write dinksmallwood.ini in
+   log_path(), and in the editor (?) */
 char dinkpath[MAX_PATH];
 
 void update_status_all(void);
@@ -176,7 +174,7 @@ player_short_info short_play;
 int push_active = 1;
 
 
-LOGFONT lf = {0,0,0,0,0,0,0,0,0,0,0,0,0,""};
+static LOGFONT lf = {0,0,0,0,0,0,0,0,0,0,0,0,0,""};
 
 bool turn_on_plane = FALSE;
 HFONT hfont = NULL;
@@ -426,42 +424,42 @@ doit:
 }
 
 
-bool seperate_string (char str[255], int num, char liney, char *return1) 
+/* Split 'str' in words separated by 'liney', and copy the #'num' one
+   in 'return1' */
+bool separate_string (char str[255], int num, char liney, char *return1) 
 {
-        int l;
-        int k;
+  int l;
+  int k;
         
-        l = 1;
-        strcpy(return1 ,"");
+  l = 1;
+  strcpy(return1 ,"");
         
-        for (k = 0; k <= strlen(str); k++)
-        {
-                
-                if (str[k] == liney)
-                {
-                        l++;
-                        if (l == num+1)
-                                goto done;
-                        
-                        if (k < strlen(str)) strcpy(return1,"");
-                }
-                if (str[k] != liney)
-                        sprintf(return1, "%s%c",return1 ,str[k]);
-        }
-        if (l < num)  strcpy(return1,"");
+  for (k = 0; k <= strlen(str); k++)
+    {
+      if (str[k] == liney)
+	{
+	  l++;
+	  if (l == num+1)
+	    goto done;
+	  
+	  if (k < strlen(str)) strcpy(return1,"");
+	}
+      if (str[k] != liney)
+	sprintf(return1, "%s%c",return1 ,str[k]);
+    }
+  if (l < num)  strcpy(return1,"");
         
-        replace("\n","",return1); //Take the /n off it.
+  replace("\n","",return1); //Take the /n off it.
         
-        return(false);
-        
+  return(false);
+
 done:
+  if (l < num)  strcpy(return1,"");
         
-        if (l < num)  strcpy(return1,"");
+  replace("\n","",return1); //Take the /n off it.
         
-        replace("\n","",return1); //Take the /n off it.
-        
-        //Msg("Took %s and turned it to %s.",str, return1);
-        return(true);
+  //Msg("Took %s and turned it to %s.",str, return1);
+  return(true);
 }
 
 
@@ -764,38 +762,35 @@ bool compare(char *orig, char *comp)
         //Msg("I'm sorry, but %s does not equal %s.",orig, comp);
         
         return(false);
-        
 }
-
-
-
 
 /**
  * Save where Dink is installed in a .ini file, read by third-party
- * applications like the DinkFrontEnd.
+ * applications like the DinkFrontEnd. Also notify whether Dink is
+ * running or not.
  */
 void log_path(bool playing)
 {
-        if (g_b_no_write_ini) return; //fix problem with NT security if -noini is set
-        
-        char dumb[100];
-        char dumb2[256];
-        GetWindowsDirectory(&dumb[0], 256);
-        
-        sprintf(dumb2, "%s\\dinksmallwood.ini", dumb);
-        
-        unlink(dumb2);
-        
-        add_text("[Dink Smallwood Directory Information for the CD to read]\r\n",dumb2);
-        add_text(dinkpath,dumb2);
-        add_text("\r\n",dumb2);
-        if (playing)
-                add_text("TRUE\r\n",dumb2);
-        else
-                add_text("FALSE\r\n",dumb2);
-        
-}
+  if (g_b_no_write_ini)
+    return; //fix problem with NT security if -noini is set
+  /* TODO: saves it in the user home instead. Think about where to
+     cleanly store additional DMods. */
+    
+  char windir[100];
+  char inifile[256];
+  GetWindowsDirectory(windir, 256);
+  sprintf(inifile, "%s\\dinksmallwood.ini", windir);
 
+  unlink(inifile);
+
+  add_text("[Dink Smallwood Directory Information for the CD to read]\r\n", inifile);
+  add_text(dinkpath, inifile);
+  add_text("\r\n", inifile);
+  if (playing)
+    add_text("TRUE\r\n", inifile);
+  else
+    add_text("FALSE\r\n", inifile);
+}
 
 
 BOOL init_mouse(HWND hwnd)
@@ -879,16 +874,6 @@ BOOL init_mouse(HWND hwnd)
 
 
 
-
-
-
-
-bool getkey(int key)
-
-{
-        if (sjoy.realkey[key]) return(true); else return(false);
-        
-}
 
 int GetKeyboard(int key)
 {
@@ -1006,37 +991,6 @@ extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, in
         
         return pdds;
 }
-
-char key_convert(int key)
-{
-        if (!getkey(16)) key =tolower(key);
-        
-        if (key == 190) if (getkey(16)) key = '>'; else key = '.';
-        if (key == 188) if (getkey(16)) key = '<'; else key = ',';
-        
-        if (key == 49) if (getkey(16)) key = '!';
-        if (key == 50) if (getkey(16)) key = '@';
-        if (key == 51) if (getkey(16)) key = '#';
-        if (key == 52) if (getkey(16)) key = '$';
-        if (key == 53) if (getkey(16)) key = '%';
-        if (key == 54) if (getkey(16)) key = '^';
-        if (key == 55) if (getkey(16)) key = '&';
-        if (key == 56) if (getkey(16)) key = '*'; 
-        if (key == 57) if (getkey(16)) key = '('; 
-        if (key == 48) if (getkey(16)) key = ')'; 
-        
-        if (key == 189) if (getkey(16)) key = '_'; else key = '-';
-        if (key == 187) if (getkey(16)) key = '+'; else key = '=';
-        if (key == 186) if (getkey(16)) key = ':'; else key = ';';
-        if (key == 222) if (getkey(16)) key = '\"'; else key = '\'';
-        if (key == 191) if (getkey(16)) key = '?'; else key = '/';
-        if (key == 220) if (getkey(16)) key = '|'; else key = '\\';
-        
-        
-        return(key);
-        
-}
-
 
 void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 {
@@ -2885,7 +2839,7 @@ void figure_out(char line[255], int load_seq)
         int special2 = 0;
         for (int i=1; i <= 14; i++)
         {
-                seperate_string(line, i,' ',ev[i]);
+                separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
         }
         
@@ -3089,7 +3043,7 @@ void pre_figure_out(char line[255], int load_seq)
         int special2 = 0;
         for (int i=1; i <= 14; i++)
         {
-                seperate_string(line, i,' ',ev[i]);
+                separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
         }
         
@@ -4052,7 +4006,7 @@ void refigure_out(char line[255])
         
         for (int i=1; i <= 14; i++)
         {
-                seperate_string(line, i,' ',ev[i]);
+                separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
         }
         
@@ -4482,7 +4436,7 @@ bool locate(int script, char proc[20])
                 {
                         get_word(line, 2, ev[2]);
                         
-                        seperate_string(ev[2], 1,'(',temp);
+                        separate_string(ev[2], 1,'(',temp);
                         
                         //              Msg("Found procedure %s.",temp);
                         if (compare(temp,proc))
@@ -4710,9 +4664,9 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                         
                         
                         if (strchr(h, ',') != NULL) 
-                                seperate_string(h, 1,',',crap); else
+                                separate_string(h, 1,',',crap); else
                                 if (strchr(h, ')') != NULL) 
-                                        seperate_string(h, 1,')',crap);
+                                        separate_string(h, 1,')',crap);
                                 
                                 
                                 h = &h[strlen(crap)];     
@@ -4734,7 +4688,7 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                         if (p[i] == 2)
                         {
                                 // Msg("Checking for string..");
-                                seperate_string(h, 2,'"',crap);
+                                separate_string(h, 2,'"',crap);
                                 h = &h[strlen(crap)+2];     
                                 
                                 //Msg("Found %s",crap);    
@@ -5577,7 +5531,7 @@ redo:
         
 morestuff:
         
-        seperate_string(line, 1, '(', check);
+        separate_string(line, 1, '(', check);
         strip_beginning_spaces(check);
         
         if (compare(check, "title_start"))
@@ -5589,7 +5543,7 @@ morestuff:
                         strcpy(check, line);    
                         strip_beginning_spaces(line);
                         get_word(line, 1, checker);
-                        seperate_string(line, 1, '(', check);
+                        separate_string(line, 1, '(', check);
                         strip_beginning_spaces(check);
                         
                         if (compare(check, "title_end"))
@@ -5635,7 +5589,7 @@ morestuff:
         
         
         
-        seperate_string(line, 1, '\"', check);
+        separate_string(line, 1, '\"', check);
         strip_beginning_spaces(check);
         
         //Msg("Check is %s.",check);
@@ -5651,8 +5605,8 @@ morestuff:
                         return(false);
                 }
                 
-                seperate_string(check, 2, '(', checker);          
-                seperate_string(checker, 1, ')', check);          
+                separate_string(check, 2, '(', checker);          
+                separate_string(checker, 1, ')', check);          
                 
                 //Msg("Running %s through var figure..", check);
                 if (var_figure(check, script) == 0)
@@ -5663,7 +5617,7 @@ morestuff:
                         //said NO to statement
                 }
                 //Msg("Answer is yes.");
-                seperate_string(line, 1, ')', check);      
+                separate_string(line, 1, ')', check);      
                 
                 p = &line[strlen(check)+1];
                 
@@ -5678,7 +5632,7 @@ morestuff:
         
         
         
-        seperate_string(line, 2, '\"', check);
+        separate_string(line, 2, '\"', check);
         strip_beginning_spaces(check);
         // Msg("Line %d is %s.",cur,check);
         retnum++;
@@ -5718,7 +5672,7 @@ void get_right(char line[200], char thing[100], char *ret)
                 char crap[100];
                 replace("="," ",line);
                 strcpy(crap, line);
-                seperate_string(crap, 1,';',line);
+                separate_string(crap, 1,';',line);
                 get_word(line, 2, name);
                 
                 if (name[0] != '&')
@@ -7069,7 +7023,7 @@ again1:
                 
                 for ( i=1; i <= 14; i++)
                 {
-                        if (seperate_string(h, i,' ',ev[i]) == false) goto pass;
+                        if (separate_string(h, i,' ',ev[i]) == false) goto pass;
                 }
                 
 pass:
@@ -7098,9 +7052,9 @@ pass:
                         //this procedure has been passed a conditional statement finder
                         //what kind of conditional statement is it?
                         p = h;                          
-                        seperate_string(h, 2,')',temp);
+                        separate_string(h, 2,')',temp);
                         //Msg("We found %s, woah!", temp);
-                        seperate_string(h, 1,')',ev[1]);
+                        separate_string(h, 1,')',ev[1]);
                         
                         // Msg("Ok, turned h %s to  ev1 %s.",h,ev[1]);
                         p = &p[strlen(ev[1])+1];  
@@ -7212,7 +7166,7 @@ pass:
                         {
                                 h = &h[1];
                                 
-                                seperate_string(h, 1,')',line);
+                                separate_string(h, 1,')',line);
                                 h = &h[strlen(line)+1];
                                 returnint = var_figure(line, script);         
                                 
@@ -7233,7 +7187,7 @@ pass:
         if (strchr(ev[1], '(') != NULL) 
         {
                 //Msg("Has a (, lets change it");
-                seperate_string(h, 1,'(',ev[1]);
+                separate_string(h, 1,'(',ev[1]);
                 //Msg("Ok, first is now %s",ev[1]);
                 
                 
@@ -10033,7 +9987,7 @@ pass:
                                                                         
                                                                         //lets attempt to run a procedure
                                                                         
-                                                                        seperate_string(h, 1,'(',line);
+                                                                        separate_string(h, 1,'(',line);
                                                                         
                                                                         
                                                                         int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);

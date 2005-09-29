@@ -45,7 +45,7 @@ extern void flip_it(void);
 extern void get_last_sprite(void);
 extern void human_brain(int h);
 extern bool in_this_base(int seq, int base);
-extern BOOL initFail( HWND hwnd, char mess[200] );
+extern int initFail(HWND hwnd, char mess[200]);
 extern void missile_brain( int h, bool repeat);
 extern void missile_brain_expire(int h);
 extern void mouse_brain(int h);
@@ -72,16 +72,11 @@ extern void text_brain(int h);
 extern void text_draw(int h, HDC hdc);
 extern bool transition(void);
 extern void up_cycle(void);
+extern void finiObjects();
 
 extern int drawthistime;
 extern int fps_average;
 extern int fps_show;
-
-/* Sound - SFX */
-extern BOOL SoundDestroyEffect( int sound );
-
-
-extern void finiObjects();
 
 #define __ENGLISH
 

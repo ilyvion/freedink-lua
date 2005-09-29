@@ -33,7 +33,6 @@
 #include <ddraw.h>
 #include <dinput.h>
 #include <mmsystem.h>
-#include <dsound.h>
 
 #include "SDL.h"
 
@@ -398,7 +397,7 @@ extern void update_status_all(void);
 
 /* string_utils */
 extern bool compare(char *orig, char *comp);
-bool seperate_string (char str[255], int num, char liney, char *return1);
+bool separate_string (char str[255], int num, char liney, char *return1);
 
 extern bool abort_this_flip;
 extern int base_timing;
@@ -574,7 +573,6 @@ bool get_box (int h, RECT * box_crap, RECT * box_real);
 extern void check_sprite_status(int h);
 extern void add_hardness(int sprite, int num);
 extern void fill_whole_hard(void);
-extern bool getkey(int key);
 extern int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size);
 extern bool kill_last_sprite(void);
 extern void check_frame_status(int h, int frame);
@@ -585,7 +583,6 @@ extern void add_text(char *tex ,char *filename);
 extern void save_info(void);
 extern int realhard(int tile);
 extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
-extern char key_convert(int key);
 extern void save_hard(void);
 
 extern RECT tilerect[tile_screens];

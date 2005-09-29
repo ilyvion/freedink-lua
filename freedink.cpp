@@ -39,7 +39,6 @@
 /* For GetStockBrush */
 #include <windowsx.h>
 #include <ddraw.h>
-#include <dsound.h>
 #include "ddutil.h"
 #include "fastfile.h"
 
@@ -86,13 +85,6 @@ int winoffsetx = 5;
 int cx;
 int cy;
 int speed;
-
-/*
-* restoreAll
-*
-* restore all lost objects
-*/
-
 
 
 /*
@@ -233,7 +225,11 @@ void text_draw(int h, HDC hdc)
 
 
 
-
+/*
+* restoreAll
+*
+* restore all lost objects
+*/
 HRESULT restoreAll( void )
 {
 	
@@ -5340,35 +5336,6 @@ again:
 		}
 		
 	}
-	
-	
-	
-	/*if (!cd_inserted)
-	{
-	
-	  
-		if (showb.stime > thisTickCount)
-		{			
-		if (lpDDSBack->GetDC(&hdc) == DD_OK)
-		{      
-		SelectObject (hdc, hfont_small);
-		SetBkMode(hdc, TRANSPARENT); 
-		sprintf(msg, "Please wait, checking CD.  (or Alt-Q to abort and exit program)");
-		rcRect.left = 0;
-		rcRect.top = 430;
-		rcRect.right = playx;
-		rcRect.bottom = 480;
-		SetTextColor(hdc, RGB(255,255,2));
-		DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_CENTER | DT_WORDBREAK);
-		lpDDSBack->ReleaseDC(hdc);
-		
-		  }
-		  
-			}
-			
-			  }
-			  
-	*/
 }
 
 void drawscreenlock( void )
@@ -5540,838 +5507,583 @@ BOOL initFail( HWND hwnd, char mess[200] )
 } /* initFail */
 
 
-long FAR PASCAL WindowProc( HWND hWnd, UINT message, 
-						   WPARAM wParam, LPARAM lParam )
+long
+FAR PASCAL WindowProc(HWND hWnd, UINT message, 
+		      WPARAM wParam, LPARAM lParam)
 {
-	switch( message )
+  switch (message)
+    {
+    case WM_ACTIVATEAPP:
+      bActive = wParam;
+      break;
+		
+    case WM_SETCURSOR:
+      SetCursor(NULL);
+      return TRUE;
+		
+    case WM_CREATE:
+      break;
+
+    case WM_IMDONE:
+      Msg("Sending quit message.");
+      PostQuitMessage(0);
+      break;
+		
+/*    case WM_KEYDOWN:
+      //cycle through keys
+      switch (wParam)
 	{
-	case WM_ACTIVATEAPP:
-		bActive = wParam;
-		break;
-		
-	case WM_SETCURSOR:
-		SetCursor(NULL);
-		return TRUE;
-		
-	case WM_CREATE:
-		break;
-	case WM_IMDONE:
-		Msg("Sending quit message.");
-		PostQuitMessage(0);
-		break;
-
-
-		
-	case WM_KEYDOWN:
-		switch( wParam )
-		{
-			
-		/*case VK_F1:
-		{
-		Msg("F1 pressed");
-		//g_pMouse->Unacquire();
-		
-		  int crap;
-		  }
-		  break;
-		  
-			case VK_F3:
-			{
-			fill_whole_hard();     
-			fill_hard_sprites();
-			fill_back_sprites();
-			}
-			break;
-			*/
-			
-			/*case VK_F4:
-			{
-			process_downcycle = true;
-			cycle_clock = thisTickCount;
-			}
-			*/
-			break;
-			
-			
-		}
-		
-		break;
-	//	case WM_DESTROY:
-		//	finiObjects();
-		//	PostQuitMessage( 0 );
-	//		break;
+	case VK_F4:
+	  {
+	    process_downcycle = true;
+	    cycle_clock = thisTickCount;
+	  }
+	  break;
 	}
-	
-	
-	//cycle through keys
-	
-	
-	return DefWindowProc(hWnd, message, wParam, lParam);
-	
-} /* WindowProc */
-
-
-
+      break;
+*/
+    }
+  
+  /* Default Windows processing */
+  return DefWindowProc(hWnd, message, wParam, lParam);
+}
  
 
-
-BOOL CheckJoyStickPresent (void)
+/* Self-explained */
+int
+CheckJoyStickPresent(void)
 {
+  // first tests if a joystick driver is present
+  // if TRUE it makes certain that a joystick is plugged in
 	
-	// first tests if a joystick driver is present
-	// if TRUE it makes certain that a joystick is plugged in
-	
-	if(joyGetNumDevs())
-	{
-		memset(&jinfo,0,sizeof(JOYINFOEX));
-		jinfo.dwSize=sizeof(JOYINFOEX);
-		jinfo.dwFlags=JOY_RETURNALL;
-		if(joyGetPosEx(JOYSTICKID1,&jinfo) == JOYERR_NOERROR)
-		{
-			Msg("Joystick IS plugged in");
-			return TRUE;
-		} else
-		{
-			Msg("Joystick not plugged in");
-			
-			return FALSE;
-			
-		}
-		Msg("No joysticks found");
-	}
-	return FALSE;
+  if(!joyGetNumDevs())
+    {
+    Msg("No joysticks found");
+    return 0;
+    }
+
+  memset(&jinfo,0,sizeof(JOYINFOEX));
+  jinfo.dwSize=sizeof(JOYINFOEX);
+  jinfo.dwFlags=JOY_RETURNALL;
+  
+  if(joyGetPosEx(JOYSTICKID1,&jinfo) == JOYERR_NOERROR)
+    {
+      Msg("Joystick IS plugged in");
+      return 1;
+    }
+  else
+    {
+      Msg("Joystick not plugged in");
+      return 0;
+    }
 }
 
 
-
-
+/* Parse dink.ini */
 void load_batch(void)
 {
-		  
-	FILE *stream;  
-	char line[255];
+  FILE *stream;  
+  char line[255];
 	
-	spr[1].x = 200;
-	spr[1].y = 300;
+  spr[1].x = 200;
+  spr[1].y = 300;
 	
+  Msg("Loading .ini");	  
+  if (!exist("dink.ini")) 
+    {
+      Msg("File not found.");	  
+      sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
+      TRACE(line);
+    }
 	
-	Msg("Loading .ini");	  
-	if (!exist("dink.ini")) 
-	{
-		Msg("File not found.");	  
-		
-		sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
-		TRACE(line);
-		
-	}
-	
-	if( (stream = fopen( "dink.ini", "r" )) != NULL )   
-	{
-		
-		while(1)
-		{
-			if( fgets( line, 255, stream ) == NULL) 
-				goto done;
-			else    
-			{
-				
-				pre_figure_out(line, 0);
-			}
-			
-		}
-		
-done:
-		fclose( stream );  
-	} else
-	{
-		TRACE("Dink.ini missing.");
-	}
-	
-	program_idata();
-	
+  if ((stream = fopen("dink.ini", "r")) == NULL)
+    TRACE("Error opening Dink.ini for reading.");
+  else
+    {
+      while(fgets(line, 255, stream) != NULL) 
+	pre_figure_out(line, 0);
+      fclose( stream );
+    }
+
+  program_idata();
 }
 
 
 
-bool check_arg(char crap[255])
+int check_arg(char *crap)
 {
-	char shit[200];
-	
-	//	strupr(crap);
-	strcpy(dir, "dink");
-	for (int i=1; i <= 10; i++)
-	{
-		seperate_string(crap, i,' ',shit);
-		if (strnicmp(shit,"-window",strlen("-window")) == 0)
-		{
-			windowed = true;
-			no_transition = true;	  
-		}
-		
-		if (strnicmp(shit,"-debug",strlen("-debug")) == 0)
-		{
-			debug_mode = true;
-			unlink("dink\\debug.txt");
-		}
-		
-		if (strnicmp(shit,"-nojoy",strlen("-nojoy")) == 0)
-		{
-			joystick = false;
-		}
-			if (strnicmp(shit,"-noini",strlen("-noini")) == 0)
-		{
-			g_b_no_write_ini = 1;
-		}
+  char option[200];
+  
+  // TODO: perform this in the initialization
+  strcpy(dir, "dink");
 
-#ifndef __DEMO
-		
-		if (strnicmp(shit,"-game",strlen("-game")) == 0)
-		{
-			seperate_string(crap, i+1,' ',shit);
-			strcpy(dir, shit);  
-			Msg("Working directory %s requested.",dir);  
-		}
-		
-#endif
-				
-		if (strnicmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = false;
-		
-	}
-	
-	if (chdir(dir) == -1) 
+  for (int i=1; i <= 10; i++)
+    {
+      separate_string(crap, i, ' ', option);
+
+      if (strnicmp(option, "-window", strlen("-window")) == 0)
 	{
-#ifdef __ENGLISH
-		sprintf(shit,"Game dir \"%s\" not found!",dir);
-#endif
-#ifdef __GERMAN
+	  windowed = true;
+	  no_transition = true;	  
+	}
 		
-		sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
-#endif
-		
-		initFail(hWndMain, shit);
-		return(0);
-	}	  
+      if (strnicmp(option, "-debug", strlen("-debug")) == 0)
+	{
+	  debug_mode = true;
+	  unlink("dink\\debug.txt");
+	}
+      
+      if (strnicmp(option, "-nojoy", strlen("-nojoy")) == 0)
+	  joystick = false;
+
+      if (strnicmp(option, "-noini", strlen("-noini")) == 0)
+	  g_b_no_write_ini = 1;
+      
+      if (strnicmp(option, "-game", strlen("-game")) == 0)
+	{
+	  char gamedir[200];
+	  separate_string(crap, i+1,' ',gamedir);
+	  strcpy(dir, gamedir);  
+	  Msg("Working directory %s requested.",dir);  
+	}
+				
+      if (strnicmp(option, "-nosound", strlen("-nosound")) == 0)
+	sound_on = false;
+    }
 	
-	
-	Msg("Dir is now %s.",dir);
-	return(true);
+  if (chdir(dir) == -1) 
+    {
+      char message[200];
+      sprintf(message, "Game dir \"%s\" not found!", dir);
+      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
+      
+      initFail(hWndMain, message);
+      return 0;
+    }	  
+  
+  Msg("Dir is now %s.", dir);
+  return 1;
 }
-   /*
-  * doInit - do work required for every instance of the application:
-  *                create the window, initialize data
-*/
 
-
-
-static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
+/**
+ * doInit - do work required for every instance of the application:
+ *                create the window, initialize data
+ */
+static int doInit(HINSTANCE hInstance, int nCmdShow)
 {
-	HWND                hwnd;
-	//    HRESULT             dsrval;
-	// BOOL                bUseDSound;
-	WNDCLASS            wc;
-	DDSURFACEDESC       ddsd;
-	DDSCAPS             ddscaps;
-	HRESULT             ddrval;
-	RECT                rcRect;
+  HWND                hwnd;
+  //    HRESULT             dsrval;
+  // BOOL                bUseDSound;
+  WNDCLASS            wc;
+  DDSURFACEDESC       ddsd;
+  DDSCAPS             ddscaps;
+  HRESULT             ddrval;
+  RECT                rcRect;
+  
+  
+  char crap[30];
+  char crap1[10];
 	
-	
-	char crap[30];
-	char crap1[10];
-	
-	RECT rcRectSrc;    RECT rcRectDest;
-	POINT p;
-	/*
-	* set up and register window class
-	*/
-	
-	
-	
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) );
-	wc.hCursor = LoadCursor( NULL, IDC_ARROW );
-	wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
-	wc.lpszMenuName = NAME;
-	wc.lpszClassName = NAME;
-	RegisterClass( &wc );
-	/*
-	* create a window
-	*/
-	
-	windowed = false;
-	//	hWndMain = hwnd;   
-	
-	
-	if (!check_arg(command_line))
-	{
-			return(0);
-		//return initFail(hwnd, "Bad game directory.  Check your -game setting.");		
-	}
-	
-	
-	
-	
-	
-	if (windowed)
-	{
-		hwnd = CreateWindowEx(
-			0,
-			NAME,
-			TITLE,
-			//        WS_POPUP,
-			
-			WS_SYSMENU|WS_CAPTION,
-			
-			0,
-			0,
-			640+winoffsetx, 480+winoffset,
-			//        GetSystemMetrics(SM_CXSCREEN),
-			//      GetSystemMetrics(SM_CYSCREEN),
-			NULL,
-			NULL,
-			hInstance,
-			NULL );
-		hWndMain = hwnd;   
-		
-		if( !hwnd )
-		{
-			return FALSE;
-		}
-		
-		ShowWindow( hwnd, nCmdShow );
-		UpdateWindow( hwnd );
-		SetFocus( hwnd );
-		/*
-		* create the main DirectDraw object
-		*/
-		ddrval = DirectDrawCreate( NULL, &lpDD, NULL );
-		if( ddrval != DD_OK )
-		{
-			return initFail(hwnd, "Couldn't use DirectX 8+...  Install it first.");
-		}
-		
+  RECT rcRectSrc;    RECT rcRectDest;
+  POINT p;
 
+  /*
+   * set up and register window class
+   */
+  wc.style = CS_HREDRAW | CS_VREDRAW;
+  wc.lpfnWndProc = WindowProc;
+  wc.cbClsExtra = 0;
+  wc.cbWndExtra = 0;
+  wc.hInstance = hInstance;
+  wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) );
+  wc.hCursor = LoadCursor( NULL, IDC_ARROW );
+  wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
+  wc.lpszMenuName = NAME;
+  wc.lpszClassName = NAME;
+  RegisterClass( &wc );
 
-		// Get exclusive mode
-		
-		
-		// using DDSCL_NORMAL means we will coexist with GDI
-		ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL );
-		
-		if( ddrval != DD_OK )  
-		{        
-			lpDD->Release(); 
-			return initFail(hwnd, "Couldn't make windowed screen.");
-			
-		}   
-		memset( &ddsd, 0, sizeof(ddsd) );
-		ddsd.dwSize = sizeof( ddsd );
-		ddsd.dwFlags = DDSD_CAPS;
-		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-		
-		// The primary surface is not a page flipping surface this time
-		ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL );
-		
-		if( ddrval != DD_OK )    
-		{        lpDD->Release();  
-		return initFail(hwnd, "Couldn't make primary surface.");
-		
-		
-		} 
-		
-		memset( &ddsd, 0, sizeof(ddsd) ); 
-		ddsd.dwSize = sizeof( ddsd );
-		ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN; 
-		ddsd.dwWidth = 640;
-		ddsd.dwHeight = 480;    // create the backbuffer separately
-		ddrval = lpDD->CreateSurface( &ddsd, &lpDDSBack, NULL );
-		if( ddrval != DD_OK )
-		{        lpClipper-> Release();
-		
-		lpDDSPrimary->Release();    
-		lpDD->Release(); 
-		return initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
-		}   
-		
-		
-		// Create a clipper to ensure that our drawing stays inside our window
-		ddrval = lpDD->CreateClipper( 0, &lpClipper, NULL );
-		if( ddrval != DD_OK )   
-		{      
-			lpDDSPrimary->Release();
-			
-			lpDD->Release();  
-			return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
-			
-		}
-		
-		
-		// setting it to our hwnd gives the clipper the coordinates from our window
-		ddrval = lpClipper->SetHWnd( 0, hwnd );   
-		if( ddrval != DD_OK )  
-		{
-			lpClipper-> Release();   
-			lpDDSPrimary->Release();
-			
-			lpDD->Release();     
-			return initFail(hwnd, "Couldn't give Clipper window cords.");
-			
-		}
-		// attach the clipper to the primary surface
-		ddrval = lpDDSPrimary->SetClipper( lpClipper ); 
-		if( ddrval != DD_OK )
-		{  
-			lpClipper-> Release();   
-			lpDDSPrimary->Release();
-			lpDD->Release();    
-			
-			return initFail(hwnd, "Couldn't attach Clipper to primary buffer.");
-		}
-		
-		
-	}
-	
-	if (!windowed)
-	{
-		
-		hwnd = CreateWindowEx(
-			0,
-			NAME,
-			TITLE,
-			WS_POPUP ,
-			
-			//WS_SYSMENU|WS_CAPTION,
-			
-			0,
-			0,
-			640, 480,
-			//        GetSystemMetrics(SM_CXSCREEN),
-			//      GetSystemMetrics(SM_CYSCREEN),
-			NULL,
-			NULL,
-			hInstance,
-			NULL );
-		hWndMain = hwnd;   
-		
-		if( !hwnd )
-		{
-			return FALSE;
-		}
-		
-		ShowWindow( hwnd, nCmdShow );
-		UpdateWindow( hwnd );
-		SetFocus( hwnd );
-	
+  /*
+   * create a window
+   */
+  windowed = false;
+  //	hWndMain = hwnd;   
+  
+  if (!check_arg(command_line))
+    return 0;
 
-		/*
-		* create the main DirectDraw object
-		*/
-		ddrval = DirectDrawCreate( NULL, &lpDD, NULL );
-		if( ddrval != DD_OK )
-		{
-			return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
-		}
-		
-		// Get exclusive mode
-		
-		
-	 
-	
-		ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN );
-		
-		
-		if( ddrval != DD_OK )
-		{
-			return initFail(hwnd, "SetCooperative level failed.");
-		}
-		
-
-		// Set the video mode to 640x480x8
-		ddrval = lpDD->SetDisplayMode( x, y, 8);
-	  	  // finiObjects();  	
-		//	return false;
-
-
-		if(ddrval != DD_OK)
-		{
-			return initFail(hwnd, "640 X 480, 8 bit not supported.");
-		}
-
-		
-		ZeroMemory(&hm, sizeof(hit_map));
-	
-	    
-	
-	  // Create the primary surface with 1 back buffer
-		ddsd.dwSize = sizeof( ddsd );
-		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE |
-			DDSCAPS_FLIP |
-			DDSCAPS_COMPLEX;
-		
-		
-		
-		ddsd.dwBackBufferCount = 1;
-		ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL );
-		if( ddrval != DD_OK )
-		{
-			return initFail(hwnd, "Could not create primary surface.");
-		}
-		
-		ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
-		
-		/* if (ddsd.ddsCaps.dwCaps == DDCAPS_BLTSTRETCH)
-		{
-		return initFail(hwnd, "Hardware blit stretching available.");
-		}
-		*/
-		ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack);
-		if( ddrval != DD_OK )
-		{
-			return initFail(hwnd, "Could not create backbuffer,");
-		}
-		
-	}
-	
-	//init is finished, now lets load some more junk
-	//return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
-    // create and set the palette
-	
-	//	getCDTrackStartTimes();
-
-	
-	
-	if (exist("tiles\\TS01.bmp"))
-		lpDDPal = DDLoadPalette(lpDD, "tiles\\TS01.BMP"); else
-		lpDDPal = DDLoadPalette(lpDD, "..\\dink\\tiles\\TS01.BMP");
-	if (lpDDPal)
-        lpDDSPrimary->SetPalette(lpDDPal);
-	
-	if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK)
+  if (windowed)
     {
-		Msg("error with getting entries in beginning");
+      hwnd = CreateWindowEx(0,
+			    NAME,
+			    TITLE,
+			    //        WS_POPUP,
+			    WS_SYSMENU|WS_CAPTION,
+			    0,
+			    0,
+			    640+winoffsetx, 480+winoffset,
+			    //        GetSystemMetrics(SM_CXSCREEN),
+			    //      GetSystemMetrics(SM_CYSCREEN),
+			    NULL,
+			    NULL,
+			    hInstance,
+			    NULL);
+      hWndMain = hwnd;
+		
+      if (!hwnd)
+	return 0;
+      
+      ShowWindow(hwnd, nCmdShow);
+      UpdateWindow(hwnd);
+      SetFocus(hwnd);
+
+      /*
+       * create the main DirectDraw object
+       */
+      ddrval = DirectDrawCreate(NULL, &lpDD, NULL);
+      if (ddrval != DD_OK)
+	return initFail(hwnd, "Couldn't use DirectX 8+...  Install it first.");
+		
+      // Get exclusive mode
+      // using DDSCL_NORMAL means we will coexist with GDI
+      ddrval = lpDD->SetCooperativeLevel(hwnd, DDSCL_NORMAL);
+		
+      if (ddrval != DD_OK)
+	{        
+	  lpDD->Release(); 
+	  return initFail(hwnd, "Couldn't make windowed screen.");
+	}
+
+      memset(&ddsd, 0, sizeof(ddsd));
+      ddsd.dwSize = sizeof( ddsd );
+      ddsd.dwFlags = DDSD_CAPS;
+      ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+		
+      // The primary surface is not a page flipping surface this time
+      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
+		
+      if( ddrval != DD_OK )    
+	{
+	  lpDD->Release();  
+	  return initFail(hwnd, "Couldn't make primary surface.");
+	} 
+		
+      memset(&ddsd, 0, sizeof(ddsd)); 
+      ddsd.dwSize = sizeof(ddsd);
+      ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+      ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN; 
+      ddsd.dwWidth = 640;
+      ddsd.dwHeight = 480; // create the backbuffer separately
+      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSBack, NULL);
+      if (ddrval != DD_OK)
+	{
+	  lpClipper-> Release();
+	  lpDDSPrimary->Release();    
+	  lpDD->Release(); 
+	  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
+	}
+		
+      // Create a clipper to ensure that our drawing stays inside our window
+      ddrval = lpDD->CreateClipper(0, &lpClipper, NULL);
+      if( ddrval != DD_OK )   
+	{      
+	  lpDDSPrimary->Release();
+	  lpDD->Release();  
+	  return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
+	}
+      
+      // setting it to our hwnd gives the clipper the coordinates from our window
+      ddrval = lpClipper->SetHWnd( 0, hwnd );   
+      if( ddrval != DD_OK )  
+	{
+	  lpClipper-> Release();   
+	  lpDDSPrimary->Release();
+	  lpDD->Release();     
+	  return initFail(hwnd, "Couldn't give Clipper window cords.");
+	}
+
+      // attach the clipper to the primary surface
+      ddrval = lpDDSPrimary->SetClipper(lpClipper); 
+      if( ddrval != DD_OK )
+	{  
+	  lpClipper-> Release();   
+	  lpDDSPrimary->Release();
+	  lpDD->Release();    
+	  return initFail(hwnd, "Couldn't attach Clipper to primary buffer.");
+	}
+    }
+  
+  if (!windowed)
+    {
+      hwnd = CreateWindowEx(0,
+			    NAME,
+			    TITLE,
+			    WS_POPUP ,
+			    //WS_SYSMENU|WS_CAPTION,
+			    0,
+			    0,
+			    640, 480,
+			    //        GetSystemMetrics(SM_CXSCREEN),
+			    //      GetSystemMetrics(SM_CYSCREEN),
+			    NULL,
+			    NULL,
+			    hInstance,
+			    NULL);
+      hWndMain = hwnd;
+		
+      if(!hwnd)
+	return FALSE;
+		
+      ShowWindow(hwnd, nCmdShow);
+      UpdateWindow(hwnd);
+      SetFocus(hwnd);
+      
+      /*
+       * create the main DirectDraw object
+       */
+      ddrval = DirectDrawCreate(NULL, &lpDD, NULL);
+      if( ddrval != DD_OK )
+	return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
+      
+      // Get exclusive mode
+      ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN );
+
+      if( ddrval != DD_OK )
+	return initFail(hwnd, "SetCooperative level failed.");
+
+      // Set the video mode to 640x480x8
+      ddrval = lpDD->SetDisplayMode( x, y, 8);
+      // finiObjects();  	
+      //	return false;
+      
+      if(ddrval != DD_OK)
+	return initFail(hwnd, "640 X 480, 8 bit not supported.");
+
+      ZeroMemory(&hm, sizeof(hit_map));
+	
+      // Create the primary surface with 1 back buffer
+      ddsd.dwSize = sizeof( ddsd );
+      ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
+      ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE |
+	DDSCAPS_FLIP |
+	DDSCAPS_COMPLEX;
+		
+      ddsd.dwBackBufferCount = 1;
+      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
+      if( ddrval != DD_OK )
+	return initFail(hwnd, "Could not create primary surface.");
+      
+      ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+		
+      ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack);
+      if( ddrval != DD_OK )
+	return initFail(hwnd, "Could not create backbuffer,");
+      
     }
 	
-	if (exist("tiles\\splash.bmp"))
-		lpDDPal = DDLoadPalette(lpDD, "tiles\\SPLASH.BMP"); else
-		lpDDPal = DDLoadPalette(lpDD, "..\\dink\\tiles\\SPLASH.BMP");
-	
-    if (lpDDPal)
-        lpDDSPrimary->SetPalette(lpDDPal);
-	
-	
- //crashes here!		
-    Msg("loading tilescreens...");
-    
-	for (int h=1; h < tile_screens; h++)
-	{
-		if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, "");
-		sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h);
-		
-		if (!exist(crap))
-		{
-			sprintf(crap, "..\\DINK\\TILES\\TS%s%d.BMP",crap1,h);
-		}
-		
-		tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
-		
-		
-		if( tiles[h] == NULL )
-		{
-			return initFail(hwnd, "Couldn't find one of the tilescreens!");
-		} else
-		{
-			//tilerect[h].right =  lpDD->dwWidth;
-			
-			DDSetColorKey(tiles[h], RGB(0,0,0));
-		}
-    }
-	Msg("Done with tilescreens...");
-	
-	// Create the offscreen surface, by loading our bitmap.
-	//lpDDSOne = DDLoadBitmap(lpDD, szBitmap, 0, 0);
-	if (sound_on) 
-	  {
-	    Msg("Initting sound");
-	    sound_on = InitSound();
-	  }
-    
-	
-#ifdef __DEMO
-	
-	PlayMidi("4.MID");
-#endif	
-	srand( (unsigned)time( NULL ) );
-	
-	if (exist("tiles\\splash.bmp"))
-		lpDDSTwo = DDLoadBitmap(lpDD, "tiles\\splash.BMP", 0, 0); else
-		lpDDSTwo = DDLoadBitmap(lpDD, "..\\dink\\tiles\\splash.BMP", 0, 0);
-    DDSetColorKey(lpDDSTwo, RGB(0,0,0));
-#ifndef __DEMO
-	
-	// getCDTrackStartTimes();
-	
-	if (cd_inserted)
-		PlayCD(7);
-#endif
-	
-	if (CheckJoyStickPresent() == FALSE)
-	{
-		//	return initFail(hwnd, "Could not init the joystick.");
-		joystick = FALSE;
-	} else
-	{
-		joystick = TRUE;
-	}
-	
-	rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = x;
-    rcRect.bottom = y;
-	
-	//if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
-	//draw version #
+  //init is finished, now lets load some more junk
+
+  // create and set the palette
+  if (exist("tiles/TS01.bmp"))
+    lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+  else
+    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+  // TODO: setpalette will be called again later
+  if (lpDDPal)
+    lpDDSPrimary->SetPalette(lpDDPal);
+
+  if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK)
+    Msg("error with getting entries in beginning");
+  
+  if (exist("tiles/splash.bmp"))
+    lpDDPal = DDLoadPalette(lpDD, "tiles/SPLASH.BMP");
+  else
+    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/SPLASH.BMP");	
+  // TODO: setpalette will be called again later
+  if (lpDDPal)
+    lpDDSPrimary->SetPalette(lpDDPal);
 	
 	
-	
-	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-		&rcRect, DDBLTFAST_NOCOLORKEY);
-	
-	if (!windowed)
-	{	
-		while( 1 )
-		{
-			ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-			if( ddrval == DD_OK )
-			{
-				break;
-			}
-			if( ddrval == DDERR_SURFACELOST )
-			{
-				ddrval = restoreAll();
-				if( ddrval != DD_OK )
-				{
-					break;
-				}
-			}
-			if( ddrval != DDERR_WASSTILLDRAWING )
-			{
-				
-				//				ddrval = DD_OK;
-				dderror(ddrval);
-				//  return;
-				//        ddrval = DD_OK;
-			}
-			//goto done;
-		}
-	} else
-	{
-		
-        // instead of a flip, this will work for Windowed mode:
-        // first we need to figure out where on the primary surface our window lives
-        p.x = 0; p.y = 0;        ClientToScreen(hwnd, &p);
-        GetClientRect(hwnd, &rcRectDest);
-        OffsetRect(&rcRectDest, p.x, p.y);
-        SetRect(&rcRectSrc, 0, 0, 640, 480);
-        ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
-	}
-	
-	
-	
-	
-	//dinks normal walk
-	
-	
-	Msg("loading batch");
-	load_batch();
-	
-	
-	Msg("done loading batch");
-	
-	
-	load_hard();
-	
-	//Activate dink, but don't really turn him on
-	//spr[1].active = TRUE;
-	spr[1].timer = 33;
-	
-	//copy from player info
-	spr[1].x = play.x;
-    spr[1].y = play.y;
-	
-	
-	
-	if (exist("tiles\\TS01.bmp"))
-		lpDDPal = DDLoadPalette(lpDD, "tiles\\TS01.BMP"); else
-		lpDDPal = DDLoadPalette(lpDD, "..\\dink\\tiles\\TS01.BMP");
-	if (lpDDPal)
-        lpDDSPrimary->SetPalette(lpDDPal);
-	
-	Msg("Loading splash");
-	if (exist("tiles\\SPLASH.bmp"))
-		lpDDSTrick = DDLoadBitmap(lpDD, "tiles\\SPLASH.BMP", 0, 0); else
-		lpDDSTrick = DDLoadBitmap(lpDD, "..\\dink\\tiles\\SPLASH.BMP", 0, 0);
-    DDSetColorKey(lpDDSTrick, RGB(0,0,0));
-	
-    if (exist("tiles\\SPLASH.bmp"))
-		lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles\\SPLASH.BMP", 0, 0); else
-		lpDDSTrick2 = DDLoadBitmap(lpDD, "..\\dink\\tiles\\SPLASH.BMP", 0, 0);
-    DDSetColorKey(lpDDSTrick2, RGB(0,0,0));
-	
-	
-	// ** SETUP **
-	
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = 639;
-    rcRect.bottom = 79;
-	last_sprite_created = 1;
-	
-    mode = 0;
-    
-    load_info();        
-	for (int x=0; x<256; x++)
+  Msg("loading tilescreens...");
+  for (int h=1; h < tile_screens; h++)
     {
-		if (GetKeyboard(x))
-		{
-		}
-	}  //clear keyboard buffer 
+      if (h < 10)
+	strcpy(crap1,"0");
+      else
+	strcpy(crap1, "");
+
+      sprintf(crap, "TILES/TS%s%d.BMP",crap1,h);
+		
+      if (!exist(crap))
+	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
+		
+      tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
+		
+      if( tiles[h] == NULL )
+	return initFail(hwnd, "Couldn't find one of the tilescreens!");
+      else
+	DDSetColorKey(tiles[h], RGB(0,0,0));
+    }
+
+  Msg("Done with tilescreens...");
 	
-	for (int u = 1; u <= 10; u++)
-		play.button[u] = u;
+  if (sound_on) 
+    {
+      Msg("Initting sound");
+      sound_on = InitSound();
+    }
+  
 	
+  srand((unsigned)time(NULL));
 	
-	for (int x1=1; x1 <= 10; x1++) 
+  if (exist("tiles/splash.bmp"))
+    lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0);
+  else
+    lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0);
+
+  DDSetColorKey(lpDDSTwo, RGB(0,0,0));
+
+  if (cd_inserted)
+    PlayCD(7);
+	
+  if (CheckJoyStickPresent() == FALSE)
+    joystick = FALSE;
+  else
+    joystick = TRUE;
+	
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = x;
+  rcRect.bottom = y;
+	
+  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
+			      &rcRect, DDBLTFAST_NOCOLORKEY);
+	
+  if (!windowed)
+    {	
+      while(1)
 	{
-		sjoy.letgo[x1] = TRUE;
+	  ddrval = lpDDSPrimary->Flip(NULL, DDFLIP_WAIT);
+	  if (ddrval == DD_OK)
+	    break;
+
+	  if (ddrval == DDERR_SURFACELOST)
+	    {
+	      ddrval = restoreAll();
+	      if (ddrval != DD_OK)
+		{
+		  break;
+		}
+	    }
+	  if (ddrval != DDERR_WASSTILLDRAWING)
+	    dderror(ddrval);
 	}
+    }
+  else
+    {
+      // instead of a flip, this will work for Windowed mode:
+      // first we need to figure out where on the primary surface our window lives
+      p.x = 0;
+      p.y = 0;
+      ClientToScreen(hwnd, &p);
+      GetClientRect(hwnd, &rcRectDest);
+      OffsetRect(&rcRectDest, p.x, p.y);
+      SetRect(&rcRectSrc, 0, 0, 640, 480);
+      ddrval = lpDDSPrimary->Blt(&rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
+    }
+
+  //dinks normal walk
+  Msg("loading batch");
+  load_batch();
+  Msg("done loading batch");
+  
+  load_hard();
+
+  //Activate dink, but don't really turn him on
+  //spr[1].active = TRUE;
+  spr[1].timer = 33;
 	
-    //lets run our init script
-	int script = load_script("main", 0, true);
-	locate(script, "main");
-	run_script(script);
-	//lets attach our vars to the scripts
+  //copy from player info
+  spr[1].x = play.x;
+  spr[1].y = play.y;
 	
-	attach();
+  if (exist("tiles/TS01.bmp"))
+    lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+  else
+    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+  // Sets the default palette for the screen
+  if (lpDDPal)
+    lpDDSPrimary->SetPalette(lpDDPal);
 	
+  Msg("Loading splash");
+  if (exist("tiles/SPLASH.bmp"))
+    lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+  else
+    lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+  DDSetColorKey(lpDDSTrick, RGB(0,0,0));
 	
-	//init_mouse(hwnd);
+  if (exist("tiles/SPLASH.bmp"))
+    lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+  else
+    lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+  DDSetColorKey(lpDDSTrick2, RGB(0,0,0));
+  
+  
+  // ** SETUP **
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = 639;
+  rcRect.bottom = 79;
+  last_sprite_created = 1;
 	
-	initfonts("Arial");
-	//g_pMouse->Acquire();
+  mode = 0;
+    
+  load_info();
+
+  //clear keyboard buffer
+  for (int x = 0; x < 256; x++)
+    GetKeyboard(x);
 	
-	return TRUE;
+  for (int u = 1; u <= 10; u++)
+    play.button[u] = u;
 	
+  for (int x1 = 1; x1 <= 10; x1++) 
+    sjoy.letgo[x1] = TRUE;
+	
+  //lets run our init script
+  int script = load_script("main", 0, true);
+  locate(script, "main");
+  run_script(script);
+
+  //lets attach our vars to the scripts
+  attach();
+	
+  initfonts("Arial");
+
+  return 1;
 } /* doInit */
 
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
-bool random_date(char file[255])
-
-{ 
-	//let's randomize the date on this file to trick Windows
-	//cacheing into doing it right!
-	
-	int fh, result; 
-	
-	unsigned int nbytes = BUFSIZ;   /* Open a file */
-	
-	if( (fh = _open( file, _O_RDWR | _O_CREAT, _S_IREAD 
-		| _S_IWRITE ))  != -1 )   
-	{
-		Msg( "File length before: %ld\n", _filelength( fh ) );
-		if( ( result = _chsize( fh, _filelength( fh )+((rand() % 1000)+1) ) ) == 0 )
-			Msg( "Size successfully changed\n" );      
-		else
-			Msg( "Problem in changing the size\n" );
-		
-		Msg( "File length after:  %ld\n", _filelength( fh ) );
-		
-		_close( fh );   
-		
-	} else return(false);
-	
-	
-	return(true);
-}
-
-
-
-
-int dir_num ( char path[255])
-{
-	
-	HANDLE		dir;
-    WIN32_FIND_DATA	fd;
-    unsigned long	cnt;
-    
-    char		*dename;
-	
-	/*
-	* build a header
-	*/
-    
-	char search_specs[255];
-	
-	sprintf(search_specs, "%s\\*.*",path);
-	cnt = 0;
-    ODS( "ASking for dir info." );
-    dir = FindFirstFile( search_specs, &fd );
-    if( dir == NULL )
-	{
-		ODS( "Could not open current directory\n" );
-		return(0);
-    }
-	
-    
-    while( 1 ) 
-	{
-		if( !(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) 
-		{
-			cnt++;
-			
-			dename = fd.cAlternateFileName;
-			if( dename[0] == 0 ) {
-				dename = fd.cFileName;
-			}
-			Msg( "File %d: %s                 \r", cnt, dename );
-			
-		}
-		if( !FindNextFile( dir, &fd ) ) {
-			break;
-		}
-    }
-	
-    FindClose( dir );
-	ODS("All done finding files.");
-	return(cnt);
-}
-
 void getdir(char final[])
 {
-	//converted to non CString version that spits back path + filename seperately.
-	//Using	GetModuleFileName instead of ParamStr, works with Win2000/nt.
-	char dir[255];
-	char path[255];
-	GetModuleFileName(NULL, path, 255);
-	char c_cur = 0;
+  //converted to non CString version that spits back path + filename seperately.
+  //Using GetModuleFileName instead of ParamStr, works with Win2000/nt.
+  char dir[255];
+  char path[255];
+  GetModuleFileName(NULL, path, 255);
+  char c_cur = 0;
 
-	for (int k=strlen(path);path[k] != '\\'; k--)
-	{
-	  c_cur = k;
-	}
-	strcpy(dir, "");
-	//copy file name
-	strncat((char*)&dir, &path[c_cur], strlen(path)-c_cur);
-    path[c_cur] = 0; //truncate
-	strcpy(final, path);
-
+  for (int k=strlen(path);path[k] != '\\'; k--)
+    {
+      c_cur = k;
+    }
+  strcpy(dir, "");
+  //copy file name
+  strncat((char*)&dir, &path[c_cur], strlen(path)-c_cur);
+  path[c_cur] = 0; //truncate
+  strcpy(final, path);
 }
 
 
@@ -6379,9 +6091,10 @@ void getdir(char final[])
  * Initialization, message loop
  */
 int PASCAL
-WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	 LPSTR lpCmdLine, int nCmdShow)
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine, int nCmdShow)
 {
+  /* Where am I installed? */
   getdir(dinkpath);
   
   if (chdir(dinkpath) < 0)
@@ -6394,9 +6107,9 @@ WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   
   /* For DX initialization */
   MyhInstance = hInstance;
-
   /* For doInit() */
-  command_line = lpCmdLine; 
+  command_line = lpCmdLine;
+
   doInit(hInstance, nCmdShow);
 
 

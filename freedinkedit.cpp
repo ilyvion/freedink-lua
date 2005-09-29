@@ -27,11 +27,15 @@ Check the license.txt for more info.
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 #include <time.h>
+/* for tolower */
+#include <ctype.h>
 #include <io.h>
 #include <direct.h>
 #include <windows.h>
 /* For GetStockBrush */
 #include <windowsx.h>
+/* For VK_* */
+#include <winuser.h>
 #include <mmsystem.h>
 #include <ddraw.h>
 #include <dsound.h>
@@ -127,6 +131,9 @@ int speed;
 // PROC NAMES
 
 BOOL initFail( HWND hwnd, char mess[200] );
+
+bool getkey(int key);
+char key_convert(int key);
 
 void draw_map( void);
 void draw_used( void);
@@ -5129,7 +5136,7 @@ if (sound_on)
 	  strcpy(dir, "dink");
 	  for (int i=1; i <= 10; i++)
 	  {
-		  seperate_string(crap, i,' ',shit);
+		  separate_string(crap, i,' ',shit);
 
 		  if (strnicmp(shit,"-window",strlen("-window")) == 0)
 		  {
@@ -5147,7 +5154,7 @@ if (sound_on)
 
   		  if (strnicmp(shit,"-game",strlen("-game")) == 0)
 		  {
-		seperate_string(crap, i+1,' ',shit);
+		separate_string(crap, i+1,' ',shit);
 		strcpy(dir, shit);  
 		Msg("Working directory %s requested.",dir);  
 		  
@@ -5794,8 +5801,7 @@ void getdir(char *dir, char *final)
 	strncat(dir, &path[c_cur], strlen(path)-c_cur);
     path[c_cur] = 0; //truncate
 	strcpy(final, path);
-
- } 
+}
 
 
 void switch_to_my_dir()
@@ -5861,5 +5867,42 @@ initFail(hWndMain, crap);
     }
 
  
-return(true); 
- } /* WinMain */
+	return(true); 
+} /* WinMain */
+
+
+
+bool
+getkey(int key)
+{
+  if (sjoy.realkey[key]) return(true); else return(false);      
+}
+
+char
+key_convert(int key)
+{
+        if (!getkey(VK_SHIFT)) key = tolower(key);
+        
+        if (key == 190 /* VK_OEM_PERIOD */) if (getkey(VK_SHIFT)) key = '>'; else key = '.';
+        if (key == 188 /* VK_OEM_COMMA */) if (getkey(VK_SHIFT)) key = '<'; else key = ',';
+        
+        if (key == '1') if (getkey(VK_SHIFT)) key = '!';
+        if (key == '2') if (getkey(VK_SHIFT)) key = '@';
+        if (key == '3') if (getkey(VK_SHIFT)) key = '#';
+        if (key == '4') if (getkey(VK_SHIFT)) key = '$';
+        if (key == '5') if (getkey(VK_SHIFT)) key = '%';
+        if (key == '6') if (getkey(VK_SHIFT)) key = '^';
+        if (key == '7') if (getkey(VK_SHIFT)) key = '&';
+        if (key == '8') if (getkey(VK_SHIFT)) key = '*'; 
+        if (key == '9') if (getkey(VK_SHIFT)) key = '('; 
+        if (key == '0') if (getkey(VK_SHIFT)) key = ')'; 
+        
+        if (key == 189 /* VK_OEM_MINUS */) if (getkey(VK_SHIFT)) key = '_'; else key = '-';
+        if (key == 187 /* VK_OEM_PLUS */) if (getkey(VK_SHIFT)) key = '+'; else key = '=';
+        if (key == 186 /* VK_OEM_1 */) if (getkey(VK_SHIFT)) key = ':'; else key = ';';
+        if (key == 222 /* VK_OEM_7 */) if (getkey(VK_SHIFT)) key = '\"'; else key = '\'';
+        if (key == 191 /* VK_OEM_2 */) if (getkey(VK_SHIFT)) key = '?'; else key = '/';
+        if (key == 220 /* VK_OEM_5 */) if (getkey(VK_SHIFT)) key = '|'; else key = '\\';
+                
+        return(key); 
+}

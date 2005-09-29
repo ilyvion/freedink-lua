@@ -2,7 +2,6 @@
  * Background music (currently .midi's and audio CDs)
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2003  Shawn Betts
  * Copyright (C) 2005  Sylvain Beucler
 
  * This file is part of GNU FreeDink

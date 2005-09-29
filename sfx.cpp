@@ -102,7 +102,8 @@ void kill_repeat_sounds(void)
 
   for (int i=1; i <= num_soundbanks; i++)
     {
-      Msg("Bank #%d: repeat=%d, owner=%d, survive=%d", i, soundinfo[i].repeat, soundinfo[i].owner, soundinfo[i].survive);
+      // Msg("Bank #%d: repeat=%d, owner=%d, survive=%d", i,
+      //   soundinfo[i].repeat, soundinfo[i].owner, soundinfo[i].survive);
       if (soundinfo[i].repeat && (soundinfo[i].owner == 0)
           && (soundinfo[i].survive == 0))
         {
