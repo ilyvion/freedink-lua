@@ -9,29 +9,47 @@ suspect a MinGW-specific issue and need another compiler.
 Both make and the Dev-Cpp semi-free IDE can be used to compile GNU
 FreeDink.
 
+[ ] Clean-up the code
+
+- Fix warnings, port it to C, make it compile -Wall -ansi -pedantic
+(strict ANSI C compliance is a nice asset for portability), split it
+in several files, convert the common (FreeDink and FreeDinkedit) code
+to a library that could be reused by other tools (WDE).
+
+- Encapsulate sound/video/input data, so that the engine can easily
+switch from a library to another.
+
+Cleaning the code is necessary to easily port it to another libraries.
+
 [O] Get rid of Windows-specific dependencies (ongoing)
 
 Port the game from DirectX to SDL
 (check sdl.txt for consideration on the library choice)
 
+- Audio
+  - Midi
+  - Audio CD
+  - WAV
+- Input
+- Graphics
+  - Bitmaps
+  - Fonts
+- Timer
+
 [ ] Handle remaining portability issues
 
 Use autoconf for this, and switch to automake along the way.
 "autoconfiscate"
-Fix the probable additional compilation errors.
-
+Fix the additional compilation errors.
 
 [Milestone 1]: we have a portable game engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 Action: Make the result available. The engine relies on free software,
 we can publish it.
 
-[ ] Clean-up the code
-
-Fix warnings, port it to C, make it compile -Wall -ansi -pedantic
-(strict ANSI C compliance is a nice asset for portability), split it
-in several files, convert the common (FreeDink and FreeDinkedit) code
-to a library that could be reused by other tools (WDE).
+[ ] Take care of portability issues for big-endian architectures such
+as PowerPC. Make sure that a game save on big-endian can be read
+correctly on little-endian (Intel...) and vice-versa.
 
 [ ] Make (automatic) non-regression tests
 
@@ -59,6 +77,10 @@ Use another extension (.fdc freedinkc?) for cleaned-up DinkC, and .scm
 for Guile.
 
 Adding new DinkC commands depend on this task.
+
+Maybe SWIG could be used for this. It allows to define bindings one
+time and generate them for several languages, including Guile, Perl
+and Python.
 
 [Milestone 2]: we have a robust framework
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

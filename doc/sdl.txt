@@ -8,7 +8,7 @@ From a game library point of view, the game has 3 parts:
 - graphics
   - 2D, 640*480*256
   - windowed or full-screen
-  - stretching/scaling (SDL doesn't do that alone)
+  - stretching/scaling
   - fonts (TTF)
 
 - input
@@ -51,9 +51,11 @@ General-purpose:
 Some component-specific libraries are:
 
 - Graphics: Mesa (OpenGL), that apparently could take care of all the
-  2D graphical part.
+  2D graphical part. TODO: check if there's a version of Mesa for Woe.
 
-- SFX: OpenAL for a good SFX (no MIDI, no audio CD) mixer.
+- SFX: OpenAL for a good SFX (no MIDI, no audio CD) mixer. Audiere
+  might be good as well. SDL_Mixer is not the only lib for SDL, check
+  Audiality and SDL_Sound.
 
 
 
@@ -120,6 +122,8 @@ Required: SDL for audio CD.
 
   [ ] OpenAL doesn't.
 
+- Quick audio repetition (eg when you get gold)
+
 
 Wishes:
 ~~~~~~~
@@ -129,6 +133,8 @@ Features we plan to add afterwhile...
 - Fixed rate
 
   [V] [TODO] SDL_gfx does.
+
+- Additional sounds formats (at least Ogg Vorbis, Flac, MP3, possibly MOD)
 
 - 16/24/32 bits support
 
