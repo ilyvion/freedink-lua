@@ -49,3 +49,29 @@ List of changes
 ===============
 
 Compiled by merging the list of fixes in each of the links above:
+
+[TODO]
+
+
+Diffs
+=====
+
+Files cannot be diffed directly because the indentation
+changed. Indenting both v1.07 and v1.08 using 'indent' (no option)
+allows you to get small diffs suitable for review:
+  indent 107/update_frame.cpp 108/Dink/update_frame.cpp
+  diff -u -Bbw 107/update_frame.cpp 108/Dink/update_frame.cpp | less
+
+Removing ^M characters can make the reading more pleasurable:
+  find 107/ 108/ -type f | xargs sed -i -e 's/\r//g'
+
+Digest:
+- dink.cpp: ~75kB. Numerous references to the console mode, which
+  needs to take over input at several points in the code.
+
+- dinkedit.cpp: only a few grammar changes.
+
+- update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
+  and a couple clean-up.
+
+- dinkvar.h: ~190kB. TrueColor mode, scope?, ...
