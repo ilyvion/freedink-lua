@@ -1,0 +1,90 @@
+Here's a small description of various versions of the Dink Smallwood
+source code:
+
+v1.07, official source, first free software release: FreeDink is
+  currently based on it.
+
+  http://www.codedojo.com/files/dink/dink_source.zip
+  http://dl.sv.gnu.org/releases/freedink/dink107_source.zip
+
+
+The Dink Project: first attempt to port FreeDink (with initial work by
+  Christoph Reichenbach and Shawn Betts); FreeDink started as a
+  continuation of that work, but since it was a quick port, numerous
+  bugs remained. To ensure we get a port as close to the original as
+  possible, FreeDink eventually restarted from the DirectX sources.
+
+  The Dink Project itself stopped and was replaced by an "unofficial
+  sequel to the Dink engine" written from scratch, called "Windemere",
+  which eventually also stopped.
+
+  http://sourceforge.net/projects/dink
+
+
+Windowed Mode / 32-bit Mode: first support for 32-bit colors mode,
+  which was included in v1.08. As such, it is not evolving anymore.
+  
+  http://www.dinknetwork.com/file/windowed_mode_32_bit_mode/
+  http://files.dinknetwork.com/dwindowsrc.zip
+
+reDink: a modified version of the engine with some fixes and new
+  features. It is discontinued, but there are chances that part of it
+  was included in v1.08 [TODO: study the code].
+
+  http://www.dinknetwork.com/file/redink/
+  http://files.dinknetwork.com/re-dink.zip
+
+
+unDink "unDink is a complete over-haul of the Dink engine, which fixes
+  a few thousand bugs and adds a few small features". It appears
+  unmaintained, and there's little documentation available. Maybe
+  there are interesting comments to read in the source code...
+
+  Some vague information:
+  http://www.dinknetwork.com/forum.cgi?MID=46320
+  ("News Comments - New Source Project: unDink 2.67")
+  http://www.dinknetwork.com/forum.cgi?MID=44966
+  ("Development - New Source Project: unDink")
+
+  http://www.dinknetwork.com/file/undink/
+  http://files.dinknetwork.com/undink-2.67.zip
+  
+v1.08: official source with patches assembled by Dan Walma. 1.08 is
+  the only version you can officially download now, so I think
+  FreeDink should upgrade to it.
+
+  It introduces slight incompatibilities with the previous version,
+  which may prevent some D-Mods from working correctly.
+  http://www.dinknetwork.com/forum.cgi?MID=67349&Posts=39
+  
+  Actually I'd say this is god-sent: FreeDink was developped with a
+  goal of absolute compatibility with 1.07; v1.08 instead expects
+  D-Mods to be fixed if they rely on bugs. Thus, by basing FreeDink on
+  1.08, there are fewer bugs that we need to maintain as features, and
+  there is interest in releasing fixed versions of problematic
+  D-Mods. This may make FreeDink easier to code. However, we need to
+  either restart the port from 1.08 or merge the changes in the
+  current FreeDink code base.
+
+  http://www.dinknetwork.com/file/dink_smallwood_1_08_source_code/
+  http://files.dinknetwork.com/dink108_source.zip
+
+v1.08 Aural+: v1.08 using DirectX's DirectShow instead of W32API's
+  mciSendString to play MIDIs; since DirectShow can play MP3, this is
+  the first MP3-enabled version as well. It's not widely used as of
+  now.
+
+  http://www.dinknetwork.com/forum.cgi?MID=67386
+  http://redrecondite.com/dink_aural+.zip
+
+
+Novashell: Seth Robinson's new 2D game maker, released as free
+  software. It has nothing to do with Dink Smallwood, but there are
+  chances that people interested in going beyong Dink will switch to
+  that engine. This makes improving the Dink engine less appealing, so
+  maybe FreeDink should just stick to porting Dink to other platforms,
+  and add no features whatsoever. Still, maybe people will prefer Dink
+  (e.g. because they don't want to learn something else) and improving
+  the Dink engine will still be needed.
+
+  http://www.rtsoft.com/novashell/
