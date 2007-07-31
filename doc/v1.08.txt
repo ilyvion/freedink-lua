@@ -1,0 +1,51 @@
+Comprehensive links chronology in the Dink Network message board
+================================================================
+
+Development - Dink Smallwood v1.08 - Suggestions
+http://www.dinknetwork.com/forum.cgi?MID=48641
+
+General Dink Discussion - Help Test Dink Smallwood v1.08 - Alpha 1 -> 5
+http://www.dinknetwork.com/forum.cgi?MID=50116
+
+General Dink Discussion - Dink Smallwood v1.08 Beta 1 Now Available
+http://www.dinknetwork.com/forum.cgi?MID=54349
+
+General Dink Discussion - Dink Smallwood v1.08 Beta 2
+http://www.dinknetwork.com/forum.cgi?MID=54523
+
+General Dink Discussion - Dink Smallwood v1.08 Beta 3
+http://www.dinknetwork.com/forum.cgi?MID=55267
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 1 -> 2
+http://www.dinknetwork.com/forum.cgi?MID=57155
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 3
+http://www.dinknetwork.com/forum.cgi?MID=57519
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 4
+http://www.dinknetwork.com/forum.cgi?MID=57829
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 5
+http://www.dinknetwork.com/forum.cgi?MID=58202
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 6
+http://www.dinknetwork.com/forum.cgi?MID=59442
+
+News Comments - New File: Dink Smallwood v1.08 - Release Candidate 7
+http://www.dinknetwork.com/forum.cgi?MID=59848
+
+News Comments - New File: Dink Smallwood 1.08 Final
+http://www.dinknetwork.com/forum.cgi?MID=60436
+
+
+First version of the compatibility thread:
+http://www.dinknetwork.com/forum.cgi?MID=60061
+
+Second version of the compatibility thread:
+http://www.dinknetwork.com/forum.cgi?MID=67349
+
+
+List of changes
+===============
+
+Compiled by merging the list of fixes in each of the links above:

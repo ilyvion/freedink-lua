@@ -53,9 +53,18 @@ v1.08: official source with patches assembled by Dan Walma. 1.08 is
   the only version you can officially download now, so I think
   FreeDink should upgrade to it.
 
+  Changes in the code are prefixed with //redink1. According the
+  readme.txt: "The main changes for Dink Smallwood 1.08 are the
+  introduction of true-color and windowed modes (courtesy of
+  iNvERTIgO).  There have also been a few other changes and bug fixes,
+  such as true-color fading, frame-rate limiting, more consistant
+  player speed, inability to walk off edges of screenlocked screens, a
+  few new DinkC commands, and more.". Check v1.08.txt for an attempt
+  to sum-up changes.
+
   It introduces slight incompatibilities with the previous version,
-  which may prevent some D-Mods from working correctly.
-  http://www.dinknetwork.com/forum.cgi?MID=67349&Posts=39
+  which may prevent some D-Mods from working correctly:
+  http://www.dinknetwork.com/forum.cgi?MID=67349
   
   Actually I'd say this is god-sent: FreeDink was developped with a
   goal of absolute compatibility with 1.07; v1.08 instead expects
