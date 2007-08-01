@@ -1,31 +1,57 @@
-2005-09-16
-Get the source from codedojo.com (http://www.codedojo.com/files/dink/dink_source.zip)
-#Install MinGW (www.mingw.org) and MSys
+Install MinGW (www.mingw.org) and MSys.
 
 Install Dev-C++ and then MSys. When MSys asks where MinGW is, point it
-to the Dev-C++ directory. That way, you can use Dev-C++'s packaging
-system and integrate it with MSys.
+to the Dev-C++ directory (TODO: MSys now comes only as a tarball with
+no installer; I guess it's a matter of mounting /mingw appropriately
+in MSys). That way, you can use Dev-C++'s packaging system and
+integrate it with MSys.
 
-Get dx7docs.exe and dx7libhdr.exe (unknown source, cfiles/prog/win32/)
-Use the Makefile
+Get DirectX headers and libraries. There's an archive at:
+http://alleg.sourceforge.net/wip.html
+http://alleg.sourceforge.net/files/dx70_mgw.zip
+
+I also found dx7libhdr.exe and dx7docs.exe lying on my computer, as
+self-extracting zip files; there is nothing letting me think I can
+redistribute them, but if you have them, they work.
+
+Get ddutil.c and ddutil.h from the original source code release. Those
+are non-free, and there's no reason to believe they can be legally
+redistributed.
+
+Use the Makefile.
 
 The .dsw is a workspace, use that to edit it with VC++.
 
+TODO: there is another, cross-platform, free software editor called
+Code::Blocks.
+http://www.codeblocks.org/
+http://gpwiki.org/index.php/C:Development_Environments
 
-Seth says the code is dirty. In practice, this means you cannot
-compile it g++. The idea is to fix those compilation errors first. Get
-a VC++ under the hand to be able to test its behavior in the
-situations where g++ won't compile.
 
-It's no use to fix VC++'s warnings and errors. Try to only change the
-minimum needed to compile the game, so we can start porting it to
-SDL. Cleaning up, such as
+Dependencies (SDL*...):
+You can either:
 
-- splitting the code in several files,
-- fixing remaining warnings
-- making it ANSI C-compliant
-- remove unused variables
-should be done only once we have the code run under SDL/GNU/Linux.
+- use DevPaks (binary packages). They are original meant for Dev C++
+  but Code::Blocks has a plug-in to use them (install them in your
+  c:/msys/mingw path or wherever you install the MinGW ports).
+
+- download the SDL binary distribution from libsdl.org (such as
+  SDL-devel-1.2.12-mingw32.tar.gz )
+
+- use MinGW's "ports" to get a semi-automated build (similar to a
+  Gentoo Ebuild). Be sure to get the wget port first, and manually
+  install the included wget.exe to /bin. By default everything is
+  installed to /mingw, but you can install to / or wherever you
+  install the DevPaks.
+
+- compile them manually from MSys (./configure && make && make
+  install)
+
+- compile them from an IDE using the VC++ project file
+
+
+Seth says the code is dirty. In practice, this means the original code
+did not compile with g++, but we fixed those compilation errors.
 
 
 Make tests. Make tests. Make tests! Since the goal of the project is

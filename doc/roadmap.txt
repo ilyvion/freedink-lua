@@ -9,12 +9,16 @@ suspect a MinGW-specific issue and need another compiler.
 Both make and the Dev-Cpp semi-free IDE can be used to compile GNU
 FreeDink.
 
-[ ] Clean-up the code
+[O] Clean-up the code
 
 - Fix warnings, port it to C, make it compile -Wall -ansi -pedantic
 (strict ANSI C compliance is a nice asset for portability), split it
 in several files, convert the common (FreeDink and FreeDinkedit) code
 to a library that could be reused by other tools (WDE).
+
+Status: currently the code is being split and compiles without warning
+under vanilla g++ (no -Wall option or anything). Some warnings have
+been fixed under VC++.
 
 - Encapsulate sound/video/input data, so that the engine can easily
 switch from a library to another.
@@ -27,14 +31,14 @@ Port the game from DirectX to SDL
 (check sdl.txt for consideration on the library choice)
 
 - Audio
-  - Midi
-  - Audio CD
-  - WAV
+  - Midi (Done: SDL_Mixer; a reference to mciSendString is remaining)
+  - Audio CD (Done: SDL_CD*)
+  - WAV (Half-done: SDL_Mixer, but we lack pitch shift)
 - Input
 - Graphics
   - Bitmaps
   - Fonts
-- Timer
+- Timer (Done: SDL_GetTicks)
 
 [ ] Handle remaining portability issues
 

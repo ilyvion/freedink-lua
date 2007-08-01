@@ -44,8 +44,8 @@ General-purpose:
   in the main library, while SDL separates a core library from
   additional ones (SDL_mixer, SDL_image, SDL_gfx, SDL_ttf...).
 
-- DX: that what we come from, it's proprietary and not portable, so of
-  course we won't use it back.
+- DX: that's what we come from, it's proprietary and not portable, so
+  of course we won't use it back.
 
 
 Some component-specific libraries are:
@@ -54,8 +54,8 @@ Some component-specific libraries are:
   2D graphical part. TODO: check if there's a version of Mesa for Woe.
 
 - SFX: OpenAL for a good SFX (no MIDI, no audio CD) mixer. Audiere
-  might be good as well. SDL_Mixer is not the only lib for SDL, check
-  Audiality and SDL_Sound.
+  (1.9.4 - 2/2006 - no portable midi) might be good as well. SDL_Mixer
+  is not the only lib for SDL, check Audiality (0.1.1 - 1/2004 - dev).
 
 
 
@@ -66,8 +66,6 @@ It would be good to make a spreadsheet and show the possible combinations.
 
 The conclusion is that no library does _everything_ we need, but the
 sum of all their features do.
-
-Required: SDL for audio CD.
 
 - Stretching:
 
@@ -102,9 +100,14 @@ Required: SDL for audio CD.
   [TODO] I don't think it can be implement on top of it (check
   sound.txt)
 
-  [V] [TODO] Allegro does.
+  [V] Allegro does. play_sample() and adjust_sample have a frequency
+  argument. The sample is computed on the fly, i.e. it is not a
+  precomputed new sample with a different frequency which is then
+  played.
 
   [V] [TODO] OpenAL does.
+
+  [V] [TODO] Audiere does.
 
 - MIDIs:
 
@@ -121,6 +124,8 @@ Required: SDL for audio CD.
   [ ] Allegro doesnt.
 
   [ ] OpenAL doesn't.
+
+  [V] [TODO] Audiere does.
 
 - Quick audio repetition (eg when you get gold)
 
