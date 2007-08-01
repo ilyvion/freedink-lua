@@ -1,0 +1,11 @@
+- There's a delay between an action and its sound
+
+  You probably use a version of SDL that does not support DX. The
+  non-DX implementation appears to be less performant.
+
+  You need to compile SDL with DX support (check woe-compile.txt) or
+  use official binaries.
+
+  Sources:
+  http://lists.libsdl.org/private.cgi/sdl-libsdl.org/2007-August/062203.html
+  http://www.libsdl.org/extras/win32/mingw32/README.txt

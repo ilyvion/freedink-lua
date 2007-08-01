@@ -96,9 +96,9 @@ sum of all their features do.
 
 - Sound Frequency:
 
-  [ ] SDL(_Mixer) does not provide an equivalent to DX' SetFrequency, and
-  [TODO] I don't think it can be implement on top of it (check
-  sound.txt)
+  [ ] SDL(_Mixer) does not provide an equivalent to DX'
+  DirectSoundBuffer::setFrequency, and [TODO] I don't think it can be
+  implement on top of it (check sound.txt)
 
   [V] Allegro does. play_sample() and adjust_sample have a frequency
   argument. The sample is computed on the fly, i.e. it is not a

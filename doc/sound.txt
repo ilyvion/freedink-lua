@@ -22,15 +22,9 @@ in combination with OpenAL (or Allegro (or...)).
 
 - separate initsound from sfx - it's sfx+bgm
 
-- suppress the huge delay between an action and its sound (in
-  SDL_Mixer :/)
-
 - If 100X is played, and if there's no CD, and if 100X.mid doesn't
   exist, I think the original game will play X.mid. Take that into
   account.
-
-- Try to add or remove lots of gold: there should be more coin sounds
-  per second!
 
 Note:
 

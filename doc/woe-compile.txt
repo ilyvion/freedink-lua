@@ -1,23 +1,47 @@
-Install MinGW (www.mingw.org) and MSys.
+Install MSys and MinGW (www.mingw.org).
 
-Install Dev-C++ and then MSys. When MSys asks where MinGW is, point it
-to the Dev-C++ directory (TODO: MSys now comes only as a tarball with
-no installer; I guess it's a matter of mounting /mingw appropriately
-in MSys). That way, you can use Dev-C++'s packaging system and
-integrate it with MSys.
+In principle, MinGW is installed in /mingw (it's compiled with
+--prefix=/mingw). While it can work it installed in /usr or /, /mingw
+is the common setup that other people expect, so we'll use that. When
+selecting the components, choose at least g++, g77 (apparently and
+optionaly used by libSDL) and mingw-make.
+
+Extract the MSys tarball (there used to be an installed, but no I just
+extracted msysCORE-1.0.X in C:\msys). Then install MinGW in
+C:\msys\mingw.
+
+If you want to install it somewhere else (for example, if you use the
+one that comes with Dev-C++ so as to benefit of DevPaks), then run
+/postinstall/pi.sh so that msys will tweak /etc/fstab accordingly.
 
 TODO: there is another, cross-platform, free software editor called
 Code::Blocks.
 http://www.codeblocks.org/
 http://gpwiki.org/index.php/C:Development_Environments
 
-Get DirectX headers and libraries. There's an archive at:
+
+Get DX headers and libraries. There's an archive at:
 http://alleg.sourceforge.net/wip.html
 http://alleg.sourceforge.net/files/dx70_mgw.zip
+
+There's an archive for version 5 from libsdl:
+http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
 
 I also found dx7libhdr.exe and dx7docs.exe lying on my computer, as
 self-extracting zip files; there is nothing letting me think I can
 redistribute them, but if you have them, they work.
+
+
+If you compile libSDL manually, it is important to compile it with DX
+support to avoid delays when playing sounds. For libSDL to detect DX,
+you need to place its headers and libraries in /mingw, so let's
+install it there just in case.
+http://www.libsdl.org/extras/win32/mingw32/README.txt
+
+You can also compile or grab a binary of nasm
+(http://www.libsdl.org/extras/win32/mingw32/nasm.exe) to enable
+assembly support in libSDL. Install it in /mingw/bin/.
+
 
 Get ddutil.c and ddutil.h from the original source code release. Those
 are non-free, and there's no reason to believe they can be legally
@@ -45,8 +69,8 @@ You can either:
 - use MinGW's "ports" to get a semi-automated build (similar to a
   Gentoo Ebuild). Be sure to get the wget port first, and manually
   install the included wget.exe to /bin. By default everything is
-  installed to /mingw, but you can install to / or wherever you
-  install the DevPaks.
+  installed to /mingw, but you can install to /usr/local or wherever
+  you install the DevPaks.
 
 - compile them manually from MSys (./configure && make && make
   install)
