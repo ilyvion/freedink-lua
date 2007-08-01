@@ -1,10 +1,15 @@
-CPPFLAGS=-I"C:/dx7sdk/include" -I"C:/Dev-Cpp/include/SDL"
+#CPPFLAGS=-I"C:/dx7sdk/include" -I"/mingw/include" 
+CPPFLAGS=-I"C:/dx7sdk/include" $(shell sdl-config --cflags)
+
 #CFLAGS=-O3
 #CFLAGS=-g
 CXXFLAGS=$(CFLAGS)
-LDFLAGS=-L"C:/dx7sdk/lib" -L"C:/Dev-Cpp/lib"
-LOADLIBES=-mwindows
-LDLIBS=-ldxguid -ldinput -lddraw -lwinmm -lSDL -lSDL_mixer
+
+#LDFLAGS=-L"C:/dx7sdk/lib" -L"/mingw/lib"
+#LOADLIBES=-mwindows
+#LDLIBS=-ldxguid -ldinput -lddraw -lwinmm -lSDL -lSDL_mixer
+LDFLAGS=-L"C:/dx7sdk/lib"
+LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer
 
 # Do not add update_frame.cpp and dinkvar.cpp here.
 # Those are included in dink.cpp and dinkedit.cpp
