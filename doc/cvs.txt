@@ -5,8 +5,10 @@ Anonymous:
 ----------
 
 For GNU/Linux:
+$ cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/cvsroot/freedink co freedink
+
+You might need this if you get "Protocol not available" error:
 $ export CVS_RSH=ssh
-$ cvs -d:ext:anoncvs@savannah.gnu.org:/cvsroot/freedink co freedink
 
 For Woe, I suggest you use TortoiseCVS (www.tortoisecvs.org - GNU
 GPL'd). After the installation, right-click in a folder and click "CVS
@@ -24,7 +26,7 @@ Upload ~/.ssh/id_dsa.pub to the Savannah web interface:
 https://savannah.gnu.org/account/editsshkeys.php
 
 $ export CVS_RSH=ssh
-$ cvs -d:ext:SAVANNAH_USERNAME@savannah.gnu.org:/cvsroot/freedink co freedink
+$ cvs -d:ext:SAVANNAH_USERNAME@cvs.savannah.gnu.org:/cvsroot/freedink co freedink
 
 
 For Woe, install TortoiseCVS and check tortoise-dev.png. You than have
