@@ -121,7 +121,7 @@ const WM_IMDONE = WM_USER+110;
 ffile.h
 ffile.c
 LPVOID => LPFILEHANDLE
-(y compris le typedef de HFASTFILE)
+(including HFASTFILE's typedef)
 
 ---
 
