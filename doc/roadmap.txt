@@ -17,7 +17,7 @@ in several files, convert the common (FreeDink and FreeDinkedit) code
 to a library that could be reused by other tools (WDE).
 
 Status: currently the code is being split and compiles without warning
-under vanilla g++ (no -Wall option or anything). Some warnings have
+under vanilla g++ (no -Wall option or anything). Most warnings have
 been fixed under VC++.
 
 - Encapsulate sound/video/input data, so that the engine can easily

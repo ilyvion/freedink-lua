@@ -6,6 +6,11 @@ no installer; I guess it's a matter of mounting /mingw appropriately
 in MSys). That way, you can use Dev-C++'s packaging system and
 integrate it with MSys.
 
+TODO: there is another, cross-platform, free software editor called
+Code::Blocks.
+http://www.codeblocks.org/
+http://gpwiki.org/index.php/C:Development_Environments
+
 Get DirectX headers and libraries. There's an archive at:
 http://alleg.sourceforge.net/wip.html
 http://alleg.sourceforge.net/files/dx70_mgw.zip
@@ -22,10 +27,9 @@ Use the Makefile.
 
 The .dsw is a workspace, use that to edit it with VC++.
 
-TODO: there is another, cross-platform, free software editor called
-Code::Blocks.
-http://www.codeblocks.org/
-http://gpwiki.org/index.php/C:Development_Environments
+It is adviced to install a woe port of Emacs from
+ftp://ftp.gnu.org/gnu/emacs/windows/
+(full install, not the -barebin one).
 
 
 Dependencies (SDL*...):
@@ -48,6 +52,8 @@ You can either:
   install)
 
 - compile them from an IDE using the VC++ project file
+
+- http://wiki.codeblocks.org/index.php?title=Using_SDL_with_Code::Blocks
 
 
 Seth says the code is dirty. In practice, this means the original code
