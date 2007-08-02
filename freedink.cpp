@@ -44,6 +44,7 @@
 
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "gfx_utils.h"
 #include "bgm.h"
 #include "sfx.h"
 #include "dinkvar.h"
@@ -2066,32 +2067,43 @@ void bounce_brain(int h)
 
 void grab_trick(int trick)
 {
-	RECT rcRect;
-	HRESULT ddrval;
-	//Msg("making trick.");
-	
-	if (no_transition)
-	{
-		
-		move_screen = trick;			
-		trig_man = true;
-		
-		move_counter = 0;
-		return;
-	}
-	rcRect.left = playl;
-    rcRect.top = 0;
-    rcRect.right = 619;
-    rcRect.bottom = 399;
-	
-	ddrval = lpDDSTrick->BltFast( 0, 0, lpDDSBack,
-		&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	
-	if (ddrval != DD_OK) dderror(ddrval);
-	move_screen = trick;			
-	trig_man = true;
-	
-	move_counter = 0;
+  RECT rcRect;
+  HRESULT ddrval;
+  //Msg("making trick.");
+  
+  if (no_transition)
+    {
+      move_screen = trick;			
+      trig_man = true;
+      
+      move_counter = 0;
+      return;
+    }
+
+  /* Capture the current game zone from the backbuffer */
+  rcRect.left = playl; /* playl = const = 20 */
+  rcRect.top = 0;
+  rcRect.right = 619;
+  rcRect.bottom = 399;
+  
+  ddrval = lpDDSTrick->BltFast(0, 0, lpDDSBack,
+			       &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+  if (ddrval != DD_OK) dderror(ddrval);
+  // GFX
+  {
+    SDL_Rect src, dst;
+    src.x = playl;
+    src.y = 0;
+    src.w = 619 - playl;
+    src.h = 399;
+    dst.x = dst.y = 0;
+    SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTrick, &dst);
+  }
+  
+  move_screen = trick;			
+  trig_man = true;
+  
+  move_counter = 0;
 }
 
 
@@ -3431,15 +3443,16 @@ smoothend:;
 bool transition(void)
 {
 	RECT rcRect;
+	SDL_Rect src, dst;
+
 	HRESULT             ddrval;	
 	//we need to do our fancy screen transition
 	int dumb = 5;
 	//if (fps_final < 30) dumb = 50;
 	dumb = fps_final * 2;
-	
+
 	move_counter += dumb;
-	
-	
+		
 	if (no_transition)
 	{    
 		
@@ -3465,25 +3478,41 @@ bool transition(void)
 		rcRect.left = 0;
 		rcRect.right = 600 - move_counter; 
 		rcRect.top = 0;
-        rcRect.bottom = 400;
+		rcRect.bottom = 400;
 		
 		ddrval = lpDDSBack->BltFast( move_counter+20, 0, lpDDSTrick,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 		if (ddrval != DD_OK) dderror(ddrval);
-		
-        rcRect.left = 600 -  move_counter; ;
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = 0;
+		  src.w = 600 - move_counter;
+		  src.h = 400;
+		  dst.x = move_counter + 20;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+		}
+
+		rcRect.left = 600 -  move_counter; ;
 		rcRect.right = 600;
 		rcRect.top = 0;
-        rcRect.bottom = 400;
+		rcRect.bottom = 400;
 		
 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-        
-		
-		
-		
 		if (ddrval != DD_OK) dderror(ddrval);
-		
+		// GFX
+		{
+		  src.x = 600 - move_counter;
+		  src.y = 0;
+		  src.w = move_counter;
+		  src.h = 400;
+		  dst.x = 20;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+		}
+        
 		if (move_counter >= 595)
 		{
 			total_trigger = false;
@@ -3504,13 +3533,24 @@ bool transition(void)
 		
 		if (move_counter > 598) move_counter = 598;
 		rcRect.left = move_counter;
-		rcRect.right = 599; 
+		rcRect.right = 599;
 		rcRect.top = 0;
-        rcRect.bottom = 399;
+		rcRect.bottom = 399;
 		
 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 		if (ddrval != DD_OK) dderror(ddrval);
+		// GFX
+		{
+		  src.x = move_counter;
+		  src.y = 0;
+		  src.w = 599 - move_counter;
+		  src.h = 399;
+		  dst.x = 20;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+		}
+
 		
         rcRect.left = 0;
 		rcRect.right = move_counter;
@@ -3521,6 +3561,16 @@ bool transition(void)
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
         
 		if (ddrval != DD_OK) dderror(ddrval);
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = 0;
+		  src.w = move_counter;
+		  src.h = 399;
+		  dst.x = 620 - move_counter;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+		}
 		
 		if (move_counter >= 595)
 		{
@@ -3552,6 +3602,17 @@ bool transition(void)
 		ddrval = lpDDSBack->BltFast( 20, move_counter, lpDDSTrick,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 		if (ddrval != DD_OK) dderror(ddrval);
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = 0;
+		  src.w = 599;
+		  src.h = 399 - move_counter;
+		  dst.x = 20;
+		  dst.y = move_counter;
+		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+		}
+
 		
         rcRect.left = 0;
 		rcRect.right = 599;
@@ -3560,11 +3621,21 @@ bool transition(void)
 		
 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-        
-		
-		
-		
 		if (ddrval != DD_OK) dderror(ddrval);
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = 399 - move_counter;
+		  src.w = 599;
+		  src.h = move_counter;
+		  dst.x = 20;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+		}
+
+		
+		
+		
 		
 		if (move_counter >= 398)
 		{
@@ -3596,7 +3667,17 @@ bool transition(void)
 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 		if (ddrval != DD_OK) dderror(ddrval);
-		
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = move_counter;
+		  src.w = 599;
+		  src.h = 399 - move_counter;
+		  dst.x = 20;
+		  dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+		}
+
         rcRect.left = 0;
 		rcRect.right = 599;
 		
@@ -3605,9 +3686,18 @@ bool transition(void)
 		
 		ddrval = lpDDSBack->BltFast( 20, 399 - move_counter, lpDDSTrick2,
 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-        
 		if (ddrval != DD_OK) dderror(ddrval);
-		
+		// GFX
+		{
+		  src.x = 0;
+		  src.y = 0;
+		  src.w = 599;
+		  src.h = move_counter;
+		  dst.x = 20;
+		  dst.y = 399 - move_counter;
+		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+		}
+
 		if (move_counter >= 398)
 		{
 			total_trigger = false;
@@ -5200,6 +5290,8 @@ void process_show_bmp( void )
 again:
 	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
 		&rcRect, DDBLTFAST_NOCOLORKEY);
+	// GFX
+	SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
 	
 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
@@ -5813,27 +5905,46 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	
   //init is finished, now lets load some more junk
 
-  // create and set the palette
+  // Create and set the reference palette
   if (exist("tiles/TS01.bmp"))
-    lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+    {
+      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+    }
   else
-    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+    {
+      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+    }
   // TODO: setpalette will be called again later
+  /* Beuc: it will be called by reloading TS01.BMP - this seems
+     redundant, maybe we should remove this. */
   if (lpDDPal)
-    lpDDSPrimary->SetPalette(lpDDPal);
+    {
+      lpDDSPrimary->SetPalette(lpDDPal);
+      // GFX
+      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
+    }
 
   if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK)
     Msg("error with getting entries in beginning");
-  
+
+  /* Better set the palette when actually loading the BMP - commented
+     out */
+  /*
+  // Load the splash screen
+  // The palette will be overwritten later on
   if (exist("tiles/splash.bmp"))
     lpDDPal = DDLoadPalette(lpDD, "tiles/SPLASH.BMP");
   else
     lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/SPLASH.BMP");	
-  // TODO: setpalette will be called again later
   if (lpDDPal)
     lpDDSPrimary->SetPalette(lpDDPal);
-	
-	
+  */
+
+  // Load the tiles from the BMPs
   Msg("loading tilescreens...");
   for (int h=1; h < tile_screens; h++)
     {
@@ -5848,12 +5959,20 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
 		
       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
+      // GFX
       GFX_tiles[h] = GFX_DDTileLoad(crap, h);
 		
       if( tiles[h] == NULL )
 	return initFail(hwnd, "Couldn't find one of the tilescreens!");
-      else
+      else {
 	DDSetColorKey(tiles[h], RGB(0,0,0));
+	// GFX
+	// Set transparency to black
+	/* Disabled, there's no need for transparency in buffers (the
+	   DX version uses DDBLTFAST_NOCOLORKEY to avoid it). */
+// 	SDL_SetColorKey(GFX_tiles[h], SDL_SRCCOLORKEY,
+// 			SDL_MapRGB(GFX_tiles[h]->format, 0, 0, 0));
+      }
     }
 
   Msg("Done with tilescreens...");
@@ -5881,7 +6000,12 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
     }
 
   DDSetColorKey(lpDDSTwo, RGB(0,0,0));
-  // GFX: TODO
+  // GFX
+//   SDL_SetColorKey (GFX_lpDDSTwo, SDL_SRCCOLORKEY,
+// 		   SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
+
+  // Apply splash.bmp's palette to the main screen
+  SDL_SetColors(GFX_lpDDSPrimary, GFX_lpDDSTwo->format->palette->colors, 0, 256);
 
   if (cd_inserted)
     PlayCD(7);
@@ -5957,29 +6081,74 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   //copy from player info
   spr[1].x = play.x;
   spr[1].y = play.y;
-	
+  
   if (exist("tiles/TS01.bmp"))
-    lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+    {
+      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+    }
   else
-    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+    {
+      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+    }
+
   // Sets the default palette for the screen
   if (lpDDPal)
-    lpDDSPrimary->SetPalette(lpDDPal);
-	
+    {
+      lpDDSPrimary->SetPalette(lpDDPal);
+      // GFX
+      /* Make sure entry 0 is black and 255 is white */
+      /* The colors are reversed in TS01.BMP's and SPLASH.BMP's
+	 palettes. For some reason that's how to original game works,
+	 even though I can't find the origin of that behavior... */
+      GFX_real_pal[0].r = 0;
+      GFX_real_pal[0].g = 0;
+      GFX_real_pal[0].b = 0;
+      GFX_real_pal[255].r = 255;
+      GFX_real_pal[255].g = 255;
+      GFX_real_pal[255].b = 255;
+      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
+    }
+
+  /* Initialize graphic buffers */
   Msg("Loading splash");
   if (exist("tiles/SPLASH.bmp"))
-    lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+    {
+      lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTrick = SDL_LoadBMP("tiles/SPLASH.BMP");
+    }
   else
-    lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+    {
+      lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTrick = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
+    }
   DDSetColorKey(lpDDSTrick, RGB(0,0,0));
-	
+  // GFX
+//   SDL_SetColorKey (GFX_lpDDSTrick, SDL_SRCCOLORKEY,
+// 		   SDL_MapRGB(GFX_lpDDSTrick->format, 0, 0, 0));
+
   if (exist("tiles/SPLASH.bmp"))
-    lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+    {
+      lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTrick2 = SDL_LoadBMP("tiles/SPLASH.BMP");
+    }
   else
-    lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+    {
+      lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTrick2 = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
+    }
   DDSetColorKey(lpDDSTrick2, RGB(0,0,0));
-  
-  
+  // GFX
+//   SDL_SetColorKey (GFX_lpDDSTrick2, SDL_SRCCOLORKEY,
+// 		   SDL_MapRGB(GFX_lpDDSTrick2->format, 0, 0, 0));
+ 
   // ** SETUP **
   rcRect.left = 0;
   rcRect.top = 0;

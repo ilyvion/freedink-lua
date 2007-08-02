@@ -54,9 +54,8 @@ map_info buffmap;
 bool buf_mode = false;
 char buf_path[100];
 int buf_map = 0;
-  #define ODS OutputDebugString
 
-	int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
+int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
 LPDIRECTDRAWCLIPPER lpClipper;
 int winoffset = 25;
 int winoffsetx = 5;

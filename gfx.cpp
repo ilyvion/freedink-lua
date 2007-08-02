@@ -41,6 +41,18 @@ SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer for physical screen -
 
 /* holds the base scene */
 SDL_Surface *GFX_lpDDSTwo = NULL;
-/* Beuc: apparently used for the scrolling screen transition */
+
+/* Beuc: apparently used for the scrolling screen transition and more
+   generaly as temporary buffers. Only used by the game, not the
+   editor. */
+/* Used in freedink.cpp only + as a local/independent temporary buffer
+   in show_bmp&copy_bmp */
 SDL_Surface *GFX_lpDDSTrick = NULL;
+/* Used in freedink.cpp and update_frame.cpp */
 SDL_Surface *GFX_lpDDSTrick2 = NULL;
+
+
+/* Palettes */
+PALETTEENTRY    real_pal[256];
+SDL_Color GFX_real_pal[256];
+

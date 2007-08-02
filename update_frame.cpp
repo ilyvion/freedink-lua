@@ -812,6 +812,16 @@ past:
 		
 		ddrval = lpDDSTrick2->BltFast( 0, 0, lpDDSBack,
 			&rcRect1, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+		// GFX
+		{
+		  SDL_Rect src, dst;
+		  src.x = playl;
+		  src.y = 0;
+		  src.w = 620 - playl;
+		  src.h = 400;
+		  dst.x = dst.y = 0;
+		  SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTrick2, &dst);
+		}
 		if (ddrval != DD_OK) dderror(ddrval);
 		
 		return;

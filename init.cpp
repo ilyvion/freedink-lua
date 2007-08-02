@@ -24,6 +24,7 @@
 #include "SDL.h"
 /* Msg */
 #include "dinkvar.h"
+#include "gfx.h"
 #include "init.h"
 
 /* The goal is to replace freedink and freedinkedit's doInit() by a
@@ -45,7 +46,6 @@ int init(void) {
     }
 
   SDL_Surface *test_image;
-  SDL_Rect dest;
   
   // GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
   GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE);
@@ -56,25 +56,27 @@ int init(void) {
 
   // GFX
   //GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8,
-  //				       0, 0, 0, 0); /* wrong! */
-  /* To avoid messing with masks depending on the machine's
-     endianness, we'll just create the buffer from the splash
-     image: */
+  //				       0, 0, 0, 0);
+  /* I can't find a way to make a manually created SDL_Surface
+     work. That's pretty weird. So let's initialize it from a
+     BMP... */
   GFX_lpDDSBack = SDL_LoadBMP("tiles/SPLASH.BMP");
-  
-  // lpDDSTwo is initialized by loading SPLASH.BMP in doInit()
+
+  // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
+  // doInit()
 
 
+  // DEBUG
   /* Load the BMP file into a surface */
-  test_image = SDL_LoadBMP("C:/Program Files/Dink Smallwood/dink/graphics/Dink/fall/ds-f2-01.bmp");
-  if (test_image == NULL) {
-    fprintf(stderr, "Couldn't load image: %s\n", SDL_GetError());
-  }
-
-  SDL_BlitSurface(test_image, NULL, GFX_lpDDSPrimary, NULL);
-  SDL_Flip(GFX_lpDDSPrimary);
+//   test_image = SDL_LoadBMP("C:/Program Files/Dink Smallwood/dink/graphics/Dink/fall/ds-f2-01.bmp");
+//   if (test_image == NULL) {
+//     fprintf(stderr, "Couldn't load image: %s\n", SDL_GetError());
+//   }
+//   SDL_BlitSurface(test_image, NULL, GFX_lpDDSPrimary, NULL);
+//   SDL_Flip(GFX_lpDDSPrimary);
 
   /* Maybe use SDL_QuiSubSystem instead */
   atexit(SDL_Quit);
+
   return 1;
 }

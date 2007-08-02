@@ -112,6 +112,22 @@ SOURCE=..\freedink.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\gfx.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\gfx_tiles.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\gfx_utils.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\init.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\sfx.cpp
 # End Source File
 # Begin Source File
@@ -149,6 +165,22 @@ SOURCE=..\ffent.h
 # Begin Source File
 
 SOURCE=..\game.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\gfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\gfx_tiles.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\gfx_utils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\init.h
 # End Source File
 # Begin Source File
 

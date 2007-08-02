@@ -1,5 +1,5 @@
 /**
- * Header for graphics
+ * Graphics utilities: palettes...
 
  * Copyright (C) 2007  Sylvain Beucler
 
@@ -25,25 +25,12 @@
  * come in handy.
  */
 
-#ifndef _GFX_H
-#define _GFX_H
+#ifndef _GFX_UTILS_H
+#define _GFX_UTILS_H
 
-#include <ddraw.h>
 #include "SDL.h"
 
-extern LPDIRECTDRAW lpDD; /* DirectDraw object */
-extern LPDIRECTDRAWSURFACE lpDDSPrimary;
-extern LPDIRECTDRAWSURFACE lpDDSBack;
-extern LPDIRECTDRAWSURFACE lpDDSTrick;
-extern LPDIRECTDRAWSURFACE lpDDSTrick2;
-extern LPDIRECTDRAWSURFACE lpDDSTwo;
+void load_palette_from_bmp (char *file, SDL_Color * palette);
+void setup_palette(SDL_Color *palette);
 
-extern SDL_Surface *GFX_lpDDSPrimary;
-extern SDL_Surface *GFX_lpDDSBack;
-extern SDL_Surface *GFX_lpDDSTrick;
-extern SDL_Surface *GFX_lpDDSTrick2;
-extern SDL_Surface *GFX_lpDDSTwo;
-
-extern PALETTEENTRY real_pal[256];
-extern SDL_Color GFX_real_pal[256];
 #endif

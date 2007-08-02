@@ -335,7 +335,6 @@ LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces
 sp spr[max_sprites_at_once]; //max sprite control systems at once
 LPDIRECTDRAWPALETTE     lpDDPal = NULL;        // The primary surface palette
 PALETTEENTRY    pe[256];
-PALETTEENTRY    real_pal[256];
 
 int bActive = false;        // is application active?
 //LPDIRECTINPUT lpDI;
@@ -6427,7 +6426,7 @@ bool kill_last_sprite(void)
 
         void show_bmp( char name[80], int showdot, int reserved, int script)
         {
-                
+	  SDL_Surface *image;
                 
                 if (!exist(name)) 
                 {
@@ -6436,6 +6435,8 @@ bool kill_last_sprite(void)
                 }
                 
                 lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+		// GFX
+		image = SDL_LoadBMP(name);
         
                 lpDDPal = DDLoadPalette(lpDD, name);
                 if (lpDDPal)
@@ -6454,6 +6455,11 @@ bool kill_last_sprite(void)
 again:
                 ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
                         &rcRect, DDBLTFAST_NOCOLORKEY);
+		// GFX
+		{
+		  SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+		  SDL_FreeSurface(image);
+		}
                 
                 if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
                 
@@ -6463,9 +6469,10 @@ again:
         }
         
         
-        
+/* Beuc: difference with show_cmp? */
         void copy_bmp( char name[80])
         {
+	  SDL_Surface *image;
                 if (!exist(name)) 
                 {
                         Msg("Error: Can't find bitmap at %s.",name);
@@ -6473,7 +6480,9 @@ again:
                 }
                 
                 lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-        
+		//GFX
+		image = SDL_LoadBMP(name);
+
                 lpDDPal = DDLoadPalette(lpDD, name);
                 if (lpDDPal)
                         lpDDSPrimary->SetPalette(lpDDPal);
@@ -6487,10 +6496,15 @@ again:
 again:
                 ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
                         &rcRect, DDBLTFAST_NOCOLORKEY);
+		// GFX
+		{
+		  SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+		  SDL_FreeSurface(image);
+		}
                 
                 if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
                 
-                
+		// Beuc: why copy the image twice?                
 again1:
                 ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick,
                         &rcRect, DDBLTFAST_NOCOLORKEY);
@@ -6828,7 +6842,8 @@ again1:
                 // GFX
 		// FIXME: check that num is indeed an appropriate
 		// palette index for lpDDSTwo
-		SDL_FillRect(GFX_lpDDSTwo, NULL, num);
+		SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
+		  GFX_real_pal[num].r, GFX_real_pal[num].g, GFX_real_pal[num].b));
         }
         
         

@@ -36,8 +36,6 @@
 
 #include "SDL.h"
 
-#define ODS OutputDebugString
-
 
 const int max_vars = 250;
 const int max_sprites_at_once = 300;
@@ -466,7 +464,6 @@ extern void initfonts(char fontname[255]);
 extern HRESULT ddrval;
 extern LPDIRECTDRAWPALETTE lpDDPal; /* The primary surface palette */
 extern PALETTEENTRY    pe[256];
-extern PALETTEENTRY    real_pal[256];
 
 
 /* Joystick */
