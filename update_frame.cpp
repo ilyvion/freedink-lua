@@ -246,6 +246,8 @@ demon:
 		{
 			ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
 				&rcRect, DDBLTFAST_NOCOLORKEY);
+			// GFX
+			SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 			
 			if( ddrval == DD_OK )
 			{

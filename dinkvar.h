@@ -421,9 +421,6 @@ extern sprite_index index[];
 extern int keep_mouse;
 extern char last_debug[200];
 extern int last_sprite_created;
-extern LPDIRECTDRAWSURFACE lpDDSBack;
-extern LPDIRECTDRAWSURFACE lpDDSTrick2;
-extern LPDIRECTDRAWSURFACE lpDDSTwo;
 extern map_info map;
 extern int mbase_count;
 extern int mbase_timing;
@@ -471,6 +468,14 @@ extern LPDIRECTDRAW lpDD; /* DirectDraw object */
 extern LPDIRECTDRAWSURFACE lpDDSPrimary;
 extern LPDIRECTDRAWSURFACE lpDDSTrick;
 extern LPDIRECTDRAWPALETTE lpDDPal; /* The primary surface palette */
+extern LPDIRECTDRAWSURFACE lpDDSBack;
+extern LPDIRECTDRAWSURFACE lpDDSTrick2;
+extern LPDIRECTDRAWSURFACE lpDDSTwo;
+extern SDL_Surface *GFX_lpDDSPrimary;
+extern SDL_Surface *GFX_lpDDSBack;
+extern SDL_Surface *GFX_lpDDSTrick;
+extern SDL_Surface *GFX_lpDDSTrick2;
+extern SDL_Surface *GFX_lpDDSTwo;
 extern HRESULT ddrval;
 extern PALETTEENTRY    pe[256];
 extern PALETTEENTRY    real_pal[256];
@@ -532,7 +537,9 @@ extern byte get_hard_play(int h,int x1, int y1);
 extern void load_hard(void);
 extern void load_info(void);
 extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite);
+SDL_Surface *GFX_DDTileLoad(char* filename, int sprite);
 extern LPDIRECTDRAWSURFACE tiles[];
+extern SDL_Surface *GFX_tiles[];
 extern hit_map hm;
 
 /* Dunno */
@@ -586,6 +593,7 @@ extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void save_hard(void);
 
 extern RECT tilerect[tile_screens];
+extern SDL_Rect GFX_tilerect[tile_screens];
 extern int draw_map_tiny;
 extern int cur_map, cur_tile;
 extern int map_vision;

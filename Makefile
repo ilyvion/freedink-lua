@@ -1,18 +1,16 @@
 #CPPFLAGS=-I"C:/dx7sdk/include" -I"/mingw/include" 
-CPPFLAGS=-I"C:/dx7sdk/include" $(shell sdl-config --cflags)
+CPPFLAGS=$(shell sdl-config --cflags)
 
 #CFLAGS=-O3
 #CFLAGS=-g
-CXXFLAGS=$(CFLAGS)
+CXXFLAGS=$(CFLAGS) -g
 
 #LDFLAGS=-L"C:/dx7sdk/lib" -L"/mingw/lib"
 #LOADLIBES=-mwindows
 #LDLIBS=-ldxguid -ldinput -lddraw -lwinmm -lSDL -lSDL_mixer
-LDFLAGS=-L"C:/dx7sdk/lib"
+#LDFLAGS=-L"C:/dx7sdk/lib"
 LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer
 
-# Do not add update_frame.cpp and dinkvar.cpp here.
-# Those are included in dink.cpp and dinkedit.cpp
 COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o \
 	freedink.res
 APPS=freedink freedinkedit
@@ -23,7 +21,7 @@ BINARIES=$(APPS:=.exe)
 
 all: $(APPS)
 
-freedink: $(COMMON_OBJS) freedink.o update_frame.o
+freedink: $(COMMON_OBJS) freedink.o update_frame.o init.o
 freedinkedit: $(COMMON_OBJS) freedinkedit.o
 
 # .h deps

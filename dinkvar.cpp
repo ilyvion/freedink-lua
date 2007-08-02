@@ -322,6 +322,14 @@ LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
 LPDIRECTDRAWSURFACE     lpDDSTwo = NULL;       // Offscreen surface 2
 LPDIRECTDRAWSURFACE     lpDDSTrick = NULL;       // Offscreen surface 2
 LPDIRECTDRAWSURFACE     lpDDSTrick2 = NULL;       // Offscreen surface 2
+
+/* holds the base scene */
+SDL_Surface *GFX_lpDDSTwo = NULL;
+/* Beuc: apparently used for the scrolling screen transition */
+SDL_Surface *GFX_lpDDSTrick = NULL;
+SDL_Surface *GFX_lpDDSTrick2 = NULL;
+
+
 bool trig_man = false;
 bool total_trigger = false;
 bool debug_mode = false;
@@ -333,7 +341,12 @@ player_info play;
 LPDIRECTDRAWSURFACE     lpDDSPrimary = NULL;   // DirectDraw primary surface
 LPDIRECTDRAWSURFACE     lpDDSBack = NULL;      // DirectDraw back surface
 
+SDL_Surface *GFX_lpDDSPrimary = NULL;
+SDL_Surface *GFX_lpDDSBack = NULL;
+
+
 LPDIRECTDRAWSURFACE     tiles[tile_screens];       // Game pieces
+SDL_Surface             *GFX_tiles[tile_screens];   // Game pieces (SDL)
 LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces
 
 sp spr[max_sprites_at_once]; //max sprite control systems at once
@@ -364,6 +377,7 @@ JOYINFOEX jinfo; //joystick info
 BOOL joystick = false;
 hardness hmap;
 RECT tilerect[tile_screens];
+SDL_Rect GFX_tilerect[tile_screens];
 
 
 
@@ -1075,7 +1089,9 @@ void Saytiny(char thing[2000], int px, int py, int r,int g,int b)
         
 }
 
-
+/* Beuc: The only difference with flip_it() I can see is the call to
+   restoreAll(). It's only used in DinkEdit, show_bmp() and
+   copy_bmp(). */
 void flip_it_second(void)
 {
         DDBLTFX     ddbltfx;
@@ -1125,6 +1141,11 @@ void flip_it_second(void)
                 
                 ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
                 ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+		// GFX
+		{
+		  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+		  SDL_Flip(GFX_lpDDSPrimary);
+		}
         }
         
         
@@ -1270,6 +1291,23 @@ extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, in
         
     return pdds;
 }
+
+
+SDL_Surface *GFX_DDTileLoad(char* filename, int sprite)
+{
+    SDL_Surface *tile;
+
+    // load the bitmap
+    tile = SDL_LoadBMP(filename);
+    if (tile == NULL)
+        return NULL;
+
+    GFX_tilerect[sprite].w = tile->w;
+    GFX_tilerect[sprite].h = tile->h;
+
+    return tile;
+}
+
 
 byte get_hard(int h,int x1, int y1)
 {
@@ -2188,20 +2226,6 @@ void load_hard(void)
                                 
 }
 
-
-
-void blit_background(void)
-{
-        RECT rcRect;
-        
-        SetRect(&rcRect, 0,0,640,480);
-        
-        lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-                &rcRect, DDBLTFAST_NOCOLORKEY);
-        
-        
-}
-
 void draw_wait()
 {
     
@@ -2212,11 +2236,15 @@ void draw_wait()
                 {
                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[7]].k,
                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
+			// GFX
+			//SDL_BlitSurface(,,GFX_lpDDSPrimary,)...
                         please_wait = false;
                 } else
                 {
                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k,
                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
+			// GFX
+			//SDL_BlitSurface(,,GFX_lpDDSPrimary,)...
                         please_wait = true;
                         
                 }
@@ -6604,32 +6632,39 @@ again1:
         void draw_map_game( void)
         {
                 RECT                rcRect;
-                
-                
-                
                 int pa, cool;
-                
                 
                 *pvision = 0;
                 
-                while (kill_last_sprite()); 
+                while (kill_last_sprite());
                 kill_repeat_sounds();
                 kill_all_scripts();
-                
+
+		/* 96 = 12 * 8 tiles; 1 tile = 50x50 pixels */
                 for (int x=0; x<96; x++)
                 {
                         cool = pam.t[x].num / 128;
                         pa = pam.t[x].num - (cool * 128);
+
                         rcRect.left = (pa * 50- (pa / 12) * 600);
                         rcRect.top = (pa / 12) * 50;
                         rcRect.right = rcRect.left + 50;
                         rcRect.bottom = rcRect.top + 50;
-                        
-                        
                         lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
                                 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
                         
-                        
+			// GFX
+			{
+			  SDL_Rect src;
+			  SDL_Rect dst;
+			  src.x = (pa * 50- (pa / 12) * 600);
+			  src.y = (pa / 12) * 50;
+			  src.w = 50;
+			  src.h = 50;
+			  dst.x = (x * 50 - ((x / 12) * 600))+playl;
+			  dst.y = (x / 12) * 50, tiles[cool+1];
+			  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+			}
                 }
                 
                 
@@ -6643,10 +6678,8 @@ again1:
                                 no_running_main = true;
                                 run_script(ms);
                                 no_running_main = false;
-                                
                         }
                 }
-                
                 
                 place_sprites_game();
                 
@@ -6660,8 +6693,6 @@ again1:
                 thisTickCount = SDL_GetTicks();
                 
                 init_scripts();
-                
-                
         }
         
         
@@ -6738,34 +6769,41 @@ again1:
                 
         }
         
-        
+/* It's used at: freedink.cpp:restoreAll(), DinkC's draw_background(),
+   stop_entire_game(). What's the difference with draw_map_game()?? */
         void draw_map_game_background( void)
         {
-                RECT                rcRect;
-                
-                
-                
+                RECT rcRect;
                 int pa, cool;
-                
                 
                 for (int x=0; x<96; x++)
                 {
                         cool = pam.t[x].num / 128;
                         pa = pam.t[x].num - (cool * 128);
+
                         rcRect.left = (pa * 50- (pa / 12) * 600);
                         rcRect.top = (pa / 12) * 50;
                         rcRect.right = rcRect.left + 50;
                         rcRect.bottom = rcRect.top + 50;
-                        
-                        
                         lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
                                 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-                        
+
+			// GFX
+			{
+			  SDL_Rect src;
+			  SDL_Rect dst;
+			  src.x = (pa * 50- (pa / 12) * 600);
+			  src.y = (pa / 12) * 50;
+			  src.w = 50;
+			  src.h = 50;
+			  dst.x = (x * 50 - ((x / 12) * 600))+playl;
+			  dst.y = (x / 12) * 50, tiles[cool+1];
+			  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+			}
                         
                 }
                 
                 place_sprites_game_background();
-                
         }
         
         
@@ -6908,7 +6946,10 @@ again1:
                 ddbltfx.dwSize = sizeof( ddbltfx);
                 ddbltfx.dwFillColor = num;
                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                
+                // GFX
+		// FIXME: check that num is indeed an appropriate
+		// palette index for lpDDSTwo
+		SDL_FillRect(GFX_lpDDSTwo, NULL, num);
         }
         
         
@@ -9404,6 +9445,8 @@ pass:
                                         SetRect(&rcRect, 0,0,640,480);
                                         ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
                                                 &rcRect, DDBLTFAST_NOCOLORKEY);
+					// GFX
+					SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
                                         
                                         if( ddrval == DD_OK )
                                         {

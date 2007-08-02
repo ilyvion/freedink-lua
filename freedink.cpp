@@ -47,6 +47,7 @@
 #include "dinkvar.h"
 #include "update_frame.h"
 #include "resource.h"
+#include "init.h"
 #include "freedink.h"
 
 const int WM_IMDONE = WM_USER+110;
@@ -3917,10 +3918,12 @@ bool transition(void)
 			
 			ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
 			ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+			// GFX
+			{
+			  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+			  SDL_Flip(GFX_lpDDSPrimary);
+			}
 		}
-		
-		
-		
 	}
 	
 	
@@ -4930,13 +4933,13 @@ again:
 	
 }
 
-
+/* Draw screen when browsing the inventory */
 void process_item( void )
 {
-	
     RECT                rcRect;
     rcRect.left = 0;
     rcRect.top = 0;
+    /* x and y are the size of the screen */
     rcRect.right = x;
     rcRect.bottom = y;
 	int hor, virt;	
@@ -4947,7 +4950,9 @@ void process_item( void )
 	{
 		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
 			&rcRect, DDBLTFAST_NOCOLORKEY);
-		
+		// GFX
+		SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+
 		if( ddrval == DD_OK )
 		{
 			break;
@@ -5219,7 +5224,19 @@ void process_animated_tiles( void )
 				
 				lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+flip],
 					&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-				
+
+				// GFX
+				{
+				  SDL_Rect src;
+				  SDL_Rect dst;
+				  src.x = (pa * 50- (pa / 12) * 600);
+				  src.y = (pa / 12) * 50;
+				  src.w = 50;
+				  src.h = 50;
+				  dst.x = (x * 50 - ((x / 12) * 600))+playl;
+				  dst.y = (x / 12) * 50, tiles[cool+flip];
+				  SDL_BlitSurface(GFX_tiles[cool+flip], &src, GFX_lpDDSTwo, &dst);
+				}
 			}	
 		}
 		
@@ -5266,6 +5283,18 @@ void process_animated_tiles( void )
 				lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+fire_flip],
 					&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
 				
+				// GFX
+				{
+				  SDL_Rect src;
+				  SDL_Rect dst;
+				  src.x = (pa * 50- (pa / 12) * 600);
+				  src.y = (pa / 12) * 50;
+				  src.w = 50;
+				  src.h = 50;
+				  dst.x = (x * 50 - ((x / 12) * 600))+playl;
+				  dst.y = (x / 12) * 50, tiles[cool+fire_flip];
+				  SDL_BlitSurface(GFX_tiles[cool+fire_flip], &src, GFX_lpDDSTwo, &dst);
+				}
 			}	
 		}
 		
@@ -5406,6 +5435,9 @@ void finiObjects()
 		  lpDDSBack = NULL;
 		  }
 		 */ 
+	  //GFX
+	  SDL_FreeSurface(GFX_lpDDSBack);
+
 			if( lpDDPal != NULL )
 			{
 			lpDDPal->Release();
@@ -5617,6 +5649,10 @@ int check_arg(char *crap)
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
+  // GFX: only use windowed mode to display both the DX and the SDL
+  // windows at once
+  windowed = true;
+
   for (int i=1; i <= 10; i++)
     {
       separate_string(crap, i, ' ', option);
@@ -5686,6 +5722,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	
   RECT rcRectSrc;    RECT rcRectDest;
   POINT p;
+
 
   /*
    * set up and register window class
@@ -5760,7 +5797,8 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 		
       // The primary surface is not a page flipping surface this time
       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
-		
+      // GFX: done in init.cpp
+      
       if( ddrval != DD_OK )    
 	{
 	  lpDD->Release();  
@@ -5869,15 +5907,24 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 		
       ddsd.dwBackBufferCount = 1;
       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
+      // GFX: not done yet, that's full-screen mode
       if( ddrval != DD_OK )
 	return initFail(hwnd, "Could not create primary surface.");
       
       ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
 		
       ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack);
+      // GFX: not done yet, that's full-screen mode
       if( ddrval != DD_OK )
 	return initFail(hwnd, "Could not create backbuffer,");
       
+    }
+
+
+  /* New initialization */
+  if (init() == 0)
+    {
+      exit(1);
     }
 	
   //init is finished, now lets load some more junk
@@ -5917,6 +5964,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
 		
       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
+      GFX_tiles[h] = GFX_DDTileLoad(crap, h);
 		
       if( tiles[h] == NULL )
 	return initFail(hwnd, "Couldn't find one of the tilescreens!");
@@ -5936,11 +5984,20 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   srand((unsigned)time(NULL));
 	
   if (exist("tiles/splash.bmp"))
-    lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0);
+    {
+      lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTwo = SDL_LoadBMP("tiles/splash.BMP");
+    }
   else
-    lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0);
+    {
+      lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0);
+      // GFX
+      GFX_lpDDSTwo = SDL_LoadBMP("../dink/tiles/splash.BMP");
+    }
 
   DDSetColorKey(lpDDSTwo, RGB(0,0,0));
+  // GFX: TODO
 
   if (cd_inserted)
     PlayCD(7);
@@ -5957,7 +6014,12 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	
   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
 			      &rcRect, DDBLTFAST_NOCOLORKEY);
-	
+  // GFX
+  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+
+  /* Replaced this code by a call to flip_it(): */
+  flip_it();
+  /*
   if (!windowed)
     {	
       while(1)
@@ -5989,7 +6051,13 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       OffsetRect(&rcRectDest, p.x, p.y);
       SetRect(&rcRectSrc, 0, 0, 640, 480);
       ddrval = lpDDSPrimary->Blt(&rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
+      // GFX
+      {
+	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+	SDL_Flip(GFX_lpDDSPrimary);
+      }
     }
+  */
 
   //dinks normal walk
   Msg("loading batch");
@@ -6111,8 +6179,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   command_line = lpCmdLine;
 
   doInit(hInstance, nCmdShow);
-
-
+  
   /* Notify other apps that FreeDink is playing */
   log_path(true);
 
