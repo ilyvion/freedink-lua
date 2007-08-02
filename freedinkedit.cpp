@@ -1,26 +1,26 @@
-/*==========================================================================
+/**
+ * FreeDink editor-specific code
 
-Dink Smallwood Source Code: Copyright (C) Seth A. Robinson, 1997-2003
-www.rtsoft.com
+ * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
+ * Copyright (C) 2005, 2007  Sylvain Beucler
 
-This software is provided "as is" without express or implied
-warranties. You may freely use, modify and distribute this
-source provided that the copyright text below is included in
-the resulting source code, for example:
-"Portions Copyright (C) Seth A. Robinson, 1997-2003
- 
-If you use any of this source in a commercial product, you are gently asked
-to donate a few bucks to Seth.  Check www.codedojo.com for info on how to do that.
+ * This file is part of GNU FreeDink
 
-Donations:  If you find this source helpful in some way and use it in a product you are selling, you are
-gently asked to donate a couple bucks via codedojo.com.  This cash will be used to maintain the site
-and hopefully inspire me to get off my duff and release more source.
+ * GNU FreeDink is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2, or (at
+ * your option) any later version.
 
+ * GNU FreeDink is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
 
-Check the license.txt for more info.
-
-*/
-
+ * You should have received a copy of the GNU General Public License
+ * along with program; see the file COPYING. If not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
 
 #define NAME "DinkEdit"
 #define TITLE "DinkEdit"
@@ -43,6 +43,8 @@ Check the license.txt for more info.
 #include "ddutil.h"
 #include "dinkvar.h"
 #include "fastfile.h"
+#include "gfx.h"
+#include "gfx_tiles.h"
 #include "sfx.h"
 #include "resource.h"
 

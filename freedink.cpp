@@ -2,7 +2,7 @@
  * FreeDink game-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2005  Sylvain Beucler
+ * Copyright (C) 2005, 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -42,6 +42,8 @@
 #include "ddutil.h"
 #include "fastfile.h"
 
+#include "gfx.h"
+#include "gfx_tiles.h"
 #include "bgm.h"
 #include "sfx.h"
 #include "dinkvar.h"
@@ -66,9 +68,7 @@ int hurt_thing(int h, int damage, int special);
 
 
 int but_timer;
-int water_timer;
-bool fire_forward;
-int fire_flip;
+
 //const NUM_SOUND_EFFECTS = 10;
 int fps_show = 0;
 
@@ -5186,122 +5186,6 @@ again:
 		
 		item_screen = false;
 	}
-	
-	
-}
-
-void process_animated_tiles( void )
-{
-	RECT rcRect;
-	int cool;
-	int flip;
-	int pa;
-	
-	//process water tiles
-	
-	if (water_timer < thisTickCount)
-	{
-		
-		water_timer = thisTickCount + ((rand() % 2000));
-		
-		flip = ((rand() % 2)+1);		
-		
-		
-		
-		
-		for (int x=0; x<96; x++)
-		{
-			if (pam.t[x].num > 896) if (pam.t[x].num < (896+128))
-			{
-				
-				cool = pam.t[x].num / 128;
-				pa = pam.t[x].num - (cool * 128);
-				rcRect.left = (pa * 50- (pa / 12) * 600);
-				rcRect.top = (pa / 12) * 50;
-				rcRect.right = rcRect.left + 50;
-				rcRect.bottom = rcRect.top + 50;
-				
-				
-				lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+flip],
-					&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-				// GFX
-				{
-				  SDL_Rect src;
-				  SDL_Rect dst;
-				  src.x = (pa * 50- (pa / 12) * 600);
-				  src.y = (pa / 12) * 50;
-				  src.w = 50;
-				  src.h = 50;
-				  dst.x = (x * 50 - ((x / 12) * 600))+playl;
-				  dst.y = (x / 12) * 50, tiles[cool+flip];
-				  SDL_BlitSurface(GFX_tiles[cool+flip], &src, GFX_lpDDSTwo, &dst);
-				}
-			}	
-		}
-		
-	}
-	
-	//end of water processing
-	
-	
-	//if (water_timer < thisTickCount)
-	{
-		
-		//	water_timer = thisTickCount + ((rand() % 2000)+1000);
-		
-		if (fire_forward) fire_flip++;
-		if (!fire_forward) fire_flip--;
-		
-		if (fire_flip < 1)
-		{
-			fire_flip = 5;
-			fire_forward = false;
-		}
-		
-		//	if (fire_flip > 4)
-		//	{
-		//  fire_flip = 4;
-		//fire_forward = false;
-		//}
-		
-		
-		
-		for (int x=0; x<96; x++)
-		{
-			if (pam.t[x].num > 2304) if (pam.t[x].num < (2304+128))
-			{
-				
-				cool = pam.t[x].num / 128;
-				pa = pam.t[x].num - (cool * 128);
-				rcRect.left = (pa * 50- (pa / 12) * 600);
-				rcRect.top = (pa / 12) * 50;
-				rcRect.right = rcRect.left + 50;
-				rcRect.bottom = rcRect.top + 50;
-				
-				
-				lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+fire_flip],
-					&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-				
-				// GFX
-				{
-				  SDL_Rect src;
-				  SDL_Rect dst;
-				  src.x = (pa * 50- (pa / 12) * 600);
-				  src.y = (pa / 12) * 50;
-				  src.w = 50;
-				  src.h = 50;
-				  dst.x = (x * 50 - ((x / 12) * 600))+playl;
-				  dst.y = (x / 12) * 50, tiles[cool+fire_flip];
-				  SDL_BlitSurface(GFX_tiles[cool+fire_flip], &src, GFX_lpDDSTwo, &dst);
-				}
-			}	
-		}
-		
-	}
-	
-	//end of water processing
-	
 	
 	
 }

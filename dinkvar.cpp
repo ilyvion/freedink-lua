@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2005  Sylvain Beucler
+ * Copyright (C) 2005, 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -60,6 +60,8 @@
 
 #include "freedink.h"
 #include "dinkvar.h"
+#include "gfx.h"
+#include "gfx_tiles.h"
 #include "bgm.h"
 #include "sfx.h"
 
@@ -77,7 +79,7 @@ time_t time_start;
 bool item_screen = false;
 bool midi_active = true;
 char dversion_string[7] = "v1.07";
-void init_scripts(void);
+
 int load_script(char filename[15], int sprite, bool set_sprite);
 void strchar(char *string, char ch);
 /* Path where Dink is installed. Used to write dinksmallwood.ini in
@@ -99,7 +101,6 @@ void run_script (int script);
 void add_text(char *tex ,char *filename);
 void program_idata(void);
 int map_vision = 0;  
-void draw_map_game( void);
 int realhard(int tile);
 int flub_mode = -500;
 unsigned short decipher_savegame = 0;
@@ -317,17 +318,6 @@ int mode;
 sequence seq[max_sequences]; 
 map_info map;
 small_map pam;
-LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
-//LPDIRECTDRAWSURFACE     lpDDSOne;       // Offscreen surface 1
-LPDIRECTDRAWSURFACE     lpDDSTwo = NULL;       // Offscreen surface 2
-LPDIRECTDRAWSURFACE     lpDDSTrick = NULL;       // Offscreen surface 2
-LPDIRECTDRAWSURFACE     lpDDSTrick2 = NULL;       // Offscreen surface 2
-
-/* holds the base scene */
-SDL_Surface *GFX_lpDDSTwo = NULL;
-/* Beuc: apparently used for the scrolling screen transition */
-SDL_Surface *GFX_lpDDSTrick = NULL;
-SDL_Surface *GFX_lpDDSTrick2 = NULL;
 
 
 bool trig_man = false;
@@ -338,15 +328,8 @@ pic_info     k[max_sprites];       // Sprite data
 player_info play;
 
 
-LPDIRECTDRAWSURFACE     lpDDSPrimary = NULL;   // DirectDraw primary surface
-LPDIRECTDRAWSURFACE     lpDDSBack = NULL;      // DirectDraw back surface
-
-SDL_Surface *GFX_lpDDSPrimary = NULL;
-SDL_Surface *GFX_lpDDSBack = NULL;
 
 
-LPDIRECTDRAWSURFACE     tiles[tile_screens];       // Game pieces
-SDL_Surface             *GFX_tiles[tile_screens];   // Game pieces (SDL)
 LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces
 
 sp spr[max_sprites_at_once]; //max sprite control systems at once
@@ -4102,7 +4085,8 @@ void kill_script(int k)
 
 
 
-
+/* Used by gfx_tiles only - what's the difference with
+   kill_all_scripts_for_real()? */
 void kill_all_scripts(void)
 {
         int k = 1;
@@ -6217,8 +6201,8 @@ void update_status_all(void)
 
 
 
-
-void place_sprites_game(void )
+/* used by gfx_tiles only */
+void place_sprites_game(void)
 {
         int sprite;
         
@@ -6629,72 +6613,6 @@ again1:
         
         
         
-        void draw_map_game( void)
-        {
-                RECT                rcRect;
-                int pa, cool;
-                
-                *pvision = 0;
-                
-                while (kill_last_sprite());
-                kill_repeat_sounds();
-                kill_all_scripts();
-
-		/* 96 = 12 * 8 tiles; 1 tile = 50x50 pixels */
-                for (int x=0; x<96; x++)
-                {
-                        cool = pam.t[x].num / 128;
-                        pa = pam.t[x].num - (cool * 128);
-
-                        rcRect.left = (pa * 50- (pa / 12) * 600);
-                        rcRect.top = (pa / 12) * 50;
-                        rcRect.right = rcRect.left + 50;
-                        rcRect.bottom = rcRect.top + 50;
-                        lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-                                &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-                        
-			// GFX
-			{
-			  SDL_Rect src;
-			  SDL_Rect dst;
-			  src.x = (pa * 50- (pa / 12) * 600);
-			  src.y = (pa / 12) * 50;
-			  src.w = 50;
-			  src.h = 50;
-			  dst.x = (x * 50 - ((x / 12) * 600))+playl;
-			  dst.y = (x / 12) * 50, tiles[cool+1];
-			  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-			}
-                }
-                
-                
-                if (strlen(pam.script) > 1)
-                {
-                        int ms = load_script(pam.script,0, true);
-                        
-                        if (ms > 0) 
-                        {
-                                locate(ms, "main");
-                                no_running_main = true;
-                                run_script(ms);
-                                no_running_main = false;
-                        }
-                }
-                
-                place_sprites_game();
-                
-                
-                //lets add the sprites hardness to the real hardness, adding it's own uniqueness to our collective.
-                
-                
-                //if script for overall screen, run it
-                
-                //Msg("Done loading screen.");
-                thisTickCount = SDL_GetTicks();
-                
-                init_scripts();
-        }
-        
         
         void place_sprites_game_background(void )
         {
@@ -6768,45 +6686,6 @@ again1:
                 
                 
         }
-        
-/* It's used at: freedink.cpp:restoreAll(), DinkC's draw_background(),
-   stop_entire_game(). What's the difference with draw_map_game()?? */
-        void draw_map_game_background( void)
-        {
-                RECT rcRect;
-                int pa, cool;
-                
-                for (int x=0; x<96; x++)
-                {
-                        cool = pam.t[x].num / 128;
-                        pa = pam.t[x].num - (cool * 128);
-
-                        rcRect.left = (pa * 50- (pa / 12) * 600);
-                        rcRect.top = (pa / 12) * 50;
-                        rcRect.right = rcRect.left + 50;
-                        rcRect.bottom = rcRect.top + 50;
-                        lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-                                &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-			// GFX
-			{
-			  SDL_Rect src;
-			  SDL_Rect dst;
-			  src.x = (pa * 50- (pa / 12) * 600);
-			  src.y = (pa / 12) * 50;
-			  src.w = 50;
-			  src.h = 50;
-			  dst.x = (x * 50 - ((x / 12) * 600))+playl;
-			  dst.y = (x / 12) * 50, tiles[cool+1];
-			  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-			}
-                        
-                }
-                
-                place_sprites_game_background();
-        }
-        
-        
         
         void fill_back_sprites(void )
         {

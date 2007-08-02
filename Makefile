@@ -11,8 +11,8 @@ CXXFLAGS=$(CFLAGS) -g
 #LDFLAGS=-L"C:/dx7sdk/lib"
 LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer
 
-COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o \
-	freedink.res
+COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o	\
+	gfx.o gfx_tiles.o freedink.res
 APPS=freedink freedinkedit
 BINARIES=$(APPS:=.exe)
 

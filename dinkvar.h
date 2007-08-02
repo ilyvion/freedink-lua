@@ -380,8 +380,6 @@ extern void Msg( LPSTR fmt, ... );
 extern int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 extern void check_seq_status(int h);
 extern void dderror(HRESULT hErr);
-extern void draw_map_game( void);
-extern void draw_map_game_background( void);
 extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest,int h);
 extern void draw_status_all(void);
 extern void drawallhard( void);
@@ -464,19 +462,9 @@ extern bool cd_inserted;
 
 /* Drawing */
 extern void initfonts(char fontname[255]);
-extern LPDIRECTDRAW lpDD; /* DirectDraw object */
-extern LPDIRECTDRAWSURFACE lpDDSPrimary;
-extern LPDIRECTDRAWSURFACE lpDDSTrick;
-extern LPDIRECTDRAWPALETTE lpDDPal; /* The primary surface palette */
-extern LPDIRECTDRAWSURFACE lpDDSBack;
-extern LPDIRECTDRAWSURFACE lpDDSTrick2;
-extern LPDIRECTDRAWSURFACE lpDDSTwo;
-extern SDL_Surface *GFX_lpDDSPrimary;
-extern SDL_Surface *GFX_lpDDSBack;
-extern SDL_Surface *GFX_lpDDSTrick;
-extern SDL_Surface *GFX_lpDDSTrick2;
-extern SDL_Surface *GFX_lpDDSTwo;
+
 extern HRESULT ddrval;
+extern LPDIRECTDRAWPALETTE lpDDPal; /* The primary surface palette */
 extern PALETTEENTRY    pe[256];
 extern PALETTEENTRY    real_pal[256];
 
@@ -538,8 +526,7 @@ extern void load_hard(void);
 extern void load_info(void);
 extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite);
 SDL_Surface *GFX_DDTileLoad(char* filename, int sprite);
-extern LPDIRECTDRAWSURFACE tiles[];
-extern SDL_Surface *GFX_tiles[];
+
 extern hit_map hm;
 
 /* Dunno */
@@ -619,4 +606,12 @@ extern int in_x, in_y;
 extern bool in_enabled;
 extern int sp_mode;
 extern bool dinkedit;
+
+
+/* Used by gfx_tiles.cpp only */
+extern void place_sprites_game(void);
+extern void place_sprites_game_background(void);
+extern void kill_all_scripts(void);
+extern void init_scripts(void);
+extern bool no_running_main;
 #endif

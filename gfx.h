@@ -1,7 +1,7 @@
 /**
- * FreeDink (not FreeDinkEdit) screen update
+ * Header for graphics
 
- * Copyright (C) 2005  Sylvain Beucler
+ * Copyright (C) 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -19,11 +19,29 @@
  * along with program; see the file COPYING. If not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301, USA.
+
+ * I made this header because I though update_frame had to be compiled
+ * separately - actually it was also included in dink.cpp. Might still
+ * come in handy.
  */
 
-#ifndef _UPDATE_FRAME_H
-#define _UPDATE_FRAME_H
+#ifndef _GFX_H
+#define _GFX_H
 
-extern void updateFrame( void );
+#include <ddraw.h>
+#include "SDL.h"
+
+extern LPDIRECTDRAW lpDD; /* DirectDraw object */
+extern LPDIRECTDRAWSURFACE lpDDSPrimary;
+extern LPDIRECTDRAWSURFACE lpDDSBack;
+extern LPDIRECTDRAWSURFACE lpDDSTrick;
+extern LPDIRECTDRAWSURFACE lpDDSTrick2;
+extern LPDIRECTDRAWSURFACE lpDDSTwo;
+
+extern SDL_Surface *GFX_lpDDSPrimary;
+extern SDL_Surface *GFX_lpDDSBack;
+extern SDL_Surface *GFX_lpDDSTrick;
+extern SDL_Surface *GFX_lpDDSTrick2;
+extern SDL_Surface *GFX_lpDDSTwo;
 
 #endif
