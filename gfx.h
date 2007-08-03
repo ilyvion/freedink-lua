@@ -46,4 +46,6 @@ extern SDL_Surface *GFX_lpDDSTwo;
 
 extern PALETTEENTRY real_pal[256];
 extern SDL_Color GFX_real_pal[256];
+extern int trigger_palette_change;
+
 #endif

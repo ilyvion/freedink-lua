@@ -4011,7 +4011,17 @@ bool transition(void)
 			// GFX
 			{
 			  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-			  SDL_Flip(GFX_lpDDSPrimary);
+			  if (trigger_palette_change)
+			    {
+			      // apply the logical palette to the
+			      // physical screen - this will trigger a
+			      // Flip
+			      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
+					     GFX_lpDDSPrimary->format->palette->colors, 0, 256);
+			      trigger_palette_change = 0;
+			    }
+			  else
+			    SDL_Flip(GFX_lpDDSPrimary);
 			}
 		}
 	}
@@ -5340,18 +5350,14 @@ again:
 	    return;
 	  }
 	  // GFX
-	  // With SDL, also redefine palettes for intermediary buffers
-	  SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
-	  SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
 	  {
+	    // With SDL, also redefine palettes for intermediary buffers
+	    SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
+	    SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
+	    // Tell the engine to refresh the physical screen's
+	    // palette next frame:
 	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, GFX_real_pal, 0, 256);
-	    /* TODO: physical SetPalette should only be done when the
-	       surface is updated with the game again (eg in
-	       flip_it*). Doing it now apparently triggers a Flip and
-	       displays weird colors on the screen for a moment. */
-	    // new_palette = GFX_real_pal;
-	    // trigger_new_palette = 1;
-	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, GFX_real_pal, 0, 256);
+	    trigger_palette_change = 1;
 	  }
 	}
 }

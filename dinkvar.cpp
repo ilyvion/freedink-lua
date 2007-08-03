@@ -6383,6 +6383,10 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
     // With SDL, also redefine palettes for intermediary buffers
     SDL_SetColors(GFX_lpDDSTrick, palette, 0, 256);
     SDL_SetColors(GFX_lpDDSBack, palette, 0, 256);
+    // Tell the engine to refresh the physical screen's
+    // palette next frame:
+    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
+    trigger_palette_change = 1;
   }
   
   // memory leak?
@@ -6406,22 +6410,14 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
   // GFX
   {
-    // in the back buffer, right now (useful?)
-    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
-    //  and in lpDDSTrick for use in process_show_bmp
+    // update lpDDSTrick for use in process_show_bmp
     SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
     SDL_FreeSurface(image);
-
-    // Switching the screen palette makes the screen glitch. We need
-    // to update proceed step by step:
-    {
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
-      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, palette, 0, 256);
-    }
   }
   
-  flip_it_second();
+  /* DEBUG: doesn't seem useful, will be done in the next
+     updateFrame() anyway */
+  //flip_it_second();
 }
 
         
@@ -6479,6 +6475,7 @@ void copy_bmp( char name[80])
     SDL_FreeSurface(image);
     // Switching the screen palette makes the screen glitch. We need
     // to update proceed step by step:
+    /* TODO: test and use show_bmp as a reference */
     {
       SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
       SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);

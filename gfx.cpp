@@ -71,7 +71,24 @@ SDL_Surface *GFX_lpDDSTrick = NULL;
 SDL_Surface *GFX_lpDDSTrick2 = NULL;
 
 
-/* Palettes */
+/* Reference palette: this is the canonical Dink palette, loaded from
+   TS01.bmp (for freedink) and esplash.bmp (for freedinkedit). The
+   physical screen may be changed (e.g. show_bmp()), but this
+   canonical palette will stay constant. */
 PALETTEENTRY    real_pal[256];
 SDL_Color GFX_real_pal[256];
 
+/* Palette change: with SDL, SDL_SetColors (aka
+   SDL_SetPalette(SDL_PHYSPAL)) apparently triggers a Flip, which
+   displays weird colors on the screen for a brief but displeasing
+   moment. Besides, SDL_Flip() does not refresh the hardware palette,
+   so update the physical palette needs to be done manually - but only
+   when the surface is already in its final form. The palette may need
+   to be changed before the screen content is ready, so we'll make the
+   engine know when he needs to refresh the physical palette: */
+/* Tell flip_it* to install the new palette */
+int trigger_palette_change = 0;
+
+void change_screen_palette(SDL_Color* palette) {
+  // Maybe
+}
