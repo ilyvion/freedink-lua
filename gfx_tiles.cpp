@@ -25,6 +25,7 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "ddutil.h"
 #include "sfx.h"
 
 /* Tiles */
@@ -36,6 +37,46 @@ int water_timer;
 bool fire_forward;
 int fire_flip;
 
+
+// Load the tiles from the BMPs
+void load_tiles(void) {
+  char crap[30];
+  char crap1[10];
+
+  Msg("loading tilescreens...");
+  for (int h=1; h < tile_screens; h++)
+    {
+      if (h < 10)
+	strcpy(crap1,"0");
+      else
+	strcpy(crap1, "");
+      
+      sprintf(crap, "TILES/TS%s%d.BMP",crap1,h);
+      
+      if (!exist(crap))
+	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
+      
+      tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
+      // GFX
+      GFX_tiles[h] = GFX_DDTileLoad(crap, h);
+      
+      if( tiles[h] == NULL ) {
+	printf("Couldn't find one of the tilescreens!\n");
+	exit(0);
+      }
+      else {
+	DDSetColorKey(tiles[h], RGB(0,0,0));
+	// GFX
+	// Set transparency to black
+	/* Disabled, there's no need for transparency in buffers (the
+	   DX version uses DDBLTFAST_NOCOLORKEY to avoid it). */
+	//SDL_SetColorKey(GFX_tiles[h], SDL_SRCCOLORKEY,
+	//		SDL_MapRGB(GFX_tiles[h]->format, 0, 0, 0));
+      }
+    }
+  
+  Msg("Done with tilescreens...");
+}
 
 /* Draw the background from tiles */
 void draw_map_game(void)

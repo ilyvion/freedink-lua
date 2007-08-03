@@ -13,7 +13,7 @@ CXXFLAGS=$(CFLAGS) -g
 LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer
 
 COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o	\
-	gfx.o gfx_tiles.o gfx_utils.o freedink.res
+	gfx.o gfx_tiles.o gfx_utils.o init.o freedink.res
 APPS=freedink freedinkedit
 BINARIES=$(APPS:=.exe)
 
@@ -22,7 +22,7 @@ BINARIES=$(APPS:=.exe)
 
 all: $(APPS)
 
-freedink: $(COMMON_OBJS) freedink.o update_frame.o init.o
+freedink: $(COMMON_OBJS) freedink.o update_frame.o
 freedinkedit: $(COMMON_OBJS) freedinkedit.o
 
 # .h deps

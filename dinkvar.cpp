@@ -1129,9 +1129,6 @@ void flip_it_second(void)
 		  SDL_Flip(GFX_lpDDSPrimary);
 		}
         }
-        
-        
-        
 }
 
 

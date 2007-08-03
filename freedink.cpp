@@ -5916,7 +5916,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
     {
       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
       // GFX
-      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
   // TODO: setpalette will be called again later
   /* Beuc: it will be called by reloading TS01.BMP - this seems
@@ -5945,37 +5945,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   */
 
   // Load the tiles from the BMPs
-  Msg("loading tilescreens...");
-  for (int h=1; h < tile_screens; h++)
-    {
-      if (h < 10)
-	strcpy(crap1,"0");
-      else
-	strcpy(crap1, "");
-
-      sprintf(crap, "TILES/TS%s%d.BMP",crap1,h);
-		
-      if (!exist(crap))
-	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
-		
-      tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
-      // GFX
-      GFX_tiles[h] = GFX_DDTileLoad(crap, h);
-		
-      if( tiles[h] == NULL )
-	return initFail(hwnd, "Couldn't find one of the tilescreens!");
-      else {
-	DDSetColorKey(tiles[h], RGB(0,0,0));
-	// GFX
-	// Set transparency to black
-	/* Disabled, there's no need for transparency in buffers (the
-	   DX version uses DDBLTFAST_NOCOLORKEY to avoid it). */
-// 	SDL_SetColorKey(GFX_tiles[h], SDL_SRCCOLORKEY,
-// 			SDL_MapRGB(GFX_tiles[h]->format, 0, 0, 0));
-      }
-    }
-
-  Msg("Done with tilescreens...");
+  load_tiles();
 	
   if (sound_on) 
     {

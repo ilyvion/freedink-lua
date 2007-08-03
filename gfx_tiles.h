@@ -34,6 +34,7 @@
 extern LPDIRECTDRAWSURFACE tiles[];
 extern SDL_Surface *GFX_tiles[];
 
+extern void load_tiles(void);
 extern void draw_map_game(void);
 extern void draw_map_game_background(void);
 extern void process_animated_tiles(void);

@@ -40,11 +40,13 @@
 #include <ddraw.h>
 #include <dsound.h>
 
+#include "init.h"
 #include "ddutil.h"
 #include "dinkvar.h"
 #include "fastfile.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "gfx_utils.h"
 #include "sfx.h"
 #include "resource.h"
 
@@ -402,72 +404,80 @@ if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
 
 
-
-void draw_map( void)
+/* Draw background from tiles */
+void draw_map(void)
 {
- RECT                rcRect;
-
- 
- 
- int pa, cool,crap;   
-
- 
- 
- DDBLTFX     ddbltfx;
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-ddbltfx.dwSize = sizeof( ddbltfx);
- ddbltfx.dwFillColor = 0;
-crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-
-fill_whole_hard();
-
-while (kill_last_sprite()); 
-
- for (int x=0; x<96; x++)
+  RECT rcRect;
+  int pa, cool,crap;   
+  
+  /* Replaced by a call to fill_screen(0) */
+  fill_screen(0);
+  /*
+  DDBLTFX     ddbltfx;
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 0;
+  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  */
+  fill_whole_hard();
+  
+  while (kill_last_sprite()); 
+  
+  for (int x=0; x<96; x++)
     {
-    cool = pam.t[x].num / 128;
-    pa = pam.t[x].num - (cool * 128);
-	rcRect.left = (pa * 50- (pa / 12) * 600);
-    rcRect.top = (pa / 12) * 50;
-    rcRect.right = rcRect.left + 50;
-    rcRect.bottom = rcRect.top + 50;
-   
-	
-	lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-           &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-	
-	}
-
-
-place_sprites();
-
-
+      cool = pam.t[x].num / 128;
+      pa = pam.t[x].num - (cool * 128);
+      rcRect.left = (pa * 50- (pa / 12) * 600);
+      rcRect.top = (pa / 12) * 50;
+      rcRect.right = rcRect.left + 50;
+      rcRect.bottom = rcRect.top + 50;
+      
+      
+      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
+			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+      // GFX
+      {
+	SDL_Rect src, dst;
+	src.x = (pa * 50- (pa / 12) * 600);
+	src.y = (pa / 12) * 50;
+	src.w = src.h = 50;
+	dst.x = (x * 50 - ((x / 12) * 600))+playl;
+	dst.y = (x / 12) * 50;
+ 	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+      }
+    }
+  place_sprites();
 }
 
 
 
 
-
+/* Draw the currently selected tile square (in the bottom-right corner
+   of the screen) */
 void draw_current( void)
 {
- RECT                rcRect;
- int x,cool;
-   cool = cur_tile / 128;
-    x = cur_tile - (cool * 128);
-
- //x = cur_tile; 
-    rcRect.left = (x * 50- (x / 12) * 600);
-    rcRect.top = (x / 12) * 50;
-    rcRect.right = rcRect.left + 50;
-    rcRect.bottom = rcRect.top + 50;
-	
-//(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );	
-lpDDSTwo->BltFast( 590,430 , tiles[cool+1],
-           &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-	
-
+  RECT rcRect;
+  int x,cool;
+  cool = cur_tile / 128;
+  x = cur_tile - (cool * 128);
+  
+  //x = cur_tile; 
+  rcRect.left = (x * 50- (x / 12) * 600);
+  rcRect.top = (x / 12) * 50;
+  rcRect.right = rcRect.left + 50;
+  rcRect.bottom = rcRect.top + 50;
+  
+  //(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );	
+  lpDDSTwo->BltFast( 590,430 , tiles[cool+1],
+		     &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+  //GFX
+  {
+    SDL_Rect src, dst = {590, 430};
+    src.x = (x * 50- (x / 12) * 600);
+    src.y = (x / 12) * 50;
+    src.h = src.w = 50;
+    SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+  }
 }
 
 void draw_hard( void)
@@ -870,7 +880,8 @@ check_keyboard();
 }
 
 
-
+/* Beuc: apparently this loads a tile fullscreen, so we can select
+   some squares */
 void loadtile(int tileset)
 {
 	DDBLTFX     ddbltfx;
@@ -1799,37 +1810,18 @@ void change_tile(int tile, int num)
 
  
  
- void copy_back_to_front( void)
-{
-RECT rcRect;
-
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = x;
-    rcRect.bottom = y;
-	
-           lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-            &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-
-
-}
-
-
 void copy_front_to_two( void)
 {
-RECT rcRect;
-
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = x;
-    rcRect.bottom = y;
-	
-           lpDDSTwo->BltFast( 0, 0, lpDDSBack,
-            &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-
-
+  RECT rcRect;
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = x;
+  rcRect.bottom = y;
+  
+  lpDDSTwo->BltFast( 0, 0, lpDDSBack,
+		     &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+  // GFX
+  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
 }
 
 
@@ -2168,6 +2160,9 @@ tiny_again:
     {
         ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
             &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+	// GFX
+	SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+
 		
         if( ddrval == DD_OK )
         {
@@ -3651,13 +3646,19 @@ tilesel:
 		ZeroMemory(&ddbltfx, sizeof(ddbltfx));
 		ddbltfx.dwSize = sizeof( ddbltfx);
 		spr[1].seq = 0;
-spr[1].pseq = 10;
-								spr[1].pframe = 1;
+		spr[1].pseq = 10;
+		spr[1].pframe = 1;
 								
 		
-		
+
+		// Display the given tile square fullscreen, for hardness editing
 		lpDDSTwo->Blt(&crapRec , tiles[cool+1],
 			&Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+		// GFX
+		{
+		  // TODO: SDL_gfx + scaling
+		}
+
 		m4x = spr[h].x;
 		m4y = spr[h].y;
 		
@@ -4420,6 +4421,8 @@ drawallhard();
         rcRect.bottom = 400;
 		ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
 		&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+		// GFX
+		SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
 		  if (ddrval != DD_OK) dderror(ddrval);
 		  while(kill_last_sprite());
 
@@ -4904,6 +4907,10 @@ if (in_onflag)
 	//copy screen to Two
 		SetRect(&rcRect, 0, 0, 640, 480);
         ddrval = lpDDSTwo->Blt( &rcRect, lpDDSBack, &rcRect, DDBLT_WAIT, NULL);
+	// GFX
+	// TODO: use copy_front_to_two()
+	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
+
         if (ddrval != DD_OK) dderror(ddrval);
 
 		
@@ -4978,6 +4985,9 @@ if (!windowed)
 
 } else
 {
+  /* Replaced by a call to flip_it_second() */
+  flip_it_second();
+  /*
 	//windowed mode, no flipping		 
 	p.x = 0; p.y = 0;    
 	ClientToScreen(hWndMain, &p);
@@ -4997,6 +5007,7 @@ if (!windowed)
 	
 	ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
 	ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+  */
 }
 
 } /* updateFrame */
@@ -5291,8 +5302,9 @@ dinkedit = true;
 	  
 	  
 	  
-	  
-	  windowed = false;
+	  // DEBUG
+	  //windowed = false;
+	  windowed = true;
 	  check_arg(command_line);
 	  
 
@@ -5521,6 +5533,13 @@ dinkedit = true;
 	  
 	  //done with major initting of graphics engine
 	  
+
+  /* New initialization */
+  if (init() == 0)
+    {
+      exit(1);
+    }
+
 	  
 	    ZeroMemory(&hm, sizeof(hit_map));
 		
@@ -5544,9 +5563,25 @@ if (!exist(tdir))
     }
 
 	  lpDDPal = DDLoadPalette(lpDD, tdir);
+	  // GFX
+	  load_palette_from_bmp(tdir, GFX_real_pal);
 	  
 	  if (lpDDPal)
-		  lpDDSPrimary->SetPalette(lpDDPal);
+	    {
+	      lpDDSPrimary->SetPalette(lpDDPal);
+	      // GFX
+	      /* Make sure entry 0 is black and 255 is white */
+	      /* The colors are reversed in ESPLASH.BMP's palette. For
+		 some reason that's how to original game works, even
+		 though I can't find the origin of that behavior... */
+	      GFX_real_pal[0].r = 0;
+	      GFX_real_pal[0].g = 0;
+	      GFX_real_pal[0].b = 0;
+	      GFX_real_pal[255].r = 255;
+	      GFX_real_pal[255].g = 255;
+	      GFX_real_pal[255].b = 255;
+	      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
+	    }
 	  // Create the offscreen surface, by loading our bitmap.
 	  srand( (unsigned)time( NULL ) );
 	  if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK)
@@ -5556,12 +5591,16 @@ if (!exist(tdir))
 
 
 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0);
+	  // GFX
+	  GFX_lpDDSTwo = SDL_LoadBMP(tdir);
 	  if (!lpDDSTwo)
 	  {
 	   return initFail(hwnd, "Couldn't load esplash.bmp.");
 
 	  }
 	  DDSetColorKey(lpDDSTwo, RGB(0,0,0));
+	  // GFX
+	  // needed?
 
 	  
 	  rcRect.left = 0;
@@ -5571,11 +5610,18 @@ if (!exist(tdir))
 	  
 	  //if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
 	  
+	  // Display esplash screen
 	  if (lpDDSTwo)
 	  {
-	  ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-		  &rcRect, DDBLTFAST_NOCOLORKEY);
+	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
+					 &rcRect, DDBLTFAST_NOCOLORKEY);
+	    // GFX
+	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	  }
+
+	  /* Replaced by a call to flip_it_second() */
+	  flip_it_second();
+	  /*
 	  if (!windowed)
 	  {	
 		  while( 1 )
@@ -5615,7 +5661,7 @@ if (!exist(tdir))
         SetRect(&rcRectSrc, 0, 0, 640, 480);
         ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
 }
-	
+	  */
 
 
 
@@ -5650,32 +5696,8 @@ load_hard();
 
 */
 
-
-    for (int h=1; h < tile_screens; h++)
-	{
-  	 if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, "");
-		sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h);
-		
-		if (!exist(crap))
-		{
-	sprintf(crap, "..\\DINK\\TILES\\TS%s%d.BMP",crap1,h);
-	
-
-		}
-
-		tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
-	 
-
-	if( tiles[h] == NULL )
-    {
-        return initFail(hwnd, "Couldn't find one of the tilescreens!");
-    } else
-	{
-        //tilerect[h].right =  lpDD->dwWidth;
-		
-		DDSetColorKey(tiles[h], RGB(0,0,0));
-	}
-    }
+// Load the tiles from the BMPs
+ load_tiles();
 	
 	for (int i=1; i <= 4; i++)
 {

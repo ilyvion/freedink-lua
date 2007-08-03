@@ -34,6 +34,8 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
   bmp = SDL_LoadBMP (file);
   /* bmp = IMG_Load (file); */
 
+  // TODO: if file doesn't exist / failed loading, cleanly exit
+
   for (i = 0; i < bmp->format->palette->ncolors; i++)
     {
       palette[i].r = bmp->format->palette->colors[i].r;

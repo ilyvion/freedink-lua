@@ -611,4 +611,6 @@ extern void place_sprites_game_background(void);
 extern void kill_all_scripts(void);
 extern void init_scripts(void);
 extern bool no_running_main;
+
+extern void fill_screen(int num);
 #endif
