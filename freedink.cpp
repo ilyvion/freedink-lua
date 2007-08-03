@@ -6249,7 +6249,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	  TranslateMessage(&msg); 
 	  DispatchMessage(&msg);
 	}
-      else if((bActive) || ((debug_mode) && (windowed)))
+      // DEBUG
+      /* Disabled bActive check because it seems SDL steal the
+	 foreground status somehow */
+      //else if((bActive) || ((debug_mode) && (windowed)))
+      else if((bActive) || (windowed))
 	{
 	  if (g_b_kill_app == 0)
 	    {
