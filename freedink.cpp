@@ -3948,86 +3948,89 @@ bool transition(void)
 	
 	
 	
-	void flip_it(void)
+void flip_it(void)
+{
+  DDBLTFX     ddbltfx;
+  
+  RECT rcRectSrc;    RECT rcRectDest;
+  POINT p;
+  
+  /*int timer = GetTickCount() + 50;
+    while(GetTickCount() < timer)
+    {
+    }
+  */
+  
+  if (!windowed)
+    {
+      while( 1 )
 	{
-		DDBLTFX     ddbltfx;
-		
-		RECT rcRectSrc;    RECT rcRectDest;
-		POINT p;
-		
-		
-		/*int timer = GetTickCount() + 50;
-		while(GetTickCount() < timer)
+	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
+	  if( ddrval == DD_OK )
+	    {
+	      break;
+	    }
+	  if( ddrval == DDERR_SURFACELOST )
+	    {
+	      
+	      restoreAll();
+	      if( ddrval != DD_OK )
 		{
+		  break;
 		}
-		*/
-		
-		if (!windowed)
-		{
-			
-			
-			
-			while( 1 )
-			{
-				ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-				if( ddrval == DD_OK )
-				{
-					break;
-				}
-				if( ddrval == DDERR_SURFACELOST )
-				{
-					
-					restoreAll();
-					if( ddrval != DD_OK )
-					{
-						break;
-					}
-				}
-				if( ddrval != DDERR_WASSTILLDRAWING )
-				{
-					
-					
-				}
-			} 
-			
-		} else
-		{
-			//windowed mode, no flipping		 
-			p.x = 0; p.y = 0;    
-			ClientToScreen(hWndMain, &p);
-			GetClientRect(hWndMain, &rcRectDest);
-			
-			//rcRectDest.top += winoffset;
-			rcRectDest.bottom = 480;
-			rcRectDest.right = 640;
-			
-			OffsetRect(&rcRectDest, p.x, p.y);
-			SetRect(&rcRectSrc, 0, 0, 640, 480);
-			
-			ddbltfx.dwSize = sizeof(ddbltfx);
-			
-			ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-			ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
-			// GFX
-			{
-			  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-			  if (trigger_palette_change)
-			    {
-			      // apply the logical palette to the
-			      // physical screen - this will trigger a
-			      // Flip
-			      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
-					     GFX_lpDDSPrimary->format->palette->colors, 0, 256);
-			      trigger_palette_change = 0;
-			    }
-			  else
-			    SDL_Flip(GFX_lpDDSPrimary);
-			}
-		}
+	    }
+	  if( ddrval != DDERR_WASSTILLDRAWING )
+	    {
+	      // Nope
+	    }
 	}
-	
-	
-	
+      // GFX: the windowed code below will also work in full-screen
+      // mode
+    }
+  else
+    {
+      //windowed mode, DX, no flipping
+      p.x = 0; p.y = 0;    
+      ClientToScreen(hWndMain, &p);
+      GetClientRect(hWndMain, &rcRectDest);
+      
+      //rcRectDest.top += winoffset;
+      rcRectDest.bottom = 480;
+      rcRectDest.right = 640;
+      
+      OffsetRect(&rcRectDest, p.x, p.y);
+      SetRect(&rcRectSrc, 0, 0, 640, 480);
+      
+      ddbltfx.dwSize = sizeof(ddbltfx);
+      
+      ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
+      ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+
+      // GFX
+      {
+	// TODO: work directly on either lpDDSBack or lpDDSPrimary:
+	// the double buffer (Back) is managed by SDL, and SDL_Flip is
+	// used to refresh the physical screen (Primary), so only one
+	// of them is necessary.
+	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+
+	if (trigger_palette_change)
+	  {
+	    // apply the logical palette to the physical screen - this
+	    // will trigger a Flip
+	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
+			   GFX_lpDDSPrimary->format->palette->colors, 0, 256);
+	    trigger_palette_change = 0;
+	  }
+	else
+	  {
+	    SDL_Flip(GFX_lpDDSPrimary);
+	  }
+      }
+    }
+}
+
+
 	void run_through_tag_list(int h, int strength)
 	{
 		RECT box;
@@ -5644,7 +5647,7 @@ int check_arg(char *crap)
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
-  // GFX: only use windowed mode to display both the DX and the SDL
+  // DEBUG: only use windowed mode to display both the DX and the SDL
   // windows at once
   windowed = true;
 
@@ -6240,7 +6243,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	}
       // DEBUG
       /* Disabled bActive check because it seems SDL steal the
-	 foreground status somehow */
+	 foreground status somehow, making the game freeze :/ */
       //else if((bActive) || ((debug_mode) && (windowed)))
       else if((bActive) || (windowed))
 	{

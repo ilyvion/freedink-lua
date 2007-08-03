@@ -37,7 +37,8 @@ int init(void) {
       Msg("SDL_Init: %s\n", SDL_GetError());
       return 0;
     }
-  
+
+  /* TODO: move to gfx.cpp */
   /* Init graphics subsystem */
   if (SDL_Init(SDL_INIT_VIDEO) == -1)
     {

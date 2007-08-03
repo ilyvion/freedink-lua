@@ -231,10 +231,13 @@ char *rbuf[max_scripts]; //pointers to buffers we may need
 refinfo *rinfo[max_scripts];
 
 int process_warp = 0;
-bool process_upcycle = false;
+/* Tell the engine that we're fading down */
 bool process_downcycle = false;
+/* or fading up */
+bool process_upcycle = false;
 DWORD cycle_clock = 0;
 int cycle_script = 0;
+
 int *in_int;
 int in_x, in_y;
 int sp_brain = 0;
@@ -1071,8 +1074,7 @@ void Saytiny(char thing[2000], int px, int py, int r,int g,int b)
 }
 
 /* Beuc: The only difference with flip_it() I can see is the call to
-   restoreAll(). It's only used in DinkEdit, show_bmp() and
-   copy_bmp(). */
+   restoreAll(). It's only used in DinkEdit and copy_bmp(). */
 void flip_it_second(void)
 {
         DDBLTFX     ddbltfx;
@@ -2650,12 +2652,15 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
                           
                   }
                   index[nummy].s = cur_sprite -1;
-                  
+
+		  /* Beuc: what is it for??? It's disabled in
+		     load_sprite_pak(). I don't see anything special
+		     when enabling it. */
                   if (!windowed)
                   {
                           lpDDPal->GetEntries(0,0,256,holdpal);   
                           lpDDPal->SetEntries(0,0,256,real_pal);
-                  }       
+                  }
                   for (int oo = 1; oo <= 1000; oo++)
                   {
                           
@@ -2751,6 +2756,10 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
                                   index[nummy].last = (oo - 1);
                                   //       initFail(hWndMain, crap);
                                   setup_anim(nummy,nummy,speed);
+				  /* Beuc: what is it for??? It's
+				     disabled in load_sprite_pak(). I
+				     don't see anything special when
+				     enabling it. */
                                   if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
                                   
                                   return;
