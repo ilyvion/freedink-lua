@@ -6062,7 +6062,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
     {
       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
       // GFX
-      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
 
   // Sets the default palette for the screen

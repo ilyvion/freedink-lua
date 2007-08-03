@@ -2396,8 +2396,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
                    } else
                    {
                            
-                           //got file
-                           
+		     //got file
                            pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0);
                            pbi = (BITMAPINFOHEADER *)(pbf+1);
                            

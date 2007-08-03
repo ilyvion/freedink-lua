@@ -172,7 +172,11 @@ FastFileOpen (char *name)
 		  i->alive = 1;
 		  i->off = g_Entries[fCount].off;
 		  i->pos = 0;
-		  i->len = g_Entries[fCount + 1].off - i->off;
+		  if (g_Entries[fCount + 1].off != 0)
+		    i->len = g_Entries[fCount + 1].off - i->off;
+		  else
+		    /* Support badly generated dir.ff such as Mystery Island's */
+		    i->len = g_Entries[fCount + 2].off - i->off;
 		  return (void *) i;
 		}
 	    }
@@ -279,6 +283,8 @@ FastFileLock (struct FF_Handle *i, int off, int len)
     }
   if (len > i->len)
     {
+      printf("FastFileLock: len = %d > i->len = %d - exiting.\n", len, i->len);
+      fflush(stdout);
       return 0;
     }
 

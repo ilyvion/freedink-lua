@@ -53,15 +53,26 @@ int main(int argc, char* argv[]) {
 
   for (i = 0; i < nb_entries - 1; i++) {
     int offset;
-    char filename[13]; /* 8.3\0 */
-    filename[12] = '\0';
+    char filename[12+1]; /* 8.3\0 */
     fread(&offset, sizeof(int), 1, file);
     fread(filename, 13*sizeof(char), 1, file);
+    if (filename[12] != '\0')
+      {
+	filename[12] = '\0';
+	printf("\t// Error: filename string does not end with \\0");
+	nb_errors++;
+      }
+
     printf("%d %s", offset, filename);
     if (offset <= 0 || offset > fsize) {
       printf("\t// Error: invalid index");
       nb_errors++;
     }
+    if (i == 0 && offset != (sizeof(int) + (sizeof(int) + (12+1) * sizeof(char)) * nb_entries))
+      {
+	printf("\t// Error: first index does not match the start of the data area");
+	nb_errors++;
+      }
     printf("\n");
   }
   {
