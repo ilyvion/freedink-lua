@@ -39,7 +39,6 @@
 
 const int max_vars = 250;
 const int max_sprites_at_once = 300;
-const int tile_screens = 41+1;
 
 struct sprite_index
 {
@@ -521,8 +520,6 @@ extern byte get_hard(int h,int x1, int y1);
 extern byte get_hard_play(int h,int x1, int y1);
 extern void load_hard(void);
 extern void load_info(void);
-extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite);
-SDL_Surface *GFX_DDTileLoad(char* filename, int sprite);
 
 extern hit_map hm;
 
@@ -576,8 +573,6 @@ extern int realhard(int tile);
 extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void save_hard(void);
 
-extern RECT tilerect[tile_screens];
-extern SDL_Rect GFX_tilerect[tile_screens];
 extern int draw_map_tiny;
 extern int cur_map, cur_tile;
 extern int map_vision;

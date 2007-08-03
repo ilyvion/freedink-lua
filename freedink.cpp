@@ -5290,10 +5290,9 @@ void process_show_bmp( void )
 again:
 	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
 		&rcRect, DDBLTFAST_NOCOLORKEY);
+	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	// GFX
 	SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
-	
-	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
 	
 	if (showb.showdot)
@@ -5324,22 +5323,36 @@ again:
 		
 		)
 	{
-        showb.active = false;
-        if (showb.script != 0)
-			run_script(showb.script);
-		showb.stime = thisTickCount+2000;
-		but_timer = thisTickCount + 200;
-		
-		int sprite = say_text_xy("", 1, 440, 0);								
-        spr[sprite].noclip = 1;
-		
-		
-		if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK)
-		{
-			Msg("error with setting entries");
-			return;
-		}
-		
+	  showb.active = false;
+	  if (showb.script != 0)
+	    run_script(showb.script);
+	  showb.stime = thisTickCount+2000;
+	  but_timer = thisTickCount + 200;
+	  
+	  int sprite = say_text_xy("", 1, 440, 0);								
+	  spr[sprite].noclip = 1;
+	  
+	  
+	  // Return to canonical game palette
+	  if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK)
+	  {
+	    Msg("error with setting entries");
+	    return;
+	  }
+	  // GFX
+	  // With SDL, also redefine palettes for intermediary buffers
+	  SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
+	  SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
+	  {
+	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, GFX_real_pal, 0, 256);
+	    /* TODO: physical SetPalette should only be done when the
+	       surface is updated with the game again (eg in
+	       flip_it*). Doing it now apparently triggers a Flip and
+	       displays weird colors on the screen for a moment. */
+	    // new_palette = GFX_real_pal;
+	    // trigger_new_palette = 1;
+	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, GFX_real_pal, 0, 256);
+	  }
 	}
 }
 

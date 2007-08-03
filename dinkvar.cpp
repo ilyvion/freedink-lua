@@ -62,6 +62,7 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "gfx_utils.h"
 #include "bgm.h"
 #include "sfx.h"
 
@@ -336,7 +337,7 @@ sp spr[max_sprites_at_once]; //max sprite control systems at once
 LPDIRECTDRAWPALETTE     lpDDPal = NULL;        // The primary surface palette
 PALETTEENTRY    pe[256];
 
-int bActive = false;        // is application active?
+int bActive = false;        // is application active/foreground?
 //LPDIRECTINPUT lpDI;
 
 
@@ -358,8 +359,6 @@ HWND                    hWndMain = NULL;
 JOYINFOEX jinfo; //joystick info
 BOOL joystick = false;
 hardness hmap;
-RECT tilerect[tile_screens];
-SDL_Rect GFX_tilerect[tile_screens];
 
 
 
@@ -1221,70 +1220,6 @@ void setup_anim (int fr, int start,int delay)
         
         seq[fr].frame[index[start].last+1] = 0;
         
-}
-
-
-
-
-
-extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
-{
-    HBITMAP             hbm;
-    BITMAP              bm;
-    DDSURFACEDESC       ddsd;
-    IDirectDrawSurface *pdds;
-        
-    //
-    //  try to load the bitmap as a resource, if that fails, try it as a file
-    //
-    hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION);
-        
-    if (hbm == NULL)
-        hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION);
-        
-    if (hbm == NULL)
-        return NULL;
-        
-    //
-    // get size of the bitmap
-    //
-    GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap
-        
-    //
-    // create a DirectDrawSurface for this bitmap
-    //
-    ZeroMemory(&ddsd, sizeof(ddsd));
-    ddsd.dwSize = sizeof(ddsd);
-    ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-    ddsd.dwWidth = bm.bmWidth;
-    ddsd.dwHeight = bm.bmHeight;
-    if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK)
-        return NULL;
-        
-    DDCopyBitmap(pdds, hbm, 0, 0, 0, 0);
-    tilerect[sprite].bottom = bm.bmHeight;
-        tilerect[sprite].right = bm.bmWidth;
-    
-    DeleteObject(hbm);
-        
-    return pdds;
-}
-
-
-SDL_Surface *GFX_DDTileLoad(char* filename, int sprite)
-{
-    SDL_Surface *tile;
-
-    // load the bitmap
-    tile = SDL_LoadBMP(filename);
-    if (tile == NULL)
-        return NULL;
-
-    GFX_tilerect[sprite].w = tile->w;
-    GFX_tilerect[sprite].h = tile->h;
-
-    return tile;
 }
 
 
@@ -6420,101 +6355,139 @@ bool kill_last_sprite(void)
   return(false);
 }
 
-        void show_bmp( char name[80], int showdot, int reserved, int script)
-        {
-	  SDL_Surface *image;
-                
-                if (!exist(name)) 
-                {
-                        Msg("Error: Can't find bitmap at %s.",name);
-                        return;
-                }
-                
-                lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-		// GFX
-		image = SDL_LoadBMP(name);
-        
-                lpDDPal = DDLoadPalette(lpDD, name);
-                if (lpDDPal)
-                        lpDDSPrimary->SetPalette(lpDDPal);
-                
-                lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-                showb.active = true;
-                showb.showdot = showdot;
-                showb.script = script;
-                
-                abort_this_flip = true;
-                
-                RECT rcRect;
-                SetRect(&rcRect, 0,0,640, 480);
-                
-again:
-                ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-                        &rcRect, DDBLTFAST_NOCOLORKEY);
-		// GFX
-		{
-		  SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
-		  SDL_FreeSurface(image);
-		}
-                
-                if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-                
-                
-                flip_it_second();
-                
-        }
-        
-        
-/* Beuc: difference with show_cmp? */
-        void copy_bmp( char name[80])
-        {
-	  SDL_Surface *image;
-                if (!exist(name)) 
-                {
-                        Msg("Error: Can't find bitmap at %s.",name);
-                        return;
-                }
-                
-                lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-		//GFX
-		image = SDL_LoadBMP(name);
 
-                lpDDPal = DDLoadPalette(lpDD, name);
-                if (lpDDPal)
-                        lpDDSPrimary->SetPalette(lpDDPal);
-                
-                lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-                abort_this_flip = true;
-                
-                RECT rcRect;
-                SetRect(&rcRect, 0,0,640, 480);
-                
-again:
-                ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-                        &rcRect, DDBLTFAST_NOCOLORKEY);
-		// GFX
-		{
-		  SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
-		  SDL_FreeSurface(image);
-		}
-                
-                if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-                
-		// Beuc: why copy the image twice?                
-again1:
-                ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick,
-                        &rcRect, DDBLTFAST_NOCOLORKEY);
-                
-                if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
-                
-                
-                
-                flip_it_second();
-                
-        }
+void show_bmp( char name[80], int showdot, int reserved, int script)
+{
+  SDL_Surface *image;
+  SDL_Color palette[256];
+  
+  if (!exist(name)) 
+    {
+      Msg("Error: Can't find bitmap at %s.",name);
+      return;
+    }
+  
+  // memory leak?
+  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  // GFX
+  image = SDL_LoadBMP(name);
+  
+  lpDDPal = DDLoadPalette(lpDD, name);
+  // GFX
+  load_palette_from_bmp(name, palette);
+
+  if (lpDDPal)
+    lpDDSPrimary->SetPalette(lpDDPal);
+  // GFX
+  {
+    // With SDL, also redefine palettes for intermediary buffers
+    SDL_SetColors(GFX_lpDDSTrick, palette, 0, 256);
+    SDL_SetColors(GFX_lpDDSBack, palette, 0, 256);
+  }
+  
+  // memory leak?
+  // DEBUG: disabled this second image load
+  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  // GFX
+  // image was already loaded above
+  showb.active = true;
+  showb.showdot = showdot;
+  showb.script = script;
+  
+  abort_this_flip = true;
+  
+  RECT rcRect;
+  SetRect(&rcRect, 0,0,640, 480);
+  
+ again:
+  ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
+			       &rcRect, DDBLTFAST_NOCOLORKEY);
+  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+
+  // GFX
+  {
+    // in the back buffer, right now (useful?)
+    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+    //  and in lpDDSTrick for use in process_show_bmp
+    SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
+    SDL_FreeSurface(image);
+
+    // Switching the screen palette makes the screen glitch. We need
+    // to update proceed step by step:
+    {
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
+      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, palette, 0, 256);
+    }
+  }
+  
+  flip_it_second();
+}
+
         
-        
-        
+/* Used to implement DinkC's copy_bmp_to_screen(). Difference with
+   show_cmp: does not set showb.*, and copy the image twice(?) */
+void copy_bmp( char name[80])
+{
+  SDL_Surface *image;
+  SDL_Color palette[256];
+
+  if (!exist(name)) 
+    {
+      Msg("Error: Can't find bitmap at %s.",name);
+      return;
+    }
+  
+  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  //GFX
+  image = SDL_LoadBMP(name);
+  
+  lpDDPal = DDLoadPalette(lpDD, name);
+  // GFX
+  load_palette_from_bmp(name, palette);
+
+  if (lpDDPal)
+    lpDDSPrimary->SetPalette(lpDDPal);
+  // GFX
+  {
+    // With SDL, also redefine palettes for intermediary buffers
+    SDL_SetColors(GFX_lpDDSTrick, palette, 0, 256);
+    SDL_SetColors(GFX_lpDDSBack, palette, 0, 256);
+  }
+
+  // Beuc: already loaded above??
+  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+
+  abort_this_flip = true;
+  
+  RECT rcRect;
+  SetRect(&rcRect, 0,0,640, 480);
+  
+  
+ again:
+  ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
+			       &rcRect, DDBLTFAST_NOCOLORKEY);
+  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+ again1:
+  // Beuc: why copy the image twice?                
+  ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick,
+			      &rcRect, DDBLTFAST_NOCOLORKEY);
+  if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
+  // GFX
+  {
+    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+    SDL_FreeSurface(image);
+    // Switching the screen palette makes the screen glitch. We need
+    // to update proceed step by step:
+    {
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
+      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, palette, 0, 256);
+    }
+  }
+  
+  flip_it_second();
+}
         
         int get_pan(int h)
         {
@@ -6836,8 +6809,6 @@ again1:
                 ddbltfx.dwFillColor = num;
                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
                 // GFX
-		// FIXME: check that num is indeed an appropriate
-		// palette index for lpDDSTwo
 		SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
 		  GFX_real_pal[num].r, GFX_real_pal[num].g, GFX_real_pal[num].b));
         }

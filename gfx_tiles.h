@@ -32,6 +32,7 @@
 #include "SDL.h"
 
 extern LPDIRECTDRAWSURFACE tiles[];
+extern RECT tilerect[];
 extern SDL_Surface *GFX_tiles[];
 
 extern void load_tiles(void);

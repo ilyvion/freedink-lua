@@ -29,13 +29,27 @@
 #include "sfx.h"
 
 /* Tiles */
-LPDIRECTDRAWSURFACE     tiles[tile_screens];       // Game pieces
-SDL_Surface             *GFX_tiles[tile_screens];   // Game pieces (SDL)
+#define NB_TILE_SCREENS 41+1 /* Beuc: why +1? */
+LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces
+SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
+
+/* DX-specific, contain the dimensions of each tile; used in
+   freedinkedit.cpp; replaced by SDL_Surface->w&h */
+RECT tilerect[NB_TILE_SCREENS];
 
 /* Animated tiles current status */
 int water_timer;
 bool fire_forward;
 int fire_flip;
+
+
+/* Local functions */
+extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite);
+
+/* TODO: move place_sprites_game() and kill_all_scripts() here, if all
+   those sprite-related global variables must be shared with other C
+   modules, otherwise let those functions in the sprite-related C
+   modules. */
 
 
 // Load the tiles from the BMPs
@@ -44,7 +58,7 @@ void load_tiles(void) {
   char crap1[10];
 
   Msg("loading tilescreens...");
-  for (int h=1; h < tile_screens; h++)
+  for (int h=1; h < NB_TILE_SCREENS; h++)
     {
       if (h < 10)
 	strcpy(crap1,"0");
@@ -58,7 +72,7 @@ void load_tiles(void) {
       
       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
       // GFX
-      GFX_tiles[h] = GFX_DDTileLoad(crap, h);
+      GFX_tiles[h] = SDL_LoadBMP(crap);
       
       if( tiles[h] == NULL ) {
 	printf("Couldn't find one of the tilescreens!\n");
@@ -78,6 +92,52 @@ void load_tiles(void) {
   Msg("Done with tilescreens...");
 }
 
+
+extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
+{
+    HBITMAP             hbm;
+    BITMAP              bm;
+    DDSURFACEDESC       ddsd;
+    IDirectDrawSurface *pdds;
+        
+    //
+    //  try to load the bitmap as a resource, if that fails, try it as a file
+    //
+    hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION);
+        
+    if (hbm == NULL)
+        hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION);
+        
+    if (hbm == NULL)
+        return NULL;
+        
+    //
+    // get size of the bitmap
+    //
+    GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap
+        
+    //
+    // create a DirectDrawSurface for this bitmap
+    //
+    ZeroMemory(&ddsd, sizeof(ddsd));
+    ddsd.dwSize = sizeof(ddsd);
+    ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
+    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+    ddsd.dwWidth = bm.bmWidth;
+    ddsd.dwHeight = bm.bmHeight;
+    if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK)
+        return NULL;
+        
+    DDCopyBitmap(pdds, hbm, 0, 0, 0, 0);
+    tilerect[sprite].bottom = bm.bmHeight;
+        tilerect[sprite].right = bm.bmWidth;
+    
+    DeleteObject(hbm);
+        
+    return pdds;
+}
+
+
 /* Draw the background from tiles */
 void draw_map_game(void)
 {
@@ -90,7 +150,7 @@ void draw_map_game(void)
   kill_repeat_sounds();
   kill_all_scripts();
 
-  /* 96 = 12 * 8 tiles; 1 tile = 50x50 pixels */
+  /* 96 = 12 * 8 tile squares; 1 tile square = 50x50 pixels */
   for (int x=0; x<96; x++)
     {
       cool = pam.t[x].num / 128;
