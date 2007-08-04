@@ -68,7 +68,14 @@ int init(void) {
   /* I can't find a way to make a manually created SDL_Surface
      work. That's pretty weird. So let's initialize it from a
      BMP... */
-  GFX_lpDDSBack = SDL_LoadBMP("tiles/SPLASH.BMP");
+  if (exist("tiles/splash.bmp"))
+    {
+      GFX_lpDDSBack = SDL_LoadBMP("tiles/splash.BMP");
+    }
+  else
+    {
+      GFX_lpDDSBack = SDL_LoadBMP("../dink/tiles/splash.BMP");
+    }
 
   // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
   // doInit()

@@ -150,13 +150,14 @@ demon:
 	
 	if (showb.active)
 	{
+		flip_it();
+
 		//grab main loop and divert it to show a bmp instead
+		/* process_show_bmp will now wait for a button to be
+		   pressed */
 		process_show_bmp();
 		
-		flip_it();
-		
 		return;
-		
 	}
 	
 	/*
@@ -205,10 +206,10 @@ demon:
 	{
 		if (transition()) goto flip;   else return;
 	}
+
 	
-	
+	/* Fade to black, etc. */
 	if (process_upcycle) up_cycle();
-	
 	if (process_warp > 0) process_warp_man();
 	if (process_downcycle) CyclePalette();
 	
@@ -934,5 +935,3 @@ flip:
 	if (turn_on_plane) plane_process = TRUE;
 	
 } /* updateFrame */
-
-

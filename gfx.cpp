@@ -75,9 +75,10 @@ SDL_Surface *GFX_lpDDSTrick2 = NULL;
    TS01.bmp (for freedink) and esplash.bmp (for freedinkedit). The
    physical screen may be changed (e.g. show_bmp()), but this
    canonical palette will stay constant. */
-PALETTEENTRY    real_pal[256];
+PALETTEENTRY  real_pal[256];
 SDL_Color GFX_real_pal[256];
 
+/** Game-specific **/
 /* Palette change: with SDL, SDL_SetColors (aka
    SDL_SetPalette(SDL_PHYSPAL)) apparently triggers a Flip, which
    displays weird colors on the screen for a brief but displeasing
@@ -88,7 +89,20 @@ SDL_Color GFX_real_pal[256];
    engine know when he needs to refresh the physical palette: */
 /* Tell flip_it* to install the new palette */
 int trigger_palette_change = 0;
+SDL_Color cur_screen_palette[256];
 
-void change_screen_palette(SDL_Color* palette) {
-  // Maybe
+void change_screen_palette(SDL_Color* new_palette) {
+  {
+    // With SDL, also redefine palettes for intermediary buffers
+//     SDL_SetColors(GFX_lpDDSTwo, GFX_real_pal, 0, 256);
+//     SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
+//     SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
+//     SDL_SetColors(GFX_lpDDSTrick2, GFX_real_pal, 0, 256);
+
+    // Tell the engine to refresh the physical screen's
+    // palette next frame:
+//    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
+    memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
+    trigger_palette_change = 1;
+  }
 }

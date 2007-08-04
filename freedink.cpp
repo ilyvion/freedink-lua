@@ -3772,168 +3772,208 @@ bool transition(void)
 		return(0);
 	}
 	
-	
-	
-	
-	
-	
-	void CyclePalette()
+/* fade_down() - fade to black */
+void CyclePalette()
+{
+  bool done_this_time = true;     
+  SDL_Color palette[256];
+
+  if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
+    {
+      Msg("error with getting entries");
+      return;
+    }
+  // GFX
+  memcpy(palette, cur_screen_palette, sizeof(palette));
+
+  // DEBUG
+  //for (int kk = 1; kk < 256; kk++)
+  for (int kk = 0; kk < 256; kk++)
+    {
+      if (pe[kk].peBlue != 0)
 	{
-		bool done_this_time = true;     
-		
-		
-		
-		if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
-		{
-			Msg("error with getting entries");
-			return;
-		}
-		
-		for (int kk = 1; kk < 256; kk++)
-		{
-			
-			
-			if (pe[kk].peBlue != 0)
-			{
-				done_this_time = false;
-				if (pe[kk].peBlue > 10)
-					pe[kk].peBlue -= 10; else pe[kk].peBlue--;
-			}
-			
-			if (pe[kk].peGreen != 0)
-			{
-				done_this_time = false;
-				
-				if (pe[kk].peGreen > 10)
-					pe[kk].peGreen -= 10; else pe[kk].peGreen--;
-				
-			}
-			if (pe[kk].peRed != 0)
-			{
-				done_this_time = false;
-				
-				if (pe[kk].peRed > 10)
-					pe[kk].peRed -= 10; else pe[kk].peRed--;
-				
-			}
-		}
-		
-		
-		
-		
-		lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
-		
-		
-		if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
-		{
-			Msg("error with setting entries");
-			return;
-		}
-		
-		
-		if (process_downcycle) 
-			
-		{
-			
-			
-			if  (thisTickCount > cycle_clock)
-			{
-				
-				
-				process_downcycle = false;
-				
-				if (cycle_script != 0)
-				{
-					int junk = cycle_script;
-					cycle_script = 0;	
-					run_script(junk);
-					
-					
-				}
-			}
-			
-			
-		}
+	  done_this_time = false;
+	  if (pe[kk].peBlue > 10)
+	    pe[kk].peBlue -= 10; else pe[kk].peBlue--;
 	}
-	
-	
-	void up_cycle(void)
+      // GFX
+      if (palette[kk].b != 0)
 	{
-		bool donethistime = true;
-		
-		if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
-		{
-			Msg("error with getting entries");
-			return;
-		}
-		
-		for (int kk = 1; kk <= 256; kk++)
-		{
-			
-			
-			if (pe[kk].peBlue != real_pal[kk].peBlue)
-			{
-				if (pe[kk].peBlue > 246) pe[kk].peBlue++; else
-					pe[kk].peBlue += 10;
-				donethistime = false;
-			}
-			
-			if (pe[kk].peBlue > real_pal[kk].peBlue) pe[kk].peBlue = real_pal[kk].peBlue;
-			
-			
-			if (pe[kk].peGreen != real_pal[kk].peGreen)
-			{
-				
-				if (pe[kk].peGreen > 246) pe[kk].peGreen++; else
-					pe[kk].peGreen += 10;
-				donethistime = false;
-			}
-			
-			if (pe[kk].peGreen > real_pal[kk].peGreen) pe[kk].peGreen = real_pal[kk].peGreen;
-			
-			if (pe[kk].peRed != real_pal[kk].peRed)
-			{
-				if (pe[kk].peRed> 246) pe[kk].peRed++; else
-					pe[kk].peRed += 10;
-				donethistime = false;
-			}
-			
-			if (pe[kk].peRed > real_pal[kk].peRed) pe[kk].peRed = real_pal[kk].peRed;
-			
-			
-		}
-		
-		
-		lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
-		
-		if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
-		{
-			Msg("error with setting entries");
-			//     return;
-		}
-		
-		if (process_upcycle) if (donethistime)
-			
-		{
-			process_upcycle = false;
-			
-			
-			if (cycle_script != 0)
-			{
-				int junk = cycle_script;
-				cycle_script = 0;	
-				run_script(junk);
-				
-			}
-			
-		}
-		
-		
-		
-		
-		
+	  done_this_time = false;
+	  if (palette[kk].b > 10)
+	    palette[kk].b -= 10;
+	  else
+	    palette[kk].b--;
 	}
-	void draw_box(RECT box, int color)
+      
+      if (pe[kk].peGreen != 0)
+	{
+	  done_this_time = false;
+	  if (pe[kk].peGreen > 10)
+	    pe[kk].peGreen -= 10; else pe[kk].peGreen--;
+	}
+      // GFX
+      if (palette[kk].g != 0)
+	{
+	  done_this_time = false;
+	  if (palette[kk].g > 10)
+	    palette[kk].g -= 10;
+	  else
+	    palette[kk].g--;
+	}
+
+      if (pe[kk].peRed != 0)
+	{
+	  done_this_time = false;
+	  if (pe[kk].peRed > 10)
+	    pe[kk].peRed -= 10; else pe[kk].peRed--;
+	}
+      // GFX
+      if (palette[kk].r != 0)
+	{
+	  done_this_time = false;
+	  if (palette[kk].r > 10)
+	    palette[kk].r -= 10;
+	  else
+	    palette[kk].r--;
+	}
+    }
+  
+  lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
+  
+  if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
+    {
+      Msg("error with setting entries");
+      return;
+    }
+  // DEBUG: attempt to make fade_* work in windowed DX mode
+  lpDDSPrimary->SetPalette(lpDDPal);
+
+  // GFX
+  change_screen_palette(palette);
+
+  if (process_downcycle) 
+    {
+      if  (thisTickCount > cycle_clock)
+	{
+	  process_downcycle = false;
+				
+	  if (cycle_script != 0)
+	    {
+	      int junk = cycle_script;
+	      cycle_script = 0;	
+	      run_script(junk);
+	    }
+	}
+    }
+}
+	
+/* fade_up() */	
+void up_cycle(void)
+{
+  bool donethistime = true;
+  SDL_Color palette[256];
+		
+  if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
+    {
+      Msg("error with getting entries");
+      return;
+    }
+  // GFX
+  memcpy(palette, cur_screen_palette, sizeof(palette));
+
+  // DEBUG
+  //for (int kk = 1; kk <= 256; kk++)
+  for (int kk = 0; kk < 256; kk++)
+    {
+      if (pe[kk].peBlue != real_pal[kk].peBlue)
+	{
+	  if (pe[kk].peBlue > 246) pe[kk].peBlue++; else
+	    pe[kk].peBlue += 10;
+	  donethistime = false;
+	}
+      if (pe[kk].peBlue > real_pal[kk].peBlue) pe[kk].peBlue = real_pal[kk].peBlue;
+      // GFX
+      if (palette[kk].b != GFX_real_pal[kk].b)
+	{
+	  donethistime = false;
+	  if (palette[kk].b > 246)
+	    palette[kk].b++;
+	  else
+	    palette[kk].b += 10;
+	}
+      if (palette[kk].b > GFX_real_pal[kk].b)
+	palette[kk].b = GFX_real_pal[kk].b;
+      
+      if (pe[kk].peGreen != real_pal[kk].peGreen)
+	{
+	  if (pe[kk].peGreen > 246) pe[kk].peGreen++; else
+	    pe[kk].peGreen += 10;
+	  donethistime = false;
+	}
+      if (pe[kk].peGreen > real_pal[kk].peGreen) pe[kk].peGreen = real_pal[kk].peGreen;
+      // GFX
+      if (palette[kk].g != GFX_real_pal[kk].g)
+	{
+	  donethistime = false;
+	  if (palette[kk].g > 246)
+	    palette[kk].g++;
+	  else
+	    palette[kk].g += 10;
+	}
+      if (palette[kk].g > GFX_real_pal[kk].g)
+	palette[kk].g = GFX_real_pal[kk].g;
+      
+      if (pe[kk].peRed != real_pal[kk].peRed)
+	{
+	  if (pe[kk].peRed> 246) pe[kk].peRed++; else
+	    pe[kk].peRed += 10;
+	  donethistime = false;
+	}
+      if (pe[kk].peRed > real_pal[kk].peRed) pe[kk].peRed = real_pal[kk].peRed;
+      // GFX
+      if (palette[kk].r != GFX_real_pal[kk].r)
+	{
+	  donethistime = false;
+	  if (palette[kk].r > 246)
+	    palette[kk].r++;
+	  else
+	    palette[kk].r += 10;
+	}
+      if (palette[kk].r > GFX_real_pal[kk].r)
+	palette[kk].r = GFX_real_pal[kk].r;
+    }
+  
+  lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
+		
+  if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
+    {
+      Msg("error with setting entries");
+      //     return;
+    }
+  // Beuc: as far as I understand, it's not possible to alter the
+  // index in window mode with DX; the physical screen must be 32bits
+  // without palette emulation. So 
+
+  // GFX
+  change_screen_palette(palette);
+		
+  if (process_upcycle)
+    if (donethistime)
+      {
+	process_upcycle = false;
+	
+	if (cycle_script != 0)
+	  {
+	    int junk = cycle_script;
+	    cycle_script = 0;	
+	    run_script(junk);
+	  }
+      }
+}
+
+
+void draw_box(RECT box, int color)
 	{
 		DDBLTFX     ddbltfx;
 		
@@ -4019,7 +4059,7 @@ void flip_it(void)
 	    // apply the logical palette to the physical screen - this
 	    // will trigger a Flip
 	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
-			   GFX_lpDDSPrimary->format->palette->colors, 0, 256);
+			   cur_screen_palette, 0, 256);
 	    trigger_palette_change = 0;
 	  }
 	else
@@ -5299,14 +5339,12 @@ void process_show_bmp( void )
 	
 	RECT rcRect;
 	SetRect(&rcRect, 0,0,x, y);
-	
-again:
-	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-		&rcRect, DDBLTFAST_NOCOLORKEY);
-	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-	// GFX
-	SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
-	
+
+// DEBUG: disabled, already done in show_bmp()
+// again:
+// 	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
+// 		&rcRect, DDBLTFAST_NOCOLORKEY);
+// 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
 	if (showb.showdot)
 	{
@@ -5353,15 +5391,11 @@ again:
 	    return;
 	  }
 	  // GFX
-	  {
-	    // With SDL, also redefine palettes for intermediary buffers
-	    SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
-	    SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
-	    // Tell the engine to refresh the physical screen's
-	    // palette next frame:
-	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, GFX_real_pal, 0, 256);
-	    trigger_palette_change = 1;
-	  }
+	  change_screen_palette(GFX_real_pal);
+	  // The main flip_it() will be called, skip it - lpDDSBack is
+	  // not matching the palette anymore, it needs to be redrawn
+	  // first.
+	  abort_this_flip = true;
 	}
 }
 
@@ -5654,7 +5688,8 @@ int check_arg(char *crap)
       if (strnicmp(option, "-window", strlen("-window")) == 0)
 	{
 	  windowed = true;
-	  no_transition = true;	  
+	  // Beuc: enabling transition is more fun :)
+	  //no_transition = true;	  
 	}
 		
       if (strnicmp(option, "-debug", strlen("-debug")) == 0)
@@ -5937,13 +5972,11 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
   // TODO: setpalette will be called again later
-  /* Beuc: it will be called by reloading TS01.BMP - this seems
+  /* GFX: it will be called by reloading TS01.BMP - this seems
      redundant, maybe we should remove this. */
   if (lpDDPal)
     {
       lpDDSPrimary->SetPalette(lpDDPal);
-      // GFX
-      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
     }
 
   if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK)
@@ -5974,6 +6007,8 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 	
   srand((unsigned)time(NULL));
 	
+
+  /* Initialize graphic buffers */
   if (exist("tiles/splash.bmp"))
     {
       lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0);
@@ -5992,117 +6027,6 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 //   SDL_SetColorKey (GFX_lpDDSTwo, SDL_SRCCOLORKEY,
 // 		   SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
 
-  // Apply splash.bmp's palette to the main screen
-  SDL_SetColors(GFX_lpDDSPrimary, GFX_lpDDSTwo->format->palette->colors, 0, 256);
-
-  if (cd_inserted)
-    PlayCD(7);
-	
-  if (CheckJoyStickPresent() == FALSE)
-    joystick = FALSE;
-  else
-    joystick = TRUE;
-	
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = x;
-  rcRect.bottom = y;
-	
-  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
-			      &rcRect, DDBLTFAST_NOCOLORKEY);
-  // GFX
-  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-
-  /* Replaced this code by a call to flip_it(): */
-  flip_it();
-  /*
-  if (!windowed)
-    {	
-      while(1)
-	{
-	  ddrval = lpDDSPrimary->Flip(NULL, DDFLIP_WAIT);
-	  if (ddrval == DD_OK)
-	    break;
-
-	  if (ddrval == DDERR_SURFACELOST)
-	    {
-	      ddrval = restoreAll();
-	      if (ddrval != DD_OK)
-		{
-		  break;
-		}
-	    }
-	  if (ddrval != DDERR_WASSTILLDRAWING)
-	    dderror(ddrval);
-	}
-    }
-  else
-    {
-      // instead of a flip, this will work for Windowed mode:
-      // first we need to figure out where on the primary surface our window lives
-      p.x = 0;
-      p.y = 0;
-      ClientToScreen(hwnd, &p);
-      GetClientRect(hwnd, &rcRectDest);
-      OffsetRect(&rcRectDest, p.x, p.y);
-      SetRect(&rcRectSrc, 0, 0, 640, 480);
-      ddrval = lpDDSPrimary->Blt(&rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
-      // GFX
-      {
-	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-	SDL_Flip(GFX_lpDDSPrimary);
-      }
-    }
-  */
-
-  //dinks normal walk
-  Msg("loading batch");
-  load_batch();
-  Msg("done loading batch");
-  
-  load_hard();
-
-  //Activate dink, but don't really turn him on
-  //spr[1].active = TRUE;
-  spr[1].timer = 33;
-	
-  //copy from player info
-  spr[1].x = play.x;
-  spr[1].y = play.y;
-  
-  if (exist("tiles/TS01.bmp"))
-    {
-      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
-      // GFX
-      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
-    }
-  else
-    {
-      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
-      // GFX
-      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
-    }
-
-  // Sets the default palette for the screen
-  if (lpDDPal)
-    {
-      lpDDSPrimary->SetPalette(lpDDPal);
-      // GFX
-      /* Make sure entry 0 is black and 255 is white */
-      /* The colors are reversed in TS01.BMP's and SPLASH.BMP's
-	 palettes. For some reason that's how to original game works,
-	 even though I can't find the origin of that behavior... */
-      GFX_real_pal[0].r = 0;
-      GFX_real_pal[0].g = 0;
-      GFX_real_pal[0].b = 0;
-      GFX_real_pal[255].r = 255;
-      GFX_real_pal[255].g = 255;
-      GFX_real_pal[255].b = 255;
-      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
-    }
-
-  /* Initialize graphic buffers */
-  Msg("Loading splash");
   if (exist("tiles/SPLASH.bmp"))
     {
       lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
@@ -6136,7 +6060,85 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // GFX
 //   SDL_SetColorKey (GFX_lpDDSTrick2, SDL_SRCCOLORKEY,
 // 		   SDL_MapRGB(GFX_lpDDSTrick2->format, 0, 0, 0));
- 
+
+
+  
+  if (exist("tiles/TS01.bmp"))
+    {
+      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+    }
+  else
+    {
+      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+      // GFX
+      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
+    }
+
+  // Sets the default palette for the screen
+  if (lpDDPal)
+    {
+      lpDDSPrimary->SetPalette(lpDDPal);
+      // GFX
+      /* Logical palette (SDL-specific) */
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL,
+		     GFX_lpDDSBack->format->palette->colors, 0, 256);
+      /* Physical palette (the one we can change to make visual effects) */
+      /* The colors are reversed in TS01.BMP's and SPLASH.BMP's
+	 palettes. For some reason that's how to original game works
+	 (eg fill_screen(0) is black, no white), even though I can't
+	 find the origin of that behavior... */
+      /* Only change physical palette - if you change the logical
+	 palette, surfaces won't share the same palette, change color
+	 changes or dithering will occur. */
+      /* Make sure entry 0 is black and 255 is white */
+      /* Disabled, for now we'll just modify fill_screen(0) */
+//       GFX_real_pal[0].r = 0;
+//       GFX_real_pal[0].g = 0;
+//       GFX_real_pal[0].b = 0;
+//       GFX_real_pal[255].r = 255;
+//       GFX_real_pal[255].g = 255;
+//       GFX_real_pal[255].b = 255;
+      change_screen_palette(GFX_real_pal);
+    }
+
+  /* Display splash screen */
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = x;
+  rcRect.bottom = y;
+  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
+			      &rcRect, DDBLTFAST_NOCOLORKEY);
+  // GFX
+  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+  flip_it();
+
+
+  if (cd_inserted)
+    PlayCD(7);
+	
+  if (CheckJoyStickPresent() == FALSE)
+    joystick = FALSE;
+  else
+    joystick = TRUE;
+	
+  //dinks normal walk
+  Msg("loading batch");
+  load_batch();
+  Msg("done loading batch");
+  
+  load_hard();
+
+  //Activate dink, but don't really turn him on
+  //spr[1].active = TRUE;
+  spr[1].timer = 33;
+	
+  //copy from player info
+  spr[1].x = play.x;
+  spr[1].y = play.y;
+
+
   // ** SETUP **
   rcRect.left = 0;
   rcRect.top = 0;

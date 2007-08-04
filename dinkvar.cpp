@@ -6380,6 +6380,8 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   // GFX
   image = SDL_LoadBMP(name);
+  // Apply the Dink palette to avoid dithering during Blits
+  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
   lpDDPal = DDLoadPalette(lpDD, name);
   // GFX
@@ -6388,15 +6390,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   if (lpDDPal)
     lpDDSPrimary->SetPalette(lpDDPal);
   // GFX
-  {
-    // With SDL, also redefine palettes for intermediary buffers
-    SDL_SetColors(GFX_lpDDSTrick, palette, 0, 256);
-    SDL_SetColors(GFX_lpDDSBack, palette, 0, 256);
-    // Tell the engine to refresh the physical screen's
-    // palette next frame:
-    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
-    trigger_palette_change = 1;
-  }
+  change_screen_palette(palette);
   
   // memory leak?
   // DEBUG: disabled this second image load
@@ -6407,7 +6401,9 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   showb.showdot = showdot;
   showb.script = script;
   
-  abort_this_flip = true;
+  /* Disabled: lpDDSBack will be ready to be flip'd when exiting this
+     function, so no need to skip the next flip */
+  // abort_this_flip = true;
   
   RECT rcRect;
   SetRect(&rcRect, 0,0,640, 480);
@@ -6419,8 +6415,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
   // GFX
   {
-    // update lpDDSTrick for use in process_show_bmp
-    SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
+    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
     SDL_FreeSurface(image);
   }
   
@@ -6431,7 +6426,9 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
         
 /* Used to implement DinkC's copy_bmp_to_screen(). Difference with
-   show_cmp: does not set showb.*, and copy the image twice(?) */
+   show_cmp: does not set showb.* (wait for button), install the image
+   to lpDDSTwo (background) and not lpDDSBack (screen double
+   buffer) */
 void copy_bmp( char name[80])
 {
   SDL_Surface *image;
@@ -6446,6 +6443,8 @@ void copy_bmp( char name[80])
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   //GFX
   image = SDL_LoadBMP(name);
+  // Apply the Dink palette to avoid dithering during Blits
+  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
   lpDDPal = DDLoadPalette(lpDD, name);
   // GFX
@@ -6454,11 +6453,7 @@ void copy_bmp( char name[80])
   if (lpDDPal)
     lpDDSPrimary->SetPalette(lpDDPal);
   // GFX
-  {
-    // With SDL, also redefine palettes for intermediary buffers
-    SDL_SetColors(GFX_lpDDSTrick, palette, 0, 256);
-    SDL_SetColors(GFX_lpDDSBack, palette, 0, 256);
-  }
+  change_screen_palette(palette);
 
   // Beuc: already loaded above??
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
@@ -6480,19 +6475,12 @@ void copy_bmp( char name[80])
   if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
   // GFX
   {
-    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+    SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
     SDL_FreeSurface(image);
-    // Switching the screen palette makes the screen glitch. We need
-    // to update proceed step by step:
-    /* TODO: test and use show_bmp as a reference */
-    {
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
-      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL, palette, 0, 256);
-    }
   }
-  
-  flip_it_second();
+
+  // DEBUG: disabled because it seems useless
+  //flip_it_second();
 }
         
         int get_pan(int h)
@@ -6815,8 +6803,23 @@ void copy_bmp( char name[80])
                 ddbltfx.dwFillColor = num;
                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
                 // GFX
-		SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
-		  GFX_real_pal[num].r, GFX_real_pal[num].g, GFX_real_pal[num].b));
+		{
+		  /* For some reason, the first palette index is
+		     white, but in the original game in turns black in
+		     the palette (and vice-versa). */
+		  /* Until I understand where that comes from (TODO),
+		     I'll just swap the values here */
+		  /* Modifying the palette accordingly is bad: if
+		     different palettes are used during Blits,
+		     dithering may occurs, which breaks effects like
+		     fading and palette change. */
+		  if (num == 255)
+		    num = 0;
+		  else if (num == 0)
+		    num = 255;
+		  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
+		    GFX_real_pal[num].r, GFX_real_pal[num].g, GFX_real_pal[num].b));
+		}
         }
         
         
@@ -7912,7 +7915,9 @@ pass:
                 {
                         // (sprite, direction, until, nohard);
                         process_downcycle = true;
-                        cycle_clock = thisTickCount+1000;
+			// DEBUG
+                        //cycle_clock = thisTickCount+1000;
+			cycle_clock = thisTickCount+2000;
                         cycle_script = script;
                         return(2);
                 }
