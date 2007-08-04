@@ -5647,10 +5647,6 @@ int check_arg(char *crap)
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
-  // DEBUG: only use windowed mode to display both the DX and the SDL
-  // windows at once
-  windowed = true;
-
   for (int i=1; i <= 10; i++)
     {
       separate_string(crap, i, ' ', option);
