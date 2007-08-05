@@ -63,34 +63,13 @@ int init(void) {
     }
 
   // GFX
-  //GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8,
-  //				       0, 0, 0, 0);
-  /* I can't find a way to make a manually created SDL_Surface
-     work. That's pretty weird. So let's initialize it from a
-     BMP... */
-  if (exist("tiles/splash.bmp"))
-    {
-      GFX_lpDDSBack = SDL_LoadBMP("tiles/splash.BMP");
-    }
-  else
-    {
-      GFX_lpDDSBack = SDL_LoadBMP("../dink/tiles/splash.BMP");
-    }
+  GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8,
+  				       0, 0, 0, 0);
 
   // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
   // doInit()
 
-
-  // DEBUG
-  /* Load the BMP file into a surface */
-//   test_image = SDL_LoadBMP("C:/Program Files/Dink Smallwood/dink/graphics/Dink/fall/ds-f2-01.bmp");
-//   if (test_image == NULL) {
-//     fprintf(stderr, "Couldn't load image: %s\n", SDL_GetError());
-//   }
-//   SDL_BlitSurface(test_image, NULL, GFX_lpDDSPrimary, NULL);
-//   SDL_Flip(GFX_lpDDSPrimary);
-
-  /* Maybe use SDL_QuiSubSystem instead */
+  /* Maybe use SDL_QuitSubSystem instead */
   atexit(SDL_Quit);
 
   return 1;

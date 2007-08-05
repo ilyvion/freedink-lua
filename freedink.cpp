@@ -3786,9 +3786,8 @@ void CyclePalette()
   // GFX
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
-  // DEBUG
   for (int kk = 1; kk < 256; kk++)
-  //for (int kk = 0; kk < 256; kk++)
+  // skipping index 0 because it's already (and always) black ;)
     {
       if (pe[kk].peBlue != 0)
 	{
@@ -3893,9 +3892,8 @@ void up_cycle(void)
   // GFX
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
-  // DEBUG
   //for (int kk = 1; kk <= 256; kk++)
-  //for (int kk = 0; kk < 256; kk++)
+  // (fixing memory issue, index 256 is outside the array)
   for (int kk = 1; kk < 256; kk++)
     {
       if (pe[kk].peBlue != real_pal[kk].peBlue)
