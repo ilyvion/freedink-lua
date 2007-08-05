@@ -112,6 +112,9 @@ int walk_off_screen = false;
 char cbuf[64000];
 bool cd_inserted;
 const int old_burn = 0;
+
+/* Skip flipping the double buffer for this frame only - used when
+   setting up show_bmp and copy_bmp */
 bool abort_this_flip = false;
 
 
@@ -1072,67 +1075,6 @@ void Saytiny(char thing[2000], int px, int py, int r,int g,int b)
         
         
 }
-
-/* Beuc: The only difference with flip_it() I can see is the call to
-   restoreAll(). It's only used in DinkEdit and copy_bmp(). */
-void flip_it_second(void)
-{
-        DDBLTFX     ddbltfx;
-        
-        RECT rcRectSrc;    RECT rcRectDest;
-        POINT p;
-        
-        if (!windowed)
-        {
-                
-                while( 1 )
-                {
-                        ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-                        if( ddrval == DD_OK )
-                        {
-                                break;
-                        }
-                        if( ddrval == DDERR_SURFACELOST )
-                        {
-                                if( ddrval != DD_OK )
-                                {
-                                        break;
-                                }
-                        }
-                        if( ddrval != DDERR_WASSTILLDRAWING )
-                        {
-                                
-                                
-                        }
-                } 
-                
-        } else
-        {
-                //windowed mode, no flipping             
-                p.x = 0; p.y = 0;    
-                ClientToScreen(hWndMain, &p);
-                GetClientRect(hWndMain, &rcRectDest);
-                
-                //rcRectDest.top += winoffset;
-                rcRectDest.bottom = 480;
-                rcRectDest.right = 640;
-                
-                OffsetRect(&rcRectDest, p.x, p.y);
-                SetRect(&rcRectSrc, 0, 0, 640, 480);
-                
-                ddbltfx.dwSize = sizeof(ddbltfx);
-                
-                ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-                ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
-		// GFX
-		{
-		  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-		  SDL_Flip(GFX_lpDDSPrimary);
-		}
-        }
-}
-
-
 
 
 bool exist(char name[255])

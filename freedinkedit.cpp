@@ -144,6 +144,86 @@ void dderror(HRESULT hErr);
 
 int SInitSound();
 
+
+
+
+/* Beuc: The only difference with flip_it() I can see is the call to
+   restoreAll(). It's only used in DinkEdit and copy_bmp(). */
+void flip_it_second(void)
+{
+        DDBLTFX     ddbltfx;
+        
+        RECT rcRectSrc;    RECT rcRectDest;
+        POINT p;
+        
+        if (!windowed)
+        {
+                
+                while( 1 )
+                {
+                        ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
+                        if( ddrval == DD_OK )
+                        {
+                                break;
+                        }
+                        if( ddrval == DDERR_SURFACELOST )
+                        {
+                                if( ddrval != DD_OK )
+                                {
+                                        break;
+                                }
+                        }
+                        if( ddrval != DDERR_WASSTILLDRAWING )
+                        {
+                                
+                                
+                        }
+                } 
+                
+        } else
+        {
+                //windowed mode, no flipping             
+                p.x = 0; p.y = 0;    
+                ClientToScreen(hWndMain, &p);
+                GetClientRect(hWndMain, &rcRectDest);
+                
+                //rcRectDest.top += winoffset;
+                rcRectDest.bottom = 480;
+                rcRectDest.right = 640;
+                
+                OffsetRect(&rcRectDest, p.x, p.y);
+                SetRect(&rcRectSrc, 0, 0, 640, 480);
+                
+                ddbltfx.dwSize = sizeof(ddbltfx);
+                
+                ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
+                ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+		// GFX
+		{
+		  // TODO: work directly on either lpDDSBack or
+		  // lpDDSPrimary: the double buffer (Back) is managed
+		  // by SDL, and SDL_Flip is used to refresh the
+		  // physical screen (Primary), so only one of them is
+		  // necessary.
+		  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
+		  
+		  if (trigger_palette_change)
+		    {
+		      // Apply the logical palette to the physical
+		      // screen. This may trigger a Flip (so don't do
+		      // that until Back is read), but not necessarily
+		      // (so do a Flip anyway).
+		      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
+				     cur_screen_palette, 0, 256);
+		      trigger_palette_change = 0;
+		    }
+		  SDL_Flip(GFX_lpDDSPrimary);
+		}
+	}
+}
+
+
+
 /*
  * restoreAll
  *
@@ -5302,9 +5382,7 @@ dinkedit = true;
 	  
 	  
 	  
-	  // DEBUG
-	  //windowed = false;
-	  windowed = true;
+	  windowed = false;
 	  check_arg(command_line);
 	  
 
@@ -5569,18 +5647,6 @@ if (!exist(tdir))
 	  if (lpDDPal)
 	    {
 	      lpDDSPrimary->SetPalette(lpDDPal);
-	      // GFX
-	      /* Make sure entry 0 is black and 255 is white */
-	      /* The colors are reversed in ESPLASH.BMP's palette. For
-		 some reason that's how to original game works, even
-		 though I can't find the origin of that behavior... */
-	      GFX_real_pal[0].r = 0;
-	      GFX_real_pal[0].g = 0;
-	      GFX_real_pal[0].b = 0;
-	      GFX_real_pal[255].r = 255;
-	      GFX_real_pal[255].g = 255;
-	      GFX_real_pal[255].b = 255;
-	      SDL_SetColors(GFX_lpDDSPrimary, GFX_real_pal, 0, 256);
 	    }
 	  // Create the offscreen surface, by loading our bitmap.
 	  srand( (unsigned)time( NULL ) );
@@ -5619,51 +5685,40 @@ if (!exist(tdir))
 	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	  }
 
-	  /* Replaced by a call to flip_it_second() */
+
+	  // GFX
+	  {
+	    change_screen_palette(GFX_real_pal);
+	    
+	    /* When a new image is loaded in DX, it's dithered using
+	       the main palette; currently we don't do that (although
+	       that'd be more efficient that dithering each time the
+	       original image is used). We work around this by making
+	       the conversion happen at the first blit to a buffer
+	       surface - and we never change the buffer's palette
+	       again, so we're sure there isn't any conversion even if
+	       we change the screen palette: */
+	    SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
+	    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
+	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
+
+	    /* TODO: wrap LoadBMP, and move buffer initialization
+	       right after palette initialization */
+	    SDL_Surface *splashscreen = NULL;
+	    if (exist("tiles/esplash.BMP") &&
+		(splashscreen = SDL_LoadBMP("tiles/esplash.BMP")) == NULL)
+	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+	    else if ((splashscreen = SDL_LoadBMP("../dink/tiles/esplash.BMP")) == NULL)
+	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+	    
+	    if (splashscreen != NULL) {
+	      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSTwo, NULL);
+	      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
+	      SDL_FreeSurface(splashscreen);
+	    }
+	  }
+
 	  flip_it_second();
-	  /*
-	  if (!windowed)
-	  {	
-		  while( 1 )
-		  {
-			  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-        if( ddrval == DD_OK )
-        {
-            break;
-        }
-        if( ddrval == DDERR_SURFACELOST )
-        {
-//            ddrval = restoreAll();
-            if( ddrval != DD_OK )
-            {
-                break;
-            }
-        }
-        if( ddrval != DDERR_WASSTILLDRAWING )
-        {
-			
-			//				ddrval = DD_OK;
-			dderror(ddrval);
-			//  return;
-			//        ddrval = DD_OK;
-		}
-		//goto done;
-    }
-} else
-{
-
-//instead of a flip, this will work for Windowed mode:
-
-	        // first we need to figure out where on the primary surface our window lives
-        p.x = 0; p.y = 0;        ClientToScreen(hwnd, &p);
-        GetClientRect(hwnd, &rcRectDest);
-        OffsetRect(&rcRectDest, p.x, p.y);
-        SetRect(&rcRectSrc, 0, 0, 640, 480);
-        ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_WAIT, NULL);
-}
-	  */
-
-
 
     load_batch();	
 
