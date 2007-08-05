@@ -4068,16 +4068,14 @@ void flip_it(void)
 
 	if (trigger_palette_change)
 	  {
-	    // apply the logical palette to the physical screen - this
-	    // will trigger a Flip
+	    // Apply the logical palette to the physical screen. This
+	    // may trigger a Flip (so don't do that until Back is
+	    // read), but not necessarily (so do a Flip anyway).
 	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
 			   cur_screen_palette, 0, 256);
 	    trigger_palette_change = 0;
 	  }
-	else
-	  {
-	    SDL_Flip(GFX_lpDDSPrimary);
-	  }
+	SDL_Flip(GFX_lpDDSPrimary);
       }
     }
 }
@@ -6101,11 +6099,13 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       /* Physical palette (the one we can change to make visual effects) */
       change_screen_palette(GFX_real_pal);
 
-      /* When a new image is loaded in DX, it's dithered using the main
-	 palette; currently we don't do that (although that'd be more
-	 efficient that dithering each time the original image is
+      /* When a new image is loaded in DX, it's dithered using the
+	 main palette; currently we don't do that (although that'd be
+	 more efficient that dithering each time the original image is
 	 used). We work around this by making the conversion happen at
-	 the first blit to a buffer surface: */
+	 the first blit to a buffer surface - and we never change the
+	 buffer's palette again, so we're sure there isn't any
+	 conversion even if we change the screen palette: */
       SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, cur_screen_palette, 0, 256);
@@ -6123,18 +6123,17 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // GFX
   {
     // Load it again and blit it to achieve palette conversion
+    /* TODO: wrap LoadBMP, and move buffer initialization right after
+       palette initialization */
     SDL_Surface *splashscreen = NULL;
-    if (exist("tiles/splash.BMP"))
-      if ((splashscreen = SDL_LoadBMP("tiles/splash.BMP")) == NULL)
-	{
-	  printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-	}
-    else
-      if ((splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP")) == NULL)
-	{
-	  printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-	}
+    if (exist("tiles/splash.BMP") &&
+	(splashscreen = SDL_LoadBMP("tiles/splash.BMP")) == NULL)
+      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+    else if ((splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP")) == NULL)
+      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+
     if (splashscreen != NULL) {
+      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSTwo, NULL);
       SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
       SDL_FreeSurface(splashscreen);
     }
