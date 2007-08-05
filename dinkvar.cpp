@@ -6311,7 +6311,7 @@ bool kill_last_sprite(void)
 
 void show_bmp( char name[80], int showdot, int reserved, int script)
 {
-  SDL_Surface *image;
+  SDL_Surface *image = NULL;
   SDL_Color palette[256];
   
   if (!exist(name)) 
@@ -6321,7 +6321,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
     }
   
   // memory leak?
-  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   // GFX
   image = SDL_LoadBMP(name);
   
@@ -6334,18 +6334,32 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   // GFX
   change_screen_palette(palette);
   
-  // memory leak?
-  // DEBUG: disabled this second image load
-  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  // load the image again, with the new global palette - DX dithering
+  // is thus avoided
+  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
   // GFX
-  // image was already loaded above
+  {
+    // LoadBMP wrapper - conversion with edited palette (0=black,
+    // 255=white). That's exactly what DX does.
+    {
+      SDL_Surface *conv;
+      image = SDL_LoadBMP(name);
+      conv = SDL_LoadBMP(name); // maybe use SDL_CreateRGBSurfaceFrom
+      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_BlitSurface(conv, NULL, image, NULL);
+      SDL_FreeSurface(conv);
+    }
+    // Now use the reference palette, so that no dithering will occur
+    // when blitting the image in various game buffers - i.e. palette
+    // indexes won't change.
+    SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+  }
+
   showb.active = true;
   showb.showdot = showdot;
   showb.script = script;
-  
-  /* Disabled: lpDDSBack will be ready to be flip'd when exiting this
-     function, so no need to skip the next flip */
-  // abort_this_flip = true;
+
+  //abort_this_flip = true;
   
   RECT rcRect;
   SetRect(&rcRect, 0,0,640, 480);
@@ -6357,9 +6371,6 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
   // GFX
   {
-    // Use the same palette to avoid dithering during Blits
-    SDL_SetPalette(image, SDL_LOGPAL,
-		   GFX_lpDDSBack->format->palette->colors, 0, 256);
     SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
     SDL_FreeSurface(image);
   }
@@ -6376,7 +6387,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
    buffer) */
 void copy_bmp( char name[80])
 {
-  SDL_Surface *image;
+  SDL_Surface *image = NULL;
   SDL_Color palette[256];
 
   if (!exist(name)) 
@@ -6385,9 +6396,10 @@ void copy_bmp( char name[80])
       return;
     }
   
-  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-  //GFX
-  image = SDL_LoadBMP(name);
+  // memory leak?
+  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  //GFX: done later on
+  //image = SDL_LoadBMP(name);
   
   lpDDPal = DDLoadPalette(lpDD, name);
   // GFX
@@ -6400,7 +6412,25 @@ void copy_bmp( char name[80])
 
   // load the image again, with the new global palette - DX dithering
   // is thus avoided
-  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
+  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
+  // GFX
+  {
+    // LoadBMP wrapper - conversion with edited palette (0=black,
+    // 255=white). That's exactly what DX does.
+    {
+      SDL_Surface *conv;
+      image = SDL_LoadBMP(name);
+      conv = SDL_LoadBMP(name); // maybe use SDL_CreateRGBSurfaceFrom
+      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_BlitSurface(conv, NULL, image, NULL);
+      SDL_FreeSurface(conv);
+    }
+    // Now use the reference palette, so that no dithering will occur
+    // when blitting the image in various game buffers - i.e. palette
+    // indexes won't change.
+    SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+  }
+  
 
   abort_this_flip = true;
   
@@ -6419,9 +6449,6 @@ void copy_bmp( char name[80])
   if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
   // GFX
   {
-    // Use the same palette to avoid dithering during Blits
-    SDL_SetPalette(image, SDL_LOGPAL,
-		   GFX_lpDDSTwo->format->palette->colors, 0, 256);
     SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
     SDL_FreeSurface(image);
   }

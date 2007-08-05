@@ -5352,11 +5352,12 @@ void process_show_bmp( void )
 	RECT rcRect;
 	SetRect(&rcRect, 0,0,x, y);
 
-// DEBUG: disabled, already done in show_bmp()
-// again:
-// 	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-// 		&rcRect, DDBLTFAST_NOCOLORKEY);
-// 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+// We could disable this Blit (work is already done in show_bmp()) but
+// we want to display the shiny mark on the map below
+again:
+	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
+		&rcRect, DDBLTFAST_NOCOLORKEY);
+	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
 	if (showb.showdot)
 	{
@@ -5369,6 +5370,7 @@ void process_show_bmp( void )
 		showb.picframe++;
 		if (showb.picframe > index[mseq].last) showb.picframe = 1;
 		int mframe = showb.picframe;
+		
 		lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k,
 			&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
 		
@@ -6096,30 +6098,21 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       //lpDDSPrimary->SetPalette(lpDDPal);
 
       // GFX
-      /* Logical palette (SDL-specific) */
-      /* Only change physical palette - if you change the logical
-	 palette, surfaces won't share the same palette, change color
-	 changes or dithering will occur. */
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, GFX_real_pal, 0, 256);
       /* Physical palette (the one we can change to make visual effects) */
       change_screen_palette(GFX_real_pal);
 
-      /* Sometimes the engine makes reference to a buffer's palette
-	 index (eg fill_screen). Thus, we reproduce the palette swap
-	 bug for buffers as well (see change_scren_palette). */
-      {
-	SDL_Color splash_palette[256];
-	if (exist("tiles/splash.BMP"))
-	    load_palette_from_bmp("tiles/splash.BMP", splash_palette);
-	else
-	    load_palette_from_bmp("../dink/tiles/splash.BMP", splash_palette);
-	SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, splash_palette, 0, 256);
-	SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, splash_palette, 0, 256);
-	SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, splash_palette, 0, 256);
-	SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, splash_palette, 0, 256);
-      }
+      /* When a new image is loaded in DX, it's dithered using the main
+	 palette; currently we don't do that (although that'd be more
+	 efficient that dithering each time the original image is
+	 used). We work around this by making the conversion happen at
+	 the first blit to a buffer surface: */
+      SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
     }
-
+  
   /* Display splash screen */
   rcRect.left = 0;
   rcRect.top = 0;
@@ -6130,16 +6123,21 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // GFX
   {
     // Load it again and blit it to achieve palette conversion
-    SDL_Surface *splashscreen;
+    SDL_Surface *splashscreen = NULL;
     if (exist("tiles/splash.BMP"))
       if ((splashscreen = SDL_LoadBMP("tiles/splash.BMP")) == NULL)
 	{
 	  printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
 	}
     else
-      splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP");
-    SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
-    SDL_FreeSurface(splashscreen);
+      if ((splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP")) == NULL)
+	{
+	  printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+	}
+    if (splashscreen != NULL) {
+      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
+      SDL_FreeSurface(splashscreen);
+    }
   }
   flip_it();
 
