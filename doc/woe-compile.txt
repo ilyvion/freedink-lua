@@ -1,21 +1,30 @@
-Install MSys and MinGW (www.mingw.org).
+You can compile FreeDink using a completely free compilation
+environment, even under MS Woe using MinGW.
+
+MinGW can be used from an IDE (Code::Blocks, Dev-C++), or from a
+pseudo-Unix environment (MSys, Cygwin).
+
+Note: compilation from Cygwin is not supported in the Makefile right
+now, but should be in the future.
+
+
+Extract the MSys tarball (there used to be an installed, but no I just
+extracted msysCORE-1.0.X in C:\msys).
 
 In principle, MinGW is installed in /mingw (it's compiled with
 --prefix=/mingw). While it can work it installed in /usr or /, /mingw
-is the common setup that other people expect, so we'll use that. When
-selecting the components, choose at least g++, g77 (apparently and
-optionaly used by libSDL) and mingw-make.
-
-Extract the MSys tarball (there used to be an installed, but no I just
-extracted msysCORE-1.0.X in C:\msys). Then install MinGW in
-C:\msys\mingw.
+is the common setup that other people expect, so we'll use that
+(i.e. install MinGW in C:\msys\mingw). When selecting the components,
+choose at least g++, g77 (apparently and optionaly used by libSDL) and
+mingw-make.
 
 If you want to install it somewhere else (for example, if you use the
 one that comes with Dev-C++ so as to benefit of DevPaks), then run
 /postinstall/pi.sh so that msys will tweak /etc/fstab accordingly.
 
-TODO: there is another, cross-platform, free software editor called
-Code::Blocks.
+
+TODO: describe Code::Blocks configuration. This is a cross-platform,
+free software editor.
 http://www.codeblocks.org/
 http://gpwiki.org/index.php/C:Development_Environments
 
@@ -47,14 +56,6 @@ Get ddutil.c and ddutil.h from the original source code release. Those
 are non-free, and there's no reason to believe they can be legally
 redistributed.
 
-Use the Makefile.
-
-The .dsw is a workspace, use that to edit it with VC++.
-
-It is adviced to install a woe port of Emacs from
-ftp://ftp.gnu.org/gnu/emacs/windows/
-(full install, not the -barebin one).
-
 
 Dependencies (SDL*...):
 You can either:
@@ -80,26 +81,18 @@ You can either:
 - http://wiki.codeblocks.org/index.php?title=Using_SDL_with_Code::Blocks
 
 
-Seth says the code is dirty. In practice, this means the original code
-did not compile with g++, but we fixed those compilation errors.
+From MSys you can use the Makefile. From Dev-C++, check the project
+files in dev-cpp/. The vc6/.dsw is a workspace, use that to edit it
+with VC++.
 
 
-Make tests. Make tests. Make tests! Since the goal of the project is
-to be backward compatible, and since we're up to non-trivially change
-the code, we need to check that we didn't introduce
-incompatibilities. Regression tests are not easy to perform on an
-interactive programs. However, we can test each non-interactive part
-independently. For example, we could start a game in memory, change a
-few sprite, save the game, the check if the saved game is exactly
-(modulo the timestamp) to a saved game generated likewise using the
-current Dink version, that is patch dink.exe v1.07.
+GDB: I generally install Cygwin and use their GDB package. There's
+also a MSys binary in the "Snapshot" section of the MinGW download
+area (click "older releases" if you don't see it, the interface is
+confusing); that version does not have readline support (no commands
+history), which can be annoying.
 
 
-
-TODO:
-mode is not initialized in dinkvar.h.
-It is, I think, first initialized in dink.cpp in doInit().
-process_line() from dinkvar.h also set its value.
-
-At a point, mode needs to be properly initialized somewhere, to avoid
-"duplicating" the variable in each object file that uses it.
+Last but not least, you are adviced to install a woe port of Emacs
+from ftp://ftp.gnu.org/gnu/emacs/windows/ (full install, not the
+-barebin one) :)

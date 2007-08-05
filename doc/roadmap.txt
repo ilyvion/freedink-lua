@@ -1,7 +1,7 @@
 [X] Port the game to a free compiler
 
-The game now compiles with both VC6 and MinGW (Minimal GNU for
-Windows). Keeping compatibily for VC6 will come in handy in case we
+The game now compiles with both VC6 and MinGW (Minimal GNU for Windows
+- aka GCC). Keeping compatibily for VC6 will come in handy in case we
 suspect a MinGW-specific issue and need another compiler.
 
 [X] Port the build system to make
@@ -33,12 +33,18 @@ Port the game from DirectX to SDL
 - Audio
   - Midi (Done: SDL_Mixer; a reference to mciSendString is remaining)
   - Audio CD (Done: SDL_CD*)
-  - WAV (Half-done: SDL_Mixer, but we lack pitch shift)
+  - WAV (Half-done: SDL_Mixer, but we lack pitch shift and volume unit
+    conversion)
 - Input
 - Graphics
-  - Bitmaps
+  - FastFile (Done: drop-in replacement)
+  - Palette (Done: SDL + custom palette functions + reproduction of DX
+    limitations)
+  - Bitmaps (In progress: backgrounds OK, sprites TODO)
+  - Scaling
   - Fonts
 - Timer (Done: SDL_GetTicks)
+- Frame rate limiting?
 
 [ ] Handle remaining portability issues
 

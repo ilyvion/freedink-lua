@@ -1,0 +1,15 @@
+Future
+======
+
+mode is not initialized in dinkvar.h.
+It is, I think, first initialized in dink.cpp in doInit().
+process_line() from dinkvar.h also set its value.
+
+At a point, mode needs to be properly initialized somewhere, to avoid
+"duplicating" the variable in each object file that uses it.
+
+
+Sound
+=====
+
+Check sound.txt

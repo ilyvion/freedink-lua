@@ -1,0 +1,40 @@
+Compilation
+===========
+
+[/] Check cleanup.txt for steps necessary to compile Dink v1.07 with
+    GCC G++. More warnings may be fixed later on, by using -Wall, or
+    by switching from C++ to ANSI C (as in the previous FreeDink
+    branch) and using -Wall -ansi -pedantic.
+
+Encapsulation
+=============
+
+[ ] The only functions to work on palettes are copy_bmp(), show_bmp(),
+    CyclePalette and up_cycle(), all from freedink.cpp. Maybe they can
+    be moved to gfx_palette.cpp or something, though I'm not so sure
+    (depends on several global variables related to updateFrame()).
+
+Redundant code
+==============
+
+aka copy/paste fixup :)
+
+[ ] The code that places tiles on the background surface is duplicated
+    several times (draw_map_game, draw_map_game_background,
+    process_animated_tiles (2x), draw_map).
+
+[ ] draw_map_game and draw_map_game_background are very similar
+
+[ ] copy_bmp and show_bmp share similar code
+
+[X] doinit() is doing a flip_it() to display the splash
+    screen. Replaced by a function call.
+
+[ ] doInit() in FreeDink and FreeDinkEdit are very similar.
+
+Unused code
+===========
+
+The reload_batch(), blit_background(), copy_back_to_front(),
+DDCreateSurface() functions are never used, and can cause
+confusion. We can safely delete them.

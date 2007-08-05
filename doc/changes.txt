@@ -12,3 +12,31 @@ v1.06's resources and are now external. Incidentally those were
 missing (as well as the application icon) in Dinkedit v1.07. Also,
 stop.wav had to be converted by Audacity to get accepted by SDL_Mixer
 ("Complex WAVE files not supported").
+
+
+Avoid color/palette glitch after show_bmp() is finished, by switching
+the physical/screen palette only when the double buffer is ready to be
+Flip()ed.
+
+
+If you change SPLASH.BMP's palette (use utils/bmpinvert.cpp, for
+example) and without changing Ts01.BMP accordingly, graphics are
+seriously messed up in the original game; however, it seems I fixed
+that in FreeDink (even when DX was still available for testing),
+probably with a early doInit() clean-up. I doubt there's a point in
+re-implementing that bug - I don't think that was ever used as a
+"feature" ;)
+
+
+Enabled screen scrolling in windowed mode (it was explicitely disabled
+in command-line options parsing - maybe there was a reason for this?).
+
+In windowed mode, fill_screen doesn't use the right palette to select
+colours. It also does not support fade_down() and fade_up(). This is
+fixed with SDL. In theory the fact that sprites were weirdly displayed
+in non-8-bit modes should be fixed as well - it was due to raw access
+to the buffer memory assuming that the mode with 8-bit.
+
+
+Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
+external .wav, grabbed in Dinkedit 1.06 resources.

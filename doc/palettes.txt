@@ -1,0 +1,38 @@
+Palette behavior with DX (this is somewhat tricky):
+
+- When a palette is applied to the screen: indexes 0 and 255 are
+  overwritten by black and white respectively; and palette is now used
+  by any new palette-less buffer (that is, all buffers in Dink)
+
+- When any image is loaded: it is dithered to the global palette at
+  load time; note that load_sprite temporarily sets the screen to the
+  reference palette, so dithering is explicitely always done using the
+  reference palette (i.e. Ts01.bmp). For dir.ff, it's bit different:
+  the image is copied by hand into system memory, replacing index 0
+  (white) by 30 (very light blue) and 255 (black) by 249 (slightly
+  light dark) - that's a manual dithering that assumes the official
+  Dink palette is in use.
+
+In FreeDink we tried to reproduce this behavior to ensure maximum
+compatibility; since Dink was used in crazy situations such as palette
+switch via copy_bmp_to_screen(), it's best to ensure the correctness
+of our code base, and that other improvements (eg. fixing fade_down())
+won't easily affect it. In practice, though, it might be simpler to
+only overwrite the physical screen's palette entries 0 and 255, and
+manually work-around the few cases where direct access to the buffer
+is performed (like fill_screen). Maybe such an alternative approach
+can be use for a later truecolor version.
+
+-----
+
+
+White pixels during fade_down: index 255 is reserved by DX, and
+overwritten with color white. It cannot be altered, so color white is
+left untouched during fade_down() and fade_up(). To achieve
+correctness in such situations, without modifying that DX behavior/bug
+which is used by other parts of the game (fill_screen()...), I guess
+we should interpolate to a temporary buffer where index 255 == index 0
+== black, so as not to use that index. Using index 0 doesn't matter in
+that case, because black stays black during fade_down(). However, we
+may need a similar trick with index 0 if we implement fade_to_white()
+in the future.

@@ -1,0 +1,51 @@
+Make tests. Make tests. Make tests! Since the goal of the project is
+to be backward compatible, and since we're up to non-trivially change
+the code, we need to check that we didn't introduce
+incompatibilities. Regression tests are not easy to perform on an
+interactive programs. However, we can test each non-interactive part
+independently. For example, we could start a game in memory, change a
+few sprite, save the game, the check if the saved game is exactly
+(modulo the timestamp) to a saved game generated likewise using the
+current Dink version, that is patch dink.exe v1.07.
+
+
+Regression tests: these (manual) tests are currently working, but test
+again after making changes!
+
+When DinkC scripts are involved, placing them in a key-*.c file comes
+in very handy :)
+
+
+Graphics
+========
+
+Background
+----------
+
+- Make sure dinkm-12.bmp from Mystery Island's dir.ff (the last frame
+  of the Dink->duck morphing sequence) is correctly displayed. That
+  dir.ff is somewhat corrupted and there's a work-around in dir.ff to
+  read it nonetheless.
+
+- Try to show_bmp("../island/tiles/ship5.bmp"). It uses a different
+  palette, with gradients. If there's no gradient at the top-right
+  corner of the image, around the third mast, then something wrong
+  happened to the image and/or the palette. I got that bug when
+  SDL_BlitSurface'ing between Surface with different palettes; instead
+  of just copying the pixels, SDL also dithered the image.
+
+- copy_bmp_to_screen("../island/tiles/ship5.bmp") should switch the
+  engine palette, so you see the background boat perfectly and get
+  weird colours for everything
+  else. copy_bmp_to_screen("../lyna/tiles/shadow.bmp") from Lyna's
+  Story switches to "Shadow mode", i.e. reversed palette. Due to DX's
+  fixed 0 and 255 indexes, perfectly white and black pixels remain
+  white and black, so the image is not completely negative - _that's
+  the original behavior, not a bug_.
+
+- With a DinkC script, fill the screen in a room with black
+  background, with different colors. Index 0 is black (not white as in
+  the Dink Palette). 
+
+- Use a different palette for a tile: the colours should be
+  interpolated to the Ts01.bmp's palette during the game.

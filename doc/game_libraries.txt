@@ -103,7 +103,9 @@ sum of all their features do.
   [V] Allegro does. play_sample() and adjust_sample have a frequency
   argument. The sample is computed on the fly, i.e. it is not a
   precomputed new sample with a different frequency which is then
-  played.
+  played. The frequency is expressed in o/oo (eg 2000 = 2x as fast,
+  500 = 2x as slow), instead of DX's explicit final Hz frequency (eg
+  44100) :/
 
   [V] [TODO] OpenAL does.
 
