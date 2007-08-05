@@ -43,6 +43,14 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
       palette[i].b = bmp->format->palette->colors[i].b;
     }
 
+  /* Reproduce DX/Woe limitation (see change_screen_palette) */
+  palette[0].r = 0;
+  palette[0].g = 0;
+  palette[0].b = 0;
+  palette[255].r = 255;
+  palette[255].g = 255;
+  palette[255].b = 255;
+
   SDL_FreeSurface (bmp);
 }
 

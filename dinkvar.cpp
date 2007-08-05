@@ -2169,60 +2169,6 @@ void draw_wait()
 }
 
 
-LPDIRECTDRAWSURFACE DDCreateSurface(
-                                                                        DWORD width,
-                                                                        DWORD height,
-                                                                        BOOL sysmem,
-                                                                        BOOL trans )
-{
-    DDSURFACEDESC       ddsd;
-    HRESULT             ddrval;
-    LPDIRECTDRAWSURFACE psurf;
-        
-        
-    /*
-        * fill in surface desc
-        */
-    memset( &ddsd, 0, sizeof( ddsd ) );
-    ddsd.dwSize = sizeof( ddsd );
-    ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-        
-    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
-        /*    if( sysmem || bUseSysMem )
-    {
-        ddsd.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY;
-    }
-        */
-    ddsd.dwHeight = height;
-    ddsd.dwWidth = width;
-        
-    ddrval = IDirectDraw_CreateSurface( lpDD, &ddsd, &psurf, NULL );
-        
-    /*
-        * set the color key for this bitmap
-        */
-    if( ddrval == DD_OK )
-    {
-                
-        /*      if( trans && !bTransDest )
-        {
-        ddck.dwColorSpaceLowValue = dwColorKey;
-        ddck.dwColorSpaceHighValue = dwColorKey;
-        IDirectDrawSurface_SetColorKey( psurf, DDCKEY_SRCBLT, &ddck);
-        }
-                */
-                
-        }
-    else
-    {
-                Msg( "CreateSurface FAILED, rc = %ld", (DWORD) LOWORD( ddrval ) );
-                psurf = NULL;
-    }
-        
-        return psurf;
-        
-} /* DDCreateSurface */
-
 
 void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
                                          RECT hardbox, bool notanim, bool black, bool leftalign, bool samedir)
@@ -2655,7 +2601,9 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
 		  /* Beuc: what is it for??? It's disabled in
 		     load_sprite_pak(). I don't see anything special
-		     when enabling it. */
+		     when enabling it. Possibly used to use the
+		     reference palette even if the screen palette was
+		     changed. */
                   if (!windowed)
                   {
                           lpDDPal->GetEntries(0,0,256,holdpal);   
@@ -2756,10 +2704,6 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
                                   index[nummy].last = (oo - 1);
                                   //       initFail(hWndMain, crap);
                                   setup_anim(nummy,nummy,speed);
-				  /* Beuc: what is it for??? It's
-				     disabled in load_sprite_pak(). I
-				     don't see anything special when
-				     enabling it. */
                                   if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
                                   
                                   return;
@@ -6380,8 +6324,6 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   // GFX
   image = SDL_LoadBMP(name);
-  // Apply the Dink palette to avoid dithering during Blits
-  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
   lpDDPal = DDLoadPalette(lpDD, name);
   // GFX
@@ -6415,6 +6357,9 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
   // GFX
   {
+    // Use the same palette to avoid dithering during Blits
+    SDL_SetPalette(image, SDL_LOGPAL,
+		   GFX_lpDDSBack->format->palette->colors, 0, 256);
     SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
     SDL_FreeSurface(image);
   }
@@ -6443,8 +6388,6 @@ void copy_bmp( char name[80])
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   //GFX
   image = SDL_LoadBMP(name);
-  // Apply the Dink palette to avoid dithering during Blits
-  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
   lpDDPal = DDLoadPalette(lpDD, name);
   // GFX
@@ -6455,7 +6398,8 @@ void copy_bmp( char name[80])
   // GFX
   change_screen_palette(palette);
 
-  // Beuc: already loaded above??
+  // load the image again, with the new global palette - DX dithering
+  // is thus avoided
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
 
   abort_this_flip = true;
@@ -6475,6 +6419,9 @@ void copy_bmp( char name[80])
   if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
   // GFX
   {
+    // Use the same palette to avoid dithering during Blits
+    SDL_SetPalette(image, SDL_LOGPAL,
+		   GFX_lpDDSTwo->format->palette->colors, 0, 256);
     SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
     SDL_FreeSurface(image);
   }
@@ -6804,21 +6751,9 @@ void copy_bmp( char name[80])
                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
                 // GFX
 		{
-		  /* For some reason, the first palette index is
-		     white, but in the original game in turns black in
-		     the palette (and vice-versa). */
-		  /* Until I understand where that comes from (TODO),
-		     I'll just swap the values here */
-		  /* Modifying the palette accordingly is bad: if
-		     different palettes are used during Blits,
-		     dithering may occurs, which breaks effects like
-		     fading and palette change. */
-		  if (num == 255)
-		    num = 0;
-		  else if (num == 0)
-		    num = 255;
-		  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
-		    GFX_real_pal[num].r, GFX_real_pal[num].g, GFX_real_pal[num].b));
+		  /* Warning: palette indexes 0 and 255 are hard-coded
+		     to black and white (change_screen_palette). */
+ 		  SDL_FillRect(GFX_lpDDSTwo, NULL, num);
 		}
         }
         
@@ -7915,9 +7850,7 @@ pass:
                 {
                         // (sprite, direction, until, nohard);
                         process_downcycle = true;
-			// DEBUG
-                        //cycle_clock = thisTickCount+1000;
-			cycle_clock = thisTickCount+2000;
+                        cycle_clock = thisTickCount+1000;
                         cycle_script = script;
                         return(2);
                 }

@@ -29,7 +29,7 @@
 #include "sfx.h"
 
 /* Tiles */
-#define NB_TILE_SCREENS 41+1 /* Beuc: why +1? */
+#define NB_TILE_SCREENS 41+1 /* +1 to avoid the -1 in arrays.. */
 LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces
 SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
 

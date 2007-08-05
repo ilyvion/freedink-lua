@@ -3787,8 +3787,8 @@ void CyclePalette()
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
   // DEBUG
-  //for (int kk = 1; kk < 256; kk++)
-  for (int kk = 0; kk < 256; kk++)
+  for (int kk = 1; kk < 256; kk++)
+  //for (int kk = 0; kk < 256; kk++)
     {
       if (pe[kk].peBlue != 0)
 	{
@@ -3799,7 +3799,7 @@ void CyclePalette()
       // GFX
       if (palette[kk].b != 0)
 	{
-	  done_this_time = false;
+	  //done_this_time = false;
 	  if (palette[kk].b > 10)
 	    palette[kk].b -= 10;
 	  else
@@ -3815,7 +3815,7 @@ void CyclePalette()
       // GFX
       if (palette[kk].g != 0)
 	{
-	  done_this_time = false;
+	  //done_this_time = false;
 	  if (palette[kk].g > 10)
 	    palette[kk].g -= 10;
 	  else
@@ -3831,7 +3831,7 @@ void CyclePalette()
       // GFX
       if (palette[kk].r != 0)
 	{
-	  done_this_time = false;
+	  //done_this_time = false;
 	  if (palette[kk].r > 10)
 	    palette[kk].r -= 10;
 	  else
@@ -3840,16 +3840,27 @@ void CyclePalette()
     }
   
   lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
+
+//   printf("pe[0] = (%d, %d, %d))\n", pe[0].peRed, pe[0].peGreen, pe[0].peBlue);
+//   printf("pa[0] = (%d, %d, %d))\n", palette[0].r, palette[0].g, palette[0].b);
+//   printf("pe[136] = (%d, %d, %d))\n", pe[136].peRed, pe[136].peGreen, pe[136].peBlue);
+//   printf("pa[136] = (%d, %d, %d))\n", palette[136].r, palette[136].g, palette[136].b);
+//   printf("pe[255] = (%d, %d, %d))\n", pe[255].peRed, pe[255].peGreen, pe[255].peBlue);
+//   printf("pa[255] = (%d, %d, %d))\n", palette[255].r, palette[255].g, palette[255].b);
+//   fflush(stdout);
   
   if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
     {
       Msg("error with setting entries");
       return;
     }
-  // DEBUG: attempt to make fade_* work in windowed DX mode
-  lpDDSPrimary->SetPalette(lpDDPal);
 
   // GFX
+  /* TODO: SDL doesn't seem to like some of the palettes we use. Some
+     palettes are not accepted and the screen is not refreshed. If the
+     last palette you use is not accepted, the game looks
+     frozen. Currently only the start and end palettes are shown, so
+     the fading essentially doesn't work :/ */
   change_screen_palette(palette);
 
   if (process_downcycle) 
@@ -3884,7 +3895,8 @@ void up_cycle(void)
 
   // DEBUG
   //for (int kk = 1; kk <= 256; kk++)
-  for (int kk = 0; kk < 256; kk++)
+  //for (int kk = 0; kk < 256; kk++)
+  for (int kk = 1; kk < 256; kk++)
     {
       if (pe[kk].peBlue != real_pal[kk].peBlue)
 	{
@@ -5971,6 +5983,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       // GFX
       load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
+
   // TODO: setpalette will be called again later
   /* GFX: it will be called by reloading TS01.BMP - this seems
      redundant, maybe we should remove this. */
@@ -5978,9 +5991,9 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
     {
       lpDDSPrimary->SetPalette(lpDDPal);
     }
-
   if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK)
     Msg("error with getting entries in beginning");
+	
 
   /* Better set the palette when actually loading the BMP - commented
      out */
@@ -5997,7 +6010,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 
   // Load the tiles from the BMPs
   load_tiles();
-	
+
   if (sound_on) 
     {
       Msg("Initting sound");
@@ -6079,28 +6092,32 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // Sets the default palette for the screen
   if (lpDDPal)
     {
-      lpDDSPrimary->SetPalette(lpDDPal);
+      // Disabled: already done:
+      //lpDDSPrimary->SetPalette(lpDDPal);
+
       // GFX
       /* Logical palette (SDL-specific) */
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL,
-		     GFX_lpDDSBack->format->palette->colors, 0, 256);
-      /* Physical palette (the one we can change to make visual effects) */
-      /* The colors are reversed in TS01.BMP's and SPLASH.BMP's
-	 palettes. For some reason that's how to original game works
-	 (eg fill_screen(0) is black, no white), even though I can't
-	 find the origin of that behavior... */
       /* Only change physical palette - if you change the logical
 	 palette, surfaces won't share the same palette, change color
 	 changes or dithering will occur. */
-      /* Make sure entry 0 is black and 255 is white */
-      /* Disabled, for now we'll just modify fill_screen(0) */
-//       GFX_real_pal[0].r = 0;
-//       GFX_real_pal[0].g = 0;
-//       GFX_real_pal[0].b = 0;
-//       GFX_real_pal[255].r = 255;
-//       GFX_real_pal[255].g = 255;
-//       GFX_real_pal[255].b = 255;
+      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, GFX_real_pal, 0, 256);
+      /* Physical palette (the one we can change to make visual effects) */
       change_screen_palette(GFX_real_pal);
+
+      /* Sometimes the engine makes reference to a buffer's palette
+	 index (eg fill_screen). Thus, we reproduce the palette swap
+	 bug for buffers as well (see change_scren_palette). */
+      {
+	SDL_Color splash_palette[256];
+	if (exist("tiles/splash.BMP"))
+	    load_palette_from_bmp("tiles/splash.BMP", splash_palette);
+	else
+	    load_palette_from_bmp("../dink/tiles/splash.BMP", splash_palette);
+	SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, splash_palette, 0, 256);
+	SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, splash_palette, 0, 256);
+	SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, splash_palette, 0, 256);
+	SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, splash_palette, 0, 256);
+      }
     }
 
   /* Display splash screen */
@@ -6111,9 +6128,20 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
 			      &rcRect, DDBLTFAST_NOCOLORKEY);
   // GFX
-  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+  {
+    // Load it again and blit it to achieve palette conversion
+    SDL_Surface *splashscreen;
+    if (exist("tiles/splash.BMP"))
+      if ((splashscreen = SDL_LoadBMP("tiles/splash.BMP")) == NULL)
+	{
+	  printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
+	}
+    else
+      splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP");
+    SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
+    SDL_FreeSurface(splashscreen);
+  }
   flip_it();
-
 
   if (cd_inserted)
     PlayCD(7);

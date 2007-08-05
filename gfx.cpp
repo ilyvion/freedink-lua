@@ -91,18 +91,31 @@ SDL_Color GFX_real_pal[256];
 int trigger_palette_change = 0;
 SDL_Color cur_screen_palette[256];
 
+/* Schedule a change to the physical screen's palette for the next
+   frame */
 void change_screen_palette(SDL_Color* new_palette) {
   {
-    // With SDL, also redefine palettes for intermediary buffers
-//     SDL_SetColors(GFX_lpDDSTwo, GFX_real_pal, 0, 256);
-//     SDL_SetColors(GFX_lpDDSBack, GFX_real_pal, 0, 256);
-//     SDL_SetColors(GFX_lpDDSTrick, GFX_real_pal, 0, 256);
-//     SDL_SetColors(GFX_lpDDSTrick2, GFX_real_pal, 0, 256);
+    /* Now this one is tricky: DX/Woe has a "feature" where palette
+       indexes 0 and 255 are fixed to black and white,
+       respectively. This is the opposite of the default Dink palette
+       - which is why fill_screen(0) is black and not white as in the
+       Dink palette. This also makes "Lyna's Story"'s palette change a
+       bit ugly, because pure black and white colors are not reversed
+       when you enter "negative" color mode. This does not affect
+       other indexes. Technically this happens when you get a palette
+       from GetEntries(), and when you CreatePalette() without
+       specifying DDPCAPS_ALLOW256. But well, reproducing the bug is
+       important for backward compatibility. */
 
-    // Tell the engine to refresh the physical screen's
-    // palette next frame:
-//    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, palette, 0, 256);
     memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
+
+    cur_screen_palette[0].r = 0;
+    cur_screen_palette[0].g = 0;
+    cur_screen_palette[0].b = 0;
+    cur_screen_palette[255].r = 255;
+    cur_screen_palette[255].g = 255;
+    cur_screen_palette[255].b = 255;
+
     trigger_palette_change = 1;
   }
 }
