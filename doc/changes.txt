@@ -21,9 +21,15 @@ Flip()ed.
 
 If you change SPLASH.BMP's palette (use utils/bmpinvert.cpp, for
 example) and without changing Ts01.BMP accordingly, graphics are
-seriously messed up in the original game; however, it seems I fixed
-that in FreeDink (even when DX was still available for testing),
-probably with a early doInit() clean-up. I doubt there's a point in
+seriously messed up in the original game (ie. because the main palette
+is first set to SPLASH.BMP, tiles are dithered to that palette; then
+those palette indexes are maintained but displayed with Ts01.BMP's
+palette on the screen; graphics are not affected because load_sprite
+explicitely and temporarily sets the palette to real_pal aka Ts01.BMP
+before loading the script, so dithering won't happen in that case).
+It seems I fixed that in FreeDink (even when DX was still available
+for testing), probably with a early doInit() clean-up where I removed
+redundant definitions of the main palette. I doubt there's a point in
 re-implementing that bug - I don't think that was ever used as a
 "feature" ;)
 

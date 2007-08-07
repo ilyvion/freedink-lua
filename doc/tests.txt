@@ -49,3 +49,13 @@ Background
 
 - Use a different palette for a tile: the colours should be
   interpolated to the Ts01.bmp's palette during the game.
+
+
+Sound
+=====
+
+- Pick the bag of pigs feed in the first Dink screen, or pick one of
+  these little hearts when you break a barrel. The picking sound is
+  SWORD2.WAV but played at rate 22kHz instead of the file-specified
+  8kHz. If you hear a sword sound instead of a picking sound, then
+  rate conversion does not work.

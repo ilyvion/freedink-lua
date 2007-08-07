@@ -1,10 +1,18 @@
 Current we need to:
 
 - implement setFrequency
+Or switch to OpenAL and keep SDL_Mixer (Allegro?) only for MIDIs.
+Or use SDL_sound to convert MIDIs to WAVs and always software-play
+them.
+
 keywords:
 "PCM", "DSP" and "pitch-shift" (possibly in combination with "C++")
 http://www.devolution.com/pipermail/sdl/2004-October/065449.html
-Or switch to OpenAL and keep SDL_Mixer (Allegro?) only for MIDIs.
+
+Note: http://www.dspdimension.com/index.html?timepitch.html#intro
+suggests that "pitch shift" actually means something different, and
+that what we're trying to achieve is just "sample rate conversion".
+
 
 I don't think that actually can be done in SDL_Mixer. Rationale (may
 be wrong): I want to play a sound a looooow speed. I then need more
@@ -16,9 +24,43 @@ However, SDL_Mixer is good for background (MIDIs and audio CDs - it's
 rare to find something to read audio CDs). So we should try to use it
 in combination with OpenAL (or Allegro (or...)).
 
-- sound_set_vol in DinkC
 
-- function to convert volume and panning from dB to the unit we'll use
+- Function to convert volume and panning from dB to the unit we'll use
+
+(DinkC's sound_set_vol(), SetVolume() and SetPan() in the code)
+
+sound_set_vol(): "The volume should be negative or zero. 0 is no
+change, -1000 is about half-volume, and -10000 is extremely quiet."
+
+Formula (keywords: dsp decibel dB volume):
+
+ 20*log10 (x/max_vol) ~> y (dB)
+ ex: 20*log10 (80/128) ~> -4dB
+ 128: max value for a sound; SDL uses 128
+ 80: sound value in the WAV file
+ -4dB: attenuation in decibel
+
+In SDL, the volume is just a linear scaling (80 means something like
+"multiply all sound values by 80/128)
+
+So we need the opposite formula to get 80 from -4dB:
+ x = max_vol.10^(y/20)
+
+Ex: -1000 (hundreds of dB) => x = 128.10(^-10/20) =~ 40.
+
+Note: -10dB should be half volume, so why isn't it 128/2 + 64? It's
+because the human-ear-perceived volume is the _square_ of the sound
+value.
+
+
+Panning: according to the DX documentation, SetPan(x) uses a dB
+attenuation; left channel attenuation when positive, right channel
+attenuation when negative. x ranges from -10000 to 10000.
+
+So at first glance:
+SetPan(-1000) => Mix_SetPanning(n, 255, 255.10(^-10/20))
+SetPan(3000) => Mix_SetPanning(n, 255.10(^-30/20), 255)
+
 
 - separate initsound from sfx - it's sfx+bgm
 
@@ -28,5 +70,5 @@ in combination with OpenAL (or Allegro (or...)).
 
 Note:
 
-- soundplayeffect return a non-0 bank number; it's used by DinkC's
+- soundplayeffect returns a non-0 bank number; it's used by DinkC's
   playsound(). Beware!
