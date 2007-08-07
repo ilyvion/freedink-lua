@@ -1,9 +1,6 @@
 Current we need to:
 
 - implement setFrequency
-Or switch to OpenAL and keep SDL_Mixer (Allegro?) only for MIDIs.
-Or use SDL_sound to convert MIDIs to WAVs and always software-play
-them.
 
 keywords:
 "PCM", "DSP" and "pitch-shift" (possibly in combination with "C++")
@@ -23,6 +20,14 @@ will most likely be truncated. So much for SDL_Mixer.
 However, SDL_Mixer is good for background (MIDIs and audio CDs - it's
 rare to find something to read audio CDs). So we should try to use it
 in combination with OpenAL (or Allegro (or...)).
+
+ * Or switch to Allegro and keep SDL for audio CDs only (or disable
+   audio CDs support)
+
+ * Or switch to OpenAL and keep SDL_Mixer (Allegro?) only for MIDIs.
+
+ * Or use SDL_sound to convert MIDIs to WAVs and always software-play
+   them.
 
 
 - Function to convert volume and panning from dB to the unit we'll use
