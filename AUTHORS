@@ -2,8 +2,8 @@ Records of which significant portions were written by whom:
 
 
 Shawn Betts wrote the first version of fastfile.c,
-load_palette_from_bmp(), setup_palette(). We got inspiration from his
-first SDL port attempt.
+load_palette_from_bmp(), setup_palette(), load_sprite_pak(). We got
+inspiration from his first SDL port attempt.
 
 
 Sylvain Beucler did the rest.

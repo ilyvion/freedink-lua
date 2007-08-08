@@ -211,6 +211,10 @@ struct refinfo
 
 bool first_frame = false;
 
+/* If true, and if the engine is executing a screen's attached script,
+   and if main() loads new graphics (preload_seq()...), then
+   load_sprites and load_sprite_pak will display a "Please Wait"
+   animation. */
 bool no_running_main = false;
 
 struct call_back
@@ -332,6 +336,7 @@ bool total_trigger = false;
 bool debug_mode = false;
 
 pic_info     k[max_sprites];       // Sprite data
+GFX_pic_info GFX_k[max_sprites];   // Sprite data (SDL)
 player_info play;
 
 
@@ -939,7 +944,10 @@ void TRACE( LPSTR fmt, ... )
 } /* Msg */
 
 
-
+/* Like DDLoadBitmap, except that we don't check the existence of
+   szBitmap, and we define the .box sprite attribute with the
+   dimentions of the picture */
+/* Used in load_sprites() and in freedinkedit.cpp */
 extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
 {
         HBITMAP             hbm;
@@ -2092,17 +2100,23 @@ void draw_wait()
                 
                 if (please_wait)
                 {
-                        ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[7]].k,
+                        ddrval = lpDDSPrimary->BltFast(232, 0, k[seq[423].frame[7]].k,
                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
 			// GFX
-			//SDL_BlitSurface(,,GFX_lpDDSPrimary,)...
+			{
+			  SDL_Rect dst = {232, 0};
+			  SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSPrimary, &dst);
+			}
                         please_wait = false;
                 } else
                 {
                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k,
                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
 			// GFX
-			//SDL_BlitSurface(,,GFX_lpDDSPrimary,)...
+			{
+			  SDL_Rect dst = {232, 0};
+			  SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSPrimary, &dst);
+			}
                         please_wait = true;
                         
                 }
@@ -2112,560 +2126,545 @@ void draw_wait()
 
 
 
+
+
 void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
-                                         RECT hardbox, bool notanim, bool black, bool leftalign, bool samedir)
+			 RECT hardbox, bool notanim, bool black, bool leftalign, bool samedir)
 {
-        int work;
-        
-        HFASTFILE                  pfile;   
-    BITMAPFILEHEADER UNALIGNED *pbf;
-    BITMAPINFOHEADER UNALIGNED *pbi;
-        DDSURFACEDESC       ddsd;
-        BITMAP              bm;
-        
-           DDCOLORKEY          ddck;
-           
-           
-           int x,y,dib_pitch;
-           BYTE *src, *dst;
-           char fname[20];
-           
-           //IDirectDrawSurface *pdds;
-           
-           int sprite = 71;
-           BOOL                       trans = FALSE;
-           bool reload = false;
-           
-           char crap[200];
-           
-           int save_cur = cur_sprite;
-           
-           if (index[nummy].last != 0)
-           {
-                   //  Msg("Saving sprite %d", save_cur);
-                   cur_sprite = index[nummy].s+1;
-                   //Msg("Temp cur_sprite is %d", cur_sprite);
-                   reload = true;
-           }
-           
-           
-           index[nummy].s = cur_sprite -1;
-           
-           if (no_running_main) draw_wait();
-           
-           char crap2[200];
-           strcpy(crap2, org);
-           while(crap2[strlen(crap2)-1] != '\\')
-           {      
-                   crap2[strlen(crap2)-1] = 0;
-           }
-           crap2[strlen(crap2)-1] = 0;
-           
-           int num = strlen(org) - strlen(crap2)-1;
-           strcpy(fname, &org[strlen(org)-num]);
-           if (samedir)
-                   sprintf(crap, "%s\\dir.ff",crap2);
-           else
-                   sprintf(crap, "..\\dink\\%s\\dir.ff",crap2);
-           
-           
-           if( !FastFileInit(  (LPSTR)crap, 5 ) )
-           {
-                   Msg( "Could not load dir.ff art file %s err=%08lX" , crap, GetLastError());
-                   
-                   cur_sprite = save_cur;
-                   return;
-                   
-           }
-           
-           
-           
-           /*           if (!windowed)
-           {
-           lpDDPal->GetEntries(0,0,256,holdpal);          
-           lpDDPal->SetEntries(0,0,256,real_pal);
-           }      
-           */
-           
-           
-           for (int oo = 1; oo <= 51; oo++)
-           {
-                   
-                   
-                   //load sprite
-                   sprite = cur_sprite; 
-                   //if (reload) Msg("Ok, programming sprite %d", sprite);      
-                   if (oo < 10) strcpy(crap2, "0"); else strcpy(crap2, "");
-                   wsprintf(crap, "%s%s%d.bmp", fname,crap2, oo);
-                   
-                   pfile = FastFileOpen((LPSTR) crap);
-                   
-                   
-                   if( pfile == NULL )
-                   {
-                           FastFileClose( pfile );
-                           //   FastFileFini();
-                           if (oo == 1) 
-                                   Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
-                           
-                           index[nummy].last = (oo - 1);
-                           //      initFail(hWndMain, crap);
-                           setup_anim(nummy,nummy,speed);
-                           //                           if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
-                           
-                           //if (reload) Msg("Ok, tacking %d back on.", save_cur);
-                           cur_sprite = save_cur;                 
-                           return;
-                           
-                           
-                   } else
-                   {
-                           
-		     //got file
-                           pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0);
-                           pbi = (BITMAPINFOHEADER *)(pbf+1);
-                           
-                           if (pbf->bfType != 0x4d42 ||
-                                   pbi->biSize != sizeof(BITMAPINFOHEADER))
-                           {
-                                   Msg("Failed to load");
-                                   Msg(crap);
-                                   cur_sprite = save_cur;
-                                   FastFileClose( pfile );
-                                   //   FastFileFini();
-                                   
-                                   
-                                   return;
-                                   
-                           }
-                           
-                           
-                           
-                           byte *pic;
-                           
-                           pic = (byte *)pbf + 1078;
-                           
-                           //Msg("Pic's size is now %d.",sizeof(pic));
-                           
-                           bm.bmWidth = pbi->biWidth;
-                           bm.bmHeight = pbi->biHeight;
-                           bm.bmWidthBytes = 32;
-                           bm.bmPlanes = pbi->biPlanes;
-                           bm.bmBitsPixel = pbi->biBitCount;
-                           bm.bmBits = pic;
-                           
-                           //
-                           // create a DirectDrawSurface for this bitmap
-                           //
-                           ZeroMemory(&ddsd, sizeof(ddsd));
-                           ddsd.dwSize = sizeof(ddsd);
-                           ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-                           ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-                           ddsd.dwWidth = pbi->biWidth;
-                           ddsd.dwHeight = pbi->biHeight;
-                           
-                           if (k[sprite].k != NULL) k[sprite].k->Release();
-                           
-                           if (lpDD->CreateSurface(&ddsd, &k[sprite].k, NULL) != DD_OK)
-                           {
-                                   Msg("Failed to create pdd surface description");
-                                   
-                                   
-                           } else
-                           {
-                                   
-                                   
-                                   ddsd.dwSize = sizeof(ddsd);
-                                   ddrval = IDirectDrawSurface_Lock(
-                                           k[sprite].k, NULL, &ddsd, DDLOCK_WAIT, NULL);
-                                   
-                                   if( ddrval == DD_OK )
-                                   {
-                                           dib_pitch = (pbi->biWidth+3)&~3;
-                                           src = (BYTE *)pic + dib_pitch * (pbi->biHeight-1);
-                                           dst = (BYTE *)ddsd.lpSurface;
-                                           if (leftalign)
-                                           {
-                                                   //Msg("left aligning..");
-                                                   
-                                                   for( y=0; y<(int)pbi->biHeight; y++ )
-                                                   {
-                                                           for( x=0; x<(int)pbi->biWidth; x++ )
-                                                           {
-                                                                   dst[x] = src[x];
-                                                                   if (dst[x] == 0)
-                                                                   {
-                                                                           // Msg("Found a 255...");
-                                                                           dst[x] = 30;
-                                                                   } else
-                                                                           if (dst[x] == 255)
-                                                                           {
-                                                                                   dst[x] = 249;
-                                                                           }
-                                                                           
-                                                                           
-                                                           }
-                                                           
-                                                           
-                                                           
-                                                           dst += ddsd.lPitch;
-                                                           src -= dib_pitch;
-                                                   }
-                                                   
-                                                   
-                                           } else
-                                                   
-                                                   if (black)
-                                                   {
-                                                           
-                                                           for( y=0; y<(int)pbi->biHeight; y++ )
-                                                           {
-                                                                   for( x=0; x<(int)pbi->biWidth; x++ )
-                                                                   {
-                                                                           dst[x] = src[x];
-                                                                           
-                                                                           if (dst[x] == 0)
-                                                                           {
-                                                                                   dst[x] = 30;
-                                                                           } 
-                                                                           
-                                                                           
-                                                                   }
-                                                                   
-                                                                   
-                                                                   
-                                                                   dst += ddsd.lPitch;
-                                                                   src -= dib_pitch;
-                                                           }
-                                                           
-                                                   } else
-                                                   {
-                                                           
-                                                           //doing white
-                                                           for( y=0; y<(int)pbi->biHeight; y++ )
-                                                           {
-                                                                   for( x=0; x<(int)pbi->biWidth; x++ )
-                                                                   {
-                                                                           dst[x] = src[x];
-                                                                           
-                                                                           
-                                                                           if (dst[x] == 255)
-                                                                           {
-                                                                                   // Msg("Found a 255...");
-                                                                                   dst[x] = 249;
-                                                                           }
-                                                                   }
-                                                                   dst += ddsd.lPitch;
-                                                                   src -= dib_pitch;
-                                                           }
-                                                           
-                                                   }
-                                                   
-                                                   
-                                                   
-                                                   IDirectDrawSurface_Unlock(k[sprite].k, NULL);
-                                   }
-                                   else
-                                   {
-                                           Msg("Lock failed err=%d", ddrval);
-                                           //return;
-                                   }
-                                   
-                                   if (sprite > 0)
-                                   {
-                                           k[sprite].box.top = 0;
-                                           k[sprite].box.left = 0;
-                                           k[sprite].box.right = ddsd.dwWidth;
-                                           k[sprite].box.bottom =ddsd.dwHeight;
-                                           
-                                           
-                                           
-                                           if ( (oo > 1) & (notanim) )
-                                           {
-                                                   
-                                                   k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
-                                           } else
-                                           {
-                                                   if (yoffset > 0)
-                                                           k[cur_sprite].yoffset = yoffset; else
-                                                   {
-                                                           
-                                                           
-                                                           k[cur_sprite].yoffset = (k[cur_sprite].box.bottom - 
-                                                                   (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
-                                                           
-                                                   }
-                                           }
-                                           
-                                           if ( (oo > 1 ) & (notanim))
-                                           {
-                                                   
-                                                   k[cur_sprite].xoffset =  k[index[nummy].s+1].xoffset;
-                                           } else
-                                           {
-                                                   
-                                                   if (xoffset > 0)
-                                                           k[cur_sprite].xoffset = xoffset; else
-                                                           
-                                                   {
-                                                           
-                                                           
-                                                           k[cur_sprite].xoffset = (k[cur_sprite].box.right - 
-                                                                   (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
-                                                           
-                                                           
-                                                   }
-                                           }
-                                           //ok, setup main offsets, lets build the hard block
-                                           
-                                           if (hardbox.right > 0) 
-                                           {      
-                                                   //forced setting       
-                                                   k[cur_sprite].hardbox.left = hardbox.left;
-                                                   k[cur_sprite].hardbox.right = hardbox.right;
-                                           }
-                                           else
-                                           {
-                                                   //guess setting        
-                                                   work = k[cur_sprite].box.right / 4;
-                                                   k[cur_sprite].hardbox.left -= work;
-                                                   k[cur_sprite].hardbox.right += work;
-                                                   
-                                           }
-                                           
-                                           
-                                           
-                                           if (hardbox.bottom > 0) 
-                                           {
-                                                   k[cur_sprite].hardbox.top = hardbox.top;                               
-                                                   k[cur_sprite].hardbox.bottom = hardbox.bottom;
-                                                   
-                                           }
-                                           else
-                                           {
-                                                   
-                                                   work = k[cur_sprite].box.bottom / 10;
-                                                   k[cur_sprite].hardbox.top -= work;
-                                                   k[cur_sprite].hardbox.bottom += work;
-                                                   
-                                           }
-                                           
-                                           if (black)
-                                                   
-                                           {
-                                                   ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255));
-                                                   
-                                                   ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
-                                                   k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
-                                                   
-                                           }
-                                           
-                                           else
-                                                   
-                                           {
-                                                   ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0));                                      
-                                                   ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
-                                                   k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
-                                                   
-                                           }
-                                           cur_sprite++;
-                                           if (!reload)
-                                                   save_cur++;
-                                           FastFileClose( pfile );
-                                   }
-                                   
+  int work;
+
+  HFASTFILE                  pfile;
+  BITMAPFILEHEADER UNALIGNED *pbf;
+  BITMAPINFOHEADER UNALIGNED *pbi;
+  DDSURFACEDESC       ddsd;
+  BITMAP              bm;
+
+  DDCOLORKEY          ddck;
+
+  int x,y,dib_pitch;
+  BYTE *src, *dst;
+  char fname[20];
+
+  //IDirectDrawSurface *pdds;
+
+  int sprite = 71;
+  BOOL trans = FALSE;
+  bool reload = false;
+
+  char crap[200];
+
+  int save_cur = cur_sprite;
+
+  if (index[nummy].last != 0)
+    {
+      //  Msg("Saving sprite %d", save_cur);
+      cur_sprite = index[nummy].s+1;
+      //Msg("Temp cur_sprite is %d", cur_sprite);
+      reload = true;
+    }
+
+
+  index[nummy].s = cur_sprite -1;
+
+  if (no_running_main) draw_wait();
+
+  char crap2[200];
+  strcpy(crap2, org);
+  while(crap2[strlen(crap2)-1] != '\\')
+    {
+      crap2[strlen(crap2)-1] = 0;
+    }
+  crap2[strlen(crap2)-1] = 0;
+
+  int num = strlen(org) - strlen(crap2)-1;
+  strcpy(fname, &org[strlen(org)-num]);
+  if (samedir)
+    sprintf(crap, "%s/dir.ff", crap2);
+  else
+    sprintf(crap, "../dink/%s/dir.ff", crap2);
+
+
+  if (!FastFileInit((LPSTR)crap, 5))
+    {
+      Msg( "Could not load dir.ff art file %s err=%08lX" , crap, GetLastError());
+
+      cur_sprite = save_cur;
+      return;
+    }
+
+  // No color conversion for sprite paks - they need to use the Dink
+  // Palette, otherwise weird colors will appear!
+  /*           if (!windowed)
+	       {
+	       lpDDPal->GetEntries(0,0,256,holdpal);
+	       lpDDPal->SetEntries(0,0,256,real_pal);
+	       }
+  */
+
+  for (int oo = 1; oo <= 51; oo++)
+    {
+      //load sprite
+      sprite = cur_sprite;
+      //if (reload) Msg("Ok, programming sprite %d", sprite);
+      if (oo < 10) strcpy(crap2, "0"); else strcpy(crap2, "");
+      wsprintf(crap, "%s%s%d.bmp", fname,crap2, oo);
+
+      pfile = FastFileOpen((LPSTR) crap);
+
+      if( pfile == NULL )
+	{
+	  FastFileClose( pfile );
+	  //   FastFileFini();
+	  if (oo == 1)
+	    Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
+
+	  index[nummy].last = (oo - 1);
+	  //      initFail(hWndMain, crap);
+	  setup_anim(nummy,nummy,speed);
+	  //                           if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
+
+	  //if (reload) Msg("Ok, tacking %d back on.", save_cur);
+	  cur_sprite = save_cur;
+	  return;
+	} else
+	{
+	  //got file
+	  pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0);
+	  pbi = (BITMAPINFOHEADER *)(pbf+1);
+
+	  if (pbf->bfType != 0x4d42 ||
+	      pbi->biSize != sizeof(BITMAPINFOHEADER))
+	    {
+	      Msg("Failed to load");
+	      Msg(crap);
+	      cur_sprite = save_cur;
+	      FastFileClose( pfile );
+	      //   FastFileFini();
+
+	      return;
+	    }
+
+	  byte *pic;
+
+	  pic = (byte *)pbf + 1078;
+
+	  //Msg("Pic's size is now %d.",sizeof(pic));
+
+	  bm.bmWidth = pbi->biWidth;
+	  bm.bmHeight = pbi->biHeight;
+ 	  bm.bmWidthBytes = 32;
+	  bm.bmPlanes = pbi->biPlanes;
+	  bm.bmBitsPixel = pbi->biBitCount;
+	  bm.bmBits = pic;
+
+	  //
+	  // create a DirectDrawSurface for this bitmap
+	  //
+	  ZeroMemory(&ddsd, sizeof(ddsd));
+	  ddsd.dwSize = sizeof(ddsd);
+	  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
+	  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+	  ddsd.dwWidth = pbi->biWidth;
+	  ddsd.dwHeight = pbi->biHeight;
+
+	  if (k[sprite].k != NULL)
+	    {
+	      k[sprite].k->Release();
+	      SDL_FreeSurface(GFX_k[sprite].k);
+	    }
+
+	  if (lpDD->CreateSurface(&ddsd, &k[sprite].k, NULL) != DD_OK)
+	    {
+	      Msg("Failed to create pdd surface description");
+	    }
+	  else
+	    {
+	      ddsd.dwSize = sizeof(ddsd);
+	      ddrval = IDirectDrawSurface_Lock(k[sprite].k, NULL, &ddsd, DDLOCK_WAIT, NULL);
+
+	      if( ddrval == DD_OK )
+		{
+		  dib_pitch = (pbi->biWidth+3)&~3;
+		  src = (BYTE *)pic + dib_pitch * (pbi->biHeight-1);
+		  dst = (BYTE *)ddsd.lpSurface;
+		  if (leftalign)
+		    {
+		      //Msg("left aligning..");
+
+		      for( y=0; y<(int)pbi->biHeight; y++ )
+			{
+			  for( x=0; x<(int)pbi->biWidth; x++ )
+			    {
+			      dst[x] = src[x];
+			      if (dst[x] == 0)
+				{
+				  // Msg("Found a 255...");
+				  dst[x] = 30;
+				} else
+				if (dst[x] == 255)
+				  {
+				    dst[x] = 249;
+				  }
+			    }
+			  dst += ddsd.lPitch;
+			  src -= dib_pitch;
+			}
+		    }
+		  else if (black)
+		    {
+		      for( y=0; y<(int)pbi->biHeight; y++ )
+			{
+			  for( x=0; x<(int)pbi->biWidth; x++ )
+			    {
+			      dst[x] = src[x];
+			      
+			      if (dst[x] == 0)
+				{
+				  dst[x] = 30;
+				}
+			    }
+			  dst += ddsd.lPitch;
+			  src -= dib_pitch;
+			}
+		    }
+		  else
+		    {
+		      //doing white
+		      for( y=0; y<(int)pbi->biHeight; y++ )
+			{
+			  for( x=0; x<(int)pbi->biWidth; x++ )
+			    {
+			      dst[x] = src[x];
+			      
+			      if (dst[x] == 255)
+				{
+				  // Msg("Found a 255...");
+				  dst[x] = 249;
+				}
+			    }
+			  dst += ddsd.lPitch;
+			  src -= dib_pitch;
+			}
+		    }
+		  
+		  IDirectDrawSurface_Unlock(k[sprite].k, NULL);
+
+
+		  // GFX
+		  /* TODO: perform the same manual palette conversion
+		     like above? */
+		  {
+		    Uint8 *buffer;
+		    SDL_RWops *rw;
+		    
+		    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
+		    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
+		    
+		    GFX_k[sprite].k = SDL_LoadBMP_RW(rw, 0);
+		    // bmp_surf = IMG_Load_RW (rw, 0);
+		    if (GFX_k[sprite].k == NULL)
+		      {
+			Msg (("unable to load %s from fastfile", crap));
+		      }
+		    
+		    SDL_FreeRW (rw);
+
+		    if (leftalign)
+		      ; // ?
+		    else if (black)
+		      // TODO: use SDL_RLEACCEL?
+		      /* We might want to directly use the hard-coded
+			 '0' index for efficiency */
+		      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
+				      SDL_MapRGB(GFX_k[sprite].k->format, 0, 0, 0));
+		    else
+		      /* We might want to directly use the hard-coded
+			 '255' index for efficiency */
+		      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
+				      SDL_MapRGB(GFX_k[sprite].k->format, 255, 255, 255));
+		  }
+		}
+	      else
+		{
+		  Msg("Lock failed err=%d", ddrval);
+		  //return;
+		}
+
+	      if (sprite > 0)
+		{
+		  k[sprite].box.top = 0;
+		  k[sprite].box.left = 0;
+		  k[sprite].box.right = ddsd.dwWidth;
+		  k[sprite].box.bottom =ddsd.dwHeight;
+
+		  if ( (oo > 1) & (notanim) )
+		    {
+		      k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
+		    }
+		  else
+		    {
+		      if (yoffset > 0)
+			k[cur_sprite].yoffset = yoffset; else
+			{
+			  k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
+						   (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
+			}
+		    }
+		  
+		  if ( (oo > 1 ) & (notanim))
+		    {
+		      k[cur_sprite].xoffset =  k[index[nummy].s+1].xoffset;
+		    }
+		  else
+		    {
+		      if (xoffset > 0)
+			k[cur_sprite].xoffset = xoffset;
+		      else
+			{
+			  k[cur_sprite].xoffset = (k[cur_sprite].box.right -
+						   (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
+			}
+		    }
+		  //ok, setup main offsets, lets build the hard block
+
+		  if (hardbox.right > 0)
+		    {
+		      //forced setting
+		      k[cur_sprite].hardbox.left = hardbox.left;
+		      k[cur_sprite].hardbox.right = hardbox.right;
+		    }
+		  else
+		    {
+		      //guess setting
+		      work = k[cur_sprite].box.right / 4;
+		      k[cur_sprite].hardbox.left -= work;
+		      k[cur_sprite].hardbox.right += work;
+		    }
+		  
+		  if (hardbox.bottom > 0)
+		    {
+		      k[cur_sprite].hardbox.top = hardbox.top;
+		      k[cur_sprite].hardbox.bottom = hardbox.bottom;
+		    }
+		  else
+		    {
+		      work = k[cur_sprite].box.bottom / 10;
+		      k[cur_sprite].hardbox.top -= work;
+		      k[cur_sprite].hardbox.bottom += work;
+		    }
+		  
+		  if (black)
+		    {
+		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255));
+		      
+		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
+		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
+		    }
+		  else
+		    {
+		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0));
+		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
+		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
+		    }
+		  cur_sprite++;
+		  if (!reload)
+		    save_cur++;
+		  FastFileClose( pfile );
+		}
+	    }
         }
-        
-        
-        }
-        
+    }
+  // FastFileFini();
+  return;
 }
 
 
-//      FastFileFini();
-
-
-return;
-
-
-
-}
-
-
-
+/* Load sprite, either from a dir.ff pack (delegated to
+   load_sprite_pak), either from a BMP file */
+/* - org: path to the file, relative to the current game (dink or dmod) */
+/* - nummy: ??? */
 void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
-                                  RECT hardbox, bool notanim, bool black, bool leftalign)
+		  RECT hardbox, bool notanim, bool black, bool leftalign)
 {
-        int work;
-        PALETTEENTRY    holdpal[256];     
-        char crap[200],hold[5];
-        
-    if (no_running_main) draw_wait();
-        
-        char crap2[200];
-        strcpy(crap2, org);
-        while(crap2[strlen(crap2)-1] != '\\')
-        {      
-                crap2[strlen(crap2)-1] = 0;
-        }
-                  crap2[strlen(crap2)-1] = 0;
-                  
-                  sprintf(crap, "%s\\dir.ff",crap2);
-                  //Msg("Checking for %s..", crap);
-                  if (exist(crap))
-                  {
-                          load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, true);
-                          return;
-                  }
-                  
-                  sprintf(crap, "%s01.BMP",org);
-                  if (!exist(crap))
-                          
-                  {
-                          
-                          sprintf(crap, "..\\dink\\%s\\dir.ff",crap2);
-                          //Msg("Checking for %s..", crap);
-                          if (exist(crap))
-                          {
-                                  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, false);
-                                  return;
-                          }
-                          
-                          
-                          
-                          
-                          //    Msg("Dir bad for sprite, changing");
-                          sprintf(crap, "..\\dink\\%s",org);
-                          strcpy(org,crap);
-                          
-                  }
-                  index[nummy].s = cur_sprite -1;
+  int work;
+  PALETTEENTRY holdpal[256];
+  char crap[200],hold[5];
 
-		  /* Beuc: what is it for??? It's disabled in
-		     load_sprite_pak(). I don't see anything special
-		     when enabling it. Possibly used to use the
-		     reference palette even if the screen palette was
-		     changed. */
-                  if (!windowed)
-                  {
-                          lpDDPal->GetEntries(0,0,256,holdpal);   
-                          lpDDPal->SetEntries(0,0,256,real_pal);
-                  }
-                  for (int oo = 1; oo <= 1000; oo++)
-                  {
-                          
-                          if (oo < 10) strcpy(hold, "0"); else strcpy(hold,"");
-                          sprintf(crap, "%s%s%d.BMP",org,hold,oo);
-                          
-                          
-                          k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0,cur_sprite); 
-                          
-                          
-                          if( k[cur_sprite].k != NULL )
-                          {    
-                                  if ( (oo > 1) & (notanim) )
-                                  {
-                                          
-                                          k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
-                                  } else
-                                  {
-                                          if (yoffset > 0)
-                                                  k[cur_sprite].yoffset = yoffset; else
-                                          {
-                                                  
-                                                  
-                                                  k[cur_sprite].yoffset = (k[cur_sprite].box.bottom - 
-                                                          (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
-                                                  
-                                          }
-                                  }
-                                  
-                                  if ( (oo > 1 ) & (notanim))
-                                  {
-                                          
-                                          k[cur_sprite].xoffset =  k[index[nummy].s+1].xoffset;
-                                  } else
-                                  {
-                                          
-                                          if (xoffset > 0)
-                                                  k[cur_sprite].xoffset = xoffset; else
-                                                  
-                                          {
-                                                  k[cur_sprite].xoffset = (k[cur_sprite].box.right - 
-                                                          (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
-                                          }
-                                  }
-                                  //ok, setup main offsets, lets build the hard block
-                                  
-                                  if (hardbox.right > 0) 
-                                  {       
-                                          //forced setting        
-                                          k[cur_sprite].hardbox.left = hardbox.left;
-                                          k[cur_sprite].hardbox.right = hardbox.right;
-                                  }
-                                  else
-                                  {
-                                          //guess setting         
-                                          work = k[cur_sprite].box.right / 4;
-                                          k[cur_sprite].hardbox.left -= work;
-                                          k[cur_sprite].hardbox.right += work;
-                                          
-                                  }
-                                  
-                                  if (hardbox.bottom > 0) 
-                                  {
-                                          k[cur_sprite].hardbox.top = hardbox.top;                                
-                                          k[cur_sprite].hardbox.bottom = hardbox.bottom;
-                                          
-                                  }
-                                  else
-                                  {
-                                          work = k[cur_sprite].box.bottom / 10;
-                                          k[cur_sprite].hardbox.top -= work;
-                                          k[cur_sprite].hardbox.bottom += work;
-                                  }
-                                  
-                          }
-                          
-                          if (leftalign)
-                          {               
-                                  //     k[cur_sprite].xoffset = 0;
-                                  //     k[cur_sprite].yoffset = 0;
-                          }
-                          
-                          //add_text(crap,"LOG.TXT");   
-                          
-                          if( k[cur_sprite].k == NULL )
-                          {
-                                  if (oo < 2)
-                                  {
-                                          Msg("load_sprites:  Anim %s not found.",org);
-                                  }
-                                  
-                                  
-                                  index[nummy].last = (oo - 1);
-                                  //       initFail(hWndMain, crap);
-                                  setup_anim(nummy,nummy,speed);
-                                  if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
-                                  
-                                  return;
-                          }
-                          
-                          //if (show_dot) Msg( "%s", crap);
-                          
-                          
-                          
-                          if (black)
-                                  DDSetColorKey(k[cur_sprite].k, RGB(0,0,0));
-                          else DDSetColorKey(k[cur_sprite].k, RGB(255,255,255));
-                          
-                          
-                          cur_sprite++;
-                          
-                          //if (first_frame) if  (oo == 1) return;
+  if (no_running_main) draw_wait();
+
+  /* dirname(): */
+  // PORT: either use dirname(), or allow '/' as an alternative to
+  // '\\'
+  char crap2[200];
+  strcpy(crap2, org);
+  while(crap2[strlen(crap2)-1] != '\\')
+    {
+      crap2[strlen(crap2)-1] = 0;
+    }
+  crap2[strlen(crap2)-1] = 0;
+
+  /* Order: */
+  /* - dmod/.../dir.ff */
+  /* - dmod/.../...01.BMP */
+  /* - ../dink/.../dir.ff */
+  /* - ../dink/.../...01.BMP */
+  sprintf(crap, "%s\\dir.ff",crap2);
+  //Msg("Checking for %s..", crap);
+  if (exist(crap))
+    {
+      load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, true);
+      return;
+    }
+  sprintf(crap, "%s01.BMP",org);
+  if (!exist(crap))
+    {
+      sprintf(crap, "..\\dink\\%s\\dir.ff",crap2);
+      //Msg("Checking for %s..", crap);
+      if (exist(crap))
+	{
+	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, false);
+	  return;
+	}
+      //    Msg("Dir bad for sprite, changing");
+      sprintf(crap, "..\\dink\\%s",org);
+      strcpy(org,crap);
+    }
+  index[nummy].s = cur_sprite -1;
+
+  /* Possibly used to temporarily use the reference palette even if
+     the screen palette was changed. */
+  if (!windowed)
+    {
+      lpDDPal->GetEntries(0,0,256,holdpal);
+      lpDDPal->SetEntries(0,0,256,real_pal);
+    }
+
+  /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
+  for (int oo = 1; oo <= 1000; oo++)
+    {
+      if (oo < 10) strcpy(hold, "0"); else strcpy(hold,"");
+      sprintf(crap, "%s%s%d.BMP",org,hold,oo);
+
+      /* Set the pixel data */
+      k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite);
+      GFX_k[cur_sprite].k = SDL_LoadBMP(crap);
+
+      /* Define the offsets / center of the image */
+      if (k[cur_sprite].k != NULL)
+	{
+	  if ((oo > 1) & (notanim))
+	    {
+	      k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
+	    }
+	  else
+	    {
+	      if (yoffset > 0)
+		k[cur_sprite].yoffset = yoffset;
+	      else
+		{
+		  k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
+					   (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
+		}
+	    }
+
+	  if ((oo > 1) & (notanim))
+	    {
+	      k[cur_sprite].xoffset = k[index[nummy].s+1].xoffset;
+	    }
+	  else
+	    {
+	      if (xoffset > 0)
+		k[cur_sprite].xoffset = xoffset; else
+		{
+		  k[cur_sprite].xoffset = (k[cur_sprite].box.right -
+					   (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
+		}
+	    }
+	  //ok, setup main offsets, lets build the hard block
+
+	  if (hardbox.right > 0)
+	    {
+	      //forced setting
+	      k[cur_sprite].hardbox.left = hardbox.left;
+	      k[cur_sprite].hardbox.right = hardbox.right;
+	    }
+	  else
+	    {
+	      //guess setting
+	      work = k[cur_sprite].box.right / 4;
+	      k[cur_sprite].hardbox.left -= work;
+	      k[cur_sprite].hardbox.right += work;
+	    }
+
+	  if (hardbox.bottom > 0)
+	    {
+	      //forced setting
+	      k[cur_sprite].hardbox.top = hardbox.top;
+	      k[cur_sprite].hardbox.bottom = hardbox.bottom;
+	    }
+	  else
+	    {
+	      //guess setting
+	      /* eg: graphics\dink\push\ds-p2- and
+		 graphics\effects\comets\sm-comt2\fbal2- */
+	      work = k[cur_sprite].box.bottom / 10;
+	      k[cur_sprite].hardbox.top -= work;
+	      k[cur_sprite].hardbox.bottom += work;
+	    }
+	}
+
+      if (leftalign)
+	{
+	  //     k[cur_sprite].xoffset = 0;
+	  //     k[cur_sprite].yoffset = 0;
+	}
+
+      //add_text(crap,"LOG.TXT");
+
+      if (k[cur_sprite].k == NULL)
+	{
+	  /* oo == 1 => not even one sprite was loaded, error */
+	  /* oo > 1 => the sequence ends */
+
+	  if (oo < 2)
+	    {
+	      Msg("load_sprites:  Anim %s not found.",org);
+	    }
+
+	  index[nummy].last = (oo - 1);
+	  //       initFail(hWndMain, crap);
+	  setup_anim(nummy,nummy,speed);
+
+	  /* Restore screen palette to what it was */
+	  if (!windowed)
+	    lpDDPal->SetEntries(0,0,256,holdpal);
+
+	  return;
+	}
+
+      //if (show_dot) Msg( "%s", crap);
+
+      /* Set transparent color: either black or white */
+      if (black)
+	{
+	  DDSetColorKey(k[cur_sprite].k, RGB(0,0,0));
+	  // GFX
+	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
+	}
+      else
+	{
+	  DDSetColorKey(k[cur_sprite].k, RGB(255,255,255));
+	  // GFX
+	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
+	}
+      cur_sprite++;
+
+      //if (first_frame) if  (oo == 1) return;
+    }
 }
 
-}
 void figure_out(char line[255], int load_seq)
 {
         char ev[15][100];
@@ -3119,48 +3118,53 @@ void kill_fonts()
 
 int draw_num(int mseq, char nums[50], int mx, int my)
 {
-        int length = 0;
-        HRESULT             ddrval;
-        int rnum = 0;
-        
-        for (int i=0; i < strlen(nums); i++)
-        {
-                
-                if (nums[i] == '0') rnum = 10;
-                else if (nums[i] == '1') rnum = 1;
-                else if (nums[i] == '2') rnum = 2;
-                else if (nums[i] == '3') rnum = 3;
-                else if (nums[i] == '4') rnum = 4;
-                else if (nums[i] == '5') rnum = 5;
-                else if (nums[i] == '6') rnum = 6;
-                else if (nums[i] == '7') rnum = 7;
-                else if (nums[i] == '8') rnum = 8;
-                else if (nums[i] == '9') rnum = 9;
-                else if (nums[i] == '/') rnum = 11;
-again:                  
-                if ( (rnum != 11) && (!(mseq == 442)) )
-                        ddrval = lpDDSTwo->BltFast( mx+length, my, k[seq[mseq].frame[rnum]].k,
-                        &k[seq[mseq].frame[rnum]].box  , DDBLTFAST_NOCOLORKEY);
-                
-                else 
-                        ddrval = lpDDSTwo->BltFast( mx+length, my, k[seq[mseq].frame[rnum]].k,
-                        &k[seq[mseq].frame[rnum]].box  , DDBLTFAST_SRCCOLORKEY);
-                
-                
-                if (ddrval != DD_OK)
-                {
-                        
-                        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-                        
-                        //dderror(ddrval);
-                        
-                } else
-                {
-                        
-                        length += k[seq[mseq].frame[rnum]].box.right;
-                }
-        }
-        return(length);
+  int length = 0;
+  HRESULT             ddrval;
+  int rnum = 0;
+  
+  for (int i=0; i < strlen(nums); i++)
+    {
+      if (nums[i] == '0') rnum = 10;
+      else if (nums[i] == '1') rnum = 1;
+      else if (nums[i] == '2') rnum = 2;
+      else if (nums[i] == '3') rnum = 3;
+      else if (nums[i] == '4') rnum = 4;
+      else if (nums[i] == '5') rnum = 5;
+      else if (nums[i] == '6') rnum = 6;
+      else if (nums[i] == '7') rnum = 7;
+      else if (nums[i] == '8') rnum = 8;
+      else if (nums[i] == '9') rnum = 9;
+      else if (nums[i] == '/') rnum = 11;
+    again:                  
+      if ((rnum != 11) && (!(mseq == 442)))
+	{
+	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
+				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_NOCOLORKEY);
+	  // GFX
+	  {
+	    SDL_Rect dst = {mx+length, my};
+	    SDL_BlitSurface(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
+	}
+      else 
+	{
+	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
+				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_SRCCOLORKEY);
+	  // GFX: TODO (why is there a difference with color key here?
+	}
+      
+      
+      if (ddrval != DD_OK)
+	{
+	  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+	  //dderror(ddrval);
+	}
+      else
+	{
+	  length += k[seq[mseq].frame[rnum]].box.right;
+	}
+    }
+  return(length);
 }
 
 int next_raise(void)
@@ -3283,67 +3287,74 @@ void draw_gold()
 
 void draw_bar(int life, int seqman)
 {
-        
-        int cur = 0;
-        int curx = 284;
-        int cury = 412;
-        int rnum = 3;
-        int curx_start = curx;
-        
-        RECT box;
-        while(1)
-        {
-                
-                
-                cur++;
-                if (cur > life)
-                {
-                        cur--;
-                        int rem = (cur) - (cur / 10) * 10;
-                        if (rem != 0)
-                        {
-                                
-                                CopyRect(&box, &k[seq[seqman].frame[rnum]].box);
-                                //Msg("Drawing part bar . cur is %d", rem);
-                                box.right = (box.right * ((rem) * 10)/100);
-                                //woah, there is part of a bar remaining.  Lets do it.
-again:
-                                ddrval = lpDDSTwo->BltFast( curx, cury, k[seq[seqman].frame[rnum]].k,
-                                        &box                                      , DDBLTFAST_NOCOLORKEY);
-                                
-                                if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-                                
-                                
-                        }
-                        
-                        //are we done?
-                        return;
-                }
-                
-                rnum = 2;
-                if (cur < 11) rnum = 1;
-                if (cur == *plifemax) rnum = 3;
-                
-                if  ( (cur / 10) * 10 == cur)
-                {
-                        
-again2:
-                ddrval = lpDDSTwo->BltFast( curx, cury, k[seq[seqman].frame[rnum]].k,
-                        &k[seq[seqman].frame[rnum]].box  , DDBLTFAST_NOCOLORKEY);
-                
-                if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
-                
-                //if (ddrval != DD_OK) dderror(ddrval);
-                curx += k[seq[seqman].frame[rnum]].box.right;
-                if (cur == 110)
-                {cury += k[seq[seqman].frame[rnum]].box.bottom+5;
-                curx = curx_start;
-                
-                }
-                
-                if (cur == 220) return;
-                }
-        }
+  int cur = 0;
+  int curx = 284;
+  int cury = 412;
+  int rnum = 3;
+  int curx_start = curx;
+  
+  RECT box;
+  while(1)
+    {
+      cur++;
+      if (cur > life)
+	{
+	  cur--;
+	  int rem = (cur) - (cur / 10) * 10;
+	  if (rem != 0)
+	    {
+	      CopyRect(&box, &k[seq[seqman].frame[rnum]].box);
+	      //Msg("Drawing part bar . cur is %d", rem);
+	      box.right = (box.right * ((rem) * 10)/100);
+	      //woah, there is part of a bar remaining.  Lets do it.
+	    again:
+	      ddrval = lpDDSTwo->BltFast(curx, cury, k[seq[seqman].frame[rnum]].k,
+					 &box, DDBLTFAST_NOCOLORKEY);
+	      if (ddrval == DDERR_WASSTILLDRAWING)
+		goto again;
+	      // GFX
+	      {
+		SDL_Rect src, dst;
+		src.x = 0; src.y = 0;
+		src.w = GFX_k[seq[seqman].frame[rnum]].k->w * (rem * 10) / 100;
+		src.h = GFX_k[seq[seqman].frame[rnum]].k->h;
+		dst.x = curx; dst.y = cury;
+		SDL_BlitSurface(GFX_k[seq[seqman].frame[rnum]].k, &src, GFX_lpDDSTwo, &dst);
+	      }
+	    }
+	  //are we done?
+	  return;
+	}
+      
+      rnum = 2;
+      if (cur < 11) rnum = 1;
+      if (cur == *plifemax) rnum = 3;
+      
+      if ((cur / 10) * 10 == cur)
+	{
+	again2:
+	  ddrval = lpDDSTwo->BltFast( curx, cury, k[seq[seqman].frame[rnum]].k,
+				      &k[seq[seqman].frame[rnum]].box  , DDBLTFAST_NOCOLORKEY);
+	  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = curx;
+	    dst.y = cury;
+	    SDL_BlitSurface(GFX_k[seq[seqman].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
+          
+	  //if (ddrval != DD_OK) dderror(ddrval);
+	  curx += k[seq[seqman].frame[rnum]].box.right;
+	  if (cur == 110)
+	    {cury += k[seq[seqman].frame[rnum]].box.bottom+5;
+	      curx = curx_start;
+              
+	    }
+	  
+	  if (cur == 220) return;
+	}
+    }
 }
 
 
@@ -3357,81 +3368,96 @@ void draw_health( void )
 
 void draw_icons( void )
 {
-        
-        if (*pcur_weapon != 0) if (play.item[*pcur_weapon].active)
-        {
-        //disarm old weapon
-                //play.item[*pcur_weapon].seq,
-again:                  
-        
-        check_seq_status(play.item[*pcur_weapon].seq);
-        
-        
-        ddrval = lpDDSTwo->BltFast( 557, 413, k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k,
-                &k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].box, DDBLTFAST_SRCCOLORKEY);
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-        
-        
-        }
-        
-        if (*pcur_magic != 0) if (play.mitem[*pcur_magic].active)
-        {
-        //disarm old weapon
-                //play.mitem[*pcur_magic].seq,
-                check_seq_status(play.mitem[*pcur_magic].seq);
-                
-                
-again2:
-                ddrval = lpDDSTwo->BltFast( 153, 413, k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k,
-                        &k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].box, DDBLTFAST_SRCCOLORKEY);
-                
-                if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
-                
-        }
-        
-        
-        
+  if (*pcur_weapon != 0 && play.item[*pcur_weapon].active)
+    {
+      //disarm old weapon
+      //play.item[*pcur_weapon].seq,
+    again:                  
+      
+      check_seq_status(play.item[*pcur_weapon].seq);
+      
+      ddrval = lpDDSTwo->BltFast(557, 413, k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k,
+				 &k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].box,
+				 DDBLTFAST_SRCCOLORKEY);
+      if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+      // GFX
+      {
+	SDL_Rect dst = {557, 413};
+	SDL_BlitSurface(GFX_k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k, NULL,
+			GFX_lpDDSTwo, &dst);
+      }
+    }
+  
+  if (*pcur_magic != 0 && play.mitem[*pcur_magic].active)
+    {
+      //disarm old weapon
+      //play.mitem[*pcur_magic].seq,
+      check_seq_status(play.mitem[*pcur_magic].seq);
+      
+    again2:
+      ddrval = lpDDSTwo->BltFast( 153, 413, k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k,
+				  &k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].box, DDBLTFAST_SRCCOLORKEY);
+      if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+      // GFX
+      {
+	SDL_Rect dst = {153, 413};
+	SDL_BlitSurface(GFX_k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k, NULL,
+			GFX_lpDDSTwo, &dst);
+      }
+    }
 }
 
 
 void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
 {
-        int cut;
-        if (percent > 25) percent = 25;
-        percent = (percent * 4);
-        RECT myrect;
-        CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
-        int full = myrect.bottom;
-        cut = (full * percent) / 100;
-        
-        myrect.bottom = cut;
-        my += (full - cut);
-        
-        ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-                &myrect, DDBLTFAST_NOCOLORKEY);
-        
-        
+  int cut;
+  if (percent > 25) percent = 25;
+  percent = (percent * 4);
+  RECT myrect;
+  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  int full = myrect.bottom;
+  cut = (full * percent) / 100;
+  myrect.bottom = cut;
+
+  my += (full - cut);
+  
+  ddrval = lpDDSTwo->BltFast(mx, my, k[seq[mseq].frame[mframe]].k,
+			     &myrect, DDBLTFAST_NOCOLORKEY);
+  // GFX
+  {
+    SDL_Rect src, dst;
+    src.x = src.y = 0;
+    src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
+    src.h = (GFX_k[seq[mseq].frame[mframe]].k->h * (100 - percent) / 100);
+    dst.x = mx; dst.y = my;
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+  }
 }
 
 void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
 {
-        int cut;
-        if (percent > 25) percent = 25;
-        percent = (percent * 4);
-        RECT myrect;
-        CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
-        int full = myrect.bottom;
-        cut = (full * percent) / 100;
-        myrect.bottom = cut;
-        
-        
-again:
-        ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-                &myrect, DDBLTFAST_NOCOLORKEY);
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-        
+  int cut;
+  if (percent > 25) percent = 25;
+  percent = (percent * 4);
+  RECT myrect;
+  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  int full = myrect.bottom;
+  cut = (full * percent) / 100;
+  myrect.bottom = cut;
+  
+ again:
+  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
+			      &myrect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+  // GFX
+  {
+    SDL_Rect src, dst;
+    src.x = src.y = 0;
+    src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
+    src.h = (GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100);
+    dst.x = mx; dst.y = my;
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+  }
 }
 
 
@@ -3500,57 +3526,61 @@ void draw_mlevel(int percent)
         
 }
 
-
+/* Draw the status bar and the magic jauge */
 void draw_status_all(void)
 {
-        RECT rcRect;
-        rcRect.left = 0;
-        rcRect.top = 0;
-        rcRect.right = 640;
-        rcRect.bottom = 80;
+  RECT rcRect;
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = 640;
+  rcRect.bottom = 80;
+ again:
+  ddrval = lpDDSTwo->BltFast(0, 400, k[seq[180].frame[3]].k,
+			     &rcRect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+  // GFX
+  {
+    SDL_Rect src = {0, 0, 640, 80}, dst = {0, 400};
+    SDL_BlitSurface(GFX_k[seq[180].frame[3]].k, &src, GFX_lpDDSTwo, &dst);
+  }
+  
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = 20;
+  rcRect.bottom = 400;
+ again2:
+  ddrval = lpDDSTwo->BltFast(0, 0, k[seq[180].frame[1]].k,
+			     &rcRect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+ again3:
+  ddrval = lpDDSTwo->BltFast(620, 0, k[seq[180].frame[2]].k,
+			     &rcRect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
+  // GFX
+  {
+    SDL_Rect src = {0, 0, 20, 400}, dst1 = {0, 0}, dst2 = {620, 0};
+    SDL_BlitSurface(GFX_k[seq[180].frame[1]].k, &src, GFX_lpDDSTwo, &dst1);
+    SDL_BlitSurface(GFX_k[seq[180].frame[2]].k, &src, GFX_lpDDSTwo, &dst2);
+  }
         
-again:
-        ddrval = lpDDSTwo->BltFast( 0, 400, k[seq[180].frame[3]].k,
-                &rcRect  , DDBLTFAST_NOCOLORKEY );
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-        
-        rcRect.left = 0;
-        rcRect.top = 0;
-        rcRect.right = 20;
-        rcRect.bottom = 400;
-again2:
-        ddrval = lpDDSTwo->BltFast( 0, 0, k[seq[180].frame[1]].k,
-                &rcRect  , DDBLTFAST_NOCOLORKEY  );
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
-        
-        
-again3:
-        ddrval = lpDDSTwo->BltFast( 620, 0,k[seq[180].frame[2]].k,
-                &rcRect  , DDBLTFAST_NOCOLORKEY  );
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
-        
-        fraise = next_raise();
-        fexp = *pexper;
-        fstrength = *pstrength;
-        fmagic = *pmagic;
-        fgold = *pgold;
-        fdefense = *pdefense;
-        last_magic_draw = 0;    
-        draw_exp();
-        draw_health();
-        draw_strength();
-        draw_defense();
-        draw_magic();
-        draw_gold();
-        draw_level();
-        draw_icons();
-        if (*pmagic_cost > 0) if (*pmagic_level > 0)                
-                draw_mlevel(*pmagic_level / (*pmagic_cost / 100));
+  fraise = next_raise();
+  fexp = *pexper;
+  fstrength = *pstrength;
+  fmagic = *pmagic;
+  fgold = *pgold;
+  fdefense = *pdefense;
+  last_magic_draw = 0;    
+  draw_exp();
+  draw_health();
+  draw_strength();
+  draw_defense();
+  draw_magic();
+  draw_gold();
+  draw_level();
+  draw_icons();
+  if (*pmagic_cost > 0 && *pmagic_level > 0)                
+    draw_mlevel(*pmagic_level / (*pmagic_cost / 100));
 }
-
 
 
 
@@ -5588,57 +5618,59 @@ void get_right(char line[200], char thing[100], char *ret)
         }
         
         
-        void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest,int h)
-        {
-                if (::g_b_kill_app) return; //don't try, we're quitting
-                if (spr[h].brain == 8) return;
-                
-                if (spr[h].nodraw == 1) return;
-                RECT box_crap,box_real;
-                
-                HRESULT             ddrval;
-                
-                DDBLTFX     ddbltfx;
-                ddbltfx.dwSize = sizeof( ddbltfx);
-                ddbltfx.dwFillColor = 0;
-                
-                
-                
-                if (get_box(h, &box_crap, &box_real))
-                        
-                        while( 1)
-                        {
-                                
-                                //      Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-                                //              box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-                                //              box_real.right, box_real.bottom);
-                                
-again:
-                        ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
-                                &box_real  , DDBLT_KEYSRC ,&ddbltfx );
-                        
-                        
-                        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-                        
-                        if (ddrval != DD_OK)
-                        {
-                                dderror(ddrval);
-                                
-                                Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d.",h,getpic(h));
-                                Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-                                        box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-                                        box_real.right, box_real.bottom);
-                                if (spr[h].pseq != 0) check_seq_status(spr[h].pseq);
-                                break;
-                        } else
-                        {
-                                break;
-                        }
-                        
-                        
-                        }
-        }
+void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
+{
+  if (::g_b_kill_app) return; //don't try, we're quitting
+  if (spr[h].brain == 8) return;
+  
+  if (spr[h].nodraw == 1) return;
+  RECT box_crap,box_real;
+  
+  HRESULT             ddrval;
+  
+  DDBLTFX     ddbltfx;
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 0;
+  
+  if (get_box(h, &box_crap, &box_real))
+    while( 1)
+      {
+	//      Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
+	//              box_crap.right, box_crap.bottom,box_real.left,box_real.top,
+	//              box_real.right, box_real.bottom);
         
+      again:
+	ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
+			     &box_real  , DDBLT_KEYSRC ,&ddbltfx );
+	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+	// GFX
+	{
+	  // TODO: implement scaling
+	  SDL_Rect dst;
+	  dst.x = box_crap.left;
+	  dst.y = box_crap.top;
+	  // dst.w = ?; dst.h = ?; // scaling
+	  SDL_BlitSurface(GFX_k[getpic(h)].k, NULL, GFX_lpdest, &dst);
+	}
+        
+	if (ddrval != DD_OK)
+	  {
+	    dderror(ddrval);
+            
+	    Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d.",h,getpic(h));
+	    Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
+		box_crap.right, box_crap.bottom,box_real.left,box_real.top,
+		box_real.right, box_real.bottom);
+	    if (spr[h].pseq != 0) check_seq_status(spr[h].pseq);
+	    break;
+	  }
+	else
+	  {
+	    break;
+	  }
+      }
+}
+
         void changedir( int dir1, int k,int base)
         {
                 int hspeed;
@@ -6105,7 +6137,7 @@ void place_sprites_game(void)
                                 
                                 check_sprite_status_full(sprite);
                                 if (pam.sprite[j].type == 0)
-                                        draw_sprite_game(lpDDSTwo,sprite);
+				  draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, sprite);
                                 
                                 
                                 if (spr[sprite].hard == 0)
@@ -6276,8 +6308,8 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   // GFX
   change_screen_palette(palette);
   
-  // load the image again, with the new global palette - DX dithering
-  // is thus avoided
+  // load the image again, with the new global palette - DX color
+  // conversion is thus avoided
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
   // GFX
   {
@@ -6291,9 +6323,9 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
       SDL_BlitSurface(conv, NULL, image, NULL);
       SDL_FreeSurface(conv);
     }
-    // Now use the reference palette, so that no dithering will occur
-    // when blitting the image in various game buffers - i.e. palette
-    // indexes won't change.
+    // Now use the reference palette, so that no color conversion will
+    // occur when blitting the image in various game buffers -
+    // i.e. palette indexes won't change.
     SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   }
 
@@ -6352,8 +6384,8 @@ void copy_bmp( char name[80])
   // GFX
   change_screen_palette(palette);
 
-  // load the image again, with the new global palette - DX dithering
-  // is thus avoided
+  // load the image again, with the new global palette - DX color
+  // conversion is thus avoided
   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
   // GFX
   {
@@ -6367,9 +6399,9 @@ void copy_bmp( char name[80])
       SDL_BlitSurface(conv, NULL, image, NULL);
       SDL_FreeSurface(conv);
     }
-    // Now use the reference palette, so that no dithering will occur
-    // when blitting the image in various game buffers - i.e. palette
-    // indexes won't change.
+    // Now use the reference palette, so that no color conversion will
+    // occur when blitting the image in various game buffers -
+    // i.e. palette indexes won't change.
     SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   }
   
@@ -6568,16 +6600,11 @@ void copy_bmp( char name[80])
                                                 pam.sprite[j].size);
                                         //Msg("Background sprite %d has hard of %d..", j, pam.sprite[j].hard);
                                         check_sprite_status_full(sprite);
-                                        draw_sprite_game(lpDDSTwo,sprite);
+                                        draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, sprite);
                                         spr[sprite].active = false;
                                 }
-                                
-                                
                         }
-                        
                 }
-                
-                
         }
         
         void fill_back_sprites(void )

@@ -620,7 +620,7 @@ past:
 				// remove the draw_sprite_game line?
 
 				// if (mcc == sound_support)
-					draw_sprite_game(lpDDSBack,h);
+				draw_sprite_game(lpDDSBack, GFX_lpDDSBack, h);
 				
 				
 				move_gonna = false;

@@ -40,14 +40,6 @@
 const int max_vars = 250;
 const int max_sprites_at_once = 300;
 
-struct sprite_index
-{
-	int x,y;
-	int s;
-	int last;
-	
-};
-
 struct attackinfo_struct
 {
 	int time;
@@ -189,16 +181,6 @@ struct sequence
 	bool active;
 };
 
-struct show_bmp
-{
-	bool active;
-	bool showdot;
-	int reserved;
-	int script;
-	int stime;
-	int picframe;
-};
-
 struct seth_joy
 {
 	BOOL joybit[17]; //is button held down?
@@ -297,6 +279,12 @@ struct sp
   int picfreeze;
 };
 
+struct wait_for_button
+{
+	int script;
+	int button;
+	bool active;
+};
 
 struct talk_struct
 {
@@ -315,26 +303,6 @@ struct talk_struct
   int color;
   int curf;
   int timer;
-};
-
-struct pic_info
-{
-	
-	
-	LPDIRECTDRAWSURFACE     k;       // Sprites
-	RECT                box,hardbox;
-	
-	
-	
-	int yoffset;
-	int xoffset;
-};
-
-struct wait_for_button
-{
-	int script;
-	int button;
-	bool active;
 };
 
 //sub struct for hardness map
@@ -377,7 +345,8 @@ extern void Msg( LPSTR fmt, ... );
 extern int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 extern void check_seq_status(int h);
 extern void dderror(HRESULT hErr);
-extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest,int h);
+//extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest,int h);
+extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h);
 extern void draw_status_all(void);
 extern void drawallhard( void);
 extern void duck_brain(int h);
@@ -407,12 +376,60 @@ extern HANDLE g_hevtMouse;
 extern LPDIRECTINPUTDEVICE g_pMouse;
 extern LPDIRECTINPUT g_pdi;
 extern bool item_screen;
-extern pic_info k[];
 extern int stop_entire_game;
 extern int getpic(int h);
 extern HWND hWndMain;
 extern HFONT hfont_small;
+
+/* Store sprites info */
+
+struct pic_info
+{
+  LPDIRECTDRAWSURFACE k; // Sprites
+
+  RECT box;              // Dimensions (0,0,width,height)
+  RECT hardbox;          // Square where Dink can't block if sprite is hard
+
+  int yoffset;           // Center of the picture
+  int xoffset;
+};
+
+struct GFX_pic_info
+{
+  SDL_Surface *k; // Sprites
+
+  // RECT box;              // Dimensions (0,0,width,height)
+  RECT hardbox;          // Square where Dink can't go through if sprite is hard
+
+  int yoffset;           // Center of the picture
+  int xoffset;
+};
+
+struct sprite_index
+{
+	int x,y;
+	int s;
+	int last;
+	
+};
+
+extern pic_info k[];
+extern GFX_pic_info GFX_k[];
 extern sprite_index index[];
+
+/* show_bmp() currently ran */
+struct show_bmp
+{
+	bool active;
+	bool showdot;
+	int reserved;
+	int script;
+	int stime;
+	int picframe;
+};
+extern show_bmp showb;
+
+
 extern int keep_mouse;
 extern char last_debug[200];
 extern int last_sprite_created;
@@ -440,7 +457,6 @@ extern int *pmap;
 extern int screenlock;
 extern sequence seq[];
 extern int show_dot;
-extern show_bmp showb;
 extern seth_joy sjoy;
 extern sp spr[];
 extern talk_struct talk;

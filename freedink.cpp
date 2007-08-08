@@ -4400,7 +4400,7 @@ void one_time_brain(int h)
 	
 	if (spr[h].seq == 0)
 	{
-		draw_sprite_game(lpDDSTwo,h);
+	  draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, h);
 		spr[h].active = false;			
 		return;
 	}
@@ -6097,9 +6097,10 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       /* Physical palette (the one we can change to make visual effects) */
       change_screen_palette(GFX_real_pal);
 
-      /* When a new image is loaded in DX, it's dithered using the
-	 main palette; currently we don't do that (although that'd be
-	 more efficient that dithering each time the original image is
+      /* When a new image is loaded in DX, it's color-converted using
+	 the main palette (possibly altering the colors to match the
+	 palette); currently we don't do that (although that'd be more
+	 efficient that conversion each time the original image is
 	 used). We work around this by making the conversion happen at
 	 the first blit to a buffer surface - and we never change the
 	 buffer's palette again, so we're sure there isn't any
@@ -6196,9 +6197,6 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   return 1;
 } /* doInit */
 
-
-#include <sys/types.h>
-#include <sys/stat.h>
 
 void getdir(char final[])
 {

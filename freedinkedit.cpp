@@ -5690,14 +5690,14 @@ if (!exist(tdir))
 	  {
 	    change_screen_palette(GFX_real_pal);
 	    
-	    /* When a new image is loaded in DX, it's dithered using
-	       the main palette; currently we don't do that (although
-	       that'd be more efficient that dithering each time the
-	       original image is used). We work around this by making
-	       the conversion happen at the first blit to a buffer
-	       surface - and we never change the buffer's palette
-	       again, so we're sure there isn't any conversion even if
-	       we change the screen palette: */
+	    /* When a new image is loaded in DX, it's color-converted
+	       using the main palette; currently we don't do that
+	       (although that'd be more efficient that conversion each
+	       time the original image is used). We work around this
+	       by making the conversion happen at the first blit to a
+	       buffer surface - and we never change the buffer's
+	       palette again, so we're sure there isn't any conversion
+	       even if we change the screen palette: */
 	    SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
 	    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
 	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
