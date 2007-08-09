@@ -5645,12 +5645,15 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
 	// GFX
 	{
-	  // TODO: implement scaling
-	  SDL_Rect dst;
+	  // TODO: implement scaling (SDL_gfx, SDL_stretch...)
+	  SDL_Rect src, dst;
+	  src.x = box_real.left; src.y = box_real.top;
+	  src.w = box_real.right - box_real.left;
+	  src.h = box_real.bottom - box_real.top;
 	  dst.x = box_crap.left;
 	  dst.y = box_crap.top;
 	  // dst.w = ?; dst.h = ?; // scaling
-	  SDL_BlitSurface(GFX_k[getpic(h)].k, NULL, GFX_lpdest, &dst);
+	  SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
 	}
         
 	if (ddrval != DD_OK)
@@ -6750,6 +6753,7 @@ void copy_bmp( char name[80])
 		  /* Warning: palette indexes 0 and 255 are hard-coded
 		     to black and white (change_screen_palette). */
  		  SDL_FillRect(GFX_lpDDSTwo, NULL, num);
+		  // TODO: when using fill_screen() while the main palette was changed, which color index is used?
 		}
         }
         

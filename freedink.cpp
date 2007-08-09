@@ -3984,17 +3984,22 @@ void up_cycle(void)
 
 
 void draw_box(RECT box, int color)
-	{
-		DDBLTFX     ddbltfx;
-		
-		ddbltfx.dwSize = sizeof(ddbltfx);
-		ddbltfx.dwFillColor = color;
-		
-		
-		ddrval = lpDDSBack->Blt(&box ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-		
-		
-	}
+{
+  DDBLTFX     ddbltfx;
+  
+  ddbltfx.dwSize = sizeof(ddbltfx);
+  ddbltfx.dwFillColor = color;
+  
+  ddrval = lpDDSBack->Blt(&box ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+  // GFX
+  {
+    SDL_Rect rect;
+    rect.x = box.left; rect.y = box.top;
+    rect.w = box.right - box.left;
+    rect.h = box.bottom - box.top;
+    SDL_FillRect(GFX_lpDDSBack, &rect, color);
+  }
+}
 	
 	
 	
@@ -5078,10 +5083,14 @@ again:
 	
 	ddrval = lpDDSBack->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
 		&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY);
-	
 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 	
-	
+	// GFX
+	{
+	  SDL_Rect dst;
+	  dst.x = mx; dst.y = my;
+	  SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
+	}
 }
 
 /* Draw screen when browsing the inventory */
@@ -5126,9 +5135,14 @@ void process_item( void )
 again:	
 	ddrval = lpDDSBack->BltFast( 20, 0, k[seq[423].frame[1]].k,
 		&k[seq[423].frame[1]].box, DDBLTFAST_SRCCOLORKEY);
-	
 	if( ddrval == DDERR_WASSTILLDRAWING )
-		goto again;
+	  goto again;
+	// GFX
+	{
+	  SDL_Rect dst = {20, 0};
+	  SDL_BlitSurface(GFX_k[seq[423].frame[1]].k, NULL, GFX_lpDDSBack, &dst);
+	}
+
 	//draw all currently owned items; magic
 	int i = 1;
 	for (; i < 9; i++)
