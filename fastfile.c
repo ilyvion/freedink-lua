@@ -173,10 +173,15 @@ FastFileOpen (char *name)
 		  i->off = g_Entries[fCount].off;
 		  i->pos = 0;
 		  if (g_Entries[fCount + 1].off != 0)
+		    /* Normal offset, tells where next the image bytes
+		       start */
 		    i->len = g_Entries[fCount + 1].off - i->off;
 		  else
 		    /* Support badly generated dir.ff such as Mystery Island's */
 		    i->len = g_Entries[fCount + 2].off - i->off;
+		  /* TODO: watch for buffer overflows - check that
+		     'off' is in a reasonable range [0, len(file)]
+		     without overlapping existing pictures */
 		  return (void *) i;
 		}
 	    }

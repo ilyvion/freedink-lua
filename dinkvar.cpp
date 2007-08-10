@@ -1335,97 +1335,128 @@ void fill_whole_hard(void)
         
 }
 
+/* Draw harness. Used by freedinkedit and updateFrame() in hard-coded
+   cheat mode. */
 void drawallhard( void)
 {
-        RECT box_crap;
-        int ddrval;
-        DDBLTFX     ddbltfx;
-        
-        
-        for (int x1=0; x1 < 600; x1++)
-                for (int y1=0; y1 < 400; y1++)
-                {
-                        if (hm.x[x1].y[y1] == 1) 
-                        {
-                                ddbltfx.dwFillColor = 1;
-                                ddbltfx.dwSize = sizeof(ddbltfx);
-                                box_crap.top = y1;
-                                box_crap.bottom = y1+1;
-                                box_crap.left = x1+playl; //20 is to compensate for the border
-                                box_crap.right = x1+1+playl;
-                                ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                                if (ddrval != DD_OK) Msg("There was an error!");
-                        }
-                        
-                        if (hm.x[x1].y[y1] == 2) 
-                        {
-                                ddbltfx.dwFillColor = 128;
-                                ddbltfx.dwSize = sizeof(ddbltfx);
-                                box_crap.top = y1;
-                                box_crap.bottom = y1+1;
-                                box_crap.left = x1+playl; //20 is to compensate for the border
-                                box_crap.right = x1+1+playl;
-                                ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                                if (ddrval != DD_OK) Msg("There was an error!");
-                        }
-                        
-                        
-                        if (hm.x[x1].y[y1] == 3) 
-                        {
-                                ddbltfx.dwFillColor = 45;
-                                ddbltfx.dwSize = sizeof(ddbltfx);
-                                box_crap.top = y1;
-                                box_crap.bottom = y1+1;
-                                box_crap.left = x1+playl; //20 is to compensate for the border
-                                box_crap.right = x1+1+playl;
-                                ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                                if (ddrval != DD_OK) Msg("There was an error!");
-                        }
-                        
-                        
-                        
-                        if (hm.x[x1].y[y1] > 100)
-                        {
-                                
-                                if (pam.sprite[  (hm.x[x1].y[y1]) - 100].prop == 1)
-                                {
-                                        //draw a little pixel
-                                        ddbltfx.dwFillColor = 20;
-                                        ddbltfx.dwSize = sizeof(ddbltfx);
-                                        box_crap.top = y1;
-                                        box_crap.bottom = y1+1;
-                                        box_crap.left = x1+playl; //20 is to compensate for the border
-                                        box_crap.right = x1+1+playl;
-                                        ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                                        if (ddrval != DD_OK) Msg("There was an error!");
-                                        
-                                        
-                                } else
-                                {
-                                        //draw a little pixel
-                                        ddbltfx.dwFillColor = 23;
-                                        ddbltfx.dwSize = sizeof(ddbltfx);
-                                        box_crap.top = y1;
-                                        box_crap.bottom = y1+1;
-                                        box_crap.left = x1+playl; //20 is to compensate for the border
-                                        box_crap.right = x1+1+playl;
-                                        ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-                                        if (ddrval != DD_OK) Msg("There was an error!");
-                                        
-                                        
-                                }
-                                
-                                
-                                
-                        }
-                        
-                        
-                        
-                        
-                        
-                }
-                
-                
+  RECT box_crap;
+  int ddrval;
+  DDBLTFX     ddbltfx;
+
+  /* TODO: test me! Then factor the code */  
+  for (int x1=0; x1 < 600; x1++)
+    for (int y1=0; y1 < 400; y1++)
+      {
+	if (hm.x[x1].y[y1] == 1) 
+	  {
+	    ddbltfx.dwFillColor = 1;
+	    ddbltfx.dwSize = sizeof(ddbltfx);
+	    box_crap.top = y1;
+	    box_crap.bottom = y1+1;
+	    box_crap.left = x1+playl; //20 is to compensate for the border
+	    box_crap.right = x1+1+playl;
+	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+	    if (ddrval != DD_OK) Msg("There was an error!");
+	    // GFX
+	    {
+	      SDL_Rect GFX_box_crap;
+	      GFX_box_crap.x = x1 + playl;
+	      GFX_box_crap.y = y1;
+	      GFX_box_crap.w = 1;
+	      GFX_box_crap.h = 1;
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 1);
+	    }
+	  }
+	
+	if (hm.x[x1].y[y1] == 2) 
+	  {
+	    ddbltfx.dwFillColor = 128;
+	    ddbltfx.dwSize = sizeof(ddbltfx);
+	    box_crap.top = y1;
+	    box_crap.bottom = y1+1;
+	    box_crap.left = x1+playl; //20 is to compensate for the border
+	    box_crap.right = x1+1+playl;
+	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+	    if (ddrval != DD_OK) Msg("There was an error!");
+	    // GFX
+	    {
+	      SDL_Rect GFX_box_crap;
+	      GFX_box_crap.x = x1 + playl;
+	      GFX_box_crap.y = y1;
+	      GFX_box_crap.w = 1;
+	      GFX_box_crap.h = 1;
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 128);
+	    }
+	  }
+	
+	if (hm.x[x1].y[y1] == 3) 
+	  {
+	    ddbltfx.dwFillColor = 45;
+	    ddbltfx.dwSize = sizeof(ddbltfx);
+	    box_crap.top = y1;
+	    box_crap.bottom = y1+1;
+	    box_crap.left = x1+playl; //20 is to compensate for the border
+	    box_crap.right = x1+1+playl;
+	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+	    if (ddrval != DD_OK) Msg("There was an error!");
+	    // GFX
+	    {
+	      SDL_Rect GFX_box_crap;
+	      GFX_box_crap.x = x1 + playl;
+	      GFX_box_crap.y = y1;
+	      GFX_box_crap.w = 1;
+	      GFX_box_crap.h = 1;
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 45);
+	    }
+	  }
+	
+	if (hm.x[x1].y[y1] > 100)
+	  {
+	    
+	    if (pam.sprite[  (hm.x[x1].y[y1]) - 100].prop == 1)
+	      {
+		//draw a little pixel
+		ddbltfx.dwFillColor = 20;
+		ddbltfx.dwSize = sizeof(ddbltfx);
+		box_crap.top = y1;
+		box_crap.bottom = y1+1;
+		box_crap.left = x1+playl; //20 is to compensate for the border
+		box_crap.right = x1+1+playl;
+		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+		if (ddrval != DD_OK) Msg("There was an error!");
+		// GFX
+		{
+		  SDL_Rect GFX_box_crap;
+		  GFX_box_crap.x = x1 + playl;
+		  GFX_box_crap.y = y1;
+		  GFX_box_crap.w = 1;
+		  GFX_box_crap.h = 1;
+		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 20);
+		}
+	      }
+	    else
+	      {
+		//draw a little pixel
+		ddbltfx.dwFillColor = 23;
+		ddbltfx.dwSize = sizeof(ddbltfx);
+		box_crap.top = y1;
+		box_crap.bottom = y1+1;
+		box_crap.left = x1+playl; //20 is to compensate for the border
+		box_crap.right = x1+1+playl;
+		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+		if (ddrval != DD_OK) Msg("There was an error!");
+		// GFX
+		{
+		  SDL_Rect GFX_box_crap;
+		  GFX_box_crap.x = x1 + playl;
+		  GFX_box_crap.y = y1;
+		  GFX_box_crap.w = 1;
+		  GFX_box_crap.h = 1;
+		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 23);
+		}
+	      }
+	  }
+      }
 }
 
 
@@ -3141,6 +3172,14 @@ int draw_num(int mseq, char nums[50], int mx, int my)
 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_NOCOLORKEY);
 	  // GFX
+	  /* TODO: we should not allow color transparency here; on the
+	     other hand this doesn't seem useful; numbers are loaded
+	     with LEFTALIGN, which convert black and white to the
+	     nearest non-black and non-white colors from the Dink
+	     Palette - hence disabling black and white
+	     transparency. */
+	  /* TODO: test what happens if dir.ff files are replaced by
+	     .bmp's. Possibly number will carry transparency. */
 	  {
 	    SDL_Rect dst = {mx+length, my};
 	    SDL_BlitSurface(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
@@ -3150,7 +3189,13 @@ int draw_num(int mseq, char nums[50], int mx, int my)
 	{
 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_SRCCOLORKEY);
-	  // GFX: TODO (why is there a difference with color key here?
+	  // GFX
+	  /* Transparency is meaningly less here as well, at least in
+	     the original game */
+	  {
+	    SDL_Rect dst = {mx+length, my};
+	    SDL_BlitSurface(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
 	}
       
       
@@ -3408,6 +3453,9 @@ void draw_icons( void )
 }
 
 
+/** draw_virtical, draw_virt2, draw_hor, draw_hor2: used to draw the
+    magic jauge (dinkvar.cpp:draw_mlevel() only) **/
+
 void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
 {
   int cut;
@@ -3425,11 +3473,13 @@ void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
 			     &myrect, DDBLTFAST_NOCOLORKEY);
   // GFX
   {
+    /* TODO: test me! */
     SDL_Rect src, dst;
     src.x = src.y = 0;
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
-    src.h = (GFX_k[seq[mseq].frame[mframe]].k->h * (100 - percent) / 100);
-    dst.x = mx; dst.y = my;
+    src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
+    dst.x = mx;
+    dst.y = my + (GFX_k[seq[mseq].frame[mframe]].k->h - src.h);
     SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
   }
 }
@@ -3454,55 +3504,67 @@ void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
     SDL_Rect src, dst;
     src.x = src.y = 0;
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
-    src.h = (GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100);
+    src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
     dst.x = mx; dst.y = my;
     SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
   }
 }
 
-
 void draw_hor(int percent, int mx, int my, int mseq, int mframe)
 {
-        int cut;
-        if (percent > 25) percent = 25;
-        percent = (percent * 4);
-        RECT myrect;
-        CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
-        int full = myrect.right;
-        cut = (full * percent) / 100;
-        full = cut;
-        myrect.right = full;
-again:
-        ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-                &myrect, DDBLTFAST_NOCOLORKEY);
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-        
+  int cut;
+  if (percent > 25) percent = 25;
+  percent = (percent * 4);
+  RECT myrect;
+  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  int full = myrect.right;
+  cut = (full * percent) / 100;
+  full = cut;
+  myrect.right = full;
+ again:
+  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
+			      &myrect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+  // GFX
+  {
+    /* TODO: test me! */
+    SDL_Rect src, dst;
+    src.x = src.y = 0;
+    src.w = GFX_k[seq[mseq].frame[mframe]].k->w * percent / 100;
+    src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
+    dst.x = mx; dst.y = my;
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+  }
 }
-
 
 void draw_hor2(int percent, int mx, int my, int mseq, int mframe)
 {
-        int cut;
-        if (percent > 25) percent = 25;
-        percent = (percent * 4);
-        RECT myrect;
-        CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
-        int full = myrect.right;
-        cut = (full * percent) / 100;
-        
-        myrect.right = cut;
-        mx += (full - cut);
-        
-        
-again:
-        ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-                &myrect, DDBLTFAST_NOCOLORKEY);
-        
-        if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-        
+  int cut;
+  if (percent > 25) percent = 25;
+  percent = (percent * 4);
+  RECT myrect;
+  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  int full = myrect.right;
+  cut = (full * percent) / 100;
+  
+  myrect.right = cut;
+  mx += (full - cut);
+  
+ again:
+  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
+			      &myrect, DDBLTFAST_NOCOLORKEY);
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+  // GFX
+  {
+    SDL_Rect src, dst;
+    src.x = src.y = 0;
+    src.w = GFX_k[seq[mseq].frame[mframe]].k->w * percent / 100;
+    src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
+    dst.x = mx + (GFX_k[seq[mseq].frame[mframe]].k->w - src.w);
+    dst.y = my;
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+  }
 }
-
 
 void draw_mlevel(int percent)
 {
@@ -3525,6 +3587,7 @@ void draw_mlevel(int percent)
         
         
 }
+
 
 /* Draw the status bar and the magic jauge */
 void draw_status_all(void)
@@ -6336,7 +6399,10 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   showb.showdot = showdot;
   showb.script = script;
 
-  //abort_this_flip = true;
+  // After show_bmp(), and before the flip_it() call in updateFrame(),
+  // other parts of the code will draw sprites on lpDDSBack and mess
+  // the showbmp(). So skip the next flip_it().
+  abort_this_flip = true;
   
   RECT rcRect;
   SetRect(&rcRect, 0,0,640, 480);
@@ -6348,7 +6414,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 
   // GFX
   {
-    SDL_BlitSurface(image, NULL, GFX_lpDDSBack, NULL);
+    SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
     SDL_FreeSurface(image);
   }
   

@@ -4361,7 +4361,9 @@ void process_warp_man(void)
 			SetRect(&box_crap, 0,0,640,480);
 			
 			ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-			
+			// GFX
+			// TODO: merge with fill_screen()? (doesn't work on the same buffer)
+			SDL_FillRect(GFX_lpDDSBack, NULL, 0);
 			flip_it();
 			
 			process_count = 0;
@@ -4559,323 +4561,319 @@ void text_brain(int h)
 
 void process_talk()
 {
-	
-	int px = 48, py = 44;
-	
-	int sx = 184;
-	int sy = 94, sy_hold, sy_ho;
-	int spacing = 12;
-	int curxl = 126;
-	int curxr = 462;
-	int curyr = 200;
-	int curyl = 200;
-	
-	int y_last = 0, y_hold = 0, y_ho; 
-	HDC         hdc;
-	RECT rcRect;
-	int i;
-	int x_depth = 335;
-	if (talk.newy != -5000)
-		sy = talk.newy;
-	
-	sy_hold = sy;
-	sy_ho = sy;
-	
-	check_seq_status(30);
-	
-	int fake_page;
-again:
-	ddrval = lpDDSBack->BltFast( px, py, k[seq[30].frame[2]].k,
-		&k[seq[30].frame[2]].box  , DDBLTFAST_SRCCOLORKEY  );
-	
-	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-	
-again2:	
-	ddrval = lpDDSBack->BltFast( px+169, py+42, k[seq[30].frame[3]].k,
-		&k[seq[30].frame[3]].box  , DDBLTFAST_SRCCOLORKEY  );
-	if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
-	
-again3:
-	ddrval = lpDDSBack->BltFast( px+169+180, py+1, k[seq[30].frame[4]].k,
-		&k[seq[30].frame[4]].box  , DDBLTFAST_SRCCOLORKEY  );
-	
-	if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
-	
-	
-	
-	int talk_hold = talk.cur;  
-	if (sjoy.rightd) talk.cur++;
-	if (sjoy.downd) talk.cur++;
-	if (sjoy.upd) talk.cur--;
-	if (sjoy.leftd) talk.cur--;
-	
-	if (play.mouse > 20)
+  int px = 48, py = 44;
+  
+  int sx = 184;
+  int sy = 94, sy_hold, sy_ho;
+  int spacing = 12;
+  int curxl = 126;
+  int curxr = 462;
+  int curyr = 200;
+  int curyl = 200;
+  
+  int y_last = 0, y_hold = 0, y_ho; 
+  HDC         hdc;
+  RECT rcRect;
+  int i;
+  int x_depth = 335;
+  if (talk.newy != -5000)
+    sy = talk.newy;
+  
+  sy_hold = sy;
+  sy_ho = sy;
+  
+  check_seq_status(30);
+  
+  int fake_page;
+ again:
+  ddrval = lpDDSBack->BltFast( px, py, k[seq[30].frame[2]].k,
+			       &k[seq[30].frame[2]].box  , DDBLTFAST_SRCCOLORKEY  );
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+  // GFX
+  {
+    SDL_Rect dst;
+    dst.x = px; dst.y = py;
+    SDL_BlitSurface(GFX_k[seq[30].frame[2]].k, NULL, GFX_lpDDSBack, &dst);
+  }
+  
+ again2:	
+  ddrval = lpDDSBack->BltFast( px+169, py+42, k[seq[30].frame[3]].k,
+			       &k[seq[30].frame[3]].box  , DDBLTFAST_SRCCOLORKEY  );
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+  // GFX
+  {
+    SDL_Rect dst;
+    dst.x = px + 169; dst.y = py + 42;
+    SDL_BlitSurface(GFX_k[seq[30].frame[3]].k, NULL, GFX_lpDDSBack, &dst);
+  }
+  
+ again3:
+  ddrval = lpDDSBack->BltFast( px+169+180, py+1, k[seq[30].frame[4]].k,
+			       &k[seq[30].frame[4]].box  , DDBLTFAST_SRCCOLORKEY  );
+  if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
+  // GFX
+  {
+    SDL_Rect dst;
+    dst.x = px+169+180; dst.y = py+1;
+    SDL_BlitSurface(GFX_k[seq[30].frame[4]].k, NULL, GFX_lpDDSBack, &dst);
+  }
+  
+  
+  int talk_hold = talk.cur;
+  if (sjoy.rightd) talk.cur++;
+  if (sjoy.downd) talk.cur++;
+  if (sjoy.upd) talk.cur--;
+  if (sjoy.leftd) talk.cur--;
+  
+  if (play.mouse > 20)
+    {
+      talk.cur++;
+      play.mouse = 0;
+    }
+  
+  if (play.mouse < -20)
+    {
+      talk.cur--;
+      play.mouse = 0;
+    }
+  
+  
+  if (talk_hold != talk.cur)
+    {
+      if (talk.cur >= talk.cur_view) if (talk.cur <= talk.cur_view_end) 
+				       SoundPlayEffect(11, 22050,0,0,0);
+    }
+  
+  if (lpDDSBack->GetDC(&hdc) == DD_OK)
+    {      
+      
+      SelectObject (hdc, hfont_small);
+      SetBkMode(hdc, TRANSPARENT); 
+      
+      
+      
+      if (strlen(talk.buffer) > 0)
 	{
-		talk.cur++;
-		play.mouse = 0;
+	  
+	  SetRect(&rcRect,sx,94,463,400);
+	  if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
+	  
+	  SetTextColor(hdc,RGB(8,14,21));
+	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
+	  
+	  if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)); 
+	  else	if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)); 
+	  else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)); 
+	  
+	  else	if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
+	  
+	  
+	  else		if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)); 
+	  else	if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
+	  else	if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
+	  else	if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
+	  else	if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
+	  
+	  else			if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)); 
+	  else	if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)); 
+	  else	if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)); 
+	  else	if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)); 
+	  else
+	    SetTextColor(hdc,RGB(255,255,2));
+	  
+	  OffsetRect(&rcRect, 1, 1);
+	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
+	  
+	  SetTextColor(hdc,RGB(8,14,21));
 	}
-	
-	if (play.mouse < -20)
+      
+      
+		
+      
+      //tabulate distance needed by text, LORDII experience helped here
+      //recal: 
+      for (i = talk.cur_view; i < talk.last; i++)
 	{
-		talk.cur--;
-		play.mouse = 0;
+	  SetRect(&rcRect,sx,y_hold,463,x_depth+100);
+	  y_hold =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
+	  sy_hold += y_hold;	 
+	  
+	  //Msg("Sy_hold = %d (%d)", sy_hold,i);
+	  
+	  if (sy_hold > x_depth) 
+	    {
+	      
+	      talk.cur_view_end = i-1;
+	      //Msg("Sy is over, sp cur_view is %d ", talk.cur_view_end);
+	      goto death;
+	    }
 	}
-	
-	
-	if (talk_hold != talk.cur)
+      
+      talk.cur_view_end = i;
+      
+      if (talk.cur_view == 1 && talk.cur_view_end == talk.last)
 	{
-		if (talk.cur >= talk.cur_view) if (talk.cur <= talk.cur_view_end) 
-			SoundPlayEffect(11, 22050,0,0,0);
+	  //Msg("Small enough to fit on one screen, lets center it!");
+	  sy += ( (x_depth - sy_hold) / 2) - 20;
 	}
+    death:
+      if (talk.cur > talk.last) 
+	{
+	  SoundPlayEffect(11, 22050,0,0,0);
+	  
+	  talk.cur = 1;
+	  
+	}
+      if (talk.cur < 1) 
+	{
+	  SoundPlayEffect(11, 22050,0,0,0);
+	  
+	  talk.cur = talk.last;
+	}
+      
+      
+      //if (talk.cur_view_end != talk.last)
+      {
+	//Msg("Talkcur is %d, talk cur view is %d", talk.cur, talk.cur_view);
+	//total options too large for page, lets scroll
 	
-	if (lpDDSBack->GetDC(&hdc) == DD_OK)
-	{      
+	
+	if (talk.cur > talk.cur_view_end) 
+	  {
+	    //     Msg("advancing page:  talkcur is %d, changing cur_view to same", talk.cur, talk.cur_view);
+	    talk.cur_view = talk.cur;
+	    talk.page ++;
+	    
+	    // Msg("Page advanced to %d. (cur_end is %d, cur is %d)", talk.page,talk.cur_view_end, talk.cur);
+	    goto fin;
+	  }
+	
+	
+	
+	if (talk.cur < talk.cur_view) 
+	  {
+	    //	Msg("Turning back the clock from page %d..", talk.page);
+	    
+	    talk.cur_view = 1;
+	    // talk.cur = 1;
+	    
+	    talk.page--;
+	    Msg("Page backed to %d.", talk.page);
+	    fake_page = 1;
+	    for (i = 1; i < talk.last; i++)
+	      {
+		SetRect(&rcRect,sx,sy_ho,463,x_depth);
 		
-		SelectObject (hdc, hfont_small);
-		SetBkMode(hdc, TRANSPARENT); 
+		y_ho =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
+		sy_ho += y_ho;	 
+		//Msg("adding y_yo %d.. (on %d)", y_ho,i);
+		if (sy_ho > x_depth) 
+		  {
+		    /*if (fake_page == talk.page)
+		      {
+		      goto fin;
+		      }
+		    */
+		    fake_page++;	  
+		    sy_ho = sy+ y_ho;
+		    //Msg("Does fake page (%d) match desired page (%d) %d", fake_page, talk.page, i);
+		  }
+		if (fake_page == talk.page)
+		  {
+		    talk.cur_view = i;
+		    talk.cur_view_end = talk.cur;
+		    //Msg("Going to fin with end being %d, and.cur being %d.  View is %d.",
+		    //		   talk.cur_view_end, talk.cur, talk.cur_view);
+		    goto fin;
+		  }
 		
-		
-		
-		if (strlen(talk.buffer) > 0)
-		{
-			
-			SetRect(&rcRect,sx,94,463,400);
-			if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
-			
-			
-			
-			SetTextColor(hdc,RGB(8,14,21));
-			DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
-			
-			
-			
-			if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)); 
-			else	if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)); 
-			else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)); 
-			
-			else	if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
-			
-			
-			else		if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)); 
-			else	if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
-			else	if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
-			else	if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
-			else	if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
-			
-			else			if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)); 
-			else	if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)); 
-			else	if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)); 
-			else	if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)); 
-			else
-				SetTextColor(hdc,RGB(255,255,2));
-			
-			OffsetRect(&rcRect, 1, 1);
-			DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
-			
-			SetTextColor(hdc,RGB(8,14,21));
-		}
-		
-		
-		
-		
-		//tabulate distance needed by text, LORDII experience helped here
-//recal: 
-		for (i = talk.cur_view; i < talk.last; i++)
-		{
-			SetRect(&rcRect,sx,y_hold,463,x_depth+100);
-			y_hold =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
-			sy_hold += y_hold;	 
-			
-			//Msg("Sy_hold = %d (%d)", sy_hold,i);
-			
-			if (sy_hold > x_depth) 
-			{
-				
-				talk.cur_view_end = i-1;
-				//Msg("Sy is over, sp cur_view is %d ", talk.cur_view_end);
-				goto death;
-			}
-		}
-		
-		talk.cur_view_end = i;
-		
-		if (talk.cur_view == 1) if (talk.cur_view_end == talk.last)
-		{
-			
-			//Msg("Small enough to fit on one screen, lets center it!");
-			sy += ( (x_depth - sy_hold) / 2) - 20;
-			
-		}
-death:
-		
-		
-		if (talk.cur > talk.last) 
-		{
-			SoundPlayEffect(11, 22050,0,0,0);
-			
-			talk.cur = 1;
-			
-		}
-		if (talk.cur < 1) 
-		{
-			SoundPlayEffect(11, 22050,0,0,0);
-			
-			talk.cur = talk.last;
-		}
-		
-		
-		//if (talk.cur_view_end != talk.last)
-		{
-			//Msg("Talkcur is %d, talk cur view is %d", talk.cur, talk.cur_view);
-			//total options too large for page, lets scroll
-			
-			
-			if (talk.cur > talk.cur_view_end) 
-			{
-				//     Msg("advancing page:  talkcur is %d, changing cur_view to same", talk.cur, talk.cur_view);
-				talk.cur_view = talk.cur;
-				talk.page ++;
-				
-				// Msg("Page advanced to %d. (cur_end is %d, cur is %d)", talk.page,talk.cur_view_end, talk.cur);
-				goto fin;
-			}
-			
-			
-			
-			if (talk.cur < talk.cur_view) 
-				
-			{
-				//	Msg("Turning back the clock from page %d..", talk.page);
-				
-				talk.cur_view = 1;
-				// talk.cur = 1;
-				
-				talk.page--;
-				Msg("Page backed to %d.", talk.page);
-				fake_page = 1;
-				for (i = 1; i < talk.last; i++)
-				{
-					SetRect(&rcRect,sx,sy_ho,463,x_depth);
-					
-					y_ho =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
-					sy_ho += y_ho;	 
-					//Msg("adding y_yo %d.. (on %d)", y_ho,i);
-					if (sy_ho > x_depth) 
-					{
-					/*if (fake_page == talk.page)
-					{
-					goto fin;
-					}
-						*/
-						fake_page++;	  
-						sy_ho = sy+ y_ho;
-						//Msg("Does fake page (%d) match desired page (%d) %d", fake_page, talk.page, i);
-					}
-					if (fake_page == talk.page)
-					{
-						talk.cur_view = i;
-						talk.cur_view_end = talk.cur;
-						//Msg("Going to fin with end being %d, and.cur being %d.  View is %d.",
-						//		   talk.cur_view_end, talk.cur, talk.cur_view);
-						goto fin;
-					}
-					
-					//         Msg("Second: Sy is over, sp cur_view is %d", talk.cur_view_end);
-					
-					
-				}
-				
-				talk.cur_view_end = i;
-				
-				
-			}
-			
-			
-		}
-		
-
-		
-		//Msg("talk last is %d.  cur_view_end is %d, Cur is %d", talk.last, talk.cur_view_end, talk.cur);
-		
-		//	 talk.cur_view_end = talk.last;
-		
-		for ( i = talk.cur_view; i <= talk.cur_view_end; i++)
-			
-		{
-			//lets figure out where to draw this line
-			
-			SetRect(&rcRect,sx,sy,463,x_depth+100);
-			SetTextColor(hdc,RGB(8,14,21));
-			DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK);
-			OffsetRect(&rcRect,-2,-2);
-			DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
-			
-			OffsetRect(&rcRect,1,1);
-			if (i == talk.cur)
-			{
-				curyl = sy-4;
-				curyr = sy-4;
-				
-				
-				SetTextColor(hdc,RGB(255,255,255));
-				
-			}
-			else
-				SetTextColor(hdc,RGB(255,255,2));
-			y_last =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);	
-			sy += y_last;
-			
-			
-		}
-		
-fin:
-		
-		
-		//	   dum =  GetTextFace(hdc,100,shit) ;
-		lpDDSBack->ReleaseDC(hdc);
-		
-		if (talk.timer < thisTickCount)
-		{	
-			talk.curf++;
-			talk.timer = thisTickCount+100;
-		}
-		
-		
-		if (talk.curf == 0) talk.curf = 1;
-		
-		if (talk.curf > 7) talk.curf = 1;
-again4:
-		ddrval = lpDDSBack->BltFast( curxl, curyl, k[seq[456].frame[talk.curf]].k,
-			&k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
-		if (ddrval == DDERR_WASSTILLDRAWING) goto again4;
-		
-again5:
-		ddrval = lpDDSBack->BltFast( curxr, curyr, k[seq[457].frame[talk.curf]].k,
-			&k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
-		if (ddrval == DDERR_WASSTILLDRAWING) goto again5;
-		
-		
- }
- 
- 
- if ( (sjoy.button[1]) | (mouse1))
-	 
- {
-	 mouse1 = false;
-	 talk.active = false;
-	 *presult = talk.line_return[talk.cur];
-	 SoundPlayEffect(17, 22050,0,0,0);
-	 
-	 if (talk.script != 0) 
-	 { 
-		 //we need to continue a script
-		 run_script(talk.script);
-		 
-	 }
- }
- 
+		//         Msg("Second: Sy is over, sp cur_view is %d", talk.cur_view_end);
+	      }
+	    talk.cur_view_end = i;
+	  }
+      }
+      
+      //Msg("talk last is %d.  cur_view_end is %d, Cur is %d", talk.last, talk.cur_view_end, talk.cur);
+      
+      //	 talk.cur_view_end = talk.last;
+      
+      for ( i = talk.cur_view; i <= talk.cur_view_end; i++)
+	{
+	  //lets figure out where to draw this line
+	  
+	  SetRect(&rcRect,sx,sy,463,x_depth+100);
+	  SetTextColor(hdc,RGB(8,14,21));
+	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK);
+	  OffsetRect(&rcRect,-2,-2);
+	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
+	  
+	  OffsetRect(&rcRect,1,1);
+	  if (i == talk.cur)
+	    {
+	      curyl = sy-4;
+	      curyr = sy-4;
+	      
+	      SetTextColor(hdc,RGB(255,255,255));
+	    }
+	  else
+	    SetTextColor(hdc,RGB(255,255,2));
+	  y_last =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);	
+	  sy += y_last;
+	}
+      
+    fin:
+      //	   dum =  GetTextFace(hdc,100,shit) ;
+      lpDDSBack->ReleaseDC(hdc);
+      
+      if (talk.timer < thisTickCount)
+	{	
+	  talk.curf++;
+	  talk.timer = thisTickCount+100;
+	}
+      
+      
+      if (talk.curf == 0) talk.curf = 1;
+      
+      if (talk.curf > 7) talk.curf = 1;
+    again4:
+      ddrval = lpDDSBack->BltFast( curxl, curyl, k[seq[456].frame[talk.curf]].k,
+				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
+      if (ddrval == DDERR_WASSTILLDRAWING) goto again4;
+      // GFX
+      {
+	SDL_Rect dst;
+	dst.x = curxl; dst.y = curyl;
+	SDL_BlitSurface(GFX_k[seq[456].frame[talk.curf]].k, NULL, GFX_lpDDSBack, &dst);
+      }
+      
+    again5:
+      ddrval = lpDDSBack->BltFast( curxr, curyr, k[seq[457].frame[talk.curf]].k,
+				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
+      if (ddrval == DDERR_WASSTILLDRAWING) goto again5;
+      // GFX
+      {
+	SDL_Rect dst;
+	dst.x = curxr; dst.y = curyr;
+	SDL_BlitSurface(GFX_k[seq[457].frame[talk.curf]].k, NULL, GFX_lpDDSBack, &dst);
+      }
+    }
+  
+  
+  if ((sjoy.button[1]) | (mouse1))
+    {
+      mouse1 = false;
+      talk.active = false;
+      *presult = talk.line_return[talk.cur];
+      SoundPlayEffect(17, 22050,0,0,0);
+      
+      if (talk.script != 0) 
+	{ 
+	  //we need to continue a script
+	  run_script(talk.script);
+	  
+	}
+    }
 }
-
 
 
 void UpdateCursorPosition(int dx, int dy)
@@ -5084,7 +5082,6 @@ again:
 	ddrval = lpDDSBack->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
 		&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY);
 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-	
 	// GFX
 	{
 	  SDL_Rect dst;
@@ -5358,97 +5355,101 @@ again:
 
 void process_show_bmp( void )
 {
-	
-	RECT rcRect;
-	SetRect(&rcRect, 0,0,x, y);
-
-// We could disable this Blit (work is already done in show_bmp()) but
-// we want to display the shiny mark on the map below
-again:
-	ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-		&rcRect, DDBLTFAST_NOCOLORKEY);
-	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-	
-	if (showb.showdot)
+  RECT rcRect;
+  SetRect(&rcRect, 0,0,x, y);
+  
+  // We could disable this Blit (work is already done in show_bmp())
+  // but we want to display the shiny mark on the map below. Besides,
+  // after show_bmp(), other parts of the code drew sprites on
+  // lpDDSBack, so we need to regenerate it anyway.
+ again:
+  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTrick,
+			      &rcRect, DDBLTFAST_NOCOLORKEY);
+  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+  // GFX
+  SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
+  
+  if (showb.showdot)
+    {
+      //let's display a nice dot to mark where they are on the map
+      int x = play.last_map;
+      int mseq = 165;
+      
+      showb.picframe++;
+      if (showb.picframe > index[mseq].last) showb.picframe = 1;
+      int mframe = showb.picframe;
+      
+      lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k,
+			  &k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
+      // GFX
+      {
+	SDL_Rect dst;
+	// convert map# to a (x,y) position on a FreeDinkEdit minimap
+	dst.x = x * 20 - x/32 * 640 - 20;
+	dst.y = x/32 * 20;
+	SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
+      }
+    }
+  
+  
+  if ((sjoy.button[1])
+      || (sjoy.button[2])
+      || (sjoy.button[3])
+      || (sjoy.button[4])
+      || (sjoy.button[5])
+      || (sjoy.button[6]) 
+      || ((GetKeyboard('M')) && ( but_timer < thisTickCount)))
+    {
+      showb.active = false;
+      if (showb.script != 0)
+	run_script(showb.script);
+      showb.stime = thisTickCount+2000;
+      but_timer = thisTickCount + 200;
+      
+      int sprite = say_text_xy("", 1, 440, 0);								
+      spr[sprite].noclip = 1;
+      
+      
+      // Return to canonical game palette
+      if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK)
 	{
-		//let's display a nice dot to mark where they are on the map
-		int x = play.last_map;
-		
-		
-		int mseq = 165;
-		
-		showb.picframe++;
-		if (showb.picframe > index[mseq].last) showb.picframe = 1;
-		int mframe = showb.picframe;
-		
-		lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k,
-			&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-		
+	  Msg("error with setting entries");
+	  return;
 	}
-	
-	
-	if (  (sjoy.button[1])
-		|| (sjoy.button[2])
-		|| (sjoy.button[3])
-		|| (sjoy.button[4])
-		|| (sjoy.button[5])
-		|| (sjoy.button[6]) 
-		|| ( (GetKeyboard('M')) && ( but_timer < thisTickCount) )
-		
-		
-		)
-	{
-	  showb.active = false;
-	  if (showb.script != 0)
-	    run_script(showb.script);
-	  showb.stime = thisTickCount+2000;
-	  but_timer = thisTickCount + 200;
-	  
-	  int sprite = say_text_xy("", 1, 440, 0);								
-	  spr[sprite].noclip = 1;
-	  
-	  
-	  // Return to canonical game palette
-	  if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK)
-	  {
-	    Msg("error with setting entries");
-	    return;
-	  }
-	  // GFX
-	  change_screen_palette(GFX_real_pal);
-	  // The main flip_it() will be called, skip it - lpDDSBack is
-	  // not matching the palette anymore, it needs to be redrawn
-	  // first.
-	  abort_this_flip = true;
-	}
+      // GFX
+      change_screen_palette(GFX_real_pal);
+      // The main flip_it() will be called, skip it - lpDDSBack is
+      // not matching the palette anymore, it needs to be redrawn
+      // first.
+      abort_this_flip = true;
+    }
 }
 
 void drawscreenlock( void )
 {
-	HRESULT     ddrval;
-    
-loop:
-	//draw the screenlock icon
-	ddrval = lpDDSBack->BltFast(0, 0, k[seq[423].frame[9]].k,
-		&k[seq[423].frame[9]].box  , DDBLTFAST_NOCOLORKEY  );
-	
-	if (ddrval == DDERR_WASSTILLDRAWING ) goto loop;
-	
-	//if (ddrval != DD_OK) dderror(ddrval);
-	
-loop2:
-	//draw the screenlock icon
-	ddrval = lpDDSBack->BltFast(620, 0, k[seq[423].frame[10]].k,
-		&k[seq[423].frame[10]].box  , DDBLTFAST_NOCOLORKEY  );
-	
-	if (ddrval == DDERR_WASSTILLDRAWING ) goto loop2;
-	// if (ddrval != DD_OK) dderror(ddrval);
-	
-	
-}	 
-
-
-
+  HRESULT     ddrval;
+  
+ loop:
+  //draw the screenlock icon
+  ddrval = lpDDSBack->BltFast(0, 0, k[seq[423].frame[9]].k,
+			      &k[seq[423].frame[9]].box  , DDBLTFAST_NOCOLORKEY  );
+  if (ddrval == DDERR_WASSTILLDRAWING ) goto loop;
+  //if (ddrval != DD_OK) dderror(ddrval);
+  // GFX
+  SDL_BlitSurface(GFX_k[seq[423].frame[9]].k, NULL, GFX_lpDDSBack, NULL);
+  
+ loop2:
+  //draw the screenlock icon
+  ddrval = lpDDSBack->BltFast(620, 0, k[seq[423].frame[10]].k,
+			      &k[seq[423].frame[10]].box  , DDBLTFAST_NOCOLORKEY  );
+  if (ddrval == DDERR_WASSTILLDRAWING ) goto loop2;
+  // if (ddrval != DD_OK) dderror(ddrval);
+  // GFX
+  {
+    SDL_Rect dst = {620, 0};
+    SDL_BlitSurface(GFX_k[seq[423].frame[10]].k, NULL, GFX_lpDDSBack, &dst);
+  }
+}
 
 
 /*

@@ -39,6 +39,8 @@ void updateFrame( void )
 {
     byte state[256]; 
     RECT                rcRect,box_crap,box_real;
+    SDL_Rect GFX_box_crap;
+
 	DDBLTFX     ddbltfx;
     char msg[100];
 	
@@ -626,7 +628,12 @@ past:
 				move_gonna = false;
 				
 				//draw a dot to show where the computer is guessing the start of the shadow is	 
-				
+				/* Note: show_dot is never set to
+				   true; that's a manual debugging
+				   tool; maybe we could introduce a
+				   command line option, or activate it
+				   along with -debug */
+				/* TODO: test me! */
 				if (show_dot)
 				{
 					
@@ -653,10 +660,16 @@ past:
 						box_crap.bottom = spr[h].y+1;
 						box_crap.left = spr[h].x ;
 						box_crap.right = spr[h].x + 1;
-						
+						// GFX
+						GFX_box_crap.x = spr[h].x;
+						GFX_box_crap.y = spr[h].y;
+						GFX_box_crap.w = 1;
+						GFX_box_crap.h = 1;
 						
 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, &box_real, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-						
+						// GFX
+						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 100);
+
 						
 						for (int oo=0; oo <  spr[h].moveman+1; oo++)
 						{
@@ -666,9 +679,15 @@ past:
 							box_crap.bottom = box_crap.top+1;
 							box_crap.left = spr[h].lpx[oo];
 							box_crap.right = box_crap.left+1;
-							
+							// GFX
+							GFX_box_crap.x = spr[h].lpx[oo];
+							GFX_box_crap.y = spr[h].lpy[oo];
+							GFX_box_crap.w = 1;
+							GFX_box_crap.h = 1;
 							
 							ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+							// GFX
+							SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 50);
 							
 						}
 						ddbltfx.dwFillColor = 1;
@@ -677,9 +696,15 @@ past:
 						box_crap.bottom = box_crap.top+1;
 						box_crap.left = spr[h].lpx[0];
 						box_crap.right = box_crap.left+1;
-						
+						// GFX
+						GFX_box_crap.x = spr[h].lpx[0];
+						GFX_box_crap.y = spr[h].lpy[0];
+						GFX_box_crap.w = 1;
+						GFX_box_crap.h = 1;
 						
 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+						// GFX
+						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 1);
 						
 					}
 				}         
