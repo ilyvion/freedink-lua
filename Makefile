@@ -10,7 +10,7 @@ CXXFLAGS=$(CFLAGS) -g
 #LDLIBS=-ldxguid -ldinput -lddraw -lwinmm -lSDL -lSDL_mixer
 #LDFLAGS=-L"C:/dx7sdk/lib"
 
-LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer
+LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx
 
 COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o	\
 	gfx.o gfx_tiles.o gfx_utils.o init.o freedink.res

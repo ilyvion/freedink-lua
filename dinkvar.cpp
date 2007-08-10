@@ -53,6 +53,7 @@
 
 #include "SDL.h"
 #include "SDL_mixer.h"
+#include "SDL_rotozoom.h"
 
 #include "ddutil.h"
 #include "fastfile.h"
@@ -3453,8 +3454,8 @@ void draw_icons( void )
 }
 
 
-/** draw_virtical, draw_virt2, draw_hor, draw_hor2: used to draw the
-    magic jauge (dinkvar.cpp:draw_mlevel() only) **/
+/** draw_virtical, draw_hor, draw_virt2, draw_hor2: used to draw the
+    magic jauge (in that order) (dinkvar.cpp:draw_mlevel() only) **/
 
 void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
 {
@@ -3479,8 +3480,8 @@ void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
     dst.x = mx;
-    dst.y = my + (GFX_k[seq[mseq].frame[mframe]].k->h - src.h);
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+    dst.y = my;
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -3506,7 +3507,7 @@ void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
     dst.x = mx; dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -3533,7 +3534,7 @@ void draw_hor(int percent, int mx, int my, int mseq, int mframe)
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w * percent / 100;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
     dst.x = mx; dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -3560,32 +3561,27 @@ void draw_hor2(int percent, int mx, int my, int mseq, int mframe)
     src.x = src.y = 0;
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w * percent / 100;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
-    dst.x = mx + (GFX_k[seq[mseq].frame[mframe]].k->w - src.w);
+    dst.x = mx;
     dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSTwo, &dst);
+    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
 void draw_mlevel(int percent)
 {
-        
-        //if (*pmagic_level < 1) return;
-        
-        int mseq = 180;
-        int bary = 6;
-        int barx = 7;
-        
-        
-        
-        if (percent > 0) draw_virtical(percent, 149, 411, mseq, bary);
-        percent -= 25;
-        if (percent > 0) draw_hor(percent, 149, 409, mseq, barx);
-        percent -= 25;
-        if (percent > 0) draw_virt2(percent, 215, 411, mseq, bary);
-        percent -= 25;
-        if (percent > 0) draw_hor2(percent, 149, 466, mseq, barx);
-        
-        
+  //if (*pmagic_level < 1) return;
+  
+  int mseq = 180;
+  int bary = 6;
+  int barx = 7;
+  
+  if (percent > 0) draw_virtical(percent, 149, 411, mseq, bary);
+  percent -= 25;
+  if (percent > 0) draw_hor(percent, 149, 409, mseq, barx);
+  percent -= 25;
+  if (percent > 0) draw_virt2(percent, 215, 411, mseq, bary);
+  percent -= 25;
+  if (percent > 0) draw_hor2(percent, 149, 466, mseq, barx);
 }
 
 
@@ -3721,168 +3717,139 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 }
 
 
-
 bool get_box (int h, RECT * box_crap, RECT * box_real )
 {
-        RECT math;
-        int sz,sy,x_offset,y_offset;
+  RECT math;
+  int sz,sy,x_offset,y_offset;
+  
+  int txoffset = k[getpic(h)].xoffset;
+  int tyoffset = k[getpic(h)].yoffset;
+  
+  int mplayx = playx;
+  int mplayl = playl;
+  int mplayy = playy;
+  
+  if (spr[h].noclip)
+    {
+      mplayx = 640;
+      mplayl = 0;
+      mplayy = 480;
+    }
+
+  RECT krect;
+  
+  if (getpic(h) < 1)
+    {
+      if (dinkedit) Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,cur_map, spr[h].pseq, spr[h].pframe);
+      else
+	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,*pmap, spr[h].pseq, spr[h].pframe);
+      //spr[h].pic = 44;
+    }
         
+  *box_real = k[getpic(h)].box;
+  CopyRect(&krect, &k[getpic(h)].box);
+  
+  if (spr[h].size != 100) sz =    ((krect.right * spr[h].size) / 100); else sz = 0;
+  if (spr[h].size != 100) sy =    ((krect.bottom * spr[h].size) / 100); else sy = 0;
+  
+  if (spr[h].size != 100)
+    {
+      sz = ((sz - krect.right) / 2);
+      sy = ((sy - krect.bottom) / 2);
+    }
+  
+  box_crap->left = spr[h].x-txoffset-sz;
+  math.left = spr[h].x-txoffset;
+  
+  box_crap->top = spr[h].y - tyoffset-sy;
+  math.top = spr[h].y-tyoffset;
+  
+  box_crap->right = (math.left+ (krect.right -krect.left)) + sz;
+  math.right = math.left+ krect.right;
+  
+  box_crap->bottom = (math.top + (krect.bottom - krect.top)) + sy;
+  math.bottom = math.top + krect.bottom;
+  //if (OffsetRect(&spr[h].alt2,44,33) == 0) Msg("Error with set rect");
+  
+  
+  if ( (spr[h].alt.right != 0) | (spr[h].alt.left != 0) | (spr[h].alt.top != 0) | (spr[h].alt.right != 0))
+    {
+      //spr[h].alt.bottom = 10;       
+      
+      box_crap->left = box_crap->left +  spr[h].alt.left;
+      box_crap->top = box_crap->top + spr[h].alt.top;
+      box_crap->right = box_crap->right -  (k[getpic(h)].box.right - spr[h].alt.right);
+      
+      box_crap->bottom = box_crap->bottom - (k[getpic(h)].box.bottom - spr[h].alt.bottom);
+      CopyRect(box_real, &spr[h].alt);
+      //Msg("I should be changing box size... %d %d,%d,%d",spr[h].alt.right,spr[h].alt.left,spr[h].alt.top,spr[h].alt.bottom);
+    } 
+  
+  //********* Check to see if they need to be cut down and do clipping
+  
+  if (spr[h].size == 0) spr[h].size = 100;
+  
+  if (dinkedit) if ( (mode == 1) | (mode == 5) ) if (draw_map_tiny < 1) goto do_draw;
+  
+  if (box_crap->left < mplayl)
+    {
+      x_offset = box_crap->left * (-1) + mplayl;
+      box_crap->left = mplayl;
+      //box_real->left += (math.left * (-1)) + mplayl;
+      
+      if (spr[h].size != 100)
+	box_real->left += (((x_offset * 100) / (spr[h].size )) ); else
         
-        int txoffset = k[getpic(h)].xoffset;
-        int tyoffset = k[getpic(h)].yoffset;
-        
-        int mplayx = playx;
-        int mplayl = playl;
-        int mplayy = playy;
-        
-        
-        if (spr[h].noclip)
-        {
-                mplayx = 640;
-                mplayl = 0;
-                mplayy = 480;
+	box_real->left += x_offset;
+      if (box_crap->right-1 < mplayl) goto nodraw;
+    }
+  
+  if (box_crap->top < 0)
+    {
+      y_offset = box_crap->top * (-1);
+      box_crap->top = 0;
                 
-        }
-        
-        RECT krect;
-        
-        if (getpic(h) < 1)
-        {
+      //box_real->top += math.top * (-1) + 0;
+      if (spr[h].size != 100)
+	box_real->top += (((y_offset * 100) / (spr[h].size ))  );
                 
-                if (dinkedit) Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,cur_map, spr[h].pseq, spr[h].pframe);
-                else
-                        Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,*pmap, spr[h].pseq, spr[h].pframe);
-                //spr[h].pic = 44;
-        }
-        
-        
-        
-        
-        
-        
-        *box_real = k[getpic(h)].box;
-        CopyRect(&krect, &k[getpic(h)].box);
-        
-        if (spr[h].size != 100) sz =    ((krect.right * spr[h].size) / 100); else sz = 0;
-        if (spr[h].size != 100) sy =    ((krect.bottom * spr[h].size) / 100); else sy = 0;
-        
-        if (spr[h].size != 100)
-        {
-                sz = ((sz - krect.right) / 2);
-        sy = ((sy - krect.bottom) / 2);
-        }
-        
-        
-        box_crap->left = spr[h].x-txoffset-sz;
-        math.left = spr[h].x-txoffset;
-        
-        box_crap->top = spr[h].y - tyoffset-sy;
-        math.top = spr[h].y-tyoffset;
-        
-        box_crap->right = (math.left+ (krect.right -krect.left)) + sz;
-        math.right = math.left+ krect.right;
-        
-        box_crap->bottom = (math.top + (krect.bottom - krect.top)) + sy;
-        math.bottom = math.top + krect.bottom;
-        //if (OffsetRect(&spr[h].alt2,44,33) == 0) Msg("Error with set rect");
-    
-        
-        if ( (spr[h].alt.right != 0) | (spr[h].alt.left != 0) | (spr[h].alt.top != 0) | (spr[h].alt.right != 0))
-        {
-                
-                //spr[h].alt.bottom = 10;       
-                
-                box_crap->left = box_crap->left +  spr[h].alt.left;
-                box_crap->top = box_crap->top + spr[h].alt.top;
-                box_crap->right = box_crap->right -  (k[getpic(h)].box.right - spr[h].alt.right);
-                
-                box_crap->bottom = box_crap->bottom - (k[getpic(h)].box.bottom - spr[h].alt.bottom);
-                CopyRect(box_real, &spr[h].alt);
-                //Msg("I should be changing box size... %d %d,%d,%d",spr[h].alt.right,spr[h].alt.left,spr[h].alt.top,spr[h].alt.bottom);
-                
-        } 
-        
-        
-        //********* Check to see if they need to be cut down and do clipping
-        
-        
-        
-        
-        
-        
-        if (spr[h].size == 0) spr[h].size = 100;
-        
-        if (dinkedit) if ( (mode == 1) | (mode == 5) ) if (draw_map_tiny < 1) goto do_draw;
-        
-        if (box_crap->left < mplayl)
-        {
-                x_offset = box_crap->left * (-1) + mplayl;
-                box_crap->left = mplayl;
-                //box_real->left += (math.left * (-1)) + mplayl;
-                
-                if (spr[h].size != 100)
-                        box_real->left += (((x_offset * 100) / (spr[h].size )) ); else
-                        
-                        box_real->left += x_offset;
-                if (box_crap->right-1 < mplayl) goto nodraw;
-        }
-        
-        if (box_crap->top < 0)
-        {
-                y_offset = box_crap->top * (-1);
-                box_crap->top = 0;
-                
-                //box_real->top += math.top * (-1) + 0;
-                if (spr[h].size != 100)
-                        box_real->top += (((y_offset * 100) / (spr[h].size ))  );
-                
-                else box_real->top += y_offset;
-                if (box_crap->bottom-1 < 0) goto nodraw;
-        }
-                                
-        
-        if (box_crap->right > mplayx)
-        {
-                x_offset = (box_crap->right) - mplayx;
-                box_crap->right = mplayx;
-                //x_real->right -= math.right - mplayx;
-                if (spr[h].size != 100)
-                        box_real->right -= ((x_offset * 100) / (spr[h].size ));
-                else box_real->right -= x_offset;
-                if (box_crap->left+1 > mplayx) goto nodraw;
-                
-                //      Msg("ok, crap right is %d, real right is %d.",box_crap->right - box_crap->left,box_real->right);
-        }
-        
-        if (box_crap->bottom > mplayy)
-        {
-                y_offset = (box_crap->bottom) - mplayy;
-                box_crap->bottom = mplayy;
-                if (spr[h].size != 100)
-                        box_real->bottom -= ((y_offset * 100) / (spr[h].size ));
-                else box_real->bottom -= y_offset;
-                if (box_crap->top+1 > mplayy) goto nodraw;
-        }
-        
-        
-        
-        
-do_draw:
-        
-        
-        
-        
-/*if (  (box_crap->right-box_crap->left) != (box_real->right-box_real->left) )
+      else box_real->top += y_offset;
+      if (box_crap->bottom-1 < 0) goto nodraw;
+    }
+  
+  if (box_crap->right > mplayx)
+    {
+      x_offset = (box_crap->right) - mplayx;
+      box_crap->right = mplayx;
+      //x_real->right -= math.right - mplayx;
+      if (spr[h].size != 100)
+	box_real->right -= ((x_offset * 100) / (spr[h].size ));
+      else box_real->right -= x_offset;
+      if (box_crap->left+1 > mplayx) goto nodraw;
+      
+      //      Msg("ok, crap right is %d, real right is %d.",box_crap->right - box_crap->left,box_real->right);
+    }
+  
+  if (box_crap->bottom > mplayy)
+    {
+      y_offset = (box_crap->bottom) - mplayy;
+      box_crap->bottom = mplayy;
+      if (spr[h].size != 100)
+	box_real->bottom -= ((y_offset * 100) / (spr[h].size ));
+      else box_real->bottom -= y_offset;
+      if (box_crap->top+1 > mplayy) goto nodraw;
+    }
+  
+ do_draw:
+  /*if (  (box_crap->right-box_crap->left) != (box_real->right-box_real->left) )
 {
 Msg("Ok, sprite %d is being scaled.", h);
 }
         */
-        return(true);
-        
-nodraw:         
-        
-        return(false);  
-        
+    return(true);
+    
+ nodraw:         
+    return(false);  
 }
 
 
@@ -5708,15 +5675,33 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
 	// GFX
 	{
-	  // TODO: implement scaling (SDL_gfx, SDL_stretch...)
 	  SDL_Rect src, dst;
-	  src.x = box_real.left; src.y = box_real.top;
+	  SDL_Surface *scaled;
+	  double sx, sy;
+	  src.x = box_real.left;
+	  src.y = box_real.top;
 	  src.w = box_real.right - box_real.left;
 	  src.h = box_real.bottom - box_real.top;
 	  dst.x = box_crap.left;
 	  dst.y = box_crap.top;
-	  // dst.w = ?; dst.h = ?; // scaling
-	  SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+	  dst.w = box_crap.right - box_crap.left;
+	  dst.h = box_crap.bottom - box_crap.top;
+	  sx = 1.0 * dst.w / src.w;
+	  sy = 1.0 * dst.h / src.h;
+	  if (sx != 1 || sy != 1)
+	    {
+	      printf("%d/%d=%f; %d/%d=%f\n", dst.w, src.w, sx, dst.h, src.h, sy);
+	      fflush(stdout);
+	      scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
+	      src.w = (int) round(src.w * sx);
+	      src.h = (int) round(src.h * sy);
+	      SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
+	      SDL_FreeSurface(scaled);
+	    }
+	  else
+	    {
+	      SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+	    }
 	}
         
 	if (ddrval != DD_OK)
