@@ -1,19 +1,23 @@
 Make tests. Make tests. Make tests! Since the goal of the project is
 to be backward compatible, and since we're up to non-trivially change
-the code, we need to check that we didn't introduce
-incompatibilities. Regression tests are not easy to perform on an
-interactive programs. However, we can test each non-interactive part
+the code, we need to check that we didn't introduce incompatibilities.
+
+Regression tests are not easy to perform on an interactive
+programs. However, we can test each non-interactive part
 independently. For example, we could start a game in memory, change a
 few sprite, save the game, the check if the saved game is exactly
 (modulo the timestamp) to a saved game generated likewise using the
 current Dink version, that is patch dink.exe v1.07.
 
+Also, we could make a DMod that implements all the tests written
+below: the tester would be shown a set of sprites, each one triggering
+a different test when talked to. Similarly, when DinkC scripts are
+involved, placing them in a key-*.c file may come in very handy, so
+they work whatever DMod is being tested :)
+
 
 Regression tests: these (manual) tests are currently working, but test
 again after making changes!
-
-When DinkC scripts are involved, placing them in a key-*.c file comes
-in very handy :)
 
 
 Graphics
@@ -49,6 +53,12 @@ Background
 
 - Use a different palette for a tile: the colours should be
   interpolated to the Ts01.bmp's palette during the game.
+
+Fonts
+=====
+
+- Use initfonts("newfont.ttf") and see if it's taken into account for
+  both sprite texts and dialog menus immediately.
 
 
 Sound

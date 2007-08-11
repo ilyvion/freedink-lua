@@ -22,6 +22,7 @@
  */
 
 #include "SDL.h"
+#include "SDL_ttf.h"
 /* Msg */
 #include "dinkvar.h"
 #include "gfx.h"
@@ -71,6 +72,10 @@ int init(void) {
 
   /* Maybe use SDL_QuitSubSystem instead */
   atexit(SDL_Quit);
+
+  // FONTS
+  /* TODO: create a separate initialization procedure */
+  TTF_Init();
 
   return 1;
 }

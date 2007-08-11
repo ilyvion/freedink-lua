@@ -36,5 +36,5 @@ Unused code
 ===========
 
 The reload_batch(), blit_background(), copy_back_to_front(),
-DDCreateSurface() functions are never used, and can cause
+DDCreateSurface(), Saytiny() functions are never used, and can cause
 confusion. We can safely delete them.

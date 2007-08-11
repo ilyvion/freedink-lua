@@ -17,8 +17,8 @@ in several files, convert the common (FreeDink and FreeDinkedit) code
 to a library that could be reused by other tools (WDE).
 
 Status: currently the code is being split and compiles without warning
-under vanilla g++ (no -Wall option or anything). Most warnings have
-been fixed under VC++.
+under vanilla g++ (no -Wall option or anything). Most VC++ warnings
+have been fixed.
 
 - Encapsulate sound/video/input data, so that the engine can easily
 switch from a library to another.
@@ -40,8 +40,8 @@ Port the game from DirectX to SDL
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
     limitations)
-  - Bitmaps (In progress: backgrounds OK, sprites TODO)
-  - Scaling
+  - Bitmaps (In progress: backgrounds OK, sprites Game=OK Editor=TODO)
+  - Scaling (Done: SDL_gfx/rotozoom)
   - Fonts
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting?

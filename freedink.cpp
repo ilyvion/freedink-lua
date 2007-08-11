@@ -45,6 +45,7 @@
 #include "gfx.h"
 #include "gfx_tiles.h"
 #include "gfx_utils.h"
+#include "gfx_fonts.h"
 #include "bgm.h"
 #include "sfx.h"
 #include "dinkvar.h"
@@ -94,6 +95,7 @@ int speed;
 */
 
 
+/* Get sprite #h, grab its text and display it */
 void text_draw(int h, HDC hdc)
 {
 	
@@ -162,62 +164,88 @@ void text_draw(int h, HDC hdc)
 	
 	
 	SetTextColor(hdc,RGB(8,14,21));
+	// FONTS
+	FONTS_SetTextColor(8, 14, 21);
 	   if (spr[h].owner == 1200)
 	   {
+	     printf("1200 says %s\n", cr);
 		   //this text has no sprite, and doesn't want to be centered.
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
 		   OffsetRect(&rcRect,-2,0);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
 		   OffsetRect(&rcRect,1,1);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 0, 0);
+
 		   OffsetRect(&rcRect,0,-2);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
-		   
-		   
-	   } else
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 0, 0);
+	   }
+	   else
 	   {
 		   
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 1, 0);
+
 		   OffsetRect(&rcRect,-2,0);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 1, 0);
 		   
 		   OffsetRect(&rcRect,1,1);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 1, 0);
+
 		   OffsetRect(&rcRect,0,-2);
 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
-		   
+		   // FONTS
+		   print_text_wrap(cr, &rcRect, 1, 0);
 	   }
 	   
 	   OffsetRect(&rcRect,0,1);
 	   
-	   if (color == 1) SetTextColor(hdc,RGB(255,198,255)); 
-	   else	if (color == 2) SetTextColor(hdc,RGB(131,181,74)); 
-	   else if (color == 3) SetTextColor(hdc,RGB(99,242,247)); 
+	   // FONTS:
+	   if (color == 1) SetTextColor(hdc,RGB(255,198,255)), FONTS_SetTextColor(255, 198, 255);
+	   else	if (color == 2) SetTextColor(hdc,RGB(131,181,74)), FONTS_SetTextColor(131, 181, 74);
+	   else if (color == 3) SetTextColor(hdc,RGB(99,242,247)), FONTS_SetTextColor(99, 242, 247);
 	   
-	   else	if (color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
+	   else	if (color == 4) SetTextColor(hdc,RGB(255,156,74)), FONTS_SetTextColor(255, 156, 74); //right
 	   
 	   
-	   else		if (color == 5) SetTextColor(hdc,RGB(222,173,255)); 
-	   else	if (color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
-	   else	if (color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
-	   else	if (color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
-	   else	if (color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
+	   else	if (color == 5) SetTextColor(hdc,RGB(222,173,255)), FONTS_SetTextColor(222, 173, 255);
+	   else	if (color == 6) SetTextColor(hdc,RGB(244,188,73)), FONTS_SetTextColor(244, 188, 73); //right
+	   else	if (color == 7) SetTextColor(hdc,RGB(173,173,173)), FONTS_SetTextColor(173, 173, 173); //right
+	   else	if (color == 8) SetTextColor(hdc,RGB(85,85,85)), FONTS_SetTextColor(85, 85, 85); //right
+	   else	if (color == 9) SetTextColor(hdc,RGB(148,198,255)), FONTS_SetTextColor(148, 198, 255); //right
 	   
-	   else			if (color == 10) SetTextColor(hdc,RGB(0,255,0)); 
-	   else	if (color == 13) SetTextColor(hdc,RGB(255,132,132)); 
-	   else	if (color == 14) SetTextColor(hdc,RGB(255,255,2)); 
-	   else	if (color == 15) SetTextColor(hdc,RGB(255,255,255)); 
+	   else	if (color == 10) SetTextColor(hdc,RGB(0,255,0)), FONTS_SetTextColor(0, 255, 0);
+	   else	if (color == 13) SetTextColor(hdc,RGB(255,132,132)), FONTS_SetTextColor(255, 132, 132);
+	   else	if (color == 14) SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
+	   else	if (color == 15) SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
 	   else
-		   SetTextColor(hdc,RGB(255,255,255));
+		   SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
 	   if (spr[h].owner == 1200)
-		   
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);	
-	   else	
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);	
-	   
-	   
+	     {
+	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+	       // FONTS
+	       print_text_wrap(cr, &rcRect, 0, 0);
+	     }
+	   else
+	     {
+	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+	       // FONTS
+	       print_text_wrap(cr, &rcRect, 1, 0);
+	     }
 }
 
 
@@ -4648,6 +4676,8 @@ void process_talk()
     {      
       
       SelectObject (hdc, hfont_small);
+      // FONTS
+      FONTS_SetFont(FONTS_hfont_small);
       SetBkMode(hdc, TRANSPARENT); 
       
       
@@ -4659,32 +4689,44 @@ void process_talk()
 	  if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
 	  
 	  SetTextColor(hdc,RGB(8,14,21));
-	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
-	  
-	  if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)); 
-	  else	if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)); 
-	  else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)); 
-	  
-	  else	if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
-	  
-	  
-	  else		if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)); 
-	  else	if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
-	  else	if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
-	  else	if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
-	  else	if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
-	  
-	  else			if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)); 
-	  else	if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)); 
-	  else	if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)); 
-	  else	if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)); 
-	  else
-	    SetTextColor(hdc,RGB(255,255,2));
-	  
+	  // FONTS
+	  FONTS_SetTextColor(8, 14, 21);
+	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);
+	  // FONTS
+	  print_text_wrap(talk.buffer, &rcRect, 1, 1);
+
+
+	   /* Same of in text_draw, except for #1 and default */
+	   // FONTS:
+	   if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)), FONTS_SetTextColor(49, 90, 140);
+	   else	if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)), FONTS_SetTextColor(131, 181, 74);
+	   else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)), FONTS_SetTextColor(99, 242, 247);
+	   
+	   else	if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)), FONTS_SetTextColor(255, 156, 74); //right
+	   
+	   
+	   else	if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)), FONTS_SetTextColor(222, 173, 255);
+	   else	if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)), FONTS_SetTextColor(244, 188, 73); //right
+	   else	if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)), FONTS_SetTextColor(173, 173, 173); //right
+	   else	if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)), FONTS_SetTextColor(85, 85, 85); //right
+	   else	if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)), FONTS_SetTextColor(148, 198, 255); //right
+	   
+	   else	if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)), FONTS_SetTextColor(0, 255, 0);
+	   else	if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)), FONTS_SetTextColor(255, 132, 132);
+	   else	if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
+	   else	if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
+	   else
+	     SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
+
+
 	  OffsetRect(&rcRect, 1, 1);
 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
-	  
+	  // FONTS
+	  print_text_wrap(talk.buffer, &rcRect, 1, 1);	  
+
 	  SetTextColor(hdc,RGB(8,14,21));
+	  // FONTS
+	  FONTS_SetTextColor(8, 14, 21);
 	}
       
       
@@ -4695,7 +4737,13 @@ void process_talk()
       for (i = talk.cur_view; i < talk.last; i++)
 	{
 	  SetRect(&rcRect,sx,y_hold,463,x_depth+100);
-	  y_hold =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
+	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);
+	  // FONTS
+	  /* TODO; I doubt using TTF_FontLineSkip(FONTS_hfont_small)
+	     will be enough - what if there are multiple lines? For
+	     testing, check in UltimateCheat: Warp/<2nd choice> (2
+	     lines), Kill enemies (title placement), Show Info (huge
+	     title). */
 	  sy_hold += y_hold;	 
 	  
 	  //Msg("Sy_hold = %d (%d)", sy_hold,i);
@@ -4764,7 +4812,8 @@ void process_talk()
 	      {
 		SetRect(&rcRect,sx,sy_ho,463,x_depth);
 		
-		y_ho =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);	
+		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);
+		// FONT: TODO
 		sy_ho += y_ho;	 
 		//Msg("adding y_yo %d.. (on %d)", y_ho,i);
 		if (sy_ho > x_depth) 
@@ -4803,10 +4852,16 @@ void process_talk()
 	  
 	  SetRect(&rcRect,sx,sy,463,x_depth+100);
 	  SetTextColor(hdc,RGB(8,14,21));
+	  // FONTS
+	  FONTS_SetTextColor(8, 14, 21);
 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK);
+	  // FONTS
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
 	  OffsetRect(&rcRect,-2,-2);
 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
-	  
+	  // FONTS
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
+
 	  OffsetRect(&rcRect,1,1);
 	  if (i == talk.cur)
 	    {
@@ -4814,10 +4869,18 @@ void process_talk()
 	      curyr = sy-4;
 	      
 	      SetTextColor(hdc,RGB(255,255,255));
+	      // FONTS
+	      FONTS_SetTextColor(255, 255, 255);
 	    }
 	  else
-	    SetTextColor(hdc,RGB(255,255,2));
-	  y_last =  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);	
+	    {
+	      SetTextColor(hdc,RGB(255,255,2));
+	      // FONTS
+	      FONTS_SetTextColor(255, 255, 2);
+	    }
+	  y_last = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
+	  // FONTS
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
 	  sy += y_last;
 	}
       
@@ -5584,6 +5647,8 @@ void finiObjects()
 	SendMessage(hWndMain, WM_IMDONE, 0,0);
 	//PostQuitMessage(0);
 
+	// FONTS
+	//TTF_Quit();
 } /* finiObjects */
 
 BOOL initFail( HWND hwnd, char mess[200] )
@@ -6208,6 +6273,9 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   attach();
 	
   initfonts("Arial");
+  // FONTS
+  // FONTS_initfonts("LiberationSans-Regular.ttf");
+  FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");
 
   return 1;
 } /* doInit */

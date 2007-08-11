@@ -77,9 +77,12 @@ sum of all their features do.
 
 - Fonts (TTF):
 
-  [V] [TODO] SDL_ttf does.
+  [/] SDL_ttf does but lacks weight support. Maybe use FreeType
+  directly.
 
-  [V] [TODO] Allegro should do.
+  [V] [TODO] Allegro plug-in such as AllegTTF, AllegroFont or Glyph
+  Keeper; or pre-convert the TTF in a bitmapped format directly usable
+  by Allegro (possibly at run time, the tool is TTF2PCX).
 
   [V] [TODO] OpenGL+SDL_ttf+an SDL surface rendered as a texture. Or
   use FreeType2 directly.

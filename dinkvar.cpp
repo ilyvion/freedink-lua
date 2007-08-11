@@ -64,6 +64,8 @@
 #include "gfx.h"
 #include "gfx_tiles.h"
 #include "gfx_utils.h"
+/* for DinkC's initfonts(): */
+#include "gfx_fonts.h"
 #include "bgm.h"
 #include "sfx.h"
 
@@ -180,11 +182,7 @@ player_short_info short_play;
 int push_active = 1;
 
 
-static LOGFONT lf = {0,0,0,0,0,0,0,0,0,0,0,0,0,""};
-
 bool turn_on_plane = FALSE;
-HFONT hfont = NULL;
-HFONT hfont_small = NULL;
 const int text_timer = 77;
 const int text_min = 2700;
 const int max_sprites = 4000;
@@ -1000,89 +998,6 @@ extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, in
         
         
         return pdds;
-}
-
-void SaySmall(char thing[500], int px, int py, int r,int g,int b)
-{
-        RECT rcRect;
-    HDC         hdc;
-        int dum;
-        char shit[200];
-        if (lpDDSBack->GetDC(&hdc) == DD_OK)
-        {      
-                SetBkMode(hdc, TRANSPARENT); 
-                SetRect(&rcRect,px,py,px+40,py+40);
-                //SelectObject (hdc, hfont);
-        //if (hfont == NULL) Msg("CreafontIndirect failed. haha.");
-                SetTextColor(hdc,RGB(r,g,b));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                
-                //              OffsetRect(&rcRect,-1,-1);
-                //      SetTextColor(hdc,RGB(150,150,150));
-                //         DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);     
-                
-                dum =  GetTextFace(hdc,100,shit) ;
-                lpDDSBack->ReleaseDC(hdc);
-        }   
-        
-        
-}
-
-
-void Say(char thing[500], int px, int py)
-{
-        RECT rcRect;
-    HDC         hdc;
-        int dum;
-        char shit[200];
-        
-        
-        if (lpDDSBack->GetDC(&hdc) == DD_OK)
-        {      
-                SetBkMode(hdc, TRANSPARENT); 
-                SetRect(&rcRect,px,py,620,480);
-                SelectObject (hdc, hfont_small);
-        if (hfont == NULL) Msg("CreafontIndirect failed. haha.");
-                SetTextColor(hdc,RGB(8,14,21));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                OffsetRect(&rcRect,-2,-2);
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                
-                OffsetRect(&rcRect,1,1);
-                
-                
-                
-                SetTextColor(hdc,RGB(255,255,0));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);        
-                
-                dum =  GetTextFace(hdc,100,shit) ;
-                lpDDSBack->ReleaseDC(hdc);
-        }   
-        
-        
-}
-
-
-void Saytiny(char thing[2000], int px, int py, int r,int g,int b)
-{
-        RECT rcRect;
-    HDC         hdc;
-        
-        char shit[200];
-        int dum;
-        if (lpDDSBack->GetDC(&hdc) == DD_OK)
-        {      
-                SetBkMode(hdc, TRANSPARENT); 
-                SetRect(&rcRect,px,py,640,480);
-                
-                SetTextColor(hdc,RGB(r,g,b));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                
-                dum =  GetTextFace(hdc,100,shit) ;
-                lpDDSBack->ReleaseDC(hdc);
-        }   
-        
-        
 }
 
 
@@ -3076,78 +2991,6 @@ void pre_figure_out(char line[255], int load_seq)
 }
 
 
-
-void initfonts(char fontname[255])
-{
-        lf.lfHeight = 20;
-        lf.lfWidth = 0;   
-        /*lf.lfEscapement;
-        lf.lfOrientation;
-        */
-        lf.lfWeight = 400;  
-        /*
-        lf.lfItalic;   
-        lf.lfUnderline;  
-        lf.lfStrikeOut;
-        lf.lfCharSet;  
-        */
-        // lf.lfOutPrecision = OUT_TT_PRECIS;
-        
-        
-        //lf.lfClipPrecision;
-        //lf.lfQuality = PROOF_QUALITY;  
-        // lf.lfPitchAndFamily; 
-        //strcpy(lf.lfFaceName,"Comic Sans MS");
-        strcpy(lf.lfFaceName,fontname);
-        
-        //draw shadow
-        hfont = CreateFontIndirect (&lf);
-        
-        
-        lf.lfHeight = 18;
-        //lf.lfWidth = 0;   
-        /*lf.lfEscapement;
-        lf.lfOrientation;
-        */
-        //lf.lfWeight = 300;  
-        lf.lfWeight = 600;  
-        
-        /*
-        lf.lfItalic;   
-        lf.lfUnderline;  
-        lf.lfStrikeOut;
-        lf.lfCharSet;  
-        */
-        // lf.lfOutPrecision = OUT_TT_PRECIS;
-        
-        
-        //lf.lfClipPrecision;
-        //lf.lfQuality = PROOF_QUALITY;  
-        // lf.lfPitchAndFamily; 
-        //strcpy(lf.lfFaceName,"Comic Sans MS");
-        strcpy(lf.lfFaceName,fontname);
-        
-        //draw shadow
-        hfont_small = CreateFontIndirect (&lf);
-        
-}
-
-void kill_fonts()
-{
-        if (hfont)
-        {
-                DeleteObject(hfont);
-        hfont = NULL;
-        }
-        if (hfont_small)
-        {
-                DeleteObject(hfont_small);
-                hfont_small = NULL;
-        }
-        
-}
-
-
 int draw_num(int mseq, char nums[50], int mx, int my)
 {
   int length = 0;
@@ -4861,7 +4704,7 @@ void check_sprite_status_full(int h)
         
 }
 
-
+/* say_text, say_text_xy: used by the game only (not the editor) */
 int say_text(char text[200], int h, int script)
 {
         int crap2;
@@ -5690,8 +5533,6 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	  sy = 1.0 * dst.h / src.h;
 	  if (sx != 1 || sy != 1)
 	    {
-	      printf("%d/%d=%f; %d/%d=%f\n", dst.w, src.w, sx, dst.h, src.h, sy);
-	      fflush(stdout);
 	      scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
 	      src.w = (int) round(src.w * sx);
 	      src.h = (int) round(src.h * sy);
@@ -8394,6 +8235,7 @@ pass:
                         {
                                 
                                 initfonts(slist[0]);
+                                FONTS_initfonts(slist[0]);
                                 Msg("Initted font %s",slist[0]);
                         }  else Msg("Failed getting parms for Initfont()");
                         

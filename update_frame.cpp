@@ -31,6 +31,8 @@
 #include "freedink.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+/* For printing strings in debug mode */
+#include "gfx_fonts.h"
 #include "bgm.h"
 
 #include "update_frame.h"
@@ -868,7 +870,7 @@ past:
 		{
 			
 			
-			SetBkMode(hdc, OPAQUE); 
+			SetBkMode(hdc, OPAQUE);
 			//		TextOut(hdc,0,0, msg,lstrlen(msg));
 			if (mode == 0) strcpy(msg,"");		
 			if (mode == 1) 
@@ -900,7 +902,12 @@ past:
 			rcRect.right = playx;
 			rcRect.bottom = playy;
 			SetTextColor(hdc, RGB(200,200,200));
+			// FONTS
+			FONTS_SetTextColor(200, 200, 200);
 			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+			// FONTS
+			/* TODO: write with OPAQUE / Shaded mode */
+			print_text_wrap(msg, &rcRect, 0, 0);
 
 			            if (strlen(last_debug) > 0)
 							
@@ -912,12 +919,18 @@ past:
 							rcRect.right = playx;
 							rcRect.bottom = playy;
 							SetTextColor(hdc, RGB(200,200,200));
+							// FONTS
+							FONTS_SetTextColor(200, 200, 200);
 							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+							// FONTS
+							print_text_wrap(msg, &rcRect, 0, 0);
 								}
 
 
 		}
 		SelectObject (hdc, hfont_small);
+		// FONTS
+		FONTS_SetFont(FONTS_hfont_small);
 		SetBkMode(hdc, TRANSPARENT); 
 		
 		

@@ -1,14 +1,6 @@
 Records of which significant portions were written by whom:
 
 
-Shawn Betts wrote the first version of fastfile.c,
-load_palette_from_bmp(), setup_palette(), load_sprite_pak(). We got
-inspiration from his first SDL port attempt.
-
-
-Sylvain Beucler did the rest.
-
-
 Seth A. Robinson wrote the original engine, available at
 www.codedojo.com. The (missing) copyright info should be:
 
@@ -21,6 +13,16 @@ Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
 2002-12-15: v1.07 beta 3 patch release,
 2003-07-16: source code release (packaging and documentation)
 
+
+Shawn Betts wrote the first version of fastfile.c. Moreover, code from
+his contribution to "The Dink Project" was reused, namely from
+load_palette_from_bmp(), setup_palette(), load_sprite_pak(),
+print_text(), print_text_wrap(), font_len(),
+process_text_for_wrapping().
+
+
+Sylvain Beucler started from the v1.07 source code release and, except
+the code from Shawn Betts, wrote it all.
 
 ---
 Copying and distribution of this file, with or without modification,

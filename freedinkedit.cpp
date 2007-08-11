@@ -47,6 +47,7 @@
 #include "gfx.h"
 #include "gfx_tiles.h"
 #include "gfx_utils.h"
+#include "gfx_fonts.h"
 #include "sfx.h"
 #include "resource.h"
 
@@ -221,7 +222,6 @@ void flip_it_second(void)
 		}
 	}
 }
-
 
 
 /*
@@ -4652,8 +4652,14 @@ sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles ha
 	   if (mode == 4) rcRect.top = 450;
 	   rcRect.right = 590;
 	   rcRect.bottom = 480;
-	if (show_display)
-	   DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+	   if (show_display)
+	     {
+	       DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+	       // FONTS
+	       /* TODO: use Say() or Saysmall()? */
+	       printf("Displayed text %s w/o calling Say()\n", msg);
+	       print_text_wrap(msg, &rcRect, 0, 0);
+	     }
 	   
 	   lpDDSBack->ReleaseDC(hdc);
 }   
@@ -5840,6 +5846,10 @@ spr[i].size = 100;
     cur_tile = 1; 
 	load_info();        
 initfonts("Arial");
+  // FONTS
+  // FONTS_initfonts("LiberationSans-Regular.ttf");
+  FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");
+
 	
 //	 Msg("Hi, you suck.");
 	
