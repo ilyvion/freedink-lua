@@ -22,6 +22,30 @@
  * 02110-1301, USA.
  */
 
+/*
+ * TODO: I count 9 modes in Dinkedit: map(1), screen tiles(3), screen
+ * sprites(6), screen hardness(8), tile hardness(4), sprite
+ * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
+ * dialog(0?). The goal is to split the big keybinding functions into
+ * these modes, and in each mode, call a function instead of inlining
+ * the code. And we may use 'else if', or even a hashmap to do the
+ * bindings. And use constants instead of #0-8.
+ */
+
+#define MODE_MAP_PICKER 1
+#define MODE_TILE_PICKER 2
+#define MODE_SPRITE_PICKER 5
+
+#define MODE_SCREEN_TILES 3
+#define MODE_SCREEN_SPRITES 6
+#define MODE_SCREEN_HARDNESS 8
+
+#define MODE_TILE_HARDNESS 4
+#define MODE_SPRITE_HARDNESS 7
+
+#define MODE_DIALOG 0
+
+
 #define NAME "DinkEdit"
 #define TITLE "DinkEdit"
 #define WIN32_LEAN_AND_MEAN
@@ -39,6 +63,9 @@
 #include <mmsystem.h>
 #include <ddraw.h>
 #include <dsound.h>
+
+#include "SDL.h"
+#include "SDL_rotozoom.h"
 
 #include "init.h"
 #include "ddutil.h"
@@ -280,7 +307,8 @@ Msg("Restoring some stuff.");
   rcRect.left = 0;
   rcRect.top = 0;
 
-if (mode == 0)
+// if (mode == 0)
+if (mode == MODE_DIALOG)
 {
     rcRect.right = x;
     rcRect.bottom = y;	
@@ -288,14 +316,24 @@ if (mode == 0)
 
 }
 
-if (mode == 1) draw_used();
-if (mode == 3) draw_map();
-if (mode == 6) draw_map();
-if (mode == 7) draw_map();
+// if (mode == 1) draw_used();
+// if (mode == 3) draw_map();
+// if (mode == 6) draw_map();
+// if (mode == 7) draw_map();
+if (mode == MODE_MAP_PICKER) draw_used();
+if (mode == MODE_SCREEN_TILES) draw_map();
+if (mode == MODE_SCREEN_SPRITES) draw_map();
+if (mode == MODE_SPRITE_HARDNESS) draw_map();
 
     rcRect.right = 600;
     rcRect.bottom = 450;
-if (mode == 2) lpDDSTwo->BltFast( 0, 0, tiles[cur_screen],  &tilerect[cur_screen], DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+    //    if (mode == 2)
+    if (mode == MODE_TILE_PICKER)
+      {
+	lpDDSTwo->BltFast( 0, 0, tiles[cur_screen],  &tilerect[cur_screen], DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+	// GFX
+	SDL_BlitSurface(GFX_tiles[cur_screen], NULL, GFX_lpDDSTwo, NULL);
+      }
 	}
     return ddrval;
 
@@ -308,50 +346,75 @@ if (mode == 2) lpDDSTwo->BltFast( 0, 0, tiles[cur_screen],  &tilerect[cur_screen
  * then flip the buffers.
  */
 
-void draw_sprite(LPDIRECTDRAWSURFACE lpdest,int h)
+void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 {
-	RECT box_crap,box_real;
-    HRESULT             ddrval;
-	DDBLTFX     ddbltfx;
-	ddbltfx.dwSize = sizeof( ddbltfx);
-	ddbltfx.dwFillColor = 0;
-	
-
-	if (get_box(h, &box_crap, &box_real))
-	
-	while( 1)
+  RECT box_crap,box_real;
+  HRESULT             ddrval;
+  DDBLTFX     ddbltfx;
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 0;
+  
+  if (get_box(h, &box_crap, &box_real))
+    {
+      while(1)
 	{
+	again:
+	  ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
+			       &box_real, DDBLT_KEYSRC, &ddbltfx);
 
+	  // GFX
+	  {
+	    SDL_Rect src, dst;
+	    SDL_Surface *scaled;
+	    double sx, sy;
+	    src.x = box_real.left;
+	    src.y = box_real.top;
+	    src.w = box_real.right - box_real.left;
+	    src.h = box_real.bottom - box_real.top;
+	    dst.x = box_crap.left;
+	    dst.y = box_crap.top;
+	    dst.w = box_crap.right - box_crap.left;
+	    dst.h = box_crap.bottom - box_crap.top;
+	    sx = 1.0 * dst.w / src.w;
+	    sy = 1.0 * dst.h / src.h;
+	    if (sx != 1 || sy != 1)
+	      {
+		scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
+		src.w = (int) round(src.w * sx);
+		src.h = (int) round(src.h * sy);
+		SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
+		SDL_FreeSurface(scaled);
+	      }
+	    else
+	      {
+		SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+	      }
+	  }
 
-  again:
-		ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
-			&box_real  , DDBLT_KEYSRC ,&ddbltfx );
-		
-		if (ddrval != DD_OK)
+	  if (ddrval != DD_OK)
+	    {
+	      if (ddrval == DDERR_WASSTILLDRAWING)
+		goto again;
+	      
+	      //dderror(ddrval);
+	      dderror(ddrval);
+	      if (draw_map_tiny > 0) 
 		{
-if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
-
-			//dderror(ddrval);
-			dderror(ddrval);
-			if (draw_map_tiny > 0) 
-			{
-				Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (Seq %d, Fram %d) (map %d)",h,getpic(h),spr[h].pseq, spr[h].pframe, draw_map_tiny);
-			Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-		box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-		box_real.right, box_real.bottom);
-
-			}
-				else 
-			Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (map %d)",h,getpic(h), cur_map);
-			  check_sprite_status(h);
-		
-	     break;
+		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (Seq %d, Fram %d) (map %d)",h,getpic(h),spr[h].pseq, spr[h].pframe, draw_map_tiny);
+		  Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
+		      box_crap.right, box_crap.bottom,box_real.left,box_real.top,
+		      box_real.right, box_real.bottom);
 		}
-		
-		break;
+	      else
+		{
+		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (map %d)",h,getpic(h), cur_map);
+		}
+	      check_sprite_status(h);
+	      break;
+	    }
+	  break;
 	}
-
-
+    }
 }
 
 	
@@ -434,7 +497,7 @@ if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
 				CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
 
 				if (pam.sprite[j].type == 0)
-					draw_sprite(lpDDSTwo,sprite);
+				  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, sprite);
 				
 				
 				if (spr[sprite].hard == 0)
@@ -564,90 +627,122 @@ void draw_hard( void)
 {
  //RECT                rcRect;
  
- 	for (int x=0; x<50; x++)
+  for (int x=0; x<50; x++)
     {
-		for (int y=0; y<50; y++)
-		{
-    if (hmap.tile[hard_tile].x[x].y[y] == 1)
+      for (int y=0; y<50; y++)
 	{
-	
-		lpDDSBack->BltFast( 95+(x*9),y*9 , k[seq[10].frame[2]].k,
-        &k[seq[10].frame[2]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
-	
-	}
-
-	if (hmap.tile[hard_tile].x[x].y[y] == 2)
-	{
-	
-		lpDDSBack->BltFast( 95+(x*9),y*9 , k[seq[10].frame[9]].k,
-        &k[seq[10].frame[9]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
-	
-	}
-
-  	if (hmap.tile[hard_tile].x[x].y[y] == 3)
-	{
-	
-		lpDDSBack->BltFast( 95+(x*9),y*9 , k[seq[10].frame[10]].k,
-        &k[seq[10].frame[10]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
-	
-	}
-  
+	  if (hmap.tile[hard_tile].x[x].y[y] == 1)
+	    {
+	      lpDDSBack->BltFast(95+(x*9), y*9, k[seq[10].frame[2]].k,
+				 &k[seq[10].frame[2]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+	      // GFX
+	      {
+		SDL_Rect dst;
+		dst.x = 95 + x*9;
+		dst.y = y*9;
+		SDL_BlitSurface(GFX_k[seq[10].frame[2]].k, NULL, GFX_lpDDSBack, &dst);
+	      }
+	    }
 	  
+	  if (hmap.tile[hard_tile].x[x].y[y] == 2)
+	    {
+	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[9]].k,
+				 &k[seq[10].frame[9]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+	      // GFX
+	      {
+		SDL_Rect dst;
+		dst.x = 95 + x*9;
+		dst.y = y*9;
+		SDL_BlitSurface(GFX_k[seq[10].frame[9]].k, NULL, GFX_lpDDSBack, &dst);
+	      }
+	    }
 
-
+	  if (hmap.tile[hard_tile].x[x].y[y] == 3)
+	    {
+	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[10]].k,
+				 &k[seq[10].frame[10]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+	      // GFX
+	      {
+		SDL_Rect dst;
+		dst.x = 95 + x*9;
+		dst.y = y*9;
+		SDL_BlitSurface(GFX_k[seq[10].frame[10]].k, NULL, GFX_lpDDSBack, &dst);
+	      }
+	    }
 	}
-	}
-
+    }
 }
 
 
+/* Draw used squares in the map picker mode */
 void draw_used( void)
 {
-DDBLTFX     ddbltfx;
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-
-		ddbltfx.dwSize = sizeof( ddbltfx);
-
-    	ddbltfx.dwFillColor = 2;
-
-/*box_crap.top = spr[h].y + k[spr[h].pic].hardbox.top;
-box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
-box_crap.left = spr[h].x + k[spr[h].pic].hardbox.left;
-box_crap.right = spr[h].x + k[spr[h].pic].hardbox.right;
-*/
-//lpDDSBack->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL, &ddbltfx);
-
-	for (int x=0; x<768; x++)
+  DDBLTFX     ddbltfx;
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 2;
+  
+  /*box_crap.top = spr[h].y + k[spr[h].pic].hardbox.top;
+    box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
+    box_crap.left = spr[h].x + k[spr[h].pic].hardbox.left;
+    box_crap.right = spr[h].x + k[spr[h].pic].hardbox.right;
+  */
+  //lpDDSBack->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL, &ddbltfx);
+  
+  for (int x=0; x<768; x++)
     {
-
-	if (map.loc[x+1] == 0)	
-		lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
-           &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-		if (map.loc[x+1] > 0)	
-		lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
-           &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-	
-	if (map.music[x+1] != 0)
+      if (map.loc[x+1] == 0)
 	{
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
-           &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-
+	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
+			    &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = x * 20 - x/32*640;
+	    dst.y = x/32 * 20;
+	    SDL_BlitSurface(GFX_k[seq[10].frame[6]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
 	}
-	if (map.indoor[x+1] != 0)
+
+      if (map.loc[x+1] > 0)
 	{
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
+	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
+			    &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = x * 20 - x/32*640;
+	    dst.y = x/32 * 20;
+	    SDL_BlitSurface(GFX_k[seq[10].frame[7]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
+	}
+      
+      if (map.music[x+1] != 0)
+	{
+	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
+			    &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = x * 20 - x/32*640;
+	    dst.y = x/32 * 20;
+	    SDL_BlitSurface(GFX_k[seq[10].frame[12]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
+	}
+      if (map.indoor[x+1] != 0)
+	{
+	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
            &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = x * 20 - x/32*640;
+	    dst.y = x/32 * 20;
+	    SDL_BlitSurface(GFX_k[seq[10].frame[13]].k, NULL, GFX_lpDDSTwo, &dst);
+	  }
 	}
-	
-	}
-
-
-	
-	
-
+    }
 }
 
 
@@ -703,50 +798,36 @@ char crap[120];
 
 void draw_used_buff( void)
 {
-DDBLTFX     ddbltfx;
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-load_info_buff();
-
-if (!buf_mode) 
-{
-//failed
-	draw_used();
-	return;
-}
-		ddbltfx.dwSize = sizeof( ddbltfx);
-
-    	ddbltfx.dwFillColor = 2;
-
-	for (int x=0; x<768; x++)
+  load_info_buff();
+  
+  if (!buf_mode) 
     {
-
-	if ( buffmap.loc[x+1] == 0)	
-		lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
-           &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-
-		if (buffmap.loc[x+1] > 0)	
-		lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
-           &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-
-
-
-	if (buffmap.music[x+1] != 0)
+      //failed
+      draw_used();
+      return;
+    }
+  
+  for (int x=0; x<768; x++)
+    {
+      if ( buffmap.loc[x+1] == 0)	
+	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
+			   &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+      
+      if (buffmap.loc[x+1] > 0)	
+	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
+			   &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+      
+      if (buffmap.music[x+1] != 0)
 	{
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
-           &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-
+	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
+			     &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
 	}
-	if (buffmap.indoor[x+1] != 0)
+      if (buffmap.indoor[x+1] != 0)
 	{
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
-           &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-
+	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
+			     &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
 	}
-
-
-	}
-
+    }
 }
 
 
@@ -964,46 +1045,42 @@ check_keyboard();
    some squares */
 void loadtile(int tileset)
 {
-	DDBLTFX     ddbltfx;
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  DDBLTFX     ddbltfx;
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  
+  //feel tile background with a color
+  
+  ddbltfx.dwFillColor = 0;
+  ddbltfx.dwSize = sizeof(ddbltfx);
+  lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  // GFX
+  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+  
+  spr[1].seq = 3; spr[1].seq_orig = 3; 
+  //  if (mode == 3)
+  if (mode == MODE_SCREEN_TILES)
+    {
+      m3x = spr[1].x; m3y = spr[1].y;
+      spr[1].x = m2x; spr[1].y = m2y; mode = 2;
+      spr[1].speed = 50;  
+    }
 
-	//feel tile background with a color
-	
-ddbltfx.dwFillColor = 0;
-ddbltfx.dwSize = sizeof(ddbltfx);
-lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  //  if (mode == 4)
+  if (mode == MODE_TILE_HARDNESS)
+    {
+      spr[1].x = m2x; spr[1].y = m2y; mode = 2;
+      spr[1].speed = 50;  
+    }
 
-
-	spr[1].seq = 3; spr[1].seq_orig = 3; 
-if (mode == 3)
-{
-	m3x = spr[1].x; m3y = spr[1].y;
-spr[1].x = m2x; spr[1].y = m2y; mode = 2;
-spr[1].speed = 50;  
+  lpDDSTwo->BltFast(0, 0, tiles[tileset], &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT);
+  // GFX
+  SDL_BlitSurface(GFX_tiles[tileset], NULL, GFX_lpDDSTwo, NULL);
+  cur_screen = tileset;
+  
+  last_mode = tileset;
+  
+  while(kill_last_sprite());
 }
-
-if (mode == 4)
-{
-spr[1].x = m2x; spr[1].y = m2y; mode = 2;
-spr[1].speed = 50;  
-}
-
- lpDDSTwo->BltFast( 0, 0, tiles[tileset],  &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT);
-cur_screen = tileset;
-
-last_mode = tileset;
- 
-while(kill_last_sprite());
-
-   }
-
-
-
-
-
-
-
-
 
 
 int sp_get( int num)
@@ -1035,105 +1112,90 @@ return(0);
 
 }
 
+// ?
 void draw15( int num)
 {
  
- int crap;   
- DDBLTFX     ddbltfx;
-	RECT  crapRec, Rect, box_crap;
-int frame,ddrval;
-int se;
-int dd;	
-
-//get_sp_seq(2);
-
-while(kill_last_sprite());
-
-
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-ddbltfx.dwSize = sizeof( ddbltfx);
- ddbltfx.dwFillColor = 0;
-crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-
-
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-		ddbltfx.dwSize = sizeof( ddbltfx);
-
-		Say("Please wait, loading sprite data into SmartCache system...", 147,160);
-		
-        flip_it_second();
-			
-for (int x1=0; x1 <= 11; x1++)
-{
-	for (int y1=0; y1 <= 7; y1++)
+  int crap;   
+  DDBLTFX     ddbltfx;
+  RECT  crapRec, Rect, box_crap;
+  int frame,ddrval;
+  int se;
+  int dd;	
+  
+  //get_sp_seq(2);
+  
+  while(kill_last_sprite());
+  
+  
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 0;
+  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  // GFX
+  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+  
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  
+  Say("Please wait, loading sprite data into SmartCache system...", 147,160);
+  
+  flip_it_second();
+  
+  for (int x1=0; x1 <= 11; x1++)
+    {
+      for (int y1=0; y1 <= 7; y1++)
 	{
-       num++;
-		
-		se = sp_get(num);
-check_seq_status(se);
+	  num++;
+	  
+	  se = sp_get(num);
+	  check_seq_status(se);
+	  
+	  if (se > 0)
+	    {
+	      frame = 1;
+	      
+	      Rect.left = x1 * 50;
+	      Rect.top = y1 * 50;
+	      Rect.right = Rect.left + 50;
+	      Rect.bottom = Rect.top + 50;
+	      
+	      crapRec = k[seq[se].frame[frame]].box;
+	      
+	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k,
+				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+	      // ??
 
-		if (se > 0)
-  {
-		frame = 1;
-
-		
-		Rect.left = x1 * 50;
-		Rect.top = y1 * 50;
-		Rect.right = Rect.left + 50;
-		Rect.bottom = Rect.top + 50;
-		
-		crapRec = k[seq[se].frame[frame]].box;
-		
-		
-		dd = lpDDSTwo->Blt(&Rect , k[seq[se].frame[frame]].k,
-			&crapRec, DDBLT_KEYSRC|DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
-		
-		if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame);
-  }		
+	      if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.", se, frame);
+	    }		
 	}
-}
+    }
+  
+  for (int x2=1; x2 <= 12; x2++)
+    {
+      ddbltfx.dwFillColor = 120;
+      
+      box_crap.top = 0;
+      box_crap.bottom = 400;
+      box_crap.left = (x2*50) -1;
+      box_crap.right = box_crap.left+1;
 
+      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+      // ?
+    }
+  
+  for (int x3=1; x3 <= 8; x3++)
+    {
+      ddbltfx.dwFillColor = 120;
 
-for (int x2=1; x2 <= 12; x2++)
-{
-	ddbltfx.dwFillColor = 120;
-					
-					box_crap.top = 0;
-					
-					
-					box_crap.bottom = 400;
-					
-					box_crap.left = (x2*50) -1;
-					
-					
-					box_crap.right = box_crap.left+1;
-					
-					
-ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-				
-}
+      box_crap.top = (50 * x3)-1;
+      box_crap.bottom = box_crap.top +1;
+      box_crap.left = 0;
+      box_crap.right = 600;
 
-
-for (int x3=1; x3 <= 8; x3++)
-{
-	ddbltfx.dwFillColor = 120;
-					
-					box_crap.top = (50 * x3)-1;
-					
-					
-					box_crap.bottom = box_crap.top +1;
-					
-					box_crap.left = 0;
-					
-					box_crap.right = 600;
-					
-					
-					
-ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-				
-}
-
-
+      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+      // ?
+    }
 }
 
 
@@ -4425,8 +4487,8 @@ b1end:;
 		{
 
 			if (draw_map_tiny == -1)
-			draw_sprite(lpDDSBack, h);            
-			else draw_sprite(lpDDSTwo, h);            
+			  draw_sprite(lpDDSBack, GFX_lpDDSBack, h);            
+			else draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
 		}
 			
 			//Msg("Drew %d.",h);
@@ -4524,6 +4586,7 @@ if (lpDDSBack->GetDC(&hdc) == DD_OK)
 	//   SetBkMode(hdc, OPAQUE);
    	   SetBkColor(hdc, 1);
 	   SetTextColor(hdc,RGB(200,200,200));
+	   FONTS_SetTextColor(200, 200, 200);
 	   
 	   //	TextOut(hdc,0,0, msg,lstrlen(msg));
 	   if (mode == 0) strcpy(msg,"");		
@@ -4654,10 +4717,10 @@ sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles ha
 	   rcRect.bottom = 480;
 	   if (show_display)
 	     {
+	       /* Display help message at the bottom of the screen */
 	       DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
 	       // FONTS
 	       /* TODO: use Say() or Saysmall()? */
-	       printf("Displayed text %s w/o calling Say()\n", msg);
 	       print_text_wrap(msg, &rcRect, 0, 0);
 	     }
 	   
@@ -5849,6 +5912,7 @@ initfonts("Arial");
   // FONTS
   // FONTS_initfonts("LiberationSans-Regular.ttf");
   FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");
+  FONTS_SetFont(FONTS_hfont_small);
 
 	
 //	 Msg("Hi, you suck.");
