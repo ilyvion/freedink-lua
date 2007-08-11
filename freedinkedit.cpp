@@ -82,13 +82,14 @@
 #include "sfx.h"
 #include "resource.h"
 
-//Dinkedit only vars
+//Dinkedit-only vars
 
 map_info buffmap;
 bool buf_mode = false;
 char buf_path[100];
 int buf_map = 0;
 
+/* Save x and y coordinates for mode 4, 5 and 6 */
 int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
 LPDIRECTDRAWCLIPPER lpClipper;
 int winoffset = 25;
@@ -154,7 +155,7 @@ char szSoundEffects[NUM_SOUND_EFFECTS][MAX_PATH] =
 
 int x = 640;
 int y = 480;
-    RECT                rc;
+RECT rc;
 int cx;
 int cy;
 int speed;
@@ -342,13 +343,6 @@ if (mode == MODE_SPRITE_HARDNESS) draw_map();
     return ddrval;
 
 } /* restoreAll */
-
-/*
- * updateFrame
- * 
- * Decide what needs to be blitted next, wait for flip to complete,
- * then flip the buffers.
- */
 
 void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 {
@@ -628,6 +622,8 @@ void draw_current( void)
   }
 }
 
+/* Edit a tile hardness - show semi-transparent red/blue/orange
+   squares on pixels with different kinds of hardness */
 void draw_hard( void)
 {
  //RECT                rcRect;
@@ -636,6 +632,7 @@ void draw_hard( void)
     {
       for (int y=0; y<50; y++)
 	{
+	  /* red */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 1)
 	    {
 	      lpDDSBack->BltFast(95+(x*9), y*9, k[seq[10].frame[2]].k,
@@ -648,7 +645,8 @@ void draw_hard( void)
 		SDL_BlitSurface(GFX_k[seq[10].frame[2]].k, NULL, GFX_lpDDSBack, &dst);
 	      }
 	    }
-	  
+
+	  /* blue */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 2)
 	    {
 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[9]].k,
@@ -662,6 +660,7 @@ void draw_hard( void)
 	      }
 	    }
 
+	  /* orange */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 3)
 	    {
 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[10]].k,
@@ -679,7 +678,8 @@ void draw_hard( void)
 }
 
 
-/* Draw used squares in the map picker mode */
+/* Draw all squares in the map picker mode, including the 'M' (midi)
+   and 'S' (screentype) marks */
 void draw_used( void)
 {
   DDBLTFX     ddbltfx;
@@ -697,6 +697,7 @@ void draw_used( void)
   
   for (int x=0; x<768; x++)
     {
+      /* Blue square - unused screen */
       if (map.loc[x+1] == 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
@@ -709,7 +710,7 @@ void draw_used( void)
 	    SDL_BlitSurface(GFX_k[seq[10].frame[6]].k, NULL, GFX_lpDDSTwo, &dst);
 	  }
 	}
-
+      /* Red square - used screen */
       if (map.loc[x+1] > 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
@@ -723,6 +724,7 @@ void draw_used( void)
 	  }
 	}
       
+      /* M mark - screen has MIDI */
       if (map.music[x+1] != 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
@@ -735,6 +737,7 @@ void draw_used( void)
 	    SDL_BlitSurface(GFX_k[seq[10].frame[12]].k, NULL, GFX_lpDDSTwo, &dst);
 	  }
 	}
+      /* S mark - screen has screentype / is indoor */
       if (map.indoor[x+1] != 0)
 	{
 	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
@@ -801,6 +804,7 @@ char crap[120];
 
 }
 
+/* draw_used() but on a different map ('L' in map picker mode) */
 void draw_used_buff( void)
 {
   load_info_buff();
@@ -1046,8 +1050,7 @@ check_keyboard();
 }
 
 
-/* Beuc: apparently this loads a tile fullscreen, so we can select
-   some squares */
+/* Displays a tile fullscreen, so we can select some squares */
 void loadtile(int tileset)
 {
   DDBLTFX     ddbltfx;
@@ -1117,6 +1120,8 @@ return(0);
 
 }
 
+/* In sprite picking mode, draw a grid to separate sprites or
+   sequences' 50x50 previews */
 static void draw_sprite_picker_grid(void)
 {
   DDBLTFX ddbltfx;
@@ -1125,7 +1130,7 @@ static void draw_sprite_picker_grid(void)
   ZeroMemory(&ddbltfx, sizeof(ddbltfx));
   ddbltfx.dwSize = sizeof(ddbltfx);
 
-  /* Draw vertical grid */
+  /* Draw vertical lines */
   for (int x2=1; x2 <= 12; x2++)
     {
       ddbltfx.dwFillColor = 120;
@@ -1145,7 +1150,7 @@ static void draw_sprite_picker_grid(void)
       }
     }
   
-  /* Draw horizontal grid */
+  /* Draw horizontal lines */
   for (int x3=1; x3 <= 8; x3++)
     {
       ddbltfx.dwFillColor = 120;
@@ -1969,19 +1974,6 @@ void change_tile(int tile, int num)
 
 }
 
-
-
-/****************************************************************************
- *
- *      UpdateCursorPosition
- *
- *      Move our private cursor in the requested direction, subject
- *      to clipping, scaling, and all that other stuff.
- *
- *      This does not redraw the cursor.  You need to do that yourself.
- *
- ****************************************************************************/
-
  
  
 void copy_front_to_two( void)
@@ -2018,11 +2010,17 @@ void copy_front_to_two( void)
 		   }
 
 
- 
- 
- 
- 
- void UpdateCursorPosition(int dx, int dy)
+/****************************************************************************
+ *
+ *      UpdateCursorPosition
+ *
+ *      Move our private cursor in the requested direction, subject
+ *      to clipping, scaling, and all that other stuff.
+ *
+ *      This does not redraw the cursor.  You need to do that yourself.
+ *
+ ****************************************************************************/
+void UpdateCursorPosition(int dx, int dy)
 {
 
     /*
@@ -2254,7 +2252,12 @@ ddbltfx.dwSize = sizeof( ddbltfx);
 }
 
 
-
+/*
+ * updateFrame
+ * 
+ * Decide what needs to be blitted next, wait for flip to complete,
+ * then flip the buffers.
+ */
 void updateFrame(void)
 {
 	//    static DWORD        lastTickCount[4] = {0,0,0,0};
@@ -4812,7 +4815,18 @@ if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
 				box_crap.right = box_crap.left+ 50;
 				
 				ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx);
-                              //       	if (ddrval != DD_OK) dderror(ddrval);
+				//       	if (ddrval != DD_OK) dderror(ddrval);
+				// GFX
+				/* Is it really used? The white,
+				   non-filled square in tile or sprite
+				   selection is displayed w/o this: */
+				{
+				  SDL_Rect dst;
+				  dst.x = box_crap.left;
+				  dst.y = box_crap.top;
+				  /* Simplified blit, no scaling, the sprite is already 50x50 */
+				  SDL_BlitSurface(GFX_k[seq[10].frame[5]].k, NULL, GFX_lpDDSBack, &dst);
+				}
 				
 				char crap5[200];
 				
