@@ -22,16 +22,19 @@
  * 02110-1301, USA.
  */
 
-/*
- * TODO: I count 9 modes in Dinkedit: map(1), screen tiles(3), screen
+/* 
+ * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
  * sprites(6), screen hardness(8), tile hardness(4), sprite
  * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
- * dialog(0?). The goal is to split the big keybinding functions into
- * these modes, and in each mode, call a function instead of inlining
- * the code. And we may use 'else if', or even a hashmap to do the
- * bindings. And use constants instead of #0-8.
- */
+ * dialog(0?) and the big mystery (9 - probably related to
+ * hardness). */
+/* TODO: The goal is to split the big keybinding functions into these
+ * modes, and in each mode, call a function instead of inlining the
+ * code. And we may use 'else if', or even a hashmap to do the
+ * bindings.
+*/
 
+/* Use constants for readability */
 #define MODE_MAP_PICKER 1
 #define MODE_TILE_PICKER 2
 #define MODE_SPRITE_PICKER 5
@@ -44,6 +47,7 @@
 #define MODE_SPRITE_HARDNESS 7
 
 #define MODE_DIALOG 0
+#define MODE_UNKNOWN 9
 
 
 #define NAME "DinkEdit"
@@ -363,6 +367,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 			       &box_real, DDBLT_KEYSRC, &ddbltfx);
 
 	  // GFX
+	  /* Classical scaling - copy/paste from dinkvar.cpp */
 	  {
 	    SDL_Rect src, dst;
 	    SDL_Surface *scaled;
@@ -1112,12 +1117,61 @@ return(0);
 
 }
 
-// ?
-void draw15( int num)
+static void draw_sprite_picker_grid(void)
 {
- 
+  DDBLTFX ddbltfx;
+  RECT box_crap;
+
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof(ddbltfx);
+
+  /* Draw vertical grid */
+  for (int x2=1; x2 <= 12; x2++)
+    {
+      ddbltfx.dwFillColor = 120;
+      
+      box_crap.top = 0;
+      box_crap.bottom = 400;
+      box_crap.left = (x2*50) -1;
+      box_crap.right = box_crap.left+1;
+
+      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+      // GFX
+      {
+	SDL_Rect dst = {12345, 0, 12345, 400};
+	dst.x = x2*50 - 1;
+	dst.w = 1;
+	SDL_FillRect(GFX_lpDDSTwo, &dst, 120);
+      }
+    }
+  
+  /* Draw horizontal grid */
+  for (int x3=1; x3 <= 8; x3++)
+    {
+      ddbltfx.dwFillColor = 120;
+
+      box_crap.top = (50 * x3)-1;
+      box_crap.bottom = box_crap.top +1;
+      box_crap.left = 0;
+      box_crap.right = 600;
+
+      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+      // GFX
+      {
+	SDL_Rect dst = {0, 12345, 600, 12345};
+	dst.y = x3*50 - 1;
+	dst.h = 1;
+	SDL_FillRect(GFX_lpDDSTwo, &dst, 120);
+      }
+    }
+}
+
+/* Main sprite selection screen - display a page of the sequence
+   selector */
+void draw15(int num)
+{
   int crap;   
-  DDBLTFX     ddbltfx;
+  DDBLTFX ddbltfx;
   RECT  crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
@@ -1142,6 +1196,7 @@ void draw15( int num)
   
   flip_it_second();
   
+  /* Draw sprites */
   for (int x1=0; x1 <= 11; x1++)
     {
       for (int y1=0; y1 <= 7; y1++)
@@ -1164,146 +1219,123 @@ void draw15( int num)
 	      
 	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k,
 				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
-	      // ??
+	      // GFX
+	      /* Optimized scaling: no clipping */
+	      {
+		SDL_Rect src, dst;
+		SDL_Surface *scaled;
+		double sx, sy;
+		dst.x = x1 * 50;
+		dst.y = y1 * 50;
+		dst.w = 50;
+		dst.h = 50;
+		sx = 1.0 * dst.w / GFX_k[seq[se].frame[frame]].k->w;
+		sy = 1.0 * dst.h / GFX_k[seq[se].frame[frame]].k->h;
+		if (sx != 1 || sy != 1)
+		  {
+		    scaled = zoomSurface(GFX_k[seq[se].frame[frame]].k, sx, sy, SMOOTHING_OFF);
+		    SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
+		    SDL_FreeSurface(scaled);
+		  }
+		else
+		  {
+		    SDL_BlitSurface(GFX_k[seq[se].frame[frame]].k, &src, GFX_lpDDSTwo, &dst);
+		  }
+	      }
+
 
 	      if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.", se, frame);
 	    }		
 	}
     }
-  
-  for (int x2=1; x2 <= 12; x2++)
-    {
-      ddbltfx.dwFillColor = 120;
-      
-      box_crap.top = 0;
-      box_crap.bottom = 400;
-      box_crap.left = (x2*50) -1;
-      box_crap.right = box_crap.left+1;
-
-      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-      // ?
-    }
-  
-  for (int x3=1; x3 <= 8; x3++)
-    {
-      ddbltfx.dwFillColor = 120;
-
-      box_crap.top = (50 * x3)-1;
-      box_crap.bottom = box_crap.top +1;
-      box_crap.left = 0;
-      box_crap.right = 600;
-
-      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-      // ?
-    }
+  draw_sprite_picker_grid();
 }
 
-
-
-void draw96( int def)
+/* Inner sprite selection screen - display all frames/sprites in a
+   sequence */
+void draw96(int def)
 {
- 
- int crap;   
- DDBLTFX     ddbltfx;
-	RECT  crapRec, Rect, box_crap;
-int frame,ddrval;
-int se;
-int dd;	
-
-//get_sp_seq(2);
-se = sp_seq;
-check_seq_status(se);
-int num = 0;
-while(kill_last_sprite());
-
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-ddbltfx.dwSize = sizeof( ddbltfx);
- ddbltfx.dwFillColor = 0;
-crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-
-
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-		ddbltfx.dwSize = sizeof( ddbltfx);
-		
-for (int x1=0; x1 <= 11; x1++)
-{
-	for (int y1=0; y1 <= 7; y1++)
+  int crap;   
+  DDBLTFX ddbltfx;
+  RECT crapRec, Rect, box_crap;
+  int frame,ddrval;
+  int se;
+  int dd;	
+  
+  //get_sp_seq(2);
+  se = sp_seq;
+  check_seq_status(se);
+  int num = 0;
+  while(kill_last_sprite());
+  
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  ddbltfx.dwFillColor = 0;
+  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);  
+  
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof( ddbltfx);
+  
+  for (int x1=0; x1 <= 11; x1++)
+    {
+      for (int y1=0; y1 <= 7; y1++)
 	{
-       num++;
-		if (seq[se].frame[num] == 0)
-		{
-         //all done displaying
-			goto pass;
-		}
-		//se = sp_get(num);
-		frame = 1;
-		
-		Rect.left = x1 * 50;
-		Rect.top = y1 * 50;
-		Rect.right = Rect.left + 50;
-		Rect.bottom = Rect.top + 50;
-		
-        if (def > 0) if (num == def)
-		{
-        //set default location to sprite they are holding
-         spr[1].x = x1*50;
-		 spr[1].y = y1 *50;
-		}
-		
-		crapRec = k[seq[se].frame[num]].box;
-		
-		
-		dd = lpDDSTwo->Blt(&Rect , k[seq[se].frame[num]].k,
-			&crapRec, DDBLT_KEYSRC|DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
-		
-		if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame);
-		
+	  num++;
+	  if (seq[se].frame[num] == 0)
+	    {
+	      //all done displaying
+	      goto pass;
+	    }
+	  //se = sp_get(num);
+	  frame = 1;
+	  
+	  Rect.left = x1 * 50;
+	  Rect.top = y1 * 50;
+	  Rect.right = Rect.left + 50;
+	  Rect.bottom = Rect.top + 50;
+	  
+	  if (def > 0 && num == def)
+	    {
+	      //set default location to sprite they are holding
+	      spr[1].x = x1*50;
+	      spr[1].y = y1 *50;
+	    }
+	  
+	  crapRec = k[seq[se].frame[num]].box;
+	  
+	  dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[num]].k,
+			     &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx );
+	  // GFX
+	  /* Optimized scaling: no clipping */
+	  {
+	    SDL_Rect src, dst;
+	    SDL_Surface *scaled;
+	    double sx, sy;
+	    dst.x = x1 * 50;
+	    dst.y = y1 * 50;
+	    dst.w = 50;
+	    dst.h = 50;
+	    sx = 1.0 * dst.w / GFX_k[seq[se].frame[num]].k->w;
+	    sy = 1.0 * dst.h / GFX_k[seq[se].frame[num]].k->h;
+	    if (sx != 1 || sy != 1)
+	      {
+		scaled = zoomSurface(GFX_k[seq[se].frame[num]].k, sx, sy, SMOOTHING_OFF);
+		SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
+		SDL_FreeSurface(scaled);
+	      }
+	    else
+	      {
+		SDL_BlitSurface(GFX_k[seq[se].frame[num]].k, &src, GFX_lpDDSTwo, &dst);
+	      }
+	  }
+	  
+	  if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame);
 	}
-}
-
-
-pass:
-
-for (int x2=1; x2 <= 12; x2++)
-{
-	ddbltfx.dwFillColor = 120;
-					
-					box_crap.top = 0;
-					
-					
-					box_crap.bottom = 400;
-					
-					box_crap.left = (x2*50) -1;
-					
-					
-					box_crap.right = box_crap.left+1;
-					
-					
-ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-				
-}
-
-
-for (int x3=1; x3 <= 8; x3++)
-{
-	ddbltfx.dwFillColor = 120;
-					
-					box_crap.top = (50 * x3)-1;
-					
-					
-					box_crap.bottom = box_crap.top +1;
-					
-					box_crap.left = 0;
-					
-					box_crap.right = 600;
-					
-					
-						
-ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
-				
-}
-
-
+    }
+  
+ pass:
+  draw_sprite_picker_grid();  
 }
 
 
@@ -1501,14 +1533,14 @@ void check_in(void)
 
 
 	if (in_master == 1)
-{	
+	  {	
                             in_command = 1; //number
 							in_int = &spr[1].size;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",spr[1].size); //set default
 						    blit(30,1,lpDDSBack,250,170);
 	                        Say("New Size?",260,175);
-}
+	  }
 
 
 
@@ -2223,7 +2255,7 @@ ddbltfx.dwSize = sizeof( ddbltfx);
 
 
 
-void updateFrame( void )
+void updateFrame(void)
 {
 	//    static DWORD        lastTickCount[4] = {0,0,0,0};
 	//    static int          currentFrame[3] = {0,0,0};
@@ -2343,7 +2375,7 @@ pass_flip:
 	
 									
 	spr[1].que = 20000;
-	if (mode == 6) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
+	if (mode == MODE_SCREEN_SPRITES) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
 	
 	if (!in_enabled)
 
@@ -2397,12 +2429,13 @@ pass_flip:
 				
 				if (spr[h].brain == 1)
 				{
-						if ( (spr[h].seq == 0) | (mode == 4)  )
+						if ( (spr[h].seq == 0) | (mode == MODE_TILE_HARDNESS)  )
 						{		
 					
 
 							
-if (mode == 7)
+//if (mode == 7)
+if (mode == MODE_SPRITE_HARDNESS)
 {
 
 //editting a sprite, setting hard box and depth dot.
@@ -2412,7 +2445,8 @@ spr[1].pframe = 1;
 if (sjoy.button[1])
 {
 //they want out
-mode = 5;
+//mode = 5;
+mode = MODE_SPRITE_PICKER;
 draw96(0);
 spr[1].x = m5x;
 spr[1].y = m5y;
@@ -2688,7 +2722,7 @@ goto b1end;
 }
 
 
-					if (mode == 6)
+					if (mode == MODE_SCREEN_SPRITES)
 					{
 						// place sprite
 						if ( (sjoy.key[86]) )
@@ -3207,7 +3241,7 @@ fail:
 			SetRect(&spr[1].alt,0,0,0,0);	
 		
 								spr[1].size = 100;
-								mode = 3;
+								mode = MODE_SCREEN_TILES;
 								spr[1].x = m4x;
 								spr[1].y = m4y;
 								spr[1].seq = 3;
@@ -3232,7 +3266,8 @@ fail:
 		                     	SetRect(&spr[1].alt,0,0,0,0);	
 							
 							spr[1].size = 100;		
-							mode = 5;
+							//mode = 5;
+							mode = MODE_SPRITE_PICKER;
 							m6x = spr[h].x;
 							m6y = spr[h].y;
 							spr[h].x = m5x;
@@ -3256,7 +3291,7 @@ fail:
 							draw_map();
 												}
 							spr[1].size = 100;		
-							mode = 3;
+							mode = MODE_SCREEN_TILES;
 							spr[h].x = m4x;
 							spr[h].y = m4y;
 							
@@ -3273,14 +3308,14 @@ fail:
 					}
 					
 					
-					if ( (mode ==3) & (sjoy.button[5]))
+					if ( (mode == MODE_SCREEN_TILES) & (sjoy.button[5]))
 					{
 
 						//they chose sprite picker mode
 						//while (kill_last_sprite()); 
 
 
-						mode = 6;
+						mode = MODE_SCREEN_SPRITES;
 						
 								spr[1].pseq = 10;
 								spr[1].pframe = 8;
@@ -3303,7 +3338,7 @@ fail:
 						
 						
 						
-						if (mode == 5)
+						if (mode == MODE_SPRITE_PICKER)
 						{
 							//picking a sprite	
 							if (sp_seq != 0)
@@ -3313,7 +3348,7 @@ fail:
 							if (sjoy.key[69])
 							{
                             //they want to 'edit' the sprite
-                             mode = 7;
+                             mode = MODE_SPRITE_HARDNESS;
 			                        m5x = spr[h].x;
 									m5y = spr[h].y;
 									
@@ -3369,7 +3404,7 @@ sp_fin:
 									spr[1].pframe = 8;
 
 								spr[h].speed = 1;
-								mode = 6;
+								mode = MODE_SCREEN_SPRITES;
 								goto sp_edit_end;
 								
 								}
@@ -3392,7 +3427,7 @@ sp_fin:
 									draw_map();
 									spr[h].x = m6x;
 									spr[h].y = m6y;
-									mode = 6;
+									mode = MODE_SCREEN_SPRITES;
 									spr[h].speed = 1;
 									goto sp_edit_end;
 									
@@ -3425,7 +3460,7 @@ sp_fin:
 								spr[h].pframe = 8;
 								
 								spr[h].speed = 1;
-								mode = 6;
+								mode = MODE_SCREEN_SPRITES;
 								goto b1end;
 								//goto sp_edit_end;
 								
@@ -3469,30 +3504,30 @@ sp_edit_end:
 
   
 						
-						if (mode == 3) draw_current();
+						if (mode == MODE_SCREEN_TILES) draw_current();
 						
 						
-						if (mode == 0) 
+						if (mode == MODE_DIALOG)
 						{
 							
 									spr[h].seq = 2;
 									spr[h].seq_orig = 2;
 									draw_used();	
 									spr[1].que = 20000;
-									mode = 1;
+									mode = MODE_MAP_PICKER;
 									spr[2].active = FALSE;
 									spr[3].active = FALSE;
 									spr[4].active = FALSE;
 						}
 						
-						if (mode == 0) goto b1end;			
+						if (mode == MODE_DIALOG) goto b1end;			
 						
 						
 						
 						
 						//mode equals 4, they are in hardness edit mode, so lets do this thang
 						
-						if (mode == 4)
+						if (mode == MODE_TILE_HARDNESS)
 						{
 							
 							
@@ -3686,7 +3721,7 @@ if (mode != 1)
 								selx = 1;
 								sely = 1;
 									
-									mode = 9;	
+									mode = MODE_UNKNOWN;
 								return;
 									//goto skip_draw;
 									
@@ -3705,7 +3740,7 @@ if (mode != 1)
 								draw_map();
 								spr[h].x = m4x;
 								spr[h].y = m4y;
-								mode = 3;
+								mode = MODE_SCREEN_TILES;
 								selx = 1;
 								sely = 1;
 							}
@@ -3730,13 +3765,13 @@ if ( (sjoy.key[86]) )
 
 
 
-if (    ( (mode == 3) & (sjoy.button[2]) )  | (mode == 2) & (GetKeyboard(32)))
+if (    ( (mode == MODE_SCREEN_TILES) & (sjoy.button[2]) )  | (mode == MODE_TILE_PICKER) & (GetKeyboard(32)))
 
 {
 	
-	if (mode == 3) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+	if (mode == MODE_SCREEN_TILES) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
 	
-	if (mode == 2)
+	if (mode == MODE_TILE_PICKER)
 		
 	{
 		cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
@@ -3809,7 +3844,7 @@ tilesel:
 		selx = 1;
 		sely = 1;
 		
-		mode = 4;
+		mode = MODE_TILE_HARDNESS;
 		
 		kickass = TRUE;
 	}
@@ -3820,7 +3855,7 @@ tilesel:
 
 
 
-if ( (mode == 2) | (mode == 3) )
+if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) )
 {
 	//resizing the box
 	
@@ -3870,7 +3905,7 @@ if (GetKeyboard(39))
 }
 
 
-if ( (GetKeyboard(83)) && (mode == 3) ) 
+if ( (GetKeyboard(83)) && (mode == MODE_SCREEN_TILES) ) 
 {
 	
 	spr[h].seq = 3;
@@ -3898,7 +3933,7 @@ if ( (GetKeyboard(83)) && (mode == 3) )
 
 
 
-if ( (GetKeyboard(67)) && (mode == 3) ) 
+if ( (GetKeyboard(67)) && (mode == MODE_SCREEN_TILES) ) 
 {
 	
 	spr[h].seq = 3;
@@ -3911,61 +3946,61 @@ if (!GetKeyboard(16)) if (!GetKeyboard(17)) if (!GetKeyboard(18))
 
 {
 	
-	if ( (GetKeyboard(49)) && ( (mode == 3) | (mode ==2))  ) loadtile(1);
+	if ( (GetKeyboard(49)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(1);
 	
-	if ( (GetKeyboard(50)) && ( (mode == 3) | (mode ==2))  )  loadtile(2);
-	if ( (GetKeyboard(51)) && ( (mode == 3) | (mode ==2))  )  loadtile(3);
-	if ( (GetKeyboard(52)) && ( (mode == 3) | (mode ==2)) )   loadtile(4);
-	if ( (GetKeyboard(53)) && ( (mode == 3) | (mode ==2))  ) loadtile(5);
-	if ( (GetKeyboard(54)) && ( (mode == 3) | (mode ==2))  ) loadtile(6);
-	if ( (GetKeyboard(55)) && ( (mode == 3) | (mode ==2)) ) loadtile(7);
+	if ( (GetKeyboard(50)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  )  loadtile(2);
+	if ( (GetKeyboard(51)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  )  loadtile(3);
+	if ( (GetKeyboard(52)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) )   loadtile(4);
+	if ( (GetKeyboard(53)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(5);
+	if ( (GetKeyboard(54)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(6);
+	if ( (GetKeyboard(55)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(7);
 	
-	if ( (GetKeyboard(56)) && ( (mode == 3) | (mode ==2)) ) loadtile(8);
-	if ( (GetKeyboard(57)) && ( (mode == 3) | (mode ==2)) ) loadtile(9);
-	if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(10);
+	if ( (GetKeyboard(56)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(8);
+	if ( (GetKeyboard(57)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(9);
+	if ( (GetKeyboard(48)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(10);
 }
 
-if (   ( (GetKeyboard(49)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(11);
-if (   ( (GetKeyboard(50)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(12);
-if (   ( (GetKeyboard(51)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(13);
-if (   ( (GetKeyboard(52)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(14);
-if (   ( (GetKeyboard(53)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(15);
-if (   ( (GetKeyboard(54)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(16);
-if (   ( (GetKeyboard(55)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(17);
-if (   ( (GetKeyboard(56)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(18);
-if (   ( (GetKeyboard(57)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(19);
-if (   ( (GetKeyboard(48)) && (GetKeyboard(16)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(20);
+if (((GetKeyboard(49)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(11);
+if (((GetKeyboard(50)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(12);
+if (((GetKeyboard(51)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(13);
+if (((GetKeyboard(52)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(14);
+if (((GetKeyboard(53)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(15);
+if (((GetKeyboard(54)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(16);
+if (((GetKeyboard(55)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(17);
+if (((GetKeyboard(56)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(18);
+if (((GetKeyboard(57)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(19);
+if (((GetKeyboard(48)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(20);
 
-if (   ( (GetKeyboard(49)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(21);
-if (   ( (GetKeyboard(50)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(22);
-if (   ( (GetKeyboard(51)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(23);
-if (   ( (GetKeyboard(52)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(24);
-if (   ( (GetKeyboard(53)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(25);
-if (   ( (GetKeyboard(54)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(26);
-if (   ( (GetKeyboard(55)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(27);
-if (   ( (GetKeyboard(56)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(28);
-if (   ( (GetKeyboard(57)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(29);
-if (   ( (GetKeyboard(48)) && (GetKeyboard(17)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(30);
+if (((GetKeyboard(49)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(21);
+if (((GetKeyboard(50)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(22);
+if (((GetKeyboard(51)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(23);
+if (((GetKeyboard(52)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(24);
+if (((GetKeyboard(53)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(25);
+if (((GetKeyboard(54)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(26);
+if (((GetKeyboard(55)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(27);
+if (((GetKeyboard(56)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(28);
+if (((GetKeyboard(57)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(29);
+if (((GetKeyboard(48)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(30);
 
-if (   ( (GetKeyboard(49)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(31);
-if (   ( (GetKeyboard(50)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(32);
-if (   ( (GetKeyboard(51)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(33);
-if (   ( (GetKeyboard(52)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(34);
-if (   ( (GetKeyboard(53)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(35);
+if (((GetKeyboard(49)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(31);
+if (((GetKeyboard(50)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(32);
+if (((GetKeyboard(51)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(33);
+if (((GetKeyboard(52)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(34);
+if (((GetKeyboard(53)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(35);
 
-if (   ( (GetKeyboard(54)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(36);
-if (   ( (GetKeyboard(55)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(37);
-if (   ( (GetKeyboard(56)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(38);
-if (   ( (GetKeyboard(57)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(39);
-if (   ( (GetKeyboard(48)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(40);
-if (   ( (GetKeyboard(192)) && (GetKeyboard(18)) ) && ( (mode == 3) | (mode ==2))  ) loadtile(41);
+if (((GetKeyboard(54)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(36);
+if (((GetKeyboard(55)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(37);
+if (((GetKeyboard(56)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(38);
+if (((GetKeyboard(57)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(39);
+if (((GetKeyboard(48)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(40);
+if (((GetKeyboard(192)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(41);
 
 
 
 //if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
 
 
-if ( (sjoy.button[2]) && (mode == 2)) 
+if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER)) 
 {
 	// cut to map editer from tile selection
 	spr[h].seq = 3;
@@ -3978,7 +4013,7 @@ if ( (sjoy.button[2]) && (mode == 2))
 	spr[h].x = m3x;
 	spr[h].y = m3y;
 	
-	mode = 3;
+	mode = MODE_SCREEN_TILES;
 	spr[h].speed = 50;
 	draw_map();
 	last_mode = 0;
@@ -3986,7 +4021,7 @@ if ( (sjoy.button[2]) && (mode == 2))
 
 
 
-if ( (sjoy.button[1]) && (mode == 2)) 
+if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER)) 
 {
 	// cut to map editer from tile selection
 	spr[h].seq = 3;
@@ -3998,21 +4033,21 @@ if ( (sjoy.button[1]) && (mode == 2))
 	spr[h].x = m3x;
 	spr[h].y = m3y;
 	
-	mode = 3;
+	mode = MODE_SCREEN_TILES;
 	draw_map();
 	last_mode = 0;
 	goto b1end;
 }
 
 
-if ( (sjoy.key[32])  && (mode == 1))
+if ( (sjoy.key[32])  && (mode == MODE_MAP_PICKER))
 {  
 //make_map_tiny();
 draw_map_tiny = 0;
 
 }
 
-if ( (sjoy.key[76])  && (mode == 1))
+if ( (sjoy.key[76])  && (mode == MODE_MAP_PICKER))
 {  
 
 	//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
@@ -4024,7 +4059,7 @@ if ( (sjoy.key[76])  && (mode == 1))
 }
 
 
-if ( (sjoy.key[27]) && (mode == 1))
+if ( (sjoy.key[27]) && (mode == MODE_MAP_PICKER))
 {
 load_info();
 draw_used();
@@ -4033,21 +4068,21 @@ buf_mode = false;
 }
 
 
-if ( (sjoy.key[77]) && (mode == 1))
+if ( (sjoy.key[77]) && (mode == MODE_MAP_PICKER))
 {
 //set music # for this block
 in_int = &map.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 in_master = 33;
 }
 
-if ( (sjoy.key[83]) && (mode == 1))
+if ( (sjoy.key[83]) && (mode == MODE_MAP_PICKER))
 {
 //set music # for this block
 in_int = &map.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 in_master = 34;
 }
 
-if ( (sjoy.button[2]) && (mode == 1)) 
+if ( (sjoy.button[2]) && (mode == MODE_MAP_PICKER))
 {
 
 	if (buf_mode)
@@ -4117,7 +4152,7 @@ if ( (sjoy.button[2]) && (mode == 1))
 	spr[h].y = m3y;
 	
 	
-	mode = 3;
+	mode = MODE_SCREEN_TILES;
 	
 	spr[h].speed = 50;
 	draw_map();
@@ -4126,14 +4161,14 @@ if ( (sjoy.button[2]) && (mode == 1))
 
 
 
-if ( (mode == 3) && (GetKeyboard(189)) )
+if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(189)) )
 {
 	spr[h].seq = 3;
 	spr[h].seq_orig = 3;
 	cur_tile--;
 	if (cur_tile < 0) cur_tile = 0;
 }
-if ( (mode == 3) && (GetKeyboard(187)) )
+if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(187)) )
 {
 	spr[h].seq = 3;
 	spr[h].seq_orig = 3;
@@ -4143,12 +4178,12 @@ if ( (mode == 3) && (GetKeyboard(187)) )
 }
 
 
-if ( (mode == 3) && (sjoy.key[72]) )
+if ( (mode == MODE_SCREEN_TILES) && (sjoy.key[72]) )
 {
 //start althard mode
 	
 
-	mode = 9;	
+	mode = MODE_UNKNOWN;
 goto skip_draw;
 
 
@@ -4156,13 +4191,13 @@ goto skip_draw;
 }
 
 
-if (mode == 8)
+if (mode == MODE_SCREEN_HARDNESS)
 {
 //mode for it
   if (sjoy.key[27]) 
   {
   //exit mode 8
-   mode = 3;
+   mode = MODE_SCREEN_TILES;
     spr[h].seq = 3;
 	spr[h].seq_orig = 3;
   draw_map();
@@ -4192,7 +4227,7 @@ if (sjoy.key[83])
 //stamp tile hardness to selected
 pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = hard_tile;
 draw_map();
-mode = 9;
+mode = MODE_UNKNOWN;
 
 return;
 }
@@ -4202,7 +4237,7 @@ if (sjoy.key[46])
 //stamp tile hardness to selected
 pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = 0;
 draw_map();
-mode = 9;
+mode = MODE_UNKNOWN;
 
 return;
 }
@@ -4252,7 +4287,7 @@ if (sjoy.key[13])
 		selx = 1;
 		sely = 1;
 		
-		mode = 4;
+		mode = MODE_TILE_HARDNESS;
 		
 		kickass = TRUE;
           
@@ -4264,7 +4299,7 @@ last_modereal = 8;
 
 }
 
-if ((mode == 3) && (sjoy.realkey[18])) if (sjoy.key[88])
+if ((mode == MODE_SCREEN_TILES) && (sjoy.realkey[18])) if (sjoy.key[88])
 {
 	spr[h].seq = 2; 
 	spr[h].seq_orig = 2; 
@@ -4272,7 +4307,7 @@ if ((mode == 3) && (sjoy.realkey[18])) if (sjoy.key[88])
 	m3y = spr[h].y;
 	spr[h].x = m1x;
 	spr[h].y = m1y;
-	mode = 1;
+	mode = MODE_MAP_PICKER;
 	spr[h].speed = 20;
     load_info();
 	draw_used();
@@ -4281,7 +4316,7 @@ return;
 }
 
 
-if ((mode == 3) && (sjoy.button[1]) ) 
+if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) ) 
 {
 	// jump to map selector selector from map mode
 	save_map(map.loc[cur_map]);
@@ -4336,7 +4371,8 @@ if (spr[h].y < 0) spr[h].y = 0;
 
 		
 		
-		if( (mode == 2) | (mode == 3) | (mode == 5) )
+//if( (mode == 2) | (mode == 3) | (mode == 5) )
+		if( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) | (mode == MODE_SPRITE_PICKER) )
 		{
 			if ((selx * 50 + spr[1].x) > 600)
 			{ 
@@ -4344,22 +4380,25 @@ if (spr[h].y < 0) spr[h].y = 0;
 			}
 		}
 		
-		if( (mode == 2) )
+//if( (mode == 2) )
+		if( (mode == MODE_TILE_PICKER) )
 		{
 			if ((sely * 50 + spr[1].y) > 450)
 			{ 
 				spr[1].y = 450 - (sely * 50);
 			}
 		}
-		if( (mode == 3) )
+//		if( (mode == 3) )
+		if( (mode == MODE_SCREEN_TILES) )
 		{
 			if ((sely * 50 + spr[1].y) > 400)
 			{ 
 				spr[1].y = 400 - (sely * 50);
 			}
 		}
-		
-		if( (mode == 5) )
+
+//		if( (mode == 5) )
+		if( (mode == MODE_SPRITE_PICKER) )
 		{
 			if ((sely * 50 + spr[1].y) > 400)
 			{ 
@@ -4468,13 +4507,13 @@ b1end:;
 	
 		
 		
-		if ( (mode == 3) )
+		if ( (mode == MODE_SCREEN_TILES) )
 		{
             //need offset to look right
 			k[seq[3].frame[1]].xoffset = -20;
 			greba = 20;
 		}
-		if ( (mode == 2) | (mode == 5) ) 
+		if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) ) 
 			
 		{
 			//pick a tile, needs no offset
@@ -4482,13 +4521,15 @@ b1end:;
 			greba = 0;
 		}
 	
-		if (  !(( h == 1) & (mode == 9)) )
+//		if (  !(( h == 1) & (mode == 9)) )
+		if (  !(( h == 1) & (mode == MODE_UNKNOWN)) )
 		
 		{
 
 			if (draw_map_tiny == -1)
 			  draw_sprite(lpDDSBack, GFX_lpDDSBack, h);            
-			else draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
+			else
+			  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
 		}
 			
 			//Msg("Drew %d.",h);
@@ -4496,7 +4537,7 @@ b1end:;
 skip_draw:
 		if (spr[h].brain == 1)
 		{
-            if ( (mode == 2) || (mode ==3 ))
+            if ( (mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
 			{
 				
 				for (int y = 0; y < sely; y++)
@@ -4512,7 +4553,7 @@ skip_draw:
 			}
 			
             
-			if ( (mode == 4))
+			if ( (mode == MODE_TILE_HARDNESS))
 			{
 				
 				for (int yy = 0; yy < sely; yy++)
@@ -4538,9 +4579,11 @@ skip_draw:
 }
 		
 			
-if (mode == 9)
+//if (mode == 9)
+if (mode == MODE_UNKNOWN)
 {
-mode = 8;
+  //mode = 8;
+  mode = MODE_SCREEN_HARDNESS;
 	
         fill_whole_hard();    
 	while(kill_last_sprite());
@@ -4589,11 +4632,11 @@ if (lpDDSBack->GetDC(&hdc) == DD_OK)
 	   FONTS_SetTextColor(200, 200, 200);
 	   
 	   //	TextOut(hdc,0,0, msg,lstrlen(msg));
-	   if (mode == 0) strcpy(msg,"");		
+	   //	   if (mode == 0) strcpy(msg,"");
+	   if (mode == MODE_DIALOG)
+	     strcpy(msg,"");
 	  
-	  
-
-	   if (mode == 1) 
+	   if (mode == MODE_MAP_PICKER)
 	   {
 		   if (20 * (spr[1].y / 20) != spr[1].y)
 		{
@@ -4603,7 +4646,7 @@ if (lpDDSBack->GetDC(&hdc) == DD_OK)
 			   "screen from another map file.  Z to toggle this help text.",mode,(((spr[1].y+1)*32) / 20)+(spr[1].x / 20),
 		   map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]);
 	   }
-	   if (mode == 3) 
+	   if (mode == MODE_SCREEN_TILES)
 	   {
 		   crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 		   //((x-1) - (x / 12))*50, (x / 12) * 50, 
@@ -4611,16 +4654,16 @@ if (lpDDSBack->GetDC(&hdc) == DD_OK)
 			   "V to change vision, B to change maps base .C file.",mode,cur_map
 			   ,cur_tile, pam.t[crap].num);
 	   }
-	   if (mode == 2) 
+	   if (mode == MODE_TILE_PICKER)
 		   sprintf(msg, "Map # %d - Current tile # %d - ENTER to choose, SPACE to edit hardness.",mode,cur_map,
 		   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
-	   if (mode == 4)
+	   if (mode == MODE_TILE_HARDNESS)
 	   {
 		   sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
 			   (spr[1].x / 9) -9,(spr[1].y / 9) +1,hmap.index[cur_tile], cur_tile);
 	   }
 	   
-	   if (mode == 5)
+	   if (mode == MODE_SPRITE_PICKER)
 	   {
 		   
 		   if (sp_seq == 0)
@@ -4636,7 +4679,7 @@ if (lpDDSBack->GetDC(&hdc) == DD_OK)
 		   }
 	   }
 	   
-	   if (mode == 6)
+	   if (mode == MODE_SCREEN_SPRITES)
 	   {
 		   
 		   char crap7[10];
@@ -4655,7 +4698,7 @@ if (sp_screenmatch) strcpy(crap7, "ScreenMatch is ON."); else strcpy(crap7, "Scr
 	   }
 	   
 	   
-if (mode == 7)
+if (mode == MODE_SPRITE_HARDNESS)
 	   {
 
 	
@@ -4695,7 +4738,7 @@ if ( (sp_mode == 2) )
 	   }
 	   
 
-if (mode == 8)
+if (mode == MODE_SCREEN_HARDNESS)
 {
 
 sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles hardness."
@@ -4712,7 +4755,7 @@ sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles ha
 	   }
 	   rcRect.left = 0;
 	   rcRect.top = 400;
-	   if (mode == 4) rcRect.top = 450;
+	   if (mode == MODE_TILE_HARDNESS) rcRect.top = 450;
 	   rcRect.right = 590;
 	   rcRect.bottom = 480;
 	   if (show_display)
@@ -4728,7 +4771,7 @@ sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles ha
 }   
 
 
-if ( (mode == 1) )
+if ( (mode == MODE_MAP_PICKER) )
 	{
 
 		if (sjoy.key[90]) if (show_display) show_display = false; else
@@ -4737,7 +4780,7 @@ if ( (mode == 1) )
 	}
 
 
-if ( (mode == 6) | (mode == 3) )
+if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
 {
 
 	if (sjoy.realkey[73])
@@ -4803,7 +4846,7 @@ if ( (mode == 6) | (mode == 3) )
 	}
 	
 }
-if (mode == 7)
+if (mode == MODE_SPRITE_HARDNESS)
 {
 
 	
@@ -4990,20 +5033,20 @@ if (in_enabled)
 		
 		in_enabled = false;
 		
-		if (mode == 1) if (old_command == 30)
+		if (mode == MODE_MAP_PICKER) if (old_command == 30)
 		{
 			draw_used_buff();
          return;
 		}
 		
-		if (mode == 1) if (old_command == 33)
+		if (mode == MODE_MAP_PICKER) if (old_command == 33)
 		{
 		
 			draw_used();
          return;
 		}
 		
-	if (mode == 1) if (old_command == 34)
+	if (mode == MODE_MAP_PICKER) if (old_command == 34)
 		{
 		
 			Msg("drawing used");
@@ -5133,7 +5176,7 @@ if (!windowed)
 
 
 } else
-{
+  {
   /* Replaced by a call to flip_it_second() */
   flip_it_second();
   /*
@@ -5157,8 +5200,7 @@ if (!windowed)
 	ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
 	ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
   */
-}
-
+  }
 } /* updateFrame */
 
   /*
@@ -5166,8 +5208,8 @@ if (!windowed)
   *
   * finished with all objects we use; release them
   */
-  void finiObjects( void )
-  {
+void finiObjects( void )
+{
 	  OutputDebugString("Running cleanup (finiObjects)\n");
 	  
 	  if( lpDD != NULL )
@@ -5215,9 +5257,9 @@ if (sound_on)
 
   } /* finiObjects */
   
-  long FAR PASCAL WindowProc( HWND hWnd, UINT message, 
-	  WPARAM wParam, LPARAM lParam )
-  {
+long FAR PASCAL WindowProc(HWND hWnd, UINT message, 
+			   WPARAM wParam, LPARAM lParam)
+{
 	  switch( message )
 	  {
 	  case WM_ACTIVATEAPP:
@@ -5237,7 +5279,7 @@ if (sound_on)
 		  case 81:
 			  
 			  
-			  if (mode == 1)
+			  if (mode == MODE_MAP_PICKER)
 			  {
 				  
 				  save_hard();
@@ -5271,8 +5313,8 @@ if (sound_on)
 	/*
 	* This function is called if the initialization function fails
   */
-  BOOL initFail( HWND hwnd, char mess[200] )
-  {
+BOOL initFail( HWND hwnd, char mess[200] )
+{
 	  MessageBox( hwnd, mess, TITLE, MB_OK );
 	  finiObjects();
 	  DestroyWindow( hwnd );
@@ -5289,8 +5331,8 @@ if (sound_on)
   
   
   
-  bool check_arg(char crap[255])
-  {
+bool check_arg(char crap[255])
+{
 	  char shit[200];
 	  
 	  //	strupr(crap);
@@ -5337,8 +5379,8 @@ if (chdir(dir) == -1)
   return(true);
   }
   
-  void load_batch(void)
-  {
+void load_batch(void)
+{
 	  FILE *stream;  
 	  char line[255];
 
@@ -5406,8 +5448,8 @@ int SInitSound()
 }
 
 
-  static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
-  {
+static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
+{
 	  HWND                hwnd;
 	  //    HRESULT             dsrval;
 	  // BOOL                bUseDSound;
@@ -5863,9 +5905,12 @@ spr[i].size = 100;
 	seq[1].frame[1] = seq[10].frame[1];
     seq[1].frame[2] = seq[10].frame[2];
     seq[1].frame[3] = seq[10].frame[3];
-    seq[1].frame[4] = -1;
 
-	seq[1].delay[1] = 50;
+    // FIX: end of sequence is 0, not -1. This made the editor crash.
+    // seq[1].frame[4] = -1;
+    seq[1].frame[4] = 0;
+
+    seq[1].delay[1] = 50;
     seq[1].delay[2] = 50;
     seq[1].delay[3] = 50;
     seq[1].delay[4] = 50;
@@ -5905,7 +5950,7 @@ spr[i].size = 100;
 	if (sound_on) SInitSound();
 	//Go Pap!!
 	//	PlayMidi("sound\\TOP.MID");
-    mode = 0;
+    mode = MODE_DIALOG;
     cur_tile = 1; 
 	load_info();        
 initfonts("Arial");

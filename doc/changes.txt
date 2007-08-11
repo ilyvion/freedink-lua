@@ -46,3 +46,8 @@ to the buffer memory assuming that the mode with 8-bit.
 
 Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
 external .wav, grabbed in Dinkedit 1.06 resources.
+
+
+Dinkedit creates a custom sequence #1 but mark the 4th frame as
+-1. This made FreeDinkEdit crash, so it's set to 0, which means "end
+of sequence".
