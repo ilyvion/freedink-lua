@@ -330,18 +330,16 @@ void get_last_sprite(void)
 }
 
 
-BOOL keypressed( void )
-
+BOOL keypressed(void)
 {
-    for (int x=0; x<256; x++)
+  for (int x=0; x<256; x++)
     {
-		if (GetKeyboard(x))
-		{
-			return(TRUE);
-		}
+      if (GetKeyboard(x))
+	{
+	  return(TRUE);
 	}
-	
-	return(FALSE);
+    }
+  return(FALSE);
 }
 
 
@@ -371,91 +369,93 @@ void check_joystick(void)
 	//joystick = false;
 	if (joystick)
 	{
-		memset(&jinfo,0,sizeof(JOYINFOEX));
-		jinfo.dwSize=sizeof(JOYINFOEX);
-		jinfo.dwFlags=JOY_RETURNALL;
-		ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
-		if (ddrval == JOYERR_UNPLUGGED) goto pass;
+	  /* TODO: is it done by SSL, or need we do something? I don't
+	     have a joystick so I cannot test :/ */
+// 		memset(&jinfo,0,sizeof(JOYINFOEX));
+// 		jinfo.dwSize=sizeof(JOYINFOEX);
+// 		jinfo.dwFlags=JOY_RETURNALL;
+// 		ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
+// 		if (ddrval == JOYERR_UNPLUGGED) goto pass;
 		
-		total = jinfo.dwButtons;
+// 		total = jinfo.dwButtons;
 		
-		if ((total - 512) >= 0)
-		{
-			sjoy.joybit[play.button[10]] = TRUE;
-			total = total - 512;
-		}
+// 		if ((total - 512) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[10]] = TRUE;
+// 			total = total - 512;
+// 		}
 		
-		if ((total - 256) >= 0)
-		{
-			sjoy.joybit[play.button[9]] = TRUE;
-			total = total - 256;
-		}
+// 		if ((total - 256) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[9]] = TRUE;
+// 			total = total - 256;
+// 		}
 		
-		if ((total - 128) >= 0)
-		{
-			sjoy.joybit[play.button[8]] = TRUE;
-			total = total - 128;
-		}
+// 		if ((total - 128) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[8]] = TRUE;
+// 			total = total - 128;
+// 		}
 		
-		if ((total - 64) >= 0)
-		{
-			sjoy.joybit[play.button[7]] = TRUE;
-			total = total - 64;
-		}
+// 		if ((total - 64) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[7]] = TRUE;
+// 			total = total - 64;
+// 		}
 		
-		if ((total - 32) >= 0)
-		{
-			sjoy.joybit[play.button[6]] = TRUE;
-			total = total - 32;
-		}
+// 		if ((total - 32) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[6]] = TRUE;
+// 			total = total - 32;
+// 		}
 		
-		if ((total - 16) >= 0)
-		{
-			sjoy.joybit[play.button[5]] = TRUE;
-			total = total - 16;
-		}
+// 		if ((total - 16) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[5]] = TRUE;
+// 			total = total - 16;
+// 		}
 		
-		if ((total - 8) >= 0)
-		{
-			sjoy.joybit[play.button[4]] = TRUE;
-			total = total - 8;
-		}
+// 		if ((total - 8) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[4]] = TRUE;
+// 			total = total - 8;
+// 		}
 		
-		if ((total - 4) >= 0)
-		{
-			sjoy.joybit[play.button[3]] = TRUE;
-			total = total - 4;
-		}
+// 		if ((total - 4) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[3]] = TRUE;
+// 			total = total - 4;
+// 		}
 		
-		if ((total - 2) >= 0)
-		{
-			sjoy.joybit[play.button[2]] = TRUE;
-			total = total - 2;
-		}
+// 		if ((total - 2) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[2]] = TRUE;
+// 			total = total - 2;
+// 		}
 		
-		if ((total - 1) >= 0)
-		{
-			sjoy.joybit[play.button[1]] = TRUE;
-			total = total - 1;
-		}
+// 		if ((total - 1) >= 0)
+// 		{
+// 			sjoy.joybit[play.button[1]] = TRUE;
+// 			total = total - 1;
+// 		}
 		
 		
-		if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
-		if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
-		if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
-		if (jinfo.dwYpos < 17000) sjoy.up = TRUE;
+// 		if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
+// 		if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
+// 		if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
+// 		if (jinfo.dwYpos < 17000) sjoy.up = TRUE;
 		
 	}
 	
 	
 	
 pass:
-	if (GetKeyboard(VK_CONTROL)) sjoy.joybit[1] = TRUE; //17
-	if (GetKeyboard(VK_SPACE)) sjoy.joybit[2] = TRUE; //32
+	if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = TRUE; //17
+	if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = TRUE; //32
 	
-	if (GetKeyboard(VK_SHIFT)) sjoy.joybit[3] = TRUE; //16
-	if (GetKeyboard(VK_RETURN)) sjoy.joybit[4] = TRUE; //13
-	if (GetKeyboard(VK_ESCAPE)) sjoy.joybit[5] = TRUE; //27
+	if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = TRUE; //16
+	if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = TRUE; //13
+	if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = TRUE; //27
 	if (GetKeyboard('6')) sjoy.joybit[6] = TRUE; //54
 	if (GetKeyboard('7')) sjoy.joybit[7] = TRUE; //55
 	
@@ -479,10 +479,10 @@ pass:
 	
 	
 	
-	if (GetKeyboard(VK_RIGHT)) sjoy.right = TRUE; //39
-	if (GetKeyboard(VK_LEFT)) sjoy.left = TRUE; //37
-	if (GetKeyboard(VK_DOWN)) sjoy.down = TRUE; //40
-	if (GetKeyboard(VK_UP)) sjoy.up = TRUE; //38
+	if (GetKeyboard(SDLK_RIGHT)) sjoy.right = TRUE; //39
+	if (GetKeyboard(SDLK_LEFT)) sjoy.left = TRUE; //37
+	if (GetKeyboard(SDLK_DOWN)) sjoy.down = TRUE; //40
+	if (GetKeyboard(SDLK_UP)) sjoy.up = TRUE; //38
 	
 	
 	
@@ -2809,7 +2809,7 @@ void human_brain(int h)
 	{
 		//they are frozen
 		
-		if ( (sjoy.button[2] == TRUE) || (sjoy.key[32]))
+	  if ( (sjoy.button[2] == TRUE) || (sjoy.key[VK_SPACE /* 32 */]))
 		{
 			//they hit the talk button while frozen, lets hurry up the process
 			
@@ -2922,14 +2922,14 @@ void human_brain(int h)
 	{
 		for (x5=29; x5<256; x5++)
 		{ 
-			if (x5 == VK_SPACE) x5++; //32
-			if (x5 == '6') x5++; //54
-			if (x5 == '7') x5++; //55
-			if (x5 == VK_LEFT) x5++; //37
-			if (x5 == VK_UP) x5++; //38
-			if (x5 == VK_RIGHT) x5++; //39
-			if (x5 == VK_DOWN) x5++; //40
-			if (x5 == 'M') x5++;
+			if (x5 == SDLK_SPACE) x5++;
+			if (x5 == '6') x5++;
+			if (x5 == '7') x5++;
+			if (x5 == SDLK_LEFT) x5++;
+			if (x5 == SDLK_UP) x5++;
+			if (x5 == SDLK_RIGHT) x5++;
+			if (x5 == SDLK_DOWN) x5++;
+			if (x5 == 'm') x5++;
 			
 			
 			char msg[30];
@@ -2949,7 +2949,7 @@ void human_brain(int h)
 	}
 	
 	
-	if ( (sjoy.button[6] == TRUE)  || ( (GetKeyboard('M')) && (but_timer < thisTickCount)   )   )
+	if ( (sjoy.button[6] == TRUE)  || ( (GetKeyboard('m')) && (but_timer < thisTickCount)   )   )
 	{
 		
 		but_timer = thisTickCount+200;
@@ -3049,12 +3049,12 @@ shootm:
 	}
 	
 	
-	if (GetKeyboard('B')) //66
+	if (GetKeyboard('b')) //66
 	{
 		ResumeMidi();
 	}
 	
-	if (GetKeyboard('N')) //78
+	if (GetKeyboard('n')) //78
 	{
 		PauseMidi();
 	}
@@ -4899,7 +4899,7 @@ void process_talk()
 }
 
 
-void UpdateCursorPosition(int dx, int dy)
+void UpdateCursorPosition(int x, int y)
 {
 	
 /*
@@ -4908,10 +4908,11 @@ void UpdateCursorPosition(int dx, int dy)
 *  drag to the right extremely slow for the length of the table
 *  and not get anywhere.
 	*/
+/* SDL port: switch to absolute positioning */
 	if (spr[1].active) if (spr[1].brain == 13)
 	{
-		spr[1].x += dx;
-		spr[1].y += dy;
+		spr[1].x = x;
+		spr[1].y = y;
 		/* Clip the cursor to our client area */
 		
 		if (spr[1].x > 640) spr[1].x = 640;
@@ -4919,18 +4920,34 @@ void UpdateCursorPosition(int dx, int dy)
 		if (spr[1].x < 0) spr[1].x = 0;
 		if (spr[1].y < 0) spr[1].y = 0;
 	}
+	/* Text choice selection (e.g. "Load game" in the title
+	   screen) */
 	if (mode == 1) 
 	{
-		play.mouse += dy;
-		//Msg("play mousey is now %d", play.mouse);
+	  int dy = 0;
+	  SDL_GetRelativeMouseState(NULL, &dy);
+
+	  play.mouse += dy;
+	  //Msg("play mousey is now %d", play.mouse);
 	}
 	
 }
 
 
-void  Scrawl_OnMouseInput(void)
+void Scrawl_OnMouseInput(void)
 {
-	
+  Uint8 button;
+  int x, y;
+
+  mouse1 = false;
+
+  SDL_PumpEvents();
+  button = SDL_GetMouseState(&x, &y);
+  UpdateCursorPosition(x, y);
+  if (button & SDL_BUTTON(1))
+	mouse1 = true;
+  return;
+
 	mouse1 = false;
 	
 	BOOL fDone = 0;
@@ -5421,7 +5438,7 @@ void process_show_bmp( void )
       || (sjoy.button[4])
       || (sjoy.button[5])
       || (sjoy.button[6]) 
-      || ((GetKeyboard('M')) && ( but_timer < thisTickCount)))
+      || ((GetKeyboard('m')) && ( but_timer < thisTickCount)))
     {
       showb.active = false;
       if (showb.script != 0)
@@ -5667,29 +5684,44 @@ FAR PASCAL WindowProc(HWND hWnd, UINT message,
 int
 CheckJoyStickPresent(void)
 {
-  // first tests if a joystick driver is present
-  // if TRUE it makes certain that a joystick is plugged in
-	
-  if(!joyGetNumDevs())
-    {
-    Msg("No joysticks found");
-    return 0;
-    }
+  /* first tests if a joystick driver is present */
+  /* if TRUE it makes certain that a joystick is plugged in */
 
-  memset(&jinfo,0,sizeof(JOYINFOEX));
-  jinfo.dwSize=sizeof(JOYINFOEX);
-  jinfo.dwFlags=JOY_RETURNALL;
+  if (SDL_NumJoysticks() > 0)
+    {
+      jinfo = SDL_JoystickOpen(0);
+      if (jinfo) {
+	printf("Name: %s\n", SDL_JoystickName (0));
+	printf("Number of Axes: %d\n", SDL_JoystickNumAxes (jinfo));
+	printf("Number of Buttons: %d\n", SDL_JoystickNumButtons (jinfo));
+	printf("Number of Balls: %d\n", SDL_JoystickNumBalls (jinfo));
+	return 1;
+      } else {
+	printf("Couldn't open Joystick 0");
+      }
+    }
+  return 0;
+
+//   if(!joyGetNumDevs())
+//     {
+//     Msg("No joysticks found");
+//     return 0;
+//     }
+
+//   memset(&jinfo,0,sizeof(JOYINFOEX));
+//   jinfo.dwSize=sizeof(JOYINFOEX);
+//   jinfo.dwFlags=JOY_RETURNALL;
   
-  if(joyGetPosEx(JOYSTICKID1,&jinfo) == JOYERR_NOERROR)
-    {
-      Msg("Joystick IS plugged in");
-      return 1;
-    }
-  else
-    {
-      Msg("Joystick not plugged in");
-      return 0;
-    }
+//   if(joyGetPosEx(JOYSTICKID1,&jinfo) == JOYERR_NOERROR)
+//     {
+//       Msg("Joystick IS plugged in");
+//       return 1;
+//     }
+//   else
+//     {
+//       Msg("Joystick not plugged in");
+//       return 0;
+//     }
 }
 
 
@@ -6293,31 +6325,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   /* Windows event loop */
   while(1)
     {
-      MSG msg;
-      if(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
-	{
-	  if(!GetMessage(&msg, NULL, 0, 0))
-	    {
-	      return msg.wParam;
-	    }
-	  TranslateMessage(&msg); 
-	  DispatchMessage(&msg);
-	}
-      // DEBUG
-      /* Disabled bActive check because it seems SDL steal the
-	 foreground status somehow, making the game freeze :/ */
-      //else if((bActive) || ((debug_mode) && (windowed)))
-      else if((bActive) || (windowed))
-	{
-	  if (g_b_kill_app == 0)
-	    {
-	      updateFrame();
-	    }
-	}
-      else
-	{
-	  // make sure we go to sleep if we have nothing else to do
-	  WaitMessage();
-	}
+      SDL_PumpEvents();
+      updateFrame();
     }
 }

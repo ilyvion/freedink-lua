@@ -70,14 +70,14 @@ trigger_start:
 	
 	check_joystick();
 	
-	if ( (GetKeyboard('M')) && (GetKeyboard(VK_MENU)) ) //18
+	if (GetKeyboard('m') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{
 		//shutdown music
 		StopMidi();
 		return;
 	}
 	
-	if ( (GetKeyboard('D')) && (GetKeyboard(VK_MENU)) ) //18
+	if (GetKeyboard('d') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{	
 		if (debug_mode) 
 		{
@@ -94,7 +94,7 @@ trigger_start:
 		  
 	
 	
-	if ( (GetKeyboard('Q')) && (GetKeyboard(VK_MENU)) )
+	if (GetKeyboard(SDLK_q) && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{
 		//shutdown game
 	//	PostMessage(hWndMain, WM_CLOSE, 0, 0);
@@ -729,8 +729,8 @@ past:
 		FillMemory(&spr[1], sizeof(spr[1]), 0);
 		
 		spr[1].speed = 3;
-		init_mouse(hWndMain);
-		g_pMouse->Acquire();
+		/* init_mouse(hWndMain); */
+		/* g_pMouse->Acquire(); */
 		
 		spr[1].timer = 0;
 		spr[1].brain = 1;
@@ -789,22 +789,22 @@ past:
 			{
 				
 				
-				if (g_pMouse) 
-				{ 
-					g_pMouse->Release();
-					g_pMouse = NULL;
-				}
+/* 				if (g_pMouse)  */
+/* 				{  */
+/* 					g_pMouse->Release(); */
+/* 					g_pMouse = NULL; */
+/* 				} */
 				
-				if (g_hevtMouse)
-				{
-					CloseHandle(g_hevtMouse);
-					g_hevtMouse = NULL;
-				}
-				if (g_pdi)     
-				{
-					g_pdi->Release();
-					g_pdi    = NULL;
-				}
+/* 				if (g_hevtMouse) */
+/* 				{ */
+/* 					CloseHandle(g_hevtMouse); */
+/* 					g_hevtMouse = NULL; */
+/* 				} */
+/* 				if (g_pdi)      */
+/* 				{ */
+/* 					g_pdi->Release(); */
+/* 					g_pdi    = NULL; */
+/* 				} */
 				
 			}
 			

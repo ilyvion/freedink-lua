@@ -483,7 +483,8 @@ extern PALETTEENTRY    pe[256];
 
 /* Joystick */
 extern BOOL joystick;
-extern JOYINFOEX jinfo;
+/* extern JOYINFOEX jinfo; */
+extern SDL_Joystick *jinfo;
 extern struct wait_for_button wait;
 
 /* Game state */

@@ -73,6 +73,9 @@ int init(void) {
   /* Maybe use SDL_QuitSubSystem instead */
   atexit(SDL_Quit);
 
+  /* Hide mouse */
+  SDL_ShowCursor(SDL_DISABLE);
+
   // FONTS
   /* TODO: create a separate initialization procedure */
   TTF_Init();

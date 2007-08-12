@@ -18,7 +18,7 @@ Shawn Betts wrote the first version of fastfile.c. Moreover, code from
 his contribution to "The Dink Project" was reused, namely from
 load_palette_from_bmp(), setup_palette(), load_sprite_pak(),
 print_text(), print_text_wrap(), font_len(),
-process_text_for_wrapping().
+process_text_for_wrapping(), CheckJoyStickPresent().
 
 
 Sylvain Beucler started from the v1.07 source code release and, except

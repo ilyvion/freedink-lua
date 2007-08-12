@@ -929,79 +929,79 @@ sjoy.down = FALSE;
 
 if (joystick)
 {
-memset(&jinfo,0,sizeof(JOYINFOEX));
-jinfo.dwSize=sizeof(JOYINFOEX);
-jinfo.dwFlags=JOY_RETURNALL;
-ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
+// memset(&jinfo,0,sizeof(JOYINFOEX));
+// jinfo.dwSize=sizeof(JOYINFOEX);
+// jinfo.dwFlags=JOY_RETURNALL;
+// ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
 
-total = jinfo.dwButtons;
+// total = jinfo.dwButtons;
 
- if ((total - 512) >= 0)
- {
- 	 sjoy.joybit[10] = TRUE;
-	 total = total - 512;
- }
+//  if ((total - 512) >= 0)
+//  {
+//  	 sjoy.joybit[10] = TRUE;
+// 	 total = total - 512;
+//  }
 
- if ((total - 256) >= 0)
- {
- 	 sjoy.joybit[9] = TRUE;
-	 total = total - 256;
- }
+//  if ((total - 256) >= 0)
+//  {
+//  	 sjoy.joybit[9] = TRUE;
+// 	 total = total - 256;
+//  }
 
- if ((total - 128) >= 0)
- {
- 	 sjoy.joybit[8] = TRUE;
-	 total = total - 128;
- }
+//  if ((total - 128) >= 0)
+//  {
+//  	 sjoy.joybit[8] = TRUE;
+// 	 total = total - 128;
+//  }
 
- if ((total - 64) >= 0)
- {
- 	 sjoy.joybit[7] = TRUE;
-	 total = total - 64;
- }
+//  if ((total - 64) >= 0)
+//  {
+//  	 sjoy.joybit[7] = TRUE;
+// 	 total = total - 64;
+//  }
 
- if ((total - 32) >= 0)
- {
- 	 sjoy.joybit[6] = TRUE;
-	 total = total - 32;
- }
+//  if ((total - 32) >= 0)
+//  {
+//  	 sjoy.joybit[6] = TRUE;
+// 	 total = total - 32;
+//  }
 
- if ((total - 16) >= 0)
- {
- 	 sjoy.joybit[5] = TRUE;
-	 total = total - 16;
- }
+//  if ((total - 16) >= 0)
+//  {
+//  	 sjoy.joybit[5] = TRUE;
+// 	 total = total - 16;
+//  }
 
- if ((total - 8) >= 0)
- {
- 	 sjoy.joybit[4] = TRUE;
-	 total = total - 8;
- }
+//  if ((total - 8) >= 0)
+//  {
+//  	 sjoy.joybit[4] = TRUE;
+// 	 total = total - 8;
+//  }
 
- if ((total - 4) >= 0)
- {
- 	 sjoy.joybit[3] = TRUE;
-	 total = total - 4;
- }
+//  if ((total - 4) >= 0)
+//  {
+//  	 sjoy.joybit[3] = TRUE;
+// 	 total = total - 4;
+//  }
 
- if ((total - 2) >= 0)
- {
- 	 sjoy.joybit[2] = TRUE;
-	 total = total - 2;
- }
+//  if ((total - 2) >= 0)
+//  {
+//  	 sjoy.joybit[2] = TRUE;
+// 	 total = total - 2;
+//  }
 
- if ((total - 1) >= 0)
- {
- 	 sjoy.joybit[1] = TRUE;
-	 total = total - 1;
- }
+//  if ((total - 1) >= 0)
+//  {
+//  	 sjoy.joybit[1] = TRUE;
+// 	 total = total - 1;
+//  }
 
       
       
- if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
- if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
- if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
- if (jinfo.dwYpos < 25000) sjoy.up = TRUE;
+//  if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
+//  if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
+//  if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
+//  if (jinfo.dwYpos < 25000) sjoy.up = TRUE;
 
 }
 
@@ -2055,7 +2055,7 @@ void shrink_screen_to_these_cords(int x1, int y1)
  *      This does not redraw the cursor.  You need to do that yourself.
  *
  ****************************************************************************/
-void UpdateCursorPosition(int dx, int dy)
+void UpdateCursorPosition(int x, int y)
 {
 
     /*
@@ -2065,8 +2065,8 @@ void UpdateCursorPosition(int dx, int dy)
      *  and not get anywhere.
      */
     sp_cycle = 0;
-    spr[1].x += dx;
-    spr[1].y += dy;
+    spr[1].x = x;
+    spr[1].y = y;
     /* Clip the cursor to our client area */
 
 }
@@ -2074,48 +2074,55 @@ void UpdateCursorPosition(int dx, int dy)
 
 void  Scrawl_OnMouseInput(void)
 {
+  Uint8 button;
+  int x, y;
 
-mouse1 = false;
-if (mode != 6) return;
+  mouse1 = false;
+  if (mode != 6) return;
 
-
+  SDL_PumpEvents();
+  button = SDL_GetMouseState(&x, &y);
+  UpdateCursorPosition(x, y);
+  if (button & SDL_BUTTON(1))
+	mouse1 = true;
+  return;
 
 	
-	BOOL fDone = 0;
+/* 	BOOL fDone = 0; */
 
-    while (!fDone) {
+/*     while (!fDone) { */
    
-		DIDEVICEOBJECTDATA od;
+/* 		DIDEVICEOBJECTDATA od; */
 
-        DWORD dwElements = 1;
+/*         DWORD dwElements = 1; */
 
-        HRESULT hr = g_pMouse->GetDeviceData(
-                             sizeof(DIDEVICEOBJECTDATA), &od,
-                             &dwElements, 0);
+/*         HRESULT hr = g_pMouse->GetDeviceData( */
+/*                              sizeof(DIDEVICEOBJECTDATA), &od, */
+/*                              &dwElements, 0); */
 
-        if (hr == DIERR_INPUTLOST) {
-            /*
-             *  We had acquisition, but lost it.  Try to reacquire it.
-             *
-             *  WARNING!  DO NOT ATTEMPT TO REACQUIRE IF YOU GET
-             *  DIERR_NOTACQUIRED!  Otherwise, you're extremely likely
-             *  to get caught in an infinite loop:  The acquire will fail,
-             *  and you'll get another DIERR_NOTACQUIRED so you'll
-             *  try to aquire again, and that'll fail, etc.
-             */
-        //    PostMessage(hwnd, WM_SYNCACQUIRE, 0, 0L);
-         //   break;
+/*         if (hr == DIERR_INPUTLOST) { */
+/*             /\* */
+/*              *  We had acquisition, but lost it.  Try to reacquire it. */
+/*              * */
+/*              *  WARNING!  DO NOT ATTEMPT TO REACQUIRE IF YOU GET */
+/*              *  DIERR_NOTACQUIRED!  Otherwise, you're extremely likely */
+/*              *  to get caught in an infinite loop:  The acquire will fail, */
+/*              *  and you'll get another DIERR_NOTACQUIRED so you'll */
+/*              *  try to aquire again, and that'll fail, etc. */
+/*              *\/ */
+/*         //    PostMessage(hwnd, WM_SYNCACQUIRE, 0, 0L); */
+/*          //   break; */
  
-		Msg("Have no aquisition!!");
-		g_pMouse->Acquire();
+/* 		Msg("Have no aquisition!!"); */
+/* 		g_pMouse->Acquire(); */
 
-		}
+/* 		} */
 
-        /* Unable to read data or no data available */
-        if (FAILED(hr) || dwElements == 0) {
-           // Msg("No mouse data there.");
-			break;
-        }
+/*         /\* Unable to read data or no data available *\/ */
+/*         if (FAILED(hr) || dwElements == 0) { */
+/*            // Msg("No mouse data there."); */
+/* 			break; */
+/*         } */
 
         /* Look at the element to see what happened */
 
@@ -2138,22 +2145,22 @@ case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break;
         }
 */
 
-        if (od.dwOfs == DIMOFS_X)
-        {
-         // DIMOFS_X: Mouse horizontal motion
-         UpdateCursorPosition(od.dwData, 0);
-        }
-        else if (od.dwOfs == DIMOFS_Y)
-        {
-         //DIMOFS_Y: Mouse vertical motion
-         UpdateCursorPosition(0, od.dwData);
-        }
-        else if (od.dwOfs == DIDFT_BUTTON)
-        {
-         if (od.dwData > 0) mouse1 = true;
-        }
+/*         if (od.dwOfs == DIMOFS_X) */
+/*         { */
+/*          // DIMOFS_X: Mouse horizontal motion */
+/*          UpdateCursorPosition(od.dwData, 0); */
+/*         } */
+/*         else if (od.dwOfs == DIMOFS_Y) */
+/*         { */
+/*          //DIMOFS_Y: Mouse vertical motion */
+/*          UpdateCursorPosition(0, od.dwData); */
+/*         } */
+/*         else if (od.dwOfs == DIDFT_BUTTON) */
+/*         { */
+/*          if (od.dwData > 0) mouse1 = true; */
+/*         } */
 
-    }
+/*     } */
 
 }
 
@@ -6165,10 +6172,10 @@ playx = 620;
 playy = 480;
 sp_seq = 0;
 
-init_mouse(hwnd);
+// init_mouse(hwnd);
 
 	
-g_pMouse->Acquire();
+// g_pMouse->Acquire();
 
 
 	return TRUE;
@@ -6206,59 +6213,42 @@ void switch_to_my_dir()
 }
 
 
- int PASCAL WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                        LPSTR lpCmdLine, int nCmdShow)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+		   LPSTR lpCmdLine, int nCmdShow)
 {
-    MSG         msg;
-
-		char dir_temp[256], dir_final[256];
-    getdir(dir_temp, dir_final);
-
-	strcpy(dinkpath, dir_final);
-printf("Switching to dir %s.",dinkpath);
-if (chdir(dinkpath)) 
-{
-	char crap[255];
-	sprintf(crap, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
-initFail(hWndMain, crap);
- return(0);   
-}
-
-    lpCmdLine = lpCmdLine;
-      command_line = lpCmdLine; 
-    MyhInstance = hInstance;
-    hPrevInstance = hPrevInstance;
-
-    if( !doInit( hInstance, nCmdShow ) )
+  MSG msg;
+  
+  char dir_temp[256], dir_final[256];
+  getdir(dir_temp, dir_final);
+  
+  strcpy(dinkpath, dir_final);
+  printf("Switching to dir %s.",dinkpath);
+  if (chdir(dinkpath)) 
     {
-        return FALSE;
+      char crap[255];
+      sprintf(crap, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
+      initFail(hWndMain, crap);
+      return(0);   
     }
-
-
-    while( 1 )
+  
+  lpCmdLine = lpCmdLine;
+  command_line = lpCmdLine; 
+  MyhInstance = hInstance;
+  hPrevInstance = hPrevInstance;
+  
+  if( !doInit( hInstance, nCmdShow ) )
     {
-        if( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) )
-        {
-            if( !GetMessage( &msg, NULL, 0, 0 ) )
-            {
-                return msg.wParam;
-            }
-            TranslateMessage(&msg); 
-            DispatchMessage(&msg);
-        }
-        else if( bActive )
-        {
-			updateFrame();
-        }
-        else
-        {
-            // make sure we go to sleep if we have nothing else to do
-            WaitMessage();
-        }
+      return FALSE;
     }
-
- 
-	return(true); 
+  
+  
+  while( 1 )
+    {
+      SDL_PumpEvents();
+      updateFrame();
+    }
+  
+  return(true); 
 } /* WinMain */
 
 
