@@ -40,9 +40,9 @@ Port the game from DirectX to SDL
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
     limitations)
-  - Bitmaps (In progress: backgrounds OK, sprites Game=OK Editor=TODO)
+  - Bitmaps (In progress: backgrounds OK, sprites Game=OK Editor=OK)
   - Scaling (Done: SDL_gfx/rotozoom)
-  - Fonts
+  - Fonts (In progress: SDL_ttf installed, but the font doesn't render the same)
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting?
 

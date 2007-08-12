@@ -54,6 +54,15 @@ Background
 - Use a different palette for a tile: the colours should be
   interpolated to the Ts01.bmp's palette during the game.
 
+Scaling
+=======
+
+- Bug in the original game, still present in the SDL port: when moving
+  a scaled sprite (eg size=200%) to the edge of the screen, the sprite
+  is clipped and resized at once; however the sprite size doesn't
+  remain constant, there's a 1-pixel different appearing depending on
+  how much the frame is clipped. We may try to fix it in the future.
+
 Fonts
 =====
 
