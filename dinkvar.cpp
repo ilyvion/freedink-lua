@@ -5517,6 +5517,11 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 			     &box_real  , DDBLT_KEYSRC ,&ddbltfx );
 	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
 	// GFX
+	/* Generic scaling */
+	/* Not perfectly accurate yet: move a 200% sprite to the
+	   border of the screen to it is clipped: it's scaled size
+	   will slighly vary. Maybe we need to clip the source zone
+	   before scaling it.. */
 	{
 	  SDL_Rect src, dst;
 	  SDL_Surface *scaled;
@@ -5531,9 +5536,17 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	  dst.h = box_crap.bottom - box_crap.top;
 	  sx = 1.0 * dst.w / src.w;
 	  sy = 1.0 * dst.h / src.h;
-	  if (sx != 1 || sy != 1)
+	  /* In principle, double's are precised up to 15 decimal
+	     digits */
+	  if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 	    {
 	      scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
+	      /* Disable transparency if it wasn't active in the source surface
+		 (SDL_gfx bug, report submitted to the author) */
+	      if ((GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY) == 0)
+		SDL_SetColorKey(scaled, 0, 0);
+	      src.x = (int) round(src.x * sx);
+	      src.y = (int) round(src.y * sy);
 	      src.w = (int) round(src.w * sx);
 	      src.h = (int) round(src.h * sy);
 	      SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
@@ -5541,6 +5554,7 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	    }
 	  else
 	    {
+	      /* No scaling */
 	      SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
 	    }
 	}

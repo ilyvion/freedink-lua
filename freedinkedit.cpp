@@ -376,9 +376,18 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 	    dst.h = box_crap.bottom - box_crap.top;
 	    sx = 1.0 * dst.w / src.w;
 	    sy = 1.0 * dst.h / src.h;
-	    if (sx != 1 || sy != 1)
+	    /* In principle, double's are precised up to 15 decimal
+	       digits */
+	    if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 	      {
 		scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
+		/* Disable transparency if it wasn't active in the
+		   source surface (SDL_gfx bug, report submitted to
+		   the author) */
+		if ((GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY) == 0)
+		  SDL_SetColorKey(scaled, 0, 0);
+		src.x = (int) round(src.x * sx);
+		src.y = (int) round(src.y * sy);
 		src.w = (int) round(src.w * sx);
 		src.h = (int) round(src.h * sy);
 		SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
@@ -386,6 +395,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 	      }
 	    else
 	      {
+		/* No scaling */
 		SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
 	      }
 	  }
@@ -678,54 +688,51 @@ void draw_hard( void)
 }
 
 
-/* Draw all squares in the map picker mode, including the 'M' (midi)
-   and 'S' (screentype) marks */
-void draw_used( void)
+void
+draw_this_map(map_info* pmap)
 {
-  DDBLTFX     ddbltfx;
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 2;
-  
-  /*box_crap.top = spr[h].y + k[spr[h].pic].hardbox.top;
-    box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
-    box_crap.left = spr[h].x + k[spr[h].pic].hardbox.left;
-    box_crap.right = spr[h].x + k[spr[h].pic].hardbox.right;
-  */
-  //lpDDSBack->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL, &ddbltfx);
-  
   for (int x=0; x<768; x++)
     {
       /* Blue square - unused screen */
-      if (map.loc[x+1] == 0)
+      if (pmap->loc[x+1] == 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
 			    &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
 	  // GFX
 	  {
 	    SDL_Rect dst;
+	    SDL_Surface *sprite;
+	    sprite = GFX_k[seq[10].frame[6]].k;
 	    dst.x = x * 20 - x/32*640;
 	    dst.y = x/32 * 20;
-	    SDL_BlitSurface(GFX_k[seq[10].frame[6]].k, NULL, GFX_lpDDSTwo, &dst);
+	    /* We need to avoid transparency though */
+	    Uint32 colorkey = sprite->format->colorkey;
+	    SDL_SetColorKey(sprite, 0, 0); /* Temporarily disable transparent color */
+	    SDL_BlitSurface(sprite, NULL, GFX_lpDDSTwo, &dst);
+	    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 	  }
 	}
       /* Red square - used screen */
-      if (map.loc[x+1] > 0)
+      if (pmap->loc[x+1] > 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
 			    &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 	  // GFX
 	  {
 	    SDL_Rect dst;
+	    SDL_Surface *sprite = GFX_k[seq[10].frame[7]].k;
 	    dst.x = x * 20 - x/32*640;
 	    dst.y = x/32 * 20;
-	    SDL_BlitSurface(GFX_k[seq[10].frame[7]].k, NULL, GFX_lpDDSTwo, &dst);
+	    /* We need to avoid transparency though */
+	    Uint32 colorkey = sprite->format->colorkey;
+	    SDL_SetColorKey(sprite, 0, 0); /* Temporarily disable transparent color */
+	    SDL_BlitSurface(sprite, NULL, GFX_lpDDSTwo, &dst);
+	    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 	  }
 	}
       
       /* M mark - screen has MIDI */
-      if (map.music[x+1] != 0)
+      if (pmap->music[x+1] != 0)
 	{
 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
 			    &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
@@ -738,7 +745,7 @@ void draw_used( void)
 	  }
 	}
       /* S mark - screen has screentype / is indoor */
-      if (map.indoor[x+1] != 0)
+      if (pmap->indoor[x+1] != 0)
 	{
 	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
            &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
@@ -751,6 +758,19 @@ void draw_used( void)
 	  }
 	}
     }
+}
+
+/* Draw all squares in the map picker mode, including the 'M' (midi)
+   and 'S' (screentype) marks */
+void draw_used(void)
+{
+  /*box_crap.top = spr[h].y + k[spr[h].pic].hardbox.top;
+    box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
+    box_crap.left = spr[h].x + k[spr[h].pic].hardbox.left;
+    box_crap.right = spr[h].x + k[spr[h].pic].hardbox.right;
+  */
+  //lpDDSBack->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL, &ddbltfx);
+  draw_this_map(&map);
 }
 
 
@@ -805,38 +825,19 @@ char crap[120];
 }
 
 /* draw_used() but on a different map ('L' in map picker mode) */
-void draw_used_buff( void)
+void draw_used_buff(void)
 {
   load_info_buff();
   
   if (!buf_mode) 
     {
       //failed
+      /* TODO: display error message to the user */
       draw_used();
       return;
     }
   
-  for (int x=0; x<768; x++)
-    {
-      if ( buffmap.loc[x+1] == 0)	
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
-			   &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
-      
-      if (buffmap.loc[x+1] > 0)	
-	lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
-			   &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-      
-      if (buffmap.music[x+1] != 0)
-	{
-	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
-			     &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-	}
-      if (buffmap.indoor[x+1] != 0)
-	{
-	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
-			     &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
-	}
-    }
+  draw_this_map(&buffmap);
 }
 
 
@@ -1276,6 +1277,7 @@ void draw96(int def)
   ddbltfx.dwSize = sizeof( ddbltfx);
   ddbltfx.dwFillColor = 0;
   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+  // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);  
   
   ZeroMemory(&ddbltfx, sizeof(ddbltfx));
@@ -1513,15 +1515,21 @@ if (spr[1].size == 100)
 
 
 
-void blit(int seq1, int frame,LPDIRECTDRAWSURFACE lpdest, int sx, int sy)
+void blit(int seq1, int frame, LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int tx, int ty)
 {
 RECT math;
 
 	math = k[seq[seq1].frame[frame]].box;
-	OffsetRect(&math, sx, sy);
-	ddrval = lpdest->Blt( &math, k[seq[seq1].frame[frame]].k, &k[seq[seq1].frame[frame]].box , DDBLT_WAIT, NULL);
-        
-	
+	OffsetRect(&math, tx, ty);
+	ddrval = lpdest->Blt(&math, k[seq[seq1].frame[frame]].k, &k[seq[seq1].frame[frame]].box, DDBLT_WAIT, NULL);
+	// GFX
+	// No scaling needed here
+	{
+	  SDL_Rect dst;
+	  dst.x = tx;
+	  dst.y = ty;
+	  SDL_BlitSurface(GFX_k[seq[seq1].frame[frame]].k, NULL, GFX_lpdest, &dst);
+	}
 }
 
 
@@ -1542,7 +1550,7 @@ void check_in(void)
 							in_int = &spr[1].size;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",spr[1].size); //set default
-						    blit(30,1,lpDDSBack,250,170);
+				blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Size?",260,175);
 	  }
 
@@ -1557,7 +1565,7 @@ if (in_master == 2)
 							in_int = &sp_type;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_type); //set default
-						    blit(30,1,lpDDSBack,250,170);
+				blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Type?",260,175);
 					   	Say("Type controls the sprites basic type - 0 means it is ornamental only"
 							"(cannot walk behind or think) 1 - means normal sprite.  (for a tree or person)"
@@ -1573,7 +1581,7 @@ if (in_master == 3)
 							in_int = &sp_brain;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_brain); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                         Say("New Brain?",260,175);
 					     	Say("Brains are a predefined way for this sprite to behave. 0 = No movement, 1 = Dink,"
 							" 2 = Dumb Sprite Bouncer, 3 = Duck, 4 = Pig, 6 = repeat, 7 = one loop then kill,"
@@ -1591,7 +1599,7 @@ if (in_master == 4)
 							in_int = &sp_speed;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_speed); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Speed?",260,175);
 					   	Say("Speed rating allows you to adjust how fast a certain sprite moves.  Works with"
 							" most brains."
@@ -1607,7 +1615,7 @@ if (in_master == 5)
 							in_int = &sp_timer;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_timer); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Timing?",260,175);
 					   	Say("This is the delay the CPU waits before processing the sprite after each cycle.  "
 							"(in thousands of a second - so 33 would mean 30 times a second)"
@@ -1623,7 +1631,7 @@ if (in_master == 6)
 							in_int = &sp_base_walk;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_walk); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Base Walk?",260,175);
 					   	Say("The base for which the CPU adds 1 through 9 to make the sprite move, depending on"
 							" direction.  Must be a multiple of ten. (ie, 20 to look like a duck, 40 to look like a pig)"
@@ -1638,7 +1646,7 @@ if (in_master == 7)
 							in_int = &sp_base_idle;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_idle); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Base Idle?",260,175);
 					   	Say("Some brains can optionally use extra sprites for their \'idle\' pose."
 							
@@ -1654,7 +1662,7 @@ if (in_master == 8)
 							in_int = &sp_que;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_que); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Depth Que?",250,175);
 					   	Say("From 1 to 20000, 0 for default.  (defaults to y cord)"
 							
@@ -1670,7 +1678,7 @@ if (in_master == 9)
 							in_int = &sp_hard;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_hard); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Hardness?",260,175);
 					   	Say("Sets how hardness works.  1 means normal, (monsters) 0 means added to background. (walls, trees)"
 							
@@ -1685,7 +1693,7 @@ if (in_master == 10)
 							in_int = &sp_prop;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_prop); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("New Properties?",260,175);
 					        Say("Sets special properties for the hardblock.  0 = normal (just hard) 1 = warp."
 							,10,10);
@@ -1699,7 +1707,7 @@ if (in_master == 11)
 							in_int = &sp_warp_map;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_map); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Warp Map #",260,175);
 					        Say("These parms are valid if the hard block property setting is 1.  (warp)"
 							
@@ -1714,7 +1722,7 @@ if (in_master == 12)
 							in_int = &sp_warp_x;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_x); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Warp X:",260,175);
 					        Say("The X location to warp to.  (20 to 619)"
 								,10,10);
@@ -1728,7 +1736,7 @@ if (in_master == 13)
 							in_int = &sp_warp_y;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_y); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Warp Y:",260,175);
 					        Say("The Y location to warp to.  (0 to 499)"
 								,10,10);
@@ -1742,7 +1750,7 @@ if (in_master == 14)
 							in_int = &sp_parm_seq;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_parm_seq); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Sequence:",260,175);
 					        Say("This parm is used by some brains/settings if set.  A sequence is an animation #."
 								,10,10);
@@ -1756,7 +1764,7 @@ if (in_master == 15)
                              in_max = 13; 
                               in_string = sp_script;
 
-							blit(30,1,lpDDSBack,250,170);
+							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Script:",260,175);
 					        Say("Filename of script this sprite uses."
 								,10,10);
@@ -1771,7 +1779,7 @@ if (in_master == 16)
 							in_int = &sp_base_die;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_die); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Base Death:",260,175);
 					        Say("If this sprite dies, this will be used."
 								,10,10);
@@ -1785,7 +1793,7 @@ if (in_master == 17)
 							in_int = &sp_sound;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_sound); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Sound:",260,175);
 					        Say("This sprite will play this sound looped until it dies."
 								,10,10);
@@ -1799,7 +1807,7 @@ if (in_master == 18)
 							in_int = &sp_hitpoints;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_hitpoints); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Hitpoints:",260,175);
 					        Say("How strong is this creature?  (0 = not alive/invincable)"
 								,10,10);
@@ -1813,7 +1821,7 @@ if (in_master == 19)
 							in_int = &sp_nohit;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_nohit); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Nohit:",260,175);
 					        Say("Can this this be punched? 0 if yes.  Either way it will"
 							"still check for hit() if a script is attached."
@@ -1829,7 +1837,7 @@ if (in_master == 20)
 							in_int = &sp_touch_damage;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_touch_damage); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Touch Damage:",260,175);
 					        Say("If not 0, the hardbox of this sprite will cause this"
 							"much damage if touched."
@@ -1845,7 +1853,7 @@ if (in_master == 21)
 							in_int = &sp_base_attack;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_attack); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Base Attack:",260,175);
 					        Say("If not -1, this monster can attack with this sprite base. (base + dir)"
 							
@@ -1860,7 +1868,7 @@ if (in_master == 22)
 							in_int = &sp_defense;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_defense); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Defense:",260,175);
 					        Say("This will deducted from any attack."
 							
@@ -1877,7 +1885,7 @@ if (in_master == 30)
                              in_max = 80; 
                               in_string = buf_path;
 
-							blit(30,1,lpDDSBack,250,170);
+							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Path:",260,175);
 					        Say("Enter the path with trailing backslash to a dir containing another dink.dat and map.dat file to choose a replacement"
 								"for this block. (or enter to choose a replacement from the current map)"
@@ -1894,7 +1902,7 @@ if (in_master == 31)
                              in_max = 20; 
                               in_string = pam.script;
 
-							blit(30,1,lpDDSBack,250,170);
+							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Script:",260,175);
 					        Say("This script will be run before the screen is drawn.  A good place"
 								"to change the vision, ect."
@@ -1909,7 +1917,7 @@ if (in_master == 32)
 							in_int = &map_vision;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",map_vision); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Vision:",260,175);
 					        Say("Current vision.  If not 0, any sprites you add will ONLY show up"
 							" in the game if the vision level matches this one."
@@ -1925,7 +1933,7 @@ if (in_master == 33)
 							
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Music # for screen?:",260,175);
 					        Say("Will play #.MID for this screen if nothing else is playing."							
 								,10,10);
@@ -1939,7 +1947,7 @@ if (in_master == 34)
 							
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,lpDDSBack,250,170);
+						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
 	                        Say("Screentype?:",260,175);
 					        Say("Enter 1 for 'indoors'.  (so it won't show up on the player map)."							
 								,10,10);
@@ -1990,23 +1998,51 @@ void copy_front_to_two( void)
 }
 
 
+/* Create a 20x20 view of lpDDSTwo for use in the minimap */
+void shrink_screen_to_these_cords(int x1, int y1)
+{
+  RECT crapRec, Rect;
+  DDBLTFX ddbltfx;
+  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+  ddbltfx.dwSize = sizeof(ddbltfx);
+  
+  SetRect(&crapRec, playl, 0, playx, 400);
+  SetRect(&Rect, x1, y1, x1+20, y1+20);
+  
+  lpDDSBack->Blt(&Rect, lpDDSTwo,
+		 &crapRec, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+  
+  // GFX
+  /* Generic scaling - except no transparency (plus I'm sure scaling
+     is necessary) */
+  {
+    SDL_Rect src, dst;
+    SDL_Surface *scaled;
+    double sx, sy;
+    src.x = playl;
+    src.y = 0;
+    src.w = playx - playl;
+    src.h = 400;
+    dst.x = x1;
+    dst.y = y1;
+    dst.w = 20;
+    dst.h = 20;
+    sx = 1.0 * dst.w / src.w;
+    sy = 1.0 * dst.h / src.h;
 
-		   void shrink_screen_to_these_cords(int x1, int y1)
-		   
-		   {
-     RECT crapRec, Rect;	
-
-               DDBLTFX     ddbltfx;     
-        ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-		ddbltfx.dwSize = sizeof( ddbltfx);
-		
-        SetRect(&crapRec, playl, 0, playx, 400);
-		SetRect(&Rect, x1, y1, x1+20,y1+20);
-
-		    lpDDSBack->Blt(&Rect , lpDDSTwo,
-			&crapRec, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
-
-		   }
+    scaled = zoomSurface(GFX_lpDDSTwo, sx, sy, SMOOTHING_OFF);
+    /* Disable transparency if it wasn't active in the source surface
+       (SDL_gfx bug, report submitted to the author) */
+    if ((GFX_lpDDSTwo->flags & SDL_SRCCOLORKEY) == 0)
+      SDL_SetColorKey(scaled, 0, 0);
+    src.x = (int) round(src.x * sx);
+    src.y = 0; /* (int) round(src.y * sy); */
+    src.w = (int) round(src.w * sx);
+    src.h = (int) round(src.h * sy);
+    SDL_BlitSurface(scaled, &src, GFX_lpDDSBack, &dst);
+    SDL_FreeSurface(scaled);
+  }
+}
 
 
 /****************************************************************************
@@ -2029,7 +2065,7 @@ void UpdateCursorPosition(int dx, int dy)
      *  and not get anywhere.
      */
     sp_cycle = 0;
-	spr[1].x += dx;
+    spr[1].x += dx;
     spr[1].y += dy;
     /* Clip the cursor to our client area */
 
@@ -2241,6 +2277,15 @@ ddbltfx.dwSize = sizeof( ddbltfx);
  
  SetRect(&box, x1+x+20,y1+y,x1+x+1+20,y1+y+1);
  ddrval = lpDDSBack->Blt(&box ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+ // GFX
+ {
+   SDL_Rect dst;
+   dst.x = x1+x+20;
+   dst.y = y1+y;
+   dst.w = 1;
+   dst.y = 1;
+   SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
+ }
  //if (ddrval != DD_OK) dderror(ddrval);
 				
 			}
@@ -2970,19 +3015,55 @@ void updateFrame(void)
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.bottom = box_crap.top + 5;
 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-     
+				// GFX
+				{
+				  SDL_Rect dst;
+				  dst.x = box_crap.left;
+				  dst.y = box_crap.top;
+				  dst.w = box_crap.right - box_crap.left;
+				  dst.h = 5;
+				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				}
+
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.right = box_crap.left + 5;
 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
- 	
+				// GFX
+				{
+				  SDL_Rect dst;
+				  dst.x = box_crap.left;
+				  dst.y = box_crap.top;
+				  dst.w = 5;
+				  dst.h = box_crap.bottom - box_crap.top;
+				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				}
+
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.left = box_crap.right - 5;
 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	
+				// GFX
+				{
+				  SDL_Rect dst;
+				  dst.x = box_crap.right - 5;
+				  dst.y = box_crap.top;
+				  dst.w = 5;
+				  dst.h = box_crap.bottom - box_crap.top;
+				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				}
+
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.top = box_crap.bottom - 5;
 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	
+				// GFX
+				{
+				  SDL_Rect dst;
+				  dst.x = box_crap.left;
+				  dst.y = box_crap.bottom - 5;
+				  dst.w = box_crap.right - box_crap.left;
+				  dst.h = 5;
+				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				}
+
 				//	if (ddrval != DD_OK) dderror(ddrval);
 
 				spr[sprite].active = false;
@@ -3363,6 +3444,8 @@ void updateFrame(void)
 				  ddbltfx.dwSize = sizeof( ddbltfx);
 				  ddbltfx.dwFillColor = 255;
 				  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+				  // GFX
+				  SDL_FillRect(GFX_lpDDSTwo, NULL, 255);
 
 				  holdx = (spr[1].x / 50);
 				  int holdy = (spr[1].y / 50)+1;
@@ -3838,8 +3921,46 @@ void updateFrame(void)
 			    lpDDSTwo->Blt(&crapRec , tiles[cool+1],
 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
 			    // GFX
+			    /* Generic scaling */
+			    /* Not perfectly accurate yet: move a 200% sprite to the
+			       border of the screen to it is clipped: it's scaled size
+			       will slighly vary. Maybe we need to clip the source zone
+			       before scaling it.. */
 			    {
-			      // TODO: SDL_gfx + scaling
+			      SDL_Rect src, dst;
+			      SDL_Surface *scaled, *source;
+			      double sx, sy;
+			      src.x = xx * 50 - xx/12 * 600;
+			      src.y = xx/12 * 50;
+			      src.w = 50;
+			      src.h = 50;
+			      dst.x = 95;
+			      dst.y = 0;
+			      dst.w = 450;
+			      dst.h = 450;
+			      sx = 1.0 * dst.w / src.w;
+			      sy = 1.0 * dst.h / src.h;
+			      /* In principle, double's are precised up to 15 decimal
+				 digits */
+			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
+				{
+				  scaled = zoomSurface(GFX_tiles[cool+1], sx, sy, SMOOTHING_OFF);
+				  /* Disable transparency if it wasn't active in the source surface
+				     (SDL_gfx bug, report submitted to the author) */
+				  if ((GFX_tiles[cool+1]->flags & SDL_SRCCOLORKEY) == 0)
+				    SDL_SetColorKey(scaled, 0, 0);
+				  src.x = (int) round(src.x * sx);
+				  src.y = (int) round(src.y * sy);
+				  src.w = (int) round(src.w * sx);
+				  src.h = (int) round(src.h * sy);
+				  SDL_BlitSurface(scaled, &src, GFX_lpDDSTwo, &dst);
+				  SDL_FreeSurface(scaled);
+				}
+			      else
+				{
+				  /* No scaling */
+				  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+				}
 			    }
 
 			    m4x = spr[h].x;
@@ -4262,6 +4383,53 @@ void updateFrame(void)
 		
 			    lpDDSTwo->Blt(&crapRec , lpDDSBack,
 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+			    // GFX
+			    /* Generic scaling */
+			    /* Not perfectly accurate yet: move a 200% sprite to the
+			       border of the screen to it is clipped: it's scaled size
+			       will slighly vary. Maybe we need to clip the source zone
+			       before scaling it.. */
+			    /* Moreover, in this particular case,
+			       we're scaling the whole screen
+			       backbuffer by 900% just to scale a
+			       single 50x50 square of it... */
+			    {
+			      SDL_Rect src, dst;
+			      SDL_Surface *scaled, *source;
+			      double sx, sy;
+			      src.x = spr[1].x+20;
+			      src.y = spr[1].y;
+			      src.w = 50;
+			      src.h = 50;
+			      dst.x = 95;
+			      dst.y = 0;
+			      dst.w = 450;
+			      dst.h = 450;
+			      sx = 1.0 * dst.w / src.w;
+			      sy = 1.0 * dst.h / src.h;
+			      /* In principle, double's are precised up to 15 decimal
+				 digits */
+			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
+				{
+				  scaled = zoomSurface(GFX_lpDDSBack, sx, sy, SMOOTHING_OFF);
+				  /* Disable transparency if it wasn't active in the source surface
+				     (SDL_gfx bug, report submitted to the author) */
+				  if ((GFX_lpDDSBack->flags & SDL_SRCCOLORKEY) == 0)
+				    SDL_SetColorKey(scaled, 0, 0);
+				  src.x = (int) round(src.x * sx);
+				  src.y = (int) round(src.y * sy);
+				  src.w = (int) round(src.w * sx);
+				  src.h = (int) round(src.h * sy);
+				  SDL_BlitSurface(scaled, &src, GFX_lpDDSTwo, &dst);
+				  SDL_FreeSurface(scaled);
+				}
+			      else
+				{
+				  /* No scaling */
+				  SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTwo, &dst);
+				}
+			    }
+
 			    m4x = spr[h].x;
 			    m4y = spr[h].y;
 		
@@ -4522,7 +4690,8 @@ void updateFrame(void)
 	      {
 		if ( (mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
 		  {
-				
+		    /* Draw the tile squares selector, an expandable
+		       array of white non-filled squares */
 		    for (int y = 0; y < sely; y++)
 		      {
 			for (int x = 0; x < selx; x++)
@@ -4530,6 +4699,13 @@ void updateFrame(void)
 						
 			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k,
 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+			    // GFX
+			    {
+			      SDL_Rect dst;
+			      dst.x = spr[h].x + 50*x + greba;
+			      dst.y = spr[h].y + 50*y;
+			      SDL_BlitSurface(GFX_k[getpic(h)].k, NULL, GFX_lpDDSBack, &dst);
+			    }
 			  }
 		      }
 				
@@ -4538,7 +4714,7 @@ void updateFrame(void)
             
 		if ( (mode == MODE_TILE_HARDNESS))
 		  {
-				
+		    /* Display the current "pencil"/square to draw hardness with */
 		    for (int yy = 0; yy < sely; yy++)
 		      {
 			for (int xx = 0; xx < selx; xx++)
@@ -4546,6 +4722,13 @@ void updateFrame(void)
 						
 			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k,
 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+			    // GFX
+			    {
+			      SDL_Rect dst;
+			      dst.x = spr[h].x + 9*xx;
+			      dst.y = spr[h].y + 9*yy;
+			      SDL_BlitSurface(GFX_k[getpic(h)].k, NULL, GFX_lpDDSBack, &dst);
+			    }
 			  }
 		      }
 				
@@ -4765,7 +4948,7 @@ void updateFrame(void)
 
   if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
     {
-
+      /* Show sprites info */
       if (sjoy.realkey['I'])
 	{
 	  for (int j =1; j < 100; j++)
@@ -4797,19 +4980,21 @@ void updateFrame(void)
 		  ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx);
 		  //       	if (ddrval != DD_OK) dderror(ddrval);
 		  // GFX
-		  /* Is it really used? The white,
-		     non-filled square in tile or sprite
-		     selection is displayed w/o this: */
 		  {
 		    SDL_Rect dst;
+		    SDL_Surface *sprite = GFX_k[seq[10].frame[5]].k;
 		    dst.x = box_crap.left;
 		    dst.y = box_crap.top;
 		    /* Simplified blit, no scaling, the sprite is already 50x50 */
-		    SDL_BlitSurface(GFX_k[seq[10].frame[5]].k, NULL, GFX_lpDDSBack, &dst);
+		    /* We need to avoid transparency though */
+		    Uint32 colorkey = sprite->format->colorkey;
+		    SDL_SetColorKey(sprite, 0, 0); /* Temporarily disable transparent color */
+		    SDL_BlitSurface(sprite, NULL, GFX_lpDDSBack, &dst);
+		    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 		  }
 				
 		  char crap5[200];
-				
+		  
                   char crap6[20];
 
 		  strcpy(crap6,"");
@@ -4842,12 +5027,7 @@ void updateFrame(void)
     }
   if (mode == MODE_SPRITE_HARDNESS)
     {
-
-	
-	
-	
       ddbltfx.dwSize = sizeof(ddbltfx);
-
       ddbltfx.dwFillColor = 230;
 	
       if (sp_mode == 0)
@@ -4862,7 +5042,15 @@ void updateFrame(void)
 				
 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
 	  if (ddrval != DD_OK) dderror(ddrval);
-
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = spr[2].x - 20;
+	    dst.y = spr[2].y;
+	    dst.w = 40;
+	    dst.h = 1;
+	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	  }
 
 	  box_crap.top = spr[2].y-20;
 	  box_crap.bottom = spr[2].y+20;
@@ -4872,6 +5060,15 @@ void updateFrame(void)
 				
 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
 	  if (ddrval != DD_OK) dderror(ddrval);
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = spr[2].x;
+	    dst.y = spr[2].y - 20;
+	    dst.w = 1;
+	    dst.h = 40;
+	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	  }
 	}
 
       if  ((sp_mode == 1) | (sp_mode == 2) )
@@ -4879,19 +5076,22 @@ void updateFrame(void)
 	  //draw hardbox dot for sprite attribute edit
 	  
 	  box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox;
-				
+	  
 	  OffsetRect(&box_crap,320,200);
 
 
 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
 	  if (ddrval != DD_OK) Msg("Error with drawing hard block... you know why.");
-				
+	  // GFX
+	  {
+	    SDL_Rect dst;
+	    dst.x = k[seq[sp_seq].frame[sp_frame]].hardbox.left + 320;
+	    dst.y = k[seq[sp_seq].frame[sp_frame]].hardbox.top + 200;
+	    dst.w = k[seq[sp_seq].frame[sp_frame]].hardbox.right - k[seq[sp_seq].frame[sp_frame]].hardbox.left;
+	    dst.h = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom - k[seq[sp_seq].frame[sp_frame]].hardbox.top;
+	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	  }
 	}
-
-
-
-
-
     }
 
 

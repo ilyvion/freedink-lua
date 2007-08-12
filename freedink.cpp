@@ -330,36 +330,6 @@ void get_last_sprite(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/*void draw_used( void)
-{
-for (int x=0; x<768; x++)
-{
-
-  if (map.loc[x+1] == 0)	
-		lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[6].k,
-		&k[6].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		
-		  if (map.loc[x+1] > 0)	
-		  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[7].k,
-		  &k[7].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT );
-		  
-			}
-			
-			  }
-*/
-
 BOOL keypressed( void )
 
 {
@@ -373,16 +343,6 @@ BOOL keypressed( void )
 	
 	return(FALSE);
 }
-
-/*
-* updateFrame
-* 
-* Decide what needs to be blitted next, wait for flip to complete,
-* then flip the buffers.
-*/
-
-
-
 
 
 
@@ -6275,7 +6235,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   initfonts("Arial");
   // FONTS
   // FONTS_initfonts("LiberationSans-Regular.ttf");
-  FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");
+  FONTS_initfonts("C:/WINNT/FONTS/Arialbd.ttf");
 
   return 1;
 } /* doInit */

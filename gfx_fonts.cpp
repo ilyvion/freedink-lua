@@ -41,13 +41,15 @@ static SDL_Color text_color;
 
 void FONTS_initfonts(char* fontname) {
   /* TODO: lf.lfWeight = 600; */
+  /* TODO: lf.lfHeight = 18; */
 
   if (FONTS_hfont_small != NULL) {
     TTF_CloseFont(FONTS_hfont_small);
     FONTS_hfont_small = NULL;
   }
 
-  FONTS_hfont_small = TTF_OpenFont(fontname, 18);
+  /* SDL_ttf makes the font bigger than Woe, let's try 17 */
+  FONTS_hfont_small = TTF_OpenFont(fontname, 17);
 
   if (FONTS_hfont_small == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());
@@ -214,65 +216,58 @@ print_text_wrap (char *str, RECT * box,
 
 
 /* Say, SaySmall: only used by freedinkedit.cpp */
+/* SaySmall: print text in a 40x40 small square; without font
+   border */
 void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 {
-        RECT rcRect;
-    HDC         hdc;
-        int dum;
-        char shit[200];
-        if (lpDDSBack->GetDC(&hdc) == DD_OK)
-        {      
-                SetBkMode(hdc, TRANSPARENT); 
-                SetRect(&rcRect,px,py,px+40,py+40);
-                //SelectObject (hdc, hfont);
-        //if (hfont == NULL) Msg("CreafontIndirect failed. haha.");
-                SetTextColor(hdc,RGB(r,g,b));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                
-                //              OffsetRect(&rcRect,-1,-1);
-                //      SetTextColor(hdc,RGB(150,150,150));
-                //         DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);     
-                
-                dum =  GetTextFace(hdc,100,shit) ;
-                lpDDSBack->ReleaseDC(hdc);
-        }   
-        
-        
+  RECT rcRect;
+  HDC hdc;
+  if (lpDDSBack->GetDC(&hdc) == DD_OK)
+    {      
+      SetBkMode(hdc, TRANSPARENT); 
+      SetRect(&rcRect,px,py,px+40,py+40);
+      SetTextColor(hdc,RGB(r,g,b));
+      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+      // FONTS
+      FONTS_SetTextColor(r, g, b);
+      print_text_wrap(thing, &rcRect, 0, 0);
+      
+      lpDDSBack->ReleaseDC(hdc);
+    }   
 }
-
-
+/* Say: print text until it reaches the border of the screen, with a
+   font border */
 void Say(char thing[500], int px, int py)
 {
-        RECT rcRect;
-    HDC         hdc;
-        int dum;
-        char shit[200];
-        
-        
-        if (lpDDSBack->GetDC(&hdc) == DD_OK)
-        {      
-                SetBkMode(hdc, TRANSPARENT); 
-                SetRect(&rcRect,px,py,620,480);
-                SelectObject (hdc, hfont_small);
-		// Disabled:
-		//if (hfont == NULL) Msg("CreafontIndirect failed. haha.");
-                SetTextColor(hdc,RGB(8,14,21));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                OffsetRect(&rcRect,-2,-2);
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
-                
-                OffsetRect(&rcRect,1,1);
-                
-                
-                
-                SetTextColor(hdc,RGB(255,255,0));
-                DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);        
-                
-                dum =  GetTextFace(hdc,100,shit) ;
-                lpDDSBack->ReleaseDC(hdc);
-        }   
-        
-        
+  RECT rcRect;
+  HDC hdc;
+  
+  if (lpDDSBack->GetDC(&hdc) == DD_OK)
+    {      
+      SetBkMode(hdc, TRANSPARENT); 
+      SetRect(&rcRect,px,py,620,480);
+      SelectObject (hdc, hfont_small);
+
+      SetTextColor(hdc,RGB(8,14,21));
+      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+      // FONTS
+      FONTS_SetTextColor(8, 14, 21);
+      print_text_wrap(thing, &rcRect, 0, 0);
+
+      OffsetRect(&rcRect,-2,-2);
+      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+      // FONTS
+      print_text_wrap(thing, &rcRect, 0, 0);
+
+      OffsetRect(&rcRect,1,1);
+      SetTextColor(hdc,RGB(255,255,0));
+      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+      // FONTS
+      FONTS_SetTextColor(255, 255, 0);
+      print_text_wrap(thing, &rcRect, 0, 0);
+      
+      lpDDSBack->ReleaseDC(hdc);
+    }   
 }
 
 void kill_fonts(void)
