@@ -183,18 +183,18 @@ struct sequence
 
 struct seth_joy
 {
-	BOOL joybit[17]; //is button held down?
-	BOOL letgo[17]; //copy of old above
-	BOOL button[17]; //has button been pressed recently?
-	BOOL key[256];
-	BOOL kletgo[256];
-	bool realkey[256];
-	BOOL right,left,up,down;
-	BOOL rightd,leftd,upd,downd;
-	BOOL rightold,leftold,upold,downold;
-	
-	
-	
+  BOOL joybit[17]; //is button held down?
+  BOOL letgo[17]; //copy of old above
+  BOOL button[17]; //has button been pressed recently?
+
+  BOOL key[256]; /* true if key was just pressed, false is kept
+		    pressed or released; reset before each loop */
+  BOOL kletgo[256]; /* non-reset "is released?" value; used to set .key */
+  bool realkey[256]; /* current GetAsyncKeyState value, in cache */
+
+  BOOL right,left,up,down;
+  BOOL rightd,leftd,upd,downd;
+  BOOL rightold,leftold,upold,downold;
 };
 
 struct sp

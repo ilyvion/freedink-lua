@@ -876,36 +876,35 @@ return(now);
 
 
 
-
+/* Set the keyboard state in sjoy */
 void check_keyboard(void)
 {
-	for (int x5=1; x5 <=255; x5++)
+  /* GetKeyboard (which calls W32API's GetAsyncKeyState) returns a
+     combined value in a short int; the most-significant bit indicates
+     if the key is currently pressed; the least significant bit
+     indicates if the key was pressed since the last call. */
+  
+  /* Check if the key was just pressed, or only maintained pressed */
+  for (int x=1; x <=255; x++)
+    {
+      /* Put the current keyboard state in cache */
+      /* getkey() then can check sjoy.realkey - that is, from the cache */
+      sjoy.realkey[x] = GetKeyboard(x);
+
+      sjoy.key[x] = FALSE;
+      if (getkey(x))
 	{
-		sjoy.key[x5] = FALSE; 
-	sjoy.realkey[x5] = GetKeyboard(x5);
+	  if (sjoy.kletgo[x] == TRUE) 
+	    /* We just changed from "released" to "pressed" */
+	    {
+	      sjoy.key[x] = TRUE;
+	    }
+	  sjoy.kletgo[x] = FALSE;
 	}
-	  
-	  for (int x=1; x <=255; x++)
-			 
-		 {
-		 if (getkey(x))
-		 {
-			 if (sjoy.kletgo[x] == TRUE) 
-			 {
-			 sjoy.key[x] = TRUE;
-			 sjoy.kletgo[x] = FALSE;
-			 }
-			
-		 }
-		 }
-
-
-for (int x2=1; x2 <=255; x2++) 
-	  {
-		if (getkey(x2))  sjoy.kletgo[x2] = FALSE; else sjoy.kletgo[x2] = TRUE;
-	  	  
-	  }
-sjoy.kletgo[16] = true;
+      else
+	sjoy.kletgo[x] = TRUE;	
+    }
+  sjoy.kletgo[VK_SHIFT] = TRUE;
 }
 
 
@@ -1005,12 +1004,12 @@ total = jinfo.dwButtons;
 
 }
 
-if (GetKeyboard(27)) sjoy.joybit[1] = TRUE; //esc
-if (GetKeyboard(13)) sjoy.joybit[2] = TRUE;
-if (GetKeyboard(88)) sjoy.joybit[3] = TRUE;
-if (GetKeyboard(90)) sjoy.joybit[4] = TRUE;
+if (GetKeyboard(VK_ESCAPE /* 27 */)) sjoy.joybit[1] = TRUE; //esc
+if (GetKeyboard(VK_RETURN /* 13 */)) sjoy.joybit[2] = TRUE;
+if (GetKeyboard('X' /* 88 */)) sjoy.joybit[3] = TRUE;
+if (GetKeyboard('Z' /* 90 */)) sjoy.joybit[4] = TRUE;
 
-if (GetKeyboard(9)) sjoy.joybit[5] = TRUE; //tab
+if (GetKeyboard(VK_TAB /* 9 */)) sjoy.joybit[5] = TRUE; //tab
 
 
 
@@ -1040,10 +1039,10 @@ for (int x2=1; x2 <=10; x2++)
 
 
 
-if (GetKeyboard(39)) sjoy.right = TRUE;
-if (GetKeyboard(37)) sjoy.left = TRUE;
-if (GetKeyboard(40)) sjoy.down = TRUE;
-if (GetKeyboard(38)) sjoy.up = TRUE;
+if (GetKeyboard(VK_RIGHT /* 39 */)) sjoy.right = TRUE;
+if (GetKeyboard(VK_LEFT /* 37 */)) sjoy.left = TRUE;
+if (GetKeyboard(VK_DOWN /* 40 */)) sjoy.down = TRUE;
+if (GetKeyboard(VK_UP /* 38 */)) sjoy.up = TRUE;
 
 check_keyboard();
 
@@ -2140,7 +2139,7 @@ if (strlen(sp_script) > 2)
 strcpy(fname, "CRAP");
 }
 	
-	if (sjoy.key[104])
+	if (sjoy.key[VK_NUMPAD8 /* 104 */])
  {
 EditorSoundPlayEffect( SOUND_JUMP );	
 	sprintf(crap, "story\\%s.c",fname);
@@ -2148,7 +2147,7 @@ EditorSoundPlayEffect( SOUND_JUMP );
 sprintf(move, "move_stop(&current_sprite, 8, %d, 1)\n",spr[1].y);
 	add_text( move, crap);
  }
-if (sjoy.key[100])
+if (sjoy.key[VK_NUMPAD4 /* 100 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2157,7 +2156,7 @@ if (sjoy.key[100])
 	add_text( move, crap);
  }
 
-if (sjoy.key[101])
+if (sjoy.key[VK_NUMPAD5 /* 101 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2166,7 +2165,7 @@ if (sjoy.key[101])
  }
 
 
-if (sjoy.key[98])
+if (sjoy.key[VK_NUMPAD2 /* 98 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2175,7 +2174,7 @@ if (sjoy.key[98])
  }
 
 
-if (sjoy.key[102])
+if (sjoy.key[VK_NUMPAD6 /* 102 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2183,7 +2182,7 @@ if (sjoy.key[102])
 	add_text( move, crap);
  }
 
-if (sjoy.key[103])
+if (sjoy.key[VK_NUMPAD7 /* 103 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2191,7 +2190,7 @@ if (sjoy.key[103])
 	add_text( move, crap);
  }
 
-if (sjoy.key[97])
+if (sjoy.key[VK_NUMPAD1 /* 97 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2199,7 +2198,7 @@ if (sjoy.key[97])
 	add_text( move, crap);
  }
 
-if (sjoy.key[105])
+if (sjoy.key[VK_NUMPAD9 /* 105 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2207,7 +2206,7 @@ if (sjoy.key[105])
 	add_text( move, crap);
  }
 
-if (sjoy.key[99])
+if (sjoy.key[VK_NUMPAD3 /* 99 */])
  {
 	EditorSoundPlayEffect( SOUND_JUMP );
 	sprintf(crap, "story\\%s.c",fname);
@@ -2260,2968 +2259,2949 @@ ddbltfx.dwSize = sizeof( ddbltfx);
  */
 void updateFrame(void)
 {
-	//    static DWORD        lastTickCount[4] = {0,0,0,0};
-	//    static int          currentFrame[3] = {0,0,0};
-    DWORD               thisTickCount; 
-	//  char buffer[20];
-    byte state[256]; 
-    RECT                rcRect;
-	RECT  crapRec, Rect;
-	RECT rcRectSrc;  
-	RECT rcRectDest, box_crap,box_real;
-	POINT p;
-    char msg[500];
-	char buff[200];
-	//	DWORD               delay[4] = {0, 0, 0, 20};
-    HDC         hdc;
-int in_crap2;
-	int                 holdx;
-    //PALETTEENTRY        pe[256];
-    HRESULT             ddrval;
-	int xx;
-	DDBLTFX     ddbltfx;
-	BOOL kickass,cool;
-BOOL bs[max_sprites_at_once];
+  //    static DWORD        lastTickCount[4] = {0,0,0,0};
+  //    static int          currentFrame[3] = {0,0,0};
+  DWORD               thisTickCount; 
+  //  char buffer[20];
+  byte state[256]; 
+  RECT                rcRect;
+  RECT  crapRec, Rect;
+  RECT rcRectSrc;  
+  RECT rcRectDest, box_crap,box_real;
+  POINT p;
+  char msg[500];
+  char buff[200];
+  //	DWORD               delay[4] = {0, 0, 0, 20};
+  HDC         hdc;
+  int in_crap2;
+  int                 holdx;
+  //PALETTEENTRY        pe[256];
+  HRESULT             ddrval;
+  int xx;
+  DDBLTFX     ddbltfx;
+  BOOL kickass,cool;
+  BOOL bs[max_sprites_at_once];
 	
-	int rank[max_sprites_at_once];
-	int highest_sprite;
-	int crap;
-    // Decide which frame will be blitted next
-	thisTickCount = GetTickCount();
-	strcpy(buff,"Nothing");
-	state[1] = 0;  
-	check_joystick();	
+  int rank[max_sprites_at_once];
+  int highest_sprite;
+  int crap;
+  // Decide which frame will be blitted next
+  thisTickCount = GetTickCount();
+  strcpy(buff,"Nothing");
+  state[1] = 0;  
+  check_joystick();	
   Scrawl_OnMouseInput();
-	kickass = false;
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = x;
-    rcRect.bottom = y;
+  kickass = false;
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = x;
+  rcRect.bottom = y;
 
-	if (draw_map_tiny != -1)
-	{
+  if (draw_map_tiny != -1)
+    {
 		
-tiny_again:
-	if (draw_map_tiny  == 769)
+    tiny_again:
+      if (draw_map_tiny  == 769)
 	{
-		draw_map_tiny = -1;
-		while(kill_last_sprite());
-		//all done
+	  draw_map_tiny = -1;
+	  while(kill_last_sprite());
+	  //all done
 	} else
 	{
 		
 		
-        draw_map_tiny++;
+	  draw_map_tiny++;
 		
-		copy_front_to_two();
+	  copy_front_to_two();
 		
 		
-		if (map.loc[draw_map_tiny] != 0)
-		{
-			//a map exists here
-			load_map(map.loc[draw_map_tiny]);
-			//map loaded, lets display it
-			draw_map();
+	  if (map.loc[draw_map_tiny] != 0)
+	    {
+	      //a map exists here
+	      load_map(map.loc[draw_map_tiny]);
+	      //map loaded, lets display it
+	      draw_map();
 			
-			goto pass_flip;
-		} else goto tiny_again;
+	      goto pass_flip;
+	    } else goto tiny_again;
 		
 		
 		
 	}
 	
-	}
+    }
 	
 	
-	while( 1 )
+  while( 1 )
     {
-        ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-            &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	// GFX
-	SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+      ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
+				   &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+      // GFX
+      SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
 		
-        if( ddrval == DD_OK )
+      if( ddrval == DD_OK )
         {
-            break;
+	  break;
         }
-        if( ddrval == DDERR_SURFACELOST )
+      if( ddrval == DDERR_SURFACELOST )
         {
-            ddrval = restoreAll();
-            if( ddrval != DD_OK )
+	  ddrval = restoreAll();
+	  if( ddrval != DD_OK )
             {
-                return;
+	      return;
             }
         }
-        if( ddrval != DDERR_WASSTILLDRAWING )
+      if( ddrval != DDERR_WASSTILLDRAWING )
         {
-            return;
+	  return;
         }
     
-	}
+    }
 
-pass_flip:
+ pass_flip:
 
-		memset(&bs,0,sizeof(bs));
+  memset(&bs,0,sizeof(bs));
 		
-	int	max_s = 105;
+  int	max_s = 105;
 		
-		//max_sprites_at_once;
+  //max_sprites_at_once;
 		
-		/*for (int r2 = 1; r2 < max_sprites_at_once; r2++)
-		{
-			if (spr[r2].active) max_s = r2+1;
-		}
-		*/
-	int height;
+  /*for (int r2 = 1; r2 < max_sprites_at_once; r2++)
+    {
+    if (spr[r2].active) max_s = r2+1;
+    }
+  */
+  int height;
 
 	
 									
-	spr[1].que = 20000;
-	if (mode == MODE_SCREEN_SPRITES) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
+  spr[1].que = 20000;
+  if (mode == MODE_SCREEN_SPRITES) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
 	
-	if (!in_enabled)
+  if (!in_enabled)
 
-		for (int r1 = 1; r1 < max_s+1; r1++)
-		{
+    for (int r1 = 1; r1 < max_s+1; r1++)
+      {
 			
-			highest_sprite = 22024; //more than it could ever be
+	highest_sprite = 22024; //more than it could ever be
 			
-			rank[r1] = 0;
+	rank[r1] = 0;
 			
-			for (int h1 = 1; h1 < max_s+1; h1++)
-			{
-				if (spr[h1].active)
-				{ 
-					if (bs[h1] == FALSE)
-					{
-						//Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
-						if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
-						if ( height < highest_sprite )
-						{
-							highest_sprite = height;
-							rank[r1] = h1;
-						}
+	for (int h1 = 1; h1 < max_s+1; h1++)
+	  {
+	    if (spr[h1].active)
+	      { 
+		if (bs[h1] == FALSE)
+		  {
+		    //Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
+		    if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
+		    if ( height < highest_sprite )
+		      {
+			highest_sprite = height;
+			rank[r1] = h1;
+		      }
 						
-					}
+		  }
 					
-				}
+	      }
 				
-			}
-			if (rank[r1] != 0)	
-				bs[rank[r1]] = TRUE;
-		}
+	  }
+	if (rank[r1] != 0)	
+	  bs[rank[r1]] = TRUE;
+      }
 		
 
 
 						
 
-	if (!in_enabled)
+  if (!in_enabled)
 	
-	for (int jj = 1; jj < max_s; jj++)
-	{
+    for (int jj = 1; jj < max_s; jj++)
+      {
 	
-		int h = rank[jj];
-		//Msg("Studying %d.,",h);
+	int h = rank[jj];
+	//Msg("Studying %d.,",h);
 
-		if (spr[h].active)
-		{
+	if (spr[h].active)
+	  {
 			
-//        Msg("Sprite %d is active.",h);
+	    //        Msg("Sprite %d is active.",h);
 			
 				
-				if (spr[h].brain == 1)
-				{
-						if ( (spr[h].seq == 0) | (mode == MODE_TILE_HARDNESS)  )
-						{		
+	    if (spr[h].brain == 1)
+	      {
+		if ( (spr[h].seq == 0) | (mode == MODE_TILE_HARDNESS)  )
+		  {		
 					
 
 							
-//if (mode == 7)
-if (mode == MODE_SPRITE_HARDNESS)
-{
+		    //if (mode == 7)
+		    if (mode == MODE_SPRITE_HARDNESS)
+		      {
 
-//editting a sprite, setting hard box and depth dot.
-spr[1].pseq = 1;
-spr[1].pframe = 1;
+			//editting a sprite, setting hard box and depth dot.
+			spr[1].pseq = 1;
+			spr[1].pframe = 1;
 
-if (sjoy.button[1])
-{
-//they want out
-//mode = 5;
-mode = MODE_SPRITE_PICKER;
-draw96(0);
-spr[1].x = m5x;
-spr[1].y = m5y;
-spr[1].pseq = 10;
-spr[1].pframe = 5;
-spr[1].speed = 50;
-goto sp_edit_end;
+			if (sjoy.button[1])
+			  {
+			    //they want out
+			    //mode = 5;
+			    mode = MODE_SPRITE_PICKER;
+			    draw96(0);
+			    spr[1].x = m5x;
+			    spr[1].y = m5y;
+			    spr[1].pseq = 10;
+			    spr[1].pframe = 5;
+			    spr[1].speed = 50;
+			    goto sp_edit_end;
 
-}
-
-
-if (sjoy.key[9])
-{
-
-//they hit tab, lets toggle what mode they are in
-if (sp_mode == 0) sp_mode = 1; else if (sp_mode == 1) sp_mode = 2; else if (sp_mode == 2) sp_mode = 0;
+			  }
 
 
-}
-if (sjoy.key[83])
-{
+			if (sjoy.key[VK_TAB /* 9 */])
+			  {
 
-//they hit tab, lets toggle what mode they are in
-char death[150];
-char filename[10];
+			    //they hit tab, lets toggle what mode they are in
+			    if (sp_mode == 0) sp_mode = 1; else if (sp_mode == 1) sp_mode = 2; else if (sp_mode == 2) sp_mode = 0;
+
+
+			  }
+			if (sjoy.key['S' /* 83 */])
+			  {
+
+			    //they hit tab, lets toggle what mode they are in
+			    char death[150];
+			    char filename[10];
 	
-sprintf(death, "SET_SPRITE_INFO %d %d %d %d %d %d %d %d\n",
-	sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].xoffset,  k[seq[sp_seq].frame[sp_frame]].yoffset,
+			    sprintf(death, "SET_SPRITE_INFO %d %d %d %d %d %d %d %d\n",
+				    sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].xoffset,  k[seq[sp_seq].frame[sp_frame]].yoffset,
 
-	k[seq[sp_seq].frame[sp_frame]].hardbox.left, k[seq[sp_seq].frame[sp_frame]].hardbox.top,
-	k[seq[sp_seq].frame[sp_frame]].hardbox.right,k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.left, k[seq[sp_seq].frame[sp_frame]].hardbox.top,
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.right,k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);
 
-strcpy(filename, "dink.ini");
-add_text(death,filename);
-EditorSoundPlayEffect( SOUND_JUMP );
-}
-
-
-						int modif = 1;
-						if (GetKeyboard(16)) modif += 9;
+			    strcpy(filename, "dink.ini");
+			    add_text(death,filename);
+			    EditorSoundPlayEffect( SOUND_JUMP );
+			  }
 
 
+			int modif = 1;
+			if (GetKeyboard(VK_SHIFT /* 16 */))
+			  modif += 9;
 
-						if (sp_mode == 0)
-						{
 
-               //ok, we are editting depth dot
 
-							if (sjoy.realkey[17])
-						{
-						if (sjoy.key[39])
-						{
-							k[seq[sp_seq].frame[sp_frame]].xoffset += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			if (sp_mode == 0)
+			  {
+
+			    //ok, we are editting depth dot
+
+			    if (sjoy.realkey[VK_CONTROL /* 17 */])
+			      {
+				if (sjoy.key[VK_RIGHT /* 39 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].xoffset += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[37])
-						{
+				if (sjoy.key[VK_LEFT /* 37 */])
+				  {
 							
-							k[seq[sp_seq].frame[sp_frame]].xoffset -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.key[38])
-						{
-							k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				    k[seq[sp_seq].frame[sp_frame]].xoffset -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.key[VK_UP /* 38 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[40])
-						{
-							k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.key[VK_DOWN /* 40 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						} else
+			      } else
 					
-						{
-                      if (sjoy.right)
-						{
-							k[seq[sp_seq].frame[sp_frame]].xoffset +=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			      {
+				if (sjoy.right)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].xoffset +=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.left)
-						{
-							k[seq[sp_seq].frame[sp_frame]].xoffset -=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.up)
-						{
-							k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.left)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].xoffset -=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.up)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.down)
-						{
-							k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.down)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
 
-						}
+			      }
 
-						}
+			  }
 
 
 
-						if (sp_mode == 2)
-						{
+			if (sp_mode == 2)
+			  {
 
-               //ok, we are top left hardness
+			    //ok, we are top left hardness
 
-							if (sjoy.realkey[17])
-						{
-						if (sjoy.key[39])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.right += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			    if (sjoy.realkey[VK_CONTROL /* 17 */])
+			      {
+				if (sjoy.key[VK_RIGHT /* 39 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.right += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[37])
-						{
+				if (sjoy.key[VK_LEFT /* 37 */])
+				  {
 							
-							k[seq[sp_seq].frame[sp_frame]].hardbox.right -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.key[38])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.right -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.key[VK_UP /* 38 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[40])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.key[VK_DOWN /* 40 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						} else
+			      } else
 					
-						{
-                      if (sjoy.right)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.right +=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			      {
+				if (sjoy.right)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.right +=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.left)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.right -=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.up)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.left)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.right -=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.up)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.down)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.down)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
 
-						}
+			      }
 
 
-						if (k[seq[sp_seq].frame[sp_frame]].hardbox.right <= k[seq[sp_seq].frame[sp_frame]].hardbox.left)
-							k[seq[sp_seq].frame[sp_frame]].hardbox.left = k[seq[sp_seq].frame[sp_frame]].hardbox.right -1;
+			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.right <= k[seq[sp_seq].frame[sp_frame]].hardbox.left)
+			      k[seq[sp_seq].frame[sp_frame]].hardbox.left = k[seq[sp_seq].frame[sp_frame]].hardbox.right -1;
 
 						
-						if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom <= k[seq[sp_seq].frame[sp_frame]].hardbox.top)
-							k[seq[sp_seq].frame[sp_frame]].hardbox.top = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -1;
+			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom <= k[seq[sp_seq].frame[sp_frame]].hardbox.top)
+			      k[seq[sp_seq].frame[sp_frame]].hardbox.top = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -1;
 
 
-						}
+			  }
 
 
-												if (sp_mode == 1)
-						{
+			if (sp_mode == 1)
+			  {
 
-               //ok, we are top left hardness
+			    //ok, we are top left hardness
 
-							if (sjoy.realkey[17])
-						{
-						if (sjoy.key[39])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.left += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			    if (sjoy.realkey[VK_CONTROL /* 17 */])
+			      {
+				if (sjoy.key[VK_RIGHT /* 39 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.left += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[37])
-						{
+				if (sjoy.key[VK_LEFT /* 37 */])
+				  {
 							
-							k[seq[sp_seq].frame[sp_frame]].hardbox.left -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.key[38])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.left -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.key[VK_UP /* 38 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.key[40])
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.key[VK_DOWN /* 40 */])
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						} else
+			      } else
 					
-						{
-                      if (sjoy.right)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.left +=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			      {
+				if (sjoy.right)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.left +=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.left)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.left -=  modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.up)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.left)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.left -=  modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
+				if (sjoy.up)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
-						if (sjoy.down)
-						{
-							k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				if (sjoy.down)
+				  {
+				    k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
+				    EditorSoundPlayEffect( SOUND_STOP );
+				  }
 						
 
-						}
+			      }
 
 
-						if (k[seq[sp_seq].frame[sp_frame]].hardbox.left >= k[seq[sp_seq].frame[sp_frame]].hardbox.right)
-							k[seq[sp_seq].frame[sp_frame]].hardbox.right = k[seq[sp_seq].frame[sp_frame]].hardbox.left +1;
+			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.left >= k[seq[sp_seq].frame[sp_frame]].hardbox.right)
+			      k[seq[sp_seq].frame[sp_frame]].hardbox.right = k[seq[sp_seq].frame[sp_frame]].hardbox.left +1;
 
 						
-						if (k[seq[sp_seq].frame[sp_frame]].hardbox.top >= k[seq[sp_seq].frame[sp_frame]].hardbox.bottom)
-							k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom +1;
+			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.top >= k[seq[sp_seq].frame[sp_frame]].hardbox.bottom)
+			      k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom +1;
 
 
 
 
-						}
+			  }
 
 
 
 
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.top > 200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.top = 200;
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.top <-200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.top = -200;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.top > 200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.top = 200;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.top <-200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.top = -200;
 
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.left > 316) k[seq[sp_seq].frame[sp_frame]].hardbox.left = 316;
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.left < -320) k[seq[sp_seq].frame[sp_frame]].hardbox.left = -320;
-
-
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom > 200) k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = 200;
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom <-200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = -200;
-
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.right > 316) k[seq[sp_seq].frame[sp_frame]].hardbox.right = 316;
-if (k[seq[sp_seq].frame[sp_frame]].hardbox.right < -320) k[seq[sp_seq].frame[sp_frame]].hardbox.right = -320;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.left > 316) k[seq[sp_seq].frame[sp_frame]].hardbox.left = 316;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.left < -320) k[seq[sp_seq].frame[sp_frame]].hardbox.left = -320;
 
 
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom > 200) k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = 200;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom <-200 ) k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = -200;
 
-goto b1end;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.right > 316) k[seq[sp_seq].frame[sp_frame]].hardbox.right = 316;
+			if (k[seq[sp_seq].frame[sp_frame]].hardbox.right < -320) k[seq[sp_seq].frame[sp_frame]].hardbox.right = -320;
 
-}
 
 
-					if (mode == MODE_SCREEN_SPRITES)
-					{
-						// place sprite
-						if ( (sjoy.key[86]) )
-{
- in_master = 32;
-}
+			goto b1end;
 
-						int modif = 0;
-						if (GetKeyboard(16)) modif = 9;
+		      }
 
-                           if (sjoy.key[77])
-						   {
-                             if (sp_screenmatch) sp_screenmatch = false; else sp_screenmatch = true;
-						   }
+
+		    if (mode == MODE_SCREEN_SPRITES)
+		      {
+			// place sprite
+			if ( (sjoy.key['V' /* 86 */]) )
+			  {
+			    in_master = 32; // Set screen vision?
+			  }
+
+			int modif = 0;
+			if (GetKeyboard(VK_SHIFT /* 16 */)) modif = 9;
+
+			if (sjoy.key['M' /* 77 */])
+			  {
+			    if (sp_screenmatch) sp_screenmatch = false; else sp_screenmatch = true;
+			  }
                
 
-						   if (GetKeyboard(18))
-						   {
-							   //alt is held down 87
-							   if (sjoy.key[87])
-							   {
-							//pressed W
-								   if (  ((spr[1].pseq == 10) & (spr[1].pframe == 8)  ) )
+			if (GetKeyboard(VK_MENU /* 18 */)) // alt
+			  {
+			    //alt is held down 87
+			    if (sjoy.key['W' /* 87 */])
+			      {
+				//pressed W
+				if (  ((spr[1].pseq == 10) & (spr[1].pframe == 8)  ) )
 						
-								   {
+				  {
                                     //a sprite is not chosen
-									   hold_warp_map = cur_map;
-									   hold_warp_x = spr[1].x;
-									   hold_warp_y= spr[1].y;
-									   EditorSoundPlayEffect( SOUND_JUMP );
+				    hold_warp_map = cur_map;
+				    hold_warp_x = spr[1].x;
+				    hold_warp_y= spr[1].y;
+				    EditorSoundPlayEffect( SOUND_JUMP );
 
 
-								   } else
-								   {
-									   sp_warp_map = hold_warp_map ;
-									   sp_warp_x = hold_warp_x;
-									   sp_warp_y = hold_warp_y;
-                                     EditorSoundPlayEffect( SOUND_JUMP );
+				  } else
+				  {
+				    sp_warp_map = hold_warp_map ;
+				    sp_warp_x = hold_warp_x;
+				    sp_warp_y = hold_warp_y;
+				    EditorSoundPlayEffect( SOUND_JUMP );
 									   
-								   }
+				  }
 
 
-							   }
+			      }
 							   
-						   }
+			  }
 
 						
-						if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
-						{
-                     //they are wheeling around a sprite
-					if (spr[1].x > 1500) spr[1].x = 1500;
-                         if (spr[1].y > 1500) spr[1].y = 1500;
+			if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			  {
+			    //they are wheeling around a sprite
+			    if (spr[1].x > 1500) spr[1].x = 1500;
+			    if (spr[1].y > 1500) spr[1].y = 1500;
 
-						if (spr[1].size > 1500) spr[1].size = 1500;
+			    if (spr[1].size > 1500) spr[1].size = 1500;
 	
-							if (GetKeyboard(219)) spr[1].size -= 1+modif;
-							if (GetKeyboard(221)) spr[1].size += 1+modif;
+			    if (GetKeyboard(VK_OEM_4 /* 219 */)) // '[' for US
+			      spr[1].size -= 1+modif;
+			    if (GetKeyboard(VK_OEM_6 /* 221 */)) // ']' for US
+			      spr[1].size += 1+modif;
 						  	
 						
-							if (sjoy.realkey[16])
-							{
-                             //shift is being held down
-                       if (getkey(49))  in_master = 11;
-					if (getkey(50))  in_master = 12;
-					if (getkey(51))  in_master = 13;
-					if (getkey(52))  in_master = 14;
-					if (getkey(53))  in_master = 15;
+			    if (sjoy.realkey[VK_SHIFT /* 16 */])
+			      {
+				//shift is being held down
+				if (getkey('1'))  in_master = 11;
+				if (getkey('2'))  in_master = 12;
+				if (getkey('3'))  in_master = 13;
+				if (getkey('4'))  in_master = 14;
+				if (getkey('5'))  in_master = 15;
 					
-					if (getkey(54))  in_master = 16;
-					if (getkey(55))  in_master = 17;
-					if (getkey(56))  in_master = 18;
-					if (getkey(57))  in_master = 19;
+				if (getkey('6'))  in_master = 16;
+				if (getkey('7'))  in_master = 17;
+				if (getkey('8'))  in_master = 18;
+				if (getkey('9'))  in_master = 19;
 						
 						
                         
-							} else
-							if (sjoy.realkey[18])
-							{
-                             //alt is being held down
-                       if (getkey(49))  in_master = 20;
-					if (getkey(50))  in_master = 21;
-					if (getkey(51))  in_master = 22;
-					/*(getkey(52))  in_master = 14;
-					if (getkey(53))  in_master = 15;
+			      } else
+			      if (sjoy.realkey[VK_MENU /* 18 */])
+				{
+				  //alt is being held down
+				  if (getkey('1' /* 49 */))  in_master = 20;
+				  if (getkey('2'))  in_master = 21;
+				  if (getkey('3'))  in_master = 22; 
+				  /*(getkey('4' /\* 52 *\/))  in_master = 14;
+				    if (getkey(53))  in_master = 15;
 					
-					if (getkey(54))  in_master = 16;
-					if (getkey(55))  in_master = 17;
-					if (getkey(56))  in_master = 18;
-					if (getkey(57))  in_master = 19;
+				    if (getkey(54))  in_master = 16;
+				    if (getkey(55))  in_master = 17;
+				    if (getkey(56))  in_master = 18;
+				    if (getkey(57))  in_master = 19;
 					
-					  */
-						} else
+				  */
+				} else
 					
 							
 							
-							{
-							//shift is not being held down
+				{
+				  //shift is not being held down
 					
-									if (getkey(48)) 
-						{
-						in_master = 10;
+				  if (getkey('0')) 
+				    {
+				      in_master = 10;
 						
-						}
+				    }
 
 								
-								if (getkey(49)) 
-						{
-						in_master = 1;
+				  if (getkey('1')) 
+				    {
+				      in_master = 1;
 						
-						}
+				    }
 
-						if (getkey(50)) 
-						{
-							in_master = 2;
+				  if (getkey('2')) 
+				    {
+				      in_master = 2;
 							
-						}
+				    }
 
-                        if (getkey(51)) 
-						{
-							in_master = 3;
+				  if (getkey('3')) 
+				    {
+				      in_master = 3;
 							
-						}
-                          if (getkey(52)) 
-						{
-							in_master = 4;
+				    }
+				  if (getkey('4')) 
+				    {
+				      in_master = 4;
 							
-						}
-                     if (getkey(53)) in_master = 5;
-					 if (getkey(54)) in_master = 6;
-					 if (getkey(55)) in_master = 7;
-                     if (getkey(56)) in_master = 8;
-					if (getkey(57)) in_master = 9;
+				    }
+				  if (getkey('5')) in_master = 5;
+				  if (getkey('6')) in_master = 6;
+				  if (getkey('7')) in_master = 7;
+				  if (getkey('8')) in_master = 8;
+				  if (getkey('9')) in_master = 9;
 					 
-							}
+				}
 
 
-					 if (sjoy.key[83])
-							{
-								smart_add();
+			    if (sjoy.key['S' /* 83 */])
+			      {
+				smart_add();
 								
-								draw_map();
-							}
+				draw_map();
+			      }
 							
-							if ( (sjoy.button[2]) | (mouse1) )
-							{
-								smart_add();
-								draw_map();
-					 			spr[1].pseq = 10;
-								spr[1].pframe = 8;
-								spr[1].size = 100;
-					         	SetRect(&spr[1].alt,0,0,0,0);	
+			    if ( (sjoy.button[2]) | (mouse1) )
+			      {
+				smart_add();
+				draw_map();
+				spr[1].pseq = 10;
+				spr[1].pframe = 8;
+				spr[1].size = 100;
+				SetRect(&spr[1].alt,0,0,0,0);	
 		
-							}
+			      }
 
-							if (sjoy.key[46])
-							{
+			    if (sjoy.key[VK_DELETE /* 46 */])
+			      {
 								
-								spr[1].pseq = 10;
-								spr[1].pframe = 8;
-								spr[1].size = 100;
-		                      	SetRect(&spr[1].alt,0,0,0,0);	
+				spr[1].pseq = 10;
+				spr[1].pframe = 8;
+				spr[1].size = 100;
+				SetRect(&spr[1].alt,0,0,0,0);	
 					
-							}
+			      }
 
-						} else
-						{
-							//no sprite is currently selected
+			  } else
+			  {
+			    //no sprite is currently selected
 					
 
-write_moves();
+			    write_moves();
 
 
 
 
-		int max_spr = 0;
-		for (int jj=1; jj < 100; jj++)
-		{
-		if ( pam.sprite[jj].active) if (pam.sprite[jj].vision == map_vision) max_spr++;
-		}
+			    int max_spr = 0;
+			    for (int jj=1; jj < 100; jj++)
+			      {
+				if ( pam.sprite[jj].active) if (pam.sprite[jj].vision == map_vision) max_spr++;
+			      }
       
 	
-			 if (max_spr > 0)
-			{
+			    if (max_spr > 0)
+			      {
 
-			 if (sjoy.key[219])
-			 {
-                sp_cycle--;
+				if (sjoy.key[VK_OEM_4 /* 219 */]) // '[' for US
+				  {
+				    sp_cycle--;
 				 
-				 if (sp_cycle < 1) sp_cycle = max_spr;
-			}
+				    if (sp_cycle < 1) sp_cycle = max_spr;
+				  }
 
-			 if (sjoy.key[221])
-			 {
-                sp_cycle++;
+				if (sjoy.key[VK_OEM_6 /* 221 */]) // ']' for US
+				  {
+				    sp_cycle++;
 				 
-				 if (sp_cycle > max_spr) sp_cycle = 1;
+				    if (sp_cycle > max_spr) sp_cycle = 1;
 				 
-			}
+				  }
 
 
 
-			 }
+			      }
 
 
 			 
-//Msg("Cycle is %d", sp_cycle);
-int realpic = 0;
+			    //Msg("Cycle is %d", sp_cycle);
+			    int realpic = 0;
 
-if (sp_cycle > 0)
-{ 
-//lets draw a frame around the sprite we want
- int dumbpic = 0;
- realpic = 0;
-		for (int jh=1; dumbpic != sp_cycle; jh++)
-		{
-		if (pam.sprite[jh].active)  if ( pam.sprite[jh].vision == map_vision)
-		{
-			dumbpic++;
-         realpic = jh;
-		}
-		if (jh == 99) goto fail;
+			    if (sp_cycle > 0)
+			      { 
+				//lets draw a frame around the sprite we want
+				int dumbpic = 0;
+				realpic = 0;
+				for (int jh=1; dumbpic != sp_cycle; jh++)
+				  {
+				    if (pam.sprite[jh].active)  if ( pam.sprite[jh].vision == map_vision)
+								  {
+								    dumbpic++;
+								    realpic = jh;
+								  }
+				    if (jh == 99) goto fail;
 		
-		}
+				  }
 
-last_sprite_added = realpic;	
+				last_sprite_added = realpic;	
 
     
-	ddbltfx.dwSize = sizeof(ddbltfx);
-    ddbltfx.dwFillColor = 235;
+				ddbltfx.dwSize = sizeof(ddbltfx);
+				ddbltfx.dwFillColor = 235;
 
-    	int	sprite = add_sprite_dumb(pam.sprite[realpic].x,pam.sprite[realpic].y,0,
-					            pam.sprite[realpic].seq, pam.sprite[realpic].frame,
-					            pam.sprite[realpic].size);
-				               CopyRect(&spr[sprite].alt , &pam.sprite[realpic].alt);
-								get_box(sprite, &box_crap, &box_real);
+				int	sprite = add_sprite_dumb(pam.sprite[realpic].x,pam.sprite[realpic].y,0,
+								 pam.sprite[realpic].seq, pam.sprite[realpic].frame,
+								 pam.sprite[realpic].size);
+				CopyRect(&spr[sprite].alt , &pam.sprite[realpic].alt);
+				get_box(sprite, &box_crap, &box_real);
                             
 
 
 
-    get_box(sprite, &box_crap, &box_real);
-	box_crap.bottom = box_crap.top + 5;
-    ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+				get_box(sprite, &box_crap, &box_real);
+				box_crap.bottom = box_crap.top + 5;
+				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
      
-    get_box(sprite, &box_crap, &box_real);
-	box_crap.right = box_crap.left + 5;
-    ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+				get_box(sprite, &box_crap, &box_real);
+				box_crap.right = box_crap.left + 5;
+				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
  	
-    get_box(sprite, &box_crap, &box_real);
-	box_crap.left = box_crap.right - 5;
-    ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+				get_box(sprite, &box_crap, &box_real);
+				box_crap.left = box_crap.right - 5;
+				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
 	
-	get_box(sprite, &box_crap, &box_real);
-	box_crap.top = box_crap.bottom - 5;
-    ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+				get_box(sprite, &box_crap, &box_real);
+				box_crap.top = box_crap.bottom - 5;
+				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
 	
-	//	if (ddrval != DD_OK) dderror(ddrval);
+				//	if (ddrval != DD_OK) dderror(ddrval);
 
-		spr[sprite].active = false;
+				spr[sprite].active = false;
 				
-}
+			      }
 
-fail:
+			  fail:
 
 							
-							if ( (sjoy.button[2]) | (mouse1))
-							{
-							//pick up a sprite already placed by hitting enter
+			    if ( (sjoy.button[2]) | (mouse1))
+			      {
+				//pick up a sprite already placed by hitting enter
 							
 
-							for (int uu = 100; uu > 0; uu--)
-							{
-								if ( pam.sprite[uu].active) if ( ( pam.sprite[uu].vision == 0) || (pam.sprite[uu].vision == map_vision))
-								{
+				for (int uu = 100; uu > 0; uu--)
+				  {
+				    if ( pam.sprite[uu].active) if ( ( pam.sprite[uu].vision == 0) || (pam.sprite[uu].vision == map_vision))
+								  {
 							
-								int	sprite = add_sprite_dumb(pam.sprite[uu].x,pam.sprite[uu].y,0,
-					            pam.sprite[uu].seq, pam.sprite[uu].frame,
-     					            pam.sprite[uu].size);
-	                             CopyRect(&spr[sprite].alt , &pam.sprite[uu].alt);			                 
-								get_box(sprite, &box_crap, &box_real);
-                                   if (realpic > 0) goto spwarp;
-								//Msg("Got sprite %d's info. X%d Y %d.",uu,box_crap.left,box_crap.right);
+								    int	sprite = add_sprite_dumb(pam.sprite[uu].x,pam.sprite[uu].y,0,
+												 pam.sprite[uu].seq, pam.sprite[uu].frame,
+												 pam.sprite[uu].size);
+								    CopyRect(&spr[sprite].alt , &pam.sprite[uu].alt);			                 
+								    get_box(sprite, &box_crap, &box_real);
+								    if (realpic > 0) goto spwarp;
+								    //Msg("Got sprite %d's info. X%d Y %d.",uu,box_crap.left,box_crap.right);
 
-								if (inside_box(spr[1].x,spr[1].y,box_crap)) 
+								    if (inside_box(spr[1].x,spr[1].y,box_crap)) 
 									
-								{
-								//this is the sprite they want to edit, lets convert them into it
-			//						Msg("FOUND SPRITE!  It's %d, huh.",uu); 
+								      {
+									//this is the sprite they want to edit, lets convert them into it
+									//						Msg("FOUND SPRITE!  It's %d, huh.",uu); 
 								
-								if ( 4 > 9) 
-								{
-                                    spwarp:
-									Msg("Ah yeah, using %d!",realpic);
-            		  					uu = realpic;
-								}
+									if ( 4 > 9) 
+									  {
+									  spwarp:
+									    Msg("Ah yeah, using %d!",realpic);
+									    uu = realpic;
+									  }
 									
 									
-								spr[1].x = pam.sprite[uu].x; 
-								spr[1].y = pam.sprite[uu].y; 
-								spr[1].size = pam.sprite[uu].size; 
-								sp_type = pam.sprite[uu].type;
-								sp_brain = pam.sprite[uu].brain;
-                                sp_speed = pam.sprite[uu].speed;
-                                sp_base_walk = pam.sprite[uu].base_walk;
-                                sp_base_idle = pam.sprite[uu].base_idle;
-                                sp_base_attack = pam.sprite[uu].base_attack;
-                                sp_base_hit = pam.sprite[uu].base_hit;
-                                sp_timer = pam.sprite[uu].timer;
-                                sp_que = pam.sprite[uu].que;
-								sp_seq = pam.sprite[uu].seq;
-								sp_hard = pam.sprite[uu].hard;
+									spr[1].x = pam.sprite[uu].x; 
+									spr[1].y = pam.sprite[uu].y; 
+									spr[1].size = pam.sprite[uu].size; 
+									sp_type = pam.sprite[uu].type;
+									sp_brain = pam.sprite[uu].brain;
+									sp_speed = pam.sprite[uu].speed;
+									sp_base_walk = pam.sprite[uu].base_walk;
+									sp_base_idle = pam.sprite[uu].base_idle;
+									sp_base_attack = pam.sprite[uu].base_attack;
+									sp_base_hit = pam.sprite[uu].base_hit;
+									sp_timer = pam.sprite[uu].timer;
+									sp_que = pam.sprite[uu].que;
+									sp_seq = pam.sprite[uu].seq;
+									sp_hard = pam.sprite[uu].hard;
 									CopyRect(&spr[1].alt , &pam.sprite[uu].alt);
-								sp_frame = pam.sprite[uu].frame;
-								spr[1].pseq = pam.sprite[uu].seq;
-								spr[1].pframe = pam.sprite[uu].frame;
+									sp_frame = pam.sprite[uu].frame;
+									spr[1].pseq = pam.sprite[uu].seq;
+									spr[1].pframe = pam.sprite[uu].frame;
 								
-								sp_prop = pam.sprite[uu].prop;
+									sp_prop = pam.sprite[uu].prop;
 								
-								sp_warp_map = pam.sprite[uu].warp_map;
-								sp_warp_x = pam.sprite[uu].warp_x;
-								sp_warp_y = pam.sprite[uu].warp_y;
-								sp_parm_seq = pam.sprite[uu].parm_seq;
-								strcpy(sp_script, pam.sprite[uu].script);
+									sp_warp_map = pam.sprite[uu].warp_map;
+									sp_warp_x = pam.sprite[uu].warp_x;
+									sp_warp_y = pam.sprite[uu].warp_y;
+									sp_parm_seq = pam.sprite[uu].parm_seq;
+									strcpy(sp_script, pam.sprite[uu].script);
 
-                               sp_base_die = pam.sprite[uu].base_die;
-							sp_gold = pam.sprite[uu].gold;
-							sp_hitpoints = pam.sprite[uu].hitpoints;	
+									sp_base_die = pam.sprite[uu].base_die;
+									sp_gold = pam.sprite[uu].gold;
+									sp_hitpoints = pam.sprite[uu].hitpoints;	
 
-                            sp_exp = pam.sprite[uu].exp;	
-                            sp_nohit = pam.sprite[uu].nohit;	
-							sp_touch_damage = pam.sprite[uu].touch_damage;	
-							sp_defense = pam.sprite[uu].defense;	
-							sp_strength = pam.sprite[uu].strength;	
-							sp_sound = pam.sprite[uu].sound;	
+									sp_exp = pam.sprite[uu].exp;	
+									sp_nohit = pam.sprite[uu].nohit;	
+									sp_touch_damage = pam.sprite[uu].touch_damage;	
+									sp_defense = pam.sprite[uu].defense;	
+									sp_strength = pam.sprite[uu].strength;	
+									sp_sound = pam.sprite[uu].sound;	
 							
-							pam.sprite[uu].active = false; //erase sprite
-								 draw_map();
+									pam.sprite[uu].active = false; //erase sprite
+									draw_map();
 									spr[sprite].active = false;
-				                 break;
-								}
-									spr[sprite].active = false;
+									break;
+								      }
+								    spr[sprite].active = false;
 				
-								}
-							}
+								  }
+				  }
 							
 							
-							}
+			      }
 					
 							
-							if (     (GetKeyboard(18)) &  (GetKeyboard(46)) ) 
-							{
-								for (int ll = 1; ll < 100; ll++)
-								{ 
-									pam.sprite[ll].active = false;
-								}
-								draw_map();
-								SetRect(&spr[h].alt,0,0,0,0);
-							}
-						}
+			    if (     (GetKeyboard(VK_MENU /* 18 */)) &  (GetKeyboard(VK_DELETE /* 46 */)) ) 
+			      {
+				for (int ll = 1; ll < 100; ll++)
+				  { 
+				    pam.sprite[ll].active = false;
+				  }
+				draw_map();
+				SetRect(&spr[h].alt,0,0,0,0);
+			      }
+			  }
 						
-						if ( (sjoy.realkey[90]) | (sjoy.realkey[88]) )
-						{
-							if (  (spr[h].alt.right == 0) & (spr[h].alt.left == 0) & (spr[h].alt.top == 0) &
-								(spr[h].alt.bottom == 0) ) CopyRect(&spr[h].alt, &k[getpic(h)].box);
-						}
+			if ( (sjoy.realkey['Z']) | (sjoy.realkey['X']) )
+			  {
+			    if (  (spr[h].alt.right == 0) & (spr[h].alt.left == 0) & (spr[h].alt.top == 0) &
+				  (spr[h].alt.bottom == 0) ) CopyRect(&spr[h].alt, &k[getpic(h)].box);
+			  }
 
-                        if (sjoy.realkey[90])
-						{
+			/* Trim a sprite? */
+                        if (sjoy.realkey['Z'])
+			  {
              
-						if (sjoy.key[39])
-						{
-							spr[h].alt.left += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			    if (sjoy.key[VK_RIGHT /* 39 */])
+			      {
+				spr[h].alt.left += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
 						
-						if (sjoy.key[37])
-						{
-							spr[h].alt.left -= spr[h].speed +modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.key[40])
-						{
-							spr[h].alt.top += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						
-						if (sjoy.key[38])
-						{
-							spr[h].alt.top -= spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			    if (sjoy.key[VK_LEFT /* 37 */])
+			      {
+				spr[h].alt.left -= spr[h].speed +modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    if (sjoy.key[VK_DOWN /* 40 */])
+			      {
+				spr[h].alt.top += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    
+			    if (sjoy.key[VK_UP /* 38 */])
+			      {
+				spr[h].alt.top -= spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
 							
 
-						if (spr[h].alt.top < 0) spr[h].alt.top = 0;
-                        if (spr[h].alt.left < 0) spr[h].alt.left = 0;
-						goto b1end;
-						}
+			    if (spr[h].alt.top < 0) spr[h].alt.top = 0;
+			    if (spr[h].alt.left < 0) spr[h].alt.left = 0;
+			    goto b1end;
+			  }
 						
 						
 						
-						if (sjoy.realkey[88])
-						{
+			if (sjoy.realkey['X'])
+			  {
              
-						if (sjoy.key[39])
-						{
-							spr[h].alt.right += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+			    if (sjoy.key[VK_RIGHT /* 39 */])
+			      {
+				spr[h].alt.right += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
 						
-						if (sjoy.key[37])
-						{
+			    if (sjoy.key[VK_LEFT /* 37 */])
+			      {
 						
-							spr[h].alt.right -= spr[h].speed +modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
-						if (sjoy.key[40])
-						{
-							spr[h].alt.bottom += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				spr[h].alt.right -= spr[h].speed +modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    if (sjoy.key[VK_DOWN /* 40 */])
+			      {
+				spr[h].alt.bottom += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
 						
-						if (sjoy.key[38])
-						{
-							spr[h].alt.bottom -= spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
+			    if (sjoy.key[VK_UP /* 38 */])
+			      {
+				spr[h].alt.bottom -= spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
 						
-					//	Msg("Bottom is %d..",spr[h].alt.bottom);
+				//	Msg("Bottom is %d..",spr[h].alt.bottom);
 						
-						}
-						if (spr[h].alt.bottom > k[getpic(h)].box.bottom) spr[h].alt.bottom = k[getpic(h)].box.bottom;
-                        if (spr[h].alt.right > k[getpic(h)].box.right) spr[h].alt.right = k[getpic(h)].box.right;
+			      }
+			    if (spr[h].alt.bottom > k[getpic(h)].box.bottom) spr[h].alt.bottom = k[getpic(h)].box.bottom;
+			    if (spr[h].alt.right > k[getpic(h)].box.right) spr[h].alt.right = k[getpic(h)].box.right;
                         
-						goto b1end;
+			    goto b1end;
 
-						}
+			  }
 
 
-						if (spr[1].size < 1) spr[1].size = 1;
+			if (spr[1].size < 1) spr[1].size = 1;
 						
 						
-						if (sjoy.realkey[17])
-						{
-						if (sjoy.key[39])
-						{
+			if (sjoy.realkey[VK_CONTROL /* 17 */])
+			  {
+			    if (sjoy.key[VK_RIGHT /* 39 */])
+			      {
 						
-							sp_cycle = 0;
+				sp_cycle = 0;
 							
-							spr[h].x += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						}
+				spr[h].x += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    
+			    if (sjoy.key[VK_LEFT /* 37 */])
+			      {
+				spr[h].x -= spr[h].speed +modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
+			      }
+			    if (sjoy.key[VK_UP /* 38 */])
+			      {
+				spr[h].y -= spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
+			      }
+			    
+			    if (sjoy.key[VK_DOWN /* 40 */])
+			      {
+				spr[h].y += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
+			      }
 						
-						if (sjoy.key[37])
-						{
-							spr[h].x -= spr[h].speed +modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
-						}
-						if (sjoy.key[38])
-						{
-							spr[h].y -= spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
-						}
-						
-						if (sjoy.key[40])
-						{
-							spr[h].y += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
-						}
-						
-						} else
+			  } else
 					
-						{
-                      if (sjoy.right)
-						{
-							spr[h].x += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-					sp_cycle = 0;	
-					  }
+			  {
+			    if (sjoy.right)
+			      {
+				spr[h].x += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;	
+			      }
 						
-						if (sjoy.left)
-						{
-							spr[h].x -= spr[h].speed +modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
-						}
-						if (sjoy.up)
-						{
-							spr[h].y -= spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
-						}
+			    if (sjoy.left)
+			      {
+				spr[h].x -= spr[h].speed +modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
+			      }
+			    if (sjoy.up)
+			      {
+				spr[h].y -= spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
+			      }
 						
-						if (sjoy.down)
-						{
-							spr[h].y += spr[h].speed + modif;
-							EditorSoundPlayEffect( SOUND_STOP );
-						sp_cycle = 0;
+			    if (sjoy.down)
+			      {
+				spr[h].y += spr[h].speed + modif;
+				EditorSoundPlayEffect( SOUND_STOP );
+				sp_cycle = 0;
 
-						}
+			      }
 						
 
-						}
+			  }
 
 
 
 
 
-						if (  (sjoy.button[1]) ) 
-						{
-							//return to edit mode or drop sprite, depending..
-							if (((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			if (  (sjoy.button[1]) ) 
+			  {
+			    //return to edit mode or drop sprite, depending..
+			    if (((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
 						
-							{
+			      {
 								
-			SetRect(&spr[1].alt,0,0,0,0);	
+				SetRect(&spr[1].alt,0,0,0,0);	
 		
-								spr[1].size = 100;
-								mode = MODE_SCREEN_TILES;
-								spr[1].x = m4x;
-								spr[1].y = m4y;
-								spr[1].seq = 3;
-								spr[1].speed = 50;
-							} else
-							{
-														smart_add();
-								draw_map();
-	SetRect(&spr[1].alt,0,0,0,0);	
+				spr[1].size = 100;
+				mode = MODE_SCREEN_TILES;
+				spr[1].x = m4x;
+				spr[1].y = m4y;
+				spr[1].seq = 3;
+				spr[1].speed = 50;
+			      } else
+			      {
+				smart_add();
+				draw_map();
+				SetRect(&spr[1].alt,0,0,0,0);	
 		
-								spr[1].pseq = 10;
-								spr[1].pframe = 8;
-								spr[1].size = 100;
+				spr[1].pseq = 10;
+				spr[1].pframe = 8;
+				spr[1].size = 100;
 								
-							}
-						}
+			      }
+			  }
 						
 						
-						if (sjoy.key[69])
-						{
-							//they hit E, go to sprite picker	
-		                     	SetRect(&spr[1].alt,0,0,0,0);	
+			if (sjoy.key['E'])
+			  {
+			    //they hit E, go to sprite picker	
+			    SetRect(&spr[1].alt,0,0,0,0);	
 							
-							spr[1].size = 100;		
-							//mode = 5;
-							mode = MODE_SPRITE_PICKER;
-							m6x = spr[h].x;
-							m6y = spr[h].y;
-							spr[h].x = m5x;
-							spr[h].y = m5y;
+			    spr[1].size = 100;		
+			    //mode = 5;
+			    mode = MODE_SPRITE_PICKER;
+			    m6x = spr[h].x;
+			    m6y = spr[h].y;
+			    spr[h].x = m5x;
+			    spr[h].y = m5y;
 							
-							spr[1].seq = 3;
-							spr[1].speed = 50;
-							if (sp_seq == 0) draw15(sp_picker); else draw96(sp_frame);
-							goto sp_edit_end;
+			    spr[1].seq = 3;
+			    spr[1].speed = 50;
+			    if (sp_seq == 0) draw15(sp_picker); else draw96(sp_frame);
+			    goto sp_edit_end;
 							
-						}
-						if (sjoy.button[5])
-						{
-							//they hit tab, return to tile edit mode
-							if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			  }
+			if (sjoy.button[5])
+			  {
+			    //they hit tab, return to tile edit mode
+			    if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
 											
-												{
-							smart_add();
-		                    	SetRect(&spr[1].alt,0,0,0,0);	
+			      {
+				smart_add();
+				SetRect(&spr[1].alt,0,0,0,0);	
 		
-							draw_map();
-												}
-							spr[1].size = 100;		
-							mode = MODE_SCREEN_TILES;
-							spr[h].x = m4x;
-							spr[h].y = m4y;
+				draw_map();
+			      }
+			    spr[1].size = 100;		
+			    mode = MODE_SCREEN_TILES;
+			    spr[h].x = m4x;
+			    spr[h].y = m4y;
 							
-							spr[1].seq = 3;
-							spr[1].speed = 50;
-						//	if (sp_seq == 0) draw15(); else draw96();
-							goto sp_edit_end;
+			    spr[1].seq = 3;
+			    spr[1].speed = 50;
+			    //	if (sp_seq == 0) draw15(); else draw96();
+			    goto sp_edit_end;
 							
-						}
+			  }
 						
 						
-						goto b1end;
+			goto b1end;
 						
-					}
+		      }
 					
 					
-					if ( (mode == MODE_SCREEN_TILES) & (sjoy.button[5]))
-					{
+		    if ( (mode == MODE_SCREEN_TILES) & (sjoy.button[5]))
+		      {
 
-						//they chose sprite picker mode
-						//while (kill_last_sprite()); 
+			//they chose sprite picker mode
+			//while (kill_last_sprite()); 
 
 
-						mode = MODE_SCREEN_SPRITES;
+			mode = MODE_SCREEN_SPRITES;
 						
-								spr[1].pseq = 10;
-								spr[1].pframe = 8;
+			spr[1].pseq = 10;
+			spr[1].pframe = 8;
 								
-						spr[1].speed = 1;
-						selx = 1;
-						sely = 1;
-						m4x = spr[h].x;
-						m4y = spr[h].y;
-						//spr[h].x = m5x;
-						//spr[h].y = m5y;
+			spr[1].speed = 1;
+			selx = 1;
+			sely = 1;
+			m4x = spr[h].x;
+			m4y = spr[h].y;
+			//spr[h].x = m5x;
+			//spr[h].y = m5y;
 						
-						//if (sp_seq == 0)
-						//	draw15(); else draw96();
+			//if (sp_seq == 0)
+			//	draw15(); else draw96();
 						
-					} else
-						
-						
+		      } else
 						
 						
 						
 						
-						if (mode == MODE_SPRITE_PICKER)
-						{
-							//picking a sprite	
-							if (sp_seq != 0)
-							{
-								//they are in select sprite phase 2
+						
+						
+		      if (mode == MODE_SPRITE_PICKER)
+			{
+			  //picking a sprite	
+			  if (sp_seq != 0)
+			    {
+			      //they are in select sprite phase 2
 							
-							if (sjoy.key[69])
-							{
-                            //they want to 'edit' the sprite
-                             mode = MODE_SPRITE_HARDNESS;
-			                        m5x = spr[h].x;
-									m5y = spr[h].y;
+			      if (sjoy.key['E'])
+				{
+				  //they want to 'edit' the sprite
+				  mode = MODE_SPRITE_HARDNESS;
+				  m5x = spr[h].x;
+				  m5y = spr[h].y;
 									
-								   //lets blank the screen
-									ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-                                   ddbltfx.dwSize = sizeof( ddbltfx);
-                                   ddbltfx.dwFillColor = 255;
-                                   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+				  //lets blank the screen
+				  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+				  ddbltfx.dwSize = sizeof( ddbltfx);
+				  ddbltfx.dwFillColor = 255;
+				  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
 
-									holdx = (spr[1].x / 50);
-									int holdy = (spr[1].y / 50)+1;
-									holdx = holdx * 8;
-									if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
+				  holdx = (spr[1].x / 50);
+				  int holdy = (spr[1].y / 50)+1;
+				  holdx = holdx * 8;
+				  if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
 									
-									int spman = add_sprite_dumb(320,200 , 0,sp_seq,holdx + holdy,100 );
+				  int spman = add_sprite_dumb(320,200 , 0,sp_seq,holdx + holdy,100 );
 
-									sp_frame = holdx + holdy;
-									spr[1].pseq = 10;
-									spr[1].pframe = 8;
+				  sp_frame = holdx + holdy;
+				  spr[1].pseq = 10;
+				  spr[1].pframe = 8;
 
 									
-									spr[1].speed = 1;
-							        goto sp_edit_end;
+				  spr[1].speed = 1;
+				  goto sp_edit_end;
 									
-							}
+				}
 
-								if (  (sjoy.button[1]) ) 
-								{
+			      if (  (sjoy.button[1]) ) 
+				{
 									
 									
-									//returning to main sprite picker mode
-									sp_seq = 0;
+				  //returning to main sprite picker mode
+				  sp_seq = 0;
 									
-									draw15(sp_picker);
-									spr[h].x = m5ax;
-									spr[h].y = m5ay;
+				  draw15(sp_picker);
+				  spr[h].x = m5ax;
+				  spr[h].y = m5ay;
 									
-									goto sp_edit_end;
-								}
+				  goto sp_edit_end;
+				}
 								
-								if (sjoy.button[5])
-								{
-									//leave to screen editor
-sp_fin:
-								m5x = spr[h].x;
-								m5y = spr[h].y;
+			      if (sjoy.button[5])
+				{
+				  //leave to screen editor
+				sp_fin:
+				  m5x = spr[h].x;
+				  m5y = spr[h].y;
 								
-								draw_map();
-								spr[h].x = m6x;
-								spr[h].y = m6y;
+				  draw_map();
+				  spr[h].x = m6x;
+				  spr[h].y = m6y;
 
-								spr[1].pseq = 10;
-									spr[1].pframe = 8;
+				  spr[1].pseq = 10;
+				  spr[1].pframe = 8;
 
-								spr[h].speed = 1;
-								mode = MODE_SCREEN_SPRITES;
-								goto sp_edit_end;
+				  spr[h].speed = 1;
+				  mode = MODE_SCREEN_SPRITES;
+				  goto sp_edit_end;
 								
-								}
+				}
 								
-								if (sjoy.button[2])
-								{
+			      if (sjoy.button[2])
+				{
 									
-									// go to mode 6, sprite placement
-									m5x = spr[h].x;
-									m5y = spr[h].y;
+				  // go to mode 6, sprite placement
+				  m5x = spr[h].x;
+				  m5y = spr[h].y;
 									
 								   
-									holdx = (spr[1].x / 50);
-									int holdy = (spr[1].y / 50)+1;
-									holdx = holdx * 8;
-									if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
-									spr[1].pseq = sp_seq;
-									spr[1].pframe = holdx + holdy;
-									sp_frame = holdx + holdy;
-									draw_map();
-									spr[h].x = m6x;
-									spr[h].y = m6y;
-									mode = MODE_SCREEN_SPRITES;
-									spr[h].speed = 1;
-									goto sp_edit_end;
+				  holdx = (spr[1].x / 50);
+				  int holdy = (spr[1].y / 50)+1;
+				  holdx = holdx * 8;
+				  if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
+				  spr[1].pseq = sp_seq;
+				  spr[1].pframe = holdx + holdy;
+				  sp_frame = holdx + holdy;
+				  draw_map();
+				  spr[h].x = m6x;
+				  spr[h].y = m6y;
+				  mode = MODE_SCREEN_SPRITES;
+				  spr[h].speed = 1;
+				  goto sp_edit_end;
 									
-								}
+				}
 								
 								
-								goto sp_edit_end;
-							}
+			      goto sp_edit_end;
+			    }
 							
 							
-							if (   (sjoy.button[5]) | (sjoy.button[1]) ) 
-							{
+			  if (   (sjoy.button[5]) | (sjoy.button[1]) ) 
+			    {
 								
-								//exit to main editor
-								/*m5x = spr[h].x;
-								m5y = spr[h].y;
-								draw_map();
-								spr[h].x = m4x;
-								spr[h].y = m4y;
-								mode = 3;
-								goto b1end;
-								*/
-								m5x = spr[h].x;
-								m5y = spr[h].y;
+			      //exit to main editor
+			      /*m5x = spr[h].x;
+				m5y = spr[h].y;
+				draw_map();
+				spr[h].x = m4x;
+				spr[h].y = m4y;
+				mode = 3;
+				goto b1end;
+			      */
+			      m5x = spr[h].x;
+			      m5y = spr[h].y;
 								
-								draw_map();
-								spr[h].x = m6x;
-								spr[h].y = m6y;
-								spr[h].pseq = 10;
-								spr[h].pframe = 8;
+			      draw_map();
+			      spr[h].x = m6x;
+			      spr[h].y = m6y;
+			      spr[h].pseq = 10;
+			      spr[h].pframe = 8;
 								
-								spr[h].speed = 1;
-								mode = MODE_SCREEN_SPRITES;
-								goto b1end;
-								//goto sp_edit_end;
+			      spr[h].speed = 1;
+			      mode = MODE_SCREEN_SPRITES;
+			      goto b1end;
+			      //goto sp_edit_end;
 								
-							}
+			    }
 							
-							if (sjoy.key[219])
-							{
-                             if (sp_picker > 95) sp_picker -= 96; else
-							 {
-                            sp_picker = (4 * 96);
-							 }
-                            draw15(sp_picker);
-							}
-							if (sjoy.key[221])
-							{
-                             if (sp_picker < 400) sp_picker += 96;
-                            draw15(sp_picker);
-							}
+			  if (sjoy.key[VK_OEM_4 /* 219 */]) // '[' for US
+			    {
+			      if (sp_picker > 95) sp_picker -= 96; else
+				{
+				  sp_picker = (4 * 96);
+				}
+			      draw15(sp_picker);
+			    }
+			  if (sjoy.key[VK_OEM_6 /* 221 */]) // ']' for US
+			    {
+			      if (sp_picker < 400) sp_picker += 96;
+			      draw15(sp_picker);
+			    }
 							
-							if (sjoy.button[2])
-							{
+			  if (sjoy.button[2])
+			    {
 								
-								//they chose a catagory, switch to phase 2, it will know cuz sp_seq > 0.
-								holdx = (spr[1].x / 50);
-								int holdy = (spr[1].y / 50)+1;
-								holdx = holdx * 8;
-								m5ax = spr[1].x;
-								m5ay = spr[1].y;
-								spr[1].x = 0;
-								spr[1].y = 0;
-								sp_seq = sp_get(sp_picker+ (holdx + holdy));
-								//	Msg("Sp_seq is %d",sp_seq);
-								draw96(0);
+			      //they chose a catagory, switch to phase 2, it will know cuz sp_seq > 0.
+			      holdx = (spr[1].x / 50);
+			      int holdy = (spr[1].y / 50)+1;
+			      holdx = holdx * 8;
+			      m5ax = spr[1].x;
+			      m5ay = spr[1].y;
+			      spr[1].x = 0;
+			      spr[1].y = 0;
+			      sp_seq = sp_get(sp_picker+ (holdx + holdy));
+			      //	Msg("Sp_seq is %d",sp_seq);
+			      draw96(0);
 								
-							}
+			    }
 							
 							
-						}
-sp_edit_end:
+			}
+		  sp_edit_end:
 						
 
   
 						
-						if (mode == MODE_SCREEN_TILES) draw_current();
+		    if (mode == MODE_SCREEN_TILES) draw_current();
 						
 						
-						if (mode == MODE_DIALOG)
-						{
+		    if (mode == MODE_DIALOG)
+		      {
 							
-									spr[h].seq = 2;
-									spr[h].seq_orig = 2;
-									draw_used();	
-									spr[1].que = 20000;
-									mode = MODE_MAP_PICKER;
-									spr[2].active = FALSE;
-									spr[3].active = FALSE;
-									spr[4].active = FALSE;
-						}
+			spr[h].seq = 2;
+			spr[h].seq_orig = 2;
+			draw_used();	
+			spr[1].que = 20000;
+			mode = MODE_MAP_PICKER;
+			spr[2].active = FALSE;
+			spr[3].active = FALSE;
+			spr[4].active = FALSE;
+		      }
 						
-						if (mode == MODE_DIALOG) goto b1end;			
-						
-						
+		    if (mode == MODE_DIALOG) goto b1end;			
 						
 						
-						//mode equals 4, they are in hardness edit mode, so lets do this thang
 						
-						if (mode == MODE_TILE_HARDNESS)
-						{
+						
+		    //mode equals 4, they are in hardness edit mode, so lets do this thang
+						
+		    if (mode == MODE_TILE_HARDNESS)
+		      {
 							
 							
-							if (spr[h].seq == 0)
-							{
+			if (spr[h].seq == 0)
+			  {
 								
-								if ((GetKeyboard(16)) && (GetKeyboard(39)) )
-								{
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									if (selx < 8) selx++;
-									goto b1fun;
-								}
+			    if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_RIGHT /* 39 */)) )
+			      {
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				if (selx < 8) selx++;
+				goto b1fun;
+			      }
 								
-								if ((GetKeyboard(16)) && (GetKeyboard(37)) )
-								{
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									if (selx > 1) selx--;
-									goto b1fun;
-								}
+			    if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_LEFT /* 37 */)) )
+			      {
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				if (selx > 1) selx--;
+				goto b1fun;
+			      }
 								
-								if ((GetKeyboard(16)) && (GetKeyboard(38)) )
-								{
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									if (sely > 1) sely--;
-									goto b1fun;
-								}
+			    if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_UP /* 38 */)) )
+			      {
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				if (sely > 1) sely--;
+				goto b1fun;
+			      }
 								
-								if ((GetKeyboard(16)) && (GetKeyboard(40)) )
-								{
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									if (sely <  8) sely++;
-									goto b1fun;
-								}
+			    if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_DOWN /* 40 */)) )
+			      {
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				if (sely <  8) sely++;
+				goto b1fun;
+			      }
 								
 								
-								if (sjoy.right)
-								{
-									spr[h].x += 9;
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									EditorSoundPlayEffect( SOUND_STOP );
+			    if (sjoy.right)
+			      {
+				spr[h].x += 9;
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				EditorSoundPlayEffect( SOUND_STOP );
 									
-								}
-								if (sjoy.left)
-								{
-									spr[h].x -= 9;
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									EditorSoundPlayEffect( SOUND_STOP );
-								}
-								if (sjoy.up)
-								{
-									spr[h].y -= 9;
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									EditorSoundPlayEffect( SOUND_STOP );
-								}
-								if (sjoy.down)
-								{
-									spr[h].y += 9;
-									spr[h].seq = 4;
-									spr[h].frame = 1;
-									EditorSoundPlayEffect( SOUND_STOP );
-								}
+			      }
+			    if (sjoy.left)
+			      {
+				spr[h].x -= 9;
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    if (sjoy.up)
+			      {
+				spr[h].y -= 9;
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
+			    if (sjoy.down)
+			      {
+				spr[h].y += 9;
+				spr[h].seq = 4;
+				spr[h].frame = 1;
+				EditorSoundPlayEffect( SOUND_STOP );
+			      }
 								
-							}
+			  }
 							
 							
-b1fun:
+		      b1fun:
 							
-							//make sure they didn't go past the boundrys
-if (mode != 1)
-{							
+			//make sure they didn't go past the boundrys
+			if (mode != 1)
+			  {							
 							
-							if (spr[h].x + (9 * (selx -1))> 95+441) spr[h].x = (95+441) - (9 * (selx-1));
-							if (spr[h].x < 95) spr[h].x = 95;
-							if (spr[h].y < 0) spr[h].y = 0;
-							if (spr[h].y + (9 * (sely -1))> 441) spr[h].y = 441 - (9 * (sely-1));	
-}							
+			    if (spr[h].x + (9 * (selx -1))> 95+441) spr[h].x = (95+441) - (9 * (selx-1));
+			    if (spr[h].x < 95) spr[h].x = 95;
+			    if (spr[h].y < 0) spr[h].y = 0;
+			    if (spr[h].y + (9 * (sely -1))> 441) spr[h].y = 441 - (9 * (sely-1));	
+			  }							
 							
-							//change a piece to hard
-							if (  GetKeyboard(90))
-							{ 
+			//change a piece to hard
+			if (  GetKeyboard('Z'))
+			  { 
 								
-								for (int y = 0; y < sely; y++)
-								{
-									for (int x = 0; x < selx; x++)
-									{
-										hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
+			    for (int y = 0; y < sely; y++)
+			      {
+				for (int x = 0; x < selx; x++)
+				  {
+				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
 										
-									}
-								}
-							}
+				  }
+			      }
+			  }
 							
 							
-							//change a piece to soft
-							if (GetKeyboard(88))
-							{ 
+			//change a piece to soft
+			if (GetKeyboard('X'))
+			  { 
 								
-								for (int y = 0; y < sely; y++)
-								{
-									for (int x = 0; x < selx; x++)
-									{
-										hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
+			    for (int y = 0; y < sely; y++)
+			      {
+				for (int x = 0; x < selx; x++)
+				  {
+				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
 										
-									}
-								}
+				  }
+			      }
 								
 								
-							}
+			  }
 							
 					
-							 if ( (GetKeyboard(65)) & (GetKeyboard(18) ) )
-							 {
-                                 //change ALL to 'low hard'
-								 change_tile(hard_tile, 2);
-								 Msg("Changing whole tile to 2");
+			if ( (GetKeyboard('A')) & (GetKeyboard(VK_MENU /* 18/Alt */) ) )
+			  {
+			    //change ALL to 'low hard'
+			    change_tile(hard_tile, 2);
+			    Msg("Changing whole tile to 2");
 								 
-								 return;
-							 }
+			    return;
+			  }
 
-							 if ( (GetKeyboard(83)) & (GetKeyboard(18) ) )
-							 {
-                                 //change ALL to 'low hard'
-								 change_tile(hard_tile, 3);
-								 Msg("Chaning whole tile to 3");
+			if ( (GetKeyboard('S')) & (GetKeyboard(VK_MENU /* 18/Alt */) ) )
+			  {
+			    //change ALL to 'low hard'
+			    change_tile(hard_tile, 3);
+			    Msg("Chaning whole tile to 3");
 								 
-								 return;
-							 }
-                	 if ( (GetKeyboard(88)) & (GetKeyboard(18) ) )
-							 {
-                                 //change ALL to 'low hard'
-								 change_tile(hard_tile, 1);
-								 Msg("Changing whole tile to 1");
-								 
-								 return;
-							 }
+			    return;
+			  }
+			if ( (GetKeyboard('X')) & (GetKeyboard(VK_MENU /* 18/Alt */) ) )
+			  {
+			    //change ALL to 'low hard'
+			    change_tile(hard_tile, 1);
+			    Msg("Changing whole tile to 1");
+			    
+			    return;
+			  }
 
 
-                        if (GetKeyboard(65))
-							{ 
+                        if (GetKeyboard('A'))
+			  { 
 								
-								for (int y = 0; y < sely; y++)
-								{
-									for (int x = 0; x < selx; x++)
-									{
-										hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
+			    for (int y = 0; y < sely; y++)
+			      {
+				for (int x = 0; x < selx; x++)
+				  {
+				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
 										
-									}
-								}
+				  }
+			      }
 					
-							}
-                        if (GetKeyboard(83))
-							{ 
+			  }
+                        if (GetKeyboard('S'))
+			  { 
 								
-								for (int y = 0; y < sely; y++)
-								{
-									for (int x = 0; x < selx; x++)
-									{
-										hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
+			    for (int y = 0; y < sely; y++)
+			      {
+				for (int x = 0; x < selx; x++)
+				  {
+				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
 										
-									}
-								}
+				  }
+			      }
 					
-							}
+			  }
 							
 
-							//update frame with current hard blocks, slow
+			//update frame with current hard blocks, slow
 							
-							draw_hard();
+			draw_hard();
 							
-							if (   (sjoy.button[1])  | (sjoy.button[2]) )
-							{
-						//quit hardness edit		
+			if (   (sjoy.button[1])  | (sjoy.button[2]) )
+			  {
+			    //quit hardness edit		
 								
-								spr[h].seq = 3;
-								spr[h].seq_orig = 3;
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
 							
-								if (last_modereal == 8)
-								{
-								//return to alt hardness editor
-								draw_map();
-									last_modereal = 0;	
-									spr[h].x = m4x;
-								spr[h].y = m4y;
+			    if (last_modereal == 8)
+			      {
+				//return to alt hardness editor
+				draw_map();
+				last_modereal = 0;	
+				spr[h].x = m4x;
+				spr[h].y = m4y;
 								
-								selx = 1;
-								sely = 1;
+				selx = 1;
+				sely = 1;
 									
-									mode = MODE_UNKNOWN;
-								return;
-									//goto skip_draw;
+				mode = MODE_UNKNOWN;
+				return;
+				//goto skip_draw;
 									
 									
-								}
+			      }
 								
-								if (last_mode > 0) { 
+			    if (last_mode > 0) { 
 									
-									loadtile(last_mode);
-									selx = 1;
-									sely = 1;
-									goto b1end;
-								}
-								fill_whole_hard();
+			      loadtile(last_mode);
+			      selx = 1;
+			      sely = 1;
+			      goto b1end;
+			    }
+			    fill_whole_hard();
 							
-								draw_map();
-								spr[h].x = m4x;
-								spr[h].y = m4y;
-								mode = MODE_SCREEN_TILES;
-								selx = 1;
-								sely = 1;
-							}
+			    draw_map();
+			    spr[h].x = m4x;
+			    spr[h].y = m4y;
+			    mode = MODE_SCREEN_TILES;
+			    selx = 1;
+			    sely = 1;
+			  }
 							
-							goto b1end;
-}
+			goto b1end;
+		      }
 
 
-//THEY WANT TO EDIT HARDNESS
+		    //THEY WANT TO EDIT HARDNESS
 
-if ( (sjoy.key[66]) )
-{
- in_master = 31;
+		    if ( (sjoy.key['B']) )
+		      {
+			in_master = 31;
 	
 
-}
+		      }
 
-if ( (sjoy.key[86]) )
-{
- in_master = 32;
-}
+		    if ( (sjoy.key['V']) )
+		      {
+			in_master = 32;
+		      }
 
 
 
-if (    ( (mode == MODE_SCREEN_TILES) & (sjoy.button[2]) )  | (mode == MODE_TILE_PICKER) & (GetKeyboard(32)))
+		    if (    ( (mode == MODE_SCREEN_TILES) & (sjoy.button[2]) )  | (mode == MODE_TILE_PICKER) & (GetKeyboard(32)))
 
-{
+		      {
 	
-	if (mode == MODE_SCREEN_TILES) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			if (mode == MODE_SCREEN_TILES) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
 	
-	if (mode == MODE_TILE_PICKER)
+			if (mode == MODE_TILE_PICKER)
 		
-	{
-		cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
-		cur_tile += (cur_screen * 128) - 128;
+			  {
+			    cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			    cur_tile += (cur_screen * 128) - 128;
 		
 		
-	}
-	while(kill_last_sprite());
-	draw_current();
+			  }
+			while(kill_last_sprite());
+			draw_current();
 	
-	if (cur_tile > 0)
+			if (cur_tile > 0)
 		
-	{
+			  {
 		
-		if (hmap.index[cur_tile] == 0)
-		{
+			    if (hmap.index[cur_tile] == 0)
+			      {
 			
 			
-			for (int j = 1; j < 799; j++)
-			{
-				if (hmap.tile[j].used == FALSE)
-				{
+				for (int j = 1; j < 799; j++)
+				  {
+				    if (hmap.tile[j].used == FALSE)
+				      {
 					
 					hmap.index[cur_tile] = j;
 					hmap.tile[j].used = TRUE;
 				    	hard_tile = j;
 					goto tilesel;
 					
-				}
+				      }
 		
-			}
+				  }
 	
 		
-		} else hard_tile = hmap.index[cur_tile];
+			      } else hard_tile = hmap.index[cur_tile];
 		
-tilesel:
-		cool = cur_tile / 128;
-		xx = cur_tile - (cool * 128);
-		Rect.left = (xx * 50- (xx / 12) * 600);
-		Rect.top = (xx / 12) * 50;
-		Rect.right = Rect.left + 50;
-		Rect.bottom = Rect.top + 50;
+			  tilesel:
+			    cool = cur_tile / 128;
+			    xx = cur_tile - (cool * 128);
+			    Rect.left = (xx * 50- (xx / 12) * 600);
+			    Rect.top = (xx / 12) * 50;
+			    Rect.right = Rect.left + 50;
+			    Rect.bottom = Rect.top + 50;
 		
-		crapRec.top = 0;
-		crapRec.left = 95;
-		crapRec.bottom = 450;
-		crapRec.right = 95+450;
+			    crapRec.top = 0;
+			    crapRec.left = 95;
+			    crapRec.bottom = 450;
+			    crapRec.right = 95+450;
 		
-		ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-		ddbltfx.dwSize = sizeof( ddbltfx);
-		spr[1].seq = 0;
-		spr[1].pseq = 10;
-		spr[1].pframe = 1;
+			    ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+			    ddbltfx.dwSize = sizeof( ddbltfx);
+			    spr[1].seq = 0;
+			    spr[1].pseq = 10;
+			    spr[1].pframe = 1;
 								
 		
 
-		// Display the given tile square fullscreen, for hardness editing
-		lpDDSTwo->Blt(&crapRec , tiles[cool+1],
-			&Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
-		// GFX
-		{
-		  // TODO: SDL_gfx + scaling
-		}
+			    // Display the given tile square fullscreen, for hardness editing
+			    lpDDSTwo->Blt(&crapRec , tiles[cool+1],
+					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+			    // GFX
+			    {
+			      // TODO: SDL_gfx + scaling
+			    }
 
-		m4x = spr[h].x;
-		m4y = spr[h].y;
+			    m4x = spr[h].x;
+			    m4y = spr[h].y;
 		
-		spr[1].x = 95;
-		spr[1].y = 0;
-		selx = 1;
-		sely = 1;
+			    spr[1].x = 95;
+			    spr[1].y = 0;
+			    selx = 1;
+			    sely = 1;
 		
-		mode = MODE_TILE_HARDNESS;
+			    mode = MODE_TILE_HARDNESS;
 		
-		kickass = TRUE;
-	}
+			    kickass = TRUE;
+			  }
 	
     
 	
-}
+		      }
 
 
 
-if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) )
-{
-	//resizing the box
+		    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) )
+		      {
+			//resizing the box
 	
-	if ((GetKeyboard(16)) && (GetKeyboard(39)) )
-	{
-		spr[h].seq = 3;
-		spr[h].seq_orig = 3;
-		if (selx < 8) selx++;
-		goto b1end;
-	}
+			if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_RIGHT /* 39 */)) )
+			  {
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
+			    if (selx < 8) selx++;
+			    goto b1end;
+			  }
 	
-	if ((GetKeyboard(16)) && (GetKeyboard(37)) )
-	{
-		spr[h].seq = 3;
-		spr[h].seq_orig = 3;
-		if (selx > 1) selx--;
-		goto b1end;
+			if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_LEFT /* 37 */)) )
+			  {
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
+			    if (selx > 1) selx--;
+			    goto b1end;
 	
-	 }
+			  }
 	
-	if ((GetKeyboard(16)) && (GetKeyboard(38)) )
-	{
-		spr[h].seq = 3;
-		spr[h].seq_orig = 3;
-		if (sely > 1) sely--;
-		goto b1end;
-	}
+			if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_UP /* 38 */)) )
+			  {
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
+			    if (sely > 1) sely--;
+			    goto b1end;
+			  }
 	
-	if ((GetKeyboard(16)) && (GetKeyboard(40)) )
-	{
-		spr[h].seq = 3;
-		spr[h].seq_orig = 3;
-		if (sely <  8) sely++;
-		goto b1end;
-	}
+			if ((GetKeyboard(VK_SHIFT /* 16 */)) && (GetKeyboard(VK_DOWN /* 40 */)) )
+			  {
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
+			    if (sely <  8) sely++;
+			    goto b1end;
+			  }
 	
-}
+		      }
 
 
-if (GetKeyboard(39)) 
-{
-	spr[h].x += spr[h].speed;
-	spr[h].seq = spr[h].seq_orig;
-	EditorSoundPlayEffect( SOUND_STOP );
-	//PlayMidi("TOP.MID");
+		    if (GetKeyboard(VK_RIGHT /* 39 */)) 
+		      {
+			spr[h].x += spr[h].speed;
+			spr[h].seq = spr[h].seq_orig;
+			EditorSoundPlayEffect( SOUND_STOP );
+			//PlayMidi("TOP.MID");
 	
-}
+		      }
 
 
-if ( (GetKeyboard(83)) && (mode == MODE_SCREEN_TILES) ) 
-{
+		    if ((GetKeyboard('S')) && (mode == MODE_SCREEN_TILES))
+		      {
 	
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	//EditorSoundPlayEffect( SOUND_JUMP );
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			//EditorSoundPlayEffect( SOUND_JUMP );
 	
 	
-	pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num = cur_tile;
+			pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num = cur_tile;
 	
-	for (int y = 0; y < sely; y++)
-			 {
-		for (int x = 0; x < selx; x++)
-		{
-			holdx = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
-			holdx += (y * 12);
-			holdx += x;
-			pam.t[holdx].num = (cur_tile + (y * 12) + x);
+			for (int y = 0; y < sely; y++)
+			  {
+			    for (int x = 0; x < selx; x++)
+			      {
+				holdx = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
+				holdx += (y * 12);
+				holdx += x;
+				pam.t[holdx].num = (cur_tile + (y * 12) + x);
 			
-		}
-			 }
+			      }
+			  }
 	
 	
-	draw_map();	
-}
+			draw_map();	
+		      }
 
 
 
-if ( (GetKeyboard(67)) && (mode == MODE_SCREEN_TILES) ) 
-{
+		    if ( (GetKeyboard('C')) && (mode == MODE_SCREEN_TILES) ) 
+		      {
 	
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	//SoundPlayEffect( SOUND_JUMP );
-	cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
-	draw_map();	
-}
-if (!GetKeyboard(16)) if (!GetKeyboard(17)) if (!GetKeyboard(18)) 
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			//SoundPlayEffect( SOUND_JUMP );
+			cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			draw_map();	
+		      }
 
-{
+		    /* Tile selection */
+		    if (mode == MODE_SCREEN_TILES || mode == MODE_TILE_PICKER)
+		      {
+			int unit = 0, tile_no = 0;
+			if (GetKeyboard('1')) unit = 1;
+			if (GetKeyboard('2')) unit = 2;
+			if (GetKeyboard('3')) unit = 3;
+			if (GetKeyboard('4')) unit = 4;
+			if (GetKeyboard('5')) unit = 5;
+			if (GetKeyboard('6')) unit = 6;
+			if (GetKeyboard('7')) unit = 7;
+			if (GetKeyboard('8')) unit = 8;
+			if (GetKeyboard('9')) unit = 9;
+			if (GetKeyboard('0')) unit = 10;
+			
+			tile_no = unit;
+			if (GetKeyboard(VK_SHIFT /* 16 */))
+			  tile_no = 10 + unit;
+			if (GetKeyboard(VK_CONTROL /* 17 */))
+			  tile_no = 20 + unit;
+			if (GetKeyboard(VK_MENU /* 18/Alt */))
+			  tile_no = 30 + unit;
+
+			if (unit > 0) /* make sure one key was pressed */
+			  loadtile(tile_no);
+
+			/* Exception: tile #41 = Alt+` */
+			if (GetKeyboard(VK_MENU /* 18/Alt */) && GetKeyboard(192/* VK_OEM_3 */ /* 192/'`' for US */))
+			  loadtile(41);
+		      }
+
+		    //if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
+
+
+		    if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER)) 
+		      {
+			// cut to map editer from tile selection
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			cur_tile += (cur_screen * 128) - 128;
+			//SoundPlayEffect( SOUND_JUMP );
+			m2x = spr[h].x;
+			m2y = spr[h].y;
+			spr[h].x = m3x;
+			spr[h].y = m3y;
 	
-	if ( (GetKeyboard(49)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(1);
+			mode = MODE_SCREEN_TILES;
+			spr[h].speed = 50;
+			draw_map();
+			last_mode = 0;
+		      }
+
+
+
+		    if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER)) 
+		      {
+			// cut to map editer from tile selection
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			//cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			//SoundPlayEffect( SOUND_JUMP );
+			m2x = spr[h].x;
+			m2y = spr[h].y;
+			spr[h].x = m3x;
+			spr[h].y = m3y;
 	
-	if ( (GetKeyboard(50)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  )  loadtile(2);
-	if ( (GetKeyboard(51)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  )  loadtile(3);
-	if ( (GetKeyboard(52)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) )   loadtile(4);
-	if ( (GetKeyboard(53)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(5);
-	if ( (GetKeyboard(54)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))  ) loadtile(6);
-	if ( (GetKeyboard(55)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(7);
-	
-	if ( (GetKeyboard(56)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(8);
-	if ( (GetKeyboard(57)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(9);
-	if ( (GetKeyboard(48)) && ( (mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER)) ) loadtile(10);
-}
-
-if (((GetKeyboard(49)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(11);
-if (((GetKeyboard(50)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(12);
-if (((GetKeyboard(51)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(13);
-if (((GetKeyboard(52)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(14);
-if (((GetKeyboard(53)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(15);
-if (((GetKeyboard(54)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(16);
-if (((GetKeyboard(55)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(17);
-if (((GetKeyboard(56)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(18);
-if (((GetKeyboard(57)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(19);
-if (((GetKeyboard(48)) && (GetKeyboard(16))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(20);
-
-if (((GetKeyboard(49)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(21);
-if (((GetKeyboard(50)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(22);
-if (((GetKeyboard(51)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(23);
-if (((GetKeyboard(52)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(24);
-if (((GetKeyboard(53)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(25);
-if (((GetKeyboard(54)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(26);
-if (((GetKeyboard(55)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(27);
-if (((GetKeyboard(56)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(28);
-if (((GetKeyboard(57)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(29);
-if (((GetKeyboard(48)) && (GetKeyboard(17))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(30);
-
-if (((GetKeyboard(49)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(31);
-if (((GetKeyboard(50)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(32);
-if (((GetKeyboard(51)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(33);
-if (((GetKeyboard(52)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(34);
-if (((GetKeyboard(53)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(35);
-
-if (((GetKeyboard(54)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(36);
-if (((GetKeyboard(55)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(37);
-if (((GetKeyboard(56)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(38);
-if (((GetKeyboard(57)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(39);
-if (((GetKeyboard(48)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(40);
-if (((GetKeyboard(192)) && (GetKeyboard(18))) && ((mode == MODE_SCREEN_TILES) | (mode ==MODE_TILE_PICKER))) loadtile(41);
+			mode = MODE_SCREEN_TILES;
+			draw_map();
+			last_mode = 0;
+			goto b1end;
+		      }
 
 
+		    if ( (sjoy.key[VK_SPACE /* 32 */])  && (mode == MODE_MAP_PICKER))
+		      {  
+			//make_map_tiny();
+			draw_map_tiny = 0;
 
-//if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
+		      }
 
+		    if ( (sjoy.key['L'])  && (mode == MODE_MAP_PICKER))
+		      {  
 
-if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER)) 
-{
-	// cut to map editer from tile selection
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
-	cur_tile += (cur_screen * 128) - 128;
-	//SoundPlayEffect( SOUND_JUMP );
-	m2x = spr[h].x;
-	m2y = spr[h].y;
-	spr[h].x = m3x;
-	spr[h].y = m3y;
-	
-	mode = MODE_SCREEN_TILES;
-	spr[h].speed = 50;
-	draw_map();
-	last_mode = 0;
-}
+			//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
+			//{
+			buf_map = (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
+			in_master = 30;
+			//}
+
+		      }
 
 
+		    if ( (sjoy.key[VK_ESCAPE /* 27 */]) && (mode == MODE_MAP_PICKER))
+		      {
+			load_info();
+			draw_used();
+			buf_mode = false;
 
-if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER)) 
-{
-	// cut to map editer from tile selection
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	//cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
-	//SoundPlayEffect( SOUND_JUMP );
-	m2x = spr[h].x;
-	m2y = spr[h].y;
-	spr[h].x = m3x;
-	spr[h].y = m3y;
-	
-	mode = MODE_SCREEN_TILES;
-	draw_map();
-	last_mode = 0;
-	goto b1end;
-}
+		      }
 
 
-if ( (sjoy.key[32])  && (mode == MODE_MAP_PICKER))
-{  
-//make_map_tiny();
-draw_map_tiny = 0;
+		    if ( (sjoy.key['M']) && (mode == MODE_MAP_PICKER))
+		      {
+			//set music # for this block
+			in_int = &map.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
+			in_master = 33;
+		      }
 
-}
+		    if ( (sjoy.key['S']) && (mode == MODE_MAP_PICKER))
+		      {
+			//set music # for this block
+			in_int = &map.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
+			in_master = 34;
+		      }
 
-if ( (sjoy.key[76])  && (mode == MODE_MAP_PICKER))
-{  
+		    if ( (sjoy.button[2]) && (mode == MODE_MAP_PICKER))
+		      {
 
-	//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
-	//{
-	buf_map = (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
-		in_master = 30;
-    //}
-
-}
-
-
-if ( (sjoy.key[27]) && (mode == MODE_MAP_PICKER))
-{
-load_info();
-draw_used();
-buf_mode = false;
-
-}
-
-
-if ( (sjoy.key[77]) && (mode == MODE_MAP_PICKER))
-{
-//set music # for this block
-in_int = &map.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-in_master = 33;
-}
-
-if ( (sjoy.key[83]) && (mode == MODE_MAP_PICKER))
-{
-//set music # for this block
-in_int = &map.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-in_master = 34;
-}
-
-if ( (sjoy.button[2]) && (mode == MODE_MAP_PICKER))
-{
-
-	if (buf_mode)
-	{
-   //lets replace this screen
+			if (buf_mode)
+			  {
+			    //lets replace this screen
  
-		buf_mode = false;
+			    buf_mode = false;
 	
 		
-		if (!load_map_buf(buffmap.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]))
-	 {
+			    if (!load_map_buf(buffmap.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]))
+			      {
 
 
-	 draw_used();
-	 sjoy.button[2] = false;
-	 return;
-	 }
+				draw_used();
+				sjoy.button[2] = false;
+				return;
+			      }
 	  
 		
-		load_info();
+			    load_info();
 
-		 if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] == 0)
-		 {
+			    if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] == 0)
+			      {
 
-		(
-			map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]) = add_new_map();
-			//wrongo, let's add the map
+				(
+				 map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]) = add_new_map();
+				//wrongo, let's add the map
               
-			//draw_used();
+				//draw_used();
 	 
 	 
-		}
+			      }
 		
-        map.indoor[buf_map] = buffmap.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-		map.music[buf_map] = buffmap.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
+			    map.indoor[buf_map] = buffmap.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
+			    map.music[buf_map] = buffmap.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 		
-		save_map(map.loc[buf_map]);
+			    save_map(map.loc[buf_map]);
        
-		save_info();
-		draw_used();
-	  return;
-	}
+			    save_info();
+			    draw_used();
+			    return;
+			  }
 	
-	load_info();
+			load_info();
 	
-	cur_map=  (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
-	if (map.loc[cur_map] == 0)
-	{
-		//new map screen
+			cur_map=  (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
+			if (map.loc[cur_map] == 0)
+			  {
+			    //new map screen
 	
-	map.loc[cur_map] = add_new_map();
-	save_info();
-	
-	
-	} else load_map(map.loc[cur_map]);
-	
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	k[seq[3].frame[1]].xoffset = -playl;
-	//SoundPlayEffect( SOUND_JUMP );
-	
-	Msg("Y is %d X is %d", spr[h].y, spr[h].x);
-	
-	m1x = spr[h].x;
-	m1y = spr[h].y;
-	spr[h].x = m3x;
-	spr[h].y = m3y;
+			    map.loc[cur_map] = add_new_map();
+			    save_info();
 	
 	
-	mode = MODE_SCREEN_TILES;
+			  } else load_map(map.loc[cur_map]);
 	
-	spr[h].speed = 50;
-	draw_map();
-}
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			k[seq[3].frame[1]].xoffset = -playl;
+			//SoundPlayEffect( SOUND_JUMP );
+	
+			Msg("Y is %d X is %d", spr[h].y, spr[h].x);
+	
+			m1x = spr[h].x;
+			m1y = spr[h].y;
+			spr[h].x = m3x;
+			spr[h].y = m3y;
+	
+	
+			mode = MODE_SCREEN_TILES;
+	
+			spr[h].speed = 50;
+			draw_map();
+		      }
 
 
 
 
-if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(189)) )
-{
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-	cur_tile--;
-	if (cur_tile < 0) cur_tile = 0;
-}
-if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(187)) )
-{
-	spr[h].seq = 3;
-	spr[h].seq_orig = 3;
+		    if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(189 /* VK_OEM_MINUS */)) )
+		      {
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
+			cur_tile--;
+			if (cur_tile < 0) cur_tile = 0;
+		      }
+		    if ( (mode == MODE_SCREEN_TILES) && (GetKeyboard(187 /* VK_OEM_PLUS */)) )
+		      {
+			spr[h].seq = 3;
+			spr[h].seq_orig = 3;
 	
-	cur_tile++;
-	//if (cur_tile > 127) cur_tile = 127;
-}
+			cur_tile++;
+			//if (cur_tile > 127) cur_tile = 127;
+		      }
 
 
-if ( (mode == MODE_SCREEN_TILES) && (sjoy.key[72]) )
-{
-//start althard mode
+		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.key['H']) )
+		      {
+			//start althard mode
 	
 
-	mode = MODE_UNKNOWN;
-goto skip_draw;
+			mode = MODE_UNKNOWN;
+			goto skip_draw;
 
 
 
-}
+		      }
 
 
-if (mode == MODE_SCREEN_HARDNESS)
-{
-//mode for it
-  if (sjoy.key[27]) 
-  {
-  //exit mode 8
-   mode = MODE_SCREEN_TILES;
-    spr[h].seq = 3;
-	spr[h].seq_orig = 3;
-  draw_map();
-  goto b1end;
-  }
+		    if (mode == MODE_SCREEN_HARDNESS)
+		      {
+			//mode for it
+			if (sjoy.key[VK_ESCAPE /* 27 */]) 
+			  {
+			    //exit mode 8
+			    mode = MODE_SCREEN_TILES;
+			    spr[h].seq = 3;
+			    spr[h].seq_orig = 3;
+			    draw_map();
+			    goto b1end;
+			  }
 
-   if (sjoy.key[221])
-   {
-     hard_tile++;
-	 if (hard_tile > 799) hard_tile = 1;
-   }
- if (sjoy.key[219])
-   {
-    hard_tile--;
-	 if (hard_tile < 1) hard_tile = 799;
-   }
+			if (sjoy.key[VK_OEM_6 /* 221 */]) // ']' for US
+			  {
+			    hard_tile++;
+			    if (hard_tile > 799) hard_tile = 1;
+			  }
+			if (sjoy.key[VK_OEM_4 /* 219 */]) // '[' for US
+			  {
+			    hard_tile--;
+			    if (hard_tile < 1) hard_tile = 799;
+			  }
  
-if (sjoy.key[67])
-{
-//copy tile hardness from current block
-hard_tile = realhard(   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50)   );
+			if (sjoy.key['C'])
+			  {
+			    //copy tile hardness from current block
+			    hard_tile = realhard(   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50)   );
 
-}
+			  }
 
-if (sjoy.key[83])
-{
-//stamp tile hardness to selected
-pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = hard_tile;
-draw_map();
-mode = MODE_UNKNOWN;
+			if (sjoy.key['S'])
+			  {
+			    //stamp tile hardness to selected
+			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = hard_tile;
+			    draw_map();
+			    mode = MODE_UNKNOWN;
 
-return;
-}
+			    return;
+			  }
 
-if (sjoy.key[46])
-{
-//stamp tile hardness to selected
-pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = 0;
-draw_map();
-mode = MODE_UNKNOWN;
+			if (sjoy.key[VK_DELETE /* 46 */])
+			  {
+			    //stamp tile hardness to selected
+			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = 0;
+			    draw_map();
+			    mode = MODE_UNKNOWN;
 
-return;
-}
+			    return;
+			  }
 
 
 
-  draw_hard_tile(spr[1].x,spr[1].y,hard_tile);
+			draw_hard_tile(spr[1].x,spr[1].y,hard_tile);
 
-  char crapa[10];
-  sprintf(crapa, "%d",hard_tile);
+			char crapa[10];
+			sprintf(crapa, "%d",hard_tile);
   
-  SaySmall(crapa,580,400,255,255,255);
+			SaySmall(crapa,580,400,255,255,255);
 
-if (sjoy.key[13]) 
-{
+			if (sjoy.key[VK_RETURN /* 13 */])
+			  {
 
-//they want to edit this alt hardness, less do it'
-  cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			    //they want to edit this alt hardness, less do it'
+			    cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
 	
   
       
-		xx = cur_tile - (cool * 128);
-		Rect.left = spr[1].x+20;
-		Rect.top = spr[1].y;
-		Rect.right = Rect.left + 50;
-		Rect.bottom = Rect.top + 50;
+			    xx = cur_tile - (cool * 128);
+			    Rect.left = spr[1].x+20;
+			    Rect.top = spr[1].y;
+			    Rect.right = Rect.left + 50;
+			    Rect.bottom = Rect.top + 50;
 		
-		crapRec.top = 0;
-		crapRec.left = 95;
-		crapRec.bottom = 450;
-		crapRec.right = 95+450;
+			    crapRec.top = 0;
+			    crapRec.left = 95;
+			    crapRec.bottom = 450;
+			    crapRec.right = 95+450;
 		
-		ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-		ddbltfx.dwSize = sizeof( ddbltfx);
-		spr[1].seq = 0;
-		spr[1].pseq = 10;
-		spr[1].pframe = 1;
+			    ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+			    ddbltfx.dwSize = sizeof( ddbltfx);
+			    spr[1].seq = 0;
+			    spr[1].pseq = 10;
+			    spr[1].pframe = 1;
 		
 		
-		lpDDSTwo->Blt(&crapRec , lpDDSBack,
-			&Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
-		m4x = spr[h].x;
-		m4y = spr[h].y;
+			    lpDDSTwo->Blt(&crapRec , lpDDSBack,
+					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+			    m4x = spr[h].x;
+			    m4y = spr[h].y;
 		
-		spr[1].x = 95;
-		spr[1].y = 0;
-		selx = 1;
-		sely = 1;
+			    spr[1].x = 95;
+			    spr[1].y = 0;
+			    selx = 1;
+			    sely = 1;
 		
-		mode = MODE_TILE_HARDNESS;
+			    mode = MODE_TILE_HARDNESS;
 		
-		kickass = TRUE;
+			    kickass = TRUE;
           
-		hmap.tile[hard_tile].used = true;
-last_modereal = 8;
-}
+			    hmap.tile[hard_tile].used = true;
+			    last_modereal = 8;
+			  }
 
 
 
-}
+		      }
 
-if ((mode == MODE_SCREEN_TILES) && (sjoy.realkey[18])) if (sjoy.key[88])
-{
-	spr[h].seq = 2; 
-	spr[h].seq_orig = 2; 
-	m3x = spr[h].x;
-	m3y = spr[h].y;
-	spr[h].x = m1x;
-	spr[h].y = m1y;
-	mode = MODE_MAP_PICKER;
-	spr[h].speed = 20;
-    load_info();
-	draw_used();
-	while (kill_last_sprite()); 
-return;
-}
-
-
-if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) ) 
-{
-	// jump to map selector selector from map mode
-	save_map(map.loc[cur_map]);
-	spr[h].seq = 2; 
-	spr[h].seq_orig = 2; 
-	//SoundPlayEffect( SOUND_JUMP );
-	m3x = spr[h].x;
-	m3y = spr[h].y;
-	//Msg("m1y is %d, math is %d",m1y, (20 * (m1y / 20)) < m1y);
-	spr[h].x = m1x;
-	spr[h].y = m1y;
-	mode = 1;
-	spr[h].speed = 20;
-    load_info();
-	draw_used();
-	while (kill_last_sprite()); 
-return;	
-}
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.realkey[VK_MENU /* 18/Alt */])) if (sjoy.key['X'])
+									     {
+									       spr[h].seq = 2; 
+									       spr[h].seq_orig = 2; 
+									       m3x = spr[h].x;
+									       m3y = spr[h].y;
+									       spr[h].x = m1x;
+									       spr[h].y = m1y;
+									       mode = MODE_MAP_PICKER;
+									       spr[h].speed = 20;
+									       load_info();
+									       draw_used();
+									       while (kill_last_sprite()); 
+									       return;
+									     }
 
 
-if (GetKeyboard(37)) 
-{
-	spr[h].x -= spr[h].speed;
-	spr[h].seq = spr[h].seq_orig;
-	EditorSoundPlayEffect( SOUND_STOP );
-}
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) ) 
+		      {
+			// jump to map selector selector from map mode
+			save_map(map.loc[cur_map]);
+			spr[h].seq = 2; 
+			spr[h].seq_orig = 2; 
+			//SoundPlayEffect( SOUND_JUMP );
+			m3x = spr[h].x;
+			m3y = spr[h].y;
+			//Msg("m1y is %d, math is %d",m1y, (20 * (m1y / 20)) < m1y);
+			spr[h].x = m1x;
+			spr[h].y = m1y;
+			mode = 1;
+			spr[h].speed = 20;
+			load_info();
+			draw_used();
+			while (kill_last_sprite()); 
+			return;	
+		      }
 
 
-//if (GetKeyboard(127) PostMessage(hWnd, WM_CLOSE, 0, 0);
+		    if (GetKeyboard(VK_LEFT /* 37 */)) 
+		      {
+			spr[h].x -= spr[h].speed;
+			spr[h].seq = spr[h].seq_orig;
+			EditorSoundPlayEffect( SOUND_STOP );
+		      }
 
-if (GetKeyboard(40))
-{
-	spr[h].y += spr[h].speed;
-	spr[h].seq = spr[h].seq_orig;
-	EditorSoundPlayEffect( SOUND_STOP );
-}
 
-if (GetKeyboard(38)) 
-{
-	spr[h].y -= spr[h].speed;
-	spr[h].seq = spr[h].seq_orig;
-	EditorSoundPlayEffect( SOUND_STOP );
-}
+		    //if (GetKeyboard(127) PostMessage(hWnd, WM_CLOSE, 0, 0);
 
-if (spr[h].speed < 1) spr[h].speed = 1;
-if (spr[h].y > (y-k[getpic(h)].box.bottom)) spr[h].y = (y-k[getpic(h)].box.bottom);
-if (spr[h].x > (x-k[getpic(h)].box.right)) spr[h].x = (x-k[getpic(h)].box.right);
-if (spr[h].x < 0) spr[h].x = 0;
-if (spr[h].y < 0) spr[h].y = 0;
+		    if (GetKeyboard(VK_DOWN /* 40 */))
+		      {
+			spr[h].y += spr[h].speed;
+			spr[h].seq = spr[h].seq_orig;
+			EditorSoundPlayEffect( SOUND_STOP );
+		      }
 
-// end human brain (1)
+		    if (GetKeyboard(VK_UP /* 38 */)) 
+		      {
+			spr[h].y -= spr[h].speed;
+			spr[h].seq = spr[h].seq_orig;
+			EditorSoundPlayEffect( SOUND_STOP );
+		      }
+
+		    if (spr[h].speed < 1) spr[h].speed = 1;
+		    if (spr[h].y > (y-k[getpic(h)].box.bottom)) spr[h].y = (y-k[getpic(h)].box.bottom);
+		    if (spr[h].x > (x-k[getpic(h)].box.right)) spr[h].x = (x-k[getpic(h)].box.right);
+		    if (spr[h].x < 0) spr[h].x = 0;
+		    if (spr[h].y < 0) spr[h].y = 0;
+
+		    // end human brain (1)
 
 		
 		
-//if( (mode == 2) | (mode == 3) | (mode == 5) )
-		if( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) | (mode == MODE_SPRITE_PICKER) )
-		{
+		    //if( (mode == 2) | (mode == 3) | (mode == 5) )
+		    if( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) | (mode == MODE_SPRITE_PICKER) )
+		      {
 			if ((selx * 50 + spr[1].x) > 600)
-			{ 
-				spr[1].x = 600 - (selx * 50);
-			}
-		}
+			  { 
+			    spr[1].x = 600 - (selx * 50);
+			  }
+		      }
 		
-//if( (mode == 2) )
-		if( (mode == MODE_TILE_PICKER) )
-		{
+		    //if( (mode == 2) )
+		    if( (mode == MODE_TILE_PICKER) )
+		      {
 			if ((sely * 50 + spr[1].y) > 450)
-			{ 
-				spr[1].y = 450 - (sely * 50);
-			}
-		}
-//		if( (mode == 3) )
-		if( (mode == MODE_SCREEN_TILES) )
-		{
+			  { 
+			    spr[1].y = 450 - (sely * 50);
+			  }
+		      }
+		    //		if( (mode == 3) )
+		    if( (mode == MODE_SCREEN_TILES) )
+		      {
 			if ((sely * 50 + spr[1].y) > 400)
-			{ 
-				spr[1].y = 400 - (sely * 50);
-			}
-		}
+			  { 
+			    spr[1].y = 400 - (sely * 50);
+			  }
+		      }
 
-//		if( (mode == 5) )
-		if( (mode == MODE_SPRITE_PICKER) )
-		{
+		    //		if( (mode == 5) )
+		    if( (mode == MODE_SPRITE_PICKER) )
+		      {
 			if ((sely * 50 + spr[1].y) > 400)
-			{ 
-				spr[1].y = 400 - (sely * 50);
-			}
-		}
+			  { 
+			    spr[1].y = 400 - (sely * 50);
+			  }
+		      }
 		
 
-b1end:;
+		  b1end:;
 
- } //end if seq is 0
-		} //real end of human brain
+		  } //end if seq is 0
+	      } //real end of human brain
 		
 
-				if (spr[h].brain == 2)
-		{
+	    if (spr[h].brain == 2)
+	      {
 			
 			
-			if (spr[h].y > (y-k[getpic(h)].box.bottom))
-			{
-				spr[h].my -= (spr[h].my * 2);
-				// SoundPlayEffect( SOUND_JUMP );
-			}         
+		if (spr[h].y > (y-k[getpic(h)].box.bottom))
+		  {
+		    spr[h].my -= (spr[h].my * 2);
+		    // SoundPlayEffect( SOUND_JUMP );
+		  }         
 			
-			if (spr[h].x > (x-k[getpic(h)].box.right))
-			{
-				spr[h].mx -= (spr[h].mx * 2);
-				//SoundPlayEffect( SOUND_JUMP );
-			}         
+		if (spr[h].x > (x-k[getpic(h)].box.right))
+		  {
+		    spr[h].mx -= (spr[h].mx * 2);
+		    //SoundPlayEffect( SOUND_JUMP );
+		  }         
 			
-			if (spr[h].y < 0)
-			{
-				spr[h].my -= (spr[h].my * 2);
-				//SoundPlayEffect( SOUND_JUMP );
-			}         
-			
-			
-			if (spr[h].x < 0) 
-			{
-				spr[h].mx -= (spr[h].mx * 2);
-				//SoundPlayEffect( SOUND_JUMP );
-			}         
+		if (spr[h].y < 0)
+		  {
+		    spr[h].my -= (spr[h].my * 2);
+		    //SoundPlayEffect( SOUND_JUMP );
+		  }         
 			
 			
-			spr[h].x += spr[h].mx;
-			spr[h].y += spr[h].my;
+		if (spr[h].x < 0) 
+		  {
+		    spr[h].mx -= (spr[h].mx * 2);
+		    //SoundPlayEffect( SOUND_JUMP );
+		  }         
 			
 			
-		}
-		// end robot(2)
+		spr[h].x += spr[h].mx;
+		spr[h].y += spr[h].my;
+			
+			
+	      }
+	    // end robot(2)
 	
 	  
 		
-		if (spr[h].seq > 0)
-		{
-			if (spr[h].frame < 1)
-			{
-				// new anim
-				spr[h].pseq = spr[h].seq;
-				spr[h].pframe = 1;
+	    if (spr[h].seq > 0)
+	      {
+		if (spr[h].frame < 1)
+		  {
+		    // new anim
+		    spr[h].pseq = spr[h].seq;
+		    spr[h].pframe = 1;
 				
-				spr[h].frame = 1;
-				spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[1]);
-			} else
-			{
-				// not new anim
+		    spr[h].frame = 1;
+		    spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[1]);
+		  } else
+		  {
+		    // not new anim
 				
-				//is it time?
+		    //is it time?
 				
-				if (thisTickCount > spr[h].delay)
-				{
+		    if (thisTickCount > spr[h].delay)
+		      {
 					
 					
-					spr[h].frame++;
-					spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
+			spr[h].frame++;
+			spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
 					
-					spr[h].pseq = spr[h].seq;
-					spr[h].pframe = spr[h].frame;
+			spr[h].pseq = spr[h].seq;
+			spr[h].pframe = spr[h].frame;
 					
-					if (seq[spr[h].seq].frame[spr[h].frame] == -1)
-					{
-						spr[h].frame = 1;
-						spr[h].pseq = spr[h].seq;
-						spr[h].pframe = spr[h].frame;
-						spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
+			if (seq[spr[h].seq].frame[spr[h].frame] == -1)
+			  {
+			    spr[h].frame = 1;
+			    spr[h].pseq = spr[h].seq;
+			    spr[h].pframe = spr[h].frame;
+			    spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
 						
-					}
+			  }
 					
-					if (seq[spr[h].seq].frame[spr[h].frame] == 0)
-					{
-						spr[h].pseq = spr[h].seq;
-						spr[h].pframe = spr[h].frame-1;
+			if (seq[spr[h].seq].frame[spr[h].frame] == 0)
+			  {
+			    spr[h].pseq = spr[h].seq;
+			    spr[h].pframe = spr[h].frame-1;
 						
-						spr[h].frame = 0;
-						spr[h].seq = 0;
+			    spr[h].frame = 0;
+			    spr[h].seq = 0;
 						
 						
-					}
+			  }
 					
 					
-				}
+		      }
 				
-			}		
-		}
-  		int greba;			
+		  }		
+	      }
+	    int greba;			
 	
 		
 		
-		if ( (mode == MODE_SCREEN_TILES) )
-		{
-            //need offset to look right
-			k[seq[3].frame[1]].xoffset = -20;
-			greba = 20;
-		}
-		if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) ) 
+	    if ( (mode == MODE_SCREEN_TILES) )
+	      {
+		//need offset to look right
+		k[seq[3].frame[1]].xoffset = -20;
+		greba = 20;
+	      }
+	    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) ) 
 			
-		{
-			//pick a tile, needs no offset
-			k[seq[3].frame[1]].xoffset = 0;
-			greba = 0;
-		}
+	      {
+		//pick a tile, needs no offset
+		k[seq[3].frame[1]].xoffset = 0;
+		greba = 0;
+	      }
 	
-//		if (  !(( h == 1) & (mode == 9)) )
-		if (  !(( h == 1) & (mode == MODE_UNKNOWN)) )
+	    //		if (  !(( h == 1) & (mode == 9)) )
+	    if (  !(( h == 1) & (mode == MODE_UNKNOWN)) )
 		
-		{
+	      {
 
-			if (draw_map_tiny == -1)
-			  draw_sprite(lpDDSBack, GFX_lpDDSBack, h);            
-			else
-			  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
-		}
+		if (draw_map_tiny == -1)
+		  draw_sprite(lpDDSBack, GFX_lpDDSBack, h);            
+		else
+		  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
+	      }
 			
-			//Msg("Drew %d.",h);
+	    //Msg("Drew %d.",h);
 		
-skip_draw:
-		if (spr[h].brain == 1)
-		{
-            if ( (mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
-			{
+	  skip_draw:
+	    if (spr[h].brain == 1)
+	      {
+		if ( (mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
+		  {
 				
-				for (int y = 0; y < sely; y++)
-				{
-					for (int x = 0; x < selx; x++)
-					{
+		    for (int y = 0; y < sely; y++)
+		      {
+			for (int x = 0; x < selx; x++)
+			  {
 						
-						ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k,
-							&k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
-					}
-				}
+			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k,
+							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+			  }
+		      }
 				
-			}
+		  }
 			
             
-			if ( (mode == MODE_TILE_HARDNESS))
-			{
+		if ( (mode == MODE_TILE_HARDNESS))
+		  {
 				
-				for (int yy = 0; yy < sely; yy++)
-				{
-					for (int xx = 0; xx < selx; xx++)
-					{
+		    for (int yy = 0; yy < sely; yy++)
+		      {
+			for (int xx = 0; xx < selx; xx++)
+			  {
 						
-						ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k,
-							&k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
-					}
-				}
+			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k,
+							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+			  }
+		      }
 				
 				
-			}
+		  }
 			
-		}
+	      }
 		
 	
  	
 
-}
+	  }
 
-}
+      }
 		
 			
-//if (mode == 9)
-if (mode == MODE_UNKNOWN)
-{
-  //mode = 8;
-  mode = MODE_SCREEN_HARDNESS;
+  //if (mode == 9)
+  if (mode == MODE_UNKNOWN)
+    {
+      //mode = 8;
+      mode = MODE_SCREEN_HARDNESS;
 	
-        fill_whole_hard();    
-	while(kill_last_sprite());
-		place_sprites();
+      fill_whole_hard();    
+      while(kill_last_sprite());
+      place_sprites();
 							
-		/*	draw_map();
+      /*	draw_map();
         
 					
-									rcRect.top = 0;
-									rcRect.right = x;
-									rcRect.bottom = y;
-									ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-										&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	*/					
-drawallhard();	 
-		
-    	rcRect.left = 0;
-		rcRect.right = 640;
 		rcRect.top = 0;
-        rcRect.bottom = 400;
-		ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
+		rcRect.right = x;
+		rcRect.bottom = y;
+		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
 		&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		// GFX
-		SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
-		  if (ddrval != DD_OK) dderror(ddrval);
-		  while(kill_last_sprite());
+      */					
+      drawallhard();	 
+		
+      rcRect.left = 0;
+      rcRect.right = 640;
+      rcRect.top = 0;
+      rcRect.bottom = 400;
+      ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
+				  &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+      // GFX
+      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
+      if (ddrval != DD_OK) dderror(ddrval);
+      while(kill_last_sprite());
 
 
   
 
 
-}
+    }
 
 
-//sprintf(msg, "k[1] top is %d",k[1].box.top);
+  //sprintf(msg, "k[1] top is %d",k[1].box.top);
 
-//prepare to display misc messages for debug purposes
+  //prepare to display misc messages for debug purposes
 
-if (lpDDSBack->GetDC(&hdc) == DD_OK)
-{      
-	SetBkMode(hdc, TRANSPARENT); 
+  if (lpDDSBack->GetDC(&hdc) == DD_OK)
+    {      
+      SetBkMode(hdc, TRANSPARENT); 
 	
-	//   SetBkMode(hdc, OPAQUE);
-   	   SetBkColor(hdc, 1);
-	   SetTextColor(hdc,RGB(200,200,200));
-	   FONTS_SetTextColor(200, 200, 200);
+      //   SetBkMode(hdc, OPAQUE);
+      SetBkColor(hdc, 1);
+      SetTextColor(hdc,RGB(200,200,200));
+      FONTS_SetTextColor(200, 200, 200);
 	   
-	   //	TextOut(hdc,0,0, msg,lstrlen(msg));
-	   //	   if (mode == 0) strcpy(msg,"");
-	   if (mode == MODE_DIALOG)
-	     strcpy(msg,"");
+      //	TextOut(hdc,0,0, msg,lstrlen(msg));
+      //	   if (mode == 0) strcpy(msg,"");
+      if (mode == MODE_DIALOG)
+	strcpy(msg,"");
 	  
-	   if (mode == MODE_MAP_PICKER)
-	   {
-		   if (20 * (spr[1].y / 20) != spr[1].y)
-		{
-			   spr[1].y += 10;
-		   }
-		   sprintf(msg, "Map # %d - Press ENTER to edit, SPACE to detail map. (%d)  (Q) to quit and save. L to replace a "
-			   "screen from another map file.  Z to toggle this help text.",mode,(((spr[1].y+1)*32) / 20)+(spr[1].x / 20),
-		   map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]);
-	   }
-	   if (mode == MODE_SCREEN_TILES)
-	   {
-		   crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
-		   //((x-1) - (x / 12))*50, (x / 12) * 50, 
-		   sprintf(msg, "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
-			   "V to change vision, B to change maps base .C file.",mode,cur_map
-			   ,cur_tile, pam.t[crap].num);
-	   }
-	   if (mode == MODE_TILE_PICKER)
-		   sprintf(msg, "Map # %d - Current tile # %d - ENTER to choose, SPACE to edit hardness.",mode,cur_map,
-		   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
-	   if (mode == MODE_TILE_HARDNESS)
-	   {
-		   sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
-			   (spr[1].x / 9) -9,(spr[1].y / 9) +1,hmap.index[cur_tile], cur_tile);
-	   }
+      if (mode == MODE_MAP_PICKER)
+	{
+	  if (20 * (spr[1].y / 20) != spr[1].y)
+	    {
+	      spr[1].y += 10;
+	    }
+	  sprintf(msg, "Map # %d - Press ENTER to edit, SPACE to detail map. (%d)  (Q) to quit and save. L to replace a "
+		  "screen from another map file.  Z to toggle this help text.",mode,(((spr[1].y+1)*32) / 20)+(spr[1].x / 20),
+		  map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]);
+	}
+      if (mode == MODE_SCREEN_TILES)
+	{
+	  crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
+	  //((x-1) - (x / 12))*50, (x / 12) * 50, 
+	  sprintf(msg, "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
+		  "V to change vision, B to change maps base .C file.",mode,cur_map
+		  ,cur_tile, pam.t[crap].num);
+	}
+      if (mode == MODE_TILE_PICKER)
+	sprintf(msg, "Map # %d - Current tile # %d - ENTER to choose, SPACE to edit hardness.",mode,cur_map,
+		(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
+      if (mode == MODE_TILE_HARDNESS)
+	{
+	  sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
+		  (spr[1].x / 9) -9,(spr[1].y / 9) +1,hmap.index[cur_tile], cur_tile);
+	}
 	   
-	   if (mode == MODE_SPRITE_PICKER)
-	   {
+      if (mode == MODE_SPRITE_PICKER)
+	{
 		   
-		   if (sp_seq == 0)
-		   {
-			   sprintf(msg, "Choose sequence and press ENTER.  ] for next page, [ for previous. ESC or TAB to exit. (now on page %d)",
-				    1+(sp_picker / 96));
-		   } else
-		   {
-			   sprintf(msg, "Choose a sprite from sequence %d.  Enter to place sprite, TAB to exit or ESC to return to previous screen."
-				   " E to edit depth dot and hardbox",
-				   sp_seq);
+	  if (sp_seq == 0)
+	    {
+	      sprintf(msg, "Choose sequence and press ENTER.  ] for next page, [ for previous. ESC or TAB to exit. (now on page %d)",
+		      1+(sp_picker / 96));
+	    } else
+	    {
+	      sprintf(msg, "Choose a sprite from sequence %d.  Enter to place sprite, TAB to exit or ESC to return to previous screen."
+		      " E to edit depth dot and hardbox",
+		      sp_seq);
 			   
-		   }
-	   }
+	    }
+	}
 	   
-	   if (mode == MODE_SCREEN_SPRITES)
-	   {
+      if (mode == MODE_SCREEN_SPRITES)
+	{
 		   
-		   char crap7[10];
-if (sp_screenmatch) strcpy(crap7, "ScreenMatch is ON."); else strcpy(crap7, "ScreenMatch is OFF");
+	  char crap7[10];
+	  if (sp_screenmatch) strcpy(crap7, "ScreenMatch is ON."); else strcpy(crap7, "ScreenMatch is OFF");
 
-		   sprintf(msg, "Press ENTER to pickup/putdown sprite. Space to show hardness.  E to edit/pick new sprite. SHIFT to move fast. (S)tamp sprite. ] &"
-			   "[ to scale (now at %d). DEL to erase sprite.  Press 1 through 9 to change sprite attributes. (shift for more)  Last sprite touched: %d  %s (M to toggle)"
-			   "Hold Z or X + arrow keys to trim a sprite. V to change Vision mode. X: %d Y: %d",
-			   spr[1].size,last_sprite_added,crap7, spr[1].x, spr[1].y);
+	  sprintf(msg, "Press ENTER to pickup/putdown sprite. Space to show hardness.  E to edit/pick new sprite. SHIFT to move fast. (S)tamp sprite. ] &"
+		  "[ to scale (now at %d). DEL to erase sprite.  Press 1 through 9 to change sprite attributes. (shift for more)  Last sprite touched: %d  %s (M to toggle)"
+		  "Hold Z or X + arrow keys to trim a sprite. V to change Vision mode. X: %d Y: %d",
+		  spr[1].size,last_sprite_added,crap7, spr[1].x, spr[1].y);
 		   
-//lets draw the depth dot
+	  //lets draw the depth dot
 			
 
 		   
 		   
-	   }
+	}
 	   
 	   
-if (mode == MODE_SPRITE_HARDNESS)
-	   {
+      if (mode == MODE_SPRITE_HARDNESS)
+	{
 
 	
-	if (sp_mode == 0)
-	{
-	sprintf(msg, "Editting depth dot for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
-			   " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini.",
-			   sp_seq,sp_frame);
+	  if (sp_mode == 0)
+	    {
+	      sprintf(msg, "Editting depth dot for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini.",
+		      sp_seq,sp_frame);
 		   
-	}	   
+	    }	   
 		   
-	if ( (sp_mode == 1) )
+	  if ( (sp_mode == 1) )
 		
-	{
-	sprintf(msg, "Editting hardbox up left cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
-			   " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
-			   sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.left,
-			   k[seq[sp_seq].frame[sp_frame]].hardbox.top);
+	    {
+	      sprintf(msg, "Editting hardbox up left cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
+		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.left,
+		      k[seq[sp_seq].frame[sp_frame]].hardbox.top);
 		   
-	}	   
+	    }	   
 		   
-if ( (sp_mode == 2) )
+	  if ( (sp_mode == 2) )
 		
-	{
-	sprintf(msg, "Editting hardbox down right cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
-			   " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
-			   sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.right,
-			   k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);
+	    {
+	      sprintf(msg, "Editting hardbox down right cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
+		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.right,
+		      k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);
 		   
-	}	   
+	    }	   
 	
  
 
    
 
 
-	   }
+	}
 	   
 
-if (mode == MODE_SCREEN_HARDNESS)
-{
-
-sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles hardness."
-"  DEL to remove alternate hardness.  C to copy from current block. [ & ] to cycle.  ESCAPE to exit.");
-}
-
-
-	   for (int x=0; x<256; x++)
-	   { 
-		   if (GetKeyboard(x))
-		   {
-			   sprintf(msg, "%s (Key %i)",msg,x);
-		   }
-	   }
-	   rcRect.left = 0;
-	   rcRect.top = 400;
-	   if (mode == MODE_TILE_HARDNESS) rcRect.top = 450;
-	   rcRect.right = 590;
-	   rcRect.bottom = 480;
-	   if (show_display)
-	     {
-	       /* Display help message at the bottom of the screen */
-	       DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
-	       // FONTS
-	       /* TODO: use Say() or Saysmall()? */
-	       print_text_wrap(msg, &rcRect, 0, 0);
-	     }
-	   
-	   lpDDSBack->ReleaseDC(hdc);
-}   
-
-
-if ( (mode == MODE_MAP_PICKER) )
+      if (mode == MODE_SCREEN_HARDNESS)
 	{
 
-		if (sjoy.key[90]) if (show_display) show_display = false; else
-			show_display = true;
-
+	  sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles hardness."
+		  "  DEL to remove alternate hardness.  C to copy from current block. [ & ] to cycle.  ESCAPE to exit.");
 	}
 
 
-if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
-{
-
-	if (sjoy.realkey[73])
+      for (int x=0; x<256; x++)
+	{ 
+	  if (GetKeyboard(x))
+	    {
+	      sprintf(msg, "%s (Key %i)",msg,x);
+	    }
+	}
+      rcRect.left = 0;
+      rcRect.top = 400;
+      if (mode == MODE_TILE_HARDNESS) rcRect.top = 450;
+      rcRect.right = 590;
+      rcRect.bottom = 480;
+      if (show_display)
 	{
-		for (int j =1; j < 100; j++)
+	  /* Display help message at the bottom of the screen */
+	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+	  // FONTS
+	  /* TODO: use Say() or Saysmall()? */
+	  print_text_wrap(msg, &rcRect, 0, 0);
+	}
+	   
+      lpDDSBack->ReleaseDC(hdc);
+    }   
+
+
+  if ( (mode == MODE_MAP_PICKER) )
+    {
+
+      if (sjoy.key['Z']) if (show_display) show_display = false; else
+	  show_display = true;
+
+    }
+
+
+  if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
+    {
+
+      if (sjoy.realkey['I'])
+	{
+	  for (int j =1; j < 100; j++)
+	    {
+	      if (pam.sprite[j].active == true)
 		{
-			if (pam.sprite[j].active == true)
-			{
          
-    	ddbltfx.dwSize = sizeof(ddbltfx);
-        ddbltfx.dwFillColor = 230;
+		  ddbltfx.dwSize = sizeof(ddbltfx);
+		  ddbltfx.dwFillColor = 230;
 	
-     //info on the sprites  sprite info
-  	 int temp = index[pam.sprite[j].seq].s + pam.sprite[j].frame;
+		  //info on the sprites  sprite info
+		  int temp = index[pam.sprite[j].seq].s + pam.sprite[j].frame;
 			
 
-	 int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
-					           pam.sprite[j].seq,pam.sprite[j].frame,
-					            pam.sprite[j].size);
-			   	CopyRect(&spr[sprite2].alt , &pam.sprite[j].alt);                 
+		  int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
+						pam.sprite[j].seq,pam.sprite[j].frame,
+						pam.sprite[j].size);
+		  CopyRect(&spr[sprite2].alt , &pam.sprite[j].alt);                 
 				
-				get_box(sprite2, &box_crap, &box_real);
+		  get_box(sprite2, &box_crap, &box_real);
                                 
-                 spr[sprite2].active = false;
+		  spr[sprite2].active = false;
 
-	            //box_crap.top = box_crpam.sprite[j].y - 25;
-				box_crap.bottom = box_crap.top + 50;
-				box_crap.left = box_crap.left + ( (box_crap.right - box_crap.left) / 2);
-				box_crap.right = box_crap.left+ 50;
+		  //box_crap.top = box_crpam.sprite[j].y - 25;
+		  box_crap.bottom = box_crap.top + 50;
+		  box_crap.left = box_crap.left + ( (box_crap.right - box_crap.left) / 2);
+		  box_crap.right = box_crap.left+ 50;
 				
-				ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx);
-				//       	if (ddrval != DD_OK) dderror(ddrval);
-				// GFX
-				/* Is it really used? The white,
-				   non-filled square in tile or sprite
-				   selection is displayed w/o this: */
-				{
-				  SDL_Rect dst;
-				  dst.x = box_crap.left;
-				  dst.y = box_crap.top;
-				  /* Simplified blit, no scaling, the sprite is already 50x50 */
-				  SDL_BlitSurface(GFX_k[seq[10].frame[5]].k, NULL, GFX_lpDDSBack, &dst);
-				}
+		  ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx);
+		  //       	if (ddrval != DD_OK) dderror(ddrval);
+		  // GFX
+		  /* Is it really used? The white,
+		     non-filled square in tile or sprite
+		     selection is displayed w/o this: */
+		  {
+		    SDL_Rect dst;
+		    dst.x = box_crap.left;
+		    dst.y = box_crap.top;
+		    /* Simplified blit, no scaling, the sprite is already 50x50 */
+		    SDL_BlitSurface(GFX_k[seq[10].frame[5]].k, NULL, GFX_lpDDSBack, &dst);
+		  }
 				
-				char crap5[200];
+		  char crap5[200];
 				
                   char crap6[20];
 
-				  strcpy(crap6,"");
-				  if (pam.sprite[j].hard == 0) strcpy(crap6,"HARD");
+		  strcpy(crap6,"");
+		  if (pam.sprite[j].hard == 0) strcpy(crap6,"HARD");
 
-				sprintf(crap5, "B: %d %s",pam.sprite[j].brain,crap6);
+		  sprintf(crap5, "B: %d %s",pam.sprite[j].brain,crap6);
 				
-				if (pam.sprite[j].type == 0)
-				{
+		  if (pam.sprite[j].type == 0)
+		    {
 				
-				SaySmall(crap5,box_crap.left+3,box_crap.top+3,255,255,255);
-				}
+		      SaySmall(crap5,box_crap.left+3,box_crap.top+3,255,255,255);
+		    }
 
-				if (pam.sprite[j].type > 0)
-				{
-				SaySmall(crap5,box_crap.left+3,box_crap.top+3,255,0,0);
-				}
-               if (strlen(pam.sprite[j].script) > 1)
-				SaySmall(pam.sprite[j].script,box_crap.left+3,box_crap.top+35,255,0,0);
+		  if (pam.sprite[j].type > 0)
+		    {
+		      SaySmall(crap5,box_crap.left+3,box_crap.top+3,255,0,0);
+		    }
+		  if (strlen(pam.sprite[j].script) > 1)
+		    SaySmall(pam.sprite[j].script,box_crap.left+3,box_crap.top+35,255,0,0);
 				
-					  sprintf(crap6,"%d",j);
+		  sprintf(crap6,"%d",j);
 			
-				SaySmall(crap6,box_crap.left+20,box_crap.top-15,0,255,0);
+		  SaySmall(crap6,box_crap.left+20,box_crap.top-15,0,255,0);
 	
 
-			}
 		}
+	    }
 	}
 	
-}
-if (mode == MODE_SPRITE_HARDNESS)
-{
+    }
+  if (mode == MODE_SPRITE_HARDNESS)
+    {
 
 	
 	
 	
-	ddbltfx.dwSize = sizeof(ddbltfx);
+      ddbltfx.dwSize = sizeof(ddbltfx);
 
-ddbltfx.dwFillColor = 230;
+      ddbltfx.dwFillColor = 230;
 	
-  if (sp_mode == 0)
-  {
-//draw depth dot for sprite attribute edit
+      if (sp_mode == 0)
+	{
+	  //draw depth dot for sprite attribute edit
 	  
-				box_crap.top = spr[2].y;
-				box_crap.bottom = spr[2].y+1;
-				box_crap.left = spr[2].x - 20;
-				box_crap.right = spr[2].x + 20;
+	  box_crap.top = spr[2].y;
+	  box_crap.bottom = spr[2].y+1;
+	  box_crap.left = spr[2].x - 20;
+	  box_crap.right = spr[2].x + 20;
 				
 				
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	if (ddrval != DD_OK) dderror(ddrval);
+	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+	  if (ddrval != DD_OK) dderror(ddrval);
 
 
-					box_crap.top = spr[2].y-20;
-				box_crap.bottom = spr[2].y+20;
-				box_crap.left = spr[2].x;
-				box_crap.right = spr[2].x +1;
+	  box_crap.top = spr[2].y-20;
+	  box_crap.bottom = spr[2].y+20;
+	  box_crap.left = spr[2].x;
+	  box_crap.right = spr[2].x +1;
 				
 				
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	if (ddrval != DD_OK) dderror(ddrval);
-  }
+	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+	  if (ddrval != DD_OK) dderror(ddrval);
+	}
 
-  if  ((sp_mode == 1) | (sp_mode == 2) )
-  {
-//draw hardbox dot for sprite attribute edit
+      if  ((sp_mode == 1) | (sp_mode == 2) )
+	{
+	  //draw hardbox dot for sprite attribute edit
 	  
-				box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox;
+	  box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox;
 				
-OffsetRect(&box_crap,320,200);
+	  OffsetRect(&box_crap,320,200);
 
 
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	if (ddrval != DD_OK) Msg("Error with drawing hard block... you know why.");
+	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+	  if (ddrval != DD_OK) Msg("Error with drawing hard block... you know why.");
 				
-  }
+	}
 
 
 
 
 
-}
+    }
 
 
-if (in_enabled)
-{
-	//text window is open, lets act accordingly
-	//check_joystick();
+  if (in_enabled)
+    {
+      //text window is open, lets act accordingly
+      //check_joystick();
 
 	
-	if (getkey(13))
+      if (getkey(VK_RETURN /* 13 */))
 	{
 
-		//exit text mode
+	  //exit text mode
 
 
-	if (in_command == 2)
+	  if (in_command == 2)
+	    {
+	      if (in_string != NULL)
 		{
-         if (in_string != NULL)
-		 {
             
 		
-		strcpy(in_string,in_temp);
+		  strcpy(in_string,in_temp);
 		 
 		   
-		 } else Msg("Error, in_char pointer not set, can't issue a value.");
+		} else Msg("Error, in_char pointer not set, can't issue a value.");
 		 
-		}
+	    }
 
 	
          
-		if (in_command == 1)
+	  if (in_command == 1)
+	    {
+	      if (in_int != NULL)
 		{
-         if (in_int != NULL)
-		 {
-            char *stop;
-			 int in_crap = strtol(in_temp, &stop,10);
+		  char *stop;
+		  int in_crap = strtol(in_temp, &stop,10);
 	    
-		in_crap2 = in_crap;
+		  in_crap2 = in_crap;
 		
-		if (   (old_command == 33) | (old_command == 34)  )
-		{
-        load_info();
-		}
+		  if (   (old_command == 33) | (old_command == 34)  )
+		    {
+		      load_info();
+		    }
 
-		*in_int = in_crap2;
+		  *in_int = in_crap2;
 		
 		
 		
-		if (   (old_command == 33) | (old_command == 34)  )
-		{
-        save_info();
-		}
+		  if (   (old_command == 33) | (old_command == 34)  )
+		    {
+		      save_info();
+		    }
 		 
 		   
-		 } else Msg("Error, in_int pointer not set, can't issue a value.");
+		} else Msg("Error, in_int pointer not set, can't issue a value.");
 		 
-		}
+	    }
 
 		
 
-		in_command = 0;
+	  in_command = 0;
 
 
 
-		if (in_huh == 3)
+	  if (in_huh == 3)
+	    {
+	      if (in_crap2 == 3)
 		{
-			if (in_crap2 == 3)
-			{
-				//default duck settings
-				sp_speed = 1;
-				sp_base_walk = 20;
-				sp_base_idle = -1;
-				sp_base_hit = -1;
-				sp_base_attack = -1;
-				sp_timer = 33;
-				sp_type = 1;
-			   sp_que = 0;
-			   sp_hard = 1;
+		  //default duck settings
+		  sp_speed = 1;
+		  sp_base_walk = 20;
+		  sp_base_idle = -1;
+		  sp_base_hit = -1;
+		  sp_base_attack = -1;
+		  sp_timer = 33;
+		  sp_type = 1;
+		  sp_que = 0;
+		  sp_hard = 1;
 			
-			}
+		}
 			
-			if (in_crap2 == 4)
-			{
-				//default pig settings
-				sp_speed = 1;
-				sp_base_walk = 40;
-				sp_base_idle = -1;
-				sp_base_hit = -1;
-				sp_base_attack = -1;
-				sp_timer = 66;
-				sp_type = 1;
-			sp_que = 0;
-			sp_hard = 1;
-			}
-
-					if (in_crap2 == 9)
-			{
-				//default diag settings
-				sp_speed = 1;
-				sp_base_walk =  (sp_seq / 10) * 10;
-				sp_base_idle = -1;
-				sp_base_hit = -1;
-				sp_base_attack = -1;
-				sp_timer = 66;
-				sp_type = 1;
-			    strcpy(sp_script, "");
-				sp_que = 0;
-			sp_hard = 1;
-			}
-
-		if (in_crap2 == 10)
-			{
-				//default diag settings
-				sp_speed = 1;
-				sp_base_walk =  (sp_seq / 10) * 10;
-				sp_base_idle = -1;
-				sp_base_hit = -1;
-				sp_base_attack = -1;
-				sp_timer = 66;
-				sp_type = 1;
-			    strcpy(sp_script, "");
-				sp_que = 0;
-			sp_hard = 1;
-			}
-
-
-		}
-      if (old_command == 32)
-	  {
-      draw_map();
-
-	  }
-		
-		in_enabled = false;
-		
-		if (mode == MODE_MAP_PICKER) if (old_command == 30)
+	      if (in_crap2 == 4)
 		{
-			draw_used_buff();
-         return;
+		  //default pig settings
+		  sp_speed = 1;
+		  sp_base_walk = 40;
+		  sp_base_idle = -1;
+		  sp_base_hit = -1;
+		  sp_base_attack = -1;
+		  sp_timer = 66;
+		  sp_type = 1;
+		  sp_que = 0;
+		  sp_hard = 1;
 		}
-		
-		if (mode == MODE_MAP_PICKER) if (old_command == 33)
+
+	      if (in_crap2 == 9)
 		{
-		
-			draw_used();
-         return;
+		  //default diag settings
+		  sp_speed = 1;
+		  sp_base_walk =  (sp_seq / 10) * 10;
+		  sp_base_idle = -1;
+		  sp_base_hit = -1;
+		  sp_base_attack = -1;
+		  sp_timer = 66;
+		  sp_type = 1;
+		  strcpy(sp_script, "");
+		  sp_que = 0;
+		  sp_hard = 1;
 		}
-		
-	if (mode == MODE_MAP_PICKER) if (old_command == 34)
+
+	      if (in_crap2 == 10)
 		{
-		
-			Msg("drawing used");
-			draw_used();
-         return;
+		  //default diag settings
+		  sp_speed = 1;
+		  sp_base_walk =  (sp_seq / 10) * 10;
+		  sp_base_idle = -1;
+		  sp_base_hit = -1;
+		  sp_base_attack = -1;
+		  sp_timer = 66;
+		  sp_type = 1;
+		  strcpy(sp_script, "");
+		  sp_que = 0;
+		  sp_hard = 1;
 		}
+
+
+	    }
+	  if (old_command == 32)
+	    {
+	      draw_map();
+
+	    }
+		
+	  in_enabled = false;
+		
+	  if (mode == MODE_MAP_PICKER) if (old_command == 30)
+					 {
+					   draw_used_buff();
+					   return;
+					 }
+		
+	  if (mode == MODE_MAP_PICKER) if (old_command == 33)
+					 {
+		
+					   draw_used();
+					   return;
+					 }
+		
+	  if (mode == MODE_MAP_PICKER) if (old_command == 34)
+					 {
+		
+					   Msg("drawing used");
+					   draw_used();
+					   return;
+					 }
 		
 
-		draw_map();
+	  draw_map();
 	
-	return;	
+	  return;	
 	}
 	
-	if (sjoy.key[8])
+      if (sjoy.key[VK_BACK /* 8 */])
 
-    //	if (getkey(8)) //this is a much faster backspace than the above
+	//	if (getkey(8)) //this is a much faster backspace than the above
 	{
-		if (strlen(in_temp) > 0)
-			in_temp[strlen(in_temp)-1] = 0;
+	  if (strlen(in_temp) > 0)
+	    in_temp[strlen(in_temp)-1] = 0;
 		
 	} 
 
 
-	if (in_max > strlen(in_temp))
+      if (in_max > strlen(in_temp))
 	for (int x=32; x<255; x++)
-							{
-								if (sjoy.key[x])
+	  {
+	    if (sjoy.key[x])
 									
-								{
-		                    		int key = key_convert(x);
+	      {
+		int key = key_convert(x);
 								
-									sprintf(in_temp, "%s%c",in_temp,key);
+		sprintf(in_temp, "%s%c",in_temp,key);
 				                    
-								}
-							}
-        Say(in_temp,260,200);
+	      }
+	  }
+      Say(in_temp,260,200);
 
-}
-
-
-if (in_master != 0) check_in();
+    }
 
 
-//open a text window?
+  if (in_master != 0) check_in();
 
-if (in_onflag)
-{
-//start it up
 
-	//copy screen to Two
-		SetRect(&rcRect, 0, 0, 640, 480);
-        ddrval = lpDDSTwo->Blt( &rcRect, lpDDSBack, &rcRect, DDBLT_WAIT, NULL);
-	// GFX
-	// TODO: use copy_front_to_two()
-	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
+  //open a text window?
 
-        if (ddrval != DD_OK) dderror(ddrval);
+  if (in_onflag)
+    {
+      //start it up
+
+      //copy screen to Two
+      SetRect(&rcRect, 0, 0, 640, 480);
+      ddrval = lpDDSTwo->Blt( &rcRect, lpDDSBack, &rcRect, DDBLT_WAIT, NULL);
+      // GFX
+      // TODO: use copy_front_to_two()
+      SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
+
+      if (ddrval != DD_OK) dderror(ddrval);
 
 		
-		strcpy(in_temp,in_default);
-		in_x = 270;
-		in_y = 190;
-		in_onflag = false;
-		 in_enabled = true;
+      strcpy(in_temp,in_default);
+      in_x = 270;
+      in_y = 190;
+      in_onflag = false;
+      in_enabled = true;
          
 
 
-}
+    }
 
 
 
-//MAIN PAGE FLIP DONE HERE
+  //MAIN PAGE FLIP DONE HERE
 
 
-if (GetKeyboard(32) && (mode != 1))
-						{
-							drawallhard();
+  if (GetKeyboard(VK_SPACE /* 32 */) && (mode != 1))
+    {
+      drawallhard();
 						
-						}
+    }
 
 
 
 
-if (draw_map_tiny != -1)
-{
+  if (draw_map_tiny != -1)
+    {
           
-	int huh = 0;
-	//if (draw_map_tiny > 32) huh = 1;
-	shrink_screen_to_these_cords(  (draw_map_tiny-1) * 20 - ((((draw_map_tiny-1) / 32) * 640) )   ,   ((((draw_map_tiny-1) / 32)- huh) * 20));
-		   //Msg("Just flipped # %d", draw_map_tiny);
+      int huh = 0;
+      //if (draw_map_tiny > 32) huh = 1;
+      shrink_screen_to_these_cords(  (draw_map_tiny-1) * 20 - ((((draw_map_tiny-1) / 32) * 640) )   ,   ((((draw_map_tiny-1) / 32)- huh) * 20));
+      //Msg("Just flipped # %d", draw_map_tiny);
 
-}
+    }
 
 
 
-if (!windowed)
-{
+  if (!windowed)
+    {
 	
-	while( 1 )
+      while( 1 )
 	{
-		ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-		if( ddrval == DD_OK )
+	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
+	  if( ddrval == DD_OK )
+	    {
+	      break;
+	    }
+	  if( ddrval == DDERR_SURFACELOST )
+	    {
+	      ddrval = restoreAll();
+	      if( ddrval != DD_OK )
 		{
-			break;
+		  break;
 		}
-		if( ddrval == DDERR_SURFACELOST )
-		{
-			ddrval = restoreAll();
-			if( ddrval != DD_OK )
-			{
-				break;
-			}
-		}
-		if( ddrval != DDERR_WASSTILLDRAWING )
-		{
+	    }
+	  if( ddrval != DDERR_WASSTILLDRAWING )
+	    {
 			
-			dderror(ddrval);
-		}
+	      dderror(ddrval);
+	    }
 	} 
 
-	if (draw_map_tiny != -1) 
+      if (draw_map_tiny != -1) 
 	{
-		//extra flip
+	  //extra flip
 		
-		ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
+	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
 	}
 
 
-} else
-  {
-  /* Replaced by a call to flip_it_second() */
-  flip_it_second();
-  /*
-	//windowed mode, no flipping		 
-	p.x = 0; p.y = 0;    
-	ClientToScreen(hWndMain, &p);
-	GetClientRect(hWndMain, &rcRectDest);
+    } else
+    {
+      /* Replaced by a call to flip_it_second() */
+      flip_it_second();
+      /*
+      //windowed mode, no flipping		 
+      p.x = 0; p.y = 0;    
+      ClientToScreen(hWndMain, &p);
+      GetClientRect(hWndMain, &rcRectDest);
 	
-	//rcRectDest.top += winoffset;
-	rcRectDest.bottom = 480;
-	rcRectDest.right = 640;
+      //rcRectDest.top += winoffset;
+      rcRectDest.bottom = 480;
+      rcRectDest.right = 640;
 	
-	OffsetRect(&rcRectDest, p.x, p.y);
-	SetRect(&rcRectSrc, 0, 0, 640, 480);
+      OffsetRect(&rcRectDest, p.x, p.y);
+      SetRect(&rcRectSrc, 0, 0, 640, 480);
 	
 	
 	
 				
-	ddbltfx.dwSize = sizeof(ddbltfx);
+      ddbltfx.dwSize = sizeof(ddbltfx);
 	
-	ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-	ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
-  */
-  }
+      ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
+      ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+      */
+    }
 } /* updateFrame */
 
-  /*
-  * finiObjects
-  *
-  * finished with all objects we use; release them
-  */
+/*
+ * finiObjects
+ *
+ * finished with all objects we use; release them
+ */
 void finiObjects( void )
 {
 	  OutputDebugString("Running cleanup (finiObjects)\n");
@@ -5290,7 +5270,7 @@ long FAR PASCAL WindowProc(HWND hWnd, UINT message,
 	  case WM_KEYDOWN:
 		  switch( wParam )
 		  {
-		  case 81:
+		  case 'Q' /* 81 */:
 			  
 			  
 			  if (mode == MODE_MAP_PICKER)
@@ -6082,38 +6062,46 @@ initFail(hWndMain, crap);
 } /* WinMain */
 
 
-
+/* Read key "is pressed?" status from cache */
 bool
 getkey(int key)
 {
-  if (sjoy.realkey[key]) return(true); else return(false);      
+  if (sjoy.realkey[key])
+    return(true);
+  else
+    return(false);      
 }
 
+/* Human-readable representation of the keycode, used to display which
+   key is currently pressed */
+/* Note: key constants may be found in winuser.h. The
+   "Keycodes"/keycodes.txt file by Dan Walma also brings some clues
+   about the _OEM keys. */
 char
 key_convert(int key)
 {
-        if (!getkey(VK_SHIFT)) key = tolower(key);
-        
-        if (key == 190 /* VK_OEM_PERIOD */) if (getkey(VK_SHIFT)) key = '>'; else key = '.';
-        if (key == 188 /* VK_OEM_COMMA */) if (getkey(VK_SHIFT)) key = '<'; else key = ',';
-        
-        if (key == '1') if (getkey(VK_SHIFT)) key = '!';
-        if (key == '2') if (getkey(VK_SHIFT)) key = '@';
-        if (key == '3') if (getkey(VK_SHIFT)) key = '#';
-        if (key == '4') if (getkey(VK_SHIFT)) key = '$';
-        if (key == '5') if (getkey(VK_SHIFT)) key = '%';
-        if (key == '6') if (getkey(VK_SHIFT)) key = '^';
-        if (key == '7') if (getkey(VK_SHIFT)) key = '&';
-        if (key == '8') if (getkey(VK_SHIFT)) key = '*'; 
-        if (key == '9') if (getkey(VK_SHIFT)) key = '('; 
-        if (key == '0') if (getkey(VK_SHIFT)) key = ')'; 
-        
-        if (key == 189 /* VK_OEM_MINUS */) if (getkey(VK_SHIFT)) key = '_'; else key = '-';
-        if (key == 187 /* VK_OEM_PLUS */) if (getkey(VK_SHIFT)) key = '+'; else key = '=';
-        if (key == 186 /* VK_OEM_1 */) if (getkey(VK_SHIFT)) key = ':'; else key = ';';
-        if (key == 222 /* VK_OEM_7 */) if (getkey(VK_SHIFT)) key = '\"'; else key = '\'';
-        if (key == 191 /* VK_OEM_2 */) if (getkey(VK_SHIFT)) key = '?'; else key = '/';
-        if (key == 220 /* VK_OEM_5 */) if (getkey(VK_SHIFT)) key = '|'; else key = '\\';
-                
-        return(key); 
+  if (!getkey(VK_SHIFT)) key = tolower(key);
+  
+  if (key == 190 /* VK_OEM_PERIOD */) if (getkey(VK_SHIFT)) key = '>'; else key = '.';
+  if (key == 188 /* VK_OEM_COMMA */) if (getkey(VK_SHIFT)) key = '<'; else key = ',';
+  
+  if (key == '1') if (getkey(VK_SHIFT)) key = '!';
+  if (key == '2') if (getkey(VK_SHIFT)) key = '@';
+  if (key == '3') if (getkey(VK_SHIFT)) key = '#';
+  if (key == '4') if (getkey(VK_SHIFT)) key = '$';
+  if (key == '5') if (getkey(VK_SHIFT)) key = '%';
+  if (key == '6') if (getkey(VK_SHIFT)) key = '^';
+  if (key == '7') if (getkey(VK_SHIFT)) key = '&';
+  if (key == '8') if (getkey(VK_SHIFT)) key = '*'; 
+  if (key == '9') if (getkey(VK_SHIFT)) key = '('; 
+  if (key == '0') if (getkey(VK_SHIFT)) key = ')'; 
+  
+  if (key == 189 /* VK_OEM_MINUS */) if (getkey(VK_SHIFT)) key = '_'; else key = '-';
+  if (key == 187 /* VK_OEM_PLUS */) if (getkey(VK_SHIFT)) key = '+'; else key = '=';
+  if (key == 186 /* VK_OEM_1 */) if (getkey(VK_SHIFT)) key = ':'; else key = ';';
+  if (key == 222 /* VK_OEM_7 */) if (getkey(VK_SHIFT)) key = '\"'; else key = '\'';
+  if (key == 191 /* VK_OEM_2 */) if (getkey(VK_SHIFT)) key = '?'; else key = '/';
+  if (key == 220 /* VK_OEM_5 */) if (getkey(VK_SHIFT)) key = '|'; else key = '\\';
+  
+  return(key); 
 }
