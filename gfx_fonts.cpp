@@ -34,7 +34,7 @@ TTF_Font *FONTS_hfont_small = NULL;
 /* The current font, when activated through FONTS_SetFont() */
 static TTF_Font *cur_font = NULL;
 
-HFONT hfont_small = NULL;
+/* HFONT hfont_small = NULL; */
 
 static SDL_Color text_color;
 
@@ -221,125 +221,66 @@ print_text_wrap (char *str, RECT * box,
 void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 {
   RECT rcRect;
-  HDC hdc;
-  if (lpDDSBack->GetDC(&hdc) == DD_OK)
-    {      
-      SetBkMode(hdc, TRANSPARENT); 
+/*   HDC hdc; */
+/*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
+/*     {       */
+/*       SetBkMode(hdc, TRANSPARENT);  */
       SetRect(&rcRect,px,py,px+40,py+40);
-      SetTextColor(hdc,RGB(r,g,b));
-      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+/*       SetTextColor(hdc,RGB(r,g,b)); */
+/*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(r, g, b);
       print_text_wrap(thing, &rcRect, 0, 0);
       
-      lpDDSBack->ReleaseDC(hdc);
-    }   
+/*       lpDDSBack->ReleaseDC(hdc); */
+/*     }    */
 }
 /* Say: print text until it reaches the border of the screen, with a
    font border */
 void Say(char thing[500], int px, int py)
 {
   RECT rcRect;
-  HDC hdc;
+/*   HDC hdc; */
   
-  if (lpDDSBack->GetDC(&hdc) == DD_OK)
-    {      
-      SetBkMode(hdc, TRANSPARENT); 
+/*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
+/*     {       */
+/*       SetBkMode(hdc, TRANSPARENT);  */
       SetRect(&rcRect,px,py,620,480);
-      SelectObject (hdc, hfont_small);
+/*       SelectObject (hdc, hfont_small); */
 
-      SetTextColor(hdc,RGB(8,14,21));
-      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+/*       SetTextColor(hdc,RGB(8,14,21)); */
+/*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(8, 14, 21);
       print_text_wrap(thing, &rcRect, 0, 0);
 
       OffsetRect(&rcRect,-2,-2);
-      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+/*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       print_text_wrap(thing, &rcRect, 0, 0);
 
       OffsetRect(&rcRect,1,1);
-      SetTextColor(hdc,RGB(255,255,0));
-      DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK);
+/*       SetTextColor(hdc,RGB(255,255,0)); */
+/*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(255, 255, 0);
       print_text_wrap(thing, &rcRect, 0, 0);
       
-      lpDDSBack->ReleaseDC(hdc);
-    }   
+/*       lpDDSBack->ReleaseDC(hdc); */
+/*     }    */
 }
 
 void kill_fonts(void)
 {
-  if (hfont_small)
-    {
-      DeleteObject(hfont_small);
-      hfont_small = NULL;
-    }
+/*   if (hfont_small) */
+/*     { */
+/*       DeleteObject(hfont_small); */
+/*       hfont_small = NULL; */
+/*     } */
   
   if (FONTS_hfont_small)
     {
       TTF_CloseFont(FONTS_hfont_small);
       FONTS_hfont_small = NULL;
     }
-}
-
-
-
-
-void initfonts(char fontname[255])
-{
-  LOGFONT lf = {0,0,0,0,0,0,0,0,0,0,0,0,0,""};
-  lf.lfHeight = 20;
-  lf.lfWidth = 0;   
-  /*lf.lfEscapement;
-    lf.lfOrientation;
-  */
-  lf.lfWeight = 400;  
-  /*
-    lf.lfItalic;   
-    lf.lfUnderline;  
-    lf.lfStrikeOut;
-    lf.lfCharSet;  
-  */
-  // lf.lfOutPrecision = OUT_TT_PRECIS;
-  
-  
-  //lf.lfClipPrecision;
-  //lf.lfQuality = PROOF_QUALITY;  
-  // lf.lfPitchAndFamily; 
-  //strcpy(lf.lfFaceName,"Comic Sans MS");
-  strcpy(lf.lfFaceName,fontname);
-  
-  //draw shadow
-  // disabled: unused:
-  //hfont = CreateFontIndirect (&lf);
-  
-  
-  lf.lfHeight = 18;
-  //lf.lfWidth = 0;   
-  /*lf.lfEscapement;
-    lf.lfOrientation;
-  */
-  //lf.lfWeight = 300;  
-  lf.lfWeight = 600;  
-  
-  /*
-    lf.lfItalic;   
-    lf.lfUnderline;  
-    lf.lfStrikeOut;
-    lf.lfCharSet;  
-  */
-  // lf.lfOutPrecision = OUT_TT_PRECIS;
-  
-  
-  //lf.lfClipPrecision;
-  //lf.lfQuality = PROOF_QUALITY;  
-  // lf.lfPitchAndFamily; 
-  //strcpy(lf.lfFaceName,"Comic Sans MS");
-  strcpy(lf.lfFaceName,fontname);
-  
-  //draw shadow
-  hfont_small = CreateFontIndirect (&lf);
 }

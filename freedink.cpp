@@ -8,18 +8,17 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 
@@ -35,11 +34,11 @@
 #include <time.h>
 /* for chdir() */
 #include <direct.h>
-#include <windows.h>
+/* #include <windows.h> */
 /* For GetStockBrush */
-#include <windowsx.h>
-#include <ddraw.h>
-#include "ddutil.h"
+/* #include <windowsx.h> */
+/* #include <ddraw.h> */
+/* #include "ddutil.h" */
 #include "fastfile.h"
 
 #include "gfx.h"
@@ -54,12 +53,12 @@
 #include "init.h"
 #include "freedink.h"
 
-const int WM_IMDONE = WM_USER+110;
+/* const int WM_IMDONE = WM_USER+110; */
 
 int fps_average;
 
 
-BOOL initFail( HWND hwnd, char mess[200] );
+BOOL initFail(char mess[200]);
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(RECT box, int color);
 void run_through_tag_list_push(int h);
@@ -75,7 +74,7 @@ int but_timer;
 int fps_show = 0;
 
 //idirectsound
-LPDIRECTDRAWCLIPPER lpClipper;
+/* LPDIRECTDRAWCLIPPER lpClipper; */
 
 
 int drawthistime = true;
@@ -96,7 +95,7 @@ int speed;
 
 
 /* Get sprite #h, grab its text and display it */
-void text_draw(int h, HDC hdc)
+void text_draw(int h)
 {
 	
 	char crap[200];
@@ -163,51 +162,51 @@ void text_draw(int h, HDC hdc)
 	
 	
 	
-	SetTextColor(hdc,RGB(8,14,21));
+/* 	SetTextColor(hdc,RGB(8,14,21)); */
 	// FONTS
 	FONTS_SetTextColor(8, 14, 21);
 	   if (spr[h].owner == 1200)
 	   {
 	     printf("1200 says %s\n", cr);
 		   //this text has no sprite, and doesn't want to be centered.
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
 		   OffsetRect(&rcRect,-2,0);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
 		   OffsetRect(&rcRect,1,1);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 
 		   OffsetRect(&rcRect,0,-2);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 	   }
 	   else
 	   {
 		   
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 
 		   OffsetRect(&rcRect,-2,0);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 		   
 		   OffsetRect(&rcRect,1,1);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 
 		   OffsetRect(&rcRect,0,-2);
-		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 	   }
@@ -215,34 +214,34 @@ void text_draw(int h, HDC hdc)
 	   OffsetRect(&rcRect,0,1);
 	   
 	   // FONTS:
-	   if (color == 1) SetTextColor(hdc,RGB(255,198,255)), FONTS_SetTextColor(255, 198, 255);
-	   else	if (color == 2) SetTextColor(hdc,RGB(131,181,74)), FONTS_SetTextColor(131, 181, 74);
-	   else if (color == 3) SetTextColor(hdc,RGB(99,242,247)), FONTS_SetTextColor(99, 242, 247);
+	   if (color == 1) FONTS_SetTextColor(255, 198, 255);
+	   else	if (color == 2) FONTS_SetTextColor(131, 181, 74);
+	   else if (color == 3) FONTS_SetTextColor(99, 242, 247);
 	   
-	   else	if (color == 4) SetTextColor(hdc,RGB(255,156,74)), FONTS_SetTextColor(255, 156, 74); //right
+	   else	if (color == 4) FONTS_SetTextColor(255, 156, 74); //right
 	   
 	   
-	   else	if (color == 5) SetTextColor(hdc,RGB(222,173,255)), FONTS_SetTextColor(222, 173, 255);
-	   else	if (color == 6) SetTextColor(hdc,RGB(244,188,73)), FONTS_SetTextColor(244, 188, 73); //right
-	   else	if (color == 7) SetTextColor(hdc,RGB(173,173,173)), FONTS_SetTextColor(173, 173, 173); //right
-	   else	if (color == 8) SetTextColor(hdc,RGB(85,85,85)), FONTS_SetTextColor(85, 85, 85); //right
-	   else	if (color == 9) SetTextColor(hdc,RGB(148,198,255)), FONTS_SetTextColor(148, 198, 255); //right
+	   else	if (color == 5) FONTS_SetTextColor(222, 173, 255);
+	   else	if (color == 6) FONTS_SetTextColor(244, 188, 73); //right
+	   else	if (color == 7) FONTS_SetTextColor(173, 173, 173); //right
+	   else	if (color == 8) FONTS_SetTextColor(85, 85, 85); //right
+	   else	if (color == 9) FONTS_SetTextColor(148, 198, 255); //right
 	   
-	   else	if (color == 10) SetTextColor(hdc,RGB(0,255,0)), FONTS_SetTextColor(0, 255, 0);
-	   else	if (color == 13) SetTextColor(hdc,RGB(255,132,132)), FONTS_SetTextColor(255, 132, 132);
-	   else	if (color == 14) SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
-	   else	if (color == 15) SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
+	   else	if (color == 10) FONTS_SetTextColor(0, 255, 0);
+	   else	if (color == 13) FONTS_SetTextColor(255, 132, 132);
+	   else	if (color == 14) FONTS_SetTextColor(255, 255, 2);
+	   else	if (color == 15) FONTS_SetTextColor(255, 255, 255);
 	   else
-		   SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
+		   FONTS_SetTextColor(255, 255, 255);
 	   if (spr[h].owner == 1200)
 	     {
-	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK);
+/* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 	       // FONTS
 	       print_text_wrap(cr, &rcRect, 0, 0);
 	     }
 	   else
 	     {
-	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	       // FONTS
 	       print_text_wrap(cr, &rcRect, 1, 0);
 	     }
@@ -260,54 +259,54 @@ void text_draw(int h, HDC hdc)
 *
 * restore all lost objects
 */
-HRESULT restoreAll( void )
+void restoreAll( void )
 {
 	
     
 	
-	HRESULT     ddrval;
+/* 	HRESULT     ddrval; */
 	
 	
 	
-	ddrval = lpDDSPrimary->Restore();
-    if( ddrval == DD_OK )
-    {
+/* 	ddrval = lpDDSPrimary->Restore(); */
+/*     if( ddrval == DD_OK ) */
+/*     { */
 		
-		ddrval = lpDDSTwo->Restore();
+/* 		ddrval = lpDDSTwo->Restore(); */
 		
-		ddrval = lpDDSTrick->Restore();
-        ddrval = lpDDSTrick2->Restore();
+/* 		ddrval = lpDDSTrick->Restore(); */
+/*         ddrval = lpDDSTrick2->Restore(); */
 		
 		
-		/*for (int h=1; h < tile_screens; h++)
-		{
-		ddrval = tiles[h]->Restore();
+/* 		/\*for (int h=1; h < tile_screens; h++) */
+/* 		{ */
+/* 		ddrval = tiles[h]->Restore(); */
 		
-		  if( ddrval == DD_OK )
-		  {
-		  if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, "");
-		  sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h);
+/* 		  if( ddrval == DD_OK ) */
+/* 		  { */
+/* 		  if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, ""); */
+/* 		  sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h); */
 		  
-			//		sprintf(crap, "TS%d.BMP",h);
-			DDReLoadBitmap(tiles[h], crap); 
-			Msg("Loading tile %d",h); 
-			}
-			}
-		*/
-		Msg("Done with reloading tile set."); 
-		//reload_batch();
-		Msg("Have all sprites."); 
+/* 			//		sprintf(crap, "TS%d.BMP",h); */
+/* 			DDReLoadBitmap(tiles[h], crap);  */
+/* 			Msg("Loading tile %d",h);  */
+/* 			} */
+/* 			} */
+/* 		*\/ */
+/* 		Msg("Done with reloading tile set.");  */
+/* 		//reload_batch(); */
+/* 		Msg("Have all sprites.");  */
 		
-		//draw_map();
-		Msg("Drew map."); 
-		if (mode > 2)
-		{
-			draw_map_game_background();
-			draw_status_all();
-		}
-	}
+/* 		//draw_map(); */
+/* 		Msg("Drew map.");  */
+/* 		if (mode > 2) */
+/* 		{ */
+/* 			draw_map_game_background(); */
+/* 			draw_status_all(); */
+/* 		} */
+/* 	} */
 	
-	return ddrval;
+/* 	return ddrval; */
 	
 	
 } /* restoreAll */
@@ -2069,14 +2068,14 @@ void grab_trick(int trick)
     }
 
   /* Capture the current game zone from the backbuffer */
-  rcRect.left = playl; /* playl = const = 20 */
-  rcRect.top = 0;
-  rcRect.right = 619;
-  rcRect.bottom = 399;
+/*   rcRect.left = playl; /\* playl = const = 20 *\/ */
+/*   rcRect.top = 0; */
+/*   rcRect.right = 619; */
+/*   rcRect.bottom = 399; */
   
-  ddrval = lpDDSTrick->BltFast(0, 0, lpDDSBack,
-			       &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-  if (ddrval != DD_OK) dderror(ddrval);
+/*   ddrval = lpDDSTrick->BltFast(0, 0, lpDDSBack, */
+/* 			       &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/*   if (ddrval != DD_OK) dderror(ddrval); */
   // GFX
   {
     SDL_Rect src, dst;
@@ -3430,10 +3429,10 @@ smoothend:;
 
 bool transition(void)
 {
-	RECT rcRect;
+/* 	RECT rcRect; */
 	SDL_Rect src, dst;
 
-	HRESULT             ddrval;	
+/* 	HRESULT             ddrval;	 */
 	//we need to do our fancy screen transition
 	int dumb = 5;
 	//if (fps_final < 30) dumb = 50;
@@ -3463,14 +3462,14 @@ bool transition(void)
 		if (move_counter > 598) move_counter = 598;
 		
 		
-		rcRect.left = 0;
-		rcRect.right = 600 - move_counter; 
-		rcRect.top = 0;
-		rcRect.bottom = 400;
+/* 		rcRect.left = 0; */
+/* 		rcRect.right = 600 - move_counter;  */
+/* 		rcRect.top = 0; */
+/* 		rcRect.bottom = 400; */
 		
-		ddrval = lpDDSBack->BltFast( move_counter+20, 0, lpDDSTrick,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		ddrval = lpDDSBack->BltFast( move_counter+20, 0, lpDDSTrick, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -3482,14 +3481,14 @@ bool transition(void)
 		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
 		}
 
-		rcRect.left = 600 -  move_counter; ;
-		rcRect.right = 600;
-		rcRect.top = 0;
-		rcRect.bottom = 400;
+/* 		rcRect.left = 600 -  move_counter; ; */
+/* 		rcRect.right = 600; */
+/* 		rcRect.top = 0; */
+/* 		rcRect.bottom = 400; */
 		
-		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 600 - move_counter;
@@ -3520,13 +3519,13 @@ bool transition(void)
 		
 		
 		if (move_counter > 598) move_counter = 598;
-		rcRect.left = move_counter;
-		rcRect.right = 599;
-		rcRect.top = 0;
-		rcRect.bottom = 399;
+/* 		rcRect.left = move_counter; */
+/* 		rcRect.right = 599; */
+/* 		rcRect.top = 0; */
+/* 		rcRect.bottom = 399; */
 		
-		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/* 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
 		if (ddrval != DD_OK) dderror(ddrval);
 		// GFX
 		{
@@ -3540,15 +3539,15 @@ bool transition(void)
 		}
 
 		
-        rcRect.left = 0;
-		rcRect.right = move_counter;
-		rcRect.top = 0;
-        rcRect.bottom = 399;
+/*         rcRect.left = 0; */
+/* 		rcRect.right = move_counter; */
+/* 		rcRect.top = 0; */
+/*         rcRect.bottom = 399; */
 		
-		ddrval = lpDDSBack->BltFast( 620 - move_counter, 0, lpDDSTrick2,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/* 		ddrval = lpDDSBack->BltFast( 620 - move_counter, 0, lpDDSTrick2, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
         
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -3581,15 +3580,15 @@ bool transition(void)
 		if (move_counter > 398) move_counter = 398;
 		
 		
-		rcRect.left = 0;
-		rcRect.right = 599;
+/* 		rcRect.left = 0; */
+/* 		rcRect.right = 599; */
 		
-		rcRect.top = 0;
-        rcRect.bottom = 399 - move_counter;
+/* 		rcRect.top = 0; */
+/*         rcRect.bottom = 399 - move_counter; */
 		
-		ddrval = lpDDSBack->BltFast( 20, move_counter, lpDDSTrick,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		ddrval = lpDDSBack->BltFast( 20, move_counter, lpDDSTrick, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -3602,14 +3601,14 @@ bool transition(void)
 		}
 
 		
-        rcRect.left = 0;
-		rcRect.right = 599;
-		rcRect.top = 399 -  move_counter; ;
-        rcRect.bottom = 399;
+/*         rcRect.left = 0; */
+/* 		rcRect.right = 599; */
+/* 		rcRect.top = 399 -  move_counter; ; */
+/*         rcRect.bottom = 399; */
 		
-		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -3646,15 +3645,15 @@ bool transition(void)
 		
 		
 		if (move_counter > 398) move_counter = 398;
-		rcRect.left = 0;
+/* 		rcRect.left = 0; */
 		
-		rcRect.right = 599; 
-		rcRect.top = move_counter;
-        rcRect.bottom = 399;
+/* 		rcRect.right = 599;  */
+/* 		rcRect.top = move_counter; */
+/*         rcRect.bottom = 399; */
 		
-		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -3666,14 +3665,14 @@ bool transition(void)
 		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
 		}
 
-        rcRect.left = 0;
-		rcRect.right = 599;
+/*         rcRect.left = 0; */
+/* 		rcRect.right = 599; */
 		
-		rcRect.top = 0;
-        rcRect.bottom = move_counter;
+/* 		rcRect.top = 0; */
+/*         rcRect.bottom = move_counter; */
 		
-		ddrval = lpDDSBack->BltFast( 20, 399 - move_counter, lpDDSTrick2,
-			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/* 		ddrval = lpDDSBack->BltFast( 20, 399 - move_counter, lpDDSTrick2, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
 		if (ddrval != DD_OK) dderror(ddrval);
 		// GFX
 		{
@@ -3766,23 +3765,23 @@ void CyclePalette()
   bool done_this_time = true;     
   SDL_Color palette[256];
 
-  if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
-    {
-      Msg("error with getting entries");
-      return;
-    }
+/*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
+/*     { */
+/*       Msg("error with getting entries"); */
+/*       return; */
+/*     } */
   // GFX
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
   for (int kk = 1; kk < 256; kk++)
   // skipping index 0 because it's already (and always) black ;)
     {
-      if (pe[kk].peBlue != 0)
-	{
-	  done_this_time = false;
-	  if (pe[kk].peBlue > 10)
-	    pe[kk].peBlue -= 10; else pe[kk].peBlue--;
-	}
+/*       if (pe[kk].peBlue != 0) */
+/* 	{ */
+/* 	  done_this_time = false; */
+/* 	  if (pe[kk].peBlue > 10) */
+/* 	    pe[kk].peBlue -= 10; else pe[kk].peBlue--; */
+/* 	} */
       // GFX
       if (palette[kk].b != 0)
 	{
@@ -3793,12 +3792,12 @@ void CyclePalette()
 	    palette[kk].b--;
 	}
       
-      if (pe[kk].peGreen != 0)
-	{
-	  done_this_time = false;
-	  if (pe[kk].peGreen > 10)
-	    pe[kk].peGreen -= 10; else pe[kk].peGreen--;
-	}
+/*       if (pe[kk].peGreen != 0) */
+/* 	{ */
+/* 	  done_this_time = false; */
+/* 	  if (pe[kk].peGreen > 10) */
+/* 	    pe[kk].peGreen -= 10; else pe[kk].peGreen--; */
+/* 	} */
       // GFX
       if (palette[kk].g != 0)
 	{
@@ -3809,12 +3808,12 @@ void CyclePalette()
 	    palette[kk].g--;
 	}
 
-      if (pe[kk].peRed != 0)
-	{
-	  done_this_time = false;
-	  if (pe[kk].peRed > 10)
-	    pe[kk].peRed -= 10; else pe[kk].peRed--;
-	}
+/*       if (pe[kk].peRed != 0) */
+/* 	{ */
+/* 	  done_this_time = false; */
+/* 	  if (pe[kk].peRed > 10) */
+/* 	    pe[kk].peRed -= 10; else pe[kk].peRed--; */
+/* 	} */
       // GFX
       if (palette[kk].r != 0)
 	{
@@ -3826,7 +3825,7 @@ void CyclePalette()
 	}
     }
   
-  lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
+/*   lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL); */
 
 //   printf("pe[0] = (%d, %d, %d))\n", pe[0].peRed, pe[0].peGreen, pe[0].peBlue);
 //   printf("pa[0] = (%d, %d, %d))\n", palette[0].r, palette[0].g, palette[0].b);
@@ -3836,11 +3835,11 @@ void CyclePalette()
 //   printf("pa[255] = (%d, %d, %d))\n", palette[255].r, palette[255].g, palette[255].b);
 //   fflush(stdout);
   
-  if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
-    {
-      Msg("error with setting entries");
-      return;
-    }
+/*   if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK) */
+/*     { */
+/*       Msg("error with setting entries"); */
+/*       return; */
+/*     } */
 
   // GFX
   /* TODO: SDL doesn't seem to like some of the palettes we use. Some
@@ -3872,25 +3871,25 @@ void up_cycle(void)
   bool donethistime = true;
   SDL_Color palette[256];
 		
-  if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK)
-    {
-      Msg("error with getting entries");
-      return;
-    }
-  // GFX
+/*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
+/*     { */
+/*       Msg("error with getting entries"); */
+/*       return; */
+/*     } */
+/*   // GFX */
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
   //for (int kk = 1; kk <= 256; kk++)
   // (fixing memory issue, index 256 is outside the array)
   for (int kk = 1; kk < 256; kk++)
     {
-      if (pe[kk].peBlue != real_pal[kk].peBlue)
-	{
-	  if (pe[kk].peBlue > 246) pe[kk].peBlue++; else
-	    pe[kk].peBlue += 10;
-	  donethistime = false;
-	}
-      if (pe[kk].peBlue > real_pal[kk].peBlue) pe[kk].peBlue = real_pal[kk].peBlue;
+/*       if (pe[kk].peBlue != real_pal[kk].peBlue) */
+/* 	{ */
+/* 	  if (pe[kk].peBlue > 246) pe[kk].peBlue++; else */
+/* 	    pe[kk].peBlue += 10; */
+/* 	  donethistime = false; */
+/* 	} */
+/*       if (pe[kk].peBlue > real_pal[kk].peBlue) pe[kk].peBlue = real_pal[kk].peBlue; */
       // GFX
       if (palette[kk].b != GFX_real_pal[kk].b)
 	{
@@ -3903,13 +3902,13 @@ void up_cycle(void)
       if (palette[kk].b > GFX_real_pal[kk].b)
 	palette[kk].b = GFX_real_pal[kk].b;
       
-      if (pe[kk].peGreen != real_pal[kk].peGreen)
-	{
-	  if (pe[kk].peGreen > 246) pe[kk].peGreen++; else
-	    pe[kk].peGreen += 10;
-	  donethistime = false;
-	}
-      if (pe[kk].peGreen > real_pal[kk].peGreen) pe[kk].peGreen = real_pal[kk].peGreen;
+/*       if (pe[kk].peGreen != real_pal[kk].peGreen) */
+/* 	{ */
+/* 	  if (pe[kk].peGreen > 246) pe[kk].peGreen++; else */
+/* 	    pe[kk].peGreen += 10; */
+/* 	  donethistime = false; */
+/* 	} */
+/*       if (pe[kk].peGreen > real_pal[kk].peGreen) pe[kk].peGreen = real_pal[kk].peGreen; */
       // GFX
       if (palette[kk].g != GFX_real_pal[kk].g)
 	{
@@ -3922,13 +3921,13 @@ void up_cycle(void)
       if (palette[kk].g > GFX_real_pal[kk].g)
 	palette[kk].g = GFX_real_pal[kk].g;
       
-      if (pe[kk].peRed != real_pal[kk].peRed)
-	{
-	  if (pe[kk].peRed> 246) pe[kk].peRed++; else
-	    pe[kk].peRed += 10;
-	  donethistime = false;
-	}
-      if (pe[kk].peRed > real_pal[kk].peRed) pe[kk].peRed = real_pal[kk].peRed;
+/*       if (pe[kk].peRed != real_pal[kk].peRed) */
+/* 	{ */
+/* 	  if (pe[kk].peRed> 246) pe[kk].peRed++; else */
+/* 	    pe[kk].peRed += 10; */
+/* 	  donethistime = false; */
+/* 	} */
+/*       if (pe[kk].peRed > real_pal[kk].peRed) pe[kk].peRed = real_pal[kk].peRed; */
       // GFX
       if (palette[kk].r != GFX_real_pal[kk].r)
 	{
@@ -3942,16 +3941,16 @@ void up_cycle(void)
 	palette[kk].r = GFX_real_pal[kk].r;
     }
   
-  lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL);
+/*   lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL); */
 		
-  if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK)
-    {
-      Msg("error with setting entries");
-      //     return;
-    }
+/*   if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK) */
+/*     { */
+/*       Msg("error with setting entries"); */
+/*       //     return; */
+/*     } */
   // Beuc: as far as I understand, it's not possible to alter the
   // index in window mode with DX; the physical screen must be 32bits
-  // without palette emulation. So 
+  // without palette emulation. So no fade_down().
 
   // GFX
   change_screen_palette(palette);
@@ -3973,19 +3972,19 @@ void up_cycle(void)
 
 void draw_box(RECT box, int color)
 {
-  DDBLTFX     ddbltfx;
+/*   DDBLTFX     ddbltfx; */
   
-  ddbltfx.dwSize = sizeof(ddbltfx);
-  ddbltfx.dwFillColor = color;
+/*   ddbltfx.dwSize = sizeof(ddbltfx); */
+/*   ddbltfx.dwFillColor = color; */
   
-  ddrval = lpDDSBack->Blt(&box ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/*   ddrval = lpDDSBack->Blt(&box ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
   // GFX
   {
-    SDL_Rect rect;
-    rect.x = box.left; rect.y = box.top;
-    rect.w = box.right - box.left;
-    rect.h = box.bottom - box.top;
-    SDL_FillRect(GFX_lpDDSBack, &rect, color);
+    SDL_Rect dst;
+    dst.x = box.left; dst.y = box.top;
+    dst.w = box.right - box.left;
+    dst.h = box.bottom - box.top;
+    SDL_FillRect(GFX_lpDDSBack, &dst, color);
   }
 }
 	
@@ -3993,10 +3992,10 @@ void draw_box(RECT box, int color)
 	
 void flip_it(void)
 {
-  DDBLTFX     ddbltfx;
+/*   DDBLTFX     ddbltfx; */
   
-  RECT rcRectSrc;    RECT rcRectDest;
-  POINT p;
+/*   RECT rcRectSrc;    RECT rcRectDest; */
+/*   POINT p; */
   
   /*int timer = GetTickCount() + 50;
     while(GetTickCount() < timer)
@@ -4004,50 +4003,50 @@ void flip_it(void)
     }
   */
   
-  if (!windowed)
-    {
-      while( 1 )
-	{
-	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-	  if( ddrval == DD_OK )
-	    {
-	      break;
-	    }
-	  if( ddrval == DDERR_SURFACELOST )
-	    {
+/*   if (!windowed) */
+/*     { */
+/*       while( 1 ) */
+/* 	{ */
+/* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
+/* 	  if( ddrval == DD_OK ) */
+/* 	    { */
+/* 	      break; */
+/* 	    } */
+/* 	  if( ddrval == DDERR_SURFACELOST ) */
+/* 	    { */
 	      
-	      restoreAll();
-	      if( ddrval != DD_OK )
-		{
-		  break;
-		}
-	    }
-	  if( ddrval != DDERR_WASSTILLDRAWING )
-	    {
-	      // Nope
-	    }
-	}
-      // GFX: the windowed code below will also work in full-screen
-      // mode
-    }
-  else
-    {
-      //windowed mode, DX, no flipping
-      p.x = 0; p.y = 0;    
-      ClientToScreen(hWndMain, &p);
-      GetClientRect(hWndMain, &rcRectDest);
+/* 	      restoreAll(); */
+/* 	      if( ddrval != DD_OK ) */
+/* 		{ */
+/* 		  break; */
+/* 		} */
+/* 	    } */
+/* 	  if( ddrval != DDERR_WASSTILLDRAWING ) */
+/* 	    { */
+/* 	      // Nope */
+/* 	    } */
+/* 	} */
+/*       // GFX: the windowed code below will also work in full-screen */
+/*       // mode */
+/*     } */
+/*   else */
+/*     { */
+/*       //windowed mode, DX, no flipping */
+/*       p.x = 0; p.y = 0;     */
+/*       ClientToScreen(hWndMain, &p); */
+/*       GetClientRect(hWndMain, &rcRectDest); */
       
-      //rcRectDest.top += winoffset;
-      rcRectDest.bottom = 480;
-      rcRectDest.right = 640;
+/*       //rcRectDest.top += winoffset; */
+/*       rcRectDest.bottom = 480; */
+/*       rcRectDest.right = 640; */
       
-      OffsetRect(&rcRectDest, p.x, p.y);
-      SetRect(&rcRectSrc, 0, 0, 640, 480);
+/*       OffsetRect(&rcRectDest, p.x, p.y); */
+/*       SetRect(&rcRectSrc, 0, 0, 640, 480); */
       
-      ddbltfx.dwSize = sizeof(ddbltfx);
+/*       ddbltfx.dwSize = sizeof(ddbltfx); */
       
-      ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-      ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+/*       ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
+/*       ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 
       // GFX
       {
@@ -4068,7 +4067,7 @@ void flip_it(void)
 	  }
 	SDL_Flip(GFX_lpDDSPrimary);
       }
-    }
+/*     } */
 }
 
 
@@ -4327,8 +4326,8 @@ void run_through_touch_damage_list(int h)
 
 void process_warp_man(void)
 {
-	RECT box_crap;
-	DDBLTFX     ddbltfx;
+/* 	RECT box_crap; */
+/* 	DDBLTFX     ddbltfx; */
     
 	int sprite = find_sprite(process_warp);
 	
@@ -4343,12 +4342,12 @@ void process_warp_man(void)
 			
 			
 			
-			ddbltfx.dwSize = sizeof(ddbltfx);
+/* 			ddbltfx.dwSize = sizeof(ddbltfx); */
 			
-			ddbltfx.dwFillColor = 0;
-			SetRect(&box_crap, 0,0,640,480);
+/* 			ddbltfx.dwFillColor = 0; */
+/* 			SetRect(&box_crap, 0,0,640,480); */
 			
-			ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 			ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 			// GFX
 			// TODO: merge with fill_screen()? (doesn't work on the same buffer)
 			SDL_FillRect(GFX_lpDDSBack, NULL, 0);
@@ -4573,10 +4572,10 @@ void process_talk()
   check_seq_status(30);
   
   int fake_page;
- again:
-  ddrval = lpDDSBack->BltFast( px, py, k[seq[30].frame[2]].k,
-			       &k[seq[30].frame[2]].box  , DDBLTFAST_SRCCOLORKEY  );
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*  again: */
+/*   ddrval = lpDDSBack->BltFast( px, py, k[seq[30].frame[2]].k, */
+/* 			       &k[seq[30].frame[2]].box  , DDBLTFAST_SRCCOLORKEY  ); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
   // GFX
   {
     SDL_Rect dst;
@@ -4584,10 +4583,10 @@ void process_talk()
     SDL_BlitSurface(GFX_k[seq[30].frame[2]].k, NULL, GFX_lpDDSBack, &dst);
   }
   
- again2:	
-  ddrval = lpDDSBack->BltFast( px+169, py+42, k[seq[30].frame[3]].k,
-			       &k[seq[30].frame[3]].box  , DDBLTFAST_SRCCOLORKEY  );
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+/*  again2:	 */
+/*   ddrval = lpDDSBack->BltFast( px+169, py+42, k[seq[30].frame[3]].k, */
+/* 			       &k[seq[30].frame[3]].box  , DDBLTFAST_SRCCOLORKEY  ); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again2; */
   // GFX
   {
     SDL_Rect dst;
@@ -4595,10 +4594,10 @@ void process_talk()
     SDL_BlitSurface(GFX_k[seq[30].frame[3]].k, NULL, GFX_lpDDSBack, &dst);
   }
   
- again3:
-  ddrval = lpDDSBack->BltFast( px+169+180, py+1, k[seq[30].frame[4]].k,
-			       &k[seq[30].frame[4]].box  , DDBLTFAST_SRCCOLORKEY  );
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
+/*  again3: */
+/*   ddrval = lpDDSBack->BltFast( px+169+180, py+1, k[seq[30].frame[4]].k, */
+/* 			       &k[seq[30].frame[4]].box  , DDBLTFAST_SRCCOLORKEY  ); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again3; */
   // GFX
   {
     SDL_Rect dst;
@@ -4632,13 +4631,13 @@ void process_talk()
 				       SoundPlayEffect(11, 22050,0,0,0);
     }
   
-  if (lpDDSBack->GetDC(&hdc) == DD_OK)
-    {      
+/*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
+/*     {       */
       
-      SelectObject (hdc, hfont_small);
+/*       SelectObject (hdc, hfont_small); */
       // FONTS
       FONTS_SetFont(FONTS_hfont_small);
-      SetBkMode(hdc, TRANSPARENT); 
+/*       SetBkMode(hdc, TRANSPARENT);  */
       
       
       
@@ -4648,43 +4647,43 @@ void process_talk()
 	  SetRect(&rcRect,sx,94,463,400);
 	  if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
 	  
-	  SetTextColor(hdc,RGB(8,14,21));
+/* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
-	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);
+/* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  print_text_wrap(talk.buffer, &rcRect, 1, 1);
 
 
 	   /* Same of in text_draw, except for #1 and default */
 	   // FONTS:
-	   if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)), FONTS_SetTextColor(49, 90, 140);
-	   else	if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)), FONTS_SetTextColor(131, 181, 74);
-	   else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)), FONTS_SetTextColor(99, 242, 247);
+	   if (talk.color == 1) FONTS_SetTextColor(49, 90, 140);
+	   else	if (talk.color == 2) FONTS_SetTextColor(131, 181, 74);
+	   else if (talk.color == 3) FONTS_SetTextColor(99, 242, 247);
 	   
-	   else	if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)), FONTS_SetTextColor(255, 156, 74); //right
+	   else	if (talk.color == 4) FONTS_SetTextColor(255, 156, 74); //right
 	   
 	   
-	   else	if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)), FONTS_SetTextColor(222, 173, 255);
-	   else	if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)), FONTS_SetTextColor(244, 188, 73); //right
-	   else	if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)), FONTS_SetTextColor(173, 173, 173); //right
-	   else	if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)), FONTS_SetTextColor(85, 85, 85); //right
-	   else	if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)), FONTS_SetTextColor(148, 198, 255); //right
+	   else	if (talk.color == 5) FONTS_SetTextColor(222, 173, 255);
+	   else	if (talk.color == 6) FONTS_SetTextColor(244, 188, 73); //right
+	   else	if (talk.color == 7) FONTS_SetTextColor(173, 173, 173); //right
+	   else	if (talk.color == 8) FONTS_SetTextColor(85, 85, 85); //right
+	   else	if (talk.color == 9) FONTS_SetTextColor(148, 198, 255); //right
 	   
-	   else	if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)), FONTS_SetTextColor(0, 255, 0);
-	   else	if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)), FONTS_SetTextColor(255, 132, 132);
-	   else	if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
-	   else	if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)), FONTS_SetTextColor(255, 255, 255);
+	   else	if (talk.color == 10) FONTS_SetTextColor(0, 255, 0);
+	   else	if (talk.color == 13) FONTS_SetTextColor(255, 132, 132);
+	   else	if (talk.color == 14) FONTS_SetTextColor(255, 255, 2);
+	   else	if (talk.color == 15) FONTS_SetTextColor(255, 255, 255);
 	   else
-	     SetTextColor(hdc,RGB(255,255,2)), FONTS_SetTextColor(255, 255, 2);
+	     FONTS_SetTextColor(255, 255, 2);
 
 
 	  OffsetRect(&rcRect, 1, 1);
-	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	
+/* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	 */
 	  // FONTS
 	  print_text_wrap(talk.buffer, &rcRect, 1, 1);	  
 
-	  SetTextColor(hdc,RGB(8,14,21));
+/* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
 	}
@@ -4697,14 +4696,16 @@ void process_talk()
       for (i = talk.cur_view; i < talk.last; i++)
 	{
 	  SetRect(&rcRect,sx,y_hold,463,x_depth+100);
-	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);
+/* 	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  /* TODO; I doubt using TTF_FontLineSkip(FONTS_hfont_small)
 	     will be enough - what if there are multiple lines? For
 	     testing, check in UltimateCheat: Warp/<2nd choice> (2
 	     lines), Kill enemies (title placement), Show Info (huge
 	     title). */
-	  sy_hold += y_hold;	 
+	  /* BIG TODO */
+	  y_hold = 3;
+	  sy_hold += y_hold;
 	  
 	  //Msg("Sy_hold = %d (%d)", sy_hold,i);
 	  
@@ -4772,8 +4773,11 @@ void process_talk()
 	      {
 		SetRect(&rcRect,sx,sy_ho,463,x_depth);
 		
-		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK);
-		// FONT: TODO
+/* 		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
+
+		// FONT: BIG TODO!
+		y_ho = 3;
+
 		sy_ho += y_ho;	 
 		//Msg("adding y_yo %d.. (on %d)", y_ho,i);
 		if (sy_ho > x_depth) 
@@ -4811,14 +4815,14 @@ void process_talk()
 	  //lets figure out where to draw this line
 	  
 	  SetRect(&rcRect,sx,sy,463,x_depth+100);
-	  SetTextColor(hdc,RGB(8,14,21));
+/* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
-	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK);
+/* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
-	  OffsetRect(&rcRect,-2,-2);
-	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 	  OffsetRect(&rcRect,-2,-2); */
+/* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
 
@@ -4828,25 +4832,25 @@ void process_talk()
 	      curyl = sy-4;
 	      curyr = sy-4;
 	      
-	      SetTextColor(hdc,RGB(255,255,255));
+/* 	      SetTextColor(hdc,RGB(255,255,255)); */
 	      // FONTS
 	      FONTS_SetTextColor(255, 255, 255);
 	    }
 	  else
 	    {
-	      SetTextColor(hdc,RGB(255,255,2));
+/* 	      SetTextColor(hdc,RGB(255,255,2)); */
 	      // FONTS
 	      FONTS_SetTextColor(255, 255, 2);
 	    }
-	  y_last = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK);
+/* 	  y_last = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
+	  y_last = print_text_wrap(talk.line[i], &rcRect, 1, 0);
 	  sy += y_last;
 	}
       
     fin:
       //	   dum =  GetTextFace(hdc,100,shit) ;
-      lpDDSBack->ReleaseDC(hdc);
+/*       lpDDSBack->ReleaseDC(hdc); */
       
       if (talk.timer < thisTickCount)
 	{	
@@ -4859,9 +4863,9 @@ void process_talk()
       
       if (talk.curf > 7) talk.curf = 1;
     again4:
-      ddrval = lpDDSBack->BltFast( curxl, curyl, k[seq[456].frame[talk.curf]].k,
-				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
-      if (ddrval == DDERR_WASSTILLDRAWING) goto again4;
+/*       ddrval = lpDDSBack->BltFast( curxl, curyl, k[seq[456].frame[talk.curf]].k, */
+/* 				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  ); */
+/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again4; */
       // GFX
       {
 	SDL_Rect dst;
@@ -4869,17 +4873,17 @@ void process_talk()
 	SDL_BlitSurface(GFX_k[seq[456].frame[talk.curf]].k, NULL, GFX_lpDDSBack, &dst);
       }
       
-    again5:
-      ddrval = lpDDSBack->BltFast( curxr, curyr, k[seq[457].frame[talk.curf]].k,
-				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  );
-      if (ddrval == DDERR_WASSTILLDRAWING) goto again5;
+/*     again5: */
+/*       ddrval = lpDDSBack->BltFast( curxr, curyr, k[seq[457].frame[talk.curf]].k, */
+/* 				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  ); */
+/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again5; */
       // GFX
       {
 	SDL_Rect dst;
 	dst.x = curxr; dst.y = curyr;
 	SDL_BlitSurface(GFX_k[seq[457].frame[talk.curf]].k, NULL, GFX_lpDDSBack, &dst);
       }
-    }
+/*   } */
   
   
   if ((sjoy.button[1]) | (mouse1))
@@ -4948,75 +4952,75 @@ void Scrawl_OnMouseInput(void)
 	mouse1 = true;
   return;
 
-	mouse1 = false;
+/* 	mouse1 = false; */
 	
-	BOOL fDone = 0;
+/* 	BOOL fDone = 0; */
 	
-    while (!fDone) {
+/*     while (!fDone) { */
 		
-		DIDEVICEOBJECTDATA od;
+/* 		DIDEVICEOBJECTDATA od; */
 		
-        DWORD dwElements = 1;
+/*         DWORD dwElements = 1; */
 		
-        HRESULT hr = g_pMouse->GetDeviceData(
-			sizeof(DIDEVICEOBJECTDATA), &od,
-			&dwElements, 0);
+/*         HRESULT hr = g_pMouse->GetDeviceData( */
+/* 			sizeof(DIDEVICEOBJECTDATA), &od, */
+/* 			&dwElements, 0); */
 		
-        if (hr == DIERR_INPUTLOST) {
-		/*
-		*  We had acquisition, but lost it.  Try to reacquire it.
-		*
-		*  WARNING!  DO NOT ATTEMPT TO REACQUIRE IF YOU GET
-		*  DIERR_NOTACQUIRED!  Otherwise, you're extremely likely
-		*  to get caught in an infinite loop:  The acquire will fail,
-		*  and you'll get another DIERR_NOTACQUIRED so you'll
-		*  try to aquire again, and that'll fail, etc.
-			*/
-            //PostMessage(hwnd, WM_SYNCACQUIRE, 0, 0L);
-			//   break;
+/*         if (hr == DIERR_INPUTLOST) { */
+/* 		/\* */
+/* 		*  We had acquisition, but lost it.  Try to reacquire it. */
+/* 		* */
+/* 		*  WARNING!  DO NOT ATTEMPT TO REACQUIRE IF YOU GET */
+/* 		*  DIERR_NOTACQUIRED!  Otherwise, you're extremely likely */
+/* 		*  to get caught in an infinite loop:  The acquire will fail, */
+/* 		*  and you'll get another DIERR_NOTACQUIRED so you'll */
+/* 		*  try to aquire again, and that'll fail, etc. */
+/* 			*\/ */
+/*             //PostMessage(hwnd, WM_SYNCACQUIRE, 0, 0L); */
+/* 			//   break; */
 			
-			g_pMouse->Acquire();
+/* 			g_pMouse->Acquire(); */
 			
-		}
+/* 		} */
 		
-        /* Unable to read data or no data available */
-        if (FAILED(hr) || dwElements == 0) {
-			// Msg("No mouse data there.");
-			break;
-        }
+/*         /\* Unable to read data or no data available *\/ */
+/*         if (FAILED(hr) || dwElements == 0) { */
+/* 			// Msg("No mouse data there."); */
+/* 			break; */
+/*         } */
 		
-        /* Look at the element to see what happened */
+/*         /\* Look at the element to see what happened *\/ */
 		
-/* Rewritten slightly differently to make it compile with recent versions of g++ */
-/*        switch (od.dwOfs) {
+/* /\* Rewritten slightly differently to make it compile with recent versions of g++ *\/ */
+/* /\*        switch (od.dwOfs) { */
 			
-			// DIMOFS_X: Mouse horizontal motion
-      case DIMOFS_X: UpdateCursorPosition(od.dwData, 0); break;
+/* 			// DIMOFS_X: Mouse horizontal motion */
+/*       case DIMOFS_X: UpdateCursorPosition(od.dwData, 0); break; */
 			
 			
-			// DIMOFS_Y: Mouse vertical motion
-      case DIMOFS_Y: UpdateCursorPosition(0, od.dwData); break;
+/* 			// DIMOFS_Y: Mouse vertical motion */
+/*       case DIMOFS_Y: UpdateCursorPosition(0, od.dwData); break; */
 			
-		case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break;
+/* 		case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break; */
 			
-        }
-*/
-		if (od.dwOfs == DIMOFS_X)
-		{
-			/* DIMOFS_X: Mouse horizontal motion */
-			UpdateCursorPosition(od.dwData, 0);
-		}
-		else if (od.dwOfs == DIMOFS_Y)
-		{
-			/* DIMOFS_Y: Mouse vertical motion */
-			UpdateCursorPosition(0, od.dwData);
-		}
-		else if (od.dwOfs == DIDFT_BUTTON)
-		{
-			if (od.dwData > 0) mouse1 = true;
-		}
+/*         } */
+/* *\/ */
+/* 		if (od.dwOfs == DIMOFS_X) */
+/* 		{ */
+/* 			/\* DIMOFS_X: Mouse horizontal motion *\/ */
+/* 			UpdateCursorPosition(od.dwData, 0); */
+/* 		} */
+/* 		else if (od.dwOfs == DIMOFS_Y) */
+/* 		{ */
+/* 			/\* DIMOFS_Y: Mouse vertical motion *\/ */
+/* 			UpdateCursorPosition(0, od.dwData); */
+/* 		} */
+/* 		else if (od.dwOfs == DIDFT_BUTTON) */
+/* 		{ */
+/* 			if (od.dwData > 0) mouse1 = true; */
+/* 		} */
 
-    }
+/*     } */
 	
 }
 
@@ -5100,7 +5104,7 @@ again:
 	
 	check_seq_status(mseq);
 	
-	if (k[seq[mseq].frame[mframe]].k == NULL) 
+	if (GFX_k[seq[mseq].frame[mframe]].k == NULL) 
 	{
 		
 		if (!magic)
@@ -5119,9 +5123,9 @@ again:
 		return;
 	}
 	
-	ddrval = lpDDSBack->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-		&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY);
-	if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+/* 	ddrval = lpDDSBack->BltFast( mx, my, k[seq[mseq].frame[mframe]].k, */
+/* 		&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY); */
+/* 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
 	// GFX
 	{
 	  SDL_Rect dst;
@@ -5133,47 +5137,47 @@ again:
 /* Draw screen when browsing the inventory */
 void process_item( void )
 {
-    RECT                rcRect;
-    rcRect.left = 0;
-    rcRect.top = 0;
-    /* x and y are the size of the screen */
-    rcRect.right = x;
-    rcRect.bottom = y;
-	int hor, virt;	
+/*     RECT                rcRect; */
+/*     rcRect.left = 0; */
+/*     rcRect.top = 0; */
+/*     /\* x and y are the size of the screen *\/ */
+/*     rcRect.right = x; */
+/*     rcRect.bottom = y; */
+	int hor, virt;
 	
 	
 	
-	while( 1 )
-	{
-		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-			&rcRect, DDBLTFAST_NOCOLORKEY);
+/* 	while( 1 ) */
+/* 	{ */
+/* 		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
+/* 			&rcRect, DDBLTFAST_NOCOLORKEY); */
 		// GFX
 		SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
-		if( ddrval == DD_OK )
-		{
-			break;
-		}
-		if( ddrval == DDERR_SURFACELOST )
-		{
-			ddrval = restoreAll();
-			break;
-		}
-		if( ddrval != DDERR_WASSTILLDRAWING )
-		{
-			dderror(ddrval);
-			return;
-		}
-	}
+/* 		if( ddrval == DD_OK ) */
+/* 		{ */
+/* 			break; */
+/* 		} */
+/* 		if( ddrval == DDERR_SURFACELOST ) */
+/* 		{ */
+/* 			ddrval = restoreAll(); */
+/* 			break; */
+/* 		} */
+/* 		if( ddrval != DDERR_WASSTILLDRAWING ) */
+/* 		{ */
+/* 			dderror(ddrval); */
+/* 			return; */
+/* 		} */
+/* 	} */
 	
 	
 	check_seq_status(423);
 	//lets blit the main screen over it
-again:	
-	ddrval = lpDDSBack->BltFast( 20, 0, k[seq[423].frame[1]].k,
-		&k[seq[423].frame[1]].box, DDBLTFAST_SRCCOLORKEY);
-	if( ddrval == DDERR_WASSTILLDRAWING )
-	  goto again;
+/* again:	 */
+/* 	ddrval = lpDDSBack->BltFast( 20, 0, k[seq[423].frame[1]].k, */
+/* 		&k[seq[423].frame[1]].box, DDBLTFAST_SRCCOLORKEY); */
+/* 	if( ddrval == DDERR_WASSTILLDRAWING ) */
+/* 	  goto again; */
 	// GFX
 	{
 	  SDL_Rect dst = {20, 0};
@@ -5395,17 +5399,17 @@ again:
 
 void process_show_bmp( void )
 {
-  RECT rcRect;
-  SetRect(&rcRect, 0,0,x, y);
+/*   RECT rcRect; */
+/*   SetRect(&rcRect, 0,0,x, y); */
   
   // We could disable this Blit (work is already done in show_bmp())
   // but we want to display the shiny mark on the map below. Besides,
   // after show_bmp(), other parts of the code drew sprites on
   // lpDDSBack, so we need to regenerate it anyway.
  again:
-  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTrick,
-			      &rcRect, DDBLTFAST_NOCOLORKEY);
-  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+/*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTrick, */
+/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
   // GFX
   SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
   
@@ -5419,8 +5423,8 @@ void process_show_bmp( void )
       if (showb.picframe > index[mseq].last) showb.picframe = 1;
       int mframe = showb.picframe;
       
-      lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k,
-			  &k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
+/*       lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k, */
+/* 			  &k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT ); */
       // GFX
       {
 	SDL_Rect dst;
@@ -5451,11 +5455,11 @@ void process_show_bmp( void )
       
       
       // Return to canonical game palette
-      if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK)
-	{
-	  Msg("error with setting entries");
-	  return;
-	}
+/*       if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK) */
+/* 	{ */
+/* 	  Msg("error with setting entries"); */
+/* 	  return; */
+/* 	} */
       // GFX
       change_screen_palette(GFX_real_pal);
       // The main flip_it() will be called, skip it - lpDDSBack is
@@ -5471,18 +5475,18 @@ void drawscreenlock( void )
   
  loop:
   //draw the screenlock icon
-  ddrval = lpDDSBack->BltFast(0, 0, k[seq[423].frame[9]].k,
-			      &k[seq[423].frame[9]].box  , DDBLTFAST_NOCOLORKEY  );
-  if (ddrval == DDERR_WASSTILLDRAWING ) goto loop;
+/*   ddrval = lpDDSBack->BltFast(0, 0, k[seq[423].frame[9]].k, */
+/* 			      &k[seq[423].frame[9]].box  , DDBLTFAST_NOCOLORKEY  ); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING ) goto loop; */
   //if (ddrval != DD_OK) dderror(ddrval);
   // GFX
   SDL_BlitSurface(GFX_k[seq[423].frame[9]].k, NULL, GFX_lpDDSBack, NULL);
   
  loop2:
   //draw the screenlock icon
-  ddrval = lpDDSBack->BltFast(620, 0, k[seq[423].frame[10]].k,
-			      &k[seq[423].frame[10]].box  , DDBLTFAST_NOCOLORKEY  );
-  if (ddrval == DDERR_WASSTILLDRAWING ) goto loop2;
+/*   ddrval = lpDDSBack->BltFast(620, 0, k[seq[423].frame[10]].k, */
+/* 			      &k[seq[423].frame[10]].box  , DDBLTFAST_NOCOLORKEY  ); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING ) goto loop2; */
   // if (ddrval != DD_OK) dderror(ddrval);
   // GFX
   {
@@ -5520,8 +5524,8 @@ void finiObjects()
 
 	
 
-	if( lpDD != NULL )
-	{
+/* 	if( lpDD != NULL ) */
+/* 	{ */
 	  
 		//change coop mode back
 		
@@ -5535,19 +5539,19 @@ void finiObjects()
 	  //GFX
 	  SDL_FreeSurface(GFX_lpDDSBack);
 
-			if( lpDDPal != NULL )
-			{
-			lpDDPal->Release();
-			lpDDPal = NULL;
-			}
+/* 			if( lpDDPal != NULL ) */
+/* 			{ */
+/* 			lpDDPal->Release(); */
+/* 			lpDDPal = NULL; */
+/* 			} */
 	
-		if( lpDDSPrimary != NULL )
-		{
-			lpDDSPrimary->Release();
-			lpDDSPrimary = NULL;
-		}
-		if (lpDD->RestoreDisplayMode() != DD_OK)
-			Msg("Error restoring display mode.");
+/* 		if( lpDDSPrimary != NULL ) */
+/* 		{ */
+/* 			lpDDSPrimary->Release(); */
+/* 			lpDDSPrimary = NULL; */
+/* 		} */
+/* 		if (lpDD->RestoreDisplayMode() != DD_OK) */
+/* 			Msg("Error restoring display mode."); */
 	
 		/*
 		HRESULT ddrval = lpDD->SetCooperativeLevel( hWndMain, DDSCL_NORMAL);
@@ -5558,8 +5562,8 @@ void finiObjects()
 	}
 
 		 */
-		lpDD->Release();
-		lpDD = NULL;
+/* 		lpDD->Release(); */
+/* 		lpDD = NULL; */
 		
 		/*for (int oo = 1; oo <= max_sprites; oo++)   
 		{
@@ -5575,28 +5579,28 @@ void finiObjects()
 				}
 				
 		*/
-	} 
+/* 	}  */
 	
 	//destroy direct input mouse stuff
 	
-	if (g_pMouse)
-	{
-		g_pMouse->Unacquire();
-		g_pMouse->Release();
-		g_pMouse = NULL;
-	}
+/* 	if (g_pMouse) */
+/* 	{ */
+/* 		g_pMouse->Unacquire(); */
+/* 		g_pMouse->Release(); */
+/* 		g_pMouse = NULL; */
+/* 	} */
 	
-	if (g_hevtMouse)
-	{
-		CloseHandle(g_hevtMouse);
-		g_hevtMouse = NULL;
-	}
+/* 	if (g_hevtMouse) */
+/* 	{ */
+/* 		CloseHandle(g_hevtMouse); */
+/* 		g_hevtMouse = NULL; */
+/* 	} */
 	
-	if (g_pdi)     
-	{
-		g_pdi->Release();
-		g_pdi    = NULL;
-	}
+/* 	if (g_pdi)      */
+/* 	{ */
+/* 		g_pdi->Release(); */
+/* 		g_pdi    = NULL; */
+/* 	} */
 	
 	
 	
@@ -5607,11 +5611,11 @@ void finiObjects()
 	if (::sound_on)
 	{
 	//lets kill the cdaudio too
-	if (mciSendString("close all", NULL, 0, NULL) != 0)
-	{
-		Msg("Couldn't close all MCI events..");
-		//	return(FALSE);
-	}
+/* 	if (mciSendString("close all", NULL, 0, NULL) != 0) */
+/* 	{ */
+/* 		Msg("Couldn't close all MCI events.."); */
+/* 		//	return(FALSE); */
+/* 	} */
 	
 	}
 	
@@ -5620,17 +5624,18 @@ void finiObjects()
 	void kill_fonts();
 	kill_fonts();
 	g_b_kill_app = 1;
-	ShowWindow(hWndMain, SW_HIDE);
-	SendMessage(hWndMain, WM_IMDONE, 0,0);
+/* 	ShowWindow(hWndMain, SW_HIDE); */
+/* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
 	//PostQuitMessage(0);
 
 	// FONTS
 	//TTF_Quit();
 } /* finiObjects */
 
-BOOL initFail( HWND hwnd, char mess[200] )
+BOOL initFail(char mess[200])
 {
-	MessageBox( hwnd, mess, TITLE, MB_OK );
+/* 	MessageBox( hwnd, mess, TITLE, MB_OK ); */
+  printf("%s\n", mess);
 	finiObjects();
 //	DestroyWindow( hwnd );
 	return FALSE;
@@ -5638,46 +5643,49 @@ BOOL initFail( HWND hwnd, char mess[200] )
 } /* initFail */
 
 
-long
-FAR PASCAL WindowProc(HWND hWnd, UINT message, 
-		      WPARAM wParam, LPARAM lParam)
-{
-  switch (message)
-    {
-    case WM_ACTIVATEAPP:
-      bActive = wParam;
-      break;
+/* long */
+/* FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
+/* 		      WPARAM wParam, LPARAM lParam) */
+/* { */
+/*   switch (message) */
+/*     { */
+/*     case WM_ACTIVATEAPP: */
+/*       bActive = wParam; */
+/*       break; */
 		
-    case WM_SETCURSOR:
-      SetCursor(NULL);
-      return TRUE;
+/*     case WM_SETCURSOR: */
+/*       SetCursor(NULL); */
+/*       return TRUE; */
 		
-    case WM_CREATE:
-      break;
+/*     case WM_CREATE: */
+/*       break; */
 
-    case WM_IMDONE:
-      Msg("Sending quit message.");
-      PostQuitMessage(0);
-      break;
+
+/* TODO TODO: handle the "closing the SDL window" event */
+
+/*     case WM_IMDONE: */
+/*       Msg("Sending quit message."); */
+/*       PostQuitMessage(0); */
+/*       break; */
 		
-/*    case WM_KEYDOWN:
-      //cycle through keys
-      switch (wParam)
-	{
-	case VK_F4:
-	  {
-	    process_downcycle = true;
-	    cycle_clock = thisTickCount;
-	  }
-	  break;
-	}
-      break;
-*/
-    }
+/* /\*    case WM_KEYDOWN: */
+/*       //cycle through keys */
+/*       switch (wParam) */
+/* 	{ */
+/* 	case VK_F4: */
+/* 	  { */
+/* 	    process_downcycle = true; */
+/* 	    cycle_clock = thisTickCount; */
+/* 	  } */
+/* 	  break; */
+/* 	} */
+/*       break; */
+/* *\/ */
+/*     } */
   
-  /* Default Windows processing */
-  return DefWindowProc(hWnd, message, wParam, lParam);
-}
+/*   /\* Default Windows processing *\/ */
+/*   return DefWindowProc(hWnd, message, wParam, lParam); */
+/* } */
  
 
 /* Self-explained */
@@ -5756,16 +5764,17 @@ void load_batch(void)
 
 
 
-int check_arg(char *crap)
+int check_arg(int argc, char *argv[])
 {
   char option[200];
   
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
-  for (int i=1; i <= 10; i++)
+  for (int i=1; i < argc; i++)
     {
-      separate_string(crap, i, ' ', option);
+/*       separate_string(crap, i, ' ', option); */
+      strcpy(option, argv[i]);
 
       if (strnicmp(option, "-window", strlen("-window")) == 0)
 	{
@@ -5789,8 +5798,9 @@ int check_arg(char *crap)
       if (strnicmp(option, "-game", strlen("-game")) == 0)
 	{
 	  char gamedir[200];
-	  separate_string(crap, i+1,' ',gamedir);
-	  strcpy(dir, gamedir);  
+/* 	  separate_string(crap, i+1,' ',gamedir); */
+	  strcpy(gamedir, argv[i+1]);
+	  strcpy(dir, gamedir);
 	  Msg("Working directory %s requested.",dir);  
 	}
 				
@@ -5804,7 +5814,7 @@ int check_arg(char *crap)
       sprintf(message, "Game dir \"%s\" not found!", dir);
       // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
       
-      initFail(hWndMain, message);
+      initFail(message);
       return 0;
     }	  
   
@@ -5816,39 +5826,39 @@ int check_arg(char *crap)
  * doInit - do work required for every instance of the application:
  *                create the window, initialize data
  */
-static int doInit(HINSTANCE hInstance, int nCmdShow)
+static int doInit(int argc, char *argv[])
 {
-  HWND                hwnd;
-  //    HRESULT             dsrval;
-  // BOOL                bUseDSound;
-  WNDCLASS            wc;
-  DDSURFACEDESC       ddsd;
-  DDSCAPS             ddscaps;
-  HRESULT             ddrval;
-  RECT                rcRect;
+/*   HWND                hwnd; */
+/*   //    HRESULT             dsrval; */
+/*   // BOOL                bUseDSound; */
+/*   WNDCLASS            wc; */
+/*   DDSURFACEDESC       ddsd; */
+/*   DDSCAPS             ddscaps; */
+/*   HRESULT             ddrval; */
+/*   RECT                rcRect; */
   
   
   char crap[30];
   char crap1[10];
 	
-  RECT rcRectSrc;    RECT rcRectDest;
-  POINT p;
+/*   RECT rcRectSrc;    RECT rcRectDest; */
+/*   POINT p; */
 
 
-  /*
-   * set up and register window class
-   */
-  wc.style = CS_HREDRAW | CS_VREDRAW;
-  wc.lpfnWndProc = WindowProc;
-  wc.cbClsExtra = 0;
-  wc.cbWndExtra = 0;
-  wc.hInstance = hInstance;
-  wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) );
-  wc.hCursor = LoadCursor( NULL, IDC_ARROW );
-  wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
-  wc.lpszMenuName = NAME;
-  wc.lpszClassName = NAME;
-  RegisterClass( &wc );
+/*   /\* */
+/*    * set up and register window class */
+/*    *\/ */
+/*   wc.style = CS_HREDRAW | CS_VREDRAW; */
+/*   wc.lpfnWndProc = WindowProc; */
+/*   wc.cbClsExtra = 0; */
+/*   wc.cbWndExtra = 0; */
+/*   wc.hInstance = hInstance; */
+/*   wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) ); */
+/*   wc.hCursor = LoadCursor( NULL, IDC_ARROW ); */
+/*   wc.hbrBackground = GetStockBrush(BLACK_BRUSH); */
+/*   wc.lpszMenuName = NAME; */
+/*   wc.lpszClassName = NAME; */
+/*   RegisterClass( &wc ); */
 
   /*
    * create a window
@@ -5856,178 +5866,178 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   windowed = false;
   //	hWndMain = hwnd;   
   
-  if (!check_arg(command_line))
+  if (!check_arg(argc, argv))
     return 0;
 
   if (windowed)
     {
-      hwnd = CreateWindowEx(0,
-			    NAME,
-			    TITLE,
-			    //        WS_POPUP,
-			    WS_SYSMENU|WS_CAPTION,
-			    0,
-			    0,
-			    640+winoffsetx, 480+winoffset,
-			    //        GetSystemMetrics(SM_CXSCREEN),
-			    //      GetSystemMetrics(SM_CYSCREEN),
-			    NULL,
-			    NULL,
-			    hInstance,
-			    NULL);
-      hWndMain = hwnd;
+/*       hwnd = CreateWindowEx(0, */
+/* 			    NAME, */
+/* 			    TITLE, */
+/* 			    //        WS_POPUP, */
+/* 			    WS_SYSMENU|WS_CAPTION, */
+/* 			    0, */
+/* 			    0, */
+/* 			    640+winoffsetx, 480+winoffset, */
+/* 			    //        GetSystemMetrics(SM_CXSCREEN), */
+/* 			    //      GetSystemMetrics(SM_CYSCREEN), */
+/* 			    NULL, */
+/* 			    NULL, */
+/* 			    hInstance, */
+/* 			    NULL); */
+/*       hWndMain = hwnd; */
 		
-      if (!hwnd)
-	return 0;
+/*       if (!hwnd) */
+/* 	return 0; */
       
-      ShowWindow(hwnd, nCmdShow);
-      UpdateWindow(hwnd);
-      SetFocus(hwnd);
+/*       ShowWindow(hwnd, nCmdShow); */
+/*       UpdateWindow(hwnd); */
+/*       SetFocus(hwnd); */
 
-      /*
-       * create the main DirectDraw object
-       */
-      ddrval = DirectDrawCreate(NULL, &lpDD, NULL);
-      if (ddrval != DD_OK)
-	return initFail(hwnd, "Couldn't use DirectX 8+...  Install it first.");
+/*       /\* */
+/*        * create the main DirectDraw object */
+/*        *\/ */
+/*       ddrval = DirectDrawCreate(NULL, &lpDD, NULL); */
+/*       if (ddrval != DD_OK) */
+/* 	return initFail(hwnd, "Couldn't use DirectX 8+...  Install it first."); */
 		
-      // Get exclusive mode
-      // using DDSCL_NORMAL means we will coexist with GDI
-      ddrval = lpDD->SetCooperativeLevel(hwnd, DDSCL_NORMAL);
+/*       // Get exclusive mode */
+/*       // using DDSCL_NORMAL means we will coexist with GDI */
+/*       ddrval = lpDD->SetCooperativeLevel(hwnd, DDSCL_NORMAL); */
 		
-      if (ddrval != DD_OK)
-	{        
-	  lpDD->Release(); 
-	  return initFail(hwnd, "Couldn't make windowed screen.");
-	}
+/*       if (ddrval != DD_OK) */
+/* 	{         */
+/* 	  lpDD->Release();  */
+/* 	  return initFail(hwnd, "Couldn't make windowed screen."); */
+/* 	} */
 
-      memset(&ddsd, 0, sizeof(ddsd));
-      ddsd.dwSize = sizeof( ddsd );
-      ddsd.dwFlags = DDSD_CAPS;
-      ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+/*       memset(&ddsd, 0, sizeof(ddsd)); */
+/*       ddsd.dwSize = sizeof( ddsd ); */
+/*       ddsd.dwFlags = DDSD_CAPS; */
+/*       ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE; */
 		
-      // The primary surface is not a page flipping surface this time
-      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
-      // GFX: done in init.cpp
+/*       // The primary surface is not a page flipping surface this time */
+/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL); */
+/*       // GFX: done in init.cpp */
       
-      if( ddrval != DD_OK )    
-	{
-	  lpDD->Release();  
-	  return initFail(hwnd, "Couldn't make primary surface.");
-	} 
+/*       if( ddrval != DD_OK )     */
+/* 	{ */
+/* 	  lpDD->Release();   */
+/* 	  return initFail(hwnd, "Couldn't make primary surface."); */
+/* 	}  */
 		
-      memset(&ddsd, 0, sizeof(ddsd)); 
-      ddsd.dwSize = sizeof(ddsd);
-      ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-      ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN; 
-      ddsd.dwWidth = 640;
-      ddsd.dwHeight = 480; // create the backbuffer separately
-      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSBack, NULL);
-      if (ddrval != DD_OK)
-	{
-	  lpClipper-> Release();
-	  lpDDSPrimary->Release();    
-	  lpDD->Release(); 
-	  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
-	}
+/*       memset(&ddsd, 0, sizeof(ddsd));  */
+/*       ddsd.dwSize = sizeof(ddsd); */
+/*       ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH; */
+/*       ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;  */
+/*       ddsd.dwWidth = 640; */
+/*       ddsd.dwHeight = 480; // create the backbuffer separately */
+/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSBack, NULL); */
+/*       if (ddrval != DD_OK) */
+/* 	{ */
+/* 	  lpClipper-> Release(); */
+/* 	  lpDDSPrimary->Release();     */
+/* 	  lpDD->Release();  */
+/* 	  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode."); */
+/* 	} */
 		
-      // Create a clipper to ensure that our drawing stays inside our window
-      ddrval = lpDD->CreateClipper(0, &lpClipper, NULL);
-      if( ddrval != DD_OK )   
-	{      
-	  lpDDSPrimary->Release();
-	  lpDD->Release();  
-	  return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
-	}
+/*       // Create a clipper to ensure that our drawing stays inside our window */
+/*       ddrval = lpDD->CreateClipper(0, &lpClipper, NULL); */
+/*       if( ddrval != DD_OK )    */
+/* 	{       */
+/* 	  lpDDSPrimary->Release(); */
+/* 	  lpDD->Release();   */
+/* 	  return initFail(hwnd, "Couldn't make a Clipper object, god knows why."); */
+/* 	} */
       
-      // setting it to our hwnd gives the clipper the coordinates from our window
-      ddrval = lpClipper->SetHWnd( 0, hwnd );   
-      if( ddrval != DD_OK )  
-	{
-	  lpClipper-> Release();   
-	  lpDDSPrimary->Release();
-	  lpDD->Release();     
-	  return initFail(hwnd, "Couldn't give Clipper window cords.");
-	}
+/*       // setting it to our hwnd gives the clipper the coordinates from our window */
+/*       ddrval = lpClipper->SetHWnd( 0, hwnd );    */
+/*       if( ddrval != DD_OK )   */
+/* 	{ */
+/* 	  lpClipper-> Release();    */
+/* 	  lpDDSPrimary->Release(); */
+/* 	  lpDD->Release();      */
+/* 	  return initFail(hwnd, "Couldn't give Clipper window cords."); */
+/* 	} */
 
-      // attach the clipper to the primary surface
-      ddrval = lpDDSPrimary->SetClipper(lpClipper); 
-      if( ddrval != DD_OK )
-	{  
-	  lpClipper-> Release();   
-	  lpDDSPrimary->Release();
-	  lpDD->Release();    
-	  return initFail(hwnd, "Couldn't attach Clipper to primary buffer.");
-	}
+/*       // attach the clipper to the primary surface */
+/*       ddrval = lpDDSPrimary->SetClipper(lpClipper);  */
+/*       if( ddrval != DD_OK ) */
+/* 	{   */
+/* 	  lpClipper-> Release();    */
+/* 	  lpDDSPrimary->Release(); */
+/* 	  lpDD->Release();     */
+/* 	  return initFail(hwnd, "Couldn't attach Clipper to primary buffer."); */
+/* 	} */
     }
   
   if (!windowed)
     {
-      hwnd = CreateWindowEx(0,
-			    NAME,
-			    TITLE,
-			    WS_POPUP ,
-			    //WS_SYSMENU|WS_CAPTION,
-			    0,
-			    0,
-			    640, 480,
-			    //        GetSystemMetrics(SM_CXSCREEN),
-			    //      GetSystemMetrics(SM_CYSCREEN),
-			    NULL,
-			    NULL,
-			    hInstance,
-			    NULL);
-      hWndMain = hwnd;
+/*       hwnd = CreateWindowEx(0, */
+/* 			    NAME, */
+/* 			    TITLE, */
+/* 			    WS_POPUP , */
+/* 			    //WS_SYSMENU|WS_CAPTION, */
+/* 			    0, */
+/* 			    0, */
+/* 			    640, 480, */
+/* 			    //        GetSystemMetrics(SM_CXSCREEN), */
+/* 			    //      GetSystemMetrics(SM_CYSCREEN), */
+/* 			    NULL, */
+/* 			    NULL, */
+/* 			    hInstance, */
+/* 			    NULL); */
+/*       hWndMain = hwnd; */
 		
-      if(!hwnd)
-	return FALSE;
+/*       if(!hwnd) */
+/* 	return FALSE; */
 		
-      ShowWindow(hwnd, nCmdShow);
-      UpdateWindow(hwnd);
-      SetFocus(hwnd);
+/*       ShowWindow(hwnd, nCmdShow); */
+/*       UpdateWindow(hwnd); */
+/*       SetFocus(hwnd); */
       
-      /*
-       * create the main DirectDraw object
-       */
-      ddrval = DirectDrawCreate(NULL, &lpDD, NULL);
-      if( ddrval != DD_OK )
-	return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
+/*       /\* */
+/*        * create the main DirectDraw object */
+/*        *\/ */
+/*       ddrval = DirectDrawCreate(NULL, &lpDD, NULL); */
+/*       if( ddrval != DD_OK ) */
+/* 	return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
       
-      // Get exclusive mode
-      ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN );
+/*       // Get exclusive mode */
+/*       ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN ); */
 
-      if( ddrval != DD_OK )
-	return initFail(hwnd, "SetCooperative level failed.");
+/*       if( ddrval != DD_OK ) */
+/* 	return initFail(hwnd, "SetCooperative level failed."); */
 
-      // Set the video mode to 640x480x8
-      ddrval = lpDD->SetDisplayMode( x, y, 8);
-      // finiObjects();  	
-      //	return false;
+/*       // Set the video mode to 640x480x8 */
+/*       ddrval = lpDD->SetDisplayMode( x, y, 8); */
+/*       // finiObjects();  	 */
+/*       //	return false; */
       
-      if(ddrval != DD_OK)
-	return initFail(hwnd, "640 X 480, 8 bit not supported.");
+/*       if(ddrval != DD_OK) */
+/* 	return initFail(hwnd, "640 X 480, 8 bit not supported."); */
 
-      ZeroMemory(&hm, sizeof(hit_map));
+/*       ZeroMemory(&hm, sizeof(hit_map)); */
 	
-      // Create the primary surface with 1 back buffer
-      ddsd.dwSize = sizeof( ddsd );
-      ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-      ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE |
-	DDSCAPS_FLIP |
-	DDSCAPS_COMPLEX;
+/*       // Create the primary surface with 1 back buffer */
+/*       ddsd.dwSize = sizeof( ddsd ); */
+/*       ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; */
+/*       ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | */
+/* 	DDSCAPS_FLIP | */
+/* 	DDSCAPS_COMPLEX; */
 		
-      ddsd.dwBackBufferCount = 1;
-      ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL);
-      // GFX: not done yet, that's full-screen mode
-      if( ddrval != DD_OK )
-	return initFail(hwnd, "Could not create primary surface.");
+/*       ddsd.dwBackBufferCount = 1; */
+/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL); */
+/*       // GFX: not done yet, that's full-screen mode */
+/*       if( ddrval != DD_OK ) */
+/* 	return initFail(hwnd, "Could not create primary surface."); */
       
-      ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+/*       ddscaps.dwCaps = DDSCAPS_BACKBUFFER; */
 		
-      ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack);
-      // GFX: not done yet, that's full-screen mode
-      if( ddrval != DD_OK )
-	return initFail(hwnd, "Could not create backbuffer,");
+/*       ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack); */
+/*       // GFX: not done yet, that's full-screen mode */
+/*       if( ddrval != DD_OK ) */
+/* 	return initFail(hwnd, "Could not create backbuffer,"); */
       
     }
 
@@ -6043,13 +6053,13 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // Create and set the reference palette
   if (exist("tiles/TS01.bmp"))
     {
-      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+/*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
       // GFX
       load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
     }
   else
     {
-      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+/*       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP"); */
       // GFX
       load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
@@ -6057,12 +6067,12 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   // TODO: setpalette will be called again later
   /* GFX: it will be called by reloading TS01.BMP - this seems
      redundant, maybe we should remove this. */
-  if (lpDDPal)
-    {
-      lpDDSPrimary->SetPalette(lpDDPal);
-    }
-  if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK)
-    Msg("error with getting entries in beginning");
+/*   if (lpDDPal) */
+/*     { */
+/*       lpDDSPrimary->SetPalette(lpDDPal); */
+/*     } */
+/*   if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK) */
+/*     Msg("error with getting entries in beginning"); */
 	
 
   /* Better set the palette when actually loading the BMP - commented
@@ -6094,52 +6104,52 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   /* Initialize graphic buffers */
   if (exist("tiles/splash.bmp"))
     {
-      lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0);
+/*       lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTwo = SDL_LoadBMP("tiles/splash.BMP");
     }
   else
     {
-      lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0);
+/*       lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTwo = SDL_LoadBMP("../dink/tiles/splash.BMP");
     }
 
-  DDSetColorKey(lpDDSTwo, RGB(0,0,0));
+/*   DDSetColorKey(lpDDSTwo, RGB(0,0,0)); */
   // GFX
 //   SDL_SetColorKey (GFX_lpDDSTwo, SDL_SRCCOLORKEY,
 // 		   SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
 
   if (exist("tiles/SPLASH.bmp"))
     {
-      lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+/*       lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTrick = SDL_LoadBMP("tiles/SPLASH.BMP");
     }
   else
     {
-      lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+/*       lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTrick = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
     }
-  DDSetColorKey(lpDDSTrick, RGB(0,0,0));
+/*   DDSetColorKey(lpDDSTrick, RGB(0,0,0)); */
   // GFX
 //   SDL_SetColorKey (GFX_lpDDSTrick, SDL_SRCCOLORKEY,
 // 		   SDL_MapRGB(GFX_lpDDSTrick->format, 0, 0, 0));
 
   if (exist("tiles/SPLASH.bmp"))
     {
-      lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0);
+/*       lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTrick2 = SDL_LoadBMP("tiles/SPLASH.BMP");
     }
   else
     {
-      lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0);
+/*       lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0); */
       // GFX
       GFX_lpDDSTrick2 = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
     }
-  DDSetColorKey(lpDDSTrick2, RGB(0,0,0));
+/*   DDSetColorKey(lpDDSTrick2, RGB(0,0,0)); */
   // GFX
 //   SDL_SetColorKey (GFX_lpDDSTrick2, SDL_SRCCOLORKEY,
 // 		   SDL_MapRGB(GFX_lpDDSTrick2->format, 0, 0, 0));
@@ -6148,20 +6158,20 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   
   if (exist("tiles/TS01.bmp"))
     {
-      lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP");
+/*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
       // GFX
       load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
     }
   else
     {
-      lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP");
+/*       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP"); */
       // GFX
       load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
 
   // Sets the default palette for the screen
-  if (lpDDPal)
-    {
+/*   if (lpDDPal) */
+/*     { */
       // Disabled: already done:
       //lpDDSPrimary->SetPalette(lpDDPal);
 
@@ -6182,15 +6192,15 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
       SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
-    }
+/*     } */
   
   /* Display splash screen */
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = x;
-  rcRect.bottom = y;
-  ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo,
-			      &rcRect, DDBLTFAST_NOCOLORKEY);
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
+/*   rcRect.right = x; */
+/*   rcRect.bottom = y; */
+/*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo, */
+/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
   // GFX
   {
     // Load it again and blit it to achieve palette conversion
@@ -6236,10 +6246,10 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
 
 
   // ** SETUP **
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = 639;
-  rcRect.bottom = 79;
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
+/*   rcRect.right = 639; */
+/*   rcRect.bottom = 79; */
   last_sprite_created = 1;
 	
   mode = 0;
@@ -6264,7 +6274,7 @@ static int doInit(HINSTANCE hInstance, int nCmdShow)
   //lets attach our vars to the scripts
   attach();
 	
-  initfonts("Arial");
+/*   initfonts("Arial"); */
   // FONTS
   // FONTS_initfonts("LiberationSans-Regular.ttf");
   FONTS_initfonts("C:/WINNT/FONTS/Arialbd.ttf");
@@ -6297,9 +6307,7 @@ void getdir(char final[])
 /**
  * Initialization, message loop
  */
-int PASCAL
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine, int nCmdShow)
+int main(int argc, char* argv[])
 {
   /* Where am I installed? */
   getdir(dinkpath);
@@ -6308,16 +6316,16 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     {
       char message[256];
       sprintf(message, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
-      initFail(hWndMain, message);
+      initFail(message);
       return 0;
     }
   
-  /* For DX initialization */
-  MyhInstance = hInstance;
-  /* For doInit() */
-  command_line = lpCmdLine;
+/*   /\* For DX initialization *\/ */
+/*   MyhInstance = hInstance; */
+/*   /\* For doInit() *\/ */
+/*   command_line = lpCmdLine; */
 
-  doInit(hInstance, nCmdShow);
+  doInit(argc, argv);
   
   /* Notify other apps that FreeDink is playing */
   log_path(true);

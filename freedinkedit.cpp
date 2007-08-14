@@ -5975,7 +5975,7 @@ if (!exist(tdir))
 	    }
 	  // Create the offscreen surface, by loading our bitmap.
 	  srand( (unsigned)time( NULL ) );
-	  if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK)
+/* 	  if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK) */
     {
    Msg("error with getting entries in beginning");
     }
@@ -6167,7 +6167,7 @@ spr[i].size = 100;
     mode = MODE_DIALOG;
     cur_tile = 1; 
 	load_info();        
-initfonts("Arial");
+/* initfonts("Arial"); */
   // FONTS
   // FONTS_initfonts("LiberationSans-Regular.ttf");
   FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");

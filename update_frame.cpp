@@ -8,23 +8,22 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
-#include <windows.h>
-#include <ddraw.h>
+/* #include <windows.h> */
+/* #include <ddraw.h> */
 #include "SDL.h"
 
 #include "dinkvar.h"
@@ -40,14 +39,15 @@
 void updateFrame( void )
 {
     byte state[256]; 
-    RECT                rcRect,box_crap,box_real;
+/*     RECT                rcRect,box_crap,box_real; */
+    RECT rcRect; /* for FONTS */
     SDL_Rect GFX_box_crap;
 
-	DDBLTFX     ddbltfx;
+/* 	DDBLTFX     ddbltfx; */
     char msg[100];
 	
-	HDC         hdc;
-    HRESULT             ddrval;
+/* 	HDC         hdc; */
+/*     HRESULT             ddrval; */
 	int sz = 0;
     int move_result ;
 	int sy = 0;
@@ -261,42 +261,42 @@ demon:
 		max_s = max_sprites_at_once;
 	}
 	
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = x;
-    rcRect.bottom = y;
+/*     rcRect.left = 0; */
+/*     rcRect.top = 0; */
+/*     rcRect.right = x; */
+/*     rcRect.bottom = y; */
 	
 	{
 		
 		
 		//Blit from Two, which holds the base scene.
-		while( 1 )
-		{
-			ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-				&rcRect, DDBLTFAST_NOCOLORKEY);
+/* 		while( 1 ) */
+/* 		{ */
+/* 			ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
+/* 				&rcRect, DDBLTFAST_NOCOLORKEY); */
 			// GFX
 			SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 			
-			if( ddrval == DD_OK )
-			{
-				break;
-			}
-			if( ddrval == DDERR_SURFACELOST )
-			{
-				ddrval = restoreAll();
-				if( ddrval != DD_OK )
-				{
-					//    return;
-				}
+/* 			if( ddrval == DD_OK ) */
+/* 			{ */
+/* 				break; */
+/* 			} */
+/* 			if( ddrval == DDERR_SURFACELOST ) */
+/* 			{ */
+/* 				ddrval = restoreAll(); */
+/* 				if( ddrval != DD_OK ) */
+/* 				{ */
+/* 					//    return; */
+/* 				} */
 				
-				goto demon;
-			}
-			if( ddrval != DDERR_WASSTILLDRAWING )
-			{
-				dderror(ddrval);
-				return;
-			}
-		}
+/* 				goto demon; */
+/* 			} */
+/* 			if( ddrval != DDERR_WASSTILLDRAWING ) */
+/* 			{ */
+/* 				dderror(ddrval); */
+/* 				return; */
+/* 			} */
+/* 		} */
 		
 	}
 	
@@ -340,7 +340,7 @@ demon:
 				
 				spr[h].skiptimer++;
 				//inc delay, used by "skip" by all sprites
-				box_crap = k[getpic(h)].box;
+/* 				box_crap = k[getpic(h)].box; */
 				if (spr[h].kill > 0)
 				{
 					if (spr[h].kill_timer == 0) spr[h].kill_timer = thisTickCount;
@@ -640,12 +640,12 @@ past:
 				{
 					
 					
-					ddbltfx.dwSize = sizeof(ddbltfx);
+/* 					ddbltfx.dwSize = sizeof(ddbltfx); */
 					if (drawthistime)
 					{	
-						ddbltfx.dwFillColor = 1;
+/* 						ddbltfx.dwFillColor = 1; */
 						
-						box_crap = k[getpic(h)].hardbox;
+/* 						box_crap = k[getpic(h)].hardbox; */
 						//box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
 						//box_crap.left = spr[h].x + k[spr[h].pic].hardbox.left;
 						//box_crap.right = spr[h].x + k[spr[h].pic].hardbox.right;
@@ -656,55 +656,55 @@ past:
 						
 						
 						//to show center pixel
-						ddbltfx.dwFillColor = 100;
+/* 						ddbltfx.dwFillColor = 100; */
 						
-						box_crap.top = spr[h].y;
-						box_crap.bottom = spr[h].y+1;
-						box_crap.left = spr[h].x ;
-						box_crap.right = spr[h].x + 1;
+/* 						box_crap.top = spr[h].y; */
+/* 						box_crap.bottom = spr[h].y+1; */
+/* 						box_crap.left = spr[h].x ; */
+/* 						box_crap.right = spr[h].x + 1; */
 						// GFX
 						GFX_box_crap.x = spr[h].x;
 						GFX_box_crap.y = spr[h].y;
 						GFX_box_crap.w = 1;
 						GFX_box_crap.h = 1;
 						
-						ddrval = lpDDSBack->Blt(&box_crap ,NULL, &box_real, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, &box_real, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 						// GFX
 						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 100);
 
 						
 						for (int oo=0; oo <  spr[h].moveman+1; oo++)
 						{
-							ddbltfx.dwFillColor = 50;
+/* 							ddbltfx.dwFillColor = 50; */
 							
-							box_crap.top = spr[h].lpy[oo];
-							box_crap.bottom = box_crap.top+1;
-							box_crap.left = spr[h].lpx[oo];
-							box_crap.right = box_crap.left+1;
+/* 							box_crap.top = spr[h].lpy[oo]; */
+/* 							box_crap.bottom = box_crap.top+1; */
+/* 							box_crap.left = spr[h].lpx[oo]; */
+/* 							box_crap.right = box_crap.left+1; */
 							// GFX
 							GFX_box_crap.x = spr[h].lpx[oo];
 							GFX_box_crap.y = spr[h].lpy[oo];
 							GFX_box_crap.w = 1;
 							GFX_box_crap.h = 1;
 							
-							ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+/* 							ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
 							// GFX
 							SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 50);
 							
 						}
-						ddbltfx.dwFillColor = 1;
+/* 						ddbltfx.dwFillColor = 1; */
 						
-						box_crap.top = spr[h].lpy[0];
-						box_crap.bottom = box_crap.top+1;
-						box_crap.left = spr[h].lpx[0];
-						box_crap.right = box_crap.left+1;
+/* 						box_crap.top = spr[h].lpy[0]; */
+/* 						box_crap.bottom = box_crap.top+1; */
+/* 						box_crap.left = spr[h].lpx[0]; */
+/* 						box_crap.right = box_crap.left+1; */
 						// GFX
 						GFX_box_crap.x = spr[h].lpx[0];
 						GFX_box_crap.y = spr[h].lpy[0];
 						GFX_box_crap.w = 1;
 						GFX_box_crap.h = 1;
 						
-						ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+/* 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
 						// GFX
 						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 1);
 						
@@ -824,19 +824,20 @@ past:
 	
 	if (get_frame)
 	{
-		RECT rcRect1;
+/* 		RECT rcRect1; */
 		
 		total_trigger = true;
 		get_frame = false;
-		rcRect1.left = playl;
-		rcRect1.top = 0;
-		rcRect1.right = 620;
-		rcRect1.bottom = 400;
+/* 		rcRect1.left = playl; */
+/* 		rcRect1.top = 0; */
+/* 		rcRect1.right = 620; */
+/* 		rcRect1.bottom = 400; */
 		if (no_transition) return;
 		//return;
 		
-		ddrval = lpDDSTrick2->BltFast( 0, 0, lpDDSBack,
-			&rcRect1, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/* 		ddrval = lpDDSTrick2->BltFast( 0, 0, lpDDSBack, */
+/* 			&rcRect1, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  SDL_Rect src, dst;
@@ -847,7 +848,6 @@ past:
 		  dst.x = dst.y = 0;
 		  SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTrick2, &dst);
 		}
-		if (ddrval != DD_OK) dderror(ddrval);
 		
 		return;
 	}
@@ -863,14 +863,14 @@ past:
 	
 	
 	
-	if (lpDDSBack->GetDC(&hdc) == DD_OK)
-	{      
+/* 	if (lpDDSBack->GetDC(&hdc) == DD_OK) */
+/* 	{       */
 		
 		if (debug_mode)
 		{
 			
 			
-			SetBkMode(hdc, OPAQUE);
+/* 			SetBkMode(hdc, OPAQUE); */
 			//		TextOut(hdc,0,0, msg,lstrlen(msg));
 			if (mode == 0) strcpy(msg,"");		
 			if (mode == 1) 
@@ -901,10 +901,10 @@ past:
 			rcRect.top = 0;
 			rcRect.right = playx;
 			rcRect.bottom = playy;
-			SetTextColor(hdc, RGB(200,200,200));
+/* 			SetTextColor(hdc, RGB(200,200,200)); */
 			// FONTS
 			FONTS_SetTextColor(200, 200, 200);
-			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+/* 			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 			// FONTS
 			/* TODO: write with OPAQUE / Shaded mode */
 			print_text_wrap(msg, &rcRect, 0, 0);
@@ -918,20 +918,20 @@ past:
 							rcRect.top = 20;
 							rcRect.right = playx;
 							rcRect.bottom = playy;
-							SetTextColor(hdc, RGB(200,200,200));
+/* 							SetTextColor(hdc, RGB(200,200,200)); */
 							// FONTS
 							FONTS_SetTextColor(200, 200, 200);
-							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+/* 							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 							// FONTS
 							print_text_wrap(msg, &rcRect, 0, 0);
 								}
 
 
 		}
-		SelectObject (hdc, hfont_small);
+/* 		SelectObject (hdc, hfont_small); */
 		// FONTS
 		FONTS_SetFont(FONTS_hfont_small);
-		SetBkMode(hdc, TRANSPARENT); 
+/* 		SetBkMode(hdc, TRANSPARENT);  */
 		
 		
 		
@@ -945,14 +945,15 @@ past:
 					if (spr[h].brain == 8) 
 					{
 						//Msg("Drawing text %d..", h);
-						text_draw(h,hdc);
+/*  						text_draw(h,hdc); */
+ 						text_draw(h);
 					}
 					
                 }
-        }
+/*         } */
         
         
-        lpDDSBack->ReleaseDC(hdc);
+/*         lpDDSBack->ReleaseDC(hdc); */
         
     }
     

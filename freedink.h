@@ -7,18 +7,17 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -30,7 +29,7 @@
 #ifndef _FREEDINK_H
 #define _FREEDINK_H
 
-#include <windows.h>
+/* #include <windows.h> */
 
 extern void CyclePalette();
 extern void Scrawl_OnMouseInput(void);
@@ -45,7 +44,7 @@ extern void flip_it(void);
 extern void get_last_sprite(void);
 extern void human_brain(int h);
 extern bool in_this_base(int seq, int base);
-extern int initFail(HWND hwnd, char mess[200]);
+extern int initFail(char mess[200]);
 extern void missile_brain( int h, bool repeat);
 extern void missile_brain_expire(int h);
 extern void mouse_brain(int h);
@@ -61,7 +60,8 @@ extern void people_brain(int h);
 extern void pig_brain(int h);
 extern void pill_brain(int h);
 extern void repeat_brain(int h);
-extern HRESULT restoreAll( void );
+/* extern HRESULT restoreAll( void ); */
+void restoreAll(void); 
 extern void run_through_tag_list(int h, int strength);
 extern bool run_through_tag_list_talk(int h);
 extern void run_through_touch_damage_list(int h);
@@ -69,7 +69,8 @@ extern void scale_brain(int h);
 extern void shadow_brain(int h);
 extern int special_block(int block, int h);
 extern void text_brain(int h);
-extern void text_draw(int h, HDC hdc);
+/* extern void text_draw(int h, HDC hdc); */
+extern void text_draw(int h);
 extern bool transition(void);
 extern void up_cycle(void);
 extern void finiObjects();

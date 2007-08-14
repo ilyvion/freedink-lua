@@ -36,13 +36,17 @@ Port the game from DirectX to SDL
   - WAV (Half-done: SDL_Mixer, but we lack pitch shift and volume unit
     conversion)
 - Input
+  - Keyboard (Half-done: keycodes are different now)
+  - Mouse (Half-done: only work in absolute mode, not relative, so
+    keyboard can't control mouse)
 - Graphics
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
     limitations)
   - Bitmaps (In progress: backgrounds OK, sprites Game=OK Editor=OK)
   - Scaling (Done: SDL_gfx/rotozoom)
-  - Fonts (In progress: SDL_ttf installed, but the font doesn't render the same)
+  - Fonts (In progress: SDL_ttf installed, but the font doesn't render
+    the same; fonts should not use the current screen's palette)
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting?
 

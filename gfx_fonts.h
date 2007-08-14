@@ -30,7 +30,7 @@
 
 #include "SDL_ttf.h"
 
-extern HFONT hfont_small;
+/* extern HFONT hfont_small; */
 extern TTF_Font *FONTS_hfont_small;
 
 struct rect
@@ -43,7 +43,7 @@ extern void FONTS_initfonts(char* fontname);
 /* 			    /\*bool*\/int hcenter, /\*bool*\/int vcenter); */
 extern int print_text_wrap (char *str, RECT * box,
 			    /*bool*/int hcenter, /*bool*/int vcenter);
-extern void initfonts(char fontname[255]);
+/* extern void initfonts(char fontname[255]); */
 extern void kill_fonts(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
 extern void FONTS_SetFont(TTF_Font *font);

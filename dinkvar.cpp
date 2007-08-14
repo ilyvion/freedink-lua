@@ -9,18 +9,17 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __DEMO
@@ -341,11 +340,11 @@ player_info play;
 
 
 
-LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces
+/* LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces */
 
 sp spr[max_sprites_at_once]; //max sprite control systems at once
-LPDIRECTDRAWPALETTE     lpDDPal = NULL;        // The primary surface palette
-PALETTEENTRY    pe[256];
+/* LPDIRECTDRAWPALETTE     lpDDPal = NULL;        // The primary surface palette */
+/* PALETTEENTRY    pe[256]; */
 
 int bActive = false;        // is application active/foreground?
 //LPDIRECTINPUT lpDI;
@@ -353,11 +352,11 @@ int bActive = false;        // is application active/foreground?
 
 //direct input stuff for mouse reading
 
-LPDIRECTINPUT          g_pdi = NULL;
-LPDIRECTINPUTDEVICE    g_pMouse = NULL;
-#define DINPUT_BUFFERSIZE           16
+/* LPDIRECTINPUT          g_pdi = NULL; */
+/* LPDIRECTINPUTDEVICE    g_pMouse = NULL; */
+/* #define DINPUT_BUFFERSIZE           16 */
 
-HANDLE                 g_hevtMouse = NULL;
+/* HANDLE                 g_hevtMouse = NULL; */
 
 
 //LPCDIDATAFORMAT lpc;
@@ -804,80 +803,80 @@ BOOL init_mouse(HWND hwnd)
   /* Disabled, switching to SDL */
   return 1;
 
-    if (g_pdi)
-        {
-          Msg("Mouse already initted? what the?");
-          return true;
-        }
+/*     if (g_pdi) */
+/*         { */
+/*           Msg("Mouse already initted? what the?"); */
+/*           return true; */
+/*         } */
         
-        HRESULT hr;
+/*         HRESULT hr; */
         
-    /*
-        *  Register with DirectInput and get an IDirectInput to play with.
-        */
-    hr = DirectInputCreate(MyhInstance, DIRECTINPUT_VERSION, &g_pdi, NULL);
+/*     /\* */
+/*         *  Register with DirectInput and get an IDirectInput to play with. */
+/*         *\/ */
+/*     hr = DirectInputCreate(MyhInstance, DIRECTINPUT_VERSION, &g_pdi, NULL); */
         
-    if (FAILED(hr)) {
-        Msg( "DirectInputCreate");
-        return FALSE;
-    }
+/*     if (FAILED(hr)) { */
+/*         Msg( "DirectInputCreate"); */
+/*         return FALSE; */
+/*     } */
         
-    /*
-        *  Obtain an interface to the system mouse device.
-        */
-    hr = g_pdi->CreateDevice(GUID_SysMouse, &g_pMouse, NULL);
+/*     /\* */
+/*         *  Obtain an interface to the system mouse device. */
+/*         *\/ */
+/*     hr = g_pdi->CreateDevice(GUID_SysMouse, &g_pMouse, NULL); */
         
-    if (FAILED(hr)) {
-        Msg("CreateDevice(SysMouse)");
-        return FALSE;
-    }
+/*     if (FAILED(hr)) { */
+/*         Msg("CreateDevice(SysMouse)"); */
+/*         return FALSE; */
+/*     } */
         
-    /*
-        *  Set the data format to "mouse format".
-        */
-    hr = g_pMouse->SetDataFormat(&c_dfDIMouse);
+/*     /\* */
+/*         *  Set the data format to "mouse format". */
+/*         *\/ */
+/*     hr = g_pMouse->SetDataFormat(&c_dfDIMouse); */
         
-    if (FAILED(hr)) {
-                Msg("SetDataFormat(SysMouse, dfDIMouse)");
-        return FALSE;
-    }
+/*     if (FAILED(hr)) { */
+/*                 Msg("SetDataFormat(SysMouse, dfDIMouse)"); */
+/*         return FALSE; */
+/*     } */
         
-    /*
-        *  Set the cooperativity level.
-        */
-    hr = g_pMouse->SetCooperativeLevel(hwnd,
-                DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+/*     /\* */
+/*         *  Set the cooperativity level. */
+/*         *\/ */
+/*     hr = g_pMouse->SetCooperativeLevel(hwnd, */
+/*                 DISCL_EXCLUSIVE | DISCL_FOREGROUND); */
         
-    if (FAILED(hr)) {
-                Msg( "Error: SetCooperativeLevel(SysMouse)");
-        return FALSE;
-    }
+/*     if (FAILED(hr)) { */
+/*                 Msg( "Error: SetCooperativeLevel(SysMouse)"); */
+/*         return FALSE; */
+/*     } */
         
-    /*
-        *  Set the buffer size to DINPUT_BUFFERSIZE elements.
-        *  The buffer size is a DWORD property associated with the device.
-        */
-    DIPROPDWORD dipdw =
-        {
-                {
-                        sizeof(DIPROPDWORD),        // diph.dwSize
-                sizeof(DIPROPHEADER),       // diph.dwHeaderSize
-                0,                          // diph.dwObj
-                DIPH_DEVICE,                // diph.dwHow
-                },
-                DINPUT_BUFFERSIZE,              // dwData
-        };
+/*     /\* */
+/*         *  Set the buffer size to DINPUT_BUFFERSIZE elements. */
+/*         *  The buffer size is a DWORD property associated with the device. */
+/*         *\/ */
+/*     DIPROPDWORD dipdw = */
+/*         { */
+/*                 { */
+/*                         sizeof(DIPROPDWORD),        // diph.dwSize */
+/*                 sizeof(DIPROPHEADER),       // diph.dwHeaderSize */
+/*                 0,                          // diph.dwObj */
+/*                 DIPH_DEVICE,                // diph.dwHow */
+/*                 }, */
+/*                 DINPUT_BUFFERSIZE,              // dwData */
+/*         }; */
         
-    hr = g_pMouse->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph);
+/*     hr = g_pMouse->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph); */
         
-    if (FAILED(hr)) {
-                Msg( "Set buffer size(SysMouse)");
-        return FALSE;
-    }
+/*     if (FAILED(hr)) { */
+/*                 Msg( "Set buffer size(SysMouse)"); */
+/*         return FALSE; */
+/*     } */
         
     
         
-        return TRUE;
+/*         return TRUE; */
         
 }
 
@@ -959,58 +958,58 @@ void TRACE( LPSTR fmt, ... )
    szBitmap, and we define the .box sprite attribute with the
    dimentions of the picture */
 /* Used in load_sprites() and in freedinkedit.cpp */
-extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
-{
-        HBITMAP             hbm;
-        BITMAP              bm;
-        DDSURFACEDESC       ddsd;
-        IDirectDrawSurface *pdds;
+/* extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */
+/* { */
+/*         HBITMAP             hbm; */
+/*         BITMAP              bm; */
+/*         DDSURFACEDESC       ddsd; */
+/*         IDirectDrawSurface *pdds; */
         
-        //
-        //  try to load the bitmap as a resource, if that fails, try it as a file
-        //
-        hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION);
+/*         // */
+/*         //  try to load the bitmap as a resource, if that fails, try it as a file */
+/*         // */
+/*         hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION); */
         
-        if (hbm == NULL)
-                hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION);
+/*         if (hbm == NULL) */
+/*                 hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION); */
         
-        if (hbm == NULL)
-                return NULL;
+/*         if (hbm == NULL) */
+/*                 return NULL; */
         
-        //
-        // get size of the bitmap
-        //
-        GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap
+/*         // */
+/*         // get size of the bitmap */
+/*         // */
+/*         GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap */
         
-        //
-        // create a DirectDrawSurface for this bitmap
-        //
-        ZeroMemory(&ddsd, sizeof(ddsd));
-        ddsd.dwSize = sizeof(ddsd);
-        ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-        ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-        ddsd.dwWidth = bm.bmWidth;
-        ddsd.dwHeight = bm.bmHeight;
+/*         // */
+/*         // create a DirectDrawSurface for this bitmap */
+/*         // */
+/*         ZeroMemory(&ddsd, sizeof(ddsd)); */
+/*         ddsd.dwSize = sizeof(ddsd); */
+/*         ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
+/*         ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
+/*         ddsd.dwWidth = bm.bmWidth; */
+/*         ddsd.dwHeight = bm.bmHeight; */
         
-        if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK)
-                return NULL;
+/*         if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK) */
+/*                 return NULL; */
         
-        DDCopyBitmap(pdds, hbm, 0, 0, 0, 0);
+/*         DDCopyBitmap(pdds, hbm, 0, 0, 0, 0); */
         
-        DeleteObject(hbm);
-        if (sprite > 0)
-        {
-                k[sprite].box.top = 0;
-                k[sprite].box.left = 0;
-                k[sprite].box.right = ddsd.dwWidth;
-                k[sprite].box.bottom = ddsd.dwHeight;
+/*         DeleteObject(hbm); */
+/*         if (sprite > 0) */
+/*         { */
+/*                 k[sprite].box.top = 0; */
+/*                 k[sprite].box.left = 0; */
+/*                 k[sprite].box.right = ddsd.dwWidth; */
+/*                 k[sprite].box.bottom = ddsd.dwHeight; */
                 
-        }
+/*         } */
         
         
         
-        return pdds;
-}
+/*         return pdds; */
+/* } */
 
 
 bool exist(char name[255])
@@ -1277,14 +1276,14 @@ void drawallhard( void)
       {
 	if (hm.x[x1].y[y1] == 1) 
 	  {
-	    ddbltfx.dwFillColor = 1;
-	    ddbltfx.dwSize = sizeof(ddbltfx);
-	    box_crap.top = y1;
-	    box_crap.bottom = y1+1;
-	    box_crap.left = x1+playl; //20 is to compensate for the border
-	    box_crap.right = x1+1+playl;
-	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-	    if (ddrval != DD_OK) Msg("There was an error!");
+/* 	    ddbltfx.dwFillColor = 1; */
+/* 	    ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 	    box_crap.top = y1; */
+/* 	    box_crap.bottom = y1+1; */
+/* 	    box_crap.left = x1+playl; //20 is to compensate for the border */
+/* 	    box_crap.right = x1+1+playl; */
+/* 	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
+/* 	    if (ddrval != DD_OK) Msg("There was an error!"); */
 	    // GFX
 	    {
 	      SDL_Rect GFX_box_crap;
@@ -1298,14 +1297,14 @@ void drawallhard( void)
 	
 	if (hm.x[x1].y[y1] == 2) 
 	  {
-	    ddbltfx.dwFillColor = 128;
-	    ddbltfx.dwSize = sizeof(ddbltfx);
-	    box_crap.top = y1;
-	    box_crap.bottom = y1+1;
-	    box_crap.left = x1+playl; //20 is to compensate for the border
-	    box_crap.right = x1+1+playl;
-	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-	    if (ddrval != DD_OK) Msg("There was an error!");
+/* 	    ddbltfx.dwFillColor = 128; */
+/* 	    ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 	    box_crap.top = y1; */
+/* 	    box_crap.bottom = y1+1; */
+/* 	    box_crap.left = x1+playl; //20 is to compensate for the border */
+/* 	    box_crap.right = x1+1+playl; */
+/* 	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
+/* 	    if (ddrval != DD_OK) Msg("There was an error!"); */
 	    // GFX
 	    {
 	      SDL_Rect GFX_box_crap;
@@ -1319,14 +1318,14 @@ void drawallhard( void)
 	
 	if (hm.x[x1].y[y1] == 3) 
 	  {
-	    ddbltfx.dwFillColor = 45;
-	    ddbltfx.dwSize = sizeof(ddbltfx);
-	    box_crap.top = y1;
-	    box_crap.bottom = y1+1;
-	    box_crap.left = x1+playl; //20 is to compensate for the border
-	    box_crap.right = x1+1+playl;
-	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-	    if (ddrval != DD_OK) Msg("There was an error!");
+/* 	    ddbltfx.dwFillColor = 45; */
+/* 	    ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 	    box_crap.top = y1; */
+/* 	    box_crap.bottom = y1+1; */
+/* 	    box_crap.left = x1+playl; //20 is to compensate for the border */
+/* 	    box_crap.right = x1+1+playl; */
+/* 	    ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
+/* 	    if (ddrval != DD_OK) Msg("There was an error!"); */
 	    // GFX
 	    {
 	      SDL_Rect GFX_box_crap;
@@ -1344,14 +1343,14 @@ void drawallhard( void)
 	    if (pam.sprite[  (hm.x[x1].y[y1]) - 100].prop == 1)
 	      {
 		//draw a little pixel
-		ddbltfx.dwFillColor = 20;
-		ddbltfx.dwSize = sizeof(ddbltfx);
-		box_crap.top = y1;
-		box_crap.bottom = y1+1;
-		box_crap.left = x1+playl; //20 is to compensate for the border
-		box_crap.right = x1+1+playl;
-		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-		if (ddrval != DD_OK) Msg("There was an error!");
+/* 		ddbltfx.dwFillColor = 20; */
+/* 		ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 		box_crap.top = y1; */
+/* 		box_crap.bottom = y1+1; */
+/* 		box_crap.left = x1+playl; //20 is to compensate for the border */
+/* 		box_crap.right = x1+1+playl; */
+/* 		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
+/* 		if (ddrval != DD_OK) Msg("There was an error!"); */
 		// GFX
 		{
 		  SDL_Rect GFX_box_crap;
@@ -1365,14 +1364,14 @@ void drawallhard( void)
 	    else
 	      {
 		//draw a little pixel
-		ddbltfx.dwFillColor = 23;
-		ddbltfx.dwSize = sizeof(ddbltfx);
-		box_crap.top = y1;
-		box_crap.bottom = y1+1;
-		box_crap.left = x1+playl; //20 is to compensate for the border
-		box_crap.right = x1+1+playl;
-		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-		if (ddrval != DD_OK) Msg("There was an error!");
+/* 		ddbltfx.dwFillColor = 23; */
+/* 		ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 		box_crap.top = y1; */
+/* 		box_crap.bottom = y1+1; */
+/* 		box_crap.left = x1+playl; //20 is to compensate for the border */
+/* 		box_crap.right = x1+1+playl; */
+/* 		ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
+/* 		if (ddrval != DD_OK) Msg("There was an error!"); */
 		// GFX
 		{
 		  SDL_Rect GFX_box_crap;
@@ -2051,6 +2050,7 @@ void load_hard(void)
                                 
 }
 
+/* TODO: test me! */
 void draw_wait()
 {
     
@@ -2059,8 +2059,8 @@ void draw_wait()
                 
                 if (please_wait)
                 {
-                        ddrval = lpDDSPrimary->BltFast(232, 0, k[seq[423].frame[7]].k,
-                                &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
+/*                         ddrval = lpDDSPrimary->BltFast(232, 0, k[seq[423].frame[7]].k, */
+/*                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY); */
 			// GFX
 			{
 			  SDL_Rect dst = {232, 0};
@@ -2069,8 +2069,8 @@ void draw_wait()
                         please_wait = false;
                 } else
                 {
-                        ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k,
-                                &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY);
+/*                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k, */
+/*                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY); */
 			// GFX
 			{
 			  SDL_Rect dst = {232, 0};
@@ -2093,12 +2093,12 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
   int work;
 
   HFASTFILE                  pfile;
-  BITMAPFILEHEADER UNALIGNED *pbf;
-  BITMAPINFOHEADER UNALIGNED *pbi;
-  DDSURFACEDESC       ddsd;
-  BITMAP              bm;
+/*   BITMAPFILEHEADER UNALIGNED *pbf; */
+/*   BITMAPINFOHEADER UNALIGNED *pbi; */
+/*   DDSURFACEDESC       ddsd; */
+/*   BITMAP              bm; */
 
-  DDCOLORKEY          ddck;
+/*   DDCOLORKEY          ddck; */
 
   int x,y,dib_pitch;
   BYTE *src, *dst;
@@ -2185,128 +2185,129 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	  //if (reload) Msg("Ok, tacking %d back on.", save_cur);
 	  cur_sprite = save_cur;
 	  return;
-	} else
+	}
+      else
 	{
 	  //got file
-	  pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0);
-	  pbi = (BITMAPINFOHEADER *)(pbf+1);
+/* 	  pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0); */
+/* 	  pbi = (BITMAPINFOHEADER *)(pbf+1); */
 
-	  if (pbf->bfType != 0x4d42 ||
-	      pbi->biSize != sizeof(BITMAPINFOHEADER))
-	    {
-	      Msg("Failed to load");
-	      Msg(crap);
-	      cur_sprite = save_cur;
-	      FastFileClose( pfile );
-	      //   FastFileFini();
+/* 	  if (pbf->bfType != 0x4d42 || */
+/* 	      pbi->biSize != sizeof(BITMAPINFOHEADER)) */
+/* 	    { */
+/* 	      Msg("Failed to load"); */
+/* 	      Msg(crap); */
+/* 	      cur_sprite = save_cur; */
+/* 	      FastFileClose( pfile ); */
+/* 	      //   FastFileFini(); */
 
-	      return;
-	    }
+/* 	      return; */
+/* 	    } */
 
-	  byte *pic;
+/* 	  byte *pic; */
 
-	  pic = (byte *)pbf + 1078;
+/* 	  pic = (byte *)pbf + 1078; */
 
 	  //Msg("Pic's size is now %d.",sizeof(pic));
 
-	  bm.bmWidth = pbi->biWidth;
-	  bm.bmHeight = pbi->biHeight;
- 	  bm.bmWidthBytes = 32;
-	  bm.bmPlanes = pbi->biPlanes;
-	  bm.bmBitsPixel = pbi->biBitCount;
-	  bm.bmBits = pic;
+/* 	  bm.bmWidth = pbi->biWidth; */
+/* 	  bm.bmHeight = pbi->biHeight; */
+/*  	  bm.bmWidthBytes = 32; */
+/* 	  bm.bmPlanes = pbi->biPlanes; */
+/* 	  bm.bmBitsPixel = pbi->biBitCount; */
+/* 	  bm.bmBits = pic; */
 
 	  //
 	  // create a DirectDrawSurface for this bitmap
 	  //
-	  ZeroMemory(&ddsd, sizeof(ddsd));
-	  ddsd.dwSize = sizeof(ddsd);
-	  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-	  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-	  ddsd.dwWidth = pbi->biWidth;
-	  ddsd.dwHeight = pbi->biHeight;
+/* 	  ZeroMemory(&ddsd, sizeof(ddsd)); */
+/* 	  ddsd.dwSize = sizeof(ddsd); */
+/* 	  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
+/* 	  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
+/* 	  ddsd.dwWidth = pbi->biWidth; */
+/* 	  ddsd.dwHeight = pbi->biHeight; */
 
-	  if (k[sprite].k != NULL)
+	  if (GFX_k[sprite].k != NULL)
 	    {
-	      k[sprite].k->Release();
+/* 	      k[sprite].k->Release(); */
 	      SDL_FreeSurface(GFX_k[sprite].k);
 	    }
 
-	  if (lpDD->CreateSurface(&ddsd, &k[sprite].k, NULL) != DD_OK)
-	    {
-	      Msg("Failed to create pdd surface description");
-	    }
-	  else
-	    {
-	      ddsd.dwSize = sizeof(ddsd);
-	      ddrval = IDirectDrawSurface_Lock(k[sprite].k, NULL, &ddsd, DDLOCK_WAIT, NULL);
+/* 	  if (lpDD->CreateSurface(&ddsd, &k[sprite].k, NULL) != DD_OK) */
+/* 	    { */
+/* 	      Msg("Failed to create pdd surface description"); */
+/* 	    } */
+/* 	  else */
+/* 	    { */
+/* 	      ddsd.dwSize = sizeof(ddsd); */
+/* 	      ddrval = IDirectDrawSurface_Lock(k[sprite].k, NULL, &ddsd, DDLOCK_WAIT, NULL); */
 
-	      if( ddrval == DD_OK )
-		{
-		  dib_pitch = (pbi->biWidth+3)&~3;
-		  src = (BYTE *)pic + dib_pitch * (pbi->biHeight-1);
-		  dst = (BYTE *)ddsd.lpSurface;
-		  if (leftalign)
-		    {
-		      //Msg("left aligning..");
+/* 	      if( ddrval == DD_OK ) */
+/* 		{ */
+/* 		  dib_pitch = (pbi->biWidth+3)&~3; */
+/* 		  src = (BYTE *)pic + dib_pitch * (pbi->biHeight-1); */
+/* 		  dst = (BYTE *)ddsd.lpSurface; */
+/* 		  if (leftalign) */
+/* 		    { */
+/* 		      //Msg("left aligning.."); */
 
-		      for( y=0; y<(int)pbi->biHeight; y++ )
-			{
-			  for( x=0; x<(int)pbi->biWidth; x++ )
-			    {
-			      dst[x] = src[x];
-			      if (dst[x] == 0)
-				{
-				  // Msg("Found a 255...");
-				  dst[x] = 30;
-				} else
-				if (dst[x] == 255)
-				  {
-				    dst[x] = 249;
-				  }
-			    }
-			  dst += ddsd.lPitch;
-			  src -= dib_pitch;
-			}
-		    }
-		  else if (black)
-		    {
-		      for( y=0; y<(int)pbi->biHeight; y++ )
-			{
-			  for( x=0; x<(int)pbi->biWidth; x++ )
-			    {
-			      dst[x] = src[x];
+/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
+/* 			{ */
+/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
+/* 			    { */
+/* 			      dst[x] = src[x]; */
+/* 			      if (dst[x] == 0) */
+/* 				{ */
+/* 				  // Msg("Found a 255..."); */
+/* 				  dst[x] = 30; */
+/* 				} else */
+/* 				if (dst[x] == 255) */
+/* 				  { */
+/* 				    dst[x] = 249; */
+/* 				  } */
+/* 			    } */
+/* 			  dst += ddsd.lPitch; */
+/* 			  src -= dib_pitch; */
+/* 			} */
+/* 		    } */
+/* 		  else if (black) */
+/* 		    { */
+/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
+/* 			{ */
+/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
+/* 			    { */
+/* 			      dst[x] = src[x]; */
 			      
-			      if (dst[x] == 0)
-				{
-				  dst[x] = 30;
-				}
-			    }
-			  dst += ddsd.lPitch;
-			  src -= dib_pitch;
-			}
-		    }
-		  else
-		    {
-		      //doing white
-		      for( y=0; y<(int)pbi->biHeight; y++ )
-			{
-			  for( x=0; x<(int)pbi->biWidth; x++ )
-			    {
-			      dst[x] = src[x];
+/* 			      if (dst[x] == 0) */
+/* 				{ */
+/* 				  dst[x] = 30; */
+/* 				} */
+/* 			    } */
+/* 			  dst += ddsd.lPitch; */
+/* 			  src -= dib_pitch; */
+/* 			} */
+/* 		    } */
+/* 		  else */
+/* 		    { */
+/* 		      //doing white */
+/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
+/* 			{ */
+/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
+/* 			    { */
+/* 			      dst[x] = src[x]; */
 			      
-			      if (dst[x] == 255)
-				{
-				  // Msg("Found a 255...");
-				  dst[x] = 249;
-				}
-			    }
-			  dst += ddsd.lPitch;
-			  src -= dib_pitch;
-			}
-		    }
+/* 			      if (dst[x] == 255) */
+/* 				{ */
+/* 				  // Msg("Found a 255..."); */
+/* 				  dst[x] = 249; */
+/* 				} */
+/* 			    } */
+/* 			  dst += ddsd.lPitch; */
+/* 			  src -= dib_pitch; */
+/* 			} */
+/* 		    } */
 		  
-		  IDirectDrawSurface_Unlock(k[sprite].k, NULL);
+/* 		  IDirectDrawSurface_Unlock(k[sprite].k, NULL); */
 
 
 		  // GFX
@@ -2341,20 +2342,20 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 			 '255' index for efficiency */
 		      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
 				      SDL_MapRGB(GFX_k[sprite].k->format, 255, 255, 255));
-		  }
-		}
-	      else
-		{
-		  Msg("Lock failed err=%d", ddrval);
-		  //return;
-		}
+/* 		  } */
+/* 		} */
+/* 	      else */
+/* 		{ */
+/* 		  Msg("Lock failed err=%d", ddrval); */
+/* 		  //return; */
+/* 		} */
 
 	      if (sprite > 0)
 		{
 		  k[sprite].box.top = 0;
 		  k[sprite].box.left = 0;
-		  k[sprite].box.right = ddsd.dwWidth;
-		  k[sprite].box.bottom =ddsd.dwHeight;
+		  k[sprite].box.right = GFX_k[sprite].k->w;
+		  k[sprite].box.bottom = GFX_k[sprite].k->h;
 
 		  if ( (oo > 1) & (notanim) )
 		    {
@@ -2414,16 +2415,16 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 		  
 		  if (black)
 		    {
-		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255));
+/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255)); */
 		      
-		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
-		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
+/* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
+/* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 		    }
 		  else
 		    {
-		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0));
-		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue;
-		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck);
+/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0)); */
+/* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
+/* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 		    }
 		  cur_sprite++;
 		  if (!reload)
@@ -2446,7 +2447,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 		  RECT hardbox, bool notanim, bool black, bool leftalign)
 {
   int work;
-  PALETTEENTRY holdpal[256];
+/*   PALETTEENTRY holdpal[256]; */
   char crap[200],hold[5];
 
   if (no_running_main) draw_wait();
@@ -2492,11 +2493,11 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
   /* Possibly used to temporarily use the reference palette even if
      the screen palette was changed. */
-  if (!windowed)
-    {
-      lpDDPal->GetEntries(0,0,256,holdpal);
-      lpDDPal->SetEntries(0,0,256,real_pal);
-    }
+/*   if (!windowed) */
+/*     { */
+/*       lpDDPal->GetEntries(0,0,256,holdpal); */
+/*       lpDDPal->SetEntries(0,0,256,real_pal); */
+/*     } */
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   for (int oo = 1; oo <= 1000; oo++)
@@ -2505,12 +2506,17 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       sprintf(crap, "%s%s%d.BMP",org,hold,oo);
 
       /* Set the pixel data */
-      k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite);
-      GFX_k[cur_sprite].k = SDL_LoadBMP(crap);
+/*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
+      // GFX
+	GFX_k[cur_sprite].k = SDL_LoadBMP(crap);
 
       /* Define the offsets / center of the image */
-      if (k[cur_sprite].k != NULL)
+      if (GFX_k[cur_sprite].k != NULL)
 	{
+	  k[cur_sprite].box.top = 0;
+	  k[cur_sprite].box.left = 0;
+	  k[cur_sprite].box.right = GFX_k[cur_sprite].k->w;
+	  k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
 	  if ((oo > 1) & (notanim))
 	    {
 	      k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
@@ -2580,7 +2586,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
       //add_text(crap,"LOG.TXT");
 
-      if (k[cur_sprite].k == NULL)
+      if (GFX_k[cur_sprite].k == NULL)
 	{
 	  /* oo == 1 => not even one sprite was loaded, error */
 	  /* oo > 1 => the sequence ends */
@@ -2595,8 +2601,8 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	  setup_anim(nummy,nummy,speed);
 
 	  /* Restore screen palette to what it was */
-	  if (!windowed)
-	    lpDDPal->SetEntries(0,0,256,holdpal);
+/* 	  if (!windowed) */
+/* 	    lpDDPal->SetEntries(0,0,256,holdpal); */
 
 	  return;
 	}
@@ -2606,14 +2612,14 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       /* Set transparent color: either black or white */
       if (black)
 	{
-	  DDSetColorKey(k[cur_sprite].k, RGB(0,0,0));
+/* 	  DDSetColorKey(k[cur_sprite].k, RGB(0,0,0)); */
 	  // GFX
 	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
 			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
 	}
       else
 	{
-	  DDSetColorKey(k[cur_sprite].k, RGB(255,255,255));
+/* 	  DDSetColorKey(k[cur_sprite].k, RGB(255,255,255)); */
 	  // GFX
 	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
 			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
@@ -3006,7 +3012,7 @@ void pre_figure_out(char line[255], int load_seq)
 int draw_num(int mseq, char nums[50], int mx, int my)
 {
   int length = 0;
-  HRESULT             ddrval;
+/*   HRESULT             ddrval; */
   int rnum = 0;
   
   for (int i=0; i < strlen(nums); i++)
@@ -3025,8 +3031,8 @@ int draw_num(int mseq, char nums[50], int mx, int my)
     again:                  
       if ((rnum != 11) && (!(mseq == 442)))
 	{
-	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
-				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_NOCOLORKEY);
+/* 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k, */
+/* 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_NOCOLORKEY); */
 	  // GFX
 	  /* TODO: we should not allow color transparency here; on the
 	     other hand this doesn't seem useful; numbers are loaded
@@ -3043,8 +3049,8 @@ int draw_num(int mseq, char nums[50], int mx, int my)
 	}
       else 
 	{
-	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k,
-				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_SRCCOLORKEY);
+/* 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k, */
+/* 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_SRCCOLORKEY); */
 	  // GFX
 	  /* Transparency is meaningly less here as well, at least in
 	     the original game */
@@ -3055,15 +3061,15 @@ int draw_num(int mseq, char nums[50], int mx, int my)
 	}
       
       
-      if (ddrval != DD_OK)
-	{
-	  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
-	  //dderror(ddrval);
-	}
-      else
-	{
+/*       if (ddrval != DD_OK) */
+/* 	{ */
+/* 	  if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
+/* 	  //dderror(ddrval); */
+/* 	} */
+/*       else */
+/* 	{ */
 	  length += k[seq[mseq].frame[rnum]].box.right;
-	}
+/* 	} */
     }
   return(length);
 }
@@ -3208,11 +3214,11 @@ void draw_bar(int life, int seqman)
 	      //Msg("Drawing part bar . cur is %d", rem);
 	      box.right = (box.right * ((rem) * 10)/100);
 	      //woah, there is part of a bar remaining.  Lets do it.
-	    again:
-	      ddrval = lpDDSTwo->BltFast(curx, cury, k[seq[seqman].frame[rnum]].k,
-					 &box, DDBLTFAST_NOCOLORKEY);
-	      if (ddrval == DDERR_WASSTILLDRAWING)
-		goto again;
+/* 	    again: */
+/* 	      ddrval = lpDDSTwo->BltFast(curx, cury, k[seq[seqman].frame[rnum]].k, */
+/* 					 &box, DDBLTFAST_NOCOLORKEY); */
+/* 	      if (ddrval == DDERR_WASSTILLDRAWING) */
+/* 		goto again; */
 	      // GFX
 	      {
 		SDL_Rect src, dst;
@@ -3233,10 +3239,10 @@ void draw_bar(int life, int seqman)
       
       if ((cur / 10) * 10 == cur)
 	{
-	again2:
-	  ddrval = lpDDSTwo->BltFast( curx, cury, k[seq[seqman].frame[rnum]].k,
-				      &k[seq[seqman].frame[rnum]].box  , DDBLTFAST_NOCOLORKEY);
-	  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+/* 	again2: */
+/* 	  ddrval = lpDDSTwo->BltFast( curx, cury, k[seq[seqman].frame[rnum]].k, */
+/* 				      &k[seq[seqman].frame[rnum]].box  , DDBLTFAST_NOCOLORKEY); */
+/* 	  if (ddrval == DDERR_WASSTILLDRAWING) goto again2; */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -3277,10 +3283,10 @@ void draw_icons( void )
       
       check_seq_status(play.item[*pcur_weapon].seq);
       
-      ddrval = lpDDSTwo->BltFast(557, 413, k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k,
-				 &k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].box,
-				 DDBLTFAST_SRCCOLORKEY);
-      if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*       ddrval = lpDDSTwo->BltFast(557, 413, k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k, */
+/* 				 &k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].box, */
+/* 				 DDBLTFAST_SRCCOLORKEY); */
+/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
       // GFX
       {
 	SDL_Rect dst = {557, 413};
@@ -3295,10 +3301,10 @@ void draw_icons( void )
       //play.mitem[*pcur_magic].seq,
       check_seq_status(play.mitem[*pcur_magic].seq);
       
-    again2:
-      ddrval = lpDDSTwo->BltFast( 153, 413, k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k,
-				  &k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].box, DDBLTFAST_SRCCOLORKEY);
-      if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
+/*     again2: */
+/*       ddrval = lpDDSTwo->BltFast( 153, 413, k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k, */
+/* 				  &k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].box, DDBLTFAST_SRCCOLORKEY); */
+/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again2; */
       // GFX
       {
 	SDL_Rect dst = {153, 413};
@@ -3325,8 +3331,8 @@ void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
 
   my += (full - cut);
   
-  ddrval = lpDDSTwo->BltFast(mx, my, k[seq[mseq].frame[mframe]].k,
-			     &myrect, DDBLTFAST_NOCOLORKEY);
+/*   ddrval = lpDDSTwo->BltFast(mx, my, k[seq[mseq].frame[mframe]].k, */
+/* 			     &myrect, DDBLTFAST_NOCOLORKEY); */
   // GFX
   {
     /* TODO: test me! */
@@ -3351,10 +3357,10 @@ void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
   cut = (full * percent) / 100;
   myrect.bottom = cut;
   
- again:
-  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-			      &myrect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*  again: */
+/*   ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k, */
+/* 			      &myrect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
   // GFX
   {
     SDL_Rect src, dst;
@@ -3377,10 +3383,10 @@ void draw_hor(int percent, int mx, int my, int mseq, int mframe)
   cut = (full * percent) / 100;
   full = cut;
   myrect.right = full;
- again:
-  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-			      &myrect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*  again: */
+/*   ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k, */
+/* 			      &myrect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
   // GFX
   {
     /* TODO: test me! */
@@ -3406,10 +3412,10 @@ void draw_hor2(int percent, int mx, int my, int mseq, int mframe)
   myrect.right = cut;
   mx += (full - cut);
   
- again:
-  ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k,
-			      &myrect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*  again: */
+/*   ddrval = lpDDSTwo->BltFast( mx, my, k[seq[mseq].frame[mframe]].k, */
+/* 			      &myrect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
   // GFX
   {
     SDL_Rect src, dst;
@@ -3443,33 +3449,33 @@ void draw_mlevel(int percent)
 /* Draw the status bar and the magic jauge */
 void draw_status_all(void)
 {
-  RECT rcRect;
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = 640;
-  rcRect.bottom = 80;
- again:
-  ddrval = lpDDSTwo->BltFast(0, 400, k[seq[180].frame[3]].k,
-			     &rcRect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*   RECT rcRect; */
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
+/*   rcRect.right = 640; */
+/*   rcRect.bottom = 80; */
+/*  again: */
+/*   ddrval = lpDDSTwo->BltFast(0, 400, k[seq[180].frame[3]].k, */
+/* 			     &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
   // GFX
   {
     SDL_Rect src = {0, 0, 640, 80}, dst = {0, 400};
     SDL_BlitSurface(GFX_k[seq[180].frame[3]].k, &src, GFX_lpDDSTwo, &dst);
   }
   
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = 20;
-  rcRect.bottom = 400;
- again2:
-  ddrval = lpDDSTwo->BltFast(0, 0, k[seq[180].frame[1]].k,
-			     &rcRect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again2;
- again3:
-  ddrval = lpDDSTwo->BltFast(620, 0, k[seq[180].frame[2]].k,
-			     &rcRect, DDBLTFAST_NOCOLORKEY);
-  if (ddrval == DDERR_WASSTILLDRAWING) goto again3;
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
+/*   rcRect.right = 20; */
+/*   rcRect.bottom = 400; */
+/*  again2: */
+/*   ddrval = lpDDSTwo->BltFast(0, 0, k[seq[180].frame[1]].k, */
+/* 			     &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again2; */
+/*  again3: */
+/*   ddrval = lpDDSTwo->BltFast(620, 0, k[seq[180].frame[2]].k, */
+/* 			     &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if (ddrval == DDERR_WASSTILLDRAWING) goto again3; */
   // GFX
   {
     SDL_Rect src = {0, 0, 20, 400}, dst1 = {0, 0}, dst2 = {620, 0};
@@ -3708,42 +3714,42 @@ Msg("Ok, sprite %d is being scaled.", h);
 }
 
 
-void reload_sprites(char name[100], int nummy, int junk)
-{
-        HRESULT     ddrval;
-    PALETTEENTRY    holdpal[256];         
+/* void reload_sprites(char name[100], int nummy, int junk) */
+/* { */
+/*         HRESULT     ddrval; */
+/*     PALETTEENTRY    holdpal[256];          */
         
-        char crap[100],hold[10];
-        int n;
-        n = 0;  
+/*         char crap[100],hold[10]; */
+/*         int n; */
+/*         n = 0;   */
         
-        lpDDPal->GetEntries(0,0,256,holdpal);     
-        lpDDPal->SetEntries(0,0,256,real_pal);
+/*         lpDDPal->GetEntries(0,0,256,holdpal);      */
+/*         lpDDPal->SetEntries(0,0,256,real_pal); */
         
         
-        for (int oo = index[nummy].s+1; oo <= index[nummy].s + index[nummy].last; oo++)
-        {
-                n++;
+/*         for (int oo = index[nummy].s+1; oo <= index[nummy].s + index[nummy].last; oo++) */
+/*         { */
+/*                 n++; */
                 
                 //  Msg( "%s", crap);
                 
                 //      initFail(hWndMain, crap);
-                ddrval = k[oo].k->Restore();
-        if( ddrval == DD_OK )
-        {
+/*                 ddrval = k[oo].k->Restore(); */
+/*         if( ddrval == DD_OK ) */
+/*         { */
                         
                         
-                        if (n < 10) strcpy(hold, "0"); else strcpy(hold,"");
-                        sprintf(crap, "%s%s%d.BMP",name,hold,n);
+/*                         if (n < 10) strcpy(hold, "0"); else strcpy(hold,""); */
+/*                         sprintf(crap, "%s%s%d.BMP",name,hold,n); */
             
-                        DDReLoadBitmap(k[oo].k, crap);
+/*                         DDReLoadBitmap(k[oo].k, crap); */
                         //Msg("Sprite %s%d.bmp reloaded into area %d. ",name,n,oo);
                         
                         
-                }
-        }
-        lpDDPal->SetEntries(0,0,256,holdpal);   
-}
+/*         } */
+/*         } */
+/*         lpDDPal->SetEntries(0,0,256,holdpal);    */
+/* } */
 
 
 
@@ -4599,15 +4605,15 @@ void check_sprite_status(int h)
                         //it's been loaded before.. is it lost or still there?
                         //Msg("Sprite %d's seq is %d",h,spr[h].seq);
                         
-                        dderror = k[seq[spr[h].pseq].frame[1]].k->IsLost();
+/*                         dderror = k[seq[spr[h].pseq].frame[1]].k->IsLost(); */
                         
-                        if (dderror == DDERR_SURFACELOST)
-                        {
-                                get_word(seq[spr[h].pseq].data, 2, word1);
+/*                         if (dderror == DDERR_SURFACELOST) */
+/*                         { */
+/*                                 get_word(seq[spr[h].pseq].data, 2, word1); */
                                 
-                                reload_sprites(word1, spr[h].pseq,0);
-                                //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data );
-                        }
+/*                                 reload_sprites(word1, spr[h].pseq,0); */
+/*                                 //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data ); */
+/*                         } */
                         
                         
                 }
@@ -4641,15 +4647,15 @@ void check_frame_status(int h, int frame)
                         //it's been loaded before.. is it lost or still there?
                         //Msg("Sprite %d's seq is %d",h,spr[h].seq);
                         
-                        dderror = k[seq[h].frame[1]].k->IsLost();
+/*                         dderror = k[seq[h].frame[1]].k->IsLost(); */
                         
-                        if (dderror == DDERR_SURFACELOST)
-                        {
-                                get_word(seq[h].data, 2, word1);
+/*                         if (dderror == DDERR_SURFACELOST) */
+/*                         { */
+/*                                 get_word(seq[h].data, 2, word1); */
                                 
-                                reload_sprites(word1, h,0);
-                                //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data );
-                        }
+/*                                 reload_sprites(word1, h,0); */
+/*                                 //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data ); */
+/*                         } */
                 }
         }
         
@@ -4676,15 +4682,15 @@ void check_seq_status(int h)
                         //it's been loaded before.. is it lost or still there?
                         //Msg("Sprite %d's seq is %d",h,spr[h].seq);
                         
-                        dderror = k[seq[h].frame[1]].k->IsLost();
+/*                         dderror = k[seq[h].frame[1]].k->IsLost(); */
                         
-                        if (dderror == DDERR_SURFACELOST)
-                        {
-                                get_word(seq[h].data, 2, word1);
+/*                         if (dderror == DDERR_SURFACELOST) */
+/*                         { */
+/*                                 get_word(seq[h].data, 2, word1); */
                                 
-                                reload_sprites(word1, h,0);
-                                //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data );
-                        }
+/*                                 reload_sprites(word1, h,0); */
+/*                                 //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data ); */
+/*                         } */
                 }
         }
         
@@ -5511,23 +5517,23 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
   if (spr[h].nodraw == 1) return;
   RECT box_crap,box_real;
   
-  HRESULT             ddrval;
+/*   HRESULT             ddrval; */
   
-  DDBLTFX     ddbltfx;
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 0;
+/*   DDBLTFX     ddbltfx; */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
+/*   ddbltfx.dwFillColor = 0; */
   
   if (get_box(h, &box_crap, &box_real))
-    while( 1)
-      {
+/*     while( 1) */
+/*       { */
 	//      Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
 	//              box_crap.right, box_crap.bottom,box_real.left,box_real.top,
 	//              box_real.right, box_real.bottom);
         
-      again:
-	ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
-			     &box_real  , DDBLT_KEYSRC ,&ddbltfx );
-	if (ddrval == DDERR_WASSTILLDRAWING) goto again;
+/*       again: */
+/* 	ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k, */
+/* 			     &box_real  , DDBLT_KEYSRC ,&ddbltfx ); */
+/* 	if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
 	// GFX
 	/* Generic scaling */
 	/* Not perfectly accurate yet: move a 200% sprite to the
@@ -5571,22 +5577,22 @@ void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h
 	    }
 	}
         
-	if (ddrval != DD_OK)
-	  {
-	    dderror(ddrval);
+/* 	if (ddrval != DD_OK) */
+/* 	  { */
+/* 	    dderror(ddrval); */
             
-	    Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d.",h,getpic(h));
-	    Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-		box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-		box_real.right, box_real.bottom);
-	    if (spr[h].pseq != 0) check_seq_status(spr[h].pseq);
-	    break;
-	  }
-	else
-	  {
-	    break;
-	  }
-      }
+/* 	    Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d.",h,getpic(h)); */
+/* 	    Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top, */
+/* 		box_crap.right, box_crap.bottom,box_real.left,box_real.top, */
+/* 		box_real.right, box_real.bottom); */
+/* 	    if (spr[h].pseq != 0) check_seq_status(spr[h].pseq); */
+/* 	    break; */
+/* 	  } */
+/* 	else */
+/* 	  { */
+/* 	    break; */
+/* 	  } */
+/*       } */
 }
 
         void changedir( int dir1, int k,int base)
@@ -6217,18 +6223,18 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   // GFX
   image = SDL_LoadBMP(name);
   
-  lpDDPal = DDLoadPalette(lpDD, name);
+/*   lpDDPal = DDLoadPalette(lpDD, name); */
   // GFX
   load_palette_from_bmp(name, palette);
 
-  if (lpDDPal)
-    lpDDSPrimary->SetPalette(lpDDPal);
+/*   if (lpDDPal) */
+/*     lpDDSPrimary->SetPalette(lpDDPal); */
   // GFX
   change_screen_palette(palette);
   
   // load the image again, with the new global palette - DX color
   // conversion is thus avoided
-  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
+/*   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak? */
   // GFX
   {
     // LoadBMP wrapper - conversion with edited palette (0=black,
@@ -6256,13 +6262,13 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   // the showbmp(). So skip the next flip_it().
   abort_this_flip = true;
   
-  RECT rcRect;
-  SetRect(&rcRect, 0,0,640, 480);
+/*   RECT rcRect; */
+/*   SetRect(&rcRect, 0,0,640, 480); */
   
  again:
-  ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-			       &rcRect, DDBLTFAST_NOCOLORKEY);
-  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
+/*   ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick, */
+/* 			       &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
 
   // GFX
   {
@@ -6296,18 +6302,18 @@ void copy_bmp( char name[80])
   //GFX: done later on
   //image = SDL_LoadBMP(name);
   
-  lpDDPal = DDLoadPalette(lpDD, name);
+/*   lpDDPal = DDLoadPalette(lpDD, name); */
   // GFX
   load_palette_from_bmp(name, palette);
 
-  if (lpDDPal)
-    lpDDSPrimary->SetPalette(lpDDPal);
+/*   if (lpDDPal) */
+/*     lpDDSPrimary->SetPalette(lpDDPal); */
   // GFX
   change_screen_palette(palette);
 
   // load the image again, with the new global palette - DX color
   // conversion is thus avoided
-  lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak?
+/*   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak? */
   // GFX
   {
     // LoadBMP wrapper - conversion with edited palette (0=black,
@@ -6329,19 +6335,19 @@ void copy_bmp( char name[80])
 
   abort_this_flip = true;
   
-  RECT rcRect;
-  SetRect(&rcRect, 0,0,640, 480);
+/*   RECT rcRect; */
+/*   SetRect(&rcRect, 0,0,640, 480); */
   
   
- again:
-  ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick,
-			       &rcRect, DDBLTFAST_NOCOLORKEY);
-  if( ddrval == DDERR_WASSTILLDRAWING ) goto again;
- again1:
+/*  again: */
+/*   ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick, */
+/* 			       &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
+/*  again1: */
   // Beuc: why copy the image twice?                
-  ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick,
-			      &rcRect, DDBLTFAST_NOCOLORKEY);
-  if( ddrval == DDERR_WASSTILLDRAWING ) goto again1;
+/*   ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick, */
+/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
+/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again1; */
   // GFX
   {
     SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
@@ -6660,12 +6666,12 @@ void copy_bmp( char name[80])
         
         void fill_screen(int num)
         {
-                int crap;   
-                DDBLTFX     ddbltfx;
-                ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-                ddbltfx.dwSize = sizeof( ddbltfx);
-                ddbltfx.dwFillColor = num;
-                crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/*                 int crap;    */
+/*                 DDBLTFX     ddbltfx; */
+/*                 ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*                 ddbltfx.dwSize = sizeof( ddbltfx); */
+/*                 ddbltfx.dwFillColor = num; */
+/*                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
                 // GFX
 		{
 		  /* Warning: palette indexes 0 and 255 are hard-coded
@@ -8260,7 +8266,7 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 
-                                initfonts(slist[0]);
+/*                                 initfonts(slist[0]); */
                                 FONTS_initfonts(slist[0]);
                                 Msg("Initted font %s",slist[0]);
                         }  else Msg("Failed getting parms for Initfont()");
@@ -9161,27 +9167,27 @@ pass:
                                 
                                 
                                 
-                                while( 1 )
-                                {
+/*                                 while( 1 ) */
+/*                                 { */
                                         
-                                        RECT rcRect;
+/*                                         RECT rcRect; */
                                         
-                                        SetRect(&rcRect, 0,0,640,480);
-                                        ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
-                                                &rcRect, DDBLTFAST_NOCOLORKEY);
+/*                                         SetRect(&rcRect, 0,0,640,480); */
+/*                                         ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack, */
+/*                                                 &rcRect, DDBLTFAST_NOCOLORKEY); */
 					// GFX
 					SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
                                         
-                                        if( ddrval == DD_OK )
-                                        {
-                                                break;
-                                        }
-                                        if( ddrval != DDERR_WASSTILLDRAWING )
-                                        {
-                                                dderror(ddrval);
-                                                return(0);
-                                        }
-                                }
+/*                                         if( ddrval == DD_OK ) */
+/*                                         { */
+/*                                                 break; */
+/*                                         } */
+/*                                         if( ddrval != DDERR_WASSTILLDRAWING ) */
+/*                                         { */
+/*                                                 dderror(ddrval); */
+/*                                                 return(0); */
+/*                                         } */
+/*                                 } */
                                 
                                 
                                 

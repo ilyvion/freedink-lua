@@ -30,7 +30,7 @@
 
 /* Tiles */
 #define NB_TILE_SCREENS 41+1 /* +1 to avoid the -1 in arrays.. */
-LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces
+LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces // DELETEME
 SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
 
 /* DX-specific, contain the dimensions of each tile; used in
@@ -70,16 +70,16 @@ void load_tiles(void) {
       if (!exist(crap))
 	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
       
-      tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h); 
+/*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
       // GFX
       GFX_tiles[h] = SDL_LoadBMP(crap);
       
-      if( tiles[h] == NULL ) {
+      if(GFX_tiles[h] == NULL) {
 	printf("Couldn't find one of the tilescreens!\n");
 	exit(0);
       }
       else {
-	DDSetColorKey(tiles[h], RGB(0,0,0));
+/* 	DDSetColorKey(tiles[h], RGB(0,0,0)); */
 	// GFX
 	// Set transparency to black
 	/* Disabled, there's no need for transparency in buffers (the
@@ -93,55 +93,55 @@ void load_tiles(void) {
 }
 
 
-extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
-{
-    HBITMAP             hbm;
-    BITMAP              bm;
-    DDSURFACEDESC       ddsd;
-    IDirectDrawSurface *pdds;
+/* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */
+/* { */
+/*     HBITMAP             hbm; */
+/*     BITMAP              bm; */
+/*     DDSURFACEDESC       ddsd; */
+/*     IDirectDrawSurface *pdds; */
         
-    //
-    //  try to load the bitmap as a resource, if that fails, try it as a file
-    //
-    hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION);
+/*     // */
+/*     //  try to load the bitmap as a resource, if that fails, try it as a file */
+/*     // */
+/*     hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION); */
         
-    if (hbm == NULL)
-        hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION);
+/*     if (hbm == NULL) */
+/*         hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION); */
         
-    if (hbm == NULL)
-        return NULL;
+/*     if (hbm == NULL) */
+/*         return NULL; */
         
-    //
-    // get size of the bitmap
-    //
-    GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap
+/*     // */
+/*     // get size of the bitmap */
+/*     // */
+/*     GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap */
         
-    //
-    // create a DirectDrawSurface for this bitmap
-    //
-    ZeroMemory(&ddsd, sizeof(ddsd));
-    ddsd.dwSize = sizeof(ddsd);
-    ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-    ddsd.dwWidth = bm.bmWidth;
-    ddsd.dwHeight = bm.bmHeight;
-    if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK)
-        return NULL;
+/*     // */
+/*     // create a DirectDrawSurface for this bitmap */
+/*     // */
+/*     ZeroMemory(&ddsd, sizeof(ddsd)); */
+/*     ddsd.dwSize = sizeof(ddsd); */
+/*     ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
+/*     ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
+/*     ddsd.dwWidth = bm.bmWidth; */
+/*     ddsd.dwHeight = bm.bmHeight; */
+/*     if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK) */
+/*         return NULL; */
         
-    DDCopyBitmap(pdds, hbm, 0, 0, 0, 0);
-    tilerect[sprite].bottom = bm.bmHeight;
-        tilerect[sprite].right = bm.bmWidth;
+/*     DDCopyBitmap(pdds, hbm, 0, 0, 0, 0); */
+/*     tilerect[sprite].bottom = bm.bmHeight; */
+/*         tilerect[sprite].right = bm.bmWidth; */
     
-    DeleteObject(hbm);
+/*     DeleteObject(hbm); */
         
-    return pdds;
-}
+/*     return pdds; */
+/* } */
 
 
 /* Draw the background from tiles */
 void draw_map_game(void)
 {
-  RECT                rcRect;
+/*   RECT                rcRect; */
   int pa, cool;
                 
   *pvision = 0;
@@ -156,12 +156,12 @@ void draw_map_game(void)
       cool = pam.t[x].num / 128;
       pa = pam.t[x].num - (cool * 128);
 
-      rcRect.left = (pa * 50- (pa / 12) * 600);
-      rcRect.top = (pa / 12) * 50;
-      rcRect.right = rcRect.left + 50;
-      rcRect.bottom = rcRect.top + 50;
-      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/*       rcRect.left = (pa * 50- (pa / 12) * 600); */
+/*       rcRect.top = (pa / 12) * 50; */
+/*       rcRect.right = rcRect.left + 50; */
+/*       rcRect.bottom = rcRect.top + 50; */
+/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
+/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
                         
       // GFX
       {
@@ -210,7 +210,7 @@ void draw_map_game(void)
    stop_entire_game(). What's the difference with draw_map_game()?? */
 void draw_map_game_background(void)
 {
-  RECT rcRect;
+/*   RECT rcRect; */
   int pa, cool;
                 
   for (int x=0; x<96; x++)
@@ -218,12 +218,12 @@ void draw_map_game_background(void)
       cool = pam.t[x].num / 128;
       pa = pam.t[x].num - (cool * 128);
 
-      rcRect.left = (pa * 50- (pa / 12) * 600);
-      rcRect.top = (pa / 12) * 50;
-      rcRect.right = rcRect.left + 50;
-      rcRect.bottom = rcRect.top + 50;
-      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/*       rcRect.left = (pa * 50- (pa / 12) * 600); */
+/*       rcRect.top = (pa / 12) * 50; */
+/*       rcRect.right = rcRect.left + 50; */
+/*       rcRect.bottom = rcRect.top + 50; */
+/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
+/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
 
       // GFX
       {
@@ -246,7 +246,7 @@ void draw_map_game_background(void)
 /* Game-specific: animate background (water, fire, ...) */        
 void process_animated_tiles(void)
 {
-  RECT rcRect;
+/*   RECT rcRect; */
   int cool;
   int flip;
   int pa;
@@ -270,14 +270,14 @@ void process_animated_tiles(void)
 				
 				      cool = pam.t[x].num / 128;
 				      pa = pam.t[x].num - (cool * 128);
-				      rcRect.left = (pa * 50- (pa / 12) * 600);
-				      rcRect.top = (pa / 12) * 50;
-				      rcRect.right = rcRect.left + 50;
-				      rcRect.bottom = rcRect.top + 50;
+/* 				      rcRect.left = (pa * 50- (pa / 12) * 600); */
+/* 				      rcRect.top = (pa / 12) * 50; */
+/* 				      rcRect.right = rcRect.left + 50; */
+/* 				      rcRect.bottom = rcRect.top + 50; */
 				
 				
-				      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+flip],
-							 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/* 				      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+flip], */
+/* 							 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
 
 				      // GFX
 				      {
@@ -328,14 +328,14 @@ void process_animated_tiles(void)
 				
 				     cool = pam.t[x].num / 128;
 				     pa = pam.t[x].num - (cool * 128);
-				     rcRect.left = (pa * 50- (pa / 12) * 600);
-				     rcRect.top = (pa / 12) * 50;
-				     rcRect.right = rcRect.left + 50;
-				     rcRect.bottom = rcRect.top + 50;
+/* 				     rcRect.left = (pa * 50- (pa / 12) * 600); */
+/* 				     rcRect.top = (pa / 12) * 50; */
+/* 				     rcRect.right = rcRect.left + 50; */
+/* 				     rcRect.bottom = rcRect.top + 50; */
 				
 				
-				     lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+fire_flip],
-							&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/* 				     lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+fire_flip], */
+/* 							&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
 				
 				     // GFX
 				     {

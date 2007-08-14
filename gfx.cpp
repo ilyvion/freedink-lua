@@ -24,6 +24,7 @@
 #include "SDL.h"
 #include "gfx.h"
 
+// DELETEME
 LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
 //LPDIRECTDRAWSURFACE     lpDDSOne;       // Offscreen surface 1
 
@@ -75,7 +76,7 @@ SDL_Surface *GFX_lpDDSTrick2 = NULL;
    TS01.bmp (for freedink) and esplash.bmp (for freedinkedit). The
    physical screen may be changed (e.g. show_bmp()), but this
    canonical palette will stay constant. */
-PALETTEENTRY  real_pal[256];
+/* PALETTEENTRY  real_pal[256]; */
 SDL_Color GFX_real_pal[256];
 
 /** Game-specific **/
