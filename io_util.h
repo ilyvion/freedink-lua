@@ -1,7 +1,7 @@
 /**
- * Header for strings functions
+ * Free fastfile.cpp replacement prototypes
 
- * Copyright (C) 2005  Sylvain Beucler
+ * Copyright (C) 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -20,18 +20,23 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _STRING_UTIL_H
-#define _STRING_UTIL_H
+#ifndef _IO_UTIL_H
+#define _IO_UTIL_H
+
+#include <limits.h>
+#ifndef PATH_MAX
+/* Woe */
+#define PATH_MAX MAX_PATH
+#endif
+
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/* TODO: autoconf strncasecmp -> strnicmp/woe */
-
-extern int string_icompare (char *s1, char *s2);
-extern void strupr (char *s);
+char* ciconvert (char *filename);
+char* ciconvertbuf (const char *filename, char *buf);
 
 #ifdef __cplusplus
 }

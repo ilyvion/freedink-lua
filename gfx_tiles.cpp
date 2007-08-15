@@ -24,6 +24,7 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "io_util.h"
 // #include "ddutil.h"
 #include "sfx.h"
 
@@ -71,7 +72,7 @@ void load_tiles(void) {
       
 /*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
       // GFX
-      GFX_tiles[h] = SDL_LoadBMP(crap);
+      GFX_tiles[h] = SDL_LoadBMP(ciconvert(crap));
       
       if(GFX_tiles[h] == NULL) {
 	printf("Couldn't find one of the tilescreens!\n");

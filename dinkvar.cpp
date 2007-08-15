@@ -57,6 +57,7 @@
 
 /* #include "ddutil.h" */
 #include "fastfile.h"
+#include "io_util.h"
 
 
 #include "freedink.h"
@@ -121,6 +122,8 @@ const int old_burn = 0;
    setting up show_bmp and copy_bmp */
 bool abort_this_flip = false;
 
+int var_exists(char name[20], int scope);
+void make_int(char name[80], int value, int scope, int script);
 
 
 
@@ -914,7 +917,9 @@ void Msg(char *fmt, ...)
     strcpy( buff, "Dink:" );
     vsprintf( &buff[strlen(buff)], fmt, va );
     strcat( buff, "\r\n" );
-        
+    
+    vfprintf(stderr, fmt, va);
+    fprintf(stderr, "\n");
     //
     // To the debugger unless we need to be quiet
     //
@@ -1444,7 +1449,7 @@ void load_map(const int num)
         // play.map = num;
         //Msg("Loading map %d...",num);
         
-                         fp = fopen( current_map, "rb");
+	fp = fopen(ciconvert(current_map), "rb");
                          if (!fp)
                          {
                                  Msg("Cannot find %s file!!!",current_map);
@@ -1563,62 +1568,48 @@ void kill_all_vars(void)
 
 void attach(void)
 {
-        
-        for (int i = 1; i < max_vars; i++)
-        {
-                if (compare("&life", play.var[i].name))
-                {
-                        plife = &play.var[i].var;
-                        
-                }
-                if (compare("&vision", play.var[i].name))
-                {
-                        pvision = &play.var[i].var;
-                        
-                }
-                if (compare("&result", play.var[i].name))
-                {
-                        presult = &play.var[i].var;
-                        
-                }
-                if (compare("&speed", play.var[i].name))
-                {
-                        pspeed = &play.var[i].var;
-                        
-                }
-                if (compare("&timing", play.var[i].name))
-                {
-                        ptiming = &play.var[i].var;
-                        
-                }
-                
-                
-                if (compare("&lifemax", play.var[i].name))
-                {
-                        plifemax = &play.var[i].var;
-                        
-                }
-                
-                if (compare("&exp", play.var[i].name))  pexper = &play.var[i].var;
-                if (compare("&strength", play.var[i].name))  pstrength = &play.var[i].var;   
-                if (compare("&defense", play.var[i].name))  pdefense = &play.var[i].var;   
-                if (compare("&gold", play.var[i].name))  pgold = &play.var[i].var;   
-                if (compare("&magic", play.var[i].name))  pmagic = &play.var[i].var;   
-                if (compare("&level", play.var[i].name))  plevel = &play.var[i].var;   
-                if (compare("&player_map", play.var[i].name))  pmap = &play.var[i].var;   
-                if (compare("&cur_weapon", play.var[i].name))  pcur_weapon = &play.var[i].var;   
-                if (compare("&cur_magic", play.var[i].name))  pcur_magic = &play.var[i].var;   
-                if (compare("&last_text", play.var[i].name))  plast_text = &play.var[i].var;   
-                if (compare("&magic_level", play.var[i].name))  pmagic_level = &play.var[i].var;   
-                if (compare("&update_status", play.var[i].name))  pupdate_status = &play.var[i].var;   
-                if (compare("&missile_target", play.var[i].name))  pmissile_target = &play.var[i].var;   
-                if (compare("&enemy_sprite", play.var[i].name))  penemy_sprite = &play.var[i].var;   
-                if (compare("&magic_cost", play.var[i].name))  pmagic_cost = &play.var[i].var;   
-                if (compare("&missle_source", play.var[i].name))  pmissle_source = &play.var[i].var;   
-                
-                
-        }
-        
+  /* Make sure the "system" variable exists - otherwise we might use a
+     NULL pointer below */
+  char* var_names[22] = { "&life", "&vision", "&result", "&speed",
+		     "&timing", "&lifemax", "&exp", "&strength",
+		     "&defense", "&gold", "&magic", "&level",
+		     "&player_map", "&cur_weapon", "&cur_magic",
+		     "&last_text", "&magic_level", "&update_status",
+		     "&missile_target", "&enemy_sprite", "&magic_cost",
+		     "&missle_source" };
+  int n, i;
+  for (int n = 0; n < 22; n++)
+    {
+      if (!var_exists(var_names[n], 0)) /* 0 = global scope */
+	make_int(var_names[n], 0, 0, -1);
+      /* TODO: setting script to -1 is asking for troubles... */
+    }
+
+  for (i = 1; i < max_vars; i++)
+    {
+      if (compare("&life", play.var[i].name)) plife = &play.var[i].var;
+      if (compare("&vision", play.var[i].name)) pvision = &play.var[i].var;
+      if (compare("&result", play.var[i].name)) presult = &play.var[i].var;
+      if (compare("&speed", play.var[i].name)) pspeed = &play.var[i].var;
+      if (compare("&timing", play.var[i].name))	ptiming = &play.var[i].var;
+      if (compare("&lifemax", play.var[i].name)) plifemax = &play.var[i].var;
+      if (compare("&exp", play.var[i].name)) pexper = &play.var[i].var;
+      if (compare("&strength", play.var[i].name))  pstrength = &play.var[i].var;   
+      if (compare("&defense", play.var[i].name))  pdefense = &play.var[i].var;   
+      if (compare("&gold", play.var[i].name))  pgold = &play.var[i].var;   
+      if (compare("&magic", play.var[i].name))  pmagic = &play.var[i].var;   
+      if (compare("&level", play.var[i].name))  plevel = &play.var[i].var;   
+      if (compare("&player_map", play.var[i].name)) pmap = &play.var[i].var;   
+      if (compare("&cur_weapon", play.var[i].name)) pcur_weapon = &play.var[i].var;   
+      if (compare("&cur_magic", play.var[i].name)) pcur_magic = &play.var[i].var;   
+      if (compare("&last_text", play.var[i].name)) plast_text = &play.var[i].var;   
+      if (compare("&magic_level", play.var[i].name)) pmagic_level = &play.var[i].var;   
+      if (compare("&update_status", play.var[i].name)) pupdate_status = &play.var[i].var;   
+      if (compare("&missile_target", play.var[i].name)) pmissile_target = &play.var[i].var;   
+      if (compare("&enemy_sprite", play.var[i].name)) penemy_sprite = &play.var[i].var;   
+      if (compare("&magic_cost", play.var[i].name)) pmagic_cost = &play.var[i].var;   
+      if (compare("&missle_source", play.var[i].name)) pmissle_source = &play.var[i].var;   
+    }
 }
 
 
@@ -2144,7 +2135,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
     sprintf(crap, "../dink/%s/dir.ff", crap2);
 
 
-  if (!FastFileInit(crap, 5))
+  if (!FastFileInit(ciconvert(crap), 5))
     {
       Msg( "Could not load dir.ff art file %s" , crap);
 
@@ -2168,10 +2159,10 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
       //if (reload) Msg("Ok, programming sprite %d", sprite);
       if (oo < 10) strcpy(crap2, "0"); else strcpy(crap2, "");
       sprintf(crap, "%s%s%d.bmp", fname, crap2, oo);
-
+      
       pfile = FastFileOpen(crap);
-
-      if( pfile == NULL )
+      
+      if (pfile == NULL)
 	{
 	  FastFileClose( pfile );
 	  //   FastFileFini();
@@ -2311,39 +2302,39 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* 		  IDirectDrawSurface_Unlock(k[sprite].k, NULL); */
 
 
-		  // GFX
-		  /* TODO: perform the same manual palette conversion
-		     like above? */
-		  {
-		    Uint8 *buffer;
-		    SDL_RWops *rw;
-		    
-		    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
-		    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
-		    
-		    GFX_k[sprite].k = SDL_LoadBMP_RW(rw, 0);
-		    // bmp_surf = IMG_Load_RW (rw, 0);
-		    if (GFX_k[sprite].k == NULL)
-		      {
-			Msg (("unable to load %s from fastfile", crap));
-		      }
-		    
-		    SDL_FreeRW (rw);
-
-		    if (leftalign)
-		      ; // ?
-		    else if (black)
-		      // TODO: use SDL_RLEACCEL?
-		      /* We might want to directly use the hard-coded
-			 '0' index for efficiency */
-		      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
-				      SDL_MapRGB(GFX_k[sprite].k->format, 0, 0, 0));
-		    else
-		      /* We might want to directly use the hard-coded
-			 '255' index for efficiency */
-		      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
-				      SDL_MapRGB(GFX_k[sprite].k->format, 255, 255, 255));
-/* 		  } */
+	  // GFX
+	  /* TODO: perform the same manual palette conversion
+	     like above? */
+	  {
+	    Uint8 *buffer;
+	    SDL_RWops *rw;
+	    
+	    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
+	    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
+	    
+	    GFX_k[sprite].k = SDL_LoadBMP_RW(rw, 0);
+	    // bmp_surf = IMG_Load_RW (rw, 0);
+	    if (GFX_k[sprite].k == NULL)
+	      {
+		Msg (("unable to load %s from fastfile", crap));
+	      }
+	    
+	    SDL_FreeRW (rw);
+	    
+	    if (leftalign)
+	      ; // ?
+	    else if (black)
+	      // TODO: use SDL_RLEACCEL?
+	      /* We might want to directly use the hard-coded
+		 '0' index for efficiency */
+	      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
+			      SDL_MapRGB(GFX_k[sprite].k->format, 0, 0, 0));
+	    else
+	      /* We might want to directly use the hard-coded
+		 '255' index for efficiency */
+	      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
+			      SDL_MapRGB(GFX_k[sprite].k->format, 255, 255, 255));
+	  }
 /* 		} */
 /* 	      else */
 /* 		{ */
@@ -2351,89 +2342,88 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* 		  //return; */
 /* 		} */
 
-	      if (sprite > 0)
+	  if (sprite > 0)
+	    {
+	      k[sprite].box.top = 0;
+	      k[sprite].box.left = 0;
+	      k[sprite].box.right = GFX_k[sprite].k->w;
+	      k[sprite].box.bottom = GFX_k[sprite].k->h;
+	      
+	      if ( (oo > 1) & (notanim) )
 		{
-		  k[sprite].box.top = 0;
-		  k[sprite].box.left = 0;
-		  k[sprite].box.right = GFX_k[sprite].k->w;
-		  k[sprite].box.bottom = GFX_k[sprite].k->h;
-
-		  if ( (oo > 1) & (notanim) )
+		  k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
+		}
+	      else
+		{
+		  if (yoffset > 0)
+		    k[cur_sprite].yoffset = yoffset; else
 		    {
-		      k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
+		      k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
+					       (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
 		    }
+		}
+	      
+	      if ( (oo > 1 ) & (notanim))
+		{
+		  k[cur_sprite].xoffset =  k[s_index[nummy].s+1].xoffset;
+		    }
+	      else
+		{
+		  if (xoffset > 0)
+		    k[cur_sprite].xoffset = xoffset;
 		  else
 		    {
-		      if (yoffset > 0)
-			k[cur_sprite].yoffset = yoffset; else
-			{
-			  k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
-						   (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
-			}
+		      k[cur_sprite].xoffset = (k[cur_sprite].box.right -
+					       (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
 		    }
-		  
-		  if ( (oo > 1 ) & (notanim))
-		    {
-		      k[cur_sprite].xoffset =  k[s_index[nummy].s+1].xoffset;
-		    }
-		  else
-		    {
-		      if (xoffset > 0)
-			k[cur_sprite].xoffset = xoffset;
-		      else
-			{
-			  k[cur_sprite].xoffset = (k[cur_sprite].box.right -
-						   (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
-			}
-		    }
-		  //ok, setup main offsets, lets build the hard block
-
-		  if (hardbox.right > 0)
-		    {
-		      //forced setting
-		      k[cur_sprite].hardbox.left = hardbox.left;
-		      k[cur_sprite].hardbox.right = hardbox.right;
-		    }
-		  else
-		    {
-		      //guess setting
-		      work = k[cur_sprite].box.right / 4;
-		      k[cur_sprite].hardbox.left -= work;
-		      k[cur_sprite].hardbox.right += work;
-		    }
-		  
-		  if (hardbox.bottom > 0)
-		    {
-		      k[cur_sprite].hardbox.top = hardbox.top;
-		      k[cur_sprite].hardbox.bottom = hardbox.bottom;
-		    }
-		  else
-		    {
-		      work = k[cur_sprite].box.bottom / 10;
-		      k[cur_sprite].hardbox.top -= work;
-		      k[cur_sprite].hardbox.bottom += work;
-		    }
-		  
-		  if (black)
-		    {
+		}
+	      //ok, setup main offsets, lets build the hard block
+	      
+	      if (hardbox.right > 0)
+		{
+		  //forced setting
+		  k[cur_sprite].hardbox.left = hardbox.left;
+		  k[cur_sprite].hardbox.right = hardbox.right;
+		}
+	      else
+		{
+		  //guess setting
+		  work = k[cur_sprite].box.right / 4;
+		  k[cur_sprite].hardbox.left -= work;
+		  k[cur_sprite].hardbox.right += work;
+		}
+	      
+	      if (hardbox.bottom > 0)
+		{
+		  k[cur_sprite].hardbox.top = hardbox.top;
+		  k[cur_sprite].hardbox.bottom = hardbox.bottom;
+		}
+	      else
+		{
+		  work = k[cur_sprite].box.bottom / 10;
+		  k[cur_sprite].hardbox.top -= work;
+		  k[cur_sprite].hardbox.bottom += work;
+		}
+	      
+	      if (black)
+		{
 /* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255)); */
 		      
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
-		    }
-		  else
-		    {
+		}
+	      else
+		{
 /* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0)); */
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 		    }
-		  cur_sprite++;
-		  if (!reload)
-		    save_cur++;
-		  FastFileClose( pfile );
-		}
+	      cur_sprite++;
+	      if (!reload)
+		save_cur++;
+	      FastFileClose( pfile );
 	    }
-        }
+	}
     }
   // FastFileFini();
   return;
@@ -2471,17 +2461,17 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   /* - ../dink/.../...01.BMP */
   sprintf(crap, "%s\\dir.ff",crap2);
   //Msg("Checking for %s..", crap);
-  if (exist(crap))
+  if (exist(ciconvert(crap)))
     {
       load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, true);
       return;
     }
   sprintf(crap, "%s01.BMP",org);
-  if (!exist(crap))
+  if (!exist(ciconvert(crap)))
     {
       sprintf(crap, "..\\dink\\%s\\dir.ff",crap2);
       //Msg("Checking for %s..", crap);
-      if (exist(crap))
+      if (exist(ciconvert(crap)))
 	{
 	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, false);
 	  return;
@@ -2509,7 +2499,10 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       /* Set the pixel data */
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
-	GFX_k[cur_sprite].k = SDL_LoadBMP(crap);
+      GFX_k[cur_sprite].k = SDL_LoadBMP(ciconvert(crap));
+      if (GFX_k[cur_sprite].k == NULL)
+	/* may be normal if we're at the end of a sequence */
+	fprintf(stderr, "load_sprites: couldn't open %s\n", crap);
 
       /* Define the offsets / center of the image */
       if (GFX_k[cur_sprite].k != NULL)
@@ -4029,20 +4022,20 @@ int load_script(char filename[15], int sprite, bool set_sprite)
         
         sprintf(temp, "story\\%s.d", filename);
         
-        if (!exist(temp))
+        if (!exist(ciconvert(temp)))
         {
                 
                 
                 sprintf(temp, "story\\%s.c", filename);
-                if (!exist(temp))
+                if (!exist(ciconvert(temp)))
                 {
                         
                         
                         sprintf(temp, "..\\dink\\story\\%s.d", filename);
-                        if (!exist(temp))
+                        if (!exist(ciconvert(temp)))
                         {
                                 sprintf(temp, "..\\dink\\story\\%s.c", filename);
-                                if (!exist(temp))
+                                if (!exist(ciconvert(temp)))
                                 {
                                         
                                         Msg("Script %s not found. (checked for .C and .D) (requested by %d?)",temp, sprite);
@@ -4087,7 +4080,7 @@ found:
         //if compiled
         {
                 //load compiled script
-                if ((stream =fopen(temp, "rb"))==NULL) 
+	  if ((stream =fopen(ciconvert(temp), "rb"))==NULL) 
                 {
                         Msg("Script %s not found. (checked for .C and .D) (requested by %d?)",temp, sprite);
                         return(0);
@@ -8175,7 +8168,7 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 
-                                make_int(slist[0], nlist[1],0, script);
+                                make_int(slist[0], nlist[1], 0, script);
                                 //Msg(slist[0]);
                         }
                         

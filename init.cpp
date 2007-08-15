@@ -51,16 +51,13 @@ int init(void) {
   
   // GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
   if (windowed)
-    {
-      GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE);
-      if (GFX_lpDDSPrimary == NULL) {
-	fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
-	exit(1);
-      }
-    }
+    GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE);
   else
+    GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_FULLSCREEN);
+  if (GFX_lpDDSPrimary == NULL)
     {
-      GFX_lpDDSPrimary = SDL_LoadBMP("tiles/SPLASH.BMP");
+      fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
+      exit(1);
     }
 
   // GFX

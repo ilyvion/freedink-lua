@@ -23,18 +23,23 @@
  */
 
 #include "SDL.h"
+#include "io_util.h"
 
 /* Get a colors palette from the specified image */
-void
+int
 load_palette_from_bmp (char *file, SDL_Color *palette)
 {
   int i;
   SDL_Surface *bmp;
+  char tmp_filename[PATH_MAX];
 
-  bmp = SDL_LoadBMP (file);
+  bmp = SDL_LoadBMP(ciconvertbuf(file, tmp_filename));
   /* bmp = IMG_Load (file); */
-
-  // TODO: if file doesn't exist / failed loading, cleanly exit
+  if (bmp == NULL)
+    {
+      fprintf(stderr, "load_palette_from_bmp: couldn't open %s", file);
+      return 0;
+    }
 
   for (i = 0; i < bmp->format->palette->ncolors; i++)
     {
@@ -52,6 +57,7 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
   palette[255].b = 255;
 
   SDL_FreeSurface (bmp);
+  return 1;
 }
 
 

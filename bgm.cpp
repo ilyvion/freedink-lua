@@ -29,6 +29,7 @@
 
 #include "dinkvar.h"
 #include "bgm.h"
+#include "io_util.h"
 
 /* Current background music (not cd) */
 static Mix_Music *music_data = NULL;
@@ -95,13 +96,14 @@ int something_playing(void)
 int
 playMIDIFile(char *midi_filename)
 { 
+  char tmp_filename[PATH_MAX];
   /* Stop whatever is playing before we play something else. */
   Mix_HaltMusic ();
   if (music_data != NULL)
     Mix_FreeMusic (music_data);
   
   /* Load the file */
-  music_data = Mix_LoadMUS(midi_filename);
+  music_data = Mix_LoadMUS(ciconvertbuf(midi_filename, tmp_filename));
   if (music_data == NULL)
     {
       Msg (("Unable to play '%s': %s", midi_filename, Mix_GetError()));

@@ -30,7 +30,7 @@
 
 #include "SDL.h"
 
-void load_palette_from_bmp (char *file, SDL_Color * palette);
+int load_palette_from_bmp (char *file, SDL_Color * palette);
 void setup_palette(SDL_Color *palette);
 
 #endif

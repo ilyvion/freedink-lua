@@ -42,6 +42,8 @@ static SDL_Color text_color;
 void FONTS_initfonts(char* fontname) {
   /* TODO: lf.lfWeight = 600; */
   /* TODO: lf.lfHeight = 18; */
+  /* TODO: Load from Woe's system font dir if not found in the current
+     directory */
 
   if (FONTS_hfont_small != NULL) {
     TTF_CloseFont(FONTS_hfont_small);

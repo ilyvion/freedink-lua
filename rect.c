@@ -50,7 +50,7 @@ OffsetRect(RECT *rect, int tx, int ty)
 }
 
 int
-CopyRect(RECT *src, RECT *dst)
+CopyRect(RECT *dst, RECT *src)
 {
   if (src == NULL || dst == NULL)
     return 0;

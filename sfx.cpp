@@ -27,6 +27,7 @@
 #include "SDL_mixer.h"
 #include "dinkvar.h"
 #include "sfx.h"
+#include "io_util.h"
 
 soundstruct soundinfo[num_soundbanks+1];
 
@@ -45,10 +46,10 @@ int CreateBufferFromWaveFile(char* filename, int dwBuf)
     char path[150];
     
     sprintf(path, "sound/%s", filename);
-    if (!exist(path))
+    if (!exist(ciconvert(path)))
       sprintf(path, "../dink/sound/%s", filename);
     
-    registered_sounds[dwBuf].sound = Mix_LoadWAV(path);
+    registered_sounds[dwBuf].sound = Mix_LoadWAV(ciconvert(path));
     
     if (registered_sounds[dwBuf].sound == NULL)
       {

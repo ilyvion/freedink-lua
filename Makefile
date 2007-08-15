@@ -2,8 +2,8 @@
 CPPFLAGS=$(shell sdl-config --cflags)
 
 #CFLAGS=-O3
-#CFLAGS=-g
-CXXFLAGS=$(CFLAGS) -g
+CFLAGS=-g
+CXXFLAGS=$(CFLAGS)
 
 #LDFLAGS=-L"C:/dx7sdk/lib" -L"/mingw/lib"
 #LOADLIBES=-mwindows
@@ -14,7 +14,7 @@ LDLIBS=$(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx -lSDL_ttf
 
 #COMMON_OBJS=bgm.o dinkvar.o fastfile.o string_util.o sfx.o	\
 #	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o freedink.res
-COMMON_OBJS=bgm.o dinkvar.o fastfile.o str_util.o sfx.o	\
+COMMON_OBJS=bgm.o dinkvar.o fastfile.o str_util.o io_util.o sfx.o	\
 	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o
 APPS=freedink freedinkedit
 BINARIES=$(APPS:=.exe)

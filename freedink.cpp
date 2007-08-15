@@ -58,9 +58,8 @@
 #include "update_frame.h"
 #include "resource.h"
 #include "init.h"
+#include "io_util.h"
 #include "freedink.h"
-
-/* TODO: autoconf strncasecmp -> strnicmp/woe; PATH_MAX -> MAX_PATH */
 
 /* const int WM_IMDONE = WM_USER+110; */
 
@@ -5747,19 +5746,20 @@ void load_batch(void)
 {
   FILE *stream;  
   char line[255];
-	
+  char tmp_filename[PATH_MAX];
+
   spr[1].x = 200;
   spr[1].y = 300;
 	
   Msg("Loading .ini");	  
-  if (!exist("dink.ini")) 
+  if (!exist(ciconvertbuf("dink.ini", tmp_filename)))
     {
-      Msg("File not found.");	  
+      Msg("load_batck: dink.ini not found.");	  
       sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
       TRACE(line);
     }
 	
-  if ((stream = fopen("dink.ini", "r")) == NULL)
+  if ((stream = fopen(tmp_filename, "r")) == NULL)
     TRACE("Error opening Dink.ini for reading.");
   else
     {
@@ -5849,6 +5849,7 @@ static int doInit(int argc, char *argv[])
   
   char crap[30];
   char crap1[10];
+  char tmp_filename[PATH_MAX];
 	
 /*   RECT rcRectSrc;    RECT rcRectDest; */
 /*   POINT p; */
@@ -6060,11 +6061,11 @@ static int doInit(int argc, char *argv[])
   //init is finished, now lets load some more junk
 
   // Create and set the reference palette
-  if (exist("tiles/TS01.bmp"))
+  if (exist(ciconvertbuf("tiles/TS01.bmp", tmp_filename)))
     {
 /*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
       // GFX
-      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
+      load_palette_from_bmp(tmp_filename, GFX_real_pal);
     }
   else
     {
@@ -6111,72 +6112,26 @@ static int doInit(int argc, char *argv[])
 	
 
   /* Initialize graphic buffers */
-  if (exist("tiles/splash.bmp"))
-    {
-/*       lpDDSTwo = DDLoadBitmap(lpDD, "tiles/splash.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTwo = SDL_LoadBMP("tiles/splash.BMP");
-    }
+  if (exist(ciconvertbuf("tiles/splash.bmp", tmp_filename)))
+    GFX_lpDDSTwo = SDL_LoadBMP(tmp_filename);
   else
-    {
-/*       lpDDSTwo = DDLoadBitmap(lpDD, "../dink/tiles/splash.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTwo = SDL_LoadBMP("../dink/tiles/splash.BMP");
-    }
+    GFX_lpDDSTwo = SDL_LoadBMP(ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename));
 
-/*   DDSetColorKey(lpDDSTwo, RGB(0,0,0)); */
-  // GFX
-//   SDL_SetColorKey (GFX_lpDDSTwo, SDL_SRCCOLORKEY,
-// 		   SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
-
-  if (exist("tiles/SPLASH.bmp"))
-    {
-/*       lpDDSTrick = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTrick = SDL_LoadBMP("tiles/SPLASH.BMP");
-    }
+  if (exist(ciconvertbuf("tiles/SPLASH.bmp", tmp_filename)))
+    GFX_lpDDSTrick = SDL_LoadBMP(tmp_filename);
   else
-    {
-/*       lpDDSTrick = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTrick = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
-    }
-/*   DDSetColorKey(lpDDSTrick, RGB(0,0,0)); */
-  // GFX
-//   SDL_SetColorKey (GFX_lpDDSTrick, SDL_SRCCOLORKEY,
-// 		   SDL_MapRGB(GFX_lpDDSTrick->format, 0, 0, 0));
+    GFX_lpDDSTrick = SDL_LoadBMP(ciconvertbuf("../dink/tiles/SPLASH.BMP", tmp_filename));
 
-  if (exist("tiles/SPLASH.bmp"))
-    {
-/*       lpDDSTrick2 = DDLoadBitmap(lpDD, "tiles/SPLASH.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTrick2 = SDL_LoadBMP("tiles/SPLASH.BMP");
-    }
+  if (exist(ciconvertbuf("tiles/SPLASH.bmp", tmp_filename)))
+    GFX_lpDDSTrick2 = SDL_LoadBMP(tmp_filename);
   else
-    {
-/*       lpDDSTrick2 = DDLoadBitmap(lpDD, "../dink/tiles/SPLASH.BMP", 0, 0); */
-      // GFX
-      GFX_lpDDSTrick2 = SDL_LoadBMP("../dink/tiles/SPLASH.BMP");
-    }
-/*   DDSetColorKey(lpDDSTrick2, RGB(0,0,0)); */
-  // GFX
-//   SDL_SetColorKey (GFX_lpDDSTrick2, SDL_SRCCOLORKEY,
-// 		   SDL_MapRGB(GFX_lpDDSTrick2->format, 0, 0, 0));
-
+    GFX_lpDDSTrick2 = SDL_LoadBMP(ciconvertbuf("../dink/tiles/SPLASH.BMP", tmp_filename));
 
   
-  if (exist("tiles/TS01.bmp"))
-    {
-/*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
-      // GFX
-      load_palette_from_bmp("tiles/TS01.BMP", GFX_real_pal);
-    }
+  if (exist(ciconvertbuf("tiles/TS01.bmp", tmp_filename)))
+      load_palette_from_bmp(tmp_filename, GFX_real_pal);
   else
-    {
-/*       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP"); */
-      // GFX
-      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
-    }
+    load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
 
   // Sets the default palette for the screen
 /*   if (lpDDPal) */
@@ -6216,10 +6171,10 @@ static int doInit(int argc, char *argv[])
     /* TODO: wrap LoadBMP, and move buffer initialization right after
        palette initialization */
     SDL_Surface *splashscreen = NULL;
-    if (exist("tiles/splash.BMP") &&
-	(splashscreen = SDL_LoadBMP("tiles/splash.BMP")) == NULL)
+    if (exist(ciconvertbuf("tiles/splash.BMP", tmp_filename)) &&
+	(splashscreen = SDL_LoadBMP(tmp_filename)) == NULL)
       printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-    else if ((splashscreen = SDL_LoadBMP("../dink/tiles/splash.BMP")) == NULL)
+    else if ((splashscreen = SDL_LoadBMP(ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename))) == NULL)
       printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
 
     if (splashscreen != NULL) {
@@ -6255,10 +6210,6 @@ static int doInit(int argc, char *argv[])
 
 
   // ** SETUP **
-/*   rcRect.left = 0; */
-/*   rcRect.top = 0; */
-/*   rcRect.right = 639; */
-/*   rcRect.bottom = 79; */
   last_sprite_created = 1;
 	
   mode = 0;
@@ -6285,8 +6236,8 @@ static int doInit(int argc, char *argv[])
 	
 /*   initfonts("Arial"); */
   // FONTS
-  // FONTS_initfonts("LiberationSans-Regular.ttf");
-  FONTS_initfonts("C:/WINNT/FONTS/Arialbd.ttf");
+  FONTS_initfonts("../LiberationSans-Regular.ttf");
+  /* FONTS_initfonts("C:/WINNT/FONTS/Arialbd.ttf"); */
 
   return 1;
 } /* doInit */
