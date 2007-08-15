@@ -77,3 +77,60 @@ Note:
 
 - soundplayeffect returns a non-0 bank number; it's used by DinkC's
   playsound(). Beware!
+
+
+
+TiMidity++
+==========
+
+I never managed to use my sound card in MIDI mode with GNU/Linux -
+however there is a program called TiMidity++ that is a MIDI->WAV
+translator (software-based MIDI playing, rather than hardware-based).
+
+SDL uses TiMidity++ automatically.
+
+TiMidity++ by itself cannot play MIDIs, he needs a set of "patches",
+which are data files defining how to reproduce the instrument
+specified by the MIDI file. Once you get the patches, you also need a
+configuration file, usually provided separately.
+
+Apparently there are 2 patches set worthy to mention:
+
+- freepats: free-as-in-freedom, included in Debian (so compatible with
+  the DFSG, the Debian Free Software Guidelines)
+
+- eawpatches: best quality but apparently non-free, and pretty hard to
+  find (TiMidity++ is surrounded by 404 pages :/). There is a copy in
+  the NetBSD package:
+  ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
+  ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/alpha/2.1_2006Q3/All/eawpatches-12nb1.tgz
+
+
+Here is what I did to install the eawpatches from the NetBSD port to
+Debian GNU/Linux Etch. First I installed the patch in the
+FHS-compliant location (I checked where freepats was installed using
+dpkg -L freepats):
+
+  tar xzf eawpatches-12nb1.tgz
+  mv share/eawpatches/ /usr/share/midi/
+
+I then edited /etc/timidity/timidity.cfg:
+  source /usr/share/midi/eawpatches/timidity.cfg
+and /usr/share/midi/eawpatches/timidity.cfg:
+  dir /usr/share/midi/eawpatches
+
+Now you can play your favorite MIDIs decently :)
+  timidity dink/Sound/dance.mid
+
+
+The NetBSD documentation (in file '+DISPLAY') mentions you can test
+patch files with command line options instead of messing with the
+site-wide default configuration file:
+
+  timidity -L /usr/pkg/share/eawpatches -c timidity.cfg file.mid
+
+
+Another sum-up page: http://alleg.sourceforge.net/digmid.html
+
+I tried to installed the Gravis patches along with the provided
+configuration file, but I didn't manage to get something playing.
