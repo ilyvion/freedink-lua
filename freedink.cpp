@@ -5752,14 +5752,14 @@ void load_batch(void)
   spr[1].y = 300;
 	
   Msg("Loading .ini");	  
-  if (!exist(ciconvertbuf("dink.ini", tmp_filename)))
+  if (!exist("dink.ini"))
     {
       Msg("load_batck: dink.ini not found.");	  
       sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
       TRACE(line);
     }
 	
-  if ((stream = fopen(tmp_filename, "r")) == NULL)
+  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "r")) == NULL)
     TRACE("Error opening Dink.ini for reading.");
   else
     {
@@ -6061,11 +6061,11 @@ static int doInit(int argc, char *argv[])
   //init is finished, now lets load some more junk
 
   // Create and set the reference palette
-  if (exist(ciconvertbuf("tiles/TS01.bmp", tmp_filename)))
+  if (exist("tiles/TS01.bmp"))
     {
 /*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
       // GFX
-      load_palette_from_bmp(tmp_filename, GFX_real_pal);
+      load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal);
     }
   else
     {
@@ -6112,24 +6112,16 @@ static int doInit(int argc, char *argv[])
 	
 
   /* Initialize graphic buffers */
-  if (exist(ciconvertbuf("tiles/splash.bmp", tmp_filename)))
-    GFX_lpDDSTwo = SDL_LoadBMP(tmp_filename);
+  if (exist("tiles/splash.bmp"))
+    ciconvertbuf("tiles/splash.bmp", tmp_filename);
   else
-    GFX_lpDDSTwo = SDL_LoadBMP(ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename));
-
-  if (exist(ciconvertbuf("tiles/SPLASH.bmp", tmp_filename)))
-    GFX_lpDDSTrick = SDL_LoadBMP(tmp_filename);
-  else
-    GFX_lpDDSTrick = SDL_LoadBMP(ciconvertbuf("../dink/tiles/SPLASH.BMP", tmp_filename));
-
-  if (exist(ciconvertbuf("tiles/SPLASH.bmp", tmp_filename)))
-    GFX_lpDDSTrick2 = SDL_LoadBMP(tmp_filename);
-  else
-    GFX_lpDDSTrick2 = SDL_LoadBMP(ciconvertbuf("../dink/tiles/SPLASH.BMP", tmp_filename));
-
+    ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename);
+  GFX_lpDDSTwo = SDL_LoadBMP(tmp_filename);
+  GFX_lpDDSTrick = SDL_LoadBMP(tmp_filename);
+  GFX_lpDDSTrick2 = SDL_LoadBMP(tmp_filename);
   
-  if (exist(ciconvertbuf("tiles/TS01.bmp", tmp_filename)))
-      load_palette_from_bmp(tmp_filename, GFX_real_pal);
+  if (exist("tiles/TS01.bmp"))
+    load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal);
   else
     load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
 
@@ -6171,8 +6163,8 @@ static int doInit(int argc, char *argv[])
     /* TODO: wrap LoadBMP, and move buffer initialization right after
        palette initialization */
     SDL_Surface *splashscreen = NULL;
-    if (exist(ciconvertbuf("tiles/splash.BMP", tmp_filename)) &&
-	(splashscreen = SDL_LoadBMP(tmp_filename)) == NULL)
+    if (exist("tiles/splash.BMP") &&
+	(splashscreen = SDL_LoadBMP(ciconvertbuf("tiles/splash.BMP", tmp_filename))) == NULL)
       printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
     else if ((splashscreen = SDL_LoadBMP(ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename))) == NULL)
       printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
@@ -6244,7 +6236,7 @@ static int doInit(int argc, char *argv[])
 
 
 /* TODO: maybe use BinReloc, or something more portable (for *BSD?) */
-#ifdef WIN32
+#ifdef _WIN32
 void getdir(char final[])
 {
   //converted to non CString version that spits back path + filename seperately.
@@ -6272,7 +6264,7 @@ void getdir(char final[])
 int main(int argc, char* argv[])
 {
   /* Where am I installed? */
-#ifdef WIN32
+#ifdef _WIN32
   getdir(dinkpath);
 #else
   strcpy(dinkpath, ".");

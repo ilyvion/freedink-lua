@@ -458,14 +458,16 @@ bool separate_string (char str[255], int num, char liney, char *return1)
 	sprintf(return1, "%s%c",return1 ,str[k]);
     }
   if (l < num)  strcpy(return1,"");
-        
+  
+  replace("\r","",return1); //Take the /r off it.
   replace("\n","",return1); //Take the /n off it.
         
   return(false);
 
 done:
   if (l < num)  strcpy(return1,"");
-        
+  
+  replace("\r","",return1); //Take the /r off it.
   replace("\n","",return1); //Take the /n off it.
         
   //Msg("Took %s and turned it to %s.",str, return1);
@@ -788,7 +790,7 @@ void log_path(bool playing)
   /* TODO: saves it in the user home instead. Think about where to
      cleanly store additional DMods. */
 
-#ifdef WIN32    
+#ifdef _WIN32    
   char windir[100];
   char inifile[256];
   GetWindowsDirectory(windir, 256);
@@ -1022,22 +1024,23 @@ void TRACE(char *fmt, ...)
 
 bool exist(char name[255])
 {
-        FILE *fp;
-        fp = fopen(name, "rb");
-        if (!fp)
-        {
-                //        fclose(fp);
-                return(false);
-        }
-        
-        fclose(fp);
-        return(true);
+  char tmp_filename[PATH_MAX];
+
+  FILE *fp;
+  fp = fopen(ciconvertbuf(name, tmp_filename), "rb");
+  if (!fp)
+    return false;
+  
+  fclose(fp);
+  return true;
 }
 
 
 
 void add_text(char *tex ,char *filename)
 {
+  char tmp_filename[PATH_MAX];
+  
   /* TODO: if DEBUG.TXT cannot be opened, Dink crashes */
         FILE *          fp;
         if (strlen(tex) < 1) return;
@@ -1045,13 +1048,13 @@ void add_text(char *tex ,char *filename)
         if (exist(filename) == /*FALSE*/0)
         {
                 
-                fp = fopen(filename, "wb");
+                fp = fopen(ciconvertbuf(filename, tmp_filename), "wb");
                 fwrite( tex, strlen(tex), 1, fp);       /* current player */
                 fclose(fp);
                 return;
         } else
         {
-                fp = fopen(filename, "ab");
+                fp = fopen(ciconvertbuf(filename, tmp_filename), "ab");
                 fwrite( tex, strlen(tex), 1, fp);       /* current player */
                 fclose(fp);
         }
@@ -1482,27 +1485,24 @@ void load_map(const int num)
 
 void save_map(const int num)
 {
-        FILE *          fp;
-        long holdme,lsize;
-        char crap[80];
-        
-        
-        Msg("Saving map data..");
-        strcpy(crap, current_map);
-        if (num > 0)
-        {
-                fp = fopen( crap, "r+b");
-                lsize = sizeof(struct small_map);
-                holdme = (lsize * (num-1));
-                fseek( fp, holdme, SEEK_SET);
-                fwrite( &pam, lsize, 1, fp);       /* current player */
-                fclose(fp);
-                
-        }
-        
-        
-        Msg("Done saving map data..");
-        
+  FILE *          fp;
+  long holdme,lsize;
+  char crap[80];
+  
+  
+  Msg("Saving map data..");
+  strcpy(crap, current_map);
+  if (num > 0)
+    {
+      fp = fopen(ciconvert(crap), "r+b");
+      lsize = sizeof(struct small_map);
+      holdme = (lsize * (num-1));
+      fseek( fp, holdme, SEEK_SET);
+      fwrite( &pam, lsize, 1, fp);       /* current player */
+      fclose(fp);
+    }
+  
+  Msg("Done saving map data..");
 }
 
 
@@ -1510,12 +1510,12 @@ void save_map(const int num)
 
 void save_info(void)
 {
-        FILE *          fp;
-        char crap[80];
-        sprintf(crap, "DINK.DAT");
-                                fp = fopen(crap, "wb");
-                                fwrite(&map,sizeof(struct map_info),1,fp);
-                                fclose(fp);
+  FILE *          fp;
+  char crap[80];
+  sprintf(crap, "DINK.DAT");
+  fp = fopen(ciconvert(crap), "wb");
+  fwrite(&map,sizeof(struct map_info),1,fp);
+  fclose(fp);
 }
 
 void save_game(int num)
@@ -1553,7 +1553,7 @@ void save_game(int num)
                                 
                                 last_saved_game = num;
                                 sprintf(crap, "SAVE%d.DAT", num);
-                                fp = fopen(crap, "wb");
+                                fp = fopen(ciconvert(crap), "wb");
                                 fwrite(&play,sizeof(play),1,fp);
                                 fclose(fp);
                                 
@@ -1621,7 +1621,7 @@ bool add_time_to_saved_game(int num)
         
         sprintf(crap, "SAVE%d.DAT", num);
         
-                                fp = fopen(crap, "rb");
+	fp = fopen(ciconvert(crap), "rb");
                                 if (!fp)
                                 {
                                         Msg("Couldn't load save game %d", num);
@@ -1647,7 +1647,7 @@ bool add_time_to_saved_game(int num)
                                 
                                 
                                 sprintf(crap, "SAVE%d.DAT", num);
-                                fp = fopen(crap, "wb");
+                                fp = fopen(ciconvert(crap), "wb");
                                 if (fp)
                                 {
                                         fwrite(&play,sizeof(play),1,fp);
@@ -1704,7 +1704,7 @@ bool load_game(int num)
         
         
         
-                                fp = fopen(crap, "rb");
+	fp = fopen(ciconvert(crap), "rb");
                                 if (!fp)
                                 {
                                         Msg("Couldn't load save game %d", num);
@@ -1950,7 +1950,7 @@ bool load_game_small(int num, char * line, int *mytime)
         sprintf(crap, "SAVE%d.DAT", num);
         
         
-                                fp = fopen(crap, "rb");
+	fp = fopen(ciconvert(crap), "rb");
                                 if (!fp)
                                 {
                                         Msg("Couldn't quickload save game %d", num);
@@ -1976,11 +1976,11 @@ void load_info(void)
         sprintf(crap, "DINK.DAT");
         
         
-                                fp = fopen(crap, "rb");
+	fp = fopen(ciconvert(crap), "rb");
                                 if (!fp)
                                 {
                                         //fclose(fp);
-                                        fp = fopen(crap, "wb");
+				  fp = fopen(ciconvert(crap), "wb");
                                         //make new data file
                                         strcpy(map.name, "Smallwood");
                                         fwrite(&map,sizeof(struct map_info),1,fp);
@@ -2001,7 +2001,7 @@ void save_hard(void)
         FILE *          fp;
         char crap[80];
         sprintf(crap, "HARD.DAT");
-                                fp = fopen(crap, "wb");
+	fp = fopen(ciconvert(crap), "wb");
                                 
                                 if (!fp)
                                 {
@@ -2023,11 +2023,11 @@ void load_hard(void)
                 if (!exist(crap)) sprintf(crap, "..\\dink\\hard.dat");
         }
         
-                                fp = fopen(crap, "rb");
+	fp = fopen(ciconvert(crap), "rb");
                                 if (!fp)
                                 {
                                         //fclose(fp);
-                                        fp = fopen(crap, "wb");
+				  fp = fopen(ciconvert(crap), "wb");
                                         //make new data file
                                         memset(&hmap, 0, sizeof(struct hardness));             
                                         fwrite(&hmap,sizeof(struct hardness),1,fp);
@@ -6224,7 +6224,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   // memory leak?
   //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
   // GFX
-  image = SDL_LoadBMP(name);
+  /* image = SDL_LoadBMP(ciconvert(name)); */
   
 /*   lpDDPal = DDLoadPalette(lpDD, name); */
   // GFX
@@ -6244,8 +6244,13 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
     // 255=white). That's exactly what DX does.
     {
       SDL_Surface *conv;
-      image = SDL_LoadBMP(name);
-      conv = SDL_LoadBMP(name); // maybe use SDL_CreateRGBSurfaceFrom
+      image = SDL_LoadBMP(ciconvert(name));
+      if (image == NULL)
+	{
+	  fprintf(stderr, "Couldn't load %s\n", name);
+	  return;
+	}
+      conv = SDL_LoadBMP(ciconvert(name)); // maybe use SDL_CreateRGBSurfaceFrom
       SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_BlitSurface(conv, NULL, image, NULL);
       SDL_FreeSurface(conv);
@@ -6323,8 +6328,8 @@ void copy_bmp( char name[80])
     // 255=white). That's exactly what DX does.
     {
       SDL_Surface *conv;
-      image = SDL_LoadBMP(name);
-      conv = SDL_LoadBMP(name); // maybe use SDL_CreateRGBSurfaceFrom
+      image = SDL_LoadBMP(ciconvert(name));
+      conv = SDL_LoadBMP(ciconvert(name)); // maybe use SDL_CreateRGBSurfaceFrom
       SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_BlitSurface(conv, NULL, image, NULL);
       SDL_FreeSurface(conv);

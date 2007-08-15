@@ -111,7 +111,7 @@ print_text (TTF_Font * font, char *str, int x, int y, SDL_Color /*&*/color,
 
   if (tmp == NULL)
     {
-      printf("Error rendering text\n");
+      printf("Error rendering text: %s; font is %p\n", TTF_GetError(), font);
     }
 
   TTF_SizeText (font, str, &w, &h);

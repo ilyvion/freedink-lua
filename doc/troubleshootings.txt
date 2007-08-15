@@ -9,3 +9,16 @@
   Sources:
   http://lists.libsdl.org/private.cgi/sdl-libsdl.org/2007-August/062203.html
   http://www.libsdl.org/extras/win32/mingw32/README.txt
+
+
+- Text is missing most of the time
+
+  There is a problem with some versions of the FreeType library, which
+  is use to render fonts. Unfortunately Debian Etch and Fedora Core 6
+  (among others) currently ship with that version, so you'll have to
+  recompile it, or use a backport, or use a later release of the
+  distribution. FreeType version 2.3.5 (shipped with Fedora 7) works
+  fine.
+
+  We'll probably provide big, statically compiled FreeDink binaries in
+  the future to bypass this kind of issues.

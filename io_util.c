@@ -43,6 +43,7 @@ end_of_elt(char *str)
 char*
 ciconvert (char *filename)
 {
+#ifndef _WIN32
   /* Parse all the directories that composes filename */
   char cur_dir[PATH_MAX];
   char *pcur_elt, *pend_of_elt, *pend_of_cur_dir;
@@ -131,6 +132,7 @@ ciconvert (char *filename)
      file didn't exist yet, but leading directories still needed to be
      converted); otherwise, filename contains the fully-converted
      path, ready to be opened on a case-sensitive filesystem. */
+#endif /* !_WIN32 */
   return filename;
 }
 

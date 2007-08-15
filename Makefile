@@ -17,7 +17,7 @@ LDLIBS=$(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx -lSDL_ttf
 COMMON_OBJS=bgm.o dinkvar.o fastfile.o str_util.o io_util.o sfx.o	\
 	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o
 APPS=freedink freedinkedit
-BINARIES=$(APPS:=.exe)
+WOE_BINARIES=$(APPS:=.exe)
 
 # TODO, add a resource file for both make and vc++.
 # Dev-C++ can show how to use them (Dink_private.res).
@@ -46,7 +46,7 @@ init.o:			init.h gfx.h gfx_fonts.h dinkvar.h
 	windres.exe -i $< --input-format=rc -o $@ -O coff 
 
 clean:
-	-rm -f $(COMMON_OBJS) freedink.o freedinkedit.o $(BINARIES)
+	-rm -f $(COMMON_OBJS) freedink.o freedinkedit.o update_frame.o $(APPS) $(WOE_BINARIES)
 	-rm -f *~
 
 # Those targets are not files
