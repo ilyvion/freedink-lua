@@ -10,10 +10,12 @@ CXXFLAGS=$(CFLAGS) -g
 #LDLIBS=-ldxguid -ldinput -lddraw -lwinmm -lSDL -lSDL_mixer
 #LDFLAGS=-L"C:/dx7sdk/lib"
 
-LDLIBS=-ldxguid -ldinput -lddraw -lwinmm $(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx -lSDL_ttf
+LDLIBS=$(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx -lSDL_ttf
 
-COMMON_OBJS=bgm.o ddutil.o dinkvar.o fastfile.o string_util.o sfx.o	\
-	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o freedink.res
+#COMMON_OBJS=bgm.o dinkvar.o fastfile.o string_util.o sfx.o	\
+#	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o freedink.res
+COMMON_OBJS=bgm.o dinkvar.o fastfile.o str_util.o sfx.o	\
+	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o
 APPS=freedink freedinkedit
 BINARIES=$(APPS:=.exe)
 
@@ -28,9 +30,8 @@ freedinkedit: $(COMMON_OBJS) freedinkedit.o
 # .h deps
 freedink.o:  		freedink.h dinkvar.h update_frame.h bgm.h sfx.h gfx.h gfx_tiles.h gfx_utils.h gfx_fonts.h resource.h
 freedinkedit.o:		dinkvar.h bgm.h sfx.h gfx.h gfx_tiles.h gfx_fonts.h resource.h
-dinkvar.o:		dinkvar.h bgm.h sfx.h ddutil.h fastfile.h freedink.h gfx.h gfx_tiles.h gfx_fonts.h bgm.h
+dinkvar.o:		dinkvar.h bgm.h sfx.h fastfile.h freedink.h gfx.h gfx_tiles.h gfx_fonts.h bgm.h
 update_frame.o:		update_frame.h dinkvar.h freedink.h gfx_tiles.h gfx.h gfx_fonts.h bgm.h
-ddutil.o:		ddutil.h
 bgm.o:			bgm.h dinkvar.h
 sfx.o:			sfx.h dinkvar.h
 gfx.o:			gfx.h

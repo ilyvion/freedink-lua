@@ -29,14 +29,10 @@
 #define _GFX_FONTS_H
 
 #include "SDL_ttf.h"
+#include "rect.h"
 
 /* extern HFONT hfont_small; */
 extern TTF_Font *FONTS_hfont_small;
-
-struct rect
-{
-  long left, top, right, bottom;
-};
 
 extern void FONTS_initfonts(char* fontname);
 /* extern int print_text_wrap (TTF_Font * font, char *str, struct rect * box, SDL_Color color, */

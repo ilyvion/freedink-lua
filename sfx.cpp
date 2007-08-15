@@ -39,7 +39,7 @@ static struct
 /**
  * Load sounds in the standard paths
  */
-int CreateBufferFromWaveFile(char* filename, DWORD dwBuf)
+int CreateBufferFromWaveFile(char* filename, int dwBuf)
 {
     // Open the wave file       
     char path[150];

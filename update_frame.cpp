@@ -33,12 +33,13 @@
 /* For printing strings in debug mode */
 #include "gfx_fonts.h"
 #include "bgm.h"
+#include "rect.h"
 
 #include "update_frame.h"
 
 void updateFrame( void )
 {
-    byte state[256]; 
+    unsigned char state[256]; 
 /*     RECT                rcRect,box_crap,box_real; */
     RECT rcRect; /* for FONTS */
     SDL_Rect GFX_box_crap;
@@ -54,7 +55,7 @@ void updateFrame( void )
 	bool get_frame = false;
 	int h,max_s,j;
 	//HBRUSH brush;
-	BOOL bs[max_sprites_at_once];
+	/*BOOL*/int bs[max_sprites_at_once];
 	
 	int rank[max_sprites_at_once];
 	int highest_sprite;
@@ -235,7 +236,7 @@ demon:
 			{
 				if (spr[h1].active) if (spr[h1].disabled == false)
 				{ 
-					if (bs[h1] == FALSE)
+					if (bs[h1] == /*FALSE*/0)
 					{
 						//Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
 						if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
@@ -251,7 +252,7 @@ demon:
 				
 			}
 			if (rank[r1] != 0)	
-				bs[rank[r1]] = TRUE;
+				bs[rank[r1]] = /*TRUE*/1;
 			
 		}
 		
@@ -448,10 +449,10 @@ animate:
 						{
 							// new anim
 							spr[h].pseq = spr[h].seq;
-							spr[h].pframe = index[spr[h].seq].last;
-							spr[h].frame = index[spr[h].seq].last;
+							spr[h].pframe = s_index[spr[h].seq].last;
+							spr[h].frame = s_index[spr[h].seq].last;
 							if (spr[h].frame_delay != 0) spr[h].delay = (thisTickCount+ spr[h].frame_delay); else
-								spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[index[spr[h].seq].last]);
+								spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[s_index[spr[h].seq].last]);
 						}   else
 						{
 							// not new anim
@@ -624,7 +625,7 @@ past:
 				// remove the draw_sprite_game line?
 
 				// if (mcc == sound_support)
-				draw_sprite_game(lpDDSBack, GFX_lpDDSBack, h);
+				draw_sprite_game(GFX_lpDDSBack, h);
 				
 				
 				move_gonna = false;
@@ -713,7 +714,7 @@ past:
 }
  }								
  
- if ( (sjoy.joybit[7] == TRUE) )
+ if ( (sjoy.joybit[7] == /*TRUE*/1) )
 	 
  {
 	 //space is pressed, lets draw the hitmap, why not?
@@ -726,7 +727,7 @@ past:
 	if (mode == 0)
 	{
 		
-		FillMemory(&spr[1], sizeof(spr[1]), 0);
+	  memset(&spr[1], 0, sizeof(spr[1]));
 		
 		spr[1].speed = 3;
 		/* init_mouse(hWndMain); */
@@ -748,7 +749,7 @@ past:
 		spr[1].base_walk = -1;
 		spr[1].size = 100;		 
 		spr[1].base_hit = 100;
-		spr[1].active = TRUE;
+		spr[1].active = /*TRUE*/1;
 		
 		int crap2 = add_sprite(0,450,8,0,0);
 		
@@ -968,6 +969,6 @@ flip:
 	if (!abort_this_flip)
 		flip_it(); 
 	
-	if (turn_on_plane) plane_process = TRUE;
+	if (turn_on_plane) plane_process = /*TRUE*/1;
 	
 } /* updateFrame */

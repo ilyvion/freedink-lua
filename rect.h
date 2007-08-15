@@ -1,7 +1,6 @@
 /**
- * Free fastfile.cpp replacement prototypes
+ * Rectangle structure to make hardness maths
 
- * Copyright (C) 2003  Shawn Bett
  * Copyright (C) 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
@@ -21,26 +20,22 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FASTFILE_H
-#define _FASTFILE_H
+#ifndef _RECT_H
+#define _RECT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  typedef void *HFASTFILE;
+typedef struct RECT {
+  int left, top, right, bottom;
+} RECT;
 
-  extern int FastFileInit (char *filename, int max_handles);
-  extern void FastFileFini (void);
-  extern void *FastFileOpen (char *name);
-  extern int FastFileClose (void *pfe);
-  extern int FastFileRead (void *pfh, void *ptr, int size);
-  extern int FastFileSeek (void *pfe, int off, int how);
-  extern long FastFileTell (void *pfe);
-  extern void *FastFileLock (void *pfe, int off, int len);
-  extern int FastFileUnlock (void *pfe, int off, int len);
-  extern int FastFileLen (void *i);
+extern int SetRect(RECT *rect, int left, int top, int right, int bottom);
+extern int OffsetRect(RECT *rect, int tx, int ty);
+extern int CopyRect(RECT *src, RECT *dst);
+extern int InflateRect(RECT *rect, int dw, int dh);
 
 #ifdef __cplusplus
 }

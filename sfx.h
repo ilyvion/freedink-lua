@@ -41,7 +41,7 @@ struct soundstruct
 extern soundstruct soundinfo[num_soundbanks+1];
 
 extern int InitSound();
-extern int CreateBufferFromWaveFile(char* filename, DWORD dwBuf);
+extern int CreateBufferFromWaveFile(char* filename, int dwBuf);
 extern int EditorSoundPlayEffect(int sound);
 extern int SoundPlayEffect(int sound, int min, int plus, int sound3d, bool repeat);
 extern int playing(int sound);

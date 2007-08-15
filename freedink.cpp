@@ -26,19 +26,26 @@
 #define TITLE "GNU FreeDink"
 
 #include <stdio.h>
+
 /* for unlink(): */
-#include <io.h>
+/* #include <io.h> */
+
 /* for _O_RDWR, _O_CREAT, _S_IREAD... : */
 #include <fcntl.h>
+
 /* for time(): */
 #include <time.h>
+
 /* for chdir() */
-#include <direct.h>
+/* #include <direct.h> */
+#include <unistd.h>
+
 /* #include <windows.h> */
 /* For GetStockBrush */
 /* #include <windowsx.h> */
 /* #include <ddraw.h> */
 /* #include "ddutil.h" */
+
 #include "fastfile.h"
 
 #include "gfx.h"
@@ -53,12 +60,14 @@
 #include "init.h"
 #include "freedink.h"
 
+/* TODO: autoconf strncasecmp -> strnicmp/woe; PATH_MAX -> MAX_PATH */
+
 /* const int WM_IMDONE = WM_USER+110; */
 
 int fps_average;
 
 
-BOOL initFail(char mess[200]);
+/*BOOL*/int initFail(char mess[200]);
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(RECT box, int color);
 void run_through_tag_list_push(int h);
@@ -329,16 +338,16 @@ void get_last_sprite(void)
 }
 
 
-BOOL keypressed(void)
+/*BOOL*/int keypressed(void)
 {
   for (int x=0; x<256; x++)
     {
       if (GetKeyboard(x))
 	{
-	  return(TRUE);
+	  return(/*TRUE*/1);
 	}
     }
-  return(FALSE);
+  return(/*FALSE*/0);
 }
 
 
@@ -346,24 +355,24 @@ BOOL keypressed(void)
 void check_joystick(void)
 {
 	
-	HRESULT ddrval;
+/* 	HRESULT ddrval; */
 	int total;
 	//memset(&sjoy,0,sizeof(sjoy));
 	
 	for (int e2=1; e2 <=10; e2++) 
 	{
-		sjoy.joybit[e2] = FALSE;
+		sjoy.joybit[e2] = /*FALSE*/0;
 		
 	}
-	sjoy.right = FALSE;
-	sjoy.left = FALSE;
-	sjoy.up = FALSE;
-	sjoy.down = FALSE;
+	sjoy.right = /*FALSE*/0;
+	sjoy.left = /*FALSE*/0;
+	sjoy.up = /*FALSE*/0;
+	sjoy.down = /*FALSE*/0;
 	
-	sjoy.rightd = FALSE;
-	sjoy.leftd = FALSE;
-	sjoy.upd = FALSE;
-	sjoy.downd = FALSE;
+	sjoy.rightd = /*FALSE*/0;
+	sjoy.leftd = /*FALSE*/0;
+	sjoy.upd = /*FALSE*/0;
+	sjoy.downd = /*FALSE*/0;
 	
 	//joystick = false;
 	if (joystick)
@@ -449,16 +458,16 @@ void check_joystick(void)
 	
 	
 pass:
-	if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = TRUE; //17
-	if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = TRUE; //32
+	if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = /*TRUE*/1; //17
+	if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = /*TRUE*/1; //32
 	
-	if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = TRUE; //16
-	if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = TRUE; //13
-	if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = TRUE; //27
-	if (GetKeyboard('6')) sjoy.joybit[6] = TRUE; //54
-	if (GetKeyboard('7')) sjoy.joybit[7] = TRUE; //55
+	if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = /*TRUE*/1; //16
+	if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = /*TRUE*/1; //13
+	if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = /*TRUE*/1; //27
+	if (GetKeyboard('6')) sjoy.joybit[6] = /*TRUE*/1; //54
+	if (GetKeyboard('7')) sjoy.joybit[7] = /*TRUE*/1; //55
 	
-	for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = FALSE; 
+	for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = /*FALSE*/0; 
 	
 	
 	for (int x=1; x <=10; x++)
@@ -466,10 +475,10 @@ pass:
 	{
 		if (sjoy.joybit[x])
 		{
-			if (sjoy.letgo[x] == TRUE) 
+			if (sjoy.letgo[x] == /*TRUE*/1) 
 			{
-				sjoy.button[x] = TRUE;
-				sjoy.letgo[x] = FALSE;
+				sjoy.button[x] = /*TRUE*/1;
+				sjoy.letgo[x] = /*FALSE*/0;
 			}
 			
 		}
@@ -478,10 +487,10 @@ pass:
 	
 	
 	
-	if (GetKeyboard(SDLK_RIGHT)) sjoy.right = TRUE; //39
-	if (GetKeyboard(SDLK_LEFT)) sjoy.left = TRUE; //37
-	if (GetKeyboard(SDLK_DOWN)) sjoy.down = TRUE; //40
-	if (GetKeyboard(SDLK_UP)) sjoy.up = TRUE; //38
+	if (GetKeyboard(SDLK_RIGHT)) sjoy.right = /*TRUE*/1; //39
+	if (GetKeyboard(SDLK_LEFT)) sjoy.left = /*TRUE*/1; //37
+	if (GetKeyboard(SDLK_DOWN)) sjoy.down = /*TRUE*/1; //40
+	if (GetKeyboard(SDLK_UP)) sjoy.up = /*TRUE*/1; //38
 	
 	
 	
@@ -491,13 +500,13 @@ pass:
 	
 	for (int x2=1; x2 <=10; x2++) 
 	{
-		if (sjoy.joybit[x2])  sjoy.letgo[x2] = FALSE; else sjoy.letgo[x2] = TRUE;
+		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
 		
 	}
 	
 	
 	
-	if (sjoy.right) if (sjoy.rightold == TRUE)
+	if (sjoy.right) if (sjoy.rightold == /*TRUE*/1)
 	{
 		sjoy.rightd = true;
 		sjoy.rightold = false;
@@ -506,7 +515,7 @@ pass:
 	if (sjoy.right) sjoy.rightold = false; else sjoy.rightold = true;
 	
 	
-	if (sjoy.left) if (sjoy.leftold == TRUE)
+	if (sjoy.left) if (sjoy.leftold == /*TRUE*/1)
 	{
 		sjoy.leftd = true;
 		sjoy.leftold = false;
@@ -515,7 +524,7 @@ pass:
 	if (sjoy.left) sjoy.leftold = false; else sjoy.leftold = true;
 	
 	
-	if (sjoy.up) if (sjoy.upold == TRUE)
+	if (sjoy.up) if (sjoy.upold == /*TRUE*/1)
 	{
 		sjoy.upd = true;
 		sjoy.upold = false;
@@ -524,7 +533,7 @@ pass:
 	if (sjoy.up) sjoy.upold = false; else sjoy.upold = true;
 	
 	
-	if (sjoy.down) if (sjoy.downold == TRUE)
+	if (sjoy.down) if (sjoy.downold == /*TRUE*/1)
 	{
 		sjoy.downd = true;
 		sjoy.downold = false;
@@ -2055,7 +2064,7 @@ void bounce_brain(int h)
 void grab_trick(int trick)
 {
   RECT rcRect;
-  HRESULT ddrval;
+/*   HRESULT ddrval; */
   //Msg("making trick.");
   
   if (no_transition)
@@ -2651,7 +2660,7 @@ void mouse_brain(int h)
 	
 	
 	
-	if ( (sjoy.button[1] == TRUE) | (mouse1) )
+	if ( (sjoy.button[1] == /*TRUE*/1) | (mouse1) )
 	{
 		
 		Msg("running through mouse list..");
@@ -2736,7 +2745,7 @@ void human_brain(int h)
 	
 	int diag, x5;
 	int crap;
-	BOOL bad;
+	/*BOOL*/int bad;
 	
 	if (mode == 0) goto b1end;			
 	
@@ -2808,7 +2817,7 @@ void human_brain(int h)
 	{
 		//they are frozen
 		
-	  if ( (sjoy.button[2] == TRUE) || (sjoy.key[VK_SPACE /* 32 */]))
+	  if ( (sjoy.button[2] == /*TRUE*/1) || (sjoy.key[SDLK_SPACE /* 32 */]))
 		{
 			//they hit the talk button while frozen, lets hurry up the process
 			
@@ -2864,7 +2873,7 @@ void human_brain(int h)
 	
 	
 	
-	if ( (sjoy.button[2] == TRUE) )
+	if ( (sjoy.button[2] == /*TRUE*/1) )
 	{
 		
 		if (!run_through_tag_list_talk(h))
@@ -2897,7 +2906,7 @@ void human_brain(int h)
 	}
 	
 	
-	if ( (sjoy.button[1] == TRUE) && (weapon_script != 0) )
+	if ( (sjoy.button[1] == /*TRUE*/1) && (weapon_script != 0) )
 	{
 		
 		
@@ -2948,7 +2957,7 @@ void human_brain(int h)
 	}
 	
 	
-	if ( (sjoy.button[6] == TRUE)  || ( (GetKeyboard('m')) && (but_timer < thisTickCount)   )   )
+	if ( (sjoy.button[6] == /*TRUE*/1)  || ( (GetKeyboard('m')) && (but_timer < thisTickCount)   )   )
 	{
 		
 		but_timer = thisTickCount+200;
@@ -2959,7 +2968,7 @@ void human_brain(int h)
 	}
 	
 	if (magic_script != 0) if (sjoy.joybit[3]) goto shootm;
-	if ( (sjoy.button[3] == TRUE) )
+	if ( (sjoy.button[3] == /*TRUE*/1) )
 	{
 		if (magic_script == 0)
 		{
@@ -3036,7 +3045,7 @@ shootm:
 	}
 	
 	
-	if ( (sjoy.button[5] == TRUE) )
+	if ( (sjoy.button[5] == /*TRUE*/1) )
 	{
 		
 		if (!showb.active) if (!bow.active) if (!talk.active)
@@ -3144,18 +3153,18 @@ shootm:
 		}
 		
 		
-		bad = FALSE;
-		if (sjoy.right) bad = TRUE;    
-		if (sjoy.left) bad = TRUE;    
-		if (sjoy.up) bad = TRUE;    
-		if (sjoy.down) bad = TRUE;    
+		bad = /*FALSE*/0;
+		if (sjoy.right) bad = /*TRUE*/1;    
+		if (sjoy.left) bad = /*TRUE*/1;    
+		if (sjoy.up) bad = /*TRUE*/1;    
+		if (sjoy.down) bad = /*TRUE*/1;    
 		
 		if (bad)
 		{
 			if (spr[h].idle)
 			{
 				spr[h].frame = 1;
-				spr[h].idle = FALSE;
+				spr[h].idle = /*FALSE*/0;
 			}
 			goto badboy;
 		}
@@ -3170,7 +3179,7 @@ freeze:
 								if (spr[h].dir == 9) spr[h].dir = 8;
 								
 								if (spr[h].base_idle != 0) changedir(spr[h].dir,h,spr[h].base_idle);								
-								spr[h].idle = TRUE;   
+								spr[h].idle = /*TRUE*/1;   
 		}
 		
 		
@@ -3526,7 +3535,7 @@ bool transition(void)
 		
 /* 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick, */
 /* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = move_counter;
@@ -3673,7 +3682,7 @@ bool transition(void)
 		
 /* 		ddrval = lpDDSBack->BltFast( 20, 399 - move_counter, lpDDSTrick2, */
 /* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-		if (ddrval != DD_OK) dderror(ddrval);
+/* 		if (ddrval != DD_OK) dderror(ddrval); */
 		// GFX
 		{
 		  src.x = 0;
@@ -4394,7 +4403,7 @@ void one_time_brain(int h)
 	
 	if (spr[h].seq == 0)
 	{
-	  draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, h);
+	  draw_sprite_game(GFX_lpDDSTwo, h);
 		spr[h].active = false;			
 		return;
 	}
@@ -4559,7 +4568,7 @@ void process_talk()
   int curyl = 200;
   
   int y_last = 0, y_hold = 0, y_ho; 
-  HDC         hdc;
+/*   HDC         hdc; */
   RECT rcRect;
   int i;
   int x_depth = 335;
@@ -5420,7 +5429,7 @@ void process_show_bmp( void )
       int mseq = 165;
       
       showb.picframe++;
-      if (showb.picframe > index[mseq].last) showb.picframe = 1;
+      if (showb.picframe > s_index[mseq].last) showb.picframe = 1;
       int mframe = showb.picframe;
       
 /*       lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k, */
@@ -5471,7 +5480,7 @@ void process_show_bmp( void )
 
 void drawscreenlock( void )
 {
-  HRESULT     ddrval;
+/*   HRESULT     ddrval; */
   
  loop:
   //draw the screenlock icon
@@ -5632,13 +5641,13 @@ void finiObjects()
 	//TTF_Quit();
 } /* finiObjects */
 
-BOOL initFail(char mess[200])
+/*BOOL*/int initFail(char mess[200])
 {
 /* 	MessageBox( hwnd, mess, TITLE, MB_OK ); */
   printf("%s\n", mess);
 	finiObjects();
 //	DestroyWindow( hwnd );
-	return FALSE;
+	return /*FALSE*/0;
 	
 } /* initFail */
 
@@ -5776,26 +5785,26 @@ int check_arg(int argc, char *argv[])
 /*       separate_string(crap, i, ' ', option); */
       strcpy(option, argv[i]);
 
-      if (strnicmp(option, "-window", strlen("-window")) == 0)
+      if (strncasecmp(option, "-window", strlen("-window")) == 0)
 	{
 	  windowed = true;
 	  // Beuc: enabling transition is more fun :)
 	  //no_transition = true;	  
 	}
 		
-      if (strnicmp(option, "-debug", strlen("-debug")) == 0)
+      if (strncasecmp(option, "-debug", strlen("-debug")) == 0)
 	{
 	  debug_mode = true;
-	  unlink("dink\\debug.txt");
+	  remove("dink\\debug.txt");
 	}
       
-      if (strnicmp(option, "-nojoy", strlen("-nojoy")) == 0)
+      if (strncasecmp(option, "-nojoy", strlen("-nojoy")) == 0)
 	  joystick = false;
 
-      if (strnicmp(option, "-noini", strlen("-noini")) == 0)
+      if (strncasecmp(option, "-noini", strlen("-noini")) == 0)
 	  g_b_no_write_ini = 1;
       
-      if (strnicmp(option, "-game", strlen("-game")) == 0)
+      if (strncasecmp(option, "-game", strlen("-game")) == 0)
 	{
 	  char gamedir[200];
 /* 	  separate_string(crap, i+1,' ',gamedir); */
@@ -5804,7 +5813,7 @@ int check_arg(int argc, char *argv[])
 	  Msg("Working directory %s requested.",dir);  
 	}
 				
-      if (strnicmp(option, "-nosound", strlen("-nosound")) == 0)
+      if (strncasecmp(option, "-nosound", strlen("-nosound")) == 0)
 	sound_on = false;
     }
 	
@@ -6224,10 +6233,10 @@ static int doInit(int argc, char *argv[])
   if (cd_inserted)
     PlayCD(7);
 	
-  if (CheckJoyStickPresent() == FALSE)
-    joystick = FALSE;
+  if (CheckJoyStickPresent() == /*FALSE*/0)
+    joystick = /*FALSE*/0;
   else
-    joystick = TRUE;
+    joystick = /*TRUE*/1;
 	
   //dinks normal walk
   Msg("loading batch");
@@ -6264,7 +6273,7 @@ static int doInit(int argc, char *argv[])
     play.button[u] = u;
 	
   for (int x1 = 1; x1 <= 10; x1++) 
-    sjoy.letgo[x1] = TRUE;
+    sjoy.letgo[x1] = /*TRUE*/1;
 	
   //lets run our init script
   int script = load_script("main", 0, true);
@@ -6283,6 +6292,8 @@ static int doInit(int argc, char *argv[])
 } /* doInit */
 
 
+/* TODO: maybe use BinReloc, or something more portable (for *BSD?) */
+#ifdef WIN32
 void getdir(char final[])
 {
   //converted to non CString version that spits back path + filename seperately.
@@ -6302,7 +6313,7 @@ void getdir(char final[])
   path[c_cur] = 0; //truncate
   strcpy(final, path);
 }
-
+#endif
 
 /**
  * Initialization, message loop
@@ -6310,8 +6321,12 @@ void getdir(char final[])
 int main(int argc, char* argv[])
 {
   /* Where am I installed? */
+#ifdef WIN32
   getdir(dinkpath);
-  
+#else
+  strcpy(dinkpath, ".");
+#endif
+
   if (chdir(dinkpath) < 0)
     {
       char message[256];

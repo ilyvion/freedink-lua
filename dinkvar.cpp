@@ -37,24 +37,25 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <direct.h>
-#include <io.h>
+
+/* #include <windows.h> */
+/* #include <windowsx.h> */
+/* #include <direct.h> */
+/* #include <io.h> */
 #include <fcntl.h>
-#include <process.h>
+/* #include <process.h> */
 
 
-#include <mmsystem.h>
-#define DIRECTINPUT_VERSION 0x0700
-#include <dinput.h>
-#include <ddraw.h>
+/* #include <mmsystem.h> */
+/* #define DIRECTINPUT_VERSION 0x0700 */
+/* #include <dinput.h> */
+/* #include <ddraw.h> */
 
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include "SDL_rotozoom.h"
 
-#include "ddutil.h"
+/* #include "ddutil.h" */
 #include "fastfile.h"
 
 
@@ -67,6 +68,8 @@
 #include "gfx_fonts.h"
 #include "bgm.h"
 #include "sfx.h"
+
+#include "str_util.h"
 
 int g_b_no_write_ini = 0;
 bool no_cheat =  true;
@@ -87,7 +90,7 @@ int load_script(char filename[15], int sprite, bool set_sprite);
 void strchar(char *string, char ch);
 /* Path where Dink is installed. Used to write dinksmallwood.ini in
    log_path(), and in the editor (?) */
-char dinkpath[MAX_PATH];
+char dinkpath[PATH_MAX];
 
 void update_status_all(void);
 int add_sprite(int x1, int y, int brain,int pseq, int pframe );
@@ -99,7 +102,6 @@ void draw_status_all(void);
 void check_seq_status(int h);
 
 void get_word(char line[300], int word, char *crap);
-void Msg( LPSTR fmt, ... );
 void run_script (int script);
 void add_text(char *tex ,char *filename);
 void program_idata(void);
@@ -156,7 +158,7 @@ const int max_idata = 600;
 int mbase_timing;
 idata id[max_idata];
 
-DWORD mold;
+unsigned long mold;
 
 int item_timer;
 int item_pic;
@@ -181,7 +183,7 @@ player_short_info short_play;
 int push_active = 1;
 
 
-bool turn_on_plane = FALSE;
+bool turn_on_plane = /*FALSE*/0;
 const int text_timer = 77;
 const int text_min = 2700;
 const int max_sprites = 4000;
@@ -225,7 +227,7 @@ struct call_back
         int offset;
         long min, max;
     int lifespan;
-    DWORD timer;
+    unsigned long timer;
 };
 
 
@@ -240,7 +242,7 @@ int process_warp = 0;
 bool process_downcycle = false;
 /* or fading up */
 bool process_upcycle = false;
-DWORD cycle_clock = 0;
+unsigned long cycle_clock = 0;
 int cycle_script = 0;
 
 int *in_int;
@@ -279,14 +281,14 @@ int process_line (int script, char *s, bool doelse);
 
 
 bool please_wait = false;
-int  show_dot = FALSE;
-int  plane_process = TRUE;
+int  show_dot = /*FALSE*/0;
+int  plane_process = /*TRUE*/1;
 hit_map hm;
 
-HWND     g_hWnd;
-sprite_index index[max_sequences];
+/* HWND     g_hWnd; */
+sprite_index s_index[max_sequences];
 int last_sprite_added = 0;
-DWORD timer = 0;
+unsigned long timer = 0;
 char *command_line;
 bool dinkedit = false;
 int base_timing;
@@ -305,7 +307,7 @@ int m3x,m3y;
 int playx = 620;
 bool windowed = false;
 int playl = 20;
-HINSTANCE MyhInstance = NULL;
+/* HINSTANCE MyhInstance = NULL; */
 bool mouse1 = false;
 int cur_sprite = 1;
 int playy = 399;
@@ -313,12 +315,12 @@ int cur_map,cur_tile;
 seth_joy sjoy;
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount; 
-DWORD timecrap;
+unsigned long timecrap;
 RECT math,box_crap,box_real;
 
-HRESULT             ddrval;
+/* HRESULT             ddrval; */
 int sz,sy,x_offset,y_offset;
-DDBLTFX     ddbltfx;
+/* DDBLTFX     ddbltfx; */
 
 
 
@@ -361,13 +363,13 @@ int bActive = false;        // is application active/foreground?
 
 //LPCDIDATAFORMAT lpc;
 
-BYTE torusColors[256];  // Marks the colors used in the torus
+unsigned char torusColors[256];  // Marks the colors used in the torus
 
 
-HWND                    hWndMain = NULL;
+/* HWND                    hWndMain = NULL; */
 //JOYINFOEX jinfo; //joystick info
 SDL_Joystick* jinfo;
-BOOL joystick = false;
+/*BOOL*/int joystick = false;
 hardness hmap;
 
 
@@ -497,10 +499,11 @@ char * lmon(long money, char *dest)
         int k,c;
         char lmon1[30];
         char buffer[30];
-        BOOL quit1;
-        quit1 = FALSE;
-        
-        strcpy(lmon1, ltoa(money,buffer,10));
+        /*BOOL*/int quit1;
+        quit1 = /*FALSE*/0;
+
+        sprintf(buffer, "%ld", money);
+        strcpy(lmon1, buffer);
         // prf("ORG IS '%s'",lmon1);
         
         if (strlen(lmon1) < 4)
@@ -509,7 +512,8 @@ char * lmon(long money, char *dest)
                 return(dest);
         }
         
-        strcpy(ho, ltoa(money, buffer, 10));
+        sprintf(buffer, "%ld", money);
+        strcpy(ho, buffer);
         k = strlen(ho);
         c = -1;
         lmon1[0]=0;
@@ -525,8 +529,8 @@ char * lmon(long money, char *dest)
                                 c = 0;
                         }
                 }
-                if (k < 0) quit1 = TRUE;
-        }while (quit1 == FALSE);
+                if (k < 0) quit1 = /*TRUE*/1;
+        }while (quit1 == /*FALSE*/0);
         reverse(lmon1);
         
         strcpy(dest, lmon1);
@@ -535,215 +539,215 @@ char * lmon(long money, char *dest)
 
 
 
-void dderror(HRESULT hErr)
-{       
-    switch (hErr)
-    {
-        case DDERR_ALREADYINITIALIZED:
-                Msg("DDERR_ALREADYINITIALIZED"); break;
-        case DDERR_CANNOTATTACHSURFACE:
-                Msg("DDERR_CANNOTATTACHSURFACE"); break;
-        case DDERR_CANNOTDETACHSURFACE:
-                Msg("DDERR_CANNOTDETACHSURFACE"); break;
-        case DDERR_CURRENTLYNOTAVAIL:
-                Msg("DDERR_CURRENTLYNOTAVAIL"); break;
-        case DDERR_EXCEPTION:
-                Msg("DDERR_EXCEPTION"); break;
-        case DDERR_GENERIC:
-                Msg("DDERR_GENERIC"); break;
-        case DDERR_HEIGHTALIGN:
-                Msg("DDERR_HEIGHTALIGN"); break;
-        case DDERR_INCOMPATIBLEPRIMARY:
-                Msg("DDERR_INCOMPATIBLEPRIMARY"); break;
-        case DDERR_INVALIDCAPS:
-                Msg("DDERR_INVALIDCAPS"); break;
-        case DDERR_INVALIDCLIPLIST:
-                Msg("DDERR_INVALIDCLIPLIST"); break;
-        case DDERR_INVALIDMODE:
-                Msg("DDERR_INVALIDMODE"); break;
-        case DDERR_INVALIDOBJECT:
-                Msg("DDERR_INVALIDOBJECT"); break;
-        case DDERR_INVALIDPARAMS:
-                Msg("DDERR_INVALIDPARAMS"); break;
-        case DDERR_INVALIDPIXELFORMAT:
-                Msg("DDERR_INVALIDPIXELFORMAT"); break;
-        case DDERR_INVALIDRECT:
-                Msg("DDERR_INVALIDRECT"); break;
-        case DDERR_LOCKEDSURFACES:
-                Msg("DDERR_LOCKEDSURFACES"); break;
-        case DDERR_NO3D:
-                Msg("DDERR_NO3D"); break;
-        case DDERR_NOALPHAHW:
-                Msg("DDERR_NOALPHAHW"); break;
-        case DDERR_NOCLIPLIST:
-                Msg("DDERR_NOCLIPLIST"); break;
-        case DDERR_NOCOLORCONVHW:
-                Msg("DDERR_NOCOLORCONVHW"); break;
-        case DDERR_NOCOOPERATIVELEVELSET:
-                Msg("DDERR_NOCOOPERATIVELEVELSET"); break;
-        case DDERR_NOCOLORKEY:
-                Msg("DDERR_NOCOLORKEY"); break;
-        case DDERR_NOCOLORKEYHW:
-                Msg("DDERR_NOCOLORKEYHW"); break;
-        case DDERR_NODIRECTDRAWSUPPORT:
-                Msg("DDERR_NODIRECTDRAWSUPPORT"); break;
-        case DDERR_NOEXCLUSIVEMODE:
-                Msg("DDERR_NOEXCLUSIVEMODE"); break;
-        case DDERR_NOFLIPHW:
-                Msg("DDERR_NOFLIPHW"); break;
-        case DDERR_NOGDI:
-                Msg("DDERR_NOGDI"); break;
-        case DDERR_NOMIRRORHW:
-                Msg("DDERR_NOMIRRORHW"); break;
-        case DDERR_NOTFOUND:
-                Msg("DDERR_NOTFOUND"); break;
-        case DDERR_NOOVERLAYHW:
-                Msg("DDERR_NOOVERLAYHW"); break;
-        case DDERR_NORASTEROPHW:
-                Msg("DDERR_NORASTEROPHW"); break;
-        case DDERR_NOROTATIONHW:
-                Msg("DDERR_NOROTATIONHW"); break;
-        case DDERR_NOSTRETCHHW:
-                Msg("DDERR_NOSTRETCHHW"); break;
-        case DDERR_NOT4BITCOLOR:
-                Msg("DDERR_NOT4BITCOLOR"); break;
-        case DDERR_NOT4BITCOLORINDEX:
-                Msg("DDERR_NOT4BITCOLORINDEX"); break;
-        case DDERR_NOT8BITCOLOR:
-                Msg("DDERR_NOT8BITCOLOR"); break;
-        case DDERR_NOTEXTUREHW:
-                Msg("DDERR_NOTEXTUREHW"); break;
-        case DDERR_NOVSYNCHW:
-                Msg("DDERR_NOVSYNCHW"); break;
-        case DDERR_NOZBUFFERHW:
-                Msg("DDERR_NOZBUFFERHW"); break;
-        case DDERR_NOZOVERLAYHW:
-                Msg("DDERR_NOZOVERLAYHW"); break;
-        case DDERR_OUTOFCAPS:
-                Msg("DDERR_OUTOFCAPS"); break;
-        case DDERR_OUTOFMEMORY:
-                Msg("DDERR_OUTOFMEMORY"); break;
-        case DDERR_OUTOFVIDEOMEMORY:
-                Msg("DDERR_OUTOFVIDEOMEMORY"); break;
-        case DDERR_OVERLAYCANTCLIP:
-                Msg("DDERR_OVERLAYCANTCLIP"); break;
-        case DDERR_OVERLAYCOLORKEYONLYONEACTIVE:
-                Msg("DDERR_OVERLAYCOLORKEYONLYONEACTIVE"); break;
-        case DDERR_PALETTEBUSY:
-                Msg("DDERR_PALETTEBUSY"); break;
-        case DDERR_COLORKEYNOTSET:
-                Msg("DDERR_COLORKEYNOTSET"); break;
-        case DDERR_SURFACEALREADYATTACHED:
-                Msg("DDERR_SURFACEALREADYATTACHED"); break;
-        case DDERR_SURFACEALREADYDEPENDENT:
-                Msg("DDERR_SURFACEALREADYDEPENDENT"); break;
-        case DDERR_SURFACEBUSY:
-                Msg("DDERR_SURFACEBUSY"); break;
-        case DDERR_CANTLOCKSURFACE:
-                Msg("DDERR_CANTLOCKSURFACE"); break;
-        case DDERR_SURFACEISOBSCURED:
-                Msg("DDERR_SURFACEISOBSCURED"); break;
-        case DDERR_SURFACELOST:
-                Msg("DDERR_SURFACELOST"); break;
-        case DDERR_SURFACENOTATTACHED:
-                Msg("DDERR_SURFACENOTATTACHED"); break;
-        case DDERR_TOOBIGHEIGHT:
-                Msg("DDERR_TOOBIGHEIGHT"); break;
-        case DDERR_TOOBIGSIZE:
-                Msg("DDERR_TOOBIGSIZE"); break;
-        case DDERR_TOOBIGWIDTH:
-                Msg("DDERR_TOOBIGWIDTH"); break;
-        case DDERR_UNSUPPORTED:
-                Msg("DDERR_UNSUPPORTED"); break;
-        case DDERR_UNSUPPORTEDFORMAT:
-                Msg("DDERR_UNSUPPORTEDFORMAT"); break;
-        case DDERR_UNSUPPORTEDMASK:
-                Msg("DDERR_UNSUPPORTEDMASK"); break;
-        case DDERR_VERTICALBLANKINPROGRESS:
-                Msg("DDERR_VERTICALBLANKINPROGRESS"); break;
-        case DDERR_WASSTILLDRAWING:
-                Msg("DDERR_WASSTILLDRAWING"); break;
-        case DDERR_XALIGN:
-                Msg("DDERR_XALIGN"); break;
-        case DDERR_INVALIDDIRECTDRAWGUID:
-                Msg("DDERR_INVALIDDIRECTDRAWGUID"); break;
-        case DDERR_DIRECTDRAWALREADYCREATED:
-                Msg("DDERR_DIRECTDRAWALREADYCREATED"); break;
-        case DDERR_NODIRECTDRAWHW:
-                Msg("DDERR_NODIRECTDRAWHW"); break;
-        case DDERR_PRIMARYSURFACEALREADYEXISTS:
-                Msg("DDERR_PRIMARYSURFACEALREADYEXISTS"); break;
-        case DDERR_NOEMULATION:
-                Msg("DDERR_NOEMULATION"); break;
-        case DDERR_REGIONTOOSMALL:
-                Msg("DDERR_REGIONTOOSMALL"); break;
-        case DDERR_CLIPPERISUSINGHWND:
-                Msg("DDERR_CLIPPERISUSINGHWND"); break;
-        case DDERR_NOCLIPPERATTACHED:
-                Msg("DDERR_NOCLIPPERATTACHED"); break;
-        case DDERR_NOHWND:
-                Msg("DDERR_NOHWND"); break;
-        case DDERR_HWNDSUBCLASSED:
-                Msg("DDERR_HWNDSUBCLASSED"); break;
-        case DDERR_HWNDALREADYSET:
-                Msg("DDERR_HWNDALREADYSET"); break;
-        case DDERR_NOPALETTEATTACHED:
-                Msg("DDERR_NOPALETTEATTACHED"); break;
-        case DDERR_NOPALETTEHW:
-                Msg("DDERR_NOPALETTEHW"); break;
-        case DDERR_BLTFASTCANTCLIP:
-                Msg("DDERR_BLTFASTCANTCLIP"); break;
-        case DDERR_NOBLTHW:
-                Msg("DDERR_NOBLTHW"); break;
-        case DDERR_NODDROPSHW:
-                Msg("DDERR_NODDROPSHW"); break;
-        case DDERR_OVERLAYNOTVISIBLE:
-                Msg("DDERR_OVERLAYNOTVISIBLE"); break;
-        case DDERR_NOOVERLAYDEST:
-                Msg("DDERR_NOOVERLAYDEST"); break;
-        case DDERR_INVALIDPOSITION:
-                Msg("DDERR_INVALIDPOSITION"); break;
-        case DDERR_NOTAOVERLAYSURFACE:
-                Msg("DDERR_NOTAOVERLAYSURFACE"); break;
-        case DDERR_EXCLUSIVEMODEALREADYSET:
-                Msg("DDERR_EXCLUSIVEMODEALREADYSET"); break;
-        case DDERR_NOTFLIPPABLE:
-                Msg("DDERR_NOTFLIPPABLE"); break;
-        case DDERR_CANTDUPLICATE:
-                Msg("DDERR_CANTDUPLICATE"); break;
-        case DDERR_NOTLOCKED:
-                Msg("DDERR_NOTLOCKED"); break;
-        case DDERR_CANTCREATEDC:
-                Msg("DDERR_CANTCREATEDC"); break;
-        case DDERR_NODC:
-                Msg("DDERR_NODC"); break;
-        case DDERR_WRONGMODE:
-                Msg("DDERR_WRONGMODE"); break;
-        case DDERR_IMPLICITLYCREATED:
-                Msg("DDERR_IMPLICITLYCREATED"); break;
-        case DDERR_NOTPALETTIZED:
-                Msg("DDERR_NOTPALETTIZED"); break;
-        case DDERR_UNSUPPORTEDMODE:
-                Msg("DDERR_UNSUPPORTEDMODE"); break;
-        case DDERR_NOMIPMAPHW:
-                Msg("DDERR_NOMIPMAPHW"); break;
-        case DDERR_INVALIDSURFACETYPE:
-                Msg("DDERR_INVALIDSURFACETYPE"); break;
-        case DDERR_DCALREADYCREATED:
-                Msg("DDERR_DCALREADYCREATED"); break;
-        case DDERR_CANTPAGELOCK:
-                Msg("DDERR_CANTPAGELOCK"); break;
-        case DDERR_CANTPAGEUNLOCK:
-                Msg("DDERR_CANTPAGEUNLOCK"); break;
-        case DDERR_NOTPAGELOCKED:
-                Msg("DDERR_NOTPAGELOCKED"); break;
-        case DDERR_NOTINITIALIZED:
-                Msg("DDERR_NOTINITIALIZED"); break;
-        default:
-                Msg("Unknown Error"); break;
-        }
-        Msg("\n");
-}
+/* void dderror(HRESULT hErr) */
+/* {        */
+/*     switch (hErr) */
+/*     { */
+/*         case DDERR_ALREADYINITIALIZED: */
+/*                 Msg("DDERR_ALREADYINITIALIZED"); break; */
+/*         case DDERR_CANNOTATTACHSURFACE: */
+/*                 Msg("DDERR_CANNOTATTACHSURFACE"); break; */
+/*         case DDERR_CANNOTDETACHSURFACE: */
+/*                 Msg("DDERR_CANNOTDETACHSURFACE"); break; */
+/*         case DDERR_CURRENTLYNOTAVAIL: */
+/*                 Msg("DDERR_CURRENTLYNOTAVAIL"); break; */
+/*         case DDERR_EXCEPTION: */
+/*                 Msg("DDERR_EXCEPTION"); break; */
+/*         case DDERR_GENERIC: */
+/*                 Msg("DDERR_GENERIC"); break; */
+/*         case DDERR_HEIGHTALIGN: */
+/*                 Msg("DDERR_HEIGHTALIGN"); break; */
+/*         case DDERR_INCOMPATIBLEPRIMARY: */
+/*                 Msg("DDERR_INCOMPATIBLEPRIMARY"); break; */
+/*         case DDERR_INVALIDCAPS: */
+/*                 Msg("DDERR_INVALIDCAPS"); break; */
+/*         case DDERR_INVALIDCLIPLIST: */
+/*                 Msg("DDERR_INVALIDCLIPLIST"); break; */
+/*         case DDERR_INVALIDMODE: */
+/*                 Msg("DDERR_INVALIDMODE"); break; */
+/*         case DDERR_INVALIDOBJECT: */
+/*                 Msg("DDERR_INVALIDOBJECT"); break; */
+/*         case DDERR_INVALIDPARAMS: */
+/*                 Msg("DDERR_INVALIDPARAMS"); break; */
+/*         case DDERR_INVALIDPIXELFORMAT: */
+/*                 Msg("DDERR_INVALIDPIXELFORMAT"); break; */
+/*         case DDERR_INVALIDRECT: */
+/*                 Msg("DDERR_INVALIDRECT"); break; */
+/*         case DDERR_LOCKEDSURFACES: */
+/*                 Msg("DDERR_LOCKEDSURFACES"); break; */
+/*         case DDERR_NO3D: */
+/*                 Msg("DDERR_NO3D"); break; */
+/*         case DDERR_NOALPHAHW: */
+/*                 Msg("DDERR_NOALPHAHW"); break; */
+/*         case DDERR_NOCLIPLIST: */
+/*                 Msg("DDERR_NOCLIPLIST"); break; */
+/*         case DDERR_NOCOLORCONVHW: */
+/*                 Msg("DDERR_NOCOLORCONVHW"); break; */
+/*         case DDERR_NOCOOPERATIVELEVELSET: */
+/*                 Msg("DDERR_NOCOOPERATIVELEVELSET"); break; */
+/*         case DDERR_NOCOLORKEY: */
+/*                 Msg("DDERR_NOCOLORKEY"); break; */
+/*         case DDERR_NOCOLORKEYHW: */
+/*                 Msg("DDERR_NOCOLORKEYHW"); break; */
+/*         case DDERR_NODIRECTDRAWSUPPORT: */
+/*                 Msg("DDERR_NODIRECTDRAWSUPPORT"); break; */
+/*         case DDERR_NOEXCLUSIVEMODE: */
+/*                 Msg("DDERR_NOEXCLUSIVEMODE"); break; */
+/*         case DDERR_NOFLIPHW: */
+/*                 Msg("DDERR_NOFLIPHW"); break; */
+/*         case DDERR_NOGDI: */
+/*                 Msg("DDERR_NOGDI"); break; */
+/*         case DDERR_NOMIRRORHW: */
+/*                 Msg("DDERR_NOMIRRORHW"); break; */
+/*         case DDERR_NOTFOUND: */
+/*                 Msg("DDERR_NOTFOUND"); break; */
+/*         case DDERR_NOOVERLAYHW: */
+/*                 Msg("DDERR_NOOVERLAYHW"); break; */
+/*         case DDERR_NORASTEROPHW: */
+/*                 Msg("DDERR_NORASTEROPHW"); break; */
+/*         case DDERR_NOROTATIONHW: */
+/*                 Msg("DDERR_NOROTATIONHW"); break; */
+/*         case DDERR_NOSTRETCHHW: */
+/*                 Msg("DDERR_NOSTRETCHHW"); break; */
+/*         case DDERR_NOT4BITCOLOR: */
+/*                 Msg("DDERR_NOT4BITCOLOR"); break; */
+/*         case DDERR_NOT4BITCOLORINDEX: */
+/*                 Msg("DDERR_NOT4BITCOLORINDEX"); break; */
+/*         case DDERR_NOT8BITCOLOR: */
+/*                 Msg("DDERR_NOT8BITCOLOR"); break; */
+/*         case DDERR_NOTEXTUREHW: */
+/*                 Msg("DDERR_NOTEXTUREHW"); break; */
+/*         case DDERR_NOVSYNCHW: */
+/*                 Msg("DDERR_NOVSYNCHW"); break; */
+/*         case DDERR_NOZBUFFERHW: */
+/*                 Msg("DDERR_NOZBUFFERHW"); break; */
+/*         case DDERR_NOZOVERLAYHW: */
+/*                 Msg("DDERR_NOZOVERLAYHW"); break; */
+/*         case DDERR_OUTOFCAPS: */
+/*                 Msg("DDERR_OUTOFCAPS"); break; */
+/*         case DDERR_OUTOFMEMORY: */
+/*                 Msg("DDERR_OUTOFMEMORY"); break; */
+/*         case DDERR_OUTOFVIDEOMEMORY: */
+/*                 Msg("DDERR_OUTOFVIDEOMEMORY"); break; */
+/*         case DDERR_OVERLAYCANTCLIP: */
+/*                 Msg("DDERR_OVERLAYCANTCLIP"); break; */
+/*         case DDERR_OVERLAYCOLORKEYONLYONEACTIVE: */
+/*                 Msg("DDERR_OVERLAYCOLORKEYONLYONEACTIVE"); break; */
+/*         case DDERR_PALETTEBUSY: */
+/*                 Msg("DDERR_PALETTEBUSY"); break; */
+/*         case DDERR_COLORKEYNOTSET: */
+/*                 Msg("DDERR_COLORKEYNOTSET"); break; */
+/*         case DDERR_SURFACEALREADYATTACHED: */
+/*                 Msg("DDERR_SURFACEALREADYATTACHED"); break; */
+/*         case DDERR_SURFACEALREADYDEPENDENT: */
+/*                 Msg("DDERR_SURFACEALREADYDEPENDENT"); break; */
+/*         case DDERR_SURFACEBUSY: */
+/*                 Msg("DDERR_SURFACEBUSY"); break; */
+/*         case DDERR_CANTLOCKSURFACE: */
+/*                 Msg("DDERR_CANTLOCKSURFACE"); break; */
+/*         case DDERR_SURFACEISOBSCURED: */
+/*                 Msg("DDERR_SURFACEISOBSCURED"); break; */
+/*         case DDERR_SURFACELOST: */
+/*                 Msg("DDERR_SURFACELOST"); break; */
+/*         case DDERR_SURFACENOTATTACHED: */
+/*                 Msg("DDERR_SURFACENOTATTACHED"); break; */
+/*         case DDERR_TOOBIGHEIGHT: */
+/*                 Msg("DDERR_TOOBIGHEIGHT"); break; */
+/*         case DDERR_TOOBIGSIZE: */
+/*                 Msg("DDERR_TOOBIGSIZE"); break; */
+/*         case DDERR_TOOBIGWIDTH: */
+/*                 Msg("DDERR_TOOBIGWIDTH"); break; */
+/*         case DDERR_UNSUPPORTED: */
+/*                 Msg("DDERR_UNSUPPORTED"); break; */
+/*         case DDERR_UNSUPPORTEDFORMAT: */
+/*                 Msg("DDERR_UNSUPPORTEDFORMAT"); break; */
+/*         case DDERR_UNSUPPORTEDMASK: */
+/*                 Msg("DDERR_UNSUPPORTEDMASK"); break; */
+/*         case DDERR_VERTICALBLANKINPROGRESS: */
+/*                 Msg("DDERR_VERTICALBLANKINPROGRESS"); break; */
+/*         case DDERR_WASSTILLDRAWING: */
+/*                 Msg("DDERR_WASSTILLDRAWING"); break; */
+/*         case DDERR_XALIGN: */
+/*                 Msg("DDERR_XALIGN"); break; */
+/*         case DDERR_INVALIDDIRECTDRAWGUID: */
+/*                 Msg("DDERR_INVALIDDIRECTDRAWGUID"); break; */
+/*         case DDERR_DIRECTDRAWALREADYCREATED: */
+/*                 Msg("DDERR_DIRECTDRAWALREADYCREATED"); break; */
+/*         case DDERR_NODIRECTDRAWHW: */
+/*                 Msg("DDERR_NODIRECTDRAWHW"); break; */
+/*         case DDERR_PRIMARYSURFACEALREADYEXISTS: */
+/*                 Msg("DDERR_PRIMARYSURFACEALREADYEXISTS"); break; */
+/*         case DDERR_NOEMULATION: */
+/*                 Msg("DDERR_NOEMULATION"); break; */
+/*         case DDERR_REGIONTOOSMALL: */
+/*                 Msg("DDERR_REGIONTOOSMALL"); break; */
+/*         case DDERR_CLIPPERISUSINGHWND: */
+/*                 Msg("DDERR_CLIPPERISUSINGHWND"); break; */
+/*         case DDERR_NOCLIPPERATTACHED: */
+/*                 Msg("DDERR_NOCLIPPERATTACHED"); break; */
+/*         case DDERR_NOHWND: */
+/*                 Msg("DDERR_NOHWND"); break; */
+/*         case DDERR_HWNDSUBCLASSED: */
+/*                 Msg("DDERR_HWNDSUBCLASSED"); break; */
+/*         case DDERR_HWNDALREADYSET: */
+/*                 Msg("DDERR_HWNDALREADYSET"); break; */
+/*         case DDERR_NOPALETTEATTACHED: */
+/*                 Msg("DDERR_NOPALETTEATTACHED"); break; */
+/*         case DDERR_NOPALETTEHW: */
+/*                 Msg("DDERR_NOPALETTEHW"); break; */
+/*         case DDERR_BLTFASTCANTCLIP: */
+/*                 Msg("DDERR_BLTFASTCANTCLIP"); break; */
+/*         case DDERR_NOBLTHW: */
+/*                 Msg("DDERR_NOBLTHW"); break; */
+/*         case DDERR_NODDROPSHW: */
+/*                 Msg("DDERR_NODDROPSHW"); break; */
+/*         case DDERR_OVERLAYNOTVISIBLE: */
+/*                 Msg("DDERR_OVERLAYNOTVISIBLE"); break; */
+/*         case DDERR_NOOVERLAYDEST: */
+/*                 Msg("DDERR_NOOVERLAYDEST"); break; */
+/*         case DDERR_INVALIDPOSITION: */
+/*                 Msg("DDERR_INVALIDPOSITION"); break; */
+/*         case DDERR_NOTAOVERLAYSURFACE: */
+/*                 Msg("DDERR_NOTAOVERLAYSURFACE"); break; */
+/*         case DDERR_EXCLUSIVEMODEALREADYSET: */
+/*                 Msg("DDERR_EXCLUSIVEMODEALREADYSET"); break; */
+/*         case DDERR_NOTFLIPPABLE: */
+/*                 Msg("DDERR_NOTFLIPPABLE"); break; */
+/*         case DDERR_CANTDUPLICATE: */
+/*                 Msg("DDERR_CANTDUPLICATE"); break; */
+/*         case DDERR_NOTLOCKED: */
+/*                 Msg("DDERR_NOTLOCKED"); break; */
+/*         case DDERR_CANTCREATEDC: */
+/*                 Msg("DDERR_CANTCREATEDC"); break; */
+/*         case DDERR_NODC: */
+/*                 Msg("DDERR_NODC"); break; */
+/*         case DDERR_WRONGMODE: */
+/*                 Msg("DDERR_WRONGMODE"); break; */
+/*         case DDERR_IMPLICITLYCREATED: */
+/*                 Msg("DDERR_IMPLICITLYCREATED"); break; */
+/*         case DDERR_NOTPALETTIZED: */
+/*                 Msg("DDERR_NOTPALETTIZED"); break; */
+/*         case DDERR_UNSUPPORTEDMODE: */
+/*                 Msg("DDERR_UNSUPPORTEDMODE"); break; */
+/*         case DDERR_NOMIPMAPHW: */
+/*                 Msg("DDERR_NOMIPMAPHW"); break; */
+/*         case DDERR_INVALIDSURFACETYPE: */
+/*                 Msg("DDERR_INVALIDSURFACETYPE"); break; */
+/*         case DDERR_DCALREADYCREATED: */
+/*                 Msg("DDERR_DCALREADYCREATED"); break; */
+/*         case DDERR_CANTPAGELOCK: */
+/*                 Msg("DDERR_CANTPAGELOCK"); break; */
+/*         case DDERR_CANTPAGEUNLOCK: */
+/*                 Msg("DDERR_CANTPAGEUNLOCK"); break; */
+/*         case DDERR_NOTPAGELOCKED: */
+/*                 Msg("DDERR_NOTPAGELOCKED"); break; */
+/*         case DDERR_NOTINITIALIZED: */
+/*                 Msg("DDERR_NOTINITIALIZED"); break; */
+/*         default: */
+/*                 Msg("Unknown Error"); break; */
+/*         } */
+/*         Msg("\n"); */
+/* } */
 
 
 bool compare(char *orig, char *comp)
@@ -759,7 +763,7 @@ bool compare(char *orig, char *comp)
         if (strlen(orig) != len) return(false);
         
         
-        if (strnicmp(orig,comp,len) == 0)
+        if (strncasecmp(orig,comp,len) == 0)
         {
                 return(true);
         }
@@ -780,7 +784,8 @@ void log_path(bool playing)
     return; //fix problem with NT security if -noini is set
   /* TODO: saves it in the user home instead. Think about where to
      cleanly store additional DMods. */
-    
+
+#ifdef WIN32    
   char windir[100];
   char inifile[256];
   GetWindowsDirectory(windir, 256);
@@ -795,14 +800,12 @@ void log_path(bool playing)
     add_text("TRUE\r\n", inifile);
   else
     add_text("FALSE\r\n", inifile);
+#endif
 }
 
 
-BOOL init_mouse(HWND hwnd)
-{
-  /* Disabled, switching to SDL */
-  return 1;
-
+/* BOOL init_mouse(HWND hwnd) */
+/* { */
 /*     if (g_pdi) */
 /*         { */
 /*           Msg("Mouse already initted? what the?"); */
@@ -878,7 +881,7 @@ BOOL init_mouse(HWND hwnd)
         
 /*         return TRUE; */
         
-}
+/* } */
 
 
 
@@ -897,7 +900,7 @@ int GetKeyboard(int key)
   // return (GetAsyncKeyState(key));
 }
 
-void Msg( LPSTR fmt, ... )
+void Msg(char *fmt, ...)
 {
     char    buff[350];
     va_list  va;
@@ -908,9 +911,9 @@ void Msg( LPSTR fmt, ... )
     // format message with header
     //
         
-    lstrcpy( buff, "Dink:" );
-    wvsprintf( &buff[lstrlen(buff)], fmt, va );
-    lstrcat( buff, "\r\n" );
+    strcpy( buff, "Dink:" );
+    vsprintf( &buff[strlen(buff)], fmt, va );
+    strcat( buff, "\r\n" );
         
     //
     // To the debugger unless we need to be quiet
@@ -918,14 +921,14 @@ void Msg( LPSTR fmt, ... )
         
     
     
-        OutputDebugString( buff );
+/*         OutputDebugString( buff ); */
         strcpy(last_debug, buff);
         if (debug_mode) add_text(buff, "DEBUG.TXT");
         
         
 } /* Msg */
 
-void TRACE( LPSTR fmt, ... )
+void TRACE(char *fmt, ...)
 {
     char    buff[350];
     va_list  va;
@@ -936,9 +939,9 @@ void TRACE( LPSTR fmt, ... )
     // format message with header
     //
         
-    lstrcpy( buff, "Dink:" );
-    wvsprintf( &buff[lstrlen(buff)], fmt, va );
-    lstrcat( buff, "\r\n" );
+    strcpy( buff, "Dink:" );
+    vsprintf( &buff[strlen(buff)], fmt, va );
+    strcat( buff, "\r\n" );
         
     //
     // To the debugger unless we need to be quiet
@@ -946,7 +949,7 @@ void TRACE( LPSTR fmt, ... )
         
     
     
-        OutputDebugString( buff );
+/*         OutputDebugString( buff ); */
         strcpy(last_debug, buff);
         if (debug_mode) add_text(buff, "DEBUG.TXT");
         
@@ -1034,7 +1037,7 @@ void add_text(char *tex ,char *filename)
         FILE *          fp;
         if (strlen(tex) < 1) return;
         
-        if (exist(filename) == FALSE)
+        if (exist(filename) == /*FALSE*/0)
         {
                 
                 fp = fopen(filename, "wb");
@@ -1090,19 +1093,19 @@ void setup_anim (int fr, int start,int delay)
 {
         //** start is sprite sequence #, don't know why it is called start
         
-        for (int o = 1; o <= index[start].last; o++)
+        for (int o = 1; o <= s_index[start].last; o++)
                 
         {
-                seq[fr].frame[o] = index[start].s+o;
+                seq[fr].frame[o] = s_index[start].s+o;
                 seq[fr].delay[o] = delay;
         }
         
-        seq[fr].frame[index[start].last+1] = 0;
+        seq[fr].frame[s_index[start].last+1] = 0;
         
 }
 
 
-byte get_hard(int h,int x1, int y1)
+unsigned char get_hard(int h,int x1, int y1)
 {
         int value;
         
@@ -1116,7 +1119,7 @@ byte get_hard(int h,int x1, int y1)
         return(value);  
 }
 
-byte get_hard_play(int h,int x1, int y1)
+unsigned char get_hard_play(int h,int x1, int y1)
 {
         int value;
         x1 -= 20;
@@ -1141,7 +1144,7 @@ byte get_hard_play(int h,int x1, int y1)
 }
 
 
-byte get_hard_map(int h,int x1, int y1)
+unsigned char get_hard_map(int h,int x1, int y1)
 {
         
         
@@ -1268,7 +1271,7 @@ void drawallhard( void)
 {
   RECT box_crap;
   int ddrval;
-  DDBLTFX     ddbltfx;
+/*   DDBLTFX     ddbltfx; */
 
   /* TODO: test me! Then factor the code */  
   for (int x1=0; x1 < 600; x1++)
@@ -1555,9 +1558,7 @@ void save_game(int num)
 
 void kill_all_vars(void)
 {
-        
-        FillMemory(&play, sizeof(play), 0);
-        
+  memset(&play, 0, sizeof(play));
 }
 
 void attach(void)
@@ -2037,7 +2038,7 @@ void load_hard(void)
                                         //fclose(fp);
                                         fp = fopen(crap, "wb");
                                         //make new data file
-                                        ZeroMemory(&hmap, sizeof(struct hardness));             
+                                        memset(&hmap, 0, sizeof(struct hardness));             
                                         fwrite(&hmap,sizeof(struct hardness),1,fp);
                                         fclose(fp);
                                 }
@@ -2101,29 +2102,29 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /*   DDCOLORKEY          ddck; */
 
   int x,y,dib_pitch;
-  BYTE *src, *dst;
+  unsigned char *src, *dst;
   char fname[20];
 
   //IDirectDrawSurface *pdds;
 
   int sprite = 71;
-  BOOL trans = FALSE;
+  /*BOOL*/int trans = /*FALSE*/0;
   bool reload = false;
 
   char crap[200];
 
   int save_cur = cur_sprite;
 
-  if (index[nummy].last != 0)
+  if (s_index[nummy].last != 0)
     {
       //  Msg("Saving sprite %d", save_cur);
-      cur_sprite = index[nummy].s+1;
+      cur_sprite = s_index[nummy].s+1;
       //Msg("Temp cur_sprite is %d", cur_sprite);
       reload = true;
     }
 
 
-  index[nummy].s = cur_sprite -1;
+  s_index[nummy].s = cur_sprite -1;
 
   if (no_running_main) draw_wait();
 
@@ -2143,9 +2144,9 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
     sprintf(crap, "../dink/%s/dir.ff", crap2);
 
 
-  if (!FastFileInit((LPSTR)crap, 5))
+  if (!FastFileInit(crap, 5))
     {
-      Msg( "Could not load dir.ff art file %s err=%08lX" , crap, GetLastError());
+      Msg( "Could not load dir.ff art file %s" , crap);
 
       cur_sprite = save_cur;
       return;
@@ -2166,9 +2167,9 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
       sprite = cur_sprite;
       //if (reload) Msg("Ok, programming sprite %d", sprite);
       if (oo < 10) strcpy(crap2, "0"); else strcpy(crap2, "");
-      wsprintf(crap, "%s%s%d.bmp", fname,crap2, oo);
+      sprintf(crap, "%s%s%d.bmp", fname, crap2, oo);
 
-      pfile = FastFileOpen((LPSTR) crap);
+      pfile = FastFileOpen(crap);
 
       if( pfile == NULL )
 	{
@@ -2177,7 +2178,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	  if (oo == 1)
 	    Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
 
-	  index[nummy].last = (oo - 1);
+	  s_index[nummy].last = (oo - 1);
 	  //      initFail(hWndMain, crap);
 	  setup_anim(nummy,nummy,speed);
 	  //                           if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
@@ -2359,7 +2360,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
 		  if ( (oo > 1) & (notanim) )
 		    {
-		      k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
+		      k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
 		    }
 		  else
 		    {
@@ -2373,7 +2374,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 		  
 		  if ( (oo > 1 ) & (notanim))
 		    {
-		      k[cur_sprite].xoffset =  k[index[nummy].s+1].xoffset;
+		      k[cur_sprite].xoffset =  k[s_index[nummy].s+1].xoffset;
 		    }
 		  else
 		    {
@@ -2489,7 +2490,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       sprintf(crap, "..\\dink\\%s",org);
       strcpy(org,crap);
     }
-  index[nummy].s = cur_sprite -1;
+  s_index[nummy].s = cur_sprite -1;
 
   /* Possibly used to temporarily use the reference palette even if
      the screen palette was changed. */
@@ -2519,7 +2520,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	  k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
 	  if ((oo > 1) & (notanim))
 	    {
-	      k[cur_sprite].yoffset = k[index[nummy].s+1].yoffset;
+	      k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
 	    }
 	  else
 	    {
@@ -2534,7 +2535,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
 	  if ((oo > 1) & (notanim))
 	    {
-	      k[cur_sprite].xoffset = k[index[nummy].s+1].xoffset;
+	      k[cur_sprite].xoffset = k[s_index[nummy].s+1].xoffset;
 	    }
 	  else
 	    {
@@ -2596,7 +2597,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	      Msg("load_sprites:  Anim %s not found.",org);
 	    }
 
-	  index[nummy].last = (oo - 1);
+	  s_index[nummy].last = (oo - 1);
 	  //       initFail(hWndMain, crap);
 	  setup_anim(nummy,nummy,speed);
 
@@ -2634,7 +2635,7 @@ void figure_out(char line[255], int load_seq)
 {
         char ev[15][100];
         RECT hardbox;
-        ZeroMemory(&ev,sizeof(ev));
+        memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
         for (int i=1; i <= 14; i++)
@@ -2648,7 +2649,7 @@ void figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
-                ZeroMemory(&hardbox, sizeof(RECT));     
+	  memset(&hardbox, 0, sizeof(RECT));     
                 seq[atol(ev[3])].active = true;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
@@ -2838,7 +2839,7 @@ void pre_figure_out(char line[255], int load_seq)
 {
         char ev[15][100];
         RECT hardbox;
-        ZeroMemory(&ev,sizeof(ev));
+        memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
         for (int i=1; i <= 14; i++)
@@ -2859,7 +2860,7 @@ void pre_figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
-                ZeroMemory(&hardbox, sizeof(RECT));     
+	  memset(&hardbox, 0, sizeof(RECT));     
                 seq[atol(ev[3])].active = true;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
@@ -3093,14 +3094,16 @@ void draw_exp()
         
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-        strcpy(nums,ltoa(fexp, buffer, 10));
+	sprintf(buffer, "%ld", fexp);
+        strcpy(nums, buffer);
         if (strlen(nums) < 5)
                 for (int i = 1; i < (6 - strlen(nums)); i++)
                         strcat(final, "0");
                 strcat(final, nums);
                 strcat(final,"/");
                 
-                strcpy(nums,ltoa(fraise, buffer, 10));
+		sprintf(buffer, "%ld", fraise);
+                strcpy(nums, buffer);
                 if (strlen(nums) < 5)
                         for (int i = 1; i < (6 - strlen(nums)); i++)
                                 strcat(final, "0");
@@ -3118,7 +3121,8 @@ void draw_strength()
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
         
-        strcpy(nums,ltoa(fstrength, buffer, 10));
+	sprintf(buffer, "%ld", fstrength);
+        strcpy(nums, buffer);
         if (strlen(nums) < 3)
                 for (int i = 1; i < (4 - strlen(nums)); i++)
                         strcat(final, "0");
@@ -3135,7 +3139,8 @@ void draw_defense()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-        strcpy(nums,ltoa(fdefense, buffer, 10));
+	sprintf(buffer, "%ld", fdefense);
+        strcpy(nums, buffer);
         if (strlen(nums) < 3)
                 for (int i = 1; i < (4 - strlen(nums)); i++)
                         strcat(final, "0");
@@ -3151,7 +3156,8 @@ void draw_magic()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-        strcpy(nums,ltoa(fmagic, buffer, 10));
+	sprintf(buffer, "%ld", fmagic);
+        strcpy(nums, buffer);
         if (strlen(nums) < 3)
                 for (int i = 1; i < (4 - strlen(nums)); i++)
                         strcat(final, "0");
@@ -3166,7 +3172,8 @@ void draw_level()
         char buffer[30];
         //*plevel = 15;
         //Msg("Drawing level.. which is %d ",*plevel);
-        strcpy(final, ltoa(*plevel, buffer, 10));
+	sprintf(buffer, "%ld", *plevel);
+        strcpy(final, buffer);
         
         if (strlen(final) == 1)
                 
@@ -3183,7 +3190,8 @@ void draw_gold()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-        strcpy(nums,ltoa(fgold, buffer, 10));
+	sprintf(buffer, "%ld", fgold);
+        strcpy(nums, buffer);
         if (strlen(nums) < 5)
                 for (int i = 1; i < (6 - strlen(nums)); i++)
                         strcat(final, "0");
@@ -3524,12 +3532,12 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
         
     for (int x=1; x < max_sprites_at_once; x++)
         {
-                if (spr[x].active == FALSE)
+                if (spr[x].active == /*FALSE*/0)
                 {
                         memset(&spr[x], 0, sizeof(spr[x]));
                         
                         //Msg("Making sprite %d.",x);
-                        spr[x].active = TRUE;
+                        spr[x].active = /*TRUE*/1;
                         spr[x].x = x1;
                         spr[x].y = y;
                         spr[x].my = 0;
@@ -3758,7 +3766,7 @@ Msg("Ok, sprite %d is being scaled.", h);
 void refigure_out(char line[255])
 {
         char ev[15][100];
-        ZeroMemory(&ev,sizeof(ev));
+        memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0;
         
         for (int i=1; i <= 14; i++)
@@ -4115,7 +4123,7 @@ found:
                 }
                 
                 
-                CopyMemory(rbuf[script], &cbuf, rinfo[script]->end);
+                memcpy(rbuf[script], &cbuf, rinfo[script]->end);
                 
                 
                 if (rinfo[script] == NULL)
@@ -4187,7 +4195,7 @@ bool locate(int script, char proc[20])
         while(read_next_line(script, line))
         {
                 strip_beginning_spaces(line);
-                ZeroMemory(&ev,sizeof(ev));
+                memset(&ev, 0, sizeof(ev));
                 
                 get_word(line, 1, ev[1]);
                 if (compare(ev[1], "VOID"))     
@@ -4334,8 +4342,10 @@ void decipher_string(char line[200], int script)
         
         if ((strchr(line, '&') != NULL) && (script != 0))
         {
-                replace("&current_sprite",ltoa(rinfo[script]->sprite, buffer, 10), line);
-                replace("&current_script",ltoa(script, buffer, 10), line);
+	  sprintf(buffer, "%ld", rinfo[script]->sprite);
+	  replace("&current_sprite", buffer, line);
+	  sprintf(buffer, "%ld", script);
+	  replace("&current_script", buffer, line);
                 
                 
                 if (decipher_savegame != 0)
@@ -4550,11 +4560,11 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
         
     for (int x=1; x < max_sprites_at_once; x++)
         {
-                if (spr[x].active == FALSE)
+                if (spr[x].active == /*FALSE*/0)
                 {
                         memset(&spr[x], 0, sizeof(spr[x]));
                         
-                        spr[x].active = TRUE;
+                        spr[x].active = /*TRUE*/1;
                         spr[x].x = x1;
                         spr[x].y = y;
                         spr[x].my = 0;
@@ -4590,7 +4600,7 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
 
 void check_sprite_status(int h)
 {
-        HRESULT dderror;
+/*         HRESULT dderror; */
         char word1[80];
         //is sprite in memory?
         if (spr[h].pseq > 0) 
@@ -4628,7 +4638,7 @@ void check_sprite_status(int h)
 void check_frame_status(int h, int frame)
 
 {
-        HRESULT dderror;
+/*         HRESULT dderror; */
         char word1[80];
         
         if (seq[h].active == false) return;
@@ -4665,7 +4675,7 @@ void check_frame_status(int h, int frame)
 void check_seq_status(int h)
 
 {
-        HRESULT dderror;
+/*         HRESULT dderror; */
         char word1[80];
     
         if (seq[h].active == false) return;
@@ -4702,7 +4712,7 @@ void check_base(int base)
 {
         for (int i=1; i < 10; i++)
         {
-                if (seq[base+i].active == TRUE) check_seq_status(base+i);
+                if (seq[base+i].active == /*TRUE*/1) check_seq_status(base+i);
                 
         }
         
@@ -5509,7 +5519,7 @@ void get_right(char line[200], char thing[100], char *ret)
         }
         
         
-void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
+void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 {
   if (::g_b_kill_app) return; //don't try, we're quitting
   if (spr[h].brain == 8) return;
@@ -5987,7 +5997,7 @@ void place_sprites_game(void)
 {
         int sprite;
         
-        BOOL bs[max_sprites_at_once];
+        /*BOOL*/int bs[max_sprites_at_once];
         int rank[max_sprites_at_once];
         int highest_sprite;
         
@@ -6005,7 +6015,7 @@ void place_sprites_game(void)
                 
                 for (int h1 = 1; h1 < 100;  h1++)
                 {
-                        if (bs[h1] == FALSE)
+                        if (bs[h1] == /*FALSE*/0)
                         {
                                 if (pam.sprite[h1].active)
                                 {
@@ -6020,7 +6030,7 @@ void place_sprites_game(void)
                         }
                 }
                 if (rank[r1] != 0)      
-                        bs[rank[r1]] = TRUE;
+                        bs[rank[r1]] = /*TRUE*/1;
         }
         
         
@@ -6061,7 +6071,7 @@ void place_sprites_game(void)
                                 
                                 check_sprite_status_full(sprite);
                                 if (pam.sprite[j].type == 0)
-				  draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, sprite);
+				  draw_sprite_game(GFX_lpDDSTwo, sprite);
                                 
                                 
                                 if (spr[sprite].hard == 0)
@@ -6196,7 +6206,7 @@ bool kill_last_sprite(void)
   
   if (found > 1)
     {
-      spr[found].active = FALSE;
+      spr[found].active = /*FALSE*/0;
       if (nosetlast == false)
 	last_sprite_created = found - 1;
       return(true);
@@ -6470,7 +6480,7 @@ void copy_bmp( char name[80])
         {
                 int sprite;
                 
-                BOOL bs[max_sprites_at_once];
+                /*BOOL*/int bs[max_sprites_at_once];
                 int rank[max_sprites_at_once];
                 int highest_sprite;
                 memset(&bs,0,sizeof(bs));
@@ -6483,7 +6493,7 @@ void copy_bmp( char name[80])
                         
                         for (int h1 = 1; h1 < 100;  h1++)
                         {
-                                if (bs[h1] == FALSE)
+                                if (bs[h1] == /*FALSE*/0)
                                 {
                                         if (pam.sprite[h1].active) if (pam.sprite[h1].type == 0)
                                         {
@@ -6498,7 +6508,7 @@ void copy_bmp( char name[80])
                                 }
                         }
                         if (rank[r1] != 0)      
-                                bs[rank[r1]] = TRUE;
+                                bs[rank[r1]] = /*TRUE*/1;
                 }
                 
                 
@@ -6527,7 +6537,7 @@ void copy_bmp( char name[80])
                                                 pam.sprite[j].size);
                                         //Msg("Background sprite %d has hard of %d..", j, pam.sprite[j].hard);
                                         check_sprite_status_full(sprite);
-                                        draw_sprite_game(lpDDSTwo, GFX_lpDDSTwo, sprite);
+                                        draw_sprite_game(GFX_lpDDSTwo, sprite);
                                         spr[sprite].active = false;
                                 }
                         }
@@ -6538,7 +6548,7 @@ void copy_bmp( char name[80])
         {
                 int sprite;
                 
-                BOOL bs[max_sprites_at_once];
+                /*BOOL*/int bs[max_sprites_at_once];
                 int rank[max_sprites_at_once];
                 int highest_sprite;
                 
@@ -6555,7 +6565,7 @@ void copy_bmp( char name[80])
                         
                         for (int h1 = 1; h1 < 100;  h1++)
                         {
-                                if (bs[h1] == FALSE)
+                                if (bs[h1] == /*FALSE*/0)
                                 {
                                         if (pam.sprite[h1].active) if (pam.sprite[h1].type != 1) if (pam.sprite[h1].hard == 0)
                                         {
@@ -6570,7 +6580,7 @@ void copy_bmp( char name[80])
                                 }
                         }
                         if (rank[r1] != 0)      
-                                bs[rank[r1]] = TRUE;
+                                bs[rank[r1]] = /*TRUE*/1;
                 }
                 
                 
@@ -6684,7 +6694,7 @@ void copy_bmp( char name[80])
         
         void fill_hard_sprites(void )
         {
-                BOOL bs[max_sprites_at_once];
+                /*BOOL*/int bs[max_sprites_at_once];
                 int rank[max_sprites_at_once];
                 int highest_sprite;
                 int h;  
@@ -6706,7 +6716,7 @@ void copy_bmp( char name[80])
                         {
                                 if (spr[h1].active)
                                 { 
-                                        if (bs[h1] == FALSE)
+                                        if (bs[h1] == /*FALSE*/0)
                                         {
                                                 //Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
                                                 if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
@@ -6719,7 +6729,7 @@ void copy_bmp( char name[80])
                                 }
                         }
                         if (rank[r1] != 0)      
-                                bs[rank[r1]] = TRUE;
+                                bs[rank[r1]] = /*TRUE*/1;
                 }
                 
                 
@@ -7557,7 +7567,7 @@ pass:
                         kill_all_scripts_for_real();
                         mode = 0;
                         kill_all_vars();
-                        FillMemory(&hm, sizeof(hm), 0);
+                        memset(&hm, 0, sizeof(hm));
                         for (int u = 1; u <= 10; u++)
                                 play.button[u] = u;
                         int script = load_script("main", 0, true);
@@ -7824,9 +7834,10 @@ pass:
                                 
                                 //ShowWindow(hWndMain, SW_MINIMIZE);
                                 
-                                int     myreturn =      _spawnl(_P_WAIT, "..\\dplay.exe","..\\dplay.exe",slist[0], NULL );
+			  /* TODO: portable replacement */
+/*                                 int     myreturn =      _spawnl(_P_WAIT, "..\\dplay.exe","..\\dplay.exe",slist[0], NULL ); */
                                 
-                                Msg("Return is %d", myreturn);
+//                                 Msg("Return is %d", myreturn);
                                 //ShowWindow(hWndMain, SW_MAXIMIZE);
                                 
                                 //SetFocus(hWndMain);

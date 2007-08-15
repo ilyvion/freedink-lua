@@ -27,7 +27,7 @@
 #include "gfx_fonts.h"
 
 /* HFONT */
-#include <windows.h>
+/* #include <windows.h> */
 
 /* Global, shared by other modules */
 TTF_Font *FONTS_hfont_small = NULL;

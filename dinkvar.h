@@ -24,13 +24,19 @@
 #define _DINKVAR_H
 
 /* for RECT ?? */
-#include <windows.h>
-#include <ddraw.h>
-#include <dinput.h>
-#include <mmsystem.h>
+/* #include <windows.h> */
+
+/* #include <ddraw.h> */
+/* #include <dinput.h> */
+/* #include <mmsystem.h> */
+
+#include <limits.h>
+#ifndef PATH_MAX
+#  define PATH_MAX 255
+#endif
 
 #include "SDL.h"
-
+#include "rect.h"
 
 const int max_vars = 250;
 const int max_sprites_at_once = 300;
@@ -61,7 +67,7 @@ struct map_info
 struct tile
 {
 	int num, property, althard, more2;
-	byte  more3,more4;
+	unsigned char more3,more4;
 	
 	int buff[15];
 };
@@ -152,14 +158,14 @@ struct player_info
   
   bool push_active;
   int push_dir;
-  DWORD push_timer;
+  unsigned long push_timer;
   int last_talk;
   int mouse;
   bool item_magic;
   int last_map;
   int crap;
   int buff[95];
-  DWORD dbuff[20];
+  unsigned long dbuff[20];
   
   long lbuff[10];
   
@@ -178,18 +184,18 @@ struct sequence
 
 struct seth_joy
 {
-  BOOL joybit[17]; //is button held down?
-  BOOL letgo[17]; //copy of old above
-  BOOL button[17]; //has button been pressed recently?
+  /*BOOL*/int joybit[17]; //is button held down?
+  /*BOOL*/int letgo[17]; //copy of old above
+  /*BOOL*/int button[17]; //has button been pressed recently?
 
-  BOOL key[256]; /* true if key was just pressed, false is kept
+  /*BOOL*/int key[256]; /* true if key was just pressed, false is kept
 		    pressed or released; reset before each loop */
-  BOOL kletgo[256]; /* non-reset "is released?" value; used to set .key */
+  /*BOOL*/int kletgo[256]; /* non-reset "is released?" value; used to set .key */
   bool realkey[256]; /* current GetAsyncKeyState value, in cache */
 
-  BOOL right,left,up,down;
-  BOOL rightd,leftd,upd,downd;
-  BOOL rightold,leftold,upold,downold;
+  /*BOOL*/int right,left,up,down;
+  /*BOOL*/int rightd,leftd,upd,downd;
+  /*BOOL*/int rightold,leftold,upold,downold;
 };
 
 struct sp
@@ -203,13 +209,13 @@ struct sp
   int seq_orig,dir;
   int seq;
   int frame;
-  DWORD delay;
+  unsigned long delay;
   int pseq;
   int pframe;
   
-  BOOL active;
+  /*BOOL*/int active;
   int attrib;
-  DWORD wait;
+  unsigned long wait;
   int timer;
   int skip;
   int skiptimer;
@@ -225,7 +231,7 @@ struct sp
   RECT alt;
   int althard;
   int sp_index;
-  BOOL nocontrol;
+  /*BOOL*/int nocontrol;
   int idle;
   int strength;
   int damage;
@@ -247,24 +253,24 @@ struct sp
   int move_script;
   int move_dir;
   int move_num;
-  BOOL move_nohard;
+  /*BOOL*/int move_nohard;
   int follow;
   int nohit;
-  BOOL notouch;
-  DWORD notouch_timer;
-  BOOL flying;
+  /*BOOL*/int notouch;
+  unsigned long notouch_timer;
+  /*BOOL*/int flying;
   int touch_damage;
   int brain_parm;
   int brain_parm2;
-  BOOL noclip;
-  BOOL reverse;
-  BOOL disabled;
+  /*BOOL*/int noclip;
+  /*BOOL*/int reverse;
+  /*BOOL*/int disabled;
   int target;
   int attack_wait;
   int move_wait;
   int distance;
   int last_hit;
-  BOOL live;
+  /*BOOL*/int live;
   int range;
   int attack_hit_sound;
   int attack_hit_sound_speed;
@@ -303,7 +309,7 @@ struct talk_struct
 //sub struct for hardness map
 struct mega_y
 {
-	byte y[401];
+	unsigned char y[401];
 };
 
 //struct for hardness map
@@ -317,7 +323,7 @@ struct hit_map
 
 struct block_y
 {
-	byte y[51];
+	unsigned char y[51];
 };
 
 struct ts_block
@@ -336,16 +342,16 @@ struct hardness
 };
 
 extern int GetKeyboard(int key);
-extern void Msg( LPSTR fmt, ... );
+extern void Msg(char *fmt, ...);
 extern int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 extern void check_seq_status(int h);
-extern void dderror(HRESULT hErr);
+/* extern void dderror(HRESULT hErr); */
 //extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest,int h);
-extern void draw_sprite_game(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h);
+extern void draw_sprite_game(SDL_Surface *GFX_lpdest, int h);
 extern void draw_status_all(void);
 extern void drawallhard( void);
 extern void duck_brain(int h);
-extern BOOL init_mouse(HWND hwnd);
+extern /*BOOL*/int init_mouse();
 extern void load_map(const int num);
 extern int load_script(char filename[15], int sprite, bool set_sprite);
 extern bool locate(int script, char proc[20]);
@@ -367,14 +373,14 @@ extern char dversion_string[7];
 extern int flife;
 extern int flub_mode;
 extern int fps_final;
-extern HANDLE g_hevtMouse;
-extern LPDIRECTINPUTDEVICE g_pMouse;
-extern LPDIRECTINPUT g_pdi;
+/* extern HANDLE g_hevtMouse; */
+/* extern LPDIRECTINPUTDEVICE g_pMouse; */
+/* extern LPDIRECTINPUT g_pdi; */
 extern bool item_screen;
 extern int stop_entire_game;
 extern int getpic(int h);
-extern HWND hWndMain;
-extern HFONT hfont_small;
+/* extern HWND hWndMain; */
+/* extern HFONT hfont_small; */
 
 /* Store sprites info */
 
@@ -410,7 +416,7 @@ struct sprite_index
 
 extern pic_info k[];
 extern GFX_pic_info GFX_k[];
-extern sprite_index index[];
+extern sprite_index s_index[];
 
 /* show_bmp() currently ran */
 struct show_bmp
@@ -433,7 +439,7 @@ extern int mbase_count;
 extern int mbase_timing;
 extern int mcc;
 extern int mode;
-extern DWORD mold;
+extern unsigned long mold;
 extern bool process_downcycle;
 extern bool process_upcycle;
 extern int process_warp;
@@ -471,13 +477,13 @@ extern bool cd_inserted;
 /* Drawing */
 extern void initfonts(char fontname[255]);
 
-extern HRESULT ddrval;
-extern LPDIRECTDRAWPALETTE lpDDPal; /* The primary surface palette */
-extern PALETTEENTRY    pe[256];
+/* extern HRESULT ddrval; */
+/* extern LPDIRECTDRAWPALETTE lpDDPal; /\* The primary surface palette *\/ */
+/* extern PALETTEENTRY    pe[256]; */
 
 
 /* Joystick */
-extern BOOL joystick;
+extern /*BOOL*/int joystick;
 /* extern JOYINFOEX jinfo; */
 extern SDL_Joystick *jinfo;
 extern struct wait_for_button wait;
@@ -499,7 +505,7 @@ extern int move_screen;
 extern int move_counter;
 extern int weapon_script;
 extern int magic_script;
-extern DWORD cycle_clock;
+extern unsigned long cycle_clock;
 extern int cycle_script;
 extern int process_count;
 extern int item_timer;
@@ -528,8 +534,8 @@ extern void kill_all_scripts_for_real(void);
 extern int say_text(char text[200], int h, int script);
 
 /* Map */
-extern byte get_hard(int h,int x1, int y1);
-extern byte get_hard_play(int h,int x1, int y1);
+extern unsigned char get_hard(int h,int x1, int y1);
+extern unsigned char get_hard_play(int h,int x1, int y1);
 extern void load_hard(void);
 extern void load_info(void);
 
@@ -546,13 +552,13 @@ extern void update_screen_time(void);
 
 /* OS */
 extern void log_path(bool playing);
-extern void TRACE( LPSTR fmt, ... );
+extern void TRACE(char* fmt, ...);
 extern bool exist(char name[255]);
 extern int bActive; // is application active?
 extern int g_b_no_write_ini; // -noini passed to command line?
 extern char *command_line; // command line params, used by doInit
-extern HINSTANCE MyhInstance; // app instance, used by DX init
-extern char dinkpath[MAX_PATH]; // Dink installation directory
+/* extern HINSTANCE MyhInstance; // app instance, used by DX init */
+extern char dinkpath[PATH_MAX]; // Dink installation directory
 
 //if true, will close app as soon as the message pump is empty
 extern int g_b_kill_app;

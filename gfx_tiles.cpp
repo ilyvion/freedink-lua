@@ -8,34 +8,33 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
-#include "ddutil.h"
+// #include "ddutil.h"
 #include "sfx.h"
 
 /* Tiles */
 #define NB_TILE_SCREENS 41+1 /* +1 to avoid the -1 in arrays.. */
-LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces // DELETEME
+/* LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces // DELETEME */
 SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
 
 /* DX-specific, contain the dimensions of each tile; used in
    freedinkedit.cpp; replaced by SDL_Surface->w&h */
-RECT tilerect[NB_TILE_SCREENS];
+/* RECT tilerect[NB_TILE_SCREENS]; */
 
 /* Animated tiles current status */
 int water_timer;
@@ -44,7 +43,7 @@ int fire_flip;
 
 
 /* Local functions */
-extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite);
+/* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite); */
 
 /* TODO: move place_sprites_game() and kill_all_scripts() here, if all
    those sprite-related global variables must be shared with other C
@@ -172,7 +171,7 @@ void draw_map_game(void)
 	src.w = 50;
 	src.h = 50;
 	dst.x = (x * 50 - ((x / 12) * 600))+playl;
-	dst.y = (x / 12) * 50, tiles[cool+1];
+	dst.y = (x / 12) * 50;
 	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
       }
     }
@@ -234,7 +233,7 @@ void draw_map_game_background(void)
 	src.w = 50;
 	src.h = 50;
 	dst.x = (x * 50 - ((x / 12) * 600))+playl;
-	dst.y = (x / 12) * 50, tiles[cool+1];
+	dst.y = (x / 12) * 50;
 	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
       }
                         
@@ -288,7 +287,7 @@ void process_animated_tiles(void)
 					src.w = 50;
 					src.h = 50;
 					dst.x = (x * 50 - ((x / 12) * 600))+playl;
-					dst.y = (x / 12) * 50, tiles[cool+flip];
+					dst.y = (x / 12) * 50;
 					SDL_BlitSurface(GFX_tiles[cool+flip], &src, GFX_lpDDSTwo, &dst);
 				      }
 				    }	
@@ -346,7 +345,7 @@ void process_animated_tiles(void)
 				       src.w = 50;
 				       src.h = 50;
 				       dst.x = (x * 50 - ((x / 12) * 600))+playl;
-				       dst.y = (x / 12) * 50, tiles[cool+fire_flip];
+				       dst.y = (x / 12) * 50;
 				       SDL_BlitSurface(GFX_tiles[cool+fire_flip], &src, GFX_lpDDSTwo, &dst);
 				     }
 				   }	
