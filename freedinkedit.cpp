@@ -786,7 +786,7 @@ char crap[120];
 // play.map = num;
 //Msg("Loading map %d...",num);
 sprintf(crap, "%sMAP.DAT", buf_path);
-			 fp = fopen( crap, "rb");
+ fp = fopen(ciconvert(crap), "rb");
 			 if (!fp)
 			 {
               Msg("Cannot find MAP.DAT file!!!");
@@ -810,7 +810,7 @@ char crap[120];
  sprintf(crap, "%sDINK.DAT", buf_path);
 
 
-				fp = fopen(crap, "rb");
+ fp = fopen(ciconvert(crap), "rb");
             if (fp)
 				{
 	       Msg("World data loaded."); 
@@ -851,7 +851,7 @@ char crap[80];
  sprintf(crap, "MAP.DAT");
 
 
-				fp = fopen(crap, "a+");
+ fp = fopen(ciconvert(crap), "a+");
 				fwrite(&pam,sizeof(struct small_map),1,fp);
 				now = (ftell(fp) / (sizeof(struct small_map)));
 				fclose(fp);
@@ -867,7 +867,7 @@ long now;
 char crap[120];
  sprintf(crap, "%sMAP.DAT", buf_path);
 
-				fp = fopen(crap, "a+");
+ fp = fopen(ciconvert(crap), "a+");
 				fwrite(&pam,sizeof(struct small_map),1,fp);
 				now = (ftell(fp) / (sizeof(struct small_map)));
 				fclose(fp);
@@ -5596,6 +5596,7 @@ if (chdir(dir) == -1)
   
 void load_batch(void)
 {
+  char tmp_filename[PATH_MAX];
 	  FILE *stream;  
 	  char line[255];
 
@@ -5609,7 +5610,7 @@ void load_batch(void)
 		  
 	  }
 
-	  if( (stream = fopen( "dink.ini", "r" )) != NULL )   
+	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "r" )) != NULL )   
 	  {
 		  
 		  while(1)
@@ -5682,6 +5683,7 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	  RECT rcRectSrc;    RECT rcRectDest;
 /* 	  POINT p; */
        char tdir[100];
+       char tmp_filename[PATH_MAX];
 	  /*
 	  * set up and register window class
 	  */
@@ -5977,7 +5979,7 @@ if (!exist(tdir))
 
 /* 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0); */
 	  // GFX
-	  GFX_lpDDSTwo = SDL_LoadBMP(tdir);
+	  GFX_lpDDSTwo = SDL_LoadBMP(ciconvert(tdir));
 	  if (!GFX_lpDDSTwo)
 	  {
 	   return initFail("Couldn't load esplash.bmp.");
@@ -6025,9 +6027,9 @@ if (!exist(tdir))
 	       right after palette initialization */
 	    SDL_Surface *splashscreen = NULL;
 	    if (exist("tiles/esplash.BMP") &&
-		(splashscreen = SDL_LoadBMP("tiles/esplash.BMP")) == NULL)
+		(splashscreen = SDL_LoadBMP(ciconvertbuf("tiles/esplash.BMP", tmp_filename))) == NULL)
 	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-	    else if ((splashscreen = SDL_LoadBMP("../dink/tiles/esplash.BMP")) == NULL)
+	    else if ((splashscreen = SDL_LoadBMP(ciconvertbuf("../dink/tiles/esplash.BMP", tmp_filename))) == NULL)
 	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
 	    
 	    if (splashscreen != NULL) {
@@ -6163,8 +6165,8 @@ spr[i].size = 100;
 	load_info();        
 /* initfonts("Arial"); */
   // FONTS
-  // FONTS_initfonts("LiberationSans-Regular.ttf");
-  FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf");
+	FONTS_initfonts("../LiberationSans-Regular.ttf");
+/*   FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf"); */
   FONTS_SetFont(FONTS_hfont_small);
 
 	
