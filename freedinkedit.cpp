@@ -8,18 +8,17 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /* 
@@ -61,18 +60,18 @@
 #include <direct.h>
 #include <windows.h>
 /* For GetStockBrush */
-#include <windowsx.h>
+/* #include <windowsx.h> */
 /* For VK_* */
-#include <winuser.h>
-#include <mmsystem.h>
-#include <ddraw.h>
-#include <dsound.h>
+/* #include <winuser.h> */
+/* #include <mmsystem.h> */
+/* #include <ddraw.h> */
+/* #include <dsound.h> */
 
 #include "SDL.h"
 #include "SDL_rotozoom.h"
 
 #include "init.h"
-#include "ddutil.h"
+/* #include "ddutil.h" */
 #include "dinkvar.h"
 #include "fastfile.h"
 #include "gfx.h"
@@ -166,7 +165,7 @@ int speed;
 
 // PROC NAMES
 
-BOOL initFail( HWND hwnd, char mess[200] );
+BOOL initFail(char mess[200] );
 
 bool getkey(int key);
 char key_convert(int key);
@@ -189,48 +188,48 @@ void flip_it_second(void)
         RECT rcRectSrc;    RECT rcRectDest;
         POINT p;
         
-        if (!windowed)
-        {
+/*         if (!windowed) */
+/*         { */
                 
-                while( 1 )
-                {
-                        ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-                        if( ddrval == DD_OK )
-                        {
-                                break;
-                        }
-                        if( ddrval == DDERR_SURFACELOST )
-                        {
-                                if( ddrval != DD_OK )
-                                {
-                                        break;
-                                }
-                        }
-                        if( ddrval != DDERR_WASSTILLDRAWING )
-                        {
+/*                 while( 1 ) */
+/*                 { */
+/*                         ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
+/*                         if( ddrval == DD_OK ) */
+/*                         { */
+/*                                 break; */
+/*                         } */
+/*                         if( ddrval == DDERR_SURFACELOST ) */
+/*                         { */
+/*                                 if( ddrval != DD_OK ) */
+/*                                 { */
+/*                                         break; */
+/*                                 } */
+/*                         } */
+/*                         if( ddrval != DDERR_WASSTILLDRAWING ) */
+/*                         { */
                                 
                                 
-                        }
-                } 
+/*                         } */
+/*                 }  */
                 
-        } else
-        {
-                //windowed mode, no flipping             
-                p.x = 0; p.y = 0;    
-                ClientToScreen(hWndMain, &p);
-                GetClientRect(hWndMain, &rcRectDest);
+/*         } else */
+/*         { */
+/*                 //windowed mode, no flipping              */
+/*                 p.x = 0; p.y = 0;     */
+/*                 ClientToScreen(hWndMain, &p); */
+/*                 GetClientRect(hWndMain, &rcRectDest); */
                 
-                //rcRectDest.top += winoffset;
-                rcRectDest.bottom = 480;
-                rcRectDest.right = 640;
+/*                 //rcRectDest.top += winoffset; */
+/*                 rcRectDest.bottom = 480; */
+/*                 rcRectDest.right = 640; */
                 
-                OffsetRect(&rcRectDest, p.x, p.y);
-                SetRect(&rcRectSrc, 0, 0, 640, 480);
+/*                 OffsetRect(&rcRectDest, p.x, p.y); */
+/*                 SetRect(&rcRectSrc, 0, 0, 640, 480); */
                 
-                ddbltfx.dwSize = sizeof(ddbltfx);
+/*                 ddbltfx.dwSize = sizeof(ddbltfx); */
                 
-                ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-                ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+/*                 ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
+/*                 ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 		// GFX
 		{
 		  // TODO: work directly on either lpDDSBack or
@@ -252,7 +251,7 @@ void flip_it_second(void)
 		    }
 		  SDL_Flip(GFX_lpDDSPrimary);
 		}
-	}
+/* 	} */
 }
 
 
@@ -262,87 +261,87 @@ void flip_it_second(void)
  * restore all lost objects
  */
 
-HRESULT restoreAll( void )
-{
-    HRESULT     ddrval;
-	RECT rcRect;
-    ddrval = lpDDSPrimary->Restore();
-    if( ddrval == DD_OK )
-    {
+/* HRESULT restoreAll( void ) */
+/* { */
+/*     HRESULT     ddrval; */
+/* 	RECT rcRect; */
+/*     ddrval = lpDDSPrimary->Restore(); */
+/*     if( ddrval == DD_OK ) */
+/*     { */
             
 		
 		
-		ddrval = lpDDSTwo->Restore();
-//reload_batch();
+/* 		ddrval = lpDDSTwo->Restore(); */
+/* //reload_batch(); */
 
 
-Msg("Restoring some stuff.");
+/* Msg("Restoring some stuff."); */
 
-/*  for (int oo = 1; oo < 9; oo++)
-  {
+/* /\*  for (int oo = 1; oo < 9; oo++) */
+/*   { */
 
-        ddrval = k[oo].k->Restore();
-        if( ddrval == DD_OK )
-        {
-  sprintf(crap, "TILES\\S%d.BMP",oo);
-            DDReLoadBitmap(k[oo].k, crap);
-        }
+/*         ddrval = k[oo].k->Restore(); */
+/*         if( ddrval == DD_OK ) */
+/*         { */
+/*   sprintf(crap, "TILES\\S%d.BMP",oo); */
+/*             DDReLoadBitmap(k[oo].k, crap); */
+/*         } */
 
-  }
+/*   } */
 
   
-      for (int h=1; h < tile_screens; h++)
-	{
-        ddrval = tiles[h]->Restore();
+/*       for (int h=1; h < tile_screens; h++) */
+/* 	{ */
+/*         ddrval = tiles[h]->Restore(); */
   	 
-        if( ddrval == DD_OK )
-        {
-      	 if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, "");
-		sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h);
-  Msg("Loaded tilescreen %d",h); 
-//		sprintf(crap, "TS%d.BMP",h);
-		DDReLoadBitmap(tiles[h], crap); 
+/*         if( ddrval == DD_OK ) */
+/*         { */
+/*       	 if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, ""); */
+/* 		sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h); */
+/*   Msg("Loaded tilescreen %d",h);  */
+/* //		sprintf(crap, "TS%d.BMP",h); */
+/* 		DDReLoadBitmap(tiles[h], crap);  */
 	 
-		}
-	  }
+/* 		} */
+/* 	  } */
 
 
-*/
+/* *\/ */
 
-  rcRect.left = 0;
-  rcRect.top = 0;
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
 
-// if (mode == 0)
-if (mode == MODE_DIALOG)
-{
-    rcRect.right = x;
-    rcRect.bottom = y;	
-//lpDDSTwo->BltFast( 0, 0, game[15],  &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/* // if (mode == 0) */
+/* if (mode == MODE_DIALOG) */
+/* { */
+/*     rcRect.right = x; */
+/*     rcRect.bottom = y;	 */
+/* //lpDDSTwo->BltFast( 0, 0, game[15],  &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
 
-}
+/* } */
 
-// if (mode == 1) draw_used();
-// if (mode == 3) draw_map();
-// if (mode == 6) draw_map();
-// if (mode == 7) draw_map();
-if (mode == MODE_MAP_PICKER) draw_used();
-if (mode == MODE_SCREEN_TILES) draw_map();
-if (mode == MODE_SCREEN_SPRITES) draw_map();
-if (mode == MODE_SPRITE_HARDNESS) draw_map();
+/* // if (mode == 1) draw_used(); */
+/* // if (mode == 3) draw_map(); */
+/* // if (mode == 6) draw_map(); */
+/* // if (mode == 7) draw_map(); */
+/* if (mode == MODE_MAP_PICKER) draw_used(); */
+/* if (mode == MODE_SCREEN_TILES) draw_map(); */
+/* if (mode == MODE_SCREEN_SPRITES) draw_map(); */
+/* if (mode == MODE_SPRITE_HARDNESS) draw_map(); */
 
-    rcRect.right = 600;
-    rcRect.bottom = 450;
-    //    if (mode == 2)
-    if (mode == MODE_TILE_PICKER)
-      {
-	lpDDSTwo->BltFast( 0, 0, tiles[cur_screen],  &tilerect[cur_screen], DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	// GFX
-	SDL_BlitSurface(GFX_tiles[cur_screen], NULL, GFX_lpDDSTwo, NULL);
-      }
-	}
-    return ddrval;
+/*     rcRect.right = 600; */
+/*     rcRect.bottom = 450; */
+/*     //    if (mode == 2) */
+/*     if (mode == MODE_TILE_PICKER) */
+/*       { */
+/* 	lpDDSTwo->BltFast( 0, 0, tiles[cur_screen],  &tilerect[cur_screen], DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/* 	// GFX */
+/* 	SDL_BlitSurface(GFX_tiles[cur_screen], NULL, GFX_lpDDSTwo, NULL); */
+/*       } */
+/* 	} */
+/*     return ddrval; */
 
-} /* restoreAll */
+/* } /\* restoreAll *\/ */
 
 void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 {
@@ -354,11 +353,11 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
   
   if (get_box(h, &box_crap, &box_real))
     {
-      while(1)
-	{
-	again:
-	  ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k,
-			       &box_real, DDBLT_KEYSRC, &ddbltfx);
+/*       while(1) */
+/* 	{ */
+/* 	again: */
+/* 	  ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k, */
+/* 			       &box_real, DDBLT_KEYSRC, &ddbltfx); */
 
 	  // GFX
 	  /* Classical scaling - copy/paste from dinkvar.cpp */
@@ -400,29 +399,29 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 	      }
 	  }
 
-	  if (ddrval != DD_OK)
-	    {
-	      if (ddrval == DDERR_WASSTILLDRAWING)
-		goto again;
+/* 	  if (ddrval != DD_OK) */
+/* 	    { */
+/* 	      if (ddrval == DDERR_WASSTILLDRAWING) */
+/* 		goto again; */
 	      
-	      //dderror(ddrval);
-	      dderror(ddrval);
-	      if (draw_map_tiny > 0) 
-		{
-		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (Seq %d, Fram %d) (map %d)",h,getpic(h),spr[h].pseq, spr[h].pframe, draw_map_tiny);
-		  Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-		      box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-		      box_real.right, box_real.bottom);
-		}
-	      else
-		{
-		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (map %d)",h,getpic(h), cur_map);
-		}
-	      check_sprite_status(h);
-	      break;
-	    }
-	  break;
-	}
+/* 	      //dderror(ddrval); */
+/* 	      dderror(ddrval); */
+/* 	      if (draw_map_tiny > 0)  */
+/* 		{ */
+/* 		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (Seq %d, Fram %d) (map %d)",h,getpic(h),spr[h].pseq, spr[h].pframe, draw_map_tiny); */
+/* 		  Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top, */
+/* 		      box_crap.right, box_crap.bottom,box_real.left,box_real.top, */
+/* 		      box_real.right, box_real.bottom); */
+/* 		} */
+/* 	      else */
+/* 		{ */
+/* 		  Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d. (map %d)",h,getpic(h), cur_map); */
+/* 		} */
+/* 	      check_sprite_status(h); */
+/* 	      break; */
+/* 	    } */
+/* 	  break; */
+/* 	} */
     }
 }
 
@@ -585,8 +584,8 @@ void draw_map(void)
       rcRect.bottom = rcRect.top + 50;
       
       
-      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1],
-			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
+/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
       // GFX
       {
 	SDL_Rect src, dst;
@@ -620,8 +619,8 @@ void draw_current( void)
   rcRect.bottom = rcRect.top + 50;
   
   //(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );	
-  lpDDSTwo->BltFast( 590,430 , tiles[cool+1],
-		     &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/*   lpDDSTwo->BltFast( 590,430 , tiles[cool+1], */
+/* 		     &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
   //GFX
   {
     SDL_Rect src, dst = {590, 430};
@@ -645,8 +644,8 @@ void draw_hard( void)
 	  /* red */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 1)
 	    {
-	      lpDDSBack->BltFast(95+(x*9), y*9, k[seq[10].frame[2]].k,
-				 &k[seq[10].frame[2]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+/* 	      lpDDSBack->BltFast(95+(x*9), y*9, k[seq[10].frame[2]].k, */
+/* 				 &k[seq[10].frame[2]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
 	      // GFX
 	      {
 		SDL_Rect dst;
@@ -659,8 +658,8 @@ void draw_hard( void)
 	  /* blue */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 2)
 	    {
-	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[9]].k,
-				 &k[seq[10].frame[9]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+/* 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[9]].k, */
+/* 				 &k[seq[10].frame[9]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
 	      // GFX
 	      {
 		SDL_Rect dst;
@@ -673,8 +672,8 @@ void draw_hard( void)
 	  /* orange */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 3)
 	    {
-	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[10]].k,
-				 &k[seq[10].frame[10]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+/* 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[10]].k, */
+/* 				 &k[seq[10].frame[10]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
 	      // GFX
 	      {
 		SDL_Rect dst;
@@ -696,8 +695,8 @@ draw_this_map(map_info* pmap)
       /* Blue square - unused screen */
       if (pmap->loc[x+1] == 0)
 	{
-	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k,
-			    &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT );
+/* 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[6]].k, */
+/* 			    &k[seq[10].frame[6]].box, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -715,8 +714,8 @@ draw_this_map(map_info* pmap)
       /* Red square - used screen */
       if (pmap->loc[x+1] > 0)
 	{
-	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k,
-			    &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/* 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[7]].k, */
+/* 			    &k[seq[10].frame[7]].box, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -734,8 +733,8 @@ draw_this_map(map_info* pmap)
       /* M mark - screen has MIDI */
       if (pmap->music[x+1] != 0)
 	{
-	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k,
-			    &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
+/* 	  lpDDSTwo->BltFast((x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[12]].k, */
+/* 			    &k[seq[10].frame[12]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT ); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -747,8 +746,8 @@ draw_this_map(map_info* pmap)
       /* S mark - screen has screentype / is indoor */
       if (pmap->indoor[x+1] != 0)
 	{
-	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k,
-           &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT );
+/* 	  lpDDSTwo->BltFast( (x) * 20 - ((x / 32) * 640), (x / 32) * 20, k[seq[10].frame[13]].k, */
+/*            &k[seq[10].frame[13]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT ); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -1054,14 +1053,14 @@ check_keyboard();
 /* Displays a tile fullscreen, so we can select some squares */
 void loadtile(int tileset)
 {
-  DDBLTFX     ddbltfx;
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
+/*   DDBLTFX     ddbltfx; */
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
   
   //feel tile background with a color
   
-  ddbltfx.dwFillColor = 0;
-  ddbltfx.dwSize = sizeof(ddbltfx);
-  lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/*   ddbltfx.dwFillColor = 0; */
+/*   ddbltfx.dwSize = sizeof(ddbltfx); */
+/*   lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
   
@@ -1081,7 +1080,7 @@ void loadtile(int tileset)
       spr[1].speed = 50;  
     }
 
-  lpDDSTwo->BltFast(0, 0, tiles[tileset], &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT);
+/*   lpDDSTwo->BltFast(0, 0, tiles[tileset], &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT); */
   // GFX
   SDL_BlitSurface(GFX_tiles[tileset], NULL, GFX_lpDDSTwo, NULL);
   cur_screen = tileset;
@@ -1125,23 +1124,23 @@ return(0);
    sequences' 50x50 previews */
 static void draw_sprite_picker_grid(void)
 {
-  DDBLTFX ddbltfx;
-  RECT box_crap;
+/*   DDBLTFX ddbltfx; */
+/*   RECT box_crap; */
 
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof(ddbltfx);
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof(ddbltfx); */
 
   /* Draw vertical lines */
   for (int x2=1; x2 <= 12; x2++)
     {
-      ddbltfx.dwFillColor = 120;
+/*       ddbltfx.dwFillColor = 120; */
       
-      box_crap.top = 0;
-      box_crap.bottom = 400;
-      box_crap.left = (x2*50) -1;
-      box_crap.right = box_crap.left+1;
+/*       box_crap.top = 0; */
+/*       box_crap.bottom = 400; */
+/*       box_crap.left = (x2*50) -1; */
+/*       box_crap.right = box_crap.left+1; */
 
-      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+/*       ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
       // GFX
       {
 	SDL_Rect dst = {12345, 0, 12345, 400};
@@ -1154,14 +1153,14 @@ static void draw_sprite_picker_grid(void)
   /* Draw horizontal lines */
   for (int x3=1; x3 <= 8; x3++)
     {
-      ddbltfx.dwFillColor = 120;
+/*       ddbltfx.dwFillColor = 120; */
 
-      box_crap.top = (50 * x3)-1;
-      box_crap.bottom = box_crap.top +1;
-      box_crap.left = 0;
-      box_crap.right = 600;
+/*       box_crap.top = (50 * x3)-1; */
+/*       box_crap.bottom = box_crap.top +1; */
+/*       box_crap.left = 0; */
+/*       box_crap.right = 600; */
 
-      ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx);
+/*       ddrval = lpDDSTwo->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
       // GFX
       {
 	SDL_Rect dst = {0, 12345, 600, 12345};
@@ -1177,7 +1176,7 @@ static void draw_sprite_picker_grid(void)
 void draw15(int num)
 {
   int crap;   
-  DDBLTFX ddbltfx;
+/*   DDBLTFX ddbltfx; */
   RECT  crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
@@ -1188,15 +1187,15 @@ void draw15(int num)
   while(kill_last_sprite());
   
   
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 0;
-  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
+/*   ddbltfx.dwFillColor = 0; */
+/*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
   
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof( ddbltfx);
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
   
   Say("Please wait, loading sprite data into SmartCache system...", 147,160);
   
@@ -1216,15 +1215,15 @@ void draw15(int num)
 	    {
 	      frame = 1;
 	      
-	      Rect.left = x1 * 50;
-	      Rect.top = y1 * 50;
-	      Rect.right = Rect.left + 50;
-	      Rect.bottom = Rect.top + 50;
+/* 	      Rect.left = x1 * 50; */
+/* 	      Rect.top = y1 * 50; */
+/* 	      Rect.right = Rect.left + 50; */
+/* 	      Rect.bottom = Rect.top + 50; */
 	      
-	      crapRec = k[seq[se].frame[frame]].box;
+/* 	      crapRec = k[seq[se].frame[frame]].box; */
 	      
-	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k,
-				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+/* 	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k, */
+/* 				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 	      // GFX
 	      /* Optimized scaling: no clipping */
 	      {
@@ -1250,7 +1249,7 @@ void draw15(int num)
 	      }
 
 
-	      if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.", se, frame);
+/* 	      if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.", se, frame); */
 	    }		
 	}
     }
@@ -1274,15 +1273,15 @@ void draw96(int def)
   int num = 0;
   while(kill_last_sprite());
   
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 0;
-  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
+/*   ddbltfx.dwFillColor = 0; */
+/*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);  
   
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof( ddbltfx);
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
   
   for (int x1=0; x1 <= 11; x1++)
     {
@@ -1297,10 +1296,10 @@ void draw96(int def)
 	  //se = sp_get(num);
 	  frame = 1;
 	  
-	  Rect.left = x1 * 50;
-	  Rect.top = y1 * 50;
-	  Rect.right = Rect.left + 50;
-	  Rect.bottom = Rect.top + 50;
+/* 	  Rect.left = x1 * 50; */
+/* 	  Rect.top = y1 * 50; */
+/* 	  Rect.right = Rect.left + 50; */
+/* 	  Rect.bottom = Rect.top + 50; */
 	  
 	  if (def > 0 && num == def)
 	    {
@@ -1309,10 +1308,10 @@ void draw96(int def)
 	      spr[1].y = y1 *50;
 	    }
 	  
-	  crapRec = k[seq[se].frame[num]].box;
+/* 	  crapRec = k[seq[se].frame[num]].box; */
 	  
-	  dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[num]].k,
-			     &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx );
+/* 	  dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[num]].k, */
+/* 			     &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx ); */
 	  // GFX
 	  /* Optimized scaling: no clipping */
 	  {
@@ -1337,7 +1336,7 @@ void draw96(int def)
 	      }
 	  }
 	  
-	  if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame);
+/* 	  if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame); */
 	}
     }
   
@@ -1518,11 +1517,11 @@ if (spr[1].size == 100)
 
 void blit(int seq1, int frame, LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int tx, int ty)
 {
-RECT math;
+/* RECT math; */
 
-	math = k[seq[seq1].frame[frame]].box;
-	OffsetRect(&math, tx, ty);
-	ddrval = lpdest->Blt(&math, k[seq[seq1].frame[frame]].k, &k[seq[seq1].frame[frame]].box, DDBLT_WAIT, NULL);
+/* 	math = k[seq[seq1].frame[frame]].box; */
+/* 	OffsetRect(&math, tx, ty); */
+/* 	ddrval = lpdest->Blt(&math, k[seq[seq1].frame[frame]].k, &k[seq[seq1].frame[frame]].box, DDBLT_WAIT, NULL); */
 	// GFX
 	// No scaling needed here
 	{
@@ -1986,14 +1985,14 @@ void change_tile(int tile, int num)
  
 void copy_front_to_two( void)
 {
-  RECT rcRect;
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = x;
-  rcRect.bottom = y;
+/*   RECT rcRect; */
+/*   rcRect.left = 0; */
+/*   rcRect.top = 0; */
+/*   rcRect.right = x; */
+/*   rcRect.bottom = y; */
   
-  lpDDSTwo->BltFast( 0, 0, lpDDSBack,
-		     &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/*   lpDDSTwo->BltFast( 0, 0, lpDDSBack, */
+/* 		     &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
   // GFX
   SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
 }
@@ -2002,16 +2001,16 @@ void copy_front_to_two( void)
 /* Create a 20x20 view of lpDDSTwo for use in the minimap */
 void shrink_screen_to_these_cords(int x1, int y1)
 {
-  RECT crapRec, Rect;
-  DDBLTFX ddbltfx;
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof(ddbltfx);
+/*   RECT crapRec, Rect; */
+/*   DDBLTFX ddbltfx; */
+/*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/*   ddbltfx.dwSize = sizeof(ddbltfx); */
   
-  SetRect(&crapRec, playl, 0, playx, 400);
-  SetRect(&Rect, x1, y1, x1+20, y1+20);
+/*   SetRect(&crapRec, playl, 0, playx, 400); */
+/*   SetRect(&Rect, x1, y1, x1+20, y1+20); */
   
-  lpDDSBack->Blt(&Rect, lpDDSTwo,
-		 &crapRec, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+/*   lpDDSBack->Blt(&Rect, lpDDSTwo, */
+/* 		 &crapRec, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
   
   // GFX
   /* Generic scaling - except no transparency (plus I'm sure scaling
@@ -2031,6 +2030,7 @@ void shrink_screen_to_these_cords(int x1, int y1)
     sx = 1.0 * dst.w / src.w;
     sy = 1.0 * dst.h / src.h;
 
+    /* TODO: switch to shrinkSurface() */
     scaled = zoomSurface(GFX_lpDDSTwo, sx, sy, SMOOTHING_OFF);
     /* Disable transparency if it wasn't active in the source surface
        (SDL_gfx bug, report submitted to the author) */
@@ -2329,9 +2329,9 @@ void updateFrame(void)
   int in_crap2;
   int                 holdx;
   //PALETTEENTRY        pe[256];
-  HRESULT             ddrval;
+/*   HRESULT             ddrval; */
   int xx;
-  DDBLTFX     ddbltfx;
+/*   DDBLTFX     ddbltfx; */
   BOOL kickass,cool;
   BOOL bs[max_sprites_at_once];
 	
@@ -2385,32 +2385,32 @@ void updateFrame(void)
     }
 	
 	
-  while( 1 )
-    {
-      ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-				   &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/*   while( 1 ) */
+/*     { */
+/*       ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
+/* 				   &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
       // GFX
       SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
 		
-      if( ddrval == DD_OK )
-        {
-	  break;
-        }
-      if( ddrval == DDERR_SURFACELOST )
-        {
-	  ddrval = restoreAll();
-	  if( ddrval != DD_OK )
-            {
-	      return;
-            }
-        }
-      if( ddrval != DDERR_WASSTILLDRAWING )
-        {
-	  return;
-        }
+/*       if( ddrval == DD_OK ) */
+/*         { */
+/* 	  break; */
+/*         } */
+/*       if( ddrval == DDERR_SURFACELOST ) */
+/*         { */
+/* 	  ddrval = restoreAll(); */
+/* 	  if( ddrval != DD_OK ) */
+/*             { */
+/* 	      return; */
+/*             } */
+/*         } */
+/*       if( ddrval != DDERR_WASSTILLDRAWING ) */
+/*         { */
+/* 	  return; */
+/*         } */
     
-    }
+/*     } */
 
  pass_flip:
 
@@ -3012,8 +3012,8 @@ void updateFrame(void)
 				last_sprite_added = realpic;	
 
     
-				ddbltfx.dwSize = sizeof(ddbltfx);
-				ddbltfx.dwFillColor = 235;
+/* 				ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 				ddbltfx.dwFillColor = 235; */
 
 				int	sprite = add_sprite_dumb(pam.sprite[realpic].x,pam.sprite[realpic].y,0,
 								 pam.sprite[realpic].seq, pam.sprite[realpic].frame,
@@ -3026,7 +3026,7 @@ void updateFrame(void)
 
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.bottom = box_crap.top + 5;
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 				// GFX
 				{
 				  SDL_Rect dst;
@@ -3039,7 +3039,7 @@ void updateFrame(void)
 
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.right = box_crap.left + 5;
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 				// GFX
 				{
 				  SDL_Rect dst;
@@ -3052,7 +3052,7 @@ void updateFrame(void)
 
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.left = box_crap.right - 5;
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 				// GFX
 				{
 				  SDL_Rect dst;
@@ -3065,7 +3065,7 @@ void updateFrame(void)
 
 				get_box(sprite, &box_crap, &box_real);
 				box_crap.top = box_crap.bottom - 5;
-				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
+/* 				ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 				// GFX
 				{
 				  SDL_Rect dst;
@@ -3452,10 +3452,10 @@ void updateFrame(void)
 				  m5y = spr[h].y;
 									
 				  //lets blank the screen
-				  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-				  ddbltfx.dwSize = sizeof( ddbltfx);
-				  ddbltfx.dwFillColor = 255;
-				  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/* 				  ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/* 				  ddbltfx.dwSize = sizeof( ddbltfx); */
+/* 				  ddbltfx.dwFillColor = 255; */
+/* 				  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
 				  // GFX
 				  SDL_FillRect(GFX_lpDDSTwo, NULL, 255);
 
@@ -3913,18 +3913,19 @@ void updateFrame(void)
 			  tilesel:
 			    cool = cur_tile / 128;
 			    xx = cur_tile - (cool * 128);
-			    Rect.left = (xx * 50- (xx / 12) * 600);
-			    Rect.top = (xx / 12) * 50;
-			    Rect.right = Rect.left + 50;
-			    Rect.bottom = Rect.top + 50;
+/* 			    Rect.left = (xx * 50- (xx / 12) * 600); */
+/* 			    Rect.top = (xx / 12) * 50; */
+/* 			    Rect.right = Rect.left + 50; */
+/* 			    Rect.bottom = Rect.top + 50; */
 		
-			    crapRec.top = 0;
-			    crapRec.left = 95;
-			    crapRec.bottom = 450;
-			    crapRec.right = 95+450;
+/* 			    crapRec.top = 0; */
+/* 			    crapRec.left = 95; */
+/* 			    crapRec.bottom = 450; */
+/* 			    crapRec.right = 95+450; */
 		
-			    ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-			    ddbltfx.dwSize = sizeof( ddbltfx);
+/* 			    ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/* 			    ddbltfx.dwSize = sizeof( ddbltfx); */
+
 			    spr[1].seq = 0;
 			    spr[1].pseq = 10;
 			    spr[1].pframe = 1;
@@ -3932,8 +3933,8 @@ void updateFrame(void)
 		
 
 			    // Display the given tile square fullscreen, for hardness editing
-			    lpDDSTwo->Blt(&crapRec , tiles[cool+1],
-					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+/* 			    lpDDSTwo->Blt(&crapRec , tiles[cool+1], */
+/* 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx ); */
 			    // GFX
 			    /* Generic scaling */
 			    /* Not perfectly accurate yet: move a 200% sprite to the
@@ -4393,15 +4394,15 @@ void updateFrame(void)
 			    crapRec.bottom = 450;
 			    crapRec.right = 95+450;
 		
-			    ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-			    ddbltfx.dwSize = sizeof( ddbltfx);
+/* 			    ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/* 			    ddbltfx.dwSize = sizeof( ddbltfx); */
 			    spr[1].seq = 0;
 			    spr[1].pseq = 10;
 			    spr[1].pframe = 1;
 		
 		
-			    lpDDSTwo->Blt(&crapRec , lpDDSBack,
-					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx );
+/* 			    lpDDSTwo->Blt(&crapRec , lpDDSBack, */
+/* 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx ); */
 			    // GFX
 			    /* Generic scaling */
 			    /* Not perfectly accurate yet: move a 200% sprite to the
@@ -4716,8 +4717,8 @@ void updateFrame(void)
 			for (int x = 0; x < selx; x++)
 			  {
 						
-			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k,
-							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+/* 			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k, */
+/* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
 			    {
 			      SDL_Rect dst;
@@ -4739,8 +4740,8 @@ void updateFrame(void)
 			for (int xx = 0; xx < selx; xx++)
 			  {
 						
-			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k,
-							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT );
+/* 			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k, */
+/* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
 			    {
 			      SDL_Rect dst;
@@ -4807,13 +4808,13 @@ void updateFrame(void)
 
   //prepare to display misc messages for debug purposes
 
-  if (lpDDSBack->GetDC(&hdc) == DD_OK)
-    {      
-      SetBkMode(hdc, TRANSPARENT); 
+/*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
+/*     { */
+/*       SetBkMode(hdc, TRANSPARENT);  */
 	
-      //   SetBkMode(hdc, OPAQUE);
-      SetBkColor(hdc, 1);
-      SetTextColor(hdc,RGB(200,200,200));
+/*       //   SetBkMode(hdc, OPAQUE); */
+/*       SetBkColor(hdc, 1); */
+/*       SetTextColor(hdc,RGB(200,200,200)); */
       FONTS_SetTextColor(200, 200, 200);
 	   
       //	TextOut(hdc,0,0, msg,lstrlen(msg));
@@ -4952,8 +4953,9 @@ void updateFrame(void)
 	  print_text_wrap(msg, &rcRect, 0, 0);
 	}
 	   
-      lpDDSBack->ReleaseDC(hdc);
-    }   
+/*       lpDDSBack->ReleaseDC(hdc); */
+
+/*     } /\* GetDC(&hdc) *\/ */
 
 
   if ( (mode == MODE_MAP_PICKER) )
@@ -4975,8 +4977,8 @@ void updateFrame(void)
 	      if (pam.sprite[j].active == true)
 		{
          
-		  ddbltfx.dwSize = sizeof(ddbltfx);
-		  ddbltfx.dwFillColor = 230;
+/* 		  ddbltfx.dwSize = sizeof(ddbltfx); */
+/* 		  ddbltfx.dwFillColor = 230; */
 	
 		  //info on the sprites  sprite info
 		  int temp = index[pam.sprite[j].seq].s + pam.sprite[j].frame;
@@ -4996,7 +4998,7 @@ void updateFrame(void)
 		  box_crap.left = box_crap.left + ( (box_crap.right - box_crap.left) / 2);
 		  box_crap.right = box_crap.left+ 50;
 				
-		  ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx);
+/* 		  ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx); */
 		  //       	if (ddrval != DD_OK) dderror(ddrval);
 		  // GFX
 		  {
@@ -5046,21 +5048,21 @@ void updateFrame(void)
     }
   if (mode == MODE_SPRITE_HARDNESS)
     {
-      ddbltfx.dwSize = sizeof(ddbltfx);
-      ddbltfx.dwFillColor = 230;
+/*       ddbltfx.dwSize = sizeof(ddbltfx); */
+/*       ddbltfx.dwFillColor = 230; */
 	
       if (sp_mode == 0)
 	{
 	  //draw depth dot for sprite attribute edit
 	  
-	  box_crap.top = spr[2].y;
-	  box_crap.bottom = spr[2].y+1;
-	  box_crap.left = spr[2].x - 20;
-	  box_crap.right = spr[2].x + 20;
+/* 	  box_crap.top = spr[2].y; */
+/* 	  box_crap.bottom = spr[2].y+1; */
+/* 	  box_crap.left = spr[2].x - 20; */
+/* 	  box_crap.right = spr[2].x + 20; */
 				
 				
-	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	  if (ddrval != DD_OK) dderror(ddrval);
+/* 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
+/* 	  if (ddrval != DD_OK) dderror(ddrval); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -5071,14 +5073,14 @@ void updateFrame(void)
 	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
 	  }
 
-	  box_crap.top = spr[2].y-20;
-	  box_crap.bottom = spr[2].y+20;
-	  box_crap.left = spr[2].x;
-	  box_crap.right = spr[2].x +1;
+/* 	  box_crap.top = spr[2].y-20; */
+/* 	  box_crap.bottom = spr[2].y+20; */
+/* 	  box_crap.left = spr[2].x; */
+/* 	  box_crap.right = spr[2].x +1; */
 				
 				
-	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	  if (ddrval != DD_OK) dderror(ddrval);
+/* 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
+/* 	  if (ddrval != DD_OK) dderror(ddrval); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -5094,13 +5096,13 @@ void updateFrame(void)
 	{
 	  //draw hardbox dot for sprite attribute edit
 	  
-	  box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox;
+/* 	  box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox; */
 	  
-	  OffsetRect(&box_crap,320,200);
+/* 	  OffsetRect(&box_crap,320,200); */
 
 
-	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx);
-	  if (ddrval != DD_OK) Msg("Error with drawing hard block... you know why.");
+/* 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
+/* 	  if (ddrval != DD_OK) Msg("Error with drawing hard block... you know why."); */
 	  // GFX
 	  {
 	    SDL_Rect dst;
@@ -5355,41 +5357,41 @@ void updateFrame(void)
 
 
 
-  if (!windowed)
-    {
+/*   if (!windowed) */
+/*     { */
 	
-      while( 1 )
-	{
-	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-	  if( ddrval == DD_OK )
-	    {
-	      break;
-	    }
-	  if( ddrval == DDERR_SURFACELOST )
-	    {
-	      ddrval = restoreAll();
-	      if( ddrval != DD_OK )
-		{
-		  break;
-		}
-	    }
-	  if( ddrval != DDERR_WASSTILLDRAWING )
-	    {
+/*       while( 1 ) */
+/* 	{ */
+/* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
+/* 	  if( ddrval == DD_OK ) */
+/* 	    { */
+/* 	      break; */
+/* 	    } */
+/* 	  if( ddrval == DDERR_SURFACELOST ) */
+/* 	    { */
+/* 	      ddrval = restoreAll(); */
+/* 	      if( ddrval != DD_OK ) */
+/* 		{ */
+/* 		  break; */
+/* 		} */
+/* 	    } */
+/* 	  if( ddrval != DDERR_WASSTILLDRAWING ) */
+/* 	    { */
 			
-	      dderror(ddrval);
-	    }
-	} 
+/* 	      dderror(ddrval); */
+/* 	    } */
+/* 	}  */
 
-      if (draw_map_tiny != -1) 
-	{
+/*       if (draw_map_tiny != -1)  */
+/* 	{ */
 	  //extra flip
 		
-	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT );
-	}
+/* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
+/* 	} */
 
 
-    } else
-    {
+/*     } else */
+/*     { */
       /* Replaced by a call to flip_it_second() */
       flip_it_second();
       /*
@@ -5413,7 +5415,7 @@ void updateFrame(void)
       ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
       ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
       */
-    }
+/*     } */
 } /* updateFrame */
 
 /*
@@ -5421,42 +5423,43 @@ void updateFrame(void)
  *
  * finished with all objects we use; release them
  */
+/* TODO: merge with freedink.cpp */
 void finiObjects( void )
 {
 	  OutputDebugString("Running cleanup (finiObjects)\n");
 	  
-	  if( lpDD != NULL )
-	  {
-		  if( lpDDSPrimary != NULL )
-		  {
-			  lpDDSPrimary->Release();
-			  lpDDSPrimary = NULL;
-		  }
+/* 	  if( lpDD != NULL ) */
+/* 	  { */
+/* 		  if( lpDDSPrimary != NULL ) */
+/* 		  { */
+/* 			  lpDDSPrimary->Release(); */
+/* 			  lpDDSPrimary = NULL; */
+/* 		  } */
 		  
-		  if( lpDDSTwo != NULL )
-		  {
-			  lpDDSTwo->Release();
-			  lpDDSTwo = NULL;
-		  }
+/* 		  if( lpDDSTwo != NULL ) */
+/* 		  { */
+/* 			  lpDDSTwo->Release(); */
+/* 			  lpDDSTwo = NULL; */
+/* 		  } */
 		  
 		  
-		  if( lpDDPal != NULL )
-		  {
-			  lpDDPal->Release();
-			  lpDDPal = NULL;
-		  }
-		  lpDD->Release();
-		  lpDD = NULL;
-	  }
+/* 		  if( lpDDPal != NULL ) */
+/* 		  { */
+/* 			  lpDDPal->Release(); */
+/* 			  lpDDPal = NULL; */
+/* 		  } */
+/* 		  lpDD->Release(); */
+/* 		  lpDD = NULL; */
+/* 	  } */
 
 	   
-	  //destroy direct input mouse stuff
-	  if (g_pdi)      g_pdi   ->Release(), g_pdi    = NULL;
+/* 	  //destroy direct input mouse stuff */
+/* 	  if (g_pdi)      g_pdi   ->Release(), g_pdi    = NULL; */
 
 
-    if (g_pMouse)   g_pMouse->Release(), g_pMouse = NULL;
+/*     if (g_pMouse)   g_pMouse->Release(), g_pMouse = NULL; */
 
-    if (g_hevtMouse) CloseHandle(g_hevtMouse), g_hevtMouse = NULL;
+/*     if (g_hevtMouse) CloseHandle(g_hevtMouse), g_hevtMouse = NULL; */
 
 
 
@@ -5523,37 +5526,32 @@ long FAR PASCAL WindowProc(HWND hWnd, UINT message,
   } /* WindowProc */
   
   
-  
-	/*
-	* This function is called if the initialization function fails
-  */
-BOOL initFail( HWND hwnd, char mess[200] )
+
+/*
+ * This function is called if the initialization function fails
+ */
+/* TODO: merge with freedink.cpp */
+BOOL initFail(char mess[200])
 {
-	  MessageBox( hwnd, mess, TITLE, MB_OK );
-	  finiObjects();
-	  DestroyWindow( hwnd );
-	  return FALSE;
-	  
-  } /* initFail */
+/* 	  MessageBox( hwnd, mess, TITLE, MB_OK ); */
+    printf("%s\n", mess);
+    finiObjects();
+/* 	  DestroyWindow( hwnd ); */
+    return FALSE;
+} /* initFail */
   
-	/*
-	* doInit - do work required for every instance of the application:
-	*                create the window, initialize data
-  */
+
   
-  
-  
-  
-  
-bool check_arg(char crap[255])
+bool check_arg(int argc, char *argv[])
 {
 	  char shit[200];
 	  
 	  //	strupr(crap);
 	  strcpy(dir, "dink");
-	  for (int i=1; i <= 10; i++)
+	  for (int i=1; i < argc; i++)
 	  {
-		  separate_string(crap, i,' ',shit);
+/* 		  separate_string(crap, i,' ',shit); */
+	    strcpy(shit, argv[i]);
 
 		  if (strnicmp(shit,"-window",strlen("-window")) == 0)
 		  {
@@ -5571,8 +5569,9 @@ bool check_arg(char crap[255])
 
   		  if (strnicmp(shit,"-game",strlen("-game")) == 0)
 		  {
-		separate_string(crap, i+1,' ',shit);
-		strcpy(dir, shit);  
+/* 		separate_string(crap, i+1,' ',shit); */
+		    strcpy(shit, argv[i+1]);
+		strcpy(dir, shit);
 		Msg("Working directory %s requested.",dir);  
 		  
 		  }
@@ -5662,15 +5661,19 @@ int SInitSound()
 }
 
 
-static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
+/*
+ * doInit - do work required for every instance of the application:
+ *                create the window, initialize data
+ */
+static BOOL doInit(int argc, char *argv[])
 {
-	  HWND                hwnd;
+/* 	  HWND                hwnd; */
 	  //    HRESULT             dsrval;
 	  // BOOL                bUseDSound;
-	  WNDCLASS            wc;
-	  DDSURFACEDESC       ddsd;
-	  DDSCAPS             ddscaps;
-	  HRESULT             ddrval;
+/* 	  WNDCLASS            wc; */
+/* 	  DDSURFACEDESC       ddsd; */
+/* 	  DDSCAPS             ddscaps; */
+/* 	  HRESULT             ddrval; */
 	  RECT                rcRect;
 	  char crap[100];
 	  char crap1[50];
@@ -5683,255 +5686,244 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 	  
 	  //initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
 dinkedit = true;
-	  wc.style = CS_HREDRAW | CS_VREDRAW;
-	  wc.lpfnWndProc = WindowProc;
-	  wc.cbClsExtra = 0;
-	  wc.cbWndExtra = 0;
-	  wc.hInstance = hInstance;
-	  wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	  wc.hCursor = LoadCursor( NULL, IDC_ARROW );
-	  wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
-	  wc.lpszMenuName = NAME;
-	  wc.lpszClassName = NAME;
-	  RegisterClass( &wc );
+
+/* 	  wc.style = CS_HREDRAW | CS_VREDRAW; */
+/* 	  wc.lpfnWndProc = WindowProc; */
+/* 	  wc.cbClsExtra = 0; */
+/* 	  wc.cbWndExtra = 0; */
+/* 	  wc.hInstance = hInstance; */
+/* 	  wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1)); */
+/* 	  wc.hCursor = LoadCursor( NULL, IDC_ARROW ); */
+/* 	  wc.hbrBackground = GetStockBrush(BLACK_BRUSH); */
+/* 	  wc.lpszMenuName = NAME; */
+/* 	  wc.lpszClassName = NAME; */
+/* 	  RegisterClass( &wc ); */
 	  
 	  /*
 	  * create a window
 	  */
 	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
 	  windowed = false;
-	  check_arg(command_line);
-	  
+	  check_arg(argc, argv);
 
-	  	
-
-
-	  if (windowed)
-	  {
-		  hwnd = CreateWindowEx(
-			  0,
-			  NAME,
-			  TITLE,
-			  //        WS_POPUP,
+/* 	  if (windowed) */
+/* 	  { */
+/* 		  hwnd = CreateWindowEx( */
+/* 			  0, */
+/* 			  NAME, */
+/* 			  TITLE, */
+/* 			  //        WS_POPUP, */
 			  
-			  WS_SYSMENU|WS_CAPTION,
+/* 			  WS_SYSMENU|WS_CAPTION, */
 			  
-			  0,
-			  0,
+/* 			  0, */
+/* 			  0, */
 			  
-			  640+winoffsetx, 480+winoffset,
-			  //        GetSystemMetrics(SM_CXSCREEN),
-			  //      GetSystemMetrics(SM_CYSCREEN),
-			  NULL,
-			  NULL,
-			  hInstance,
-			  NULL );
-		  hWndMain = hwnd;   
+/* 			  640+winoffsetx, 480+winoffset, */
+/* 			  //        GetSystemMetrics(SM_CXSCREEN), */
+/* 			  //      GetSystemMetrics(SM_CYSCREEN), */
+/* 			  NULL, */
+/* 			  NULL, */
+/* 			  hInstance, */
+/* 			  NULL ); */
+/* 		  hWndMain = hwnd;    */
 		  
-		  if( !hwnd )
-		  {
-			  return FALSE;
-		  }
-		  
-		  
-		  ShowWindow( hwnd, nCmdShow );
-		  UpdateWindow( hwnd );
-		  SetFocus( hwnd );
-		  
-		  /*
-		  * create the main DirectDraw object
-		  */
-		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL );
-		  if( ddrval != DD_OK )
-		  {
-			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
-		  }
-		  
-		  // Get exclusive mode
+/* 		  if( !hwnd ) */
+/* 		  { */
+/* 			  return FALSE; */
+/* 		  } */
 		  
 		  
-		  // using DDSCL_NORMAL means we will coexist with GDI
-		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL );
+/* 		  ShowWindow( hwnd, nCmdShow ); */
+/* 		  UpdateWindow( hwnd ); */
+/* 		  SetFocus( hwnd ); */
 		  
-		  if( ddrval != DD_OK )  
-		  {        
-			  lpDD->Release(); 
-			  return initFail(hwnd, "Couldn't make windowed screen.");
+/* 		  /\* */
+/* 		  * create the main DirectDraw object */
+/* 		  *\/ */
+/* 		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL ); */
+/* 		  if( ddrval != DD_OK ) */
+/* 		  { */
+/* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
+/* 		  } */
+		  
+/* 		  // Get exclusive mode */
+		  
+		  
+/* 		  // using DDSCL_NORMAL means we will coexist with GDI */
+/* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL ); */
+		  
+/* 		  if( ddrval != DD_OK )   */
+/* 		  {         */
+/* 			  lpDD->Release();  */
+/* 			  return initFail(hwnd, "Couldn't make windowed screen."); */
 			  
-		  }   
-		  memset( &ddsd, 0, sizeof(ddsd) );
-		  ddsd.dwSize = sizeof( ddsd );
-		  ddsd.dwFlags = DDSD_CAPS;
-		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+/* 		  }    */
+/* 		  memset( &ddsd, 0, sizeof(ddsd) ); */
+/* 		  ddsd.dwSize = sizeof( ddsd ); */
+/* 		  ddsd.dwFlags = DDSD_CAPS; */
+/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE; */
 		  
-		  // The primary surface is not a page flipping surface this time
-		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL );
+/* 		  // The primary surface is not a page flipping surface this time */
+/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
 		  
-		  if( ddrval != DD_OK )    
-		  {        lpDD->Release();  
-		  return initFail(hwnd, "Couldn't make primary surface.");
-		  
-		  
-		  } 
+/* 		  if( ddrval != DD_OK )     */
+/* 		  {        lpDD->Release();   */
+/* 		  return initFail(hwnd, "Couldn't make primary surface."); */
 		  
 		  
-		  
-		  memset( &ddsd, 0, sizeof(ddsd) ); 
-		  ddsd.dwSize = sizeof( ddsd );
-		  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-		  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN; 
-		  ddsd.dwWidth = 640;
-		  ddsd.dwHeight = 480;    // create the backbuffer separately
-		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSBack, NULL );
-		  if( ddrval != DD_OK )
-		  {        lpClipper-> Release();
-		  
-		  lpDDSPrimary->Release();    
-		  lpDD->Release(); 
-		  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
+/* 		  }  */
 		  
 		  
-		  }   
+		  
+/* 		  memset( &ddsd, 0, sizeof(ddsd) );  */
+/* 		  ddsd.dwSize = sizeof( ddsd ); */
+/* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH; */
+/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;  */
+/* 		  ddsd.dwWidth = 640; */
+/* 		  ddsd.dwHeight = 480;    // create the backbuffer separately */
+/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSBack, NULL ); */
+/* 		  if( ddrval != DD_OK ) */
+/* 		  {        lpClipper-> Release(); */
+		  
+/* 		  lpDDSPrimary->Release();     */
+/* 		  lpDD->Release();  */
+/* 		  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode."); */
+		  
+		  
+/* 		  }    */
 		  
 
 		  // Create a clipper to ensure that our drawing stays inside our window
-	  ddrval = lpDD->CreateClipper( 0, &lpClipper, NULL );
-	  if( ddrval != DD_OK )   
-	  {      
-		  lpDDSPrimary->Release();
+/* 	  ddrval = lpDD->CreateClipper( 0, &lpClipper, NULL ); */
+/* 	  if( ddrval != DD_OK )    */
+/* 	  {       */
+/* 		  lpDDSPrimary->Release(); */
 		  
-		  lpDD->Release();  
-		  return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
+/* 		  lpDD->Release();   */
+/* 		  return initFail(hwnd, "Couldn't make a Clipper object, god knows why."); */
 		  
-	  }
+/* 	  } */
 	  
 	  
-	  // setting it to our hwnd gives the clipper the coordinates from our window
-	  ddrval = lpClipper->SetHWnd( 0, hwnd );   
-	  if( ddrval != DD_OK )  
-	  {
-		  lpClipper-> Release();   
-		  lpDDSPrimary->Release();
+/* 	  // setting it to our hwnd gives the clipper the coordinates from our window */
+/* 	  ddrval = lpClipper->SetHWnd( 0, hwnd );    */
+/* 	  if( ddrval != DD_OK )   */
+/* 	  { */
+/* 		  lpClipper-> Release();    */
+/* 		  lpDDSPrimary->Release(); */
 		  
-		  lpDD->Release();     
-		  return initFail(hwnd, "Couldn't give Clipper window cords.");
+/* 		  lpDD->Release();      */
+/* 		  return initFail(hwnd, "Couldn't give Clipper window cords."); */
 		  
-	  }
-	  // attach the clipper to the primary surface
-	  ddrval = lpDDSPrimary->SetClipper( lpClipper ); 
-	  if( ddrval != DD_OK )
-	  {  
-		  lpClipper-> Release();   
-		  lpDDSPrimary->Release();
-		  lpDD->Release();    
+/* 	  } */
+/* 	  // attach the clipper to the primary surface */
+/* 	  ddrval = lpDDSPrimary->SetClipper( lpClipper );  */
+/* 	  if( ddrval != DD_OK ) */
+/* 	  {   */
+/* 		  lpClipper-> Release();    */
+/* 		  lpDDSPrimary->Release(); */
+/* 		  lpDD->Release();     */
 		  
-		  return initFail(hwnd, "Couldn't attach Clipper to primary buffer.");
-	  }
+/* 		  return initFail(hwnd, "Couldn't attach Clipper to primary buffer."); */
+/* 	  } */
 	  
 
-	  }
+/* 	  } */
 	  
 	  
 	  
 	  
-	  if (!windowed)
-	  {
+/* 	  if (!windowed) */
+/* 	  { */
 		  
-		  hwnd = CreateWindowEx(
-			  0,
-			  NAME,
-			  TITLE,
-			  WS_POPUP,
+/* 		  hwnd = CreateWindowEx( */
+/* 			  0, */
+/* 			  NAME, */
+/* 			  TITLE, */
+/* 			  WS_POPUP, */
 			  
-			  //WS_SYSMENU|WS_CAPTION,
+/* 			  //WS_SYSMENU|WS_CAPTION, */
 			  
-			  0,
-			  0,
-			  640, 480,
-			  //        GetSystemMetrics(SM_CXSCREEN),
-			  //      GetSystemMetrics(SM_CYSCREEN),
-			  NULL,
-			  NULL,
-			  hInstance,
-			  NULL );
-		  hWndMain = hwnd;   
+/* 			  0, */
+/* 			  0, */
+/* 			  640, 480, */
+/* 			  //        GetSystemMetrics(SM_CXSCREEN), */
+/* 			  //      GetSystemMetrics(SM_CYSCREEN), */
+/* 			  NULL, */
+/* 			  NULL, */
+/* 			  hInstance, */
+/* 			  NULL ); */
+/* 		  hWndMain = hwnd;    */
 		  
-		  if( !hwnd )
-		  {
-			  return FALSE;
-		  }
+/* 		  if( !hwnd ) */
+/* 		  { */
+/* 			  return FALSE; */
+/* 		  } */
 		  
-		  ShowWindow( hwnd, nCmdShow );
-		  UpdateWindow( hwnd );
-		  SetFocus( hwnd );
+/* 		  ShowWindow( hwnd, nCmdShow ); */
+/* 		  UpdateWindow( hwnd ); */
+/* 		  SetFocus( hwnd ); */
 		  
-		  /*
-		  * create the main DirectDraw object
-		  */
-		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL );
-		  if( ddrval != DD_OK )
-		  {
-			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
-		  }
-//		  	  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first.");
+/* 		  /\* */
+/* 		  * create the main DirectDraw object */
+/* 		  *\/ */
+/* 		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL ); */
+/* 		  if( ddrval != DD_OK ) */
+/* 		  { */
+/* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
+/* 		  } */
+/* //		  	  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
 		  
-		  // Get exclusive mode
-		  
-		  
-		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN );
+/* 		  // Get exclusive mode */
 		  
 		  
-		  if( ddrval != DD_OK )
-		  {
-			  return initFail(hwnd, "Whatup?  Couldn't set to full screen.");
-		  }
-		  
-		  // Set the video mode to 640x480x8
-		  ddrval = lpDD->SetDisplayMode( x, y, 8);
-		  if(ddrval != DD_OK)
-		  {
-			  return initFail(hwnd, "640 X 480, 8 bit not supported.");
-		  }
-		  
-		  // Create the primary surface with 1 back buffer
-		  
-		  ddsd.dwSize = sizeof( ddsd );
-		  ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE |
-			  DDSCAPS_FLIP |
-			  DDSCAPS_COMPLEX;
+/* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN ); */
 		  
 		  
+/* 		  if( ddrval != DD_OK ) */
+/* 		  { */
+/* 			  return initFail(hwnd, "Whatup?  Couldn't set to full screen."); */
+/* 		  } */
 		  
-		  ddsd.dwBackBufferCount = 1;
-		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL );
-		  if( ddrval != DD_OK )
-		  {
-			  return initFail(hwnd, "Could not create primary surface.");
-		  }
+/* 		  // Set the video mode to 640x480x8 */
+/* 		  ddrval = lpDD->SetDisplayMode( x, y, 8); */
+/* 		  if(ddrval != DD_OK) */
+/* 		  { */
+/* 			  return initFail(hwnd, "640 X 480, 8 bit not supported."); */
+/* 		  } */
 		  
-		  ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+/* 		  // Create the primary surface with 1 back buffer */
 		  
-		  /* if (ddsd.ddsCaps.dwCaps == DDCAPS_BLTSTRETCH)
-		  {
-		  return initFail(hwnd, "Hardware blit stretching available.");
-		  }
-		  */
-		  ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack);
-		  if( ddrval != DD_OK )
-		  {
-			  return initFail(hwnd, "Could not create backbuffer,");
-		  }
+/* 		  ddsd.dwSize = sizeof( ddsd ); */
+/* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; */
+/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | */
+/* 			  DDSCAPS_FLIP | */
+/* 			  DDSCAPS_COMPLEX; */
 		  
-	  }
+		  
+		  
+/* 		  ddsd.dwBackBufferCount = 1; */
+/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
+/* 		  if( ddrval != DD_OK ) */
+/* 		  { */
+/* 			  return initFail(hwnd, "Could not create primary surface."); */
+/* 		  } */
+		  
+/* 		  ddscaps.dwCaps = DDSCAPS_BACKBUFFER; */
+		  
+/* 		  /\* if (ddsd.ddsCaps.dwCaps == DDCAPS_BLTSTRETCH) */
+/* 		  { */
+/* 		  return initFail(hwnd, "Hardware blit stretching available."); */
+/* 		  } */
+/* 		  *\/ */
+/* 		  ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack); */
+/* 		  if( ddrval != DD_OK ) */
+/* 		  { */
+/* 			  return initFail(hwnd, "Could not create backbuffer,"); */
+/* 		  } */
+		  
+/* 	  } */
 	  
 	  
 	  //done with major initting of graphics engine
@@ -5962,34 +5954,34 @@ dinkedit = true;
 
 if (!exist(tdir))
 	{
-		return initFail(hwnd, "Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
+		return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
     }
 
-	  lpDDPal = DDLoadPalette(lpDD, tdir);
+/* 	  lpDDPal = DDLoadPalette(lpDD, tdir); */
 	  // GFX
 	  load_palette_from_bmp(tdir, GFX_real_pal);
 	  
-	  if (lpDDPal)
-	    {
-	      lpDDSPrimary->SetPalette(lpDDPal);
-	    }
+/* 	  if (lpDDPal) */
+/* 	    { */
+/* 	      lpDDSPrimary->SetPalette(lpDDPal); */
+/* 	    } */
 	  // Create the offscreen surface, by loading our bitmap.
 	  srand( (unsigned)time( NULL ) );
 /* 	  if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK) */
-    {
-   Msg("error with getting entries in beginning");
-    }
+/*     { */
+/*    Msg("error with getting entries in beginning"); */
+/*     } */
 
 
-	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0);
+/* 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0); */
 	  // GFX
 	  GFX_lpDDSTwo = SDL_LoadBMP(tdir);
-	  if (!lpDDSTwo)
+	  if (!GFX_lpDDSTwo)
 	  {
-	   return initFail(hwnd, "Couldn't load esplash.bmp.");
+	   return initFail("Couldn't load esplash.bmp.");
 
 	  }
-	  DDSetColorKey(lpDDSTwo, RGB(0,0,0));
+/* 	  DDSetColorKey(lpDDSTwo, RGB(0,0,0)); */
 	  // GFX
 	  // needed?
 
@@ -6002,10 +5994,10 @@ if (!exist(tdir))
 	  //if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
 	  
 	  // Display esplash screen
-	  if (lpDDSTwo)
+	  if (GFX_lpDDSTwo)
 	  {
-	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
-					 &rcRect, DDBLTFAST_NOCOLORKEY);
+/* 	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
+/* 					 &rcRect, DDBLTFAST_NOCOLORKEY); */
 	    // GFX
 	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	  }
@@ -6226,8 +6218,9 @@ void switch_to_my_dir()
 }
 
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-		   LPSTR lpCmdLine, int nCmdShow)
+/* int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, */
+/* 		   LPSTR lpCmdLine, int nCmdShow) */
+int main(int argc, char *argv[])
 {
   MSG msg;
   
@@ -6240,19 +6233,17 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     {
       char crap[255];
       sprintf(crap, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
-      initFail(hWndMain, crap);
+      initFail(crap);
       return(0);   
     }
   
-  lpCmdLine = lpCmdLine;
-  command_line = lpCmdLine; 
-  MyhInstance = hInstance;
-  hPrevInstance = hPrevInstance;
+/*   lpCmdLine = lpCmdLine; */
+/*   command_line = lpCmdLine;  */
+/*   MyhInstance = hInstance; */
+/*   hPrevInstance = hPrevInstance; */
   
-  if( !doInit( hInstance, nCmdShow ) )
-    {
-      return FALSE;
-    }
+  if(!doInit(argc, argv))
+    return FALSE;
   
   
   while( 1 )
