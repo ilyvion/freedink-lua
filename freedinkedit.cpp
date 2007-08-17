@@ -56,9 +56,10 @@
 #include <time.h>
 /* for tolower */
 #include <ctype.h>
-#include <io.h>
-#include <direct.h>
-#include <windows.h>
+/* #include <io.h> */
+/* #include <direct.h> */
+#include <unistd.h>
+/* #include <windows.h> */
 /* For GetStockBrush */
 /* #include <windowsx.h> */
 /* For VK_* */
@@ -80,6 +81,7 @@
 #include "gfx_fonts.h"
 #include "sfx.h"
 #include "resource.h"
+#include "io_util.h"
 
 //Dinkedit-only vars
 
@@ -90,7 +92,7 @@ int buf_map = 0;
 
 /* Save x and y coordinates for mode 4, 5 and 6 */
 int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
-LPDIRECTDRAWCLIPPER lpClipper;
+/* LPDIRECTDRAWCLIPPER lpClipper; */
 int winoffset = 25;
 int winoffsetx = 5;
 
@@ -141,7 +143,7 @@ typedef enum enum_EFFECT
 /*     SOUND_BEARMISS, */
 } EFFECT;
 
-char szSoundEffects[NUM_SOUND_EFFECTS][MAX_PATH] =
+char szSoundEffects[NUM_SOUND_EFFECTS][PATH_MAX] =
 {
     "stop.wav",
 /*     "THROW.WAV", */
@@ -165,14 +167,14 @@ int speed;
 
 // PROC NAMES
 
-BOOL initFail(char mess[200] );
+/*BOOL*/int initFail(char mess[200] );
 
 bool getkey(int key);
 char key_convert(int key);
 
 void draw_map( void);
 void draw_used( void);
-void dderror(HRESULT hErr);
+/* void dderror(HRESULT hErr); */
 
 int SInitSound();
 
@@ -183,10 +185,10 @@ int SInitSound();
    restoreAll(). It's only used in DinkEdit and copy_bmp(). */
 void flip_it_second(void)
 {
-        DDBLTFX     ddbltfx;
+/*         DDBLTFX     ddbltfx; */
         
         RECT rcRectSrc;    RECT rcRectDest;
-        POINT p;
+/*         POINT p; */
         
 /*         if (!windowed) */
 /*         { */
@@ -343,13 +345,13 @@ void flip_it_second(void)
 
 /* } /\* restoreAll *\/ */
 
-void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
+void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 {
   RECT box_crap,box_real;
-  HRESULT             ddrval;
-  DDBLTFX     ddbltfx;
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 0;
+/*   HRESULT             ddrval; */
+/*   DDBLTFX     ddbltfx; */
+/*   ddbltfx.dwSize = sizeof( ddbltfx); */
+/*   ddbltfx.dwFillColor = 0; */
   
   if (get_box(h, &box_crap, &box_real))
     {
@@ -431,7 +433,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 		int sprite;
 		int que;
 	int highest_sprite;
-	BOOL bs[max_sprites_at_once];
+	/*BOOL*/int bs[max_sprites_at_once];
 	int rank[max_sprites_at_once];
 
 	
@@ -446,7 +448,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 			
 			for (int h1 = 1; h1 < 100;  h1++)
 			{
-					if (bs[h1] == FALSE)
+					if (bs[h1] == /*FALSE*/0)
 					{
 						if (pam.sprite[h1].que == 0) que = pam.sprite[h1].y; else 
 							
@@ -467,7 +469,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 				
 			}
 			if (rank[r1] != 0)	
-				bs[rank[r1]] = TRUE;
+				bs[rank[r1]] = /*TRUE*/1;
 		}
 		
      
@@ -505,7 +507,7 @@ void draw_sprite(LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int h)
 				CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
 
 				if (pam.sprite[j].type == 0)
-				  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, sprite);
+				  draw_sprite(GFX_lpDDSTwo, sprite);
 				
 				
 				if (spr[sprite].hard == 0)
@@ -891,21 +893,21 @@ void check_keyboard(void)
       /* getkey() then can check sjoy.realkey - that is, from the cache */
       sjoy.realkey[x] = GetKeyboard(x);
 
-      sjoy.key[x] = FALSE;
+      sjoy.key[x] = /*FALSE*/0;
       if (getkey(x))
 	{
-	  if (sjoy.kletgo[x] == TRUE) 
+	  if (sjoy.kletgo[x] == /*TRUE*/1) 
 	    /* We just changed from "released" to "pressed" */
 	    {
-	      sjoy.key[x] = TRUE;
+	      sjoy.key[x] = /*TRUE*/1;
 	    }
-	  sjoy.kletgo[x] = FALSE;
+	  sjoy.kletgo[x] = /*FALSE*/0;
 	}
       else
-	sjoy.kletgo[x] = TRUE;	
+	sjoy.kletgo[x] = /*TRUE*/1;	
     }
-  sjoy.kletgo[SDLK_LSHIFT] = TRUE;
-  sjoy.kletgo[SDLK_RSHIFT] = TRUE;
+  sjoy.kletgo[SDLK_LSHIFT] = /*TRUE*/1;
+  sjoy.kletgo[SDLK_RSHIFT] = /*TRUE*/1;
 }
 
 
@@ -918,13 +920,13 @@ int total;
 
       for (int e2=1; e2 <=10; e2++) 
 	  {
-		  sjoy.joybit[e2] = FALSE;
+		  sjoy.joybit[e2] = /*FALSE*/0;
 	  	  
 	  }
-sjoy.right = FALSE;
-sjoy.left = FALSE;
-sjoy.up = FALSE;
-sjoy.down = FALSE;
+sjoy.right = /*FALSE*/0;
+sjoy.left = /*FALSE*/0;
+sjoy.up = /*FALSE*/0;
+sjoy.down = /*FALSE*/0;
 
 
 if (joystick)
@@ -1005,16 +1007,16 @@ if (joystick)
 
 }
 
-if (GetKeyboard(SDLK_ESCAPE /* 27 */)) sjoy.joybit[1] = TRUE; //esc
-if (GetKeyboard(SDLK_RETURN /* 13 */)) sjoy.joybit[2] = TRUE;
-if (GetKeyboard('x' /* 88 */)) sjoy.joybit[3] = TRUE;
-if (GetKeyboard('z' /* 90 */)) sjoy.joybit[4] = TRUE;
+if (GetKeyboard(SDLK_ESCAPE /* 27 */)) sjoy.joybit[1] = /*TRUE*/1; //esc
+if (GetKeyboard(SDLK_RETURN /* 13 */)) sjoy.joybit[2] = /*TRUE*/1;
+if (GetKeyboard('x' /* 88 */)) sjoy.joybit[3] = /*TRUE*/1;
+if (GetKeyboard('z' /* 90 */)) sjoy.joybit[4] = /*TRUE*/1;
 
-if (GetKeyboard(SDLK_TAB /* 9 */)) sjoy.joybit[5] = TRUE; //tab
+if (GetKeyboard(SDLK_TAB /* 9 */)) sjoy.joybit[5] = /*TRUE*/1; //tab
 
 
 
-for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = FALSE; 
+for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = /*FALSE*/0; 
 	
 	  
 	  for (int x=1; x <=10; x++)
@@ -1022,10 +1024,10 @@ for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = FALSE;
 		 {
 		 if (sjoy.joybit[x])
 		 {
-			 if (sjoy.letgo[x] == TRUE) 
+			 if (sjoy.letgo[x] == /*TRUE*/1) 
 			 {
-			 sjoy.button[x] = TRUE;
-			 sjoy.letgo[x] = FALSE;
+			 sjoy.button[x] = /*TRUE*/1;
+			 sjoy.letgo[x] = /*FALSE*/0;
 			 }
 			
 		 }
@@ -1034,16 +1036,16 @@ for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = FALSE;
 
 for (int x2=1; x2 <=10; x2++) 
 	  {
-		if (sjoy.joybit[x2])  sjoy.letgo[x2] = FALSE; else sjoy.letgo[x2] = TRUE;
+		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
 	  	  
 	  }
 
 
 
-if (GetKeyboard(SDLK_RIGHT /* 39 */)) sjoy.right = TRUE;
-if (GetKeyboard(SDLK_LEFT /* 37 */)) sjoy.left = TRUE;
-if (GetKeyboard(SDLK_DOWN /* 40 */)) sjoy.down = TRUE;
-if (GetKeyboard(SDLK_UP /* 38 */)) sjoy.up = TRUE;
+if (GetKeyboard(SDLK_RIGHT /* 39 */)) sjoy.right = /*TRUE*/1;
+if (GetKeyboard(SDLK_LEFT /* 37 */)) sjoy.left = /*TRUE*/1;
+if (GetKeyboard(SDLK_DOWN /* 40 */)) sjoy.down = /*TRUE*/1;
+if (GetKeyboard(SDLK_UP /* 38 */)) sjoy.up = /*TRUE*/1;
 
 check_keyboard();
 
@@ -1261,7 +1263,7 @@ void draw15(int num)
 void draw96(int def)
 {
   int crap;   
-  DDBLTFX ddbltfx;
+/*   DDBLTFX ddbltfx; */
   RECT crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
@@ -1515,7 +1517,7 @@ if (spr[1].size == 100)
 
 
 
-void blit(int seq1, int frame, LPDIRECTDRAWSURFACE lpdest, SDL_Surface *GFX_lpdest, int tx, int ty)
+void blit(int seq1, int frame, SDL_Surface *GFX_lpdest, int tx, int ty)
 {
 /* RECT math; */
 
@@ -1550,7 +1552,7 @@ void check_in(void)
 							in_int = &spr[1].size;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",spr[1].size); //set default
-				blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+				blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Size?",260,175);
 	  }
 
@@ -1565,7 +1567,7 @@ if (in_master == 2)
 							in_int = &sp_type;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_type); //set default
-				blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+				blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Type?",260,175);
 					   	Say("Type controls the sprites basic type - 0 means it is ornamental only"
 							"(cannot walk behind or think) 1 - means normal sprite.  (for a tree or person)"
@@ -1581,7 +1583,7 @@ if (in_master == 3)
 							in_int = &sp_brain;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_brain); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                         Say("New Brain?",260,175);
 					     	Say("Brains are a predefined way for this sprite to behave. 0 = No movement, 1 = Dink,"
 							" 2 = Dumb Sprite Bouncer, 3 = Duck, 4 = Pig, 6 = repeat, 7 = one loop then kill,"
@@ -1599,7 +1601,7 @@ if (in_master == 4)
 							in_int = &sp_speed;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_speed); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Speed?",260,175);
 					   	Say("Speed rating allows you to adjust how fast a certain sprite moves.  Works with"
 							" most brains."
@@ -1615,7 +1617,7 @@ if (in_master == 5)
 							in_int = &sp_timer;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_timer); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Timing?",260,175);
 					   	Say("This is the delay the CPU waits before processing the sprite after each cycle.  "
 							"(in thousands of a second - so 33 would mean 30 times a second)"
@@ -1631,7 +1633,7 @@ if (in_master == 6)
 							in_int = &sp_base_walk;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_walk); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Base Walk?",260,175);
 					   	Say("The base for which the CPU adds 1 through 9 to make the sprite move, depending on"
 							" direction.  Must be a multiple of ten. (ie, 20 to look like a duck, 40 to look like a pig)"
@@ -1646,7 +1648,7 @@ if (in_master == 7)
 							in_int = &sp_base_idle;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_idle); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Base Idle?",260,175);
 					   	Say("Some brains can optionally use extra sprites for their \'idle\' pose."
 							
@@ -1662,7 +1664,7 @@ if (in_master == 8)
 							in_int = &sp_que;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_que); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Depth Que?",250,175);
 					   	Say("From 1 to 20000, 0 for default.  (defaults to y cord)"
 							
@@ -1678,7 +1680,7 @@ if (in_master == 9)
 							in_int = &sp_hard;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_hard); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Hardness?",260,175);
 					   	Say("Sets how hardness works.  1 means normal, (monsters) 0 means added to background. (walls, trees)"
 							
@@ -1693,7 +1695,7 @@ if (in_master == 10)
 							in_int = &sp_prop;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_prop); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("New Properties?",260,175);
 					        Say("Sets special properties for the hardblock.  0 = normal (just hard) 1 = warp."
 							,10,10);
@@ -1707,7 +1709,7 @@ if (in_master == 11)
 							in_int = &sp_warp_map;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_map); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Warp Map #",260,175);
 					        Say("These parms are valid if the hard block property setting is 1.  (warp)"
 							
@@ -1722,7 +1724,7 @@ if (in_master == 12)
 							in_int = &sp_warp_x;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_x); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Warp X:",260,175);
 					        Say("The X location to warp to.  (20 to 619)"
 								,10,10);
@@ -1736,7 +1738,7 @@ if (in_master == 13)
 							in_int = &sp_warp_y;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_warp_y); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Warp Y:",260,175);
 					        Say("The Y location to warp to.  (0 to 499)"
 								,10,10);
@@ -1750,7 +1752,7 @@ if (in_master == 14)
 							in_int = &sp_parm_seq;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_parm_seq); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Sequence:",260,175);
 					        Say("This parm is used by some brains/settings if set.  A sequence is an animation #."
 								,10,10);
@@ -1764,7 +1766,7 @@ if (in_master == 15)
                              in_max = 13; 
                               in_string = sp_script;
 
-							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+							blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Script:",260,175);
 					        Say("Filename of script this sprite uses."
 								,10,10);
@@ -1779,7 +1781,7 @@ if (in_master == 16)
 							in_int = &sp_base_die;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_die); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Base Death:",260,175);
 					        Say("If this sprite dies, this will be used."
 								,10,10);
@@ -1793,7 +1795,7 @@ if (in_master == 17)
 							in_int = &sp_sound;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_sound); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Sound:",260,175);
 					        Say("This sprite will play this sound looped until it dies."
 								,10,10);
@@ -1807,7 +1809,7 @@ if (in_master == 18)
 							in_int = &sp_hitpoints;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_hitpoints); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Hitpoints:",260,175);
 					        Say("How strong is this creature?  (0 = not alive/invincable)"
 								,10,10);
@@ -1821,7 +1823,7 @@ if (in_master == 19)
 							in_int = &sp_nohit;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_nohit); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Nohit:",260,175);
 					        Say("Can this this be punched? 0 if yes.  Either way it will"
 							"still check for hit() if a script is attached."
@@ -1837,7 +1839,7 @@ if (in_master == 20)
 							in_int = &sp_touch_damage;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_touch_damage); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Touch Damage:",260,175);
 					        Say("If not 0, the hardbox of this sprite will cause this"
 							"much damage if touched."
@@ -1853,7 +1855,7 @@ if (in_master == 21)
 							in_int = &sp_base_attack;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_base_attack); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Base Attack:",260,175);
 					        Say("If not -1, this monster can attack with this sprite base. (base + dir)"
 							
@@ -1868,7 +1870,7 @@ if (in_master == 22)
 							in_int = &sp_defense;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",sp_defense); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Defense:",260,175);
 					        Say("This will deducted from any attack."
 							
@@ -1885,7 +1887,7 @@ if (in_master == 30)
                              in_max = 80; 
                               in_string = buf_path;
 
-							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+							blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Path:",260,175);
 					        Say("Enter the path with trailing backslash to a dir containing another dink.dat and map.dat file to choose a replacement"
 								"for this block. (or enter to choose a replacement from the current map)"
@@ -1902,7 +1904,7 @@ if (in_master == 31)
                              in_max = 20; 
                               in_string = pam.script;
 
-							blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+							blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Script:",260,175);
 					        Say("This script will be run before the screen is drawn.  A good place"
 								"to change the vision, ect."
@@ -1917,7 +1919,7 @@ if (in_master == 32)
 							in_int = &map_vision;
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",map_vision); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Vision:",260,175);
 					        Say("Current vision.  If not 0, any sprites you add will ONLY show up"
 							" in the game if the vision level matches this one."
@@ -1933,7 +1935,7 @@ if (in_master == 33)
 							
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Music # for screen?:",260,175);
 					        Say("Will play #.MID for this screen if nothing else is playing."							
 								,10,10);
@@ -1947,7 +1949,7 @@ if (in_master == 34)
 							
                             in_max = 10; //max _length
 							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,lpDDSBack,GFX_lpDDSBack,250,170);
+						    blit(30,1,GFX_lpDDSBack,250,170);
 	                        Say("Screentype?:",260,175);
 					        Say("Enter 1 for 'indoors'.  (so it won't show up on the player map)."							
 								,10,10);
@@ -2264,12 +2266,12 @@ if (sjoy.key[SDLK_KP3 /* 99 */])
 
 void draw_hard_tile(int x1, int y1, int tile)
 {
-HRESULT             ddrval;
+/* HRESULT             ddrval; */
 RECT box;	
 
-               DDBLTFX     ddbltfx;
-ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-ddbltfx.dwSize = sizeof( ddbltfx);
+/*                DDBLTFX     ddbltfx; */
+/* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
+/* ddbltfx.dwSize = sizeof( ddbltfx); */
 
 	for (int x = 0; x < 50; x++)
 		{
@@ -2281,10 +2283,10 @@ ddbltfx.dwSize = sizeof( ddbltfx);
 			{
 			//draw it
 			
- ddbltfx.dwFillColor = RGB(255,255,255);
+/*  ddbltfx.dwFillColor = RGB(255,255,255); */
  
- SetRect(&box, x1+x+20,y1+y,x1+x+1+20,y1+y+1);
- ddrval = lpDDSBack->Blt(&box ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+/*  SetRect(&box, x1+x+20,y1+y,x1+x+1+20,y1+y+1); */
+/*  ddrval = lpDDSBack->Blt(&box ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
  // GFX
  {
    SDL_Rect dst;
@@ -2314,32 +2316,32 @@ void updateFrame(void)
 {
   //    static DWORD        lastTickCount[4] = {0,0,0,0};
   //    static int          currentFrame[3] = {0,0,0};
-  DWORD               thisTickCount; 
+  unsigned long thisTickCount; 
   //  char buffer[20];
-  byte state[256]; 
+  unsigned char state[256]; 
   RECT                rcRect;
   RECT  crapRec, Rect;
   RECT rcRectSrc;  
   RECT rcRectDest, box_crap,box_real;
-  POINT p;
+/*   POINT p; */
   char msg[500];
   char buff[200];
   //	DWORD               delay[4] = {0, 0, 0, 20};
-  HDC         hdc;
+/*   HDC         hdc; */
   int in_crap2;
   int                 holdx;
   //PALETTEENTRY        pe[256];
 /*   HRESULT             ddrval; */
   int xx;
 /*   DDBLTFX     ddbltfx; */
-  BOOL kickass,cool;
-  BOOL bs[max_sprites_at_once];
+  /*BOOL*/int kickass,cool;
+  /*BOOL*/int bs[max_sprites_at_once];
 	
   int rank[max_sprites_at_once];
   int highest_sprite;
   int crap;
   // Decide which frame will be blitted next
-  thisTickCount = GetTickCount();
+  thisTickCount = SDL_GetTicks();
   strcpy(buff,"Nothing");
   state[1] = 0;  
   check_joystick();	
@@ -2445,7 +2447,7 @@ void updateFrame(void)
 	  {
 	    if (spr[h1].active)
 	      { 
-		if (bs[h1] == FALSE)
+		if (bs[h1] == /*FALSE*/0)
 		  {
 		    //Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
 		    if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
@@ -2461,7 +2463,7 @@ void updateFrame(void)
 				
 	  }
 	if (rank[r1] != 0)	
-	  bs[rank[r1]] = TRUE;
+	  bs[rank[r1]] = /*TRUE*/1;
       }
 		
 
@@ -3618,9 +3620,9 @@ void updateFrame(void)
 			draw_used();	
 			spr[1].que = 20000;
 			mode = MODE_MAP_PICKER;
-			spr[2].active = FALSE;
-			spr[3].active = FALSE;
-			spr[4].active = FALSE;
+			spr[2].active = /*FALSE*/0;
+			spr[3].active = /*FALSE*/0;
+			spr[4].active = /*FALSE*/0;
 		      }
 						
 		    if (mode == MODE_DIALOG) goto b1end;			
@@ -3895,11 +3897,11 @@ void updateFrame(void)
 			
 				for (int j = 1; j < 799; j++)
 				  {
-				    if (hmap.tile[j].used == FALSE)
+				    if (hmap.tile[j].used == /*FALSE*/0)
 				      {
 					
 					hmap.index[cur_tile] = j;
-					hmap.tile[j].used = TRUE;
+					hmap.tile[j].used = /*TRUE*/1;
 				    	hard_tile = j;
 					goto tilesel;
 					
@@ -3988,7 +3990,7 @@ void updateFrame(void)
 		
 			    mode = MODE_TILE_HARDNESS;
 		
-			    kickass = TRUE;
+			    kickass = /*TRUE*/1;
 			  }
 	
     
@@ -4460,7 +4462,7 @@ void updateFrame(void)
 		
 			    mode = MODE_TILE_HARDNESS;
 		
-			    kickass = TRUE;
+			    kickass = /*TRUE*/1;
           
 			    hmap.tile[hard_tile].used = true;
 			    last_modereal = 8;
@@ -4698,9 +4700,9 @@ void updateFrame(void)
 	      {
 
 		if (draw_map_tiny == -1)
-		  draw_sprite(lpDDSBack, GFX_lpDDSBack, h);            
+		  draw_sprite(GFX_lpDDSBack, h);            
 		else
-		  draw_sprite(lpDDSTwo, GFX_lpDDSTwo, h);            
+		  draw_sprite(GFX_lpDDSTwo, h);            
 	      }
 			
 	    //Msg("Drew %d.",h);
@@ -4790,11 +4792,12 @@ void updateFrame(void)
       rcRect.right = 640;
       rcRect.top = 0;
       rcRect.bottom = 400;
-      ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack,
-				  &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+/*       ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack, */
+/* 				  &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
+/*       if (ddrval != DD_OK) dderror(ddrval); */
       // GFX
       SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
-      if (ddrval != DD_OK) dderror(ddrval);
+
       while(kill_last_sprite());
 
 
@@ -4947,7 +4950,7 @@ void updateFrame(void)
       if (show_display)
 	{
 	  /* Display help message at the bottom of the screen */
-	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK);
+/* 	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 	  // FONTS
 	  /* TODO: use Say() or Saysmall()? */
 	  print_text_wrap(msg, &rcRect, 0, 0);
@@ -4981,7 +4984,7 @@ void updateFrame(void)
 /* 		  ddbltfx.dwFillColor = 230; */
 	
 		  //info on the sprites  sprite info
-		  int temp = index[pam.sprite[j].seq].s + pam.sprite[j].frame;
+		  int temp = s_index[pam.sprite[j].seq].s + pam.sprite[j].frame;
 			
 
 		  int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
@@ -5312,13 +5315,12 @@ void updateFrame(void)
       //start it up
 
       //copy screen to Two
-      SetRect(&rcRect, 0, 0, 640, 480);
-      ddrval = lpDDSTwo->Blt( &rcRect, lpDDSBack, &rcRect, DDBLT_WAIT, NULL);
+/*       SetRect(&rcRect, 0, 0, 640, 480); */
+/*       ddrval = lpDDSTwo->Blt( &rcRect, lpDDSBack, &rcRect, DDBLT_WAIT, NULL); */
+/*       if (ddrval != DD_OK) dderror(ddrval); */
       // GFX
       // TODO: use copy_front_to_two()
       SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
-
-      if (ddrval != DD_OK) dderror(ddrval);
 
 		
       strcpy(in_temp,in_default);
@@ -5426,7 +5428,7 @@ void updateFrame(void)
 /* TODO: merge with freedink.cpp */
 void finiObjects( void )
 {
-	  OutputDebugString("Running cleanup (finiObjects)\n");
+  printf("Running cleanup (finiObjects)\n");
 	  
 /* 	  if( lpDD != NULL ) */
 /* 	  { */
@@ -5473,57 +5475,57 @@ if (sound_on)
 
   } /* finiObjects */
   
-long FAR PASCAL WindowProc(HWND hWnd, UINT message, 
-			   WPARAM wParam, LPARAM lParam)
-{
-	  switch( message )
-	  {
-	  case WM_ACTIVATEAPP:
-		  bActive = wParam;
-		  break;
+/* long FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
+/* 			   WPARAM wParam, LPARAM lParam) */
+/* { */
+/* 	  switch( message ) */
+/* 	  { */
+/* 	  case WM_ACTIVATEAPP: */
+/* 		  bActive = wParam; */
+/* 		  break; */
 		  
-	  case WM_SETCURSOR:
-		  SetCursor(NULL);
-		  return TRUE;
+/* 	  case WM_SETCURSOR: */
+/* 		  SetCursor(NULL); */
+/* 		  return /\*TRUE*\/1; */
 		  
-	  case WM_CREATE:
-		  break;
+/* 	  case WM_CREATE: */
+/* 		  break; */
 		  
-	  case WM_KEYDOWN:
-		  switch( wParam )
-		  {
-		    /* TODO: put it outside of the Windows loop */
-		  case 'Q' /* 81 */:
+/* 	  case WM_KEYDOWN: */
+/* 		  switch( wParam ) */
+/* 		  { */
+/* 		    /\* TODO: put it outside of the Windows loop *\/ */
+/* 		  case 'Q' /\* 81 *\/: */
 			  
 			  
-			  if (mode == MODE_MAP_PICKER)
-			  {
+/* 			  if (mode == MODE_MAP_PICKER) */
+/* 			  { */
 				  
-				  save_hard();
-				  Msg("Info saved.");
-				  PostMessage(hWnd, WM_CLOSE, 0, 0);
-			  }
-			  break;
+/* 				  save_hard(); */
+/* 				  Msg("Info saved."); */
+/* 				  PostMessage(hWnd, WM_CLOSE, 0, 0); */
+/* 			  } */
+/* 			  break; */
 			  
-        		case VK_F1:
-					{
-					Msg("F1 pressed");
-					}
-					break;
+/*         		case VK_F1: */
+/* 					{ */
+/* 					Msg("F1 pressed"); */
+/* 					} */
+/* 					break; */
 					
 					
-		  }
-		  break;
+/* 		  } */
+/* 		  break; */
 		  
-		  case WM_DESTROY:
-			  finiObjects();
-			  PostQuitMessage( 0 );
-			  break;
-	  }
+/* 		  case WM_DESTROY: */
+/* 			  finiObjects(); */
+/* 			  PostQuitMessage( 0 ); */
+/* 			  break; */
+/* 	  } */
 	  
-	  return DefWindowProc(hWnd, message, wParam, lParam);
+/* 	  return DefWindowProc(hWnd, message, wParam, lParam); */
 	  
-  } /* WindowProc */
+/*   } /\* WindowProc *\/ */
   
   
 
@@ -5531,13 +5533,13 @@ long FAR PASCAL WindowProc(HWND hWnd, UINT message,
  * This function is called if the initialization function fails
  */
 /* TODO: merge with freedink.cpp */
-BOOL initFail(char mess[200])
+/*BOOL*/int initFail(char mess[200])
 {
 /* 	  MessageBox( hwnd, mess, TITLE, MB_OK ); */
     printf("%s\n", mess);
     finiObjects();
 /* 	  DestroyWindow( hwnd ); */
-    return FALSE;
+    return /*FALSE*/0;
 } /* initFail */
   
 
@@ -5553,21 +5555,21 @@ bool check_arg(int argc, char *argv[])
 /* 		  separate_string(crap, i,' ',shit); */
 	    strcpy(shit, argv[i]);
 
-		  if (strnicmp(shit,"-window",strlen("-window")) == 0)
+		  if (strncasecmp(shit,"-window",strlen("-window")) == 0)
 		  {
 			  windowed = true;
 			  
 		  }
 
-         if (strnicmp(shit,"-debug",strlen("-debug")) == 0)
+         if (strncasecmp(shit,"-debug",strlen("-debug")) == 0)
 		  {
-			 unlink("debug.txt"); 
+			 remove("debug.txt"); 
 			 debug_mode = true;
 			  
 		  }
 
 
-  		  if (strnicmp(shit,"-game",strlen("-game")) == 0)
+  		  if (strncasecmp(shit,"-game",strlen("-game")) == 0)
 		  {
 /* 		separate_string(crap, i+1,' ',shit); */
 		    strcpy(shit, argv[i+1]);
@@ -5576,7 +5578,7 @@ bool check_arg(int argc, char *argv[])
 		  
 		  }
 
-if (strnicmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = false;
+if (strncasecmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = false;
 
 		  
 	  }
@@ -5665,7 +5667,7 @@ int SInitSound()
  * doInit - do work required for every instance of the application:
  *                create the window, initialize data
  */
-static BOOL doInit(int argc, char *argv[])
+static /*BOOL*/int doInit(int argc, char *argv[])
 {
 /* 	  HWND                hwnd; */
 	  //    HRESULT             dsrval;
@@ -5678,7 +5680,7 @@ static BOOL doInit(int argc, char *argv[])
 	  char crap[100];
 	  char crap1[50];
 	  RECT rcRectSrc;    RECT rcRectDest;
-	  POINT p;
+/* 	  POINT p; */
        char tdir[100];
 	  /*
 	  * set up and register window class
@@ -5936,7 +5938,7 @@ dinkedit = true;
     }
 
 	  
-	    ZeroMemory(&hm, sizeof(hit_map));
+  memset(&hm, 0, sizeof(hit_map));
 		
 	  
 		//return initFail(hwnd, "CHEESEBURGERS RULE!");
@@ -6073,7 +6075,7 @@ load_hard();
 	
 	for (int i=1; i <= 4; i++)
 {
-spr[i].active = FALSE;
+spr[i].active = /*FALSE*/0;
 spr[i].x = 10;
 spr[i].y = 10;
 spr[i].my = (rand() % 3)+1;
@@ -6087,7 +6089,7 @@ spr[i].size = 100;
 }
 
 	// ** SETUP **
-    spr[1].active = TRUE;
+    spr[1].active = /*TRUE*/1;
 	spr[1].x = 0;
     spr[1].y = 0;
     spr[1].speed = 20;
@@ -6183,10 +6185,12 @@ sp_seq = 0;
 // g_pMouse->Acquire();
 
 
-	return TRUE;
+	return /*TRUE*/1;
 
 } /* doInit */
 
+/* TODO: maybe use BinReloc, or something more portable (for *BSD?) */
+#ifdef _WIN32
 void getdir(char *dir, char *final)
 {
 	//converted to non CString version that spits back path + filename seperately.
@@ -6205,27 +6209,22 @@ void getdir(char *dir, char *final)
     path[c_cur] = 0; //truncate
 	strcpy(final, path);
 }
+#endif
 
-
-void switch_to_my_dir()
-{
-
-	char dir_temp[256], dir_final[256];
-    getdir(dir_temp, dir_final);
-	//switch to dir run.exe is in
-	chdir(dir_final);
-
-}
 
 
 /* int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, */
 /* 		   LPSTR lpCmdLine, int nCmdShow) */
 int main(int argc, char *argv[])
 {
-  MSG msg;
+/*   MSG msg; */
   
   char dir_temp[256], dir_final[256];
+#ifdef _WIN32
   getdir(dir_temp, dir_final);
+#else
+  strcpy(dir_final, ".");
+#endif
   
   strcpy(dinkpath, dir_final);
   printf("Switching to dir %s.",dinkpath);
@@ -6243,7 +6242,7 @@ int main(int argc, char *argv[])
 /*   hPrevInstance = hPrevInstance; */
   
   if(!doInit(argc, argv))
-    return FALSE;
+    return /*FALSE*/0;
   
   
   while( 1 )
