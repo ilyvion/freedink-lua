@@ -41,7 +41,7 @@ void updateFrame( void )
 {
     unsigned char state[256]; 
 /*     RECT                rcRect,box_crap,box_real; */
-    RECT rcRect; /* for FONTS */
+    rect rcRect; /* for FONTS */
     SDL_Rect GFX_box_crap;
 
 /* 	DDBLTFX     ddbltfx; */
@@ -744,7 +744,7 @@ past:
 		spr[1].strength = 10;
 		spr[1].defense = 0;
 		spr[1].skip = 0;
-		SetRect(&spr[1].alt,0,0,0,0);
+		rect_set(&spr[1].alt,0,0,0,0);
 		spr[1].base_idle = 10;
 		spr[1].base_walk = -1;
 		spr[1].size = 100;		 

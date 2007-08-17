@@ -38,7 +38,10 @@
 #include <ctype.h>
 #include <time.h>
 
-/* #include <windows.h> */
+#ifdef _WIN32
+/* GetWindowsDirectory */
+#include <windows.h>
+#endif
 /* #include <windowsx.h> */
 /* #include <direct.h> */
 /* #include <io.h> */
@@ -149,7 +152,7 @@ struct idata
         int seq;
         int frame;
         int xoffset, yoffset;
-        RECT hardbox;
+        rect hardbox;
 };
 
 int * pvision, * plife, * presult, * pspeed, * ptiming, *plifemax, *pexper, *pmap,
@@ -257,7 +260,7 @@ int sp_speed = 0;
 char slist[10][200];
 long nlist[10];
 int process_count = 0;
-RECT sp_alt;
+rect sp_alt;
 int hard_tile = 0;
 bool sp_screenmatch = 0;
 char in_temp[200];
@@ -319,7 +322,7 @@ seth_joy sjoy;
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount; 
 unsigned long timecrap;
-RECT math,box_crap,box_real;
+rect math,box_crap,box_real;
 
 /* HRESULT             ddrval; */
 int sz,sy,x_offset,y_offset;
@@ -390,8 +393,8 @@ start:
         strcpy(lineup,line);
         strcpy(thisup,this1);
         
-        strupr(lineup);
-        strupr(thisup);
+        strtoupper(lineup);
+        strtoupper(thisup);
         if (strstr(lineup,thisup) == NULL) return;
         checker = -1;
         strcpy(hold,"");
@@ -790,7 +793,7 @@ void log_path(bool playing)
   /* TODO: saves it in the user home instead. Think about where to
      cleanly store additional DMods. */
 
-#ifdef _WIN32    
+#ifdef _WIN32
   char windir[100];
   char inifile[256];
   GetWindowsDirectory(windir, 256);
@@ -1177,7 +1180,7 @@ unsigned char get_hard_map(int h,int x1, int y1)
 
 
 
-void fill_hardxy(RECT box)
+void fill_hardxy(rect box)
 {
         //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
         
@@ -1277,7 +1280,7 @@ void fill_whole_hard(void)
    cheat mode. */
 void drawallhard( void)
 {
-  RECT box_crap;
+  rect box_crap;
   int ddrval;
 /*   DDBLTFX     ddbltfx; */
 
@@ -2080,7 +2083,7 @@ void draw_wait()
 
 
 void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
-			 RECT hardbox, bool notanim, bool black, bool leftalign, bool samedir)
+			 rect hardbox, bool notanim, bool black, bool leftalign, bool samedir)
 {
   int work;
 
@@ -2435,7 +2438,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* - org: path to the file, relative to the current game (dink or dmod) */
 /* - nummy: ??? */
 void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
-		  RECT hardbox, bool notanim, bool black, bool leftalign)
+		  rect hardbox, bool notanim, bool black, bool leftalign)
 {
   int work;
 /*   PALETTEENTRY holdpal[256]; */
@@ -2627,7 +2630,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 void figure_out(char line[255], int load_seq)
 {
         char ev[15][100];
-        RECT hardbox;
+        rect hardbox;
         memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
@@ -2642,7 +2645,7 @@ void figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
-	  memset(&hardbox, 0, sizeof(RECT));     
+	  memset(&hardbox, 0, sizeof(rect));     
                 seq[atol(ev[3])].active = true;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
@@ -2769,7 +2772,7 @@ void program_idata(void)
                 {
                         k[seq[id[i].seq].frame[id[i].frame]].xoffset = id[i].xoffset;
                         k[seq[id[i].seq].frame[id[i].frame]].yoffset = id[i].yoffset;
-                        CopyRect(&k[seq[id[i].seq].frame[id[i].frame]].hardbox, &id[i].hardbox);
+                        rect_copy(&k[seq[id[i].seq].frame[id[i].frame]].hardbox, &id[i].hardbox);
                         
                         //       Msg("Programming idata type %d in %d...Seq %d Frame %d (Hardbox is %d %d %d %d)", id[i].type, i,
                         //      id[i].seq, id[i].frame, id[i].hardbox.left,id[i].hardbox.right, id[i].hardbox.top, id[i].hardbox.bottom);
@@ -2804,7 +2807,7 @@ void program_idata(void)
         
 }
 
-void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, RECT crect)
+void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, rect crect)
 {
         
         for (int i = 1; i < max_idata; i++)
@@ -2818,7 +2821,7 @@ void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, RECT
                         id[i].frame = myframe;
                         id[i].xoffset = xoffset;
                         id[i].yoffset = yoffset;
-                        CopyRect(&id[i].hardbox, &crect);
+                        rect_copy(&id[i].hardbox, &crect);
                         
                         return;
                 }
@@ -2831,7 +2834,7 @@ void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, RECT
 void pre_figure_out(char line[255], int load_seq)
 {
         char ev[15][100];
-        RECT hardbox;
+        rect hardbox;
         memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
@@ -2853,7 +2856,7 @@ void pre_figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
-	  memset(&hardbox, 0, sizeof(RECT));     
+	  memset(&hardbox, 0, sizeof(rect));     
                 seq[atol(ev[3])].active = true;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
@@ -2884,7 +2887,7 @@ void pre_figure_out(char line[255], int load_seq)
                                 
                                 myseq = atol(ev[2]);
                                 myframe = atol(ev[3]);
-                                SetRect(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
+                                rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
                                 make_idata(1, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
                                 
                                 //    program_idata();
@@ -2941,7 +2944,7 @@ void pre_figure_out(char line[255], int load_seq)
                 
                 myseq = atol(ev[2]);
                 myframe = atol(ev[3]);
-                SetRect(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
+                rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
                 make_idata(1, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
                 return;           
         }
@@ -3201,7 +3204,7 @@ void draw_bar(int life, int seqman)
   int rnum = 3;
   int curx_start = curx;
   
-  RECT box;
+  rect box;
   while(1)
     {
       cur++;
@@ -3211,7 +3214,7 @@ void draw_bar(int life, int seqman)
 	  int rem = (cur) - (cur / 10) * 10;
 	  if (rem != 0)
 	    {
-	      CopyRect(&box, &k[seq[seqman].frame[rnum]].box);
+	      rect_copy(&box, &k[seq[seqman].frame[rnum]].box);
 	      //Msg("Drawing part bar . cur is %d", rem);
 	      box.right = (box.right * ((rem) * 10)/100);
 	      //woah, there is part of a bar remaining.  Lets do it.
@@ -3324,8 +3327,8 @@ void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
   int cut;
   if (percent > 25) percent = 25;
   percent = (percent * 4);
-  RECT myrect;
-  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  rect myrect;
+  rect_copy(&myrect, &k[seq[mseq].frame[mframe]].box);
   int full = myrect.bottom;
   cut = (full * percent) / 100;
   myrect.bottom = cut;
@@ -3352,8 +3355,8 @@ void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
   int cut;
   if (percent > 25) percent = 25;
   percent = (percent * 4);
-  RECT myrect;
-  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  rect myrect;
+  rect_copy(&myrect, &k[seq[mseq].frame[mframe]].box);
   int full = myrect.bottom;
   cut = (full * percent) / 100;
   myrect.bottom = cut;
@@ -3378,8 +3381,8 @@ void draw_hor(int percent, int mx, int my, int mseq, int mframe)
   int cut;
   if (percent > 25) percent = 25;
   percent = (percent * 4);
-  RECT myrect;
-  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  rect myrect;
+  rect_copy(&myrect, &k[seq[mseq].frame[mframe]].box);
   int full = myrect.right;
   cut = (full * percent) / 100;
   full = cut;
@@ -3405,8 +3408,8 @@ void draw_hor2(int percent, int mx, int my, int mseq, int mframe)
   int cut;
   if (percent > 25) percent = 25;
   percent = (percent * 4);
-  RECT myrect;
-  CopyRect(&myrect, &k[seq[mseq].frame[mframe]].box);
+  rect myrect;
+  rect_copy(&myrect, &k[seq[mseq].frame[mframe]].box);
   int full = myrect.right;
   cut = (full * percent) / 100;
   
@@ -3505,7 +3508,7 @@ void draw_status_all(void)
 
 
 
-bool inside_box(int x1, int y1, RECT box)
+bool inside_box(int x1, int y1, rect box)
 {
         
         if (x1 > box.right) return(false);
@@ -3561,7 +3564,7 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
                         spr[x].last_sound = 0;
                         spr[x].hard = 1;
                         
-                        SetRect(&spr[x].alt, 0,0,0,0);
+                        rect_set(&spr[x].alt, 0,0,0,0);
                         spr[x].althard = 0;
                         spr[x].sp_index = 0;
                         spr[x].nocontrol = 0;
@@ -3579,9 +3582,9 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 }
 
 
-bool get_box (int h, RECT * box_crap, RECT * box_real )
+bool get_box (int h, rect * box_crap, rect * box_real )
 {
-  RECT math;
+  rect math;
   int sz,sy,x_offset,y_offset;
   
   int txoffset = k[getpic(h)].xoffset;
@@ -3598,7 +3601,7 @@ bool get_box (int h, RECT * box_crap, RECT * box_real )
       mplayy = 480;
     }
 
-  RECT krect;
+  rect krect;
   
   if (getpic(h) < 1)
     {
@@ -3609,7 +3612,7 @@ bool get_box (int h, RECT * box_crap, RECT * box_real )
     }
         
   *box_real = k[getpic(h)].box;
-  CopyRect(&krect, &k[getpic(h)].box);
+  rect_copy(&krect, &k[getpic(h)].box);
   
   if (spr[h].size != 100) sz =    ((krect.right * spr[h].size) / 100); else sz = 0;
   if (spr[h].size != 100) sy =    ((krect.bottom * spr[h].size) / 100); else sy = 0;
@@ -3643,7 +3646,7 @@ bool get_box (int h, RECT * box_crap, RECT * box_real )
       box_crap->right = box_crap->right -  (k[getpic(h)].box.right - spr[h].alt.right);
       
       box_crap->bottom = box_crap->bottom - (k[getpic(h)].box.bottom - spr[h].alt.bottom);
-      CopyRect(box_real, &spr[h].alt);
+      rect_copy(box_real, &spr[h].alt);
       //Msg("I should be changing box size... %d %d,%d,%d",spr[h].alt.right,spr[h].alt.left,spr[h].alt.top,spr[h].alt.bottom);
     } 
   
@@ -4048,7 +4051,7 @@ int load_script(char filename[15], int sprite, bool set_sprite)
                 
         }
         
-        strupr(temp);  
+        strtoupper(temp);  
         Msg("Temp thingie is %c",temp[strlen(temp)-1]);
         if (temp[strlen(temp)-1] == 'D') comp = true; else comp = false;
         
@@ -5518,7 +5521,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
   if (spr[h].brain == 8) return;
   
   if (spr[h].nodraw == 1) return;
-  RECT box_crap,box_real;
+  rect box_crap,box_real;
   
 /*   HRESULT             ddrval; */
   
@@ -6059,7 +6062,7 @@ void place_sprites_game(void)
                                 
                                 spr[sprite].sp_index = j;
                                 
-                                CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
+                                rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
                                 
                                 
                                 check_sprite_status_full(sprite);
@@ -6105,7 +6108,7 @@ void place_sprites_game(void)
                                 spr[sprite].sp_index = j;
                                 
                                 
-                                CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
+                                rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
                                 
                                 spr[sprite].base_die = pam.sprite[j].base_die;
                                 spr[sprite].strength = pam.sprite[j].strength;
@@ -6601,7 +6604,7 @@ void copy_bmp( char name[80])
                                                 pam.sprite[j].size);
                                         spr[sprite].hard = pam.sprite[j].hard;
                                         spr[sprite].sp_index = j;
-                                        CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
+                                        rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
                                         check_sprite_status_full(sprite);
                                         if (spr[sprite].hard == 0)
                                         {
@@ -7636,9 +7639,9 @@ pass:
                         {
                                 update_play_changes();
                                 int l = nlist[0];
-                                RECT mhard;
-                                CopyRect(&mhard, &k[seq[spr[l].pseq].frame[spr[l].pframe]].hardbox);
-                                OffsetRect(&mhard, (spr[l].x- 20), spr[l].y);
+                                rect mhard;
+                                rect_copy(&mhard, &k[seq[spr[l].pseq].frame[spr[l].pframe]].hardbox);
+                                rect_offset(&mhard, (spr[l].x- 20), spr[l].y);
                                 
                                 fill_hardxy(mhard);
                                 fill_back_sprites();
@@ -8239,8 +8242,8 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 
-                                RECT myrect;
-                SetRect(&myrect, nlist[2], nlist[3], nlist[4], nlist[5]);
+                                rect myrect;
+                rect_set(&myrect, nlist[2], nlist[3], nlist[4], nlist[5]);
                                 returnint = inside_box(nlist[0], nlist[1], myrect);
                                 
                                 if (debug_mode)

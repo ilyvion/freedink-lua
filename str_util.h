@@ -31,7 +31,7 @@ extern "C"
 /* TODO: autoconf strncasecmp -> strnicmp/woe */
 
 extern int string_icompare (char *s1, char *s2);
-extern void strupr (char *s);
+extern void strtoupper (char *s);
 
 #ifdef __cplusplus
 }

@@ -40,7 +40,13 @@
 /* #include <direct.h> */
 #include <unistd.h>
 
-/* #include <windows.h> */
+/* TODO: if we follow the autoconf way, I guess we'd need some
+   HAVE_GETMODULEFILENAME or something */
+#ifdef _WIN32
+/* GetModuleFileName */
+#include <windows.h>
+#endif
+
 /* For GetStockBrush */
 /* #include <windowsx.h> */
 /* #include <ddraw.h> */
@@ -68,7 +74,7 @@ int fps_average;
 
 /*BOOL*/int initFail(char mess[200]);
 void move(int u, int amount, char kind,  char kindy);
-void draw_box(RECT box, int color);
+void draw_box(rect box, int color);
 void run_through_tag_list_push(int h);
 void random_blood(int mx, int my, int h);
 int check_if_move_is_legal(int u);
@@ -88,7 +94,7 @@ int fps_show = 0;
 int drawthistime = true;
 int x = 640;
 int y = 480;
-RECT                rc;
+rect                rc;
 int winoffset = 25;
 int winoffsetx = 5;
 
@@ -108,7 +114,7 @@ void text_draw(int h)
 	
 	char crap[200];
 	char *cr;
-	RECT rcRect;
+	rect rcRect;
 	int color = 0;
 	
 	if (spr[h].damage == -1)
@@ -139,14 +145,14 @@ void text_draw(int h)
 		//Msg("Final is %s.",cr);
 		if (spr[h].owner == 1000)
 		{
-			SetRect(&rcRect,spr[h].x,spr[h].y,spr[h].x+620,spr[h].y+400);
+			rect_set(&rcRect,spr[h].x,spr[h].y,spr[h].x+620,spr[h].y+400);
 		} else
 		{
 			
-			SetRect(&rcRect,spr[h].x,spr[h].y,spr[h].x+150,spr[h].y+150);
+			rect_set(&rcRect,spr[h].x,spr[h].y,spr[h].x+150,spr[h].y+150);
 			
 			if (spr[h].x+150 > 620)
-				OffsetRect(&rcRect, ((spr[h].x+150)-620) - (((spr[h].x+150)-620) * 2), 0);
+				rect_offset(&rcRect, ((spr[h].x+150)-620) - (((spr[h].x+150)-620) * 2), 0);
 			
 			
 			
@@ -163,7 +169,7 @@ void text_draw(int h)
 		
 		
 		if (spr[h].y < 0) spr[h].y = 0;
-		SetRect(&rcRect,spr[h].x,spr[h].y,spr[h].x+50 ,spr[h].y+50);
+		rect_set(&rcRect,spr[h].x,spr[h].y,spr[h].x+50 ,spr[h].y+50);
 		
 		
 	}       
@@ -181,17 +187,17 @@ void text_draw(int h)
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
-		   OffsetRect(&rcRect,-2,0);
+		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 		   
-		   OffsetRect(&rcRect,1,1);
+		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
 
-		   OffsetRect(&rcRect,0,-2);
+		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 0, 0);
@@ -203,23 +209,23 @@ void text_draw(int h)
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 
-		   OffsetRect(&rcRect,-2,0);
+		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 		   
-		   OffsetRect(&rcRect,1,1);
+		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 
-		   OffsetRect(&rcRect,0,-2);
+		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
 		   print_text_wrap(cr, &rcRect, 1, 0);
 	   }
 	   
-	   OffsetRect(&rcRect,0,1);
+	   rect_offset(&rcRect,0,1);
 	   
 	   // FONTS:
 	   if (color == 1) FONTS_SetTextColor(255, 198, 255);
@@ -2062,7 +2068,7 @@ void bounce_brain(int h)
 
 void grab_trick(int trick)
 {
-  RECT rcRect;
+  rect rcRect;
 /*   HRESULT ddrval; */
   //Msg("making trick.");
   
@@ -2237,7 +2243,7 @@ b1end:;
 
 bool run_through_tag_list_talk(int h)
 {
-	RECT box;
+	rect box;
 	int amount, amounty;
 	
 	for (int i = 1; i <= last_sprite_created; i++)
@@ -2247,10 +2253,10 @@ bool run_through_tag_list_talk(int h)
 		{
 			
 			
-			CopyRect(&box, &k[getpic(i)].hardbox);
-			OffsetRect(&box, spr[i].x, spr[i].y);
+			rect_copy(&box, &k[getpic(i)].hardbox);
+			rect_offset(&box, spr[i].x, spr[i].y);
 			
-			InflateRect(&box, 10,10);
+			rect_inflate(&box, 10,10);
 			
 			amount = 50;		
 			amounty = 35;
@@ -2328,7 +2334,7 @@ void make_missile(int x1, int y1, int dir, int speed, int seq, int frame, int st
 
 void missile_brain( int h, bool repeat)
 {
-	RECT box;
+	rect box;
 	automove(h);
 	
 	*pmissle_source = h;
@@ -2435,11 +2441,11 @@ void missile_brain( int h, bool repeat)
 			if (spr[h].brain_parm != j) if (spr[h].brain_parm2!= j) //if (spr[j].brain != 15) if
 				//(spr[j].brain != 11)
 			{
-				CopyRect(&box, &k[getpic(j)].hardbox);
-				OffsetRect(&box, spr[j].x, spr[j].y);
+				rect_copy(&box, &k[getpic(j)].hardbox);
+				rect_offset(&box, spr[j].x, spr[j].y);
 				
 				if (spr[h].range != 0)
-					InflateRect(&box, spr[h].range,spr[h].range);
+					rect_inflate(&box, spr[h].range,spr[h].range);
 				
 				if (debug_mode) draw_box(box, 33);
 				
@@ -2521,7 +2527,7 @@ void missile_brain_expire(int h)
 
 void run_through_mouse_list(int h, bool special)
 {
-	RECT box;
+	rect box;
 
 	for (int i = 1; i <= last_sprite_created; i++)
 	{
@@ -2531,8 +2537,8 @@ void run_through_mouse_list(int h, bool special)
 		{
 			
 			if (spr[i].touch_damage != -1) if (spr[h].notouch) return;
-			CopyRect(&box, &k[getpic(i)].hardbox);
-			OffsetRect(&box, spr[i].x, spr[i].y);
+			rect_copy(&box, &k[getpic(i)].hardbox);
+			rect_offset(&box, spr[i].x, spr[i].y);
 			
 			
 			if (inside_box(spr[h].x, spr[h].y, box))
@@ -3978,7 +3984,7 @@ void up_cycle(void)
 }
 
 
-void draw_box(RECT box, int color)
+void draw_box(rect box, int color)
 {
 /*   DDBLTFX     ddbltfx; */
   
@@ -4081,7 +4087,7 @@ void flip_it(void)
 
 	void run_through_tag_list(int h, int strength)
 	{
-		RECT box;
+		rect box;
 		int amount, amounty;
 		
 		for (int i = 1; i <= last_sprite_created; i++)
@@ -4090,8 +4096,8 @@ void flip_it(void)
 				(! ( (spr[i].nohit == 1) && (spr[i].script == 0)) )
 			{
 				
-				CopyRect(&box, &k[getpic(i)].hardbox);
-				OffsetRect(&box, spr[i].x, spr[i].y);
+				rect_copy(&box, &k[getpic(i)].hardbox);
+				rect_offset(&box, spr[i].x, spr[i].y);
 				
 				//InflateRect(&box, 10,10);
 				
@@ -4234,7 +4240,7 @@ void flip_it(void)
 
 void run_through_tag_list_push(int h)
 {
-	RECT box;
+	rect box;
 	
 	for (int i = 1; i <= last_sprite_created; i++)
 	{
@@ -4242,8 +4248,8 @@ void run_through_tag_list_push(int h)
 			((spr[i].script != 0) )
 		{
 			
-			CopyRect(&box, &k[getpic(i)].hardbox);
-			OffsetRect(&box, spr[i].x, spr[i].y);
+			rect_copy(&box, &k[getpic(i)].hardbox);
+			rect_offset(&box, spr[i].x, spr[i].y);
 			
 			//InflateRect(&box, 10,10);
 			
@@ -4269,7 +4275,7 @@ void run_through_tag_list_push(int h)
 
 void run_through_touch_damage_list(int h)
 {
-	RECT box;
+	rect box;
 	for (int i = 1; i <= last_sprite_created; i++)
 	{
 		if (spr[i].active) if (i != h) if
@@ -4277,8 +4283,8 @@ void run_through_touch_damage_list(int h)
 		{
 			
 			if (spr[i].touch_damage != -1) if (spr[h].notouch) return;
-			CopyRect(&box, &k[getpic(i)].hardbox);
-			OffsetRect(&box, spr[i].x, spr[i].y);
+			rect_copy(&box, &k[getpic(i)].hardbox);
+			rect_offset(&box, spr[i].x, spr[i].y);
 			
 			//InflateRect(&box, 10,10);
 			
@@ -4568,7 +4574,7 @@ void process_talk()
   
   int y_last = 0, y_hold = 0, y_ho; 
 /*   HDC         hdc; */
-  RECT rcRect;
+  rect rcRect;
   int i;
   int x_depth = 335;
   if (talk.newy != -5000)
@@ -4652,7 +4658,7 @@ void process_talk()
       if (strlen(talk.buffer) > 0)
 	{
 	  
-	  SetRect(&rcRect,sx,94,463,400);
+	  rect_set(&rcRect,sx,94,463,400);
 	  if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
 	  
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
@@ -4686,7 +4692,7 @@ void process_talk()
 	     FONTS_SetTextColor(255, 255, 2);
 
 
-	  OffsetRect(&rcRect, 1, 1);
+	  rect_offset(&rcRect, 1, 1);
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	 */
 	  // FONTS
 	  print_text_wrap(talk.buffer, &rcRect, 1, 1);	  
@@ -4703,7 +4709,7 @@ void process_talk()
       //recal: 
       for (i = talk.cur_view; i < talk.last; i++)
 	{
-	  SetRect(&rcRect,sx,y_hold,463,x_depth+100);
+	  rect_set(&rcRect,sx,y_hold,463,x_depth+100);
 /* 	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  /* TODO; I doubt using TTF_FontLineSkip(FONTS_hfont_small)
@@ -4779,7 +4785,7 @@ void process_talk()
 	    fake_page = 1;
 	    for (i = 1; i < talk.last; i++)
 	      {
-		SetRect(&rcRect,sx,sy_ho,463,x_depth);
+		rect_set(&rcRect,sx,sy_ho,463,x_depth);
 		
 /* 		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 
@@ -4822,7 +4828,7 @@ void process_talk()
 	{
 	  //lets figure out where to draw this line
 	  
-	  SetRect(&rcRect,sx,sy,463,x_depth+100);
+	  rect_set(&rcRect,sx,sy,463,x_depth+100);
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
@@ -4834,7 +4840,7 @@ void process_talk()
 	  // FONTS
 	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
 
-	  OffsetRect(&rcRect,1,1);
+	  rect_offset(&rcRect,1,1);
 	  if (i == talk.cur)
 	    {
 	      curyl = sy-4;
@@ -5034,7 +5040,7 @@ void Scrawl_OnMouseInput(void)
 
 void button_brain(int h )
 {
-	RECT box;
+	rect box;
 	if (spr[h].move_active) 
 	{
 		process_move(h);
@@ -5044,8 +5050,8 @@ void button_brain(int h )
 	
 	if (spr[h].script == 0) return;
 	
-	CopyRect(&box, &k[getpic(h)].hardbox);
-	OffsetRect(&box, spr[h].x, spr[h].y);
+	rect_copy(&box, &k[getpic(h)].hardbox);
+	rect_offset(&box, spr[h].x, spr[h].y);
 	
 	if (spr[h].brain_parm == 0)
 	{

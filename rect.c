@@ -26,7 +26,7 @@
 #include "stdlib.h"
 
 int
-SetRect(RECT *rect, int left, int top, int right, int bottom)
+rect_set(rect *rect, int left, int top, int right, int bottom)
 {
   if (rect == NULL)
     return 0;
@@ -38,7 +38,7 @@ SetRect(RECT *rect, int left, int top, int right, int bottom)
 }
 
 int
-OffsetRect(RECT *rect, int tx, int ty)
+rect_offset(rect *rect, int tx, int ty)
 {
   if (rect == NULL)
     return 0;
@@ -50,7 +50,7 @@ OffsetRect(RECT *rect, int tx, int ty)
 }
 
 int
-CopyRect(RECT *dst, RECT *src)
+rect_copy(rect *dst, rect *src)
 {
   if (src == NULL || dst == NULL)
     return 0;
@@ -62,7 +62,7 @@ CopyRect(RECT *dst, RECT *src)
 }
 
 int
-InflateRect(RECT *rect, int dw, int dh)
+rect_inflate(rect *rect, int dw, int dh)
 {
   if (rect == NULL)
     return 0;

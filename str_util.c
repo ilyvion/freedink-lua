@@ -44,7 +44,7 @@ string_icompare (char *s1, char *s2)
  * Upcase the string
  */
 void
-strupr (char *s)
+strtoupper (char *s)
 {
   for (; *s; s++)
     *s = toupper (*s);

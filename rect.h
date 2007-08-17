@@ -28,14 +28,14 @@ extern "C"
 {
 #endif
 
-typedef struct RECT {
+typedef struct rect {
   int left, top, right, bottom;
-} RECT;
+} rect;
 
-extern int SetRect(RECT *rect, int left, int top, int right, int bottom);
-extern int OffsetRect(RECT *rect, int tx, int ty);
-extern int CopyRect(RECT *src, RECT *dst);
-extern int InflateRect(RECT *rect, int dw, int dh);
+extern int rect_set(rect *rect, int left, int top, int right, int bottom);
+extern int rect_offset(rect *rect, int tx, int ty);
+extern int rect_copy(rect *src, rect *dst);
+extern int rect_inflate(rect *rect, int dw, int dh);
 
 #ifdef __cplusplus
 }

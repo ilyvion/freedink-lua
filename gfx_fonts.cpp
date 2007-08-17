@@ -143,7 +143,7 @@ font_len (TTF_Font * font, char *str, int len)
 }
 
 int
-process_text_for_wrapping (TTF_Font * font, char *str, RECT * box)
+process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 {
   int i, start, line;
 
@@ -179,7 +179,7 @@ process_text_for_wrapping (TTF_Font * font, char *str, RECT * box)
 }
 
 int
-print_text_wrap (char *str, RECT * box,
+print_text_wrap (char *str, rect * box,
 		 /*bool*/int hcenter, /*bool*/int vcenter)
 {
   int x, y, lines, line;
@@ -222,12 +222,12 @@ print_text_wrap (char *str, RECT * box,
    border */
 void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 {
-  RECT rcRect;
+  rect rcRect;
 /*   HDC hdc; */
 /*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
 /*     {       */
 /*       SetBkMode(hdc, TRANSPARENT);  */
-      SetRect(&rcRect,px,py,px+40,py+40);
+      rect_set(&rcRect,px,py,px+40,py+40);
 /*       SetTextColor(hdc,RGB(r,g,b)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
@@ -241,13 +241,13 @@ void SaySmall(char thing[500], int px, int py, int r,int g,int b)
    font border */
 void Say(char thing[500], int px, int py)
 {
-  RECT rcRect;
+  rect rcRect;
 /*   HDC hdc; */
   
 /*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
 /*     {       */
 /*       SetBkMode(hdc, TRANSPARENT);  */
-      SetRect(&rcRect,px,py,620,480);
+      rect_set(&rcRect,px,py,620,480);
 /*       SelectObject (hdc, hfont_small); */
 
 /*       SetTextColor(hdc,RGB(8,14,21)); */
@@ -256,12 +256,12 @@ void Say(char thing[500], int px, int py)
       FONTS_SetTextColor(8, 14, 21);
       print_text_wrap(thing, &rcRect, 0, 0);
 
-      OffsetRect(&rcRect,-2,-2);
+      rect_offset(&rcRect,-2,-2);
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       print_text_wrap(thing, &rcRect, 0, 0);
 
-      OffsetRect(&rcRect,1,1);
+      rect_offset(&rcRect,1,1);
 /*       SetTextColor(hdc,RGB(255,255,0)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS

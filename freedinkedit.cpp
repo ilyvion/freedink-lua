@@ -59,7 +59,10 @@
 /* #include <io.h> */
 /* #include <direct.h> */
 #include <unistd.h>
-/* #include <windows.h> */
+#ifdef _WIN32
+/* GetModuleFileName */
+#include <windows.h>
+#endif
 /* For GetStockBrush */
 /* #include <windowsx.h> */
 /* For VK_* */
@@ -156,7 +159,7 @@ char szSoundEffects[NUM_SOUND_EFFECTS][PATH_MAX] =
 
 int x = 640;
 int y = 480;
-RECT rc;
+rect rc;
 int cx;
 int cy;
 int speed;
@@ -187,7 +190,7 @@ void flip_it_second(void)
 {
 /*         DDBLTFX     ddbltfx; */
         
-        RECT rcRectSrc;    RECT rcRectDest;
+        rect rcRectSrc;    rect rcRectDest;
 /*         POINT p; */
         
 /*         if (!windowed) */
@@ -347,7 +350,7 @@ void flip_it_second(void)
 
 void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 {
-  RECT box_crap,box_real;
+  rect box_crap,box_real;
 /*   HRESULT             ddrval; */
 /*   DDBLTFX     ddbltfx; */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
@@ -504,7 +507,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 			    check_sprite_status(sprite);
 				spr[sprite].sp_index = j;
 					
-				CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
+				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
 
 				if (pam.sprite[j].type == 0)
 				  draw_sprite(GFX_lpDDSTwo, sprite);
@@ -534,7 +537,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 				check_sprite_status(sprite);
 				spr[sprite].hard = pam.sprite[j].hard;
 			   
-				CopyRect(&spr[sprite].alt , &pam.sprite[j].alt);
+				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
 				
 				if (spr[sprite].hard == 0)
 				{
@@ -560,7 +563,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 /* Draw background from tiles */
 void draw_map(void)
 {
-  RECT rcRect;
+  rect rcRect;
   int pa, cool,crap;   
   
   /* Replaced by a call to fill_screen(0) */
@@ -609,7 +612,7 @@ void draw_map(void)
    of the screen) */
 void draw_current( void)
 {
-  RECT rcRect;
+  rect rcRect;
   int x,cool;
   cool = cur_tile / 128;
   x = cur_tile - (cool * 128);
@@ -1179,7 +1182,7 @@ void draw15(int num)
 {
   int crap;   
 /*   DDBLTFX ddbltfx; */
-  RECT  crapRec, Rect, box_crap;
+  rect  crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
   int dd;	
@@ -1264,7 +1267,7 @@ void draw96(int def)
 {
   int crap;   
 /*   DDBLTFX ddbltfx; */
-  RECT crapRec, Rect, box_crap;
+  rect crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
   int dd;	
@@ -1388,7 +1391,7 @@ void sp_add( void )
 		    pam.sprite[j].vision = map_vision;	
 		    pam.sprite[j].nohit = sp_nohit;		
 			pam.sprite[j].touch_damage = sp_touch_damage;		
-			CopyRect(&pam.sprite[j].alt , &spr[1].alt);
+			rect_copy(&pam.sprite[j].alt , &spr[1].alt);
 		    return;
 		}
 
@@ -2267,7 +2270,7 @@ if (sjoy.key[SDLK_KP3 /* 99 */])
 void draw_hard_tile(int x1, int y1, int tile)
 {
 /* HRESULT             ddrval; */
-RECT box;	
+rect box;	
 
 /*                DDBLTFX     ddbltfx; */
 /* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
@@ -2319,10 +2322,10 @@ void updateFrame(void)
   unsigned long thisTickCount; 
   //  char buffer[20];
   unsigned char state[256]; 
-  RECT                rcRect;
-  RECT  crapRec, Rect;
-  RECT rcRectSrc;  
-  RECT rcRectDest, box_crap,box_real;
+  rect                rcRect;
+  rect  crapRec, Rect;
+  rect rcRectSrc;  
+  rect rcRectDest, box_crap,box_real;
 /*   POINT p; */
   char msg[500];
   char buff[200];
@@ -2935,7 +2938,7 @@ void updateFrame(void)
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
 				spr[1].size = 100;
-				SetRect(&spr[1].alt,0,0,0,0);	
+				rect_set(&spr[1].alt,0,0,0,0);	
 		
 			      }
 
@@ -2945,7 +2948,7 @@ void updateFrame(void)
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
 				spr[1].size = 100;
-				SetRect(&spr[1].alt,0,0,0,0);	
+				rect_set(&spr[1].alt,0,0,0,0);	
 					
 			      }
 
@@ -3020,7 +3023,7 @@ void updateFrame(void)
 				int	sprite = add_sprite_dumb(pam.sprite[realpic].x,pam.sprite[realpic].y,0,
 								 pam.sprite[realpic].seq, pam.sprite[realpic].frame,
 								 pam.sprite[realpic].size);
-				CopyRect(&spr[sprite].alt , &pam.sprite[realpic].alt);
+				rect_copy(&spr[sprite].alt , &pam.sprite[realpic].alt);
 				get_box(sprite, &box_crap, &box_real);
                             
 
@@ -3100,7 +3103,7 @@ void updateFrame(void)
 								    int	sprite = add_sprite_dumb(pam.sprite[uu].x,pam.sprite[uu].y,0,
 												 pam.sprite[uu].seq, pam.sprite[uu].frame,
 												 pam.sprite[uu].size);
-								    CopyRect(&spr[sprite].alt , &pam.sprite[uu].alt);			                 
+								    rect_copy(&spr[sprite].alt , &pam.sprite[uu].alt);			                 
 								    get_box(sprite, &box_crap, &box_real);
 								    if (realpic > 0) goto spwarp;
 								    //Msg("Got sprite %d's info. X%d Y %d.",uu,box_crap.left,box_crap.right);
@@ -3133,7 +3136,7 @@ void updateFrame(void)
 									sp_que = pam.sprite[uu].que;
 									sp_seq = pam.sprite[uu].seq;
 									sp_hard = pam.sprite[uu].hard;
-									CopyRect(&spr[1].alt , &pam.sprite[uu].alt);
+									rect_copy(&spr[1].alt , &pam.sprite[uu].alt);
 									sp_frame = pam.sprite[uu].frame;
 									spr[1].pseq = pam.sprite[uu].seq;
 									spr[1].pframe = pam.sprite[uu].frame;
@@ -3178,14 +3181,14 @@ void updateFrame(void)
 				    pam.sprite[ll].active = false;
 				  }
 				draw_map();
-				SetRect(&spr[h].alt,0,0,0,0);
+				rect_set(&spr[h].alt,0,0,0,0);
 			      }
 			  }
 						
 			if ( (sjoy.realkey['z']) | (sjoy.realkey['x']) )
 			  {
 			    if (  (spr[h].alt.right == 0) & (spr[h].alt.left == 0) & (spr[h].alt.top == 0) &
-				  (spr[h].alt.bottom == 0) ) CopyRect(&spr[h].alt, &k[getpic(h)].box);
+				  (spr[h].alt.bottom == 0) ) rect_copy(&spr[h].alt, &k[getpic(h)].box);
 			  }
 
 			/* Trim a sprite? */
@@ -3339,7 +3342,7 @@ void updateFrame(void)
 						
 			      {
 								
-				SetRect(&spr[1].alt,0,0,0,0);	
+				rect_set(&spr[1].alt,0,0,0,0);	
 		
 				spr[1].size = 100;
 				mode = MODE_SCREEN_TILES;
@@ -3351,7 +3354,7 @@ void updateFrame(void)
 			      {
 				smart_add();
 				draw_map();
-				SetRect(&spr[1].alt,0,0,0,0);	
+				rect_set(&spr[1].alt,0,0,0,0);	
 		
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
@@ -3364,7 +3367,7 @@ void updateFrame(void)
 			if (sjoy.key['e'])
 			  {
 			    //they hit E, go to sprite picker	
-			    SetRect(&spr[1].alt,0,0,0,0);	
+			    rect_set(&spr[1].alt,0,0,0,0);	
 							
 			    spr[1].size = 100;		
 			    //mode = 5;
@@ -3387,7 +3390,7 @@ void updateFrame(void)
 											
 			      {
 				smart_add();
-				SetRect(&spr[1].alt,0,0,0,0);	
+				rect_set(&spr[1].alt,0,0,0,0);	
 		
 				draw_map();
 			      }
@@ -4990,7 +4993,7 @@ void updateFrame(void)
 		  int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
 						pam.sprite[j].seq,pam.sprite[j].frame,
 						pam.sprite[j].size);
-		  CopyRect(&spr[sprite2].alt , &pam.sprite[j].alt);                 
+		  rect_copy(&spr[sprite2].alt , &pam.sprite[j].alt);                 
 				
 		  get_box(sprite2, &box_crap, &box_real);
                                 
@@ -5677,10 +5680,10 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  DDSURFACEDESC       ddsd; */
 /* 	  DDSCAPS             ddscaps; */
 /* 	  HRESULT             ddrval; */
-	  RECT                rcRect;
+	  rect                rcRect;
 	  char crap[100];
 	  char crap1[50];
-	  RECT rcRectSrc;    RECT rcRectDest;
+	  rect rcRectSrc;    rect rcRectDest;
 /* 	  POINT p; */
        char tdir[100];
        char tmp_filename[PATH_MAX];
@@ -6096,7 +6099,7 @@ spr[i].size = 100;
     spr[1].y = 0;
     spr[1].speed = 20;
     spr[1].brain = 1;
-   SetRect(&spr[1].alt,0,0,0,0);
+   rect_set(&spr[1].alt,0,0,0,0);
     spr[1].pseq = 10;
     spr[1].pframe = 3;
 	spr[1].seq = 0;

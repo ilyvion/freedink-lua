@@ -84,7 +84,7 @@ struct sprite_placement
   char talk[13];
   int speed, base_walk,base_idle,base_attack,base_hit,timer,que;
   int hard;
-  RECT alt;
+  rect alt;
   int prop;
   int warp_map;
   int warp_x;
@@ -228,7 +228,7 @@ struct sp
   int base_hit;
   int last_sound;
   int hard;
-  RECT alt;
+  rect alt;
   int althard;
   int sp_index;
   /*BOOL*/int nocontrol;
@@ -388,8 +388,8 @@ struct pic_info
 {
 /*   LPDIRECTDRAWSURFACE k; // Sprites */
 
-  RECT box;              // Dimensions (0,0,width,height)
-  RECT hardbox;          // Square where Dink can't block if sprite is hard
+  rect box;              // Dimensions (0,0,width,height)
+  rect hardbox;          // Square where Dink can't block if sprite is hard
 
   int yoffset;           // Center of the picture
   int xoffset;
@@ -400,7 +400,7 @@ struct GFX_pic_info
   SDL_Surface *k; // Sprites
 
   // RECT box;              // Dimensions (0,0,width,height)
-  RECT hardbox;          // Square where Dink can't go through if sprite is hard
+  rect hardbox;          // Square where Dink can't go through if sprite is hard
 
   int yoffset;           // Center of the picture
   int xoffset;
@@ -513,7 +513,7 @@ extern int item_pic;
 extern int last_saved_game;
 
 /* Player */
-extern bool inside_box(int x1, int y1, RECT box);
+extern bool inside_box(int x1, int y1, rect box);
 extern int walk_off_screen;
 
 /* Sprites - state */
@@ -575,7 +575,7 @@ extern int burn_revision;
  */
 const int max_sequences = 1000; //Max # of sprite animations
 
-bool get_box (int h, RECT * box_crap, RECT * box_real);
+bool get_box (int h, rect * box_crap, rect * box_real);
 extern void check_sprite_status(int h);
 extern void add_hardness(int sprite, int num);
 extern void fill_whole_hard(void);

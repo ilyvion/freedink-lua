@@ -37,7 +37,7 @@ extern TTF_Font *FONTS_hfont_small;
 extern void FONTS_initfonts(char* fontname);
 /* extern int print_text_wrap (TTF_Font * font, char *str, struct rect * box, SDL_Color color, */
 /* 			    /\*bool*\/int hcenter, /\*bool*\/int vcenter); */
-extern int print_text_wrap (char *str, RECT * box,
+extern int print_text_wrap (char *str, rect * box,
 			    /*bool*/int hcenter, /*bool*/int vcenter);
 /* extern void initfonts(char fontname[255]); */
 extern void kill_fonts(void);
