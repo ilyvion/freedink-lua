@@ -2503,8 +2503,9 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
       GFX_k[cur_sprite].k = SDL_LoadBMP(ciconvert(crap));
-      if (GFX_k[cur_sprite].k == NULL)
-	/* may be normal if we're at the end of a sequence */
+      if (GFX_k[cur_sprite].k == NULL && oo == 1)
+	/* First frame didn't load! */
+	/* It's normal if we're at the end of a sequence */
 	fprintf(stderr, "load_sprites: couldn't open %s\n", crap);
 
       /* Define the offsets / center of the image */
@@ -10015,7 +10016,9 @@ void init_scripts(void)
 {
         for (int k = 1; k < max_scripts; k++)
         {
-                if (rinfo[k] != NULL) if (rinfo[k]->sprite != 0) if (spr[rinfo[k]->sprite].active)
+                if (rinfo[k] != NULL && rinfo[k]->sprite != 0
+		    && rinfo[k]->sprite != 1000 /* don't go out of bounds in spr[300] */
+		    && spr[rinfo[k]->sprite].active)
                 {
                         if (locate(k,"main"))
                         {
