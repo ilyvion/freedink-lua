@@ -4595,6 +4595,7 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
         return(0);
 }
 
+/* Editor only */
 void check_sprite_status(int h)
 {
 /*         HRESULT dderror; */
@@ -4631,7 +4632,7 @@ void check_sprite_status(int h)
         
 }
 
-
+/* Editor only */
 void check_frame_status(int h, int frame)
 
 {
@@ -5574,13 +5575,20 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 	      src.y = (int) round(src.y * sy);
 	      src.w = (int) round(src.w * sx);
 	      src.h = (int) round(src.h * sy);
-	      SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
+	      if (SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst) < 0)
+		fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
 	      SDL_FreeSurface(scaled);
 	    }
 	  else
 	    {
 	      /* No scaling */
-	      SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+	      if (SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst) < 0) {
+		fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
+		/* If we failed, then maybe the sprite was actually
+		   loaded yet, let's try now */
+		if (spr[h].pseq != 0)
+		  check_seq_status(spr[h].pseq);
+	      }
 	    }
 	}
         

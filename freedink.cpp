@@ -4616,7 +4616,8 @@ void process_talk()
   {
     SDL_Rect dst;
     dst.x = px+169+180; dst.y = py+1;
-    SDL_BlitSurface(GFX_k[seq[30].frame[4]].k, NULL, GFX_lpDDSBack, &dst);
+    if (SDL_BlitSurface(GFX_k[seq[30].frame[4]].k, NULL, GFX_lpDDSBack, &dst) < 0)
+      fprintf(stderr, "Could not draw sprite %d: %s\n", seq[30].frame[4], SDL_GetError());
   }
   
   

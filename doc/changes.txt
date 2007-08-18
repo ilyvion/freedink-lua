@@ -51,3 +51,8 @@ external .wav, grabbed in Dinkedit 1.06 resources.
 Dinkedit creates a custom sequence #1 but mark the 4th frame as
 -1. This made FreeDinkEdit crash, so it's set to 0, which means "end
 of sequence".
+
+In init_scripts, the script may check the active status of sprite
+1000, while the sprite array has 300 elements. This caused bugs after
+the port and is now fixed. Curiously it didn't seem to cause bugs
+before.
