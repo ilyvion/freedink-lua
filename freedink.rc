@@ -16,7 +16,7 @@ FILETYPE VFT_APP
 			 VALUE "FileVersion", ""
 			 VALUE "FileDescription", "GNU FreeDink"
 			 VALUE "InternalName", ""
-			 VALUE "LegalCopyright", "Seth A. Robinson and Sylvain Beucler"
+			 VALUE "LegalCopyright", "Collective"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", ""
 			 VALUE "ProductName", "GNU FreeDink"

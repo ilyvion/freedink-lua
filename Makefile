@@ -39,8 +39,6 @@ gfx_tiles.o:		gfx_tiles.h gfx.h dinkvar.h
 gfx_utils.o:		gfx_utils.h
 init.o:			init.h gfx.h gfx_fonts.h dinkvar.h
 
-# TODO: Dev-C++'s Dink_private.h add meta info about a binary. Reproduce that.
-
 # Add the icon resource
 %.res: %.rc
 	windres.exe -i $< --input-format=rc -o $@ -O coff 
