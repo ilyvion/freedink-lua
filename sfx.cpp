@@ -53,7 +53,7 @@ int CreateBufferFromWaveFile(char* filename, int dwBuf)
     
     if (registered_sounds[dwBuf].sound == NULL)
       {
-        Msg("Error loading %s - %s", filename, Mix_GetError());
+        fprintf(stderr, "Error loading %s - %s", filename, Mix_GetError());
         return 0;
       }
     
@@ -275,8 +275,8 @@ int EditorSoundPlayEffect(int sound)
 {
   if (Mix_PlayChannel(0, registered_sounds[sound].sound, 0) < 0)
     {
-      Msg (("Mix_PlayChannel: Error playing sound %d - %s\n",
-            sound, Mix_GetError()));
+      fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
+	      sound, Mix_GetError());
       return 0;
     }
   return 1;
@@ -303,8 +303,8 @@ int SoundPlayEffect(int sound, int min, int plus, int sound3d, bool repeat)
 
   if (channel < 0)
     {
-      Msg (("Mix_PlayChannel: Error playing sound %d - %s\n",
-            sound, Mix_GetError()));
+      fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
+	      sound, Mix_GetError());
       return 0;
     }
 
@@ -330,8 +330,8 @@ int SoundStopEffect( int sound )
 
   if (sound >= max_sounds)
     {
-      Msg("Attempting to get stop sound %d (> MAX_SOUNDS=%d)",
-          sound, max_sounds);
+      fprintf(stderr, "Attempting to get stop sound %d (> MAX_SOUNDS=%d)",
+	      sound, max_sounds);
       return 0;
     }
 

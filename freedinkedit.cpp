@@ -133,7 +133,7 @@ int sp_seq,sp_frame = 0;
 
 
 /* const int NUM_SOUND_EFFECTS = 6; */
-const int NUM_SOUND_EFFECTS = 2;
+#define NUM_SOUND_EFFECTS 2
 
 /* TODO: there should be more resources in Dinkedit.exe - ask Seth */
 typedef enum enum_EFFECT
@@ -175,12 +175,12 @@ int speed;
 bool getkey(int key);
 char key_convert(int key);
 
-void draw_map( void);
-void draw_used( void);
+void draw_map(void);
+void draw_used(void);
 /* void dderror(HRESULT hErr); */
 
 int SInitSound();
-
+void finiObjects(void);
 
 
 
@@ -4208,6 +4208,14 @@ void updateFrame(void)
 			in_master = 34;
 		      }
 
+		    if ( (sjoy.key['q']) && (mode == MODE_MAP_PICKER))
+		      {
+			save_hard();
+			Msg("Info saved.");
+			finiObjects();
+			exit(0);
+		      }
+
 		    if ( (sjoy.button[2]) && (mode == MODE_MAP_PICKER))
 		      {
 
@@ -5497,7 +5505,6 @@ if (sound_on)
 /* 	  case WM_KEYDOWN: */
 /* 		  switch( wParam ) */
 /* 		  { */
-/* 		    /\* TODO: put it outside of the Windows loop *\/ */
 /* 		  case 'Q' /\* 81 *\/: */
 			  
 			  

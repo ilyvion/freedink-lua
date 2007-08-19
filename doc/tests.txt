@@ -66,8 +66,11 @@ Scaling
 Fonts
 =====
 
-- Use initfonts("newfont.ttf") and see if it's taken into account for
-  both sprite texts and dialog menus immediately.
+- Use DinkC's initfonts("newfont.ttf") and see if it's taken into
+  account for both sprite texts and dialog menus immediately.
+
+- When approaching the edge of the screen, a sprite's text (if any)
+  should not go off-screen, even partially.
 
 
 Sound

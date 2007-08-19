@@ -97,14 +97,18 @@ configuration file, usually provided separately.
 Apparently there are 2 patches set worthy to mention:
 
 - freepats: free-as-in-freedom, included in Debian (so compatible with
-  the DFSG, the Debian Free Software Guidelines)
+  the DFSG, the Debian Free Software Guidelines).
 
 - eawpatches: best quality but apparently non-free, and pretty hard to
-  find (TiMidity++ is surrounded by 404 pages :/). There is a copy in
-  the NetBSD package:
+  find (TiMidity++ is surrounded by 404 pages :/). The free parts of
+  eawpatches are included in freepats.
+
+  There is a copy in the NetBSD package:
   ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
   ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/alpha/2.1_2006Q3/All/eawpatches-12nb1.tgz
 
+  SDL_Mixer also has a copy: http://www.libsdl.org/projects/SDL_mixer/
+  http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
 
 Here is what I did to install the eawpatches from the NetBSD port to
 Debian GNU/Linux Etch. First I installed the patch in the
@@ -132,5 +136,5 @@ site-wide default configuration file:
 
 Another sum-up page: http://alleg.sourceforge.net/digmid.html
 
-I tried to installed the Gravis patches along with the provided
+I tried to install the Gravis Pro patches along with the provided
 configuration file, but I didn't manage to get something playing.

@@ -31,7 +31,7 @@ Port the game from DirectX to SDL
 (check sdl.txt for consideration on the library choice)
 
 - Audio
-  - Midi (Done: SDL_Mixer; a reference to mciSendString is remaining)
+  - Midi (Done)
   - Audio CD (Done: SDL_CD*)
   - WAV (Half-done: SDL_Mixer, but we lack pitch shift and volume unit
     conversion)
@@ -43,7 +43,7 @@ Port the game from DirectX to SDL
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
     limitations)
-  - Bitmaps (In progress: backgrounds OK, sprites Game=OK Editor=OK)
+  - Bitmaps (Done: backgrounds OK, sprites Game=OK Editor=OK)
   - Scaling (Done: SDL_gfx/rotozoom)
   - Fonts (In progress: SDL_ttf installed, but the font doesn't render
     the same; fonts should not use the current screen's palette)
