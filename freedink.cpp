@@ -2948,15 +2948,20 @@ void human_brain(int h)
 			char msg[30];
 			if (GetKeyboard(x5))
 			{
-				sprintf(msg, "key-%d",x5);
-				but_timer = thisTickCount+200;
-				
-				int mycrap = load_script(msg, 1, false);
-				if (locate(mycrap, "MAIN")) 
-				{
-					run_script(mycrap);
-					goto b1end;
-				}
+			  // Get the same keycodes than the original
+			  // Dink engines, for letters
+			  if (x5 >= 'a' && x5 <= 'z')
+			    x5 -= ('a' - 'A');
+
+			  sprintf(msg, "key-%d",x5);
+			  but_timer = thisTickCount+200;
+			  
+			  int mycrap = load_script(msg, 1, false);
+			  if (locate(mycrap, "MAIN")) 
+			    {
+			      run_script(mycrap);
+			      goto b1end;
+			    }
 			}
 		}
 	}
