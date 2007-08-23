@@ -4409,7 +4409,7 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                 
         } else
         {
-                Msg("Missing ( in %s, offset %s.", rinfo[script]->name, rinfo[script]->current);
+                Msg("Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
                 
                 
                 return(false);
