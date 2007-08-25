@@ -13,3 +13,13 @@
   adapt their processing if needed (in this case, we modified
   separate_string()). This way the files are opened the same way on
   all platforms.
+
+- To directly support filenames as they are used in DMods - that is,
+  without case sensitivity - all fopen() calls use ciconvert() or
+  ciconvertbuf() to first find the filename case-insensitively. For
+  example, "TILES/Splash.BMP" will be converted to
+  "Tiles/Splash.bmp". This is also necessary when writing a file: the
+  file may already exist, or the parent directory may name need to be
+  converted. Another solution to this issue would be to convert all
+  files names to lowercase beforehand - but it is more convenient to
+  play unmodified DMods directly.
