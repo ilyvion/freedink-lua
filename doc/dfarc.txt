@@ -1,23 +1,24 @@
-DFArc2 is the name of v108's default frontend to launch Dink and
-DMods. It includes codes from DFArc15 which introduces the .dmod
-format and is "just" an archiver/extrator, without a front-end part.
+DFArc15 is a archiver and extractor for the .dmod format. It "morphed"
+in DFArc2, v108's default frontend for launching Dink and DMods, that
+uses the extractor code for installing DMods, but does not provide the
+.dmod generator.
 
 
 The code
 ========
 
-The code contains a few #ifndef _WIN32 and use the portable wxWidgets
-GUI toolkit, which let us hope it will compile under GNU/Linux - but
-it also uses Win32-specific constructs (eg in DFArcFrame.cpp), so it
-will need a bit a clean-up to be portable. My guess is that merlin's
-version (DFArc15) was portable, but redink1's additions are not. As a
-side note, DFArc15 is using FLTK, while DFArc2 is using wxWidgets.
+Andrew Reading's version (DFArc15) is portable, but buggy and not
+tested under GNU/Linux. It can be compiled with a few fixes available
+from the FreeDink repository. DFArc15 is using the portable FLTK GUI
+toolkit.
 
-I tried compiling DFArc15 with 'g++ *.cpp' - it fails with a few
-mistakes, probably missing includes and deprecation warnings. I also
-tried compiling DFArc2 with 'g++ *.cpp `wx-config --cxxflags`' - it
-triggers lots of "ambiguous overload for 'operator='" errors and uses
-the Win32 API unconditionaly; this needs a deeper look.
+DFArc2 switched to the portable wxWidgets GUI toolkit, and kept
+DFArc15's untested non-Woe code as-is. It also uses new Win32-specific
+constructs (eg in DFArcFrame.cpp), so it will need a bit a clean-up to
+be portable. I tried compiling DFArc2 with 'g++ *.cpp `wx-config
+--cxxflags`' - it triggers lots of "ambiguous overload for
+'operator='" errors and uses the Win32 API unconditionaly; this needs
+a deeper look. It may be ran under Wine.
 
 
 The copyright
@@ -40,10 +41,10 @@ DFArc introduces .dmod archives, which are similar to .tar.bz2
 tarballs. I say "similar" because, unfortunately, the TAR code seems
 written from scratch (it does not use a library) and produces archives
 that are not completely compatible with POSIX Tar, so extracting those
-archives with anything else than DFArc is likely to corrupt
-files. BZip2 support, on the other hand, uses the libbz2 2.1.0.3
-(that's what is mentioned in the VC++ project file include paths) and
-looks clean.
+archives with anything else than DFArc is likely to corrupt files (at
+least DFArc15 is affected). BZip2 support, on the other hand, uses the
+libbz2 2.1.0.3 (that's what is mentioned in the VC++ project file
+include paths) and looks clean.
 
 For example:
 # Make sure bzip2 is not involved in the corruption:
@@ -70,7 +71,7 @@ $ ls -l marco/TILES/Ts41.bmp
 $ ls -l .wine/drive_c/Program\ Files/Dink\ Smallwood/marco/TILES/Ts41.bmp
 -rw-r--r-- 1 me me 161080 2007-08-22 22:26 .wine/drive_c/Program Files/Dink Smallwood/marco/TILES/Ts41.bmp
 
-So not using DFArc2 for extraction may truncate the files. In
+So not using DFArc for extraction may truncate the files. In
 particular, I never saw a .dmod that does not trigger a "Unexpected
 EOF" error with GNU tar.
 
@@ -90,6 +91,6 @@ without data loss.
 
 It would be interesting to know whether such corrupted Tar files can
 be detected at extraction time - and fixed. This means we could
-release a fixed version of DFArc2, and Dinkers could submit proper
+release a fixed version of DFArc, and Dinkers could submit proper
 .tar.bz2 as .dmod files without worrying about whether they'll be
-extractable with DFArc2.
+extractable with DFArc.
