@@ -1,0 +1,15 @@
+- Woe idioms such as BYTE or DWORD were replaced by their actual, C
+  meaning.
+
+- Woe-specific basic functions were replaced by ANSI C, ISO C or POSIX
+  equivalents (strnicmp => strncasecmp, ltoa=>sprintf...).
+
+- MAX_PATH is PATH_MAX under Unix. I mailed bug-gnulib.c so that maybe
+  this could be taken into account in gnulib's pathmax.h.
+
+- Woe can open file in text mode (by default). This is only used to
+  read dink.ini (DinkC files are opened in binary mode). There is no
+  text mode under Unix, so we open all files under binary mode "b" and
+  adapt their processing if needed (in this case, we modified
+  separate_string()). This way the files are opened the same way on
+  all platforms.
