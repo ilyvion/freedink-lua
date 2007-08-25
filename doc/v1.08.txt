@@ -45,6 +45,16 @@ Second version of the compatibility thread:
 http://www.dinknetwork.com/forum.cgi?MID=67349
 
 
+Other sources of information
+============================
+
+The v1.08 announcement mentions a plan to reuse all improvements from
+the "reDink" version, which are described in its readme_reDink.txt.
+
+The included dinkc.chm has a section "Internal Functions by Version"
+with a "v1.08+" entry, describing all added DinkC commands.
+
+
 List of changes
 ===============
 
