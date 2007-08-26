@@ -94,3 +94,63 @@ be detected at extraction time - and fixed. This means we could
 release a fixed version of DFArc, and Dinkers could submit proper
 .tar.bz2 as .dmod files without worrying about whether they'll be
 extractable with DFArc.
+
+
+The DFArc extractor actually does have troubles with extracting files
+it generated. However it seems more foregiving than GNU Tar. When
+properly fixed to work under GNU/Linux, DFArc15 will produce weird
+'\377' one-letter files each time GNU Tar would warn about "Skipping
+to next header". The v1.08 RC5 indeed mentions:
+
+* DFArc 2: When installing a D-Mod containing a file with a size of 0
+  KB, DFArc 2 would get rather confused. It would create a file or
+  folder called 'ÿ', and stop installing the D-Mod (such as with
+  several D-Mods like Chaos, Bane of the Magi, and Mayhem). This issue
+  has been fixed.
+
+And v1.08 RC6:
+
+* DFArc2: Properly fixed bugs related to D-Mods not extracting
+  properly if they contained files without any content.
+
+
+Incidentally RC5 also mentions:
+
+* DFArc 2: When installing a D-Mod, DFArc would report a false error
+  if the D-Mod had a folder with no files (just other folders) in it
+  (such as in Terrania). It no longer reports an error.
+
+Other DFArc2 notes appears to relate to the front-end part.
+
+As we can see the extractor was fixed to cope with the archiver's
+issues, instead of directly fixing the archiver.
+
+
+Technical sum-up of the incompatibilities:
+
+- DFArc defines the ustar version as "\0\0" instead of "00".
+
+  (harmless, ignored by GNU Tar).
+
+- DFArc does not create entries for directories - only for files. This
+  behavior can be reproduced with GNU Tar using:
+
+  $ find marco -type f | xargs tar --format=ustar -cf marco2.tar
+
+  (harmless, ignored by GNU Tar).
+
+- DFArc lacks the end-of-archive entry, its archives end straight
+  after the last file, while
+  http://www.gnu.org/software/tar/manual/html_node/tar_134.html
+  mentions: "Physically, an archive consists of a series of file
+  entries terminated by an end-of-archive entry, which consists of two
+  512 blocks of zero bytes.".
+
+  This makes GNU Tar truncate the last file.
+
+- DFArc adds a 512 bloc as content for empty files, while there should
+  be no such bloc.
+
+  This makes GNU Tar output a warning, and DFArc create 'ÿ' files.
+
+This should be fixable in existing archives, at first glance.
