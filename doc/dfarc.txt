@@ -135,9 +135,9 @@ Technical sum-up of the incompatibilities:
 - DFArc does not create entries for directories - only for files. This
   behavior can be reproduced with GNU Tar using:
 
-  $ find marco -type f | xargs tar --format=ustar -cf marco2.tar
+  $ find marco -type f | xargs tar --format=ustar -cf dmod.tar
 
-  (harmless, ignored by GNU Tar).
+  (harmless, but directories can't have permissions).
 
 - DFArc lacks the end-of-archive entry, its archives end straight
   after the last file, while
@@ -146,11 +146,16 @@ Technical sum-up of the incompatibilities:
   entries terminated by an end-of-archive entry, which consists of two
   512 blocks of zero bytes.".
 
-  This makes GNU Tar truncate the last file.
+  This makes GNU Tar exit, and hence truncate the last file.
 
-- DFArc adds a 512 bloc as content for empty files, while there should
-  be no such bloc.
+  This can be fixed using:
 
-  This makes GNU Tar output a warning, and DFArc create 'ÿ' files.
+  $ dd if=/dev/zero bs=512 count=2 >> dmod.tar
+
+- DFArc adds a 512 block as content for empty files, while there
+  should be no such block.
+
+  GNU Tar skips the extra block with a "Skipping to next header"
+  warning, and DFArc creates 'ÿ' files.
 
 This should be fixable in existing archives, at first glance.
