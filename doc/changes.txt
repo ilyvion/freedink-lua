@@ -56,3 +56,8 @@ In init_scripts, the script may check the active status of sprite
 1000, while the sprite array has 300 elements. This caused bugs after
 the port and is now fixed. Curiously it didn't seem to cause bugs
 before.
+
+
+Gamepad: I didn't test much with the original game, but I set a
+greater threshold for joystick axis - with the same threshold than the
+original game (~10%) Dink is going diags too easily.
