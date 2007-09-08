@@ -4,8 +4,13 @@
 - Woe-specific basic functions were replaced by ANSI C, ISO C or POSIX
   equivalents (strnicmp => strncasecmp, ltoa=>sprintf...).
 
-- MAX_PATH is PATH_MAX under Unix. I mailed bug-gnulib.c so that maybe
-  this could be taken into account in gnulib's pathmax.h.
+- Woe's MAX_PATH is PATH_MAX under Unix and under MinGW. According to
+  the gnulib developers, using PATH_MAX is a bad practice though
+  (http://lists.gnu.org/archive/html/bug-gnulib/2007-08/msg00149.html).
+
+- I suggest using gnulib (http://www.gnu.org/software/gnulib/) as our
+  portability layer. This takes advantage of MinGW under Woe. VC++ is
+  not meant for portability anyway.
 
 - Woe can open file in text mode (by default). This is only used to
   read dink.ini (DinkC files are opened in binary mode). There is no
@@ -19,7 +24,7 @@
   ciconvertbuf() to first find the filename case-insensitively. For
   example, "TILES/Splash.BMP" will be converted to
   "Tiles/Splash.bmp". This is also necessary when writing a file: the
-  file may already exist, or the parent directory may name need to be
+  file may already exist, or the parent directory name may need to be
   converted. Another solution to this issue would be to convert all
   files names to lowercase beforehand - but it is more convenient to
   play unmodified DMods directly.
