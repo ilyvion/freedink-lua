@@ -382,12 +382,11 @@ void check_joystick(void)
 	//joystick = false;
 	if (joystick)
 	{
-	  /* TODO: is it done by SSL, or need we do something? I don't
-	     have a joystick so I cannot test :/ */
 // 		memset(&jinfo,0,sizeof(JOYINFOEX));
 // 		jinfo.dwSize=sizeof(JOYINFOEX);
 // 		jinfo.dwFlags=JOY_RETURNALL;
 // 		ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
+
 // 		if (ddrval == JOYERR_UNPLUGGED) goto pass;
 		
 // 		total = jinfo.dwButtons;
@@ -451,13 +450,36 @@ void check_joystick(void)
 // 			sjoy.joybit[play.button[1]] = TRUE;
 // 			total = total - 1;
 // 		}
-		
-		
+	  // JOY
+	  {
+	    int i;
+	    for (i = 0; i < 10; i++)
+	      {
+		if (SDL_JoystickGetButton(jinfo, i))
+		  sjoy.joybit[play.button[i+1]] = 1;
+	      }
+	  }
+
+/* Afaics joyGetPosEx's positions range from 0 to 65535, center=32768
+   - with a calibrated joystick. SDL uses [-32768,32767], center=0. */
+
 // 		if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
 // 		if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
 // 		if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
 // 		if (jinfo.dwYpos < 17000) sjoy.up = TRUE;
-		
+	  // JOY
+	  {
+	    Sint16 x_pos = SDL_JoystickGetAxis(jinfo, 0);
+	    Sint16 y_pos = SDL_JoystickGetAxis(jinfo, 1);
+	    /* Using thresold=10% is just enough to get rid of the
+	       noise. Let's use 50% instead, otherwise Dink will go
+	       diags too easily. */
+	    Sint16 threshold = 32768 * 50/100;
+	    if (x_pos < -threshold) sjoy.left  = 1;
+	    if (x_pos > +threshold) sjoy.right = 1;
+	    if (y_pos < -threshold) sjoy.up    = 1;
+	    if (y_pos > +threshold) sjoy.down  = 1;
+	  }
 	}
 	
 	
@@ -5708,51 +5730,6 @@ void finiObjects()
 /* } */
  
 
-/* Self-explained */
-int
-CheckJoyStickPresent(void)
-{
-  /* first tests if a joystick driver is present */
-  /* if TRUE it makes certain that a joystick is plugged in */
-
-  if (SDL_NumJoysticks() > 0)
-    {
-      jinfo = SDL_JoystickOpen(0);
-      if (jinfo) {
-	printf("Name: %s\n", SDL_JoystickName (0));
-	printf("Number of Axes: %d\n", SDL_JoystickNumAxes (jinfo));
-	printf("Number of Buttons: %d\n", SDL_JoystickNumButtons (jinfo));
-	printf("Number of Balls: %d\n", SDL_JoystickNumBalls (jinfo));
-	return 1;
-      } else {
-	printf("Couldn't open Joystick 0");
-      }
-    }
-  return 0;
-
-//   if(!joyGetNumDevs())
-//     {
-//     Msg("No joysticks found");
-//     return 0;
-//     }
-
-//   memset(&jinfo,0,sizeof(JOYINFOEX));
-//   jinfo.dwSize=sizeof(JOYINFOEX);
-//   jinfo.dwFlags=JOY_RETURNALL;
-  
-//   if(joyGetPosEx(JOYSTICKID1,&jinfo) == JOYERR_NOERROR)
-//     {
-//       Msg("Joystick IS plugged in");
-//       return 1;
-//     }
-//   else
-//     {
-//       Msg("Joystick not plugged in");
-//       return 0;
-//     }
-}
-
-
 /* Parse dink.ini */
 void load_batch(void)
 {
@@ -5766,12 +5743,14 @@ void load_batch(void)
   Msg("Loading .ini");	  
   if (!exist("dink.ini"))
     {
-      Msg("load_batck: dink.ini not found.");	  
+      Msg("load_batch: dink.ini not found.");	  
       sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
       TRACE(line);
     }
 	
-  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "r")) == NULL)
+  /* Open the text file in binary mode, so it's read the same way
+     under different OSes (Unix has no text mode) */
+  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb")) == NULL)
     TRACE("Error opening Dink.ini for reading.");
   else
     {
@@ -6191,11 +6170,6 @@ static int doInit(int argc, char *argv[])
 
   if (cd_inserted)
     PlayCD(7);
-	
-  if (CheckJoyStickPresent() == /*FALSE*/0)
-    joystick = /*FALSE*/0;
-  else
-    joystick = /*TRUE*/1;
 	
   //dinks normal walk
   Msg("loading batch");

@@ -375,7 +375,7 @@ unsigned char torusColors[256];  // Marks the colors used in the torus
 /* HWND                    hWndMain = NULL; */
 //JOYINFOEX jinfo; //joystick info
 SDL_Joystick* jinfo;
-/*BOOL*/int joystick = false;
+int joystick = true;
 hardness hmap;
 
 

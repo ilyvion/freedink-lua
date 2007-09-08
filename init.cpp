@@ -97,5 +97,56 @@ int init(void) {
   /* TODO: create a separate initialization procedure */
   TTF_Init();
 
+
+  /* JOY */
+  /* Joystick initialization never makes Dink fail for now. */
+  /* Note: joystick is originaly only used by the game, not the
+     editor. */
+  if (joystick == 1)
+    {
+      if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
+	{
+	  Msg("Error initializing joystick, skipping: %s\n", SDL_GetError());
+	  joystick = 0;
+	}
+      else
+	{
+	  /* first tests if a joystick driver is present */
+	  /* if TRUE it makes certain that a joystick is plugged in */
+	  if (SDL_NumJoysticks() > 0)
+	    {
+	      int i;
+	      printf("%i joysticks were found.\n", SDL_NumJoysticks());
+	      printf("The names of the joysticks are:\n");
+	      for (i=0; i < SDL_NumJoysticks(); i++)
+		printf("    %s\n", SDL_JoystickName(i));
+	      printf("Picking the first one...\n", SDL_NumJoysticks());
+	      jinfo = SDL_JoystickOpen(0);
+	      /* Don't activate joystick events, Dink polls joystick
+		 manually. */
+	      /* SDL_JoystickEventState(SDL_ENABLE); */
+	      
+	      if (jinfo) {
+		printf("Name: %s\n", SDL_JoystickName (0));
+		printf("Number of axes: %d\n", SDL_JoystickNumAxes(jinfo));
+		printf("Number of buttons: %d\n", SDL_JoystickNumButtons(jinfo));
+		printf("Number of balls: %d\n", SDL_JoystickNumBalls(jinfo));
+		printf("Number of hats: %d\n", SDL_JoystickNumHats(jinfo));
+		
+		/* Flush stacked joystick events */
+		{
+		  SDL_Event event;
+		  while (SDL_PollEvent(&event));
+		}
+		
+		joystick = 1;
+	      } else {
+		printf("Couldn't open Joystick 0");
+		joystick = 0;
+	      }
+	    }
+	}
+    }
+
   return 1;
 }

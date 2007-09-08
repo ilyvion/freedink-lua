@@ -62,6 +62,7 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
 
 
 /* Generate a default/fallback palette */
+/* TODO: maybe use the default Woe palette? */
 void
 setup_palette(SDL_Color *palette)
 {

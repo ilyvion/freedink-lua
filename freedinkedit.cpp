@@ -854,7 +854,7 @@ char crap[80];
  sprintf(crap, "MAP.DAT");
 
 
- fp = fopen(ciconvert(crap), "a+");
+ fp = fopen(ciconvert(crap), "a+b");
 				fwrite(&pam,sizeof(struct small_map),1,fp);
 				now = (ftell(fp) / (sizeof(struct small_map)));
 				fclose(fp);
@@ -870,7 +870,7 @@ long now;
 char crap[120];
  sprintf(crap, "%sMAP.DAT", buf_path);
 
- fp = fopen(ciconvert(crap), "a+");
+ fp = fopen(ciconvert(crap), "a+b");
 				fwrite(&pam,sizeof(struct small_map),1,fp);
 				now = (ftell(fp) / (sizeof(struct small_map)));
 				fclose(fp);
@@ -5620,7 +5620,9 @@ void load_batch(void)
 		  
 	  }
 
-	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "r" )) != NULL )   
+	  /* Open the text file in binary mode, so it's read the same
+	     way under different OSes (Unix has no text mode) */
+	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb" )) != NULL )   
 	  {
 		  
 		  while(1)
