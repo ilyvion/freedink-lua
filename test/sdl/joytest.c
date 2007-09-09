@@ -36,15 +36,15 @@ int main(void) {
   int quit = 0;
   SDL_Surface *screen, *pic;
   Uint32 video_flags = SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT | SDL_RESIZABLE;
+  SDL_Rect dst = {320, 240};
 
   int default_screen_w = 640, default_screen_h = 480;
   double
     px = 320,
-    py = 200,
+    py = 240,
     cur_joyx = 0,
     cur_joyy = 0;
   Uint32 last_update = 0;
-  SDL_Rect dst;
 
   /* pixels per second */
   int full_speed = 200;
@@ -72,7 +72,7 @@ int main(void) {
   pic = SDL_LoadBMP("pic.bmp");
   if (pic == NULL)
     {
-      fprintf(stderr, "Failed to load pic.bmp\n");
+      fprintf(stderr, "Failed to load pic.bmp: %s\n", SDL_GetError());
       exit(1);
     }
   SDL_SetColorKey(pic, SDL_SRCCOLORKEY, SDL_MapRGB(pic->format, 255, 255, 255));
@@ -97,6 +97,13 @@ int main(void) {
     SDL_Event event;
     while (SDL_PollEvent(&event));
   }
+
+  /* Fill screen in blue */
+  SDL_FillRect(screen, NULL,
+	       SDL_MapRGB(screen->format, 0, 0, 255));
+  SDL_Flip(screen);
+
+  last_update = SDL_GetTicks();
 
   /* Main game loop */
   while(!quit) {
@@ -195,16 +202,17 @@ int main(void) {
       erase.y = prev_y;
       erase.w = pic->w;
       erase.h = pic->h;
-      SDL_FillRect(screen, &erase, 0);
+      SDL_FillRect(screen, &erase,
+		   SDL_MapRGB(screen->format, 0, 0, 255));
 
 
       /* Update position */
       /* dx/dy is the speed in pixels per second */
       /* In one second, with full push (32767), I'll move full_speed (200) pixels */
-      dx = cur_joyx * (1.0 * full_speed / 32767);
-      dy = cur_joyy * (1.0 * full_speed / 32767);
-      px += dx * dt / 1000;
-      py += dy * dt / 1000;
+      dx = cur_joyx * (1.0 * full_speed / 32767) * dt/1000;
+      dy = cur_joyy * (1.0 * full_speed / 32767) * dt/1000;
+      px += dx;
+      py += dy;
       dst.x = px;
       dst.y = py;
       

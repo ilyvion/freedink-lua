@@ -1,0 +1,260 @@
+/**
+ * SDL mouse+keyboard test
+
+ * Copyright (C) 2007  Sylvain Beucler
+
+ * This file is part of GNU FreeDink
+
+ * GNU FreeDink is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+
+ * GNU FreeDink is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/* Moves the cursor using either the mouse or the keyboard - the
+   program tries to keep the mouse under control (otherwise the mouse
+   may move out of the window and lose focus), and no jumps when
+   switching from mouse to keyboard or vice-versa. */
+
+#include <stdio.h>
+#include "SDL.h"
+
+#define IMIN(a,b) ((a < b) ? a : b)
+#define IMAX(a,b) ((a > b) ? a : b)
+
+static int ignore_mouse_event = 0;
+
+int mouse_event_filter(const SDL_Event *event)
+{
+  if (ignore_mouse_event && event->type == SDL_MOUSEMOTION)
+    {
+      printf("Filtered mouse event\n");
+      return 0;
+    }
+  return 1;
+}
+
+int main(void)
+{
+  SDL_Surface *screen, *pic;
+  int quit = 0;
+  int mouse_focus = 1;
+  double px = 320, py = 240;
+  int mouse_dx = 0, mouse_dy = 0;
+  int keyboard_dx = 0, keyboard_dy = 0;
+  SDL_Rect dst = {320, 240};
+  Uint32 last_update = 0;
+  int mouse_speed = 200; /* pixels per second */
+
+  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+      fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+      exit(1);
+    }
+
+  putenv("SDL_VIDEO_CENTERED=1");
+  screen = SDL_SetVideoMode(640, 480, 0, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT);
+  if (screen == NULL)
+    {
+      fprintf(stderr, "Couldn't set video mode: %s\n", SDL_GetError());
+      exit(1);
+    }
+  SDL_WM_SetCaption("MouseTest", NULL);
+  SDL_ShowCursor(SDL_DISABLE);
+  
+  pic = SDL_LoadBMP("S08.bmp");
+  if (pic == NULL)
+    {
+      fprintf(stderr, "Failed to load image: %s\n", SDL_GetError());
+      exit(1);
+    }
+  SDL_SetColorKey(pic, SDL_SRCCOLORKEY, SDL_MapRGB(pic->format, 0, 0, 0));
+
+  /* Fill screen in white */
+  SDL_FillRect(screen, NULL,
+	       SDL_MapRGB(screen->format, 0, 0, 255));
+  SDL_Flip(screen);
+
+
+  /* SDL_SetEventFilter(mouse_event_filter); */
+
+  /* Synchronize physical and game mouse */
+  {
+    SDL_Event event;
+    int tmp_dx, tmp_dy;
+
+    ignore_mouse_event = 1;
+    SDL_WarpMouse(320, 240);
+    SDL_PumpEvents();
+    ignore_mouse_event = 0;
+    SDL_GetRelativeMouseState(&tmp_dx, &tmp_dy);
+  }
+
+  /* SDL_MouseMotionEvent: If the cursor is hidden (SDL_ShowCursor(0))
+     and the input is grabbed (SDL_WM_GrabInput(SDL_GRAB_ON)), then
+     the mouse will give relative motion events even when the cursor
+     reaches the edge of the screen. This is currently only
+     implemented on Windows and Linux/Unix-alikes. */
+  /* So it's not portable and it blocks Alt+Tab, so let's try
+     something else */
+  /* SDL_WM_GrabInput(SDL_GRAB_ON); */
+
+  last_update = SDL_GetTicks();
+
+  /* Main game loop */
+  while(!quit) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+      {
+	switch(event.type)
+	  {
+	  case SDL_KEYDOWN:
+	    switch (event.key.keysym.sym)
+	      {
+	      case 'q':
+	      case SDLK_ESCAPE:
+		quit = 1;
+		break;
+	      case 'f':
+		SDL_WM_ToggleFullScreen(screen);
+		break;
+	      case SDLK_LEFT:
+		keyboard_dx = -1;
+		break;
+	      case SDLK_RIGHT:
+		keyboard_dx = 1;
+		break;
+	      case SDLK_UP:
+		keyboard_dy = -1;
+		break;
+	      case SDLK_DOWN:
+		keyboard_dy = 1;
+		break;
+	      }
+	    break;
+
+	  case SDL_KEYUP:
+	    switch (event.key.keysym.sym)
+	      {
+	      case SDLK_LEFT:
+	      case SDLK_RIGHT:
+		keyboard_dx = 0;
+		break;
+	      case SDLK_UP:
+	      case SDLK_DOWN:
+		keyboard_dy = 0;
+		break;
+	      }
+	    break;
+
+	  case SDL_ACTIVEEVENT:
+	    {
+	      SDL_ActiveEvent *active_event = (SDL_ActiveEvent*) &event;
+	      if (active_event->state & SDL_APPMOUSEFOCUS)
+		{
+		  /* mouse_focus = active_event->gain; */
+		  printf("mouse event: %d\n", active_event->gain);
+		}
+	    }
+	    break;
+	      
+	  case SDL_QUIT:
+	    quit = 1;
+	  
+	    break;
+	  }
+      }
+
+    /* Update position - mouse event*/
+    {
+      /* SDL_GetMouseState(&mouse_x, &mouse_y); */
+      SDL_GetRelativeMouseState(&mouse_dx, &mouse_dy);
+      if (mouse_dx != 0 || mouse_dy != 0)
+	{
+	  px += mouse_dx;
+	  py += mouse_dy;
+
+	  /* Clip */
+	  if (px < 0) px = 0;
+	  if (py < 0) py = 0;
+	  if (px > 640 - 1) px = 640 - 1;
+	  if (py > 480 - 1) py = 480 - 1;
+
+	  /* Try to get the mouse (and the focus) within the window,
+	     not 100% safe but good enough */
+	  SDL_WarpMouse(320, 240);
+	  /* Ignore the mouse event generated by SDL_WarpMouse: */
+	  SDL_PumpEvents();
+	  SDL_GetRelativeMouseState(NULL, NULL);
+	}
+    }
+
+    {
+      SDL_Rect erase, update;
+      int prev_x, prev_y;
+      double dx, dy;
+      int update_p1_x, update_p1_y;
+      int update_p2_x, update_p2_y;
+      Uint32 dt;
+
+      /* Check elapsed time since last frame */
+      dt = SDL_GetTicks() - last_update;
+      last_update = SDL_GetTicks();
+
+      /* Erase last position */
+      prev_x = dst.x;
+      prev_y = dst.y;
+      erase.x = prev_x;
+      erase.y = prev_y;
+      erase.w = pic->w;
+      erase.h = pic->h;
+      SDL_FillRect(screen, &erase,
+		   SDL_MapRGB(screen->format, 0, 0, 255));
+      
+
+      /* Update position - keyboard event */
+      dx = 1.0 * keyboard_dx * mouse_speed * dt / 1000;
+      dy = 1.0 * keyboard_dy * mouse_speed * dt / 1000;
+      px += dx;
+      py += dy;
+      dst.x = px;
+      dst.y = py;
+
+      /* Display new position */
+      SDL_BlitSurface(pic, NULL, screen, &dst);
+
+
+      /* What to refresh */
+      update_p1_x = IMIN(prev_x, dst.x);
+      update_p1_y = IMIN(prev_y, dst.y);
+      update_p2_x = IMAX(prev_x, dst.x) + pic->w;
+      update_p2_y = IMAX(prev_y, dst.y) + pic->h;
+  
+      /* Clipping */
+      update_p1_x = IMIN(IMAX(update_p1_x, 0), screen->w);
+      update_p1_y = IMIN(IMAX(update_p1_y, 0), screen->h);
+      update_p2_x = IMIN(IMAX(update_p2_x, 0), screen->w);
+      update_p2_y = IMIN(IMAX(update_p2_y, 0), screen->h);
+
+      /* Refresh */
+      update.x = update_p1_x;
+      update.y = update_p1_y;
+      update.w = update_p2_x - update_p1_x;
+      update.h = update_p2_y - update_p1_y;
+      SDL_UpdateRects(screen, 1, &update);
+      /* printf("pos %f,%f\n", px, py); */
+    }
+  }
+  SDL_Quit();
+
+  return 0;
+}

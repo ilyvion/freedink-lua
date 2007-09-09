@@ -1,10 +1,5 @@
-Simple joystick test. Moves the heart using the joystick. Button 2
-quits, button 4 goes full screen, button 6 triples the speed.
-
-=====
-
-pic.bmp is HEART01.BMP from the Dink Smallwood graphics pack. Below is
-the graphics pack's license:
+pic.bmp is HEART01.BMP from the Dink Smallwood graphics pack. S08.bmp
+is, well, S08.bmp. Below is the graphics pack's license:
 
 
 These are all the graphics from Dink Smallwood in uncompressed/packed
