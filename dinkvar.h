@@ -160,7 +160,8 @@ struct player_info
   int push_dir;
   unsigned long push_timer;
   int last_talk;
-  int mouse;
+  int mouse; /* vertical position of the mouse when selecting a dialog
+		option */
   bool item_magic;
   int last_map;
   int crap;

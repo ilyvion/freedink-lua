@@ -897,13 +897,10 @@ void log_path(bool playing)
 int GetKeyboard(int key)
 {
   // returns 0 if the key has been depressed, else returns 1 and sets key to code recd.
-
-  /* TODO: this is a quick 'n dirty solution, which does not work with
-     all keyboard layouts, and use different keycodes than the
-     original engine. For an alternative, maybe check:
-     http://www.devolution.com/pipermail/sdl/2001-November/040404.html */
   int keystate_size = -1;
-  Uint8 *keystate = SDL_GetKeyState (&keystate_size);
+  Uint8 *keystate;
+  SDL_PumpEvents();
+  keystate = SDL_GetKeyState (&keystate_size);
   return keystate[key];
   // return (GetAsyncKeyState(key));
 }
