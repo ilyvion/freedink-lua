@@ -52,6 +52,7 @@ void FONTS_initfonts(char* fontname) {
 
   /* SDL_ttf makes the font bigger than Woe, let's try 17 */
   FONTS_hfont_small = TTF_OpenFont(fontname, 17);
+  FONTS_SetFont(FONTS_hfont_small);
 
   if (FONTS_hfont_small == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());

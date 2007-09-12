@@ -66,6 +66,8 @@ rect_inflate(rect *rect, int dw, int dh)
 {
   if (rect == NULL)
     return 0;
+  rect->left   -= dw;
+  rect->top    -= dh;
   rect->right  += dw;
   rect->bottom += dh;
   return 1;

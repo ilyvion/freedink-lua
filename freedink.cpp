@@ -2356,187 +2356,158 @@ void make_missile(int x1, int y1, int dir, int speed, int seq, int frame, int st
 
 void missile_brain( int h, bool repeat)
 {
-	rect box;
-	automove(h);
-	
-	*pmissle_source = h;
-	int hard = check_if_move_is_legal(h);
-	if (repeat)  if (spr[h].seq == 0) spr[h].seq = spr[h].seq_orig;
-	spr[1].hitpoints = *plife; 
-	
-	if (hard > 0) if (hard != 2) 
+  rect box;
+  automove(h);
+  
+  *pmissle_source = h;
+  int hard = check_if_move_is_legal(h);
+  if (repeat && spr[h].seq == 0)
+    spr[h].seq = spr[h].seq_orig;
+  spr[1].hitpoints = *plife; 
+  
+  if (hard > 0 && hard != 2) 
+    {      
+      //lets check to see if they hit a sprites hardness
+      if (hard > 100)
 	{
-		
-		//lets check to see if they hit a sprites hardness
-		if (hard > 100)
+	  for (int ii = 1; ii < last_sprite_created; ii++)
+	    {
+	      if (spr[ii].sp_index == hard-100)
 		{
-			for (int ii = 1; ii < last_sprite_created; ii++)
+		  if (spr[ii].script > 0)
+		    {
+		      *pmissile_target = 1;
+		      *penemy_sprite = 1;
+		      
+		      if (locate(spr[ii].script, "HIT"))
 			{
-				if (spr[ii].sp_index == hard-100)
-				{
-					if (spr[ii].script > 0)
-					{
-						*pmissile_target = 1;
-						*penemy_sprite = 1;
-						
-						
-						
-						if (locate(spr[ii].script, "HIT"))
-						{
-							kill_returning_stuff(spr[ii].script);
-							run_script(spr[ii].script);
-							
-						}
-					}
-					
-					
-					if (spr[h].script > 0)
-					{
-						*pmissile_target = ii;
-						*penemy_sprite = 1;
-						if (locate(spr[h].script, "DAMAGE")) 
-						{
-							kill_returning_stuff(spr[h].script);
-							run_script(spr[h].script);
-						}
-					} else
-					{
-						
-						if (spr[h].attack_hit_sound == 0)
-						{
-							SoundPlayEffect( 9,22050, 0 ,0,0);
-						} else
-						{
-							SoundPlayEffect( spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0 ,0,0);
-						}
-						
-						
-						spr[h].active = 0;
-						
-						
-					}
-					
-					
-					//run missile end	
-					return;
-				}
-				
+			  kill_returning_stuff(spr[ii].script);
+			  run_script(spr[ii].script);
 			}
-			
+		    }
+		  
+		  if (spr[h].script > 0)
+		    {
+		      *pmissile_target = ii;
+		      *penemy_sprite = 1;
+		      if (locate(spr[h].script, "DAMAGE")) 
+			{
+			  kill_returning_stuff(spr[h].script);
+			  run_script(spr[h].script);
+			}
+		    }
+		  else
+		    {
+		      if (spr[h].attack_hit_sound == 0)
+			SoundPlayEffect( 9,22050, 0 ,0,0);
+		      else
+			SoundPlayEffect( spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0 ,0,0);
+		      
+		      spr[h].active = 0;
+		    }
+		  
+		  //run missile end	
+		  return;
 		}
-		//run missile end	
-		
+	    }
+	}
+      //run missile end	
+      
+      if (spr[h].script > 0)
+	{
+	  *pmissile_target = 0;
+	  if (locate(spr[h].script, "DAMAGE"))
+	    run_script(spr[h].script);
+	}
+      else
+	{
+	  if (spr[h].attack_hit_sound == 0)
+	    SoundPlayEffect(9, 22050, 0, 0, 0);
+	  else
+	    SoundPlayEffect(spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0, 0, 0);
+	  
+	  spr[h].active = 0;
+	  return;
+	}
+    }
+  
+  if (spr[h].x > 1000) spr[h].active = false;
+  if (spr[h].y > 700) spr[h].active = false;
+  if (spr[h].y < -500) spr[h].active = false;
+  if (spr[h].x < -500) spr[h].active = false;
+  
+  //did we hit anything that can die?
+  
+  for (int j = 1; j <= last_sprite_created; j++)
+    {
+      if (spr[j].active && h != j && spr[j].nohit != 1 && spr[j].notouch == false)
+	if (spr[h].brain_parm != j && spr[h].brain_parm2!= j)
+	  //if (spr[j].brain != 15) if (spr[j].brain != 11)
+	  {
+	    rect_copy(&box, &k[getpic(j)].hardbox);
+	    rect_offset(&box, spr[j].x, spr[j].y);
+	    
+	    if (spr[h].range != 0)
+	      rect_inflate(&box, spr[h].range,spr[h].range);
+	    
+	    if (debug_mode) draw_box(box, 33);
+	    
+	    if (inside_box(spr[h].x, spr[h].y, box))
+	      {
+		spr[j].notouch = true;
+		spr[j].notouch_timer = thisTickCount+100;
+		spr[j].target = 1;
+		*penemy_sprite = 1;
+		//change later to reflect REAL target
 		if (spr[h].script > 0)
-		{
-			
-			
-			*pmissile_target = 0;
-			if (locate(spr[h].script, "DAMAGE")) run_script(spr[h].script);
-		} else
-		{
-			
-			if (spr[h].attack_hit_sound == 0)
-			{
-				SoundPlayEffect( 9,22050, 0 ,0,0);
-			} else
-			{
-				SoundPlayEffect( spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0 ,0,0);
-			}
-			
-			
-			spr[h].active = 0;
-			return;
-		}
+		  {
+		    *pmissile_target = j;
+		    if (locate(spr[h].script, "DAMAGE"))
+		      run_script(spr[h].script);
+		  }
+		else
+		  {
+		    if (spr[h].attack_hit_sound == 0)
+		      SoundPlayEffect(9, 22050, 0, 0, 0);
+		    else
+		      SoundPlayEffect(spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0, 0,0);
+		  }
 		
-	}
-	
-	if (spr[h].x > 1000) spr[h].active = false;
-	if (spr[h].y > 700) spr[h].active = false;
-	if (spr[h].y < -500) spr[h].active = false;
-	if (spr[h].x < -500) spr[h].active = false;
-	
-	//did we hit anything that can die?
-	
-	for (int j = 1; j <= last_sprite_created; j++)
-	{
-		if (spr[j].active) if (h != j) if (spr[j].nohit != 1) if (spr[j].notouch == false)
-			if (spr[h].brain_parm != j) if (spr[h].brain_parm2!= j) //if (spr[j].brain != 15) if
-				//(spr[j].brain != 11)
-			{
-				rect_copy(&box, &k[getpic(j)].hardbox);
-				rect_offset(&box, spr[j].x, spr[j].y);
-				
-				if (spr[h].range != 0)
-					rect_inflate(&box, spr[h].range,spr[h].range);
-				
-				if (debug_mode) draw_box(box, 33);
-				
-				
-				if (inside_box(spr[h].x, spr[h].y, box))
-				{
-					
-					spr[j].notouch = true;
-					spr[j].notouch_timer = thisTickCount+100;
-					spr[j].target = 1;
-					*penemy_sprite = 1;
-					//change later to reflect REAL target
-					if (spr[h].script > 0)
-					{
-						
-						*pmissile_target = j;
-						if (locate(spr[h].script, "DAMAGE")) run_script(spr[h].script);
-					} else
-					{
-						
-						if (spr[h].attack_hit_sound == 0)
-						{
-							SoundPlayEffect( 9,22050, 0 ,0,0);
-						} else
-						{
-							SoundPlayEffect( spr[h].attack_hit_sound,spr[h].attack_hit_sound_speed, 0 ,0,0);
-						}
-						
-					}
-					
-					
-					if ( spr[j].hitpoints > 0)  if (spr[h].strength != 0)
-					{
-						int hit = 0;
-						if (spr[h].strength == 1) hit = spr[h].strength - spr[j].defense; else
-							
-							hit = (spr[h].strength / 2) + ((rand() % (spr[h].strength / 2))+1)
-							- spr[j].defense;
-						
-						if (hit < 0) hit = 0;
-						
-						
-						spr[j].damage += hit;
-						if (hit > 0)
-						{
-							random_blood(spr[j].x, spr[j].y-40, j);
-						}
-						spr[j].last_hit = 1;
-						//Msg("Damage done is %d..", spr[j].damage);
-					}
-					
-					if (spr[j].script > 0)
-					{
-						//CHANGED did = h
-						*pmissile_target = 1;
-						
-						if (locate(spr[j].script, "HIT"))
-						{
-							kill_returning_stuff(spr[j].script);
-							run_script(spr[j].script);
-						}
-					}
-					
-				}
-				//run missile end	
-				
-			}
-	}
-	
+		if (spr[j].hitpoints > 0 && spr[h].strength != 0)
+		  {
+		    int hit = 0;
+		    if (spr[h].strength == 1)
+		      hit = spr[h].strength - spr[j].defense;
+		    else
+		      hit = (spr[h].strength / 2)
+			+ ((rand() % (spr[h].strength / 2)) + 1)
+			- spr[j].defense;
+		    
+		    if (hit < 0)
+		      hit = 0;
+		    spr[j].damage += hit;
+		    if (hit > 0)
+		      random_blood(spr[j].x, spr[j].y-40, j);
+		    spr[j].last_hit = 1;
+		    //Msg("Damage done is %d..", spr[j].damage);
+		  }
+		
+		if (spr[j].script > 0)
+		  {
+		    //CHANGED did = h
+		    *pmissile_target = 1;
+		    
+		    if (locate(spr[j].script, "HIT"))
+		      {
+			kill_returning_stuff(spr[j].script);
+			run_script(spr[j].script);
+		      }
+		  }
+	      }
+	    //run missile end	
+	    
+	  }
+    }
 }
 
 
