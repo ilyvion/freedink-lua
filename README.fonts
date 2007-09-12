@@ -1,3 +1,8 @@
-GPL font LiberationSans-Regular.ttf from:
+Font LiberationSans-Regular.ttf from:
 https://www.redhat.com/promo/fonts/
 https://www.redhat.com/f/fonts/liberation-fonts-ttf-3.tar.gz
+
+It is released under the GNU GPL + some unusual exceptions, which
+makes the license incompatible with the vanilla GNU GPL
+itself. However, it is still legal to use this font in a GNU GPL'd
+application [gnu.org #342619].
