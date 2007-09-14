@@ -21,6 +21,8 @@
  * 02110-1301, USA.
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "SDL_ttf.h"
 #include "dinkvar.h"
 #include "gfx.h"

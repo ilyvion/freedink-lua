@@ -21,6 +21,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"

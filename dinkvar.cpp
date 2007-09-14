@@ -37,6 +37,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdarg.h>
 
 #ifdef _WIN32
 /* GetWindowsDirectory */

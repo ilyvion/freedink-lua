@@ -353,13 +353,11 @@ int InitSound()
 {
   Msg("initting sound");
 
-  // TODO: SDL_INIT_TIMER should be initialized somewhere else
-  if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_CDROM | SDL_INIT_AUDIO) == -1)
+  if (SDL_Init(SDL_INIT_CDROM | SDL_INIT_AUDIO) == -1)
     {
       Msg("SDL_Init: %s\n", SDL_GetError());
       return 0;
     }
-  atexit(SDL_Quit);
   
   // Initialize CD-ROM
   {

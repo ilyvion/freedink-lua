@@ -22,6 +22,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 /* #include <windows.h> */
 /* #include <ddraw.h> */
 #include "SDL.h"

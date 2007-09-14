@@ -1,3 +1,5 @@
+CC=c++
+
 #CPPFLAGS=-I"C:/dx7sdk/include" -I"/mingw/include" 
 CPPFLAGS=$(shell sdl-config --cflags)
 

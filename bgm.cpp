@@ -22,6 +22,7 @@
  * 02110-1301, USA.
  */
 
+#include <string.h>
 /* CD functions */
 #include "SDL.h"
 /* MIDI functions */

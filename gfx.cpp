@@ -20,6 +20,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include "SDL.h"
 #include "gfx.h"
 

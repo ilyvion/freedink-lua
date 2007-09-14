@@ -26,6 +26,8 @@
 #define TITLE "GNU FreeDink"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* for unlink(): */
 /* #include <io.h> */

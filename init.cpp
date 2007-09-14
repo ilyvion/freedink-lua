@@ -21,6 +21,7 @@
  * 02110-1301, USA.
  */
 
+#include <stdlib.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
 /* Msg */
