@@ -1,3 +1,6 @@
+jump.wav, stop.wav, stop-orig.wav
+=================================
+
 Sound files used by Dinkedit. There were included in v1.06 as
 Dinkedit.exe resources (included in the executable).
 

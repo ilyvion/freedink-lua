@@ -1,0 +1,9 @@
+*.res
+*.exe
+*.o
+*~
+freedink
+freedinkedit
+# NCC
+*.nccout
+.tmp.c

@@ -12,3 +12,13 @@ Copy paste the relevant output in::
 Then give those exclusions to Valgrind::
 
  valgrind --leak-check=yes --suppressions=/tmp/suppressions ./freedink -window -nosound
+
+
+Use with Autotools
+==================
+
+CFLAGS default to "-O2 -g", but Valgrind does not recommend using
+-O2. The simplest way to avoid that is passing CFLAGS to ./configure
+(not to 'make', since it would also erase the SDL include path)::
+
+ CFLAGS="-g" ./configure

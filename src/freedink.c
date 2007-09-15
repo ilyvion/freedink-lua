@@ -25,6 +25,8 @@
 #define NAME "GNU FreeDink"
 #define TITLE "GNU FreeDink"
 
+#include <config.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
