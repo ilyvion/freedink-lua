@@ -20,9 +20,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <config.h>
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+
+#include "binreloc.h"
 
 /* Returns a pointer to the end of the current path element (file or
    directory) */
@@ -149,6 +154,77 @@ ciconvertbuf (const char *filename, char* buf)
   return ciconvert(buf);
 }
 
+/* Does this file exist and can be opened? */
+int exist(char name[255])
+{
+  char tmp_filename[PATH_MAX];
+
+  FILE *fp;
+  fp = fopen(ciconvertbuf(name, tmp_filename), "rb");
+  if (!fp)
+    return 0;
+  
+  fclose(fp);
+  return 1;
+}
+
+
+/* Try different options to get a data file, such as the default font,
+   the application icon, etc. */
+/* datadir + "/" + PACKAGE + "/" + filename */
+char *
+find_data_file(const char *filename)
+{
+  char *dir = NULL;
+  char *retpath = malloc(1);
+
+  /* Try dirname(executable)/../share or dirname(executable)/share */
+#ifdef _WIN32
+  {
+    /* Get executable's directory */
+    char myself[MAX_PATH];
+    int success = GetModuleFilename(NULL, myself, MAX_PATH);
+    if (success)
+      {
+	int len = strlen(myself);
+	char *pc = myself + len;
+	while (--pc >= myself && *pc != '/');
+	if (*pc == '/')
+	  {
+	    *pc = '\0';
+	    dir = myself;
+	  }
+      }
+  }
+#else
+  dir = br_find_data_dir(DATADIR);
+#endif
+  if (dir != NULL)
+    {
+      retpath = (char*) realloc(retpath, strlen(dir) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
+      sprintf(retpath, "%s/%s/%s", dir, PACKAGE, filename);
+      if (exist(retpath))
+	{
+	  free(dir);
+	  return retpath;
+	}
+    }
+
+  /* Try compile-time DATADIR */
+  retpath = (char*) realloc(retpath, strlen(DATADIR) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
+  sprintf(retpath, "%s/%s/%s", DATADIR, PACKAGE, filename);
+  if (exist(retpath))
+    return retpath;
+
+  /* Try . */
+  retpath = (char*) realloc(retpath, strlen(".") + 1 + strlen(filename) + 1);
+  sprintf(retpath, "./%s", filename);
+  if (exist(retpath))
+    return retpath;
+  
+  free(retpath);
+  return NULL;
+}
 
 #ifdef TEST
 /* find ../.. -print0 | tr a-z A-Z | xargs -0 ./a.out */

@@ -933,21 +933,6 @@ void TRACE(char *fmt, ...)
 /* } */
 
 
-/*bool*/int exist(char name[255])
-{
-  char tmp_filename[PATH_MAX];
-
-  FILE *fp;
-  fp = fopen(ciconvertbuf(name, tmp_filename), "rb");
-  if (!fp)
-    return /*false*/0;
-  
-  fclose(fp);
-  return /*true*/1;
-}
-
-
-
 void add_text(char *tex ,char *filename)
 {
   char tmp_filename[PATH_MAX];

@@ -5584,15 +5584,14 @@ void finiObjects()
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 } /* finiObjects */
 
-/*BOOL*/int initFail(char mess[200])
+
+int initFail(char mess[200])
 {
-/* 	MessageBox( hwnd, mess, TITLE, MB_OK ); */
-  printf("%s\n", mess);
-	finiObjects();
-//	DestroyWindow( hwnd );
-	return /*FALSE*/0;
-	
-} /* initFail */
+  /* MessageBox( hwnd, mess, TITLE, MB_OK); */
+  fprintf(stderr, "%s\n", mess);
+  finiObjects();
+  return 0; /* used when "return initFail(...);" */
+}
 
 
 /* long */
@@ -6128,8 +6127,18 @@ static int doInit(int argc, char *argv[])
 	
 /*   initfonts("Arial"); */
   // FONTS
-  FONTS_initfonts("../LiberationSans-Regular.ttf");
-  /* FONTS_initfonts("C:/WINNT/FONTS/Arialbd.ttf"); */
+  {
+    char *font_file = find_data_file("LiberationSans-Regular.ttf");
+    if (font_file != NULL)
+      {
+	FONTS_initfonts(font_file);
+	free(font_file);
+      }
+    else
+      {
+	return initFail("Could not find LiberationSans-Regular.ttf");
+      }
+  }
 
   return 1;
 } /* doInit */

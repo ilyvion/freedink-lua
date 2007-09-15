@@ -35,8 +35,9 @@ extern "C"
 {
 #endif
 
-char* ciconvert (char *filename);
-char* ciconvertbuf (const char *filename, char *buf);
+  char* ciconvert (char *filename);
+  char* ciconvertbuf (const char *filename, char *buf);
+  char *find_data_file(const char *filename);
 
 #ifdef __cplusplus
 }

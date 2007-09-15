@@ -21,7 +21,10 @@
  * 02110-1301, USA.
  */
 
+#include <config.h>
+
 #include <stdlib.h>
+#include "binreloc.h"
 #include "SDL.h"
 #include "SDL_ttf.h"
 /* Msg */
@@ -33,7 +36,17 @@
 /* The goal is to replace freedink and freedinkedit's doInit() by a
    common init procedure. This procedure will also initialize each
    subsystem as needed (eg InitSound) */
-int init(void) {
+int init(void)
+{
+  /* BinReloc */
+  BrInitError error;
+  if (br_init (&error) == 0 && error != BR_INIT_ERROR_DISABLED)
+    {
+      printf ("Warning: BinReloc failed to initialize (error code %d)\n", error);
+      printf ("Will fallback to hardcoded default path.\n");
+    }
+  
+  /* SDL */
   /* Init timer subsystem */
   if (SDL_Init(SDL_INIT_TIMER) == -1)
     {
@@ -50,14 +63,20 @@ int init(void) {
     }
 
   {
-    SDL_Surface *icon;
-    SDL_WM_SetCaption("GNU FreeDink", NULL);
-    if ((icon = SDL_LoadBMP("../dink.bmp")) == NULL)
-      fprintf(stderr, "Error loading ../dink.bmp\n");
-    else
+    char *icon_file;
+    SDL_WM_SetCaption(PACKAGE_STRING, NULL);
+
+    if ((icon_file = find_data_file("dink.bmp")) != NULL)
       {
-	SDL_WM_SetIcon(icon, NULL); /* TODO: support transparency */
-	SDL_FreeSurface(icon);
+	SDL_Surface *icon;
+	if ((icon = SDL_LoadBMP(icon_file)) == NULL)
+	  fprintf(stderr, "Error loading %s: %s\n", icon_file, SDL_GetError());
+	else
+	  {
+	    SDL_WM_SetIcon(icon, NULL); /* TODO: support transparency */
+	    SDL_FreeSurface(icon);
+	  }
+	free(icon_file);
       }
   }
 
@@ -145,6 +164,7 @@ int init(void) {
   atexit(SDL_Quit);
 
 
+  /* Engine */
   /* Clean the game state structure - done by C++ but not
      automatically done by C, and this causes errors. TODO: fix the
      errors properly instead of using this dirty trick. */
