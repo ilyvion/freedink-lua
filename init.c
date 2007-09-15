@@ -27,6 +27,7 @@
 /* Msg */
 #include "dinkvar.h"
 #include "gfx.h"
+#include "input.h"
 #include "init.h"
 
 /* The goal is to replace freedink and freedinkedit's doInit() by a
@@ -54,7 +55,10 @@ int init(void) {
     if ((icon = SDL_LoadBMP("../dink.bmp")) == NULL)
       fprintf(stderr, "Error loading ../dink.bmp\n");
     else
-      SDL_WM_SetIcon(icon, NULL); /* TODO: support transparency */
+      {
+	SDL_WM_SetIcon(icon, NULL); /* TODO: support transparency */
+	SDL_FreeSurface(icon);
+      }
   }
 
   /* TODO: is that portable? */
@@ -86,9 +90,6 @@ int init(void) {
 
   // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
   // doInit()
-
-  /* Maybe use SDL_QuitSubSystem instead */
-  atexit(SDL_Quit);
 
   /* Hide mouse */
   SDL_ShowCursor(SDL_DISABLE);
@@ -136,55 +137,21 @@ int init(void) {
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
 
-  /* JOY */
-  /* Joystick initialization never makes Dink fail for now. */
-  /* Note: joystick is originaly only used by the game, not the
-     editor. */
-  if (joystick == 1)
-    {
-      if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
-	{
-	  Msg("Error initializing joystick, skipping: %s\n", SDL_GetError());
-	  joystick = 0;
-	}
-      else
-	{
-	  /* first tests if a joystick driver is present */
-	  /* if TRUE it makes certain that a joystick is plugged in */
-	  if (SDL_NumJoysticks() > 0)
-	    {
-	      int i;
-	      printf("%i joysticks were found.\n", SDL_NumJoysticks());
-	      printf("The names of the joysticks are:\n");
-	      for (i=0; i < SDL_NumJoysticks(); i++)
-		printf("    %s\n", SDL_JoystickName(i));
-	      printf("Picking the first one...\n", SDL_NumJoysticks());
-	      jinfo = SDL_JoystickOpen(0);
-	      /* Don't activate joystick events, Dink polls joystick
-		 manually. */
-	      /* SDL_JoystickEventState(SDL_ENABLE); */
-	      
-	      if (jinfo) {
-		printf("Name: %s\n", SDL_JoystickName (0));
-		printf("Number of axes: %d\n", SDL_JoystickNumAxes(jinfo));
-		printf("Number of buttons: %d\n", SDL_JoystickNumButtons(jinfo));
-		printf("Number of balls: %d\n", SDL_JoystickNumBalls(jinfo));
-		printf("Number of hats: %d\n", SDL_JoystickNumHats(jinfo));
-		
-		/* Flush stacked joystick events */
-		{
-		  SDL_Event event;
-		  while (SDL_PollEvent(&event));
-		}
-		
-		joystick = 1;
-	      } else {
-		printf("Couldn't open Joystick 0");
-		joystick = 0;
-	      }
-	    }
-	}
-    }
+  /* Joystick */
+  input_init();
+
+
+  /* Maybe use SDL_QuitSubSystem instead */
+  atexit(SDL_Quit);
+
+
+  /* Clean the game state structure - done by C++ but not
+     automatically done by C, and this causes errors. TODO: fix the
+     errors properly instead of using this dirty trick. */
+  memset(&play, 0, sizeof(play));
+
+  memset(&hmap, 0, sizeof(hmap));
+  memset(&pam, 0, sizeof(pam));
 
   return 1;
 }

@@ -90,8 +90,8 @@
 
 //Dinkedit-only vars
 
-map_info buffmap;
-bool buf_mode = false;
+struct map_info buffmap;
+/*bool*/int buf_mode = /*false*/0;
 char buf_path[100];
 int buf_map = 0;
 
@@ -114,7 +114,7 @@ int sp_sound = 0;
 int sp_type = 1;
 int sp_prop = 0;
 int sp_warp_map = 0;
-bool show_display = true;
+/*bool*/int show_display = /*true*/1;
 int sp_picker = 0;
 int sp_nohit = 0;
 int sp_touch_damage = 0;
@@ -174,7 +174,7 @@ int speed;
 
 /*BOOL*/int initFail(char mess[200] );
 
-bool getkey(int key);
+/*bool*/int getkey(int key);
 char key_convert(int key);
 
 void draw_map(void);
@@ -438,20 +438,21 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 		int sprite;
 		int que;
 	int highest_sprite;
-	/*BOOL*/int bs[max_sprites_at_once];
-	int rank[max_sprites_at_once];
-
+	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
+	int rank[MAX_SPRITES_AT_ONCE];
+	int r1;
 	
 	memset(&bs,0,sizeof(bs));
 		
-		for (int r1 = 1; r1 < 100; r1++)
+		for (r1 = 1; r1 < 100; r1++)
 		{
+		  int h1;
 			
 			highest_sprite = 2000; //more than it could ever be
 			
 			rank[r1] = 0;
 			
-			for (int h1 = 1; h1 < 100;  h1++)
+			for (h1 = 1; h1 < 100;  h1++)
 			{
 					if (bs[h1] == /*FALSE*/0)
 					{
@@ -480,20 +481,20 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
      
 
 		
-		int j;
+		int j, oo;
 		
-		for (int oo =1; rank[oo] > 0; oo++)
+		for (oo =1; rank[oo] > 0; oo++)
 		{
 //Msg("O				k, rank[%d] is %d.",oo,rank[oo]);		
 			j = rank[oo];
 				
-			if (j >= max_sprites_at_once)
+			if (j >= MAX_SPRITES_AT_ONCE)
 			{
           j = 1;
 		  Msg("Trying to process sprite %d, why?",j);
 			}
 			
-			if (pam.sprite[j].active == true) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == map_vision))
+			if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == map_vision))
 			{
 				//we have instructions to make a sprite
 
@@ -524,7 +525,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 				}
 				
 				
-				spr[sprite].active = false;
+				spr[sprite].active = /*false*/0;
 				}
 				
 				if (pam.sprite[j].type == 1)
@@ -567,6 +568,7 @@ void draw_map(void)
 {
   rect rcRect;
   int pa, cool,crap;   
+  int x;
   
   /* Replaced by a call to fill_screen(0) */
   fill_screen(0);
@@ -581,7 +583,7 @@ void draw_map(void)
   
   while (kill_last_sprite()); 
   
-  for (int x=0; x<96; x++)
+  for (x = 0; x < 96; x++)
     {
       cool = pam.t[x].num / 128;
       pa = pam.t[x].num - (cool * 128);
@@ -643,10 +645,11 @@ void draw_current( void)
 void draw_hard( void)
 {
  //RECT                rcRect;
- 
-  for (int x=0; x<50; x++)
+  int x;
+  for (x = 0; x < 50; x++)
     {
-      for (int y=0; y<50; y++)
+      int y;
+      for (y = 0; y < 50; y++)
 	{
 	  /* red */
 	  if (hmap.tile[hard_tile].x[x].y[y] == 1)
@@ -695,9 +698,10 @@ void draw_hard( void)
 
 
 void
-draw_this_map(map_info* pmap)
+draw_this_map(struct map_info* pmap)
 {
-  for (int x=0; x<768; x++)
+  int x;
+  for (x = 0; x < 768; x++)
     {
       /* Blue square - unused screen */
       if (pmap->loc[x+1] == 0)
@@ -782,7 +786,7 @@ void draw_used(void)
 
 
 
-bool load_map_buf(const int num)
+/*bool*/int load_map_buf(const int num)
 {
 FILE *          fp;
 long holdme,lsize;
@@ -795,7 +799,7 @@ sprintf(crap, "%sMAP.DAT", buf_path);
 			 if (!fp)
 			 {
               Msg("Cannot find MAP.DAT file!!!");
-			 return(false);
+			 return(/*false*/0);
 			 }
 			 lsize = sizeof(struct small_map);
 			 holdme = (lsize * (num-1));
@@ -805,7 +809,7 @@ sprintf(crap, "%sMAP.DAT", buf_path);
 			 //Msg("Read %d bytes.",shit);
 			 fclose(fp);
 
-return(true);
+return(/*true*/1);
 	}
 
 void load_info_buff(void)
@@ -821,11 +825,11 @@ char crap[120];
 	       Msg("World data loaded."); 
       	fread(&buffmap,sizeof(struct map_info),1,fp);
    	 fclose(fp);
-				buf_mode = true;
+				buf_mode = /*true*/1;
 				} else
 				{
         Msg("World not found in %s.", buf_path);
-		buf_mode = false;
+		buf_mode = /*false*/0;
 				}
 
 }
@@ -886,13 +890,14 @@ return(now);
 /* Set the keyboard state in sjoy */
 void check_keyboard(void)
 {
+  int x;
   /* GetKeyboard (which calls W32API's GetAsyncKeyState) returns a
      combined value in a short int; the most-significant bit indicates
      if the key is currently pressed; the least significant bit
      indicates if the key was pressed since the last call. */
   
   /* Check if the key was just pressed, or only maintained pressed */
-  for (int x=1; x <=255; x++)
+  for (x = 1; x <= 255; x++)
     {
       /* Put the current keyboard state in cache */
       /* getkey() then can check sjoy.realkey - that is, from the cache */
@@ -921,9 +926,12 @@ void check_joystick(void)
 
 int ddrval;
 int total;
+int e2;
+ int x5, x, x2;
+
 //memset(&sjoy,0,sizeof(sjoy));
 
-      for (int e2=1; e2 <=10; e2++) 
+      for (e2 = 1; e2 <= 10; e2++) 
 	  {
 		  sjoy.joybit[e2] = /*FALSE*/0;
 	  	  
@@ -1021,25 +1029,26 @@ if (GetKeyboard(SDLK_TAB /* 9 */)) sjoy.joybit[5] = /*TRUE*/1; //tab
 
 
 
-for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = /*FALSE*/0; 
-	
+ for (x5 = 1; x5 <= 10; x5++)
+   sjoy.button[x5] = /*FALSE*/0; 
+
 	  
-	  for (int x=1; x <=10; x++)
-			 
-		 {
-		 if (sjoy.joybit[x])
-		 {
-			 if (sjoy.letgo[x] == /*TRUE*/1) 
-			 {
+ for (x=1; x <=10; x++)
+   
+   {
+     if (sjoy.joybit[x])
+       {
+	 if (sjoy.letgo[x] == /*TRUE*/1) 
+	   {
 			 sjoy.button[x] = /*TRUE*/1;
 			 sjoy.letgo[x] = /*FALSE*/0;
-			 }
-			
-		 }
-		 }
+	   }
+	 
+       }
+   }
 
 
-for (int x2=1; x2 <=10; x2++) 
+for (x2 = 1; x2 <= 10; x2++) 
 	  {
 		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
 	  	  
@@ -1102,7 +1111,8 @@ int sp_get( int num)
 {
 	
 int t = 1;
-	for (int j=1; j < max_sequences; j++)
+ int j;
+	for (j = 1; j < MAX_SEQUENCES; j++)
 	{
      check_frame_status(j, 1);
 		
@@ -1138,7 +1148,8 @@ static void draw_sprite_picker_grid(void)
 /*   ddbltfx.dwSize = sizeof(ddbltfx); */
 
   /* Draw vertical lines */
-  for (int x2=1; x2 <= 12; x2++)
+  int x2, x3;
+  for (x2 = 1; x2 <= 12; x2++)
     {
 /*       ddbltfx.dwFillColor = 120; */
       
@@ -1158,7 +1169,7 @@ static void draw_sprite_picker_grid(void)
     }
   
   /* Draw horizontal lines */
-  for (int x3=1; x3 <= 8; x3++)
+  for (x3 = 1; x3 <= 8; x3++)
     {
 /*       ddbltfx.dwFillColor = 120; */
 
@@ -1188,7 +1199,7 @@ void draw15(int num)
   int frame,ddrval;
   int se;
   int dd;	
-  
+  int x1;
   //get_sp_seq(2);
   
   while(kill_last_sprite());
@@ -1209,9 +1220,10 @@ void draw15(int num)
   flip_it_second();
   
   /* Draw sprites */
-  for (int x1=0; x1 <= 11; x1++)
+  for (x1 = 0; x1 <= 11; x1++)
     {
-      for (int y1=0; y1 <= 7; y1++)
+      int y1;
+      for (y1=0; y1 <= 7; y1++)
 	{
 	  num++;
 	  
@@ -1273,7 +1285,8 @@ void draw96(int def)
   int frame,ddrval;
   int se;
   int dd;	
-  
+  int x1;
+
   //get_sp_seq(2);
   se = sp_seq;
   check_seq_status(se);
@@ -1290,9 +1303,10 @@ void draw96(int def)
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
   
-  for (int x1=0; x1 <= 11; x1++)
+  for (x1=0; x1 <= 11; x1++)
     {
-      for (int y1=0; y1 <= 7; y1++)
+      int y1;
+      for (y1=0; y1 <= 7; y1++)
 	{
 	  num++;
 	  if (seq[se].frame[num] == 0)
@@ -1354,14 +1368,15 @@ void draw96(int def)
 
 void sp_add( void )
 {
-	for (int j =1; j < 100; j++)
+  int j;
+	for (j = 1; j < 100; j++)
 	{
-		if (pam.sprite[j].active == false)
+		if (pam.sprite[j].active == /*false*/0)
 		{
 		  
 			last_sprite_added = j;
 			//Msg("Adding sprite %d, seq %d, frame %d.",j,sp_seq,sp_frame);
-			pam.sprite[j].active = true;
+			pam.sprite[j].active = /*true*/1;
             pam.sprite[j].frame = sp_frame;
             pam.sprite[j].seq = sp_seq;
 			pam.sprite[j].x = spr[1].x;
@@ -1964,7 +1979,7 @@ if (in_master == 34)
 old_command = in_master;
 
 in_master = 0;	
-in_onflag = true;
+in_onflag = /*true*/1;
 
 	
 }
@@ -1972,9 +1987,11 @@ in_onflag = true;
 //this changes all none 0 blocks in this tile to num
 void change_tile(int tile, int num)
 {
-	for (int x = 0; x < 50; x++)
+  int x;
+	for (x = 0; x < 50; x++)
 	{
-		for (int y = 0; y < 50; y++)
+	  int y;
+		for (y = 0; y < 50; y++)
 		{
 			
 			
@@ -2096,7 +2113,7 @@ void  Scrawl_OnMouseInput(void)
   SDL_Event event;
   int dx, dy;
 
-  mouse1 = false;
+  mouse1 = /*false*/0;
   if (mode != 6) return;
 
   SDL_PumpEvents();
@@ -2110,7 +2127,7 @@ void  Scrawl_OnMouseInput(void)
     {
       SDL_MouseButtonEvent *button_event = (SDL_MouseButtonEvent*)&event;
       if (button_event->button == SDL_BUTTON_LEFT)
-	mouse1 = true;
+	mouse1 = /*true*/1;
     }
   return;
 
@@ -2296,10 +2313,11 @@ rect box;
 /*                DDBLTFX     ddbltfx; */
 /* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /* ddbltfx.dwSize = sizeof( ddbltfx); */
-
-	for (int x = 0; x < 50; x++)
+ int x;
+	for (x = 0; x < 50; x++)
 		{
-			for (int y = 0; y < 50; y++)
+		  int y;
+			for (y = 0; y < 50; y++)
 			{
 				
 				
@@ -2359,18 +2377,21 @@ void updateFrame(void)
   int xx;
 /*   DDBLTFX     ddbltfx; */
   /*BOOL*/int kickass,cool;
-  /*BOOL*/int bs[max_sprites_at_once];
+  /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
 	
-  int rank[max_sprites_at_once];
+  int rank[MAX_SPRITES_AT_ONCE];
   int highest_sprite;
   int crap;
+
+  int jj;
+
   // Decide which frame will be blitted next
   thisTickCount = SDL_GetTicks();
   strcpy(buff,"Nothing");
   state[1] = 0;  
   check_joystick();	
   Scrawl_OnMouseInput();
-  kickass = false;
+  kickass = /*false*/0;
   rcRect.left = 0;
   rcRect.top = 0;
   rcRect.right = x;
@@ -2459,15 +2480,16 @@ void updateFrame(void)
   if (mode == MODE_SCREEN_SPRITES) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
 	
   if (!in_enabled)
-
-    for (int r1 = 1; r1 < max_s+1; r1++)
+    {
+      int r1;
+    for (r1 = 1; r1 < max_s+1; r1++)
       {
-			
+	int h1;		
 	highest_sprite = 22024; //more than it could ever be
 			
 	rank[r1] = 0;
 			
-	for (int h1 = 1; h1 < max_s+1; h1++)
+	for (h1 = 1; h1 < max_s+1; h1++)
 	  {
 	    if (spr[h1].active)
 	      { 
@@ -2489,14 +2511,15 @@ void updateFrame(void)
 	if (rank[r1] != 0)	
 	  bs[rank[r1]] = /*TRUE*/1;
       }
+    }
 		
 
 
 						
 
   if (!in_enabled)
-	
-    for (int jj = 1; jj < max_s; jj++)
+    
+    for (jj = 1; jj < max_s; jj++)
       {
 	
 	int h = rank[jj];
@@ -2817,7 +2840,7 @@ void updateFrame(void)
 
 			if (sjoy.key['m'])
 			  {
-			    if (sp_screenmatch) sp_screenmatch = false; else sp_screenmatch = true;
+			    if (sp_screenmatch) sp_screenmatch = /*false*/0; else sp_screenmatch = /*true*/1;
 			  }
                
 
@@ -2977,14 +3000,14 @@ void updateFrame(void)
 			  {
 			    //no sprite is currently selected
 					
+			    int max_spr = 0;
+			    int jj;
 
 			    write_moves();
 
 
 
-
-			    int max_spr = 0;
-			    for (int jj=1; jj < 100; jj++)
+			    for (jj=1; jj < 100; jj++)
 			      {
 				if ( pam.sprite[jj].active) if (pam.sprite[jj].vision == map_vision) max_spr++;
 			      }
@@ -3023,8 +3046,9 @@ void updateFrame(void)
 			      { 
 				//lets draw a frame around the sprite we want
 				int dumbpic = 0;
+				int jh;
 				realpic = 0;
-				for (int jh=1; dumbpic != sp_cycle; jh++)
+				for (jh = 1; dumbpic != sp_cycle; jh++)
 				  {
 				    if (pam.sprite[jh].active)  if ( pam.sprite[jh].vision == map_vision)
 								  {
@@ -3104,7 +3128,7 @@ void updateFrame(void)
 
 				//	if (ddrval != DD_OK) dderror(ddrval);
 
-				spr[sprite].active = false;
+				spr[sprite].active = /*false*/0;
 				
 			      }
 
@@ -3114,9 +3138,9 @@ void updateFrame(void)
 			    if ( (sjoy.button[2]) | (mouse1))
 			      {
 				//pick up a sprite already placed by hitting enter
-							
+				int uu;
 
-				for (int uu = 100; uu > 0; uu--)
+				for (uu = 100; uu > 0; uu--)
 				  {
 				    if ( pam.sprite[uu].active) if ( ( pam.sprite[uu].vision == 0) || (pam.sprite[uu].vision == map_vision))
 								  {
@@ -3181,12 +3205,12 @@ void updateFrame(void)
 									sp_strength = pam.sprite[uu].strength;	
 									sp_sound = pam.sprite[uu].sound;	
 							
-									pam.sprite[uu].active = false; //erase sprite
+									pam.sprite[uu].active = /*false*/0; //erase sprite
 									draw_map();
-									spr[sprite].active = false;
+									spr[sprite].active = /*false*/0;
 									break;
 								      }
-								    spr[sprite].active = false;
+								    spr[sprite].active = /*false*/0;
 				
 								  }
 				  }
@@ -3197,9 +3221,10 @@ void updateFrame(void)
 							
 			    if ((SDL_GetModState()&KMOD_ALT) & (GetKeyboard(SDLK_DELETE /* 46 */)))
 			      {
-				for (int ll = 1; ll < 100; ll++)
+				int ll;
+				for (ll = 1; ll < 100; ll++)
 				  { 
-				    pam.sprite[ll].active = false;
+				    pam.sprite[ll].active = /*false*/0;
 				  }
 				draw_map();
 				rect_set(&spr[h].alt,0,0,0,0);
@@ -3744,10 +3769,11 @@ void updateFrame(void)
 			//change a piece to hard
 			if (  GetKeyboard('z'))
 			  { 
-								
-			    for (int y = 0; y < sely; y++)
+			    int y;
+			    for (y = 0; y < sely; y++)
 			      {
-				for (int x = 0; x < selx; x++)
+				int x;
+				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
 										
@@ -3759,10 +3785,11 @@ void updateFrame(void)
 			//change a piece to soft
 			if (GetKeyboard('x'))
 			  { 
-								
-			    for (int y = 0; y < sely; y++)
+			    int y;
+			    for (y = 0; y < sely; y++)
 			      {
-				for (int x = 0; x < selx; x++)
+				int x;
+				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
 										
@@ -3802,10 +3829,11 @@ void updateFrame(void)
 
                         if (GetKeyboard('a'))
 			  { 
-								
-			    for (int y = 0; y < sely; y++)
+			    int y;
+			    for (y = 0; y < sely; y++)
 			      {
-				for (int x = 0; x < selx; x++)
+				int x;
+				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
 										
@@ -3815,10 +3843,11 @@ void updateFrame(void)
 			  }
                         if (GetKeyboard('s'))
 			  { 
-								
-			    for (int y = 0; y < sely; y++)
+			    int y;
+			    for (y = 0; y < sely; y++)
 			      {
-				for (int x = 0; x < selx; x++)
+				int x;
+				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
 										
@@ -3918,8 +3947,8 @@ void updateFrame(void)
 			    if (hmap.index[cur_tile] == 0)
 			      {
 			
-			
-				for (int j = 1; j < 799; j++)
+				int j;
+				for (j = 1; j < 799; j++)
 				  {
 				    if (hmap.tile[j].used == /*FALSE*/0)
 				      {
@@ -4075,7 +4104,7 @@ void updateFrame(void)
 
 		    if ((GetKeyboard('s')) && (mode == MODE_SCREEN_TILES))
 		      {
-	
+			int y;
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			//EditorSoundPlayEffect( SOUND_JUMP );
@@ -4083,9 +4112,10 @@ void updateFrame(void)
 	
 			pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num = cur_tile;
 	
-			for (int y = 0; y < sely; y++)
+			for (y = 0; y < sely; y++)
 			  {
-			    for (int x = 0; x < selx; x++)
+			    int x;
+			    for (x = 0; x < selx; x++)
 			      {
 				holdx = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 				holdx += (y * 12);
@@ -4210,7 +4240,7 @@ void updateFrame(void)
 		      {
 			load_info();
 			draw_used();
-			buf_mode = false;
+			buf_mode = /*false*/0;
 
 		      }
 
@@ -4244,7 +4274,7 @@ void updateFrame(void)
 			  {
 			    //lets replace this screen
  
-			    buf_mode = false;
+			    buf_mode = /*false*/0;
 	
 		
 			    if (!load_map_buf(buffmap.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]))
@@ -4252,7 +4282,7 @@ void updateFrame(void)
 
 
 				draw_used();
-				sjoy.button[2] = false;
+				sjoy.button[2] = /*false*/0;
 				return;
 			      }
 	  
@@ -4496,7 +4526,7 @@ void updateFrame(void)
 		
 			    kickass = /*TRUE*/1;
           
-			    hmap.tile[hard_tile].used = true;
+			    hmap.tile[hard_tile].used = /*true*/1;
 			    last_modereal = 8;
 			  }
 
@@ -4746,9 +4776,11 @@ void updateFrame(void)
 		  {
 		    /* Draw the tile squares selector, an expandable
 		       array of white non-filled squares */
-		    for (int y = 0; y < sely; y++)
+		    int y;
+		    for (y = 0; y < sely; y++)
 		      {
-			for (int x = 0; x < selx; x++)
+			int x;
+			for (x = 0; x < selx; x++)
 			  {
 						
 /* 			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k, */
@@ -4769,9 +4801,11 @@ void updateFrame(void)
 		if ( (mode == MODE_TILE_HARDNESS))
 		  {
 		    /* Display the current "pencil"/square to draw hardness with */
-		    for (int yy = 0; yy < sely; yy++)
+		    int yy;
+		    for (yy = 0; yy < sely; yy++)
 		      {
-			for (int xx = 0; xx < selx; xx++)
+			int xx;
+			for (xx = 0; xx < selx; xx++)
 			  {
 						
 /* 			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k, */
@@ -4966,14 +5000,16 @@ void updateFrame(void)
 		  "  DEL to remove alternate hardness.  C to copy from current block. [ & ] to cycle.  ESCAPE to exit.");
 	}
 
-
-      for (int x=0; x<256; x++)
-	{ 
-	  if (GetKeyboard(x))
-	    {
-	      sprintf(msg, "%s (Key %i)",msg,x);
-	    }
-	}
+      {
+	int x;
+	for (x = 0; x < 256; x++)
+	  { 
+	    if (GetKeyboard(x))
+	      {
+		sprintf(msg, "%s (Key %i)",msg,x);
+	      }
+	  }
+      }
       rcRect.left = 0;
       rcRect.top = 400;
       if (mode == MODE_TILE_HARDNESS) rcRect.top = 450;
@@ -4996,8 +5032,8 @@ void updateFrame(void)
   if ( (mode == MODE_MAP_PICKER) )
     {
 
-      if (sjoy.key['z']) if (show_display) show_display = false; else
-	  show_display = true;
+      if (sjoy.key['z']) if (show_display) show_display = /*false*/0; else
+	  show_display = /*true*/1;
 
     }
 
@@ -5007,9 +5043,10 @@ void updateFrame(void)
       /* Show sprites info */
       if (sjoy.realkey['i'])
 	{
-	  for (int j =1; j < 100; j++)
+	  int j;
+	  for (j = 1; j < 100; j++)
 	    {
-	      if (pam.sprite[j].active == true)
+	      if (pam.sprite[j].active == /*true*/1)
 		{
          
 /* 		  ddbltfx.dwSize = sizeof(ddbltfx); */
@@ -5026,7 +5063,7 @@ void updateFrame(void)
 				
 		  get_box(sprite2, &box_crap, &box_real);
                                 
-		  spr[sprite2].active = false;
+		  spr[sprite2].active = /*false*/0;
 
 		  //box_crap.top = box_crpam.sprite[j].y - 25;
 		  box_crap.bottom = box_crap.top + 50;
@@ -5281,7 +5318,7 @@ void updateFrame(void)
 
 	    }
 		
-	  in_enabled = false;
+	  in_enabled = /*false*/0;
 		
 	  if (mode == MODE_MAP_PICKER) if (old_command == 30)
 					 {
@@ -5321,17 +5358,20 @@ void updateFrame(void)
 
 
       if (in_max > strlen(in_temp))
-	for (int x=32; x<255; x++)
-	  {
-	    if (sjoy.key[x])
-									
-	      {
-		int key = key_convert(x);
-								
-		sprintf(in_temp, "%s%c",in_temp,key);
-				                    
-	      }
-	  }
+	{
+	  int x;
+	  for (x = 32; x < 255; x++)
+	    {
+	      if (sjoy.key[x])
+		
+		{
+		  int key = key_convert(x);
+		  
+		  sprintf(in_temp, "%s%c",in_temp,key);
+		
+		}
+	    }
+	}
       Say(in_temp,260,200);
 
     }
@@ -5358,8 +5398,8 @@ void updateFrame(void)
       strcpy(in_temp,in_default);
       in_x = 270;
       in_y = 190;
-      in_onflag = false;
-      in_enabled = true;
+      in_onflag = /*false*/0;
+      in_enabled = /*true*/1;
          
 
 
@@ -5575,27 +5615,28 @@ if (sound_on)
   
 
   
-bool check_arg(int argc, char *argv[])
+/*bool*/int check_arg(int argc, char *argv[])
 {
 	  char shit[200];
-	  
+	  int i;
+
 	  //	strupr(crap);
 	  strcpy(dir, "dink");
-	  for (int i=1; i < argc; i++)
+	  for (i = 1; i < argc; i++)
 	  {
 /* 		  separate_string(crap, i,' ',shit); */
 	    strcpy(shit, argv[i]);
 
 		  if (strncasecmp(shit,"-window",strlen("-window")) == 0)
 		  {
-			  windowed = true;
+			  windowed = /*true*/1;
 			  
 		  }
 
          if (strncasecmp(shit,"-debug",strlen("-debug")) == 0)
 		  {
 			 remove("debug.txt"); 
-			 debug_mode = true;
+			 debug_mode = /*true*/1;
 			  
 		  }
 
@@ -5609,7 +5650,7 @@ bool check_arg(int argc, char *argv[])
 		  
 		  }
 
-if (strncasecmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = false;
+if (strncasecmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = /*false*/0;
 
 		  
 	  }
@@ -5622,7 +5663,7 @@ if (chdir(dir) == -1)
 	TRACE(shit);
 }	  
  
-  return(true);
+  return(/*true*/1);
   }
   
 void load_batch(void)
@@ -5722,7 +5763,7 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	  */
 	  
 	  //initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
-dinkedit = true;
+       dinkedit = /*true*/1;
 
 /* 	  wc.style = CS_HREDRAW | CS_VREDRAW; */
 /* 	  wc.lpfnWndProc = WindowProc; */
@@ -5740,7 +5781,7 @@ dinkedit = true;
 	  * create a window
 	  */
 	  
-	  windowed = false;
+	  windowed = /*false*/0;
 	  check_arg(argc, argv);
 
 /* 	  if (windowed) */
@@ -5973,7 +6014,7 @@ dinkedit = true;
     }
 
 	  
-  memset(&hm, 0, sizeof(hit_map));
+  memset(&hm, 0, sizeof(struct hit_map));
 		
 	  
 		//return initFail(hwnd, "CHEESEBURGERS RULE!");
@@ -6108,20 +6149,23 @@ load_hard();
 // Load the tiles from the BMPs
  load_tiles();
 	
-	for (int i=1; i <= 4; i++)
-{
-spr[i].active = /*FALSE*/0;
-spr[i].x = 10;
-spr[i].y = 10;
-spr[i].my = (rand() % 3)+1;
-spr[i].mx = (rand() % 3)+1;
-spr[i].seq = 1;
-spr[i].speed = (rand() % 40)+1;
-spr[i].brain = 2;
-spr[i].pseq = 10;
-spr[i].pframe = 3;
-spr[i].size = 100;
-}
+ {
+   int i;
+   for (i = 1; i <= 4; i++)
+     {
+       spr[i].active = /*FALSE*/0;
+       spr[i].x = 10;
+       spr[i].y = 10;
+       spr[i].my = (rand() % 3)+1;
+       spr[i].mx = (rand() % 3)+1;
+       spr[i].seq = 1;
+       spr[i].speed = (rand() % 40)+1;
+       spr[i].brain = 2;
+       spr[i].pseq = 10;
+       spr[i].pframe = 3;
+       spr[i].size = 100;
+     }
+ }
 
 	// ** SETUP **
     spr[1].active = /*TRUE*/1;
@@ -6295,18 +6339,18 @@ int main(int argc, char *argv[])
       updateFrame();
     }
   
-  return(true); 
+  return(/*true*/1); 
 }
 
 
 /* Read key "is pressed?" status from cache */
-bool
+/*bool*/int
 getkey(int key)
 {
   if (sjoy.realkey[key])
-    return(true);
+    return(/*true*/1);
   else
-    return(false);      
+    return(/*false*/0);      
 }
 
 /* Human-readable representation of the keycode, used to display which

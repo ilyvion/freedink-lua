@@ -37,15 +37,15 @@ extern void button_brain(int h );
 extern void bounce_brain(int h);
 extern int check_if_move_is_legal(int u);
 extern void check_joystick(void);
-extern void did_player_cross_screen(bool real, int h);
+extern void did_player_cross_screen(/*bool*/int real, int h);
 extern void dragon_brain(int h);
 extern void drawscreenlock( void );
 extern void flip_it(void);
 extern void get_last_sprite(void);
 extern void human_brain(int h);
-extern bool in_this_base(int seq, int base);
+extern /*bool*/int in_this_base(int seq, int base);
 extern int initFail(char mess[200]);
-extern void missile_brain( int h, bool repeat);
+extern void missile_brain( int h, /*bool*/int repeat);
 extern void missile_brain_expire(int h);
 extern void mouse_brain(int h);
 extern void process_animated_tiles(void);
@@ -63,7 +63,7 @@ extern void repeat_brain(int h);
 /* extern HRESULT restoreAll( void ); */
 void restoreAll(void); 
 extern void run_through_tag_list(int h, int strength);
-extern bool run_through_tag_list_talk(int h);
+extern /*bool*/int run_through_tag_list_talk(int h);
 extern void run_through_touch_damage_list(int h);
 extern void scale_brain(int h);
 extern void shadow_brain(int h);
@@ -71,7 +71,7 @@ extern int special_block(int block, int h);
 extern void text_brain(int h);
 /* extern void text_draw(int h, HDC hdc); */
 extern void text_draw(int h);
-extern bool transition(void);
+extern /*bool*/int transition(void);
 extern void up_cycle(void);
 extern void finiObjects();
 

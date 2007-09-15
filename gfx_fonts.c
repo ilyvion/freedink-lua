@@ -213,7 +213,7 @@ print_text_wrap (char *str, rect * box,
       line += TTF_FontLineSkip (font);
       token = strtok (NULL, "\n");
     }
-
+  free(tmp);
   return line;
 }
 

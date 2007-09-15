@@ -121,7 +121,7 @@ int PlayMidi(char *sFileName)
   char midi_filename[256];
 
   /* no midi stuff right now */
-  if (sound_on == false)
+  if (sound_on == /*false*/0)
     return 1;
   
   /* Do nothing if the same midi is already playing */

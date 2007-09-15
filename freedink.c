@@ -67,6 +67,7 @@
 #include "resource.h"
 #include "init.h"
 #include "io_util.h"
+#include "input.h"
 #include "freedink.h"
 
 /* const int WM_IMDONE = WM_USER+110; */
@@ -93,7 +94,7 @@ int fps_show = 0;
 /* LPDIRECTDRAWCLIPPER lpClipper; */
 
 
-int drawthistime = true;
+int drawthistime = /*true*/1;
 int x = 640;
 int y = 480;
 rect                rc;
@@ -103,6 +104,182 @@ int winoffsetx = 5;
 int cx;
 int cy;
 int speed;
+
+
+
+
+/* Fills 'struct seth_joy sjoy' with the current keyboard and/or
+   joystick state */
+void check_joystick(void)
+{
+  /* Clean-up */
+  /* Buttons */
+  {
+    int e2;
+    for (e2=1; e2 <=10; e2++) 
+      sjoy.joybit[e2] = 0;
+  }
+  
+  /* Arrows*/
+  sjoy.right = 0;
+  sjoy.left = 0;
+  sjoy.up = 0;
+  sjoy.down = 0;
+
+  /* ? */
+  sjoy.rightd = 0;
+  sjoy.leftd = 0;
+  sjoy.upd = 0;
+  sjoy.downd = 0;
+	
+  if (joystick)
+    {
+      Sint16 x_pos, y_pos;
+      int i;
+      for (i = 0; i < 10; i++)
+	if (SDL_JoystickGetButton(jinfo, i))
+	  /* TODO: play.button ranges from 1 to 6, not 0 to 9
+	     (cf. Dink's ESCAPE.C) */
+	  sjoy.joybit[play.button[i+1]] = 1;
+
+	x_pos = SDL_JoystickGetAxis(jinfo, 0);
+	y_pos = SDL_JoystickGetAxis(jinfo, 1);
+	/* Using thresold=10% (original game) is just enough to get
+	   rid of the noise. Let's use 30% instead, otherwise Dink
+	   will go diags too easily. */
+	{
+	  Sint16 threshold = 32767 * 30/100;
+	  if (x_pos < -threshold) sjoy.left  = 1;
+	  if (x_pos > +threshold) sjoy.right = 1;
+	  if (y_pos < -threshold) sjoy.up    = 1;
+	  if (y_pos > +threshold) sjoy.down  = 1;
+	}
+    }
+  
+pass:
+  if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = 1;
+  if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = 1;
+  if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = 1;
+  if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = 1;
+  if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = 1;
+  if (GetKeyboard('6')) sjoy.joybit[6] = 1;
+  if (GetKeyboard('7')) sjoy.joybit[7] = 1;
+  
+  {
+    int x5;
+    int x;
+
+    for (x5 = 1; x5 <=10; x5++)
+      sjoy.button[x5] = 0;
+	
+    for (x = 1; x <= 10; x++)
+      {
+	if (sjoy.joybit[x])
+	  {
+	    if (sjoy.letgo[x] == 1)
+	      {
+		sjoy.button[x] = 1;
+		sjoy.letgo[x] = 0;
+	      }
+	  }
+      }
+  }
+  
+  if (GetKeyboard(SDLK_RIGHT)) sjoy.right = 1;
+  if (GetKeyboard(SDLK_LEFT)) sjoy.left = 1;
+  if (GetKeyboard(SDLK_DOWN)) sjoy.down = 1;
+  if (GetKeyboard(SDLK_UP)) sjoy.up = 1;
+  
+  {
+    int x2;
+    for (x2 = 1; x2 <= 10; x2++) 
+      if (sjoy.joybit[x2])
+	sjoy.letgo[x2] = 0;
+      else
+	sjoy.letgo[x2] = 1;
+  }
+  
+  if (sjoy.right && sjoy.rightold == 1)
+    {
+      sjoy.rightd = /*true*/1;
+      sjoy.rightold = /*false*/0;
+    }
+  
+  if (sjoy.right)
+    sjoy.rightold = /*false*/0;
+  else
+    sjoy.rightold = /*true*/1;
+	
+  if (sjoy.left && sjoy.leftold == 1)
+    {
+      sjoy.leftd = /*true*/1;
+      sjoy.leftold = /*false*/0;
+    }
+	
+  if (sjoy.left)
+    sjoy.leftold = /*false*/0;
+  else
+    sjoy.leftold = /*true*/1;
+  
+  if (sjoy.up && sjoy.upold == 1)
+    {
+      sjoy.upd = /*true*/1;
+      sjoy.upold = /*false*/0;
+    }
+  
+  if (sjoy.up)
+    sjoy.upold = /*false*/0;
+  else
+    sjoy.upold = /*true*/1;
+	
+  if (sjoy.down && sjoy.downold == 1)
+    {
+      sjoy.downd = /*true*/1;
+      sjoy.downold = /*false*/0;
+    }
+	
+  if (sjoy.down)
+    sjoy.downold = /*false*/0;
+  else
+    sjoy.downold = /*true*/1;
+  
+  
+  if (wait.active)
+    {
+      //check for dirs
+      
+      if (sjoy.rightd) wait.button = 16;
+      if (sjoy.leftd) wait.button = 14;
+      if (sjoy.upd) wait.button = 18;
+      if (sjoy.downd) wait.button = 12;
+      
+      sjoy.rightd = /*false*/0;
+      sjoy.downd = /*false*/0;
+      sjoy.upd = /*false*/0;
+      sjoy.leftd = /*false*/0;
+      
+      //check buttons
+      {
+	int ll;
+	for (ll=1; ll <= 10; ll++)
+	  {
+	    if (sjoy.button[ll])
+	      {
+		//button was pressed
+	      wait.button = ll;
+	      }
+	    sjoy.button[ll] = /*false*/0;
+	  }
+      }
+      
+      if (wait.button != 0)
+	{
+	  *presult = wait.button;
+	  wait.active = /*false*/0;
+	  run_script(wait.script);
+	}
+    }
+}
 
 
 /*
@@ -331,295 +508,21 @@ void restoreAll( void )
 
 void get_last_sprite(void)
 {
-	
-	for (int i = max_sprites_at_once - 1; i > 2; i--)
-	{
-		
-		if (spr[i].active)
-		{
-			last_sprite_created = i;
-			//   Msg("last sprite created is %d.", i);
-			return;
-		}
-	}
-}
-
-
-/*BOOL*/int keypressed(void)
-{
-  for (int x=0; x<256; x++)
+  int i;
+  for (i = MAX_SPRITES_AT_ONCE - 1; i > 2; i--)
     {
-      if (GetKeyboard(x))
+      if (spr[i].active)
 	{
-	  return(/*TRUE*/1);
+	  last_sprite_created = i;
+	  //   Msg("last sprite created is %d.", i);
+	  return;
 	}
     }
-  return(/*FALSE*/0);
 }
-
-
-
-void check_joystick(void)
-{
-	
-/* 	HRESULT ddrval; */
-	int total;
-	//memset(&sjoy,0,sizeof(sjoy));
-	
-	for (int e2=1; e2 <=10; e2++) 
-	{
-		sjoy.joybit[e2] = /*FALSE*/0;
-		
-	}
-	sjoy.right = /*FALSE*/0;
-	sjoy.left = /*FALSE*/0;
-	sjoy.up = /*FALSE*/0;
-	sjoy.down = /*FALSE*/0;
-	
-	sjoy.rightd = /*FALSE*/0;
-	sjoy.leftd = /*FALSE*/0;
-	sjoy.upd = /*FALSE*/0;
-	sjoy.downd = /*FALSE*/0;
-	
-	//joystick = false;
-	if (joystick)
-	{
-// 		memset(&jinfo,0,sizeof(JOYINFOEX));
-// 		jinfo.dwSize=sizeof(JOYINFOEX);
-// 		jinfo.dwFlags=JOY_RETURNALL;
-// 		ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
-
-// 		if (ddrval == JOYERR_UNPLUGGED) goto pass;
-		
-// 		total = jinfo.dwButtons;
-		
-// 		if ((total - 512) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[10]] = TRUE;
-// 			total = total - 512;
-// 		}
-		
-// 		if ((total - 256) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[9]] = TRUE;
-// 			total = total - 256;
-// 		}
-		
-// 		if ((total - 128) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[8]] = TRUE;
-// 			total = total - 128;
-// 		}
-		
-// 		if ((total - 64) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[7]] = TRUE;
-// 			total = total - 64;
-// 		}
-		
-// 		if ((total - 32) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[6]] = TRUE;
-// 			total = total - 32;
-// 		}
-		
-// 		if ((total - 16) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[5]] = TRUE;
-// 			total = total - 16;
-// 		}
-		
-// 		if ((total - 8) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[4]] = TRUE;
-// 			total = total - 8;
-// 		}
-		
-// 		if ((total - 4) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[3]] = TRUE;
-// 			total = total - 4;
-// 		}
-		
-// 		if ((total - 2) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[2]] = TRUE;
-// 			total = total - 2;
-// 		}
-		
-// 		if ((total - 1) >= 0)
-// 		{
-// 			sjoy.joybit[play.button[1]] = TRUE;
-// 			total = total - 1;
-// 		}
-	  // JOY
-	  {
-	    int i;
-	    for (i = 0; i < 10; i++)
-	      {
-		if (SDL_JoystickGetButton(jinfo, i))
-		  sjoy.joybit[play.button[i+1]] = 1;
-	      }
-	  }
-
-/* Afaics joyGetPosEx's positions range from 0 to 65535, center=32768
-   - with a calibrated joystick. SDL uses [-32768,32767], center=0. */
-
-// 		if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
-// 		if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
-// 		if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
-// 		if (jinfo.dwYpos < 17000) sjoy.up = TRUE;
-	  // JOY
-	  {
-	    Sint16 x_pos = SDL_JoystickGetAxis(jinfo, 0);
-	    Sint16 y_pos = SDL_JoystickGetAxis(jinfo, 1);
-	    /* Using thresold=10% is just enough to get rid of the
-	       noise. Let's use 50% instead, otherwise Dink will go
-	       diags too easily. */
-	    Sint16 threshold = 32768 * 50/100;
-	    if (x_pos < -threshold) sjoy.left  = 1;
-	    if (x_pos > +threshold) sjoy.right = 1;
-	    if (y_pos < -threshold) sjoy.up    = 1;
-	    if (y_pos > +threshold) sjoy.down  = 1;
-	  }
-	}
-	
-	
-	
-pass:
-	if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = /*TRUE*/1; //17
-	if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = /*TRUE*/1; //32
-	
-	if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = /*TRUE*/1; //16
-	if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = /*TRUE*/1; //13
-	if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = /*TRUE*/1; //27
-	if (GetKeyboard('6')) sjoy.joybit[6] = /*TRUE*/1; //54
-	if (GetKeyboard('7')) sjoy.joybit[7] = /*TRUE*/1; //55
-	
-	for (int x5=1; x5 <=10; x5++) sjoy.button[x5] = /*FALSE*/0; 
-	
-	
-	for (int x=1; x <=10; x++)
-		
-	{
-		if (sjoy.joybit[x])
-		{
-			if (sjoy.letgo[x] == /*TRUE*/1) 
-			{
-				sjoy.button[x] = /*TRUE*/1;
-				sjoy.letgo[x] = /*FALSE*/0;
-			}
-			
-		}
-	}
-	
-	
-	
-	
-	if (GetKeyboard(SDLK_RIGHT)) sjoy.right = /*TRUE*/1; //39
-	if (GetKeyboard(SDLK_LEFT)) sjoy.left = /*TRUE*/1; //37
-	if (GetKeyboard(SDLK_DOWN)) sjoy.down = /*TRUE*/1; //40
-	if (GetKeyboard(SDLK_UP)) sjoy.up = /*TRUE*/1; //38
-	
-	
-	
-	
-	
-	
-	
-	for (int x2=1; x2 <=10; x2++) 
-	{
-		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
-		
-	}
-	
-	
-	
-	if (sjoy.right) if (sjoy.rightold == /*TRUE*/1)
-	{
-		sjoy.rightd = true;
-		sjoy.rightold = false;
-	}
-	
-	if (sjoy.right) sjoy.rightold = false; else sjoy.rightold = true;
-	
-	
-	if (sjoy.left) if (sjoy.leftold == /*TRUE*/1)
-	{
-		sjoy.leftd = true;
-		sjoy.leftold = false;
-	}
-	
-	if (sjoy.left) sjoy.leftold = false; else sjoy.leftold = true;
-	
-	
-	if (sjoy.up) if (sjoy.upold == /*TRUE*/1)
-	{
-		sjoy.upd = true;
-		sjoy.upold = false;
-	}
-	
-	if (sjoy.up) sjoy.upold = false; else sjoy.upold = true;
-	
-	
-	if (sjoy.down) if (sjoy.downold == /*TRUE*/1)
-	{
-		sjoy.downd = true;
-		sjoy.downold = false;
-	}
-	
-	if (sjoy.down) sjoy.downold = false; else sjoy.downold = true;
-	
-	
-	if (wait.active)
-	{
-		
-		//check for dirs
-		
-		if (sjoy.rightd) wait.button = 16;
-		if (sjoy.leftd) wait.button = 14;
-		if (sjoy.upd) wait.button = 18;
-		if (sjoy.downd) wait.button = 12;
-		
-		sjoy.rightd = false;
-		sjoy.downd = false;
-		sjoy.upd = false;
-		sjoy.leftd = false;
-		
-		//check buttons
-		for (int ll=1; ll <= 10; ll++)
-		{
-			if (sjoy.button[ll])
-			{
-				//button was pressed
-				wait.button = ll;
-				
-			}
-			sjoy.button[ll] = false;
-			
-		}
-		
-		if (wait.button != 0)
-		{
-			*presult = wait.button;
-			wait.active = false;
-			run_script(wait.script);
-		}
-		
-		
-		
-		
-		
-	}
-	
-	
-}
-
-
 
 
 // ********* CHECK TO SEE IF THIS CORD IS ON A HARD SPOT *********
-bool not_in_this_base(int seq, int base)
+/*bool*/int not_in_this_base(int seq, int base)
 {
 	
 	int realbase = (seq / 10) * 10;
@@ -629,15 +532,15 @@ bool not_in_this_base(int seq, int base)
 	{
 		
 		
-		return(true); 
+		return(/*true*/1); 
 	}
 	else
 	{
-		return(false);
+		return(/*false*/0);
 	}
 }
 
-bool in_this_base(int seq, int base)
+/*bool*/int in_this_base(int seq, int base)
 {
 	
 	int realbase = (seq / 10) * 10;
@@ -645,13 +548,13 @@ bool in_this_base(int seq, int base)
 	{
 		
 		//	Msg("TRUE - Ok, realbase is %d, compared to the base, which is %d.", realbase, base);
-		return(true); 
+		return(/*true*/1); 
 	}
 	else
 	{
 		//	Msg("FALSE - Ok, realbase is %d, compared to the base, which is %d.", realbase, base);
 		
-		return(false);
+		return(/*false*/0);
 	}
 }
 
@@ -821,7 +724,7 @@ void add_kill_sprite(int h)
 	if (base == -1) 
 	{
 		
-		if (seq[spr[h].base_walk+5].active == true)
+	  if (seq[spr[h].base_walk+5].active == /*true*/1)
 		{
 			add_exp(spr[h].exp, h);
 			
@@ -839,7 +742,7 @@ void add_kill_sprite(int h)
 	
 	
 	
-	if (seq[base+dir].active == false)
+	if (seq[base+dir].active == /*false*/0)
 	{  
 		
 		if (dir == 1) dir = 9;
@@ -854,7 +757,7 @@ void add_kill_sprite(int h)
 		
 		
 	}
-	if (seq[base+dir].active == false)
+	if (seq[base+dir].active == /*false*/0)
 		
 	{
 		Msg("Can't make a death sprite for dir %d!", base+dir);
@@ -879,9 +782,9 @@ void add_kill_sprite(int h)
 void done_moving(int h)
 {
 	
-	spr[h].move_active = false;
+	spr[h].move_active = /*false*/0;
 	
-	spr[h].move_nohard = false;
+	spr[h].move_nohard = /*false*/0;
 	
 	if (spr[h].move_script > 0)
 	{
@@ -946,7 +849,7 @@ void process_follow(int h)
 		return;
 	}
 	
-	if (spr[spr[h].follow].active == false)
+	if (spr[spr[h].follow].active == /*false*/0)
 	{
 		Msg("Killing follow");
 		spr[h].follow = 0;
@@ -978,7 +881,7 @@ void process_target(int h)
 		return;
 	}
 	
-	if (spr[spr[h].target].active == false)
+	if (spr[spr[h].target].active == /*false*/0)
 	{
 		Msg("Killing target");
 		spr[h].target = 0;
@@ -1001,7 +904,7 @@ void process_target(int h)
 }
 
 
-bool check_for_kill_script(int i)
+/*bool*/int check_for_kill_script(int i)
 {
 	
 	
@@ -1011,13 +914,13 @@ bool check_for_kill_script(int i)
 		
 		if (locate(spr[i].script, "DIE")) run_script(spr[i].script);
 		
-		return(true);	
+		return(/*true*/1);	
 	}
 	
-	return(false);
+	return(/*false*/0);
 }
 
-bool check_for_duck_script(int i)
+/*bool*/int check_for_duck_script(int i)
 {
 	
 	
@@ -1027,10 +930,10 @@ bool check_for_duck_script(int i)
 		
 		if (locate(spr[i].script, "DUCKDIE")) run_script(spr[i].script);
 		
-		return(true);	
+		return(/*true*/1);	
 	}
 	
-	return(false);
+	return(/*false*/0);
 }
 
 
@@ -1306,7 +1209,7 @@ void pill_brain(int h)
 					if (spr[h].dir == 0) spr[h].dir = 3;
 					change_dir_to_diag(&spr[h].dir);
 					add_kill_sprite(h);
-					spr[h].active = false;
+					spr[h].active = /*false*/0;
 				}
 				return;
 				
@@ -1532,7 +1435,7 @@ void people_brain(int h)
 					spr[h].brain = 0;
 					change_dir_to_diag(&spr[h].dir);
 					add_kill_sprite(h);
-					spr[h].active = false;
+					spr[h].active = /*false*/0;
 				}
 				return;
 				
@@ -1659,9 +1562,9 @@ void no_brain(int h)
 
 void shadow_brain(int h)
 {
-	if (spr[spr[h].brain_parm].active == false)
+	if (spr[spr[h].brain_parm].active == /*false*/0)
 	{
-		spr[h].active = false;
+		spr[h].active = /*false*/0;
 		return;
 	}
 	
@@ -1698,7 +1601,7 @@ void dragon_brain(int h)
 				if (spr[h].brain == 10)
 				{
 					add_kill_sprite(h);
-					spr[h].active = false;
+					spr[h].active = /*false*/0;
 					
 				}
 				
@@ -1944,77 +1847,68 @@ int check_if_move_is_legal(int u)
 	int hardness = 0;
 	if (spr[u].moveman > 0)
 	{
-		for (int i=1; i <= spr[u].moveman; i++)
+	  int i;
+	  for (i = 1; i <= spr[u].moveman; i++)
+	    {
+	      hardness = get_hard(u,spr[u].lpx[i]-20, spr[u].lpy[i]);
+	      if (hardness == 2 && spr[u].flying) 
 		{
-			hardness = get_hard(u,spr[u].lpx[i]-20	, spr[u].lpy[i]);
-			
-           	
-			
-			
-            if (hardness == 2) if (spr[u].flying) 
-			{
-				spr[u].moveman = 0;			
-				return(2);
-			}
-			if (hardness > 0)
-			{
-				
-				spr[u].x = spr[u].lpx[i-1];
-				spr[u].y = spr[u].lpy[i-1];
-				spr[u].moveman = 0;			
-                
-				if (push_active)
-					if (u == 1) if (hardness != 2) if (play.push_active == false)
-						
-					{
-						
-					if (  (spr[u].dir == 2) | (spr[u].dir == 4) |  (spr[u].dir == 6) | (spr[u].dir == 8) )
-					{
-						//he  (dink)  is definatly pushing on something
-						play.push_active = true;
-						play.push_dir = spr[u].dir;
-						play.push_timer = thisTickCount;
-						
-					}
-					} else
-					{
-						if (play.push_dir != spr[1].dir) play.push_active = false;
-					}
-					return(hardness);
-			}
-			
+		  spr[u].moveman = 0;			
+		  return(2);
 		}
-		
+	      if (hardness > 0)
+		{
+		  spr[u].x = spr[u].lpx[i-1];
+		  spr[u].y = spr[u].lpy[i-1];
+		  spr[u].moveman = 0;			
+		  
+		  if (push_active)
+		    if (u == 1 && hardness != 2 && play.push_active == /*false*/0)
+		      {
+			if ((spr[u].dir == 2) | (spr[u].dir == 4) | (spr[u].dir == 6) | (spr[u].dir == 8))
+			  {
+			    //he  (dink)  is definatly pushing on something
+			    play.push_active = /*true*/1;
+			    play.push_dir = spr[u].dir;
+			    play.push_timer = thisTickCount;
+			  }
+		      }
+		    else
+		      {
+			if (play.push_dir != spr[1].dir) play.push_active = /*false*/0;
+		      }
+		  return(hardness);
+		}
+	    }
 	}
 	
-	
-	if (u == 1)  play.push_active = false;
+	if (u == 1)  play.push_active = /*false*/0;
 	return(0);
 }
-
 
 
 void move(int u, int amount, char kind,  char kindy)
 {
 	int mx = 0;
 	int my = 0;	
-	bool clearx;
-	bool cleary;
-	clearx = false;
-	cleary = false;
+	int i;
+	/*bool*/int clearx;
+	/*bool*/int cleary;
+	clearx = /*false*/0;
+	cleary = /*false*/0;
 	
-	for (int i=1; i <= amount; i++)
+	for (i = 1; i <= amount; i++)
 	{
 		spr[u].moveman++;
-		if (mx >= spr[u].mx) clearx = true;
-		if (my >= spr[u].my) clearx = true;
+		if (mx >= spr[u].mx) clearx = /*true*/1;
+		if (my >= spr[u].my) clearx = /*true*/1;
 		
 		if ((clearx) & (cleary))
 		{
 			mx = 0;
 			my = 0;
-			clearx = false;
-			cleary = false;
+			clearx = /*false*/0;
+			cleary = /*false*/0;
 			
 		}
 		
@@ -2099,7 +1993,7 @@ void grab_trick(int trick)
   if (no_transition)
     {
       move_screen = trick;			
-      trig_man = true;
+      trig_man = /*true*/1;
       
       move_counter = 0;
       return;
@@ -2126,7 +2020,7 @@ void grab_trick(int trick)
   }
   
   move_screen = trick;			
-  trig_man = true;
+  trig_man = /*true*/1;
   
   move_counter = 0;
 }
@@ -2136,7 +2030,7 @@ void grab_trick(int trick)
 
 
 
-void did_player_cross_screen(bool real, int h)
+void did_player_cross_screen(/*bool*/int real, int h)
 {
 	
 	if (walk_off_screen == 1) return;
@@ -2150,7 +2044,7 @@ void did_player_cross_screen(bool real, int h)
 									//move one map to the left
 									if (real)
 									{
-										move_gonna = true;
+										move_gonna = /*true*/1;
 										return;
 									}
 									update_screen_time();
@@ -2179,7 +2073,7 @@ void did_player_cross_screen(bool real, int h)
 									//move one map to the right
 									if (real)
 									{
-										move_gonna = true;
+										move_gonna = /*true*/1;
 										return;
 									}
 									
@@ -2207,7 +2101,7 @@ void did_player_cross_screen(bool real, int h)
 									//move one map up
 									if (real)
 									{
-										move_gonna = true;
+										move_gonna = /*true*/1;
 										return;
 									}
 									update_screen_time();
@@ -2235,7 +2129,7 @@ void did_player_cross_screen(bool real, int h)
 									//move one map down
 									if (real)
 									{
-										move_gonna = true;
+										move_gonna = /*true*/1;
 										return;
 									}
 									update_screen_time();
@@ -2265,12 +2159,13 @@ b1end:;
 }
 
 
-bool run_through_tag_list_talk(int h)
+/*bool*/int run_through_tag_list_talk(int h)
 {
 	rect box;
 	int amount, amounty;
-	
-	for (int i = 1; i <= last_sprite_created; i++)
+	int i;
+
+	for (i = 1; i <= last_sprite_created; i++)
 	{
 		
 		if (spr[i].active) if (i != h) if (spr[i].brain != 8)
@@ -2319,7 +2214,7 @@ bool run_through_tag_list_talk(int h)
 						kill_returning_stuff(spr[i].script);
 						
 						run_script(spr[i].script);
-						return(true);	
+						return(/*true*/1);	
 					}
 					
 					
@@ -2334,7 +2229,7 @@ bool run_through_tag_list_talk(int h)
 	}
 	
 	
-	return(false);
+	return(/*false*/0);
 }
 
 
@@ -2348,7 +2243,7 @@ void make_missile(int x1, int y1, int dir, int speed, int seq, int frame, int st
 	spr[crap].seq = seq;
 	spr[crap].timer = 0;
 	spr[crap].strength = strength;
-	spr[crap].flying = true;
+	spr[crap].flying = /*true*/1;
 	changedir(dir, crap, 430);
 	
 }
@@ -2356,9 +2251,10 @@ void make_missile(int x1, int y1, int dir, int speed, int seq, int frame, int st
 
 
 
-void missile_brain( int h, bool repeat)
+void missile_brain(int h, /*bool*/int repeat)
 {
   rect box;
+  int j;
   automove(h);
   
   *pmissle_source = h;
@@ -2372,7 +2268,8 @@ void missile_brain( int h, bool repeat)
       //lets check to see if they hit a sprites hardness
       if (hard > 100)
 	{
-	  for (int ii = 1; ii < last_sprite_created; ii++)
+	  int ii;
+	  for (ii = 1; ii < last_sprite_created; ii++)
 	    {
 	      if (spr[ii].sp_index == hard-100)
 		{
@@ -2433,16 +2330,16 @@ void missile_brain( int h, bool repeat)
 	}
     }
   
-  if (spr[h].x > 1000) spr[h].active = false;
-  if (spr[h].y > 700) spr[h].active = false;
-  if (spr[h].y < -500) spr[h].active = false;
-  if (spr[h].x < -500) spr[h].active = false;
+  if (spr[h].x > 1000) spr[h].active = /*false*/0;
+  if (spr[h].y > 700) spr[h].active = /*false*/0;
+  if (spr[h].y < -500) spr[h].active = /*false*/0;
+  if (spr[h].x < -500) spr[h].active = /*false*/0;
   
   //did we hit anything that can die?
   
-  for (int j = 1; j <= last_sprite_created; j++)
+  for (j = 1; j <= last_sprite_created; j++)
     {
-      if (spr[j].active && h != j && spr[j].nohit != 1 && spr[j].notouch == false)
+      if (spr[j].active && h != j && spr[j].nohit != 1 && spr[j].notouch == /*false*/0)
 	if (spr[h].brain_parm != j && spr[h].brain_parm2!= j)
 	  //if (spr[j].brain != 15) if (spr[j].brain != 11)
 	  {
@@ -2456,7 +2353,7 @@ void missile_brain( int h, bool repeat)
 	    
 	    if (inside_box(spr[h].x, spr[h].y, box))
 	      {
-		spr[j].notouch = true;
+		spr[j].notouch = /*true*/1;
 		spr[j].notouch_timer = thisTickCount+100;
 		spr[j].target = 1;
 		*penemy_sprite = 1;
@@ -2515,16 +2412,17 @@ void missile_brain( int h, bool repeat)
 
 void missile_brain_expire(int h)
 {
-	missile_brain(h, false);
+	missile_brain(h, /*false*/0);
 	if (spr[h].seq == 0) spr[h].active = 0;
 	
 }
 
-void run_through_mouse_list(int h, bool special)
+void run_through_mouse_list(int h, /*bool*/int special)
 {
-	rect box;
+  rect box;
+  int i;
 
-	for (int i = 1; i <= last_sprite_created; i++)
+	for (i = 1; i <= last_sprite_created; i++)
 	{
 		
 		if (spr[i].active) if (i != h) if
@@ -2664,9 +2562,9 @@ void mouse_brain(int h)
 	{
 		
 		Msg("running through mouse list..");
-		run_through_mouse_list(h, true);
-		sjoy.button[1] = false;
-							 mouse1 = false;
+		run_through_mouse_list(h, /*true*/1);
+		sjoy.button[1] = /*false*/0;
+							 mouse1 = /*false*/0;
 							 
 	}
 	
@@ -2727,7 +2625,7 @@ void process_bow( int h)
 	
 	if (sjoy.letgo[1])
 	{
-		bow.active = false;
+		bow.active = /*false*/0;
 		bow.last_power = bow.time;
 		run_script(bow.script);
 		//     bowsound->Stop();
@@ -2783,25 +2681,25 @@ void human_brain(int h)
 		
 		if (play.push_dir == 2) if (!sjoy.down) 
 		{
-			spr[h].nocontrol = false;
-			play.push_active = false;
+			spr[h].nocontrol = /*false*/0;
+			play.push_active = /*false*/0;
 		}
 		
 		if (play.push_dir == 4) if (!sjoy.left) 
 		{
-			spr[h].nocontrol = false;
-			play.push_active = false;
+			spr[h].nocontrol = /*false*/0;
+			play.push_active = /*false*/0;
 		}
 		if (play.push_dir == 6) if (!sjoy.right) 
 		{
-			spr[h].nocontrol = false;
-			play.push_active = false;
+			spr[h].nocontrol = /*false*/0;
+			play.push_active = /*false*/0;
 		}
 		
 		if (play.push_dir == 8) if (!sjoy.up) 
 		{
-			spr[h].nocontrol = false;
-			play.push_active = false;
+			spr[h].nocontrol = /*false*/0;
+			play.push_active = /*false*/0;
 		}
 		
 		
@@ -2820,8 +2718,8 @@ void human_brain(int h)
 	  if ( (sjoy.button[2] == /*TRUE*/1) || (sjoy.key[SDLK_SPACE /* 32 */]))
 		{
 			//they hit the talk button while frozen, lets hurry up the process
-			
-			for (int jj = 1; jj <=  last_sprite_created; jj++)
+		  int jj;
+			for (jj = 1; jj <=  last_sprite_created; jj++)
 			{
                 
 				//							Msg("Checking %d, brain %d, script %d, my freeze is %d",jj, spr[jj].brain, spr[jj].script, spr[h].freeze);
@@ -2864,8 +2762,8 @@ void human_brain(int h)
 	{
 		spr[h].seq = 310+spr[h].dir;
 		spr[h].frame = 1;
-		spr[h].nocontrol = true;
-		//play.push_active = false;
+		spr[h].nocontrol = /*true*/1;
+		//play.push_active = /*false*/0;
 		run_through_tag_list_push(h);
 		
 		return;
@@ -2954,7 +2852,7 @@ void human_brain(int h)
 			  sprintf(msg, "key-%d", keycode);
 			  but_timer = thisTickCount+200;
 			  
-			  int mycrap = load_script(msg, 1, false);
+			  int mycrap = load_script(msg, 1, /*false*/0);
 			  if (locate(mycrap, "MAIN")) 
 			    {
 			      run_script(mycrap);
@@ -2970,7 +2868,7 @@ void human_brain(int h)
 		
 		but_timer = thisTickCount+200;
 		
-		int mycrap = load_script("BUTTON6", 1, false);
+		int mycrap = load_script("BUTTON6", 1, /*false*/0);
 		if (locate(mycrap, "MAIN")) run_script(mycrap);
 		goto b1end;
 	}
@@ -3028,7 +2926,7 @@ shootm:
 	
 	if (sjoy.button[4])
 	{
-		item_screen = true;
+		item_screen = /*true*/1;
 		SoundPlayEffect(18, 22050,0,0,0);
 		
 		return;
@@ -3058,7 +2956,7 @@ shootm:
 		
 		if (!showb.active) if (!bow.active) if (!talk.active)
 		{
-			int sc = load_script("ESCAPE", 1000, false);
+			int sc = load_script("ESCAPE", 1000, /*false*/0);
 			if (sc != 0) if (locate(sc,"MAIN")) run_script(sc);
 			return;
 		}
@@ -3444,7 +3342,7 @@ smoothend:;
 		  
 }
 
-bool transition(void)
+/*bool*/int transition(void)
 {
 /* 	RECT rcRect; */
 	SDL_Rect src, dst;
@@ -3460,17 +3358,17 @@ bool transition(void)
 	if (no_transition)
 	{    
 		
-		total_trigger = false;
+		total_trigger = /*false*/0;
 		move_screen = 0;
 		move_counter = 0;
 		trig_man = 0;
 		//draw_map();
-		return(false);
+		return(/*false*/0);
 	}	
 	
 	
-	//total_trigger = false;
-	//return(false);
+	//total_trigger = /*false*/0;
+	//return(/*false*/0);
 	
 	if (move_screen == 4)
 	{
@@ -3519,15 +3417,15 @@ bool transition(void)
         
 		if (move_counter >= 595)
 		{
-			total_trigger = false;
+			total_trigger = /*false*/0;
 			move_screen = 0;
 			move_counter = 0;
 			trig_man = 0;
 			//draw_map();
-			return(false);
+			return(/*false*/0);
 		}
 		
-		return(true);
+		return(/*true*/1);
 	}
 	
 	if (move_screen == 6)
@@ -3578,15 +3476,15 @@ bool transition(void)
 		
 		if (move_counter >= 595)
 		{
-			total_trigger = false;
+			total_trigger = /*false*/0;
 			move_screen = 0;
 			move_counter = 0;
 			trig_man = 0;
 			//draw_map();
-			return(false);
+			return(/*false*/0);
 		}
 		
-		return(true);
+		return(/*true*/1);
 	}
 	
 	
@@ -3643,15 +3541,15 @@ bool transition(void)
 		
 		if (move_counter >= 398)
 		{
-			total_trigger = false;
+			total_trigger = /*false*/0;
 			move_screen = 0;
 			move_counter = 0;
 			trig_man = 0;
 			//draw_map();
-			return(false);
+			return(/*false*/0);
 		}
 		
-		return(true);
+		return(/*true*/1);
 	}
 	
 	
@@ -3704,21 +3602,21 @@ bool transition(void)
 
 		if (move_counter >= 398)
 		{
-			total_trigger = false;
+			total_trigger = /*false*/0;
 			move_screen = 0;
 			move_counter = 0;
 			trig_man = 0;
 			//draw_map();
-			return(false);
+			return(/*false*/0);
 		}
 		
-		return(true);
+		return(/*true*/1);
 	}
 	
 	
 	
 	
-	return(false);
+	return(/*false*/0);
 	}
 	
 	
@@ -3726,8 +3624,8 @@ bool transition(void)
 	
 	int find_sprite(int block)
 	{
-		
-		for (int k = 1; k <= last_sprite_created; k++)
+	  int k;
+		for (k = 1; k <= last_sprite_created; k++)
 		{
 			if (spr[k].sp_index == block)
 			{
@@ -3779,8 +3677,9 @@ bool transition(void)
 /* fade_down() - fade to black */
 void CyclePalette()
 {
-  bool done_this_time = true;     
+  /*bool*/int done_this_time = /*true*/1;     
   SDL_Color palette[256];
+  int kk;
 
 /*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
 /*     { */
@@ -3790,7 +3689,7 @@ void CyclePalette()
   // GFX
   memcpy(palette, cur_screen_palette, sizeof(palette));
 
-  for (int kk = 1; kk < 256; kk++)
+  for (kk = 1; kk < 256; kk++)
   // skipping index 0 because it's already (and always) black ;)
     {
 /*       if (pe[kk].peBlue != 0) */
@@ -3870,7 +3769,7 @@ void CyclePalette()
     {
       if  (thisTickCount > cycle_clock)
 	{
-	  process_downcycle = false;
+	  process_downcycle = /*false*/0;
 				
 	  if (cycle_script != 0)
 	    {
@@ -3885,9 +3784,10 @@ void CyclePalette()
 /* fade_up() */	
 void up_cycle(void)
 {
-  bool donethistime = true;
+  /*bool*/int donethistime = /*true*/1;
   SDL_Color palette[256];
-		
+  int kk;
+	
 /*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
 /*     { */
 /*       Msg("error with getting entries"); */
@@ -3898,7 +3798,7 @@ void up_cycle(void)
 
   //for (int kk = 1; kk <= 256; kk++)
   // (fixing memory issue, index 256 is outside the array)
-  for (int kk = 1; kk < 256; kk++)
+  for (kk = 1; kk < 256; kk++)
     {
 /*       if (pe[kk].peBlue != real_pal[kk].peBlue) */
 /* 	{ */
@@ -3910,7 +3810,7 @@ void up_cycle(void)
       // GFX
       if (palette[kk].b != GFX_real_pal[kk].b)
 	{
-	  donethistime = false;
+	  donethistime = /*false*/0;
 	  if (palette[kk].b > 246)
 	    palette[kk].b++;
 	  else
@@ -3929,7 +3829,7 @@ void up_cycle(void)
       // GFX
       if (palette[kk].g != GFX_real_pal[kk].g)
 	{
-	  donethistime = false;
+	  donethistime = /*false*/0;
 	  if (palette[kk].g > 246)
 	    palette[kk].g++;
 	  else
@@ -3948,7 +3848,7 @@ void up_cycle(void)
       // GFX
       if (palette[kk].r != GFX_real_pal[kk].r)
 	{
-	  donethistime = false;
+	  donethistime = /*false*/0;
 	  if (palette[kk].r > 246)
 	    palette[kk].r++;
 	  else
@@ -3975,7 +3875,7 @@ void up_cycle(void)
   if (process_upcycle)
     if (donethistime)
       {
-	process_upcycle = false;
+	process_upcycle = /*false*/0;
 	
 	if (cycle_script != 0)
 	  {
@@ -4092,8 +3992,9 @@ void flip_it(void)
 	{
 		rect box;
 		int amount, amounty;
-		
-		for (int i = 1; i <= last_sprite_created; i++)
+		int i;
+
+		for (i = 1; i <= last_sprite_created; i++)
 		{
 			if (spr[i].active) if (i != h) if
 				(! ( (spr[i].nohit == 1) && (spr[i].script == 0)) )
@@ -4244,8 +4145,9 @@ void flip_it(void)
 void run_through_tag_list_push(int h)
 {
 	rect box;
-	
-	for (int i = 1; i <= last_sprite_created; i++)
+	int i;
+
+	for (i = 1; i <= last_sprite_created; i++)
 	{
 		if (spr[i].active) if (i != h) if
 			((spr[i].script != 0) )
@@ -4279,7 +4181,9 @@ void run_through_tag_list_push(int h)
 void run_through_touch_damage_list(int h)
 {
 	rect box;
-	for (int i = 1; i <= last_sprite_created; i++)
+	int i;
+
+	for (i = 1; i <= last_sprite_created; i++)
 	{
 		if (spr[i].active) if (i != h) if
 			((spr[i].touch_damage != 0) )
@@ -4314,7 +4218,7 @@ void run_through_touch_damage_list(int h)
 					{
 						//lets hurt the guy
 						
-						spr[h].notouch = true;
+						spr[h].notouch = /*true*/1;
 						spr[h].notouch_timer = thisTickCount+400;
 						spr[h].last_hit = i;
 						if (spr[i].script != 0)
@@ -4380,7 +4284,7 @@ void process_warp_man(void)
 			load_map(map.loc[pam.sprite[block].warp_map]);
 			draw_map_game();
 			
-			process_upcycle = true;
+			process_upcycle = /*true*/1;
 			process_warp = 0;
 		}
 		
@@ -4412,7 +4316,7 @@ void one_time_brain(int h)
 	if (spr[h].seq == 0)
 	{
 	  draw_sprite_game(GFX_lpDDSTwo, h);
-		spr[h].active = false;			
+		spr[h].active = /*false*/0;			
 		return;
 	}
 	
@@ -4439,7 +4343,7 @@ void one_time_brain_for_real(int h)
 	if (spr[h].seq == 0)
 	{
 		
-		spr[h].active = false;			
+		spr[h].active = /*false*/0;			
 		return;
 	}
 	if (spr[h].dir > 0)
@@ -4455,7 +4359,7 @@ void scale_brain(int h)
 	
 	if (spr[h].size == spr[h].brain_parm)
 	{
-		spr[h].active = false;
+		spr[h].active = /*false*/0;
 		
 		
 		return;
@@ -4528,10 +4432,10 @@ void text_brain(int h)
 	if (  (spr[h].damage == -1) && (spr[h].owner != 1000))
 	{
 		
-		if (spr[spr[h].owner].active == false)
+		if (spr[spr[h].owner].active == /*false*/0)
 		{
 			//msg("Killing text brain %d, because owner %d is dead.",h, spr[h].owner);
-			spr[h].active = false;
+			spr[h].active = /*false*/0;
 			return;
 		}
 		
@@ -4906,8 +4810,8 @@ void process_talk()
   
   if ((sjoy.button[1]) | (mouse1))
     {
-      mouse1 = false;
-      talk.active = false;
+      mouse1 = /*false*/0;
+      talk.active = /*false*/0;
       *presult = talk.line_return[talk.cur];
       SoundPlayEffect(17, 22050,0,0,0);
       
@@ -4968,7 +4872,7 @@ void Scrawl_OnMouseInput(void)
   SDL_Event event;
   int dx, dy;
 
-  mouse1 = false;
+  mouse1 = /*false*/0;
 
   SDL_PumpEvents();
   SDL_GetRelativeMouseState(&dx, &dy);
@@ -4986,7 +4890,7 @@ void Scrawl_OnMouseInput(void)
     {
       SDL_MouseButtonEvent *button_event = (SDL_MouseButtonEvent*)&event;
       if (button_event->button == SDL_BUTTON_LEFT)
-	mouse1 = true;
+	mouse1 = /*true*/1;
     }
   return;
 
@@ -5113,12 +5017,12 @@ void button_brain(int h )
 	
 }
 
-void draw_item(int num, bool magic, int mseq, int mframe)
+void draw_item(int num, /*bool*/int magic, int mseq, int mframe)
 {
 	int mx = 20;
 	int my = 0;
 	int vert = 0;
-	if (magic == false)
+	if (magic == /*false*/0)
 	{
 		mx = 260;
 		my = 83;
@@ -5149,12 +5053,12 @@ again:
 		{
 			Msg("Whups, item %d seq %d frame %d not loaded, killed it",
 				num, mseq, mframe);
-			play.item[num].active = false;
+			play.item[num].active = /*false*/0;
 		} else
 		{
 			Msg("Whups, magic %d seq %d frame %d not loaded, killed it",
 				num, mseq, mframe);
-			play.mitem[num].active = false;
+			play.mitem[num].active = /*false*/0;
 			
 		}
 		
@@ -5223,27 +5127,24 @@ void process_item( void )
 	}
 
 	//draw all currently owned items; magic
-	int i = 1;
-	for (; i < 9; i++)
-	{
-		if (play.mitem[i].active) draw_item(i, true, play.mitem[i].seq,play.mitem[i].frame);
-	}
+	int i;
+	for (i = 1; i < 9; i++)
+	  if (play.mitem[i].active)
+	    draw_item(i, /*true*/1, play.mitem[i].seq, play.mitem[i].frame);
 	
 	//draw all currently owned items; normal
-	for ( i = 1; i < 17; i++)
-	{
-		if (play.item[i].active) draw_item(i, false, play.item[i].seq,play.item[i].frame);
-		
-	}
+	for (i = 1; i < 17; i++)
+	  if (play.item[i].active)
+	    draw_item(i, /*false*/0, play.item[i].seq, play.item[i].frame);
 	
 	//draw selection box around armed weapon
 	if (*pcur_weapon != 0) if (play.item[*pcur_weapon].active)
-		draw_item(*pcur_weapon, false, 423, 4);
+		draw_item(*pcur_weapon, /*false*/0, 423, 4);
 	
 	
 	//draw selection box around armed magic
 	if (*pcur_magic != 0) if (play.item[*pcur_magic].active)
-		draw_item(*pcur_magic, true, 423, 5);
+		draw_item(*pcur_magic, /*true*/1, 423, 5);
 	
 	
 	//draw the selector around it, alternating from 2 to 3
@@ -5283,7 +5184,7 @@ void process_item( void )
 				}
 				//load weapons script
 				*pcur_weapon = play.curitem;
-				weapon_script = load_script(play.item[*pcur_weapon].name, 1000, false);
+				weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
 				if (locate(weapon_script, "ARM")) run_script(weapon_script);
 				if (locate(weapon_script, "ARMMOVIE")) run_script(weapon_script);
 				
@@ -5310,7 +5211,7 @@ void process_item( void )
 					{
 						SoundPlayEffect(11, 22050,0,0,0);	
 						
-						play.item_magic = true;
+						play.item_magic = /*true*/1;
 						play.curitem = (virt * 2) + 2;
 						//switch to magic mode
 					}
@@ -5357,7 +5258,7 @@ void process_item( void )
 				}
 				//load magics script
 				*pcur_magic = play.curitem;
-				magic_script = load_script(play.mitem[*pcur_magic].name, 1000, false);
+				magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
 				if (locate(magic_script, "ARM")) run_script(magic_script);
 				if (locate(magic_script, "ARMMOVIE")) run_script(magic_script);
 				draw_status_all();
@@ -5377,7 +5278,7 @@ void process_item( void )
 			}
 			else
 			{ 
-				play.item_magic = false;
+				play.item_magic = /*false*/0;
 				play.curitem = (virt * 4) +1;
 				SoundPlayEffect(11, 22050,0,0,0);	
 				
@@ -5428,7 +5329,7 @@ void process_item( void )
 	{
 		SoundPlayEffect(17, 22050,0,0,0);
 		
-		item_screen = false;
+		item_screen = /*false*/0;
 	}
 	
 	
@@ -5482,7 +5383,7 @@ void process_show_bmp( void )
       || (sjoy.button[6]) 
       || ((GetKeyboard('m')) && ( but_timer < thisTickCount)))
     {
-      showb.active = false;
+      showb.active = /*false*/0;
       if (showb.script != 0)
 	run_script(showb.script);
       showb.stime = thisTickCount+2000;
@@ -5503,7 +5404,7 @@ void process_show_bmp( void )
       // The main flip_it() will be called, skip it - lpDDSBack is
       // not matching the palette anymore, it needs to be redrawn
       // first.
-      abort_this_flip = true;
+      abort_this_flip = /*true*/1;
     }
 }
 
@@ -5558,7 +5459,7 @@ void finiObjects()
 	Msg("Shutting down CD stuff.");
 	killcd();
 	}
-	log_path(false);
+	log_path(/*false*/0);
 
 	
 
@@ -5576,6 +5477,9 @@ void finiObjects()
 		 */ 
 	  //GFX
 	  SDL_FreeSurface(GFX_lpDDSBack);
+	  SDL_FreeSurface(GFX_lpDDSTwo);
+	  SDL_FreeSurface(GFX_lpDDSTrick);
+	  SDL_FreeSurface(GFX_lpDDSTrick2);
 
 /* 			if( lpDDPal != NULL ) */
 /* 			{ */
@@ -5646,7 +5550,7 @@ void finiObjects()
 		DestroySound();
 	
 	
-	if (::sound_on)
+	if (sound_on)
 	{
 	//lets kill the cdaudio too
 /* 	if (mciSendString("close all", NULL, 0, NULL) != 0) */
@@ -5654,7 +5558,7 @@ void finiObjects()
 /* 		Msg("Couldn't close all MCI events.."); */
 /* 		//	return(FALSE); */
 /* 	} */
-	
+	  SDL_QuitSubSystem(SDL_INIT_CDROM | SDL_INIT_AUDIO);
 	}
 	
 	kill_all_scripts_for_real();
@@ -5667,7 +5571,15 @@ void finiObjects()
 	//PostQuitMessage(0);
 
 	// FONTS
-	//TTF_Quit();
+	TTF_Quit();
+
+	if (joystick)
+	  SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+
+	SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+	SDL_QuitSubSystem(SDL_INIT_TIMER);
 } /* finiObjects */
 
 /*BOOL*/int initFail(char mess[200])
@@ -5763,30 +5675,31 @@ void load_batch(void)
 int check_arg(int argc, char *argv[])
 {
   char option[200];
-  
+  int i;
+
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
-  for (int i=1; i < argc; i++)
+  for (i = 1; i < argc; i++)
     {
 /*       separate_string(crap, i, ' ', option); */
       strcpy(option, argv[i]);
 
       if (strncasecmp(option, "-window", strlen("-window")) == 0)
 	{
-	  windowed = true;
+	  windowed = /*true*/1;
 	  // Beuc: enabling transition is more fun :)
 	  //no_transition = true;	  
 	}
 		
       if (strncasecmp(option, "-debug", strlen("-debug")) == 0)
 	{
-	  debug_mode = true;
+	  debug_mode = /*true*/1;
 	  remove("dink\\debug.txt");
 	}
       
       if (strncasecmp(option, "-nojoy", strlen("-nojoy")) == 0)
-	  joystick = false;
+	  joystick = /*false*/0;
 
       if (strncasecmp(option, "-noini", strlen("-noini")) == 0)
 	  g_b_no_write_ini = 1;
@@ -5801,7 +5714,7 @@ int check_arg(int argc, char *argv[])
 	}
 				
       if (strncasecmp(option, "-nosound", strlen("-nosound")) == 0)
-	sound_on = false;
+	sound_on = /*false*/0;
     }
 	
   if (chdir(dir) == -1) 
@@ -5860,7 +5773,7 @@ static int doInit(int argc, char *argv[])
   /*
    * create a window
    */
-  windowed = false;
+  windowed = /*false*/0;
   //	hWndMain = hwnd;   
   
   if (!check_arg(argc, argv))
@@ -6191,17 +6104,20 @@ static int doInit(int argc, char *argv[])
   load_info();
 
   //clear keyboard buffer
-  for (int x = 0; x < 256; x++)
-    GetKeyboard(x);
+  {
+    int x, u, x1;
+    for (x = 0; x < 256; x++)
+      GetKeyboard(x);
 	
-  for (int u = 1; u <= 10; u++)
-    play.button[u] = u;
-	
-  for (int x1 = 1; x1 <= 10; x1++) 
-    sjoy.letgo[x1] = /*TRUE*/1;
-	
+    for (u = 1; u <= 10; u++)
+      play.button[u] = u;
+    
+    for (x1 = 1; x1 <= 10; x1++) 
+      sjoy.letgo[x1] = /*TRUE*/1;
+  }
+
   //lets run our init script
-  int script = load_script("main", 0, true);
+  int script = load_script("main", 0, /*true*/1);
   locate(script, "main");
   run_script(script);
 
@@ -6268,7 +6184,7 @@ int main(int argc, char* argv[])
   doInit(argc, argv);
   
   /* Notify other apps that FreeDink is playing */
-  log_path(true);
+  log_path(/*true*/1);
 
   /* Windows event loop */
   while(!g_b_kill_app)
@@ -6285,7 +6201,7 @@ int main(int argc, char* argv[])
 	 pause the game accordingly - but this may be an annoying
 	 behavior. */
 
-      if (g_b_kill_app == false)
+      if (g_b_kill_app == /*false*/0)
 	updateFrame();
     }
 }

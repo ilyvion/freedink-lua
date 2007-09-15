@@ -1,5 +1,3 @@
-CC=c++
-
 #CPPFLAGS=-I"C:/dx7sdk/include" -I"/mingw/include" 
 CPPFLAGS=$(shell sdl-config --cflags)
 
@@ -17,7 +15,8 @@ LDLIBS=$(shell sdl-config --libs) -lSDL_mixer -lSDL_gfx -lSDL_ttf
 #COMMON_OBJS=bgm.o dinkvar.o fastfile.o string_util.o sfx.o	\
 #	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o freedink.res
 COMMON_OBJS=bgm.o dinkvar.o fastfile.o str_util.o io_util.o sfx.o	\
-	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o
+	gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o		\
+	input.o
 APPS=freedink freedinkedit
 WOE_BINARIES=$(APPS:=.exe)
 

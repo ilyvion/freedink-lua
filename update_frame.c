@@ -54,21 +54,21 @@ void updateFrame( void )
 	int sz = 0;
     int move_result ;
 	int sy = 0;
-	bool get_frame = false;
+	/*bool*/int get_frame = /*false*/0;
 	int h,max_s,j;
 	//HBRUSH brush;
-	/*BOOL*/int bs[max_sprites_at_once];
+	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
 	
-	int rank[max_sprites_at_once];
+	int rank[MAX_SPRITES_AT_ONCE];
 	int highest_sprite;
 	
-	abort_this_flip = false;
+	abort_this_flip = /*false*/0;
 	
 	if (5 > 9)
 	{
 trigger_start:
-	trig_man = false;
-    get_frame = true;    
+	trig_man = /*false*/0;
+    get_frame = /*true*/1;    
 	}
 	
 	check_joystick();
@@ -84,12 +84,12 @@ trigger_start:
 	{	
 		if (debug_mode) 
 		{
-			debug_mode = false;
+			debug_mode = /*false*/0;
 		}
 		else 
 		{
 			strcpy(last_debug, "");
-			debug_mode = true;	  	  
+			debug_mode = /*true*/1;	  	  
 			
 		}
 		
@@ -183,7 +183,7 @@ demon:
 	{
 		mbase_timing = (mbase_count / 100);
 		mold = thisTickCount;
-		if (bow.active) bow.hitme = true;
+		if (bow.active) bow.hitme = /*true*/1;
 		if (*pupdate_status == 1) update_status_all();
 		
 		
@@ -196,7 +196,7 @@ demon:
 	state[1] = 0;  
 	
 	//figure out frame rate
-	drawthistime = true;
+	drawthistime = /*true*/1;
 	
 	if (item_screen)
 	{
@@ -226,17 +226,17 @@ demon:
 		max_s = last_sprite_created;
 		
 		int height;
-		
-		for (int r1 = 1; r1 < max_s+1; r1++)
+		int r1;
+		for (r1 = 1; r1 < max_s+1; r1++)
 		{
-			
+		  int h1;
 			highest_sprite = 22024; //more than it could ever be
 			
 			rank[r1] = 0;
 			
-			for (int h1 = 1; h1 < max_s+1; h1++)
+			for (h1 = 1; h1 < max_s+1; h1++)
 			{
-				if (spr[h1].active) if (spr[h1].disabled == false)
+				if (spr[h1].active) if (spr[h1].disabled == /*false*/0)
 				{ 
 					if (bs[h1] == /*FALSE*/0)
 					{
@@ -261,7 +261,7 @@ demon:
 	} else
 	{
 		//not processing planes
-		max_s = max_sprites_at_once;
+		max_s = MAX_SPRITES_AT_ONCE;
 	}
 	
 /*     rcRect.left = 0; */
@@ -350,7 +350,7 @@ demon:
 					if (spr[h].kill_timer + spr[h].kill < thisTickCount)
 					{
 						
-						spr[h].active = false;
+						spr[h].active = /*false*/0;
 						//          Msg("Killing sprite %d.", h);
 						
 						get_last_sprite();
@@ -384,8 +384,8 @@ demon:
 				
 				//brains - predefined bahavior patterns available to any sprite
 				
-				if (spr[h].notouch) if (thisTickCount > spr[h].notouch_timer) spr[h].notouch = false;
-				if (get_frame == false)
+				if (spr[h].notouch) if (thisTickCount > spr[h].notouch_timer) spr[h].notouch = /*false*/0;
+				if (get_frame == /*false*/0)
 				{
 					if (   (spr[h].brain == 1)/* || (spr[h].brain == 9) || (spr[h].brain == 3) */ )
 					{
@@ -411,7 +411,7 @@ demon:
 					if (spr[h].brain == 8) text_brain(h);
 					if (spr[h].brain == 9) pill_brain(h);
 					if (spr[h].brain == 10) dragon_brain(h);
-					if (spr[h].brain == 11) missile_brain(h, true);
+					if (spr[h].brain == 11) missile_brain(h, /*true*/1);
 					if (spr[h].brain == 12) scale_brain(h);
 					if (spr[h].brain == 13) mouse_brain(h);
 					if (spr[h].brain == 14) button_brain(h);
@@ -422,7 +422,7 @@ demon:
 				{
 					goto past;
 				}
-				if (::g_b_kill_app) return;
+				if (g_b_kill_app) return;
 animate:
 				
 				move_result = check_if_move_is_legal(h);
@@ -485,7 +485,7 @@ animate:
 									spr[h].frame = 0;
 									spr[h].seq_orig = spr[h].seq;
 									spr[h].seq = 0;
-									spr[h].nocontrol = false;
+									spr[h].nocontrol = /*false*/0;
 									
 									
 									if (h == 1) if (in_this_base(spr[h].seq_orig,310))
@@ -493,11 +493,11 @@ animate:
 									{
 										
 										
-										play.push_active = false;
-										if (play.push_dir == 2) if (sjoy.down) play.push_active = true;
-										if (play.push_dir == 4) if (sjoy.left) play.push_active = true;
-										if (play.push_dir == 6) if (sjoy.right) play.push_active = true;
-										if (play.push_dir == 8) if (sjoy.up) play.push_active = true;
+										play.push_active = /*false*/0;
+										if (play.push_dir == 2) if (sjoy.down) play.push_active = /*true*/1;
+										if (play.push_dir == 4) if (sjoy.left) play.push_active = /*true*/1;
+										if (play.push_dir == 6) if (sjoy.right) play.push_active = /*true*/1;
+										if (play.push_dir == 8) if (sjoy.up) play.push_active = /*true*/1;
 										
 										
 										goto past;
@@ -573,7 +573,7 @@ animate:
 									spr[h].frame = 0;
 									spr[h].seq_orig = spr[h].seq;
 									spr[h].seq = 0;
-									spr[h].nocontrol = false;
+									spr[h].nocontrol = /*false*/0;
 									
 									
 									if (h == 1) if (in_this_base(spr[h].seq_orig,310))
@@ -581,11 +581,11 @@ animate:
 									{
 										
 										
-										play.push_active = false;
-										if (play.push_dir == 2) if (sjoy.down) play.push_active = true;
-										if (play.push_dir == 4) if (sjoy.left) play.push_active = true;
-										if (play.push_dir == 6) if (sjoy.right) play.push_active = true;
-										if (play.push_dir == 8) if (sjoy.up) play.push_active = true;
+										play.push_active = /*false*/0;
+										if (play.push_dir == 2) if (sjoy.down) play.push_active = /*true*/1;
+										if (play.push_dir == 4) if (sjoy.left) play.push_active = /*true*/1;
+										if (play.push_dir == 6) if (sjoy.right) play.push_active = /*true*/1;
+										if (play.push_dir == 8) if (sjoy.up) play.push_active = /*true*/1;
 										
 										
 										goto past;
@@ -614,7 +614,7 @@ animate:
 				
 				if (spr[h].active) if (spr[h].brain == 1)
 				{
-					did_player_cross_screen(true, h);
+					did_player_cross_screen(/*true*/1, h);
 					// if (move_gonna) goto past; 
 				}		
 				
@@ -630,7 +630,7 @@ past:
 				draw_sprite_game(GFX_lpDDSBack, h);
 				
 				
-				move_gonna = false;
+				move_gonna = /*false*/0;
 				
 				//draw a dot to show where the computer is guessing the start of the shadow is	 
 				/* Note: show_dot is never set to
@@ -646,6 +646,7 @@ past:
 /* 					ddbltfx.dwSize = sizeof(ddbltfx); */
 					if (drawthistime)
 					{	
+					  int oo;
 /* 						ddbltfx.dwFillColor = 1; */
 						
 /* 						box_crap = k[getpic(h)].hardbox; */
@@ -676,7 +677,7 @@ past:
 						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 100);
 
 						
-						for (int oo=0; oo <  spr[h].moveman+1; oo++)
+						for (oo=0; oo <  spr[h].moveman+1; oo++)
 						{
 /* 							ddbltfx.dwFillColor = 50; */
 							
@@ -765,8 +766,8 @@ past:
 		
 		
 		
-		int scr = load_script("START",1000, true);
-		if (locate(scr, "MAIN") == false)
+		int scr = load_script("START",1000, /*true*/1);
+		if (locate(scr, "MAIN") == /*false*/0)
 		{
 			Msg("Error: Can't locate MAIN in script START!");
 		}
@@ -817,7 +818,7 @@ past:
 	
 	
 	
-	if (spr[1].active) if (spr[1].brain == 1) did_player_cross_screen(false, 1);
+	if (spr[1].active) if (spr[1].brain == 1) did_player_cross_screen(/*false*/0, 1);
 	
 	if (trig_man)
 	{
@@ -829,8 +830,8 @@ past:
 	{
 /* 		RECT rcRect1; */
 		
-		total_trigger = true;
-		get_frame = false;
+		total_trigger = /*true*/1;
+		get_frame = /*false*/0;
 /* 		rcRect1.left = playl; */
 /* 		rcRect1.top = 0; */
 /* 		rcRect1.right = 620; */
@@ -878,9 +879,10 @@ past:
 			if (mode == 0) strcpy(msg,"");		
 			if (mode == 1) 
 			{
+			  int x;
 				sprintf(msg,"X is %d y is %d", spr[1].x, spr[1].y);		
 				//let's add the key info to it.
-				for (int x=0; x<256; x++)
+				for (x = 0; x < 256; x++)
 				{ 
 					if (GetKeyboard(x))
 					{
@@ -967,7 +969,7 @@ past:
 	process_callbacks();
 	
 flip:
-	if (::g_b_kill_app) return;	
+	if (g_b_kill_app) return;	
 	if (!abort_this_flip)
 		flip_it(); 
 	

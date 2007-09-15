@@ -28,22 +28,22 @@
 
 #include "SDL_mixer.h"
 
-const int num_soundbanks = 20;
+#define NUM_SOUNDBANKS 20
 /* Channel metadata */
 struct soundstruct
 {
-  bool repeat;
+  /*bool*/int repeat;
   int owner;
   int survive;
   int vol;
 };
 
-extern soundstruct soundinfo[num_soundbanks+1];
+extern struct soundstruct soundinfo[NUM_SOUNDBANKS+1];
 
 extern int InitSound();
 extern int CreateBufferFromWaveFile(char* filename, int dwBuf);
 extern int EditorSoundPlayEffect(int sound);
-extern int SoundPlayEffect(int sound, int min, int plus, int sound3d, bool repeat);
+extern int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat);
 extern int playing(int sound);
 extern int SoundStopEffect(int sound);
 extern void kill_repeat_sounds(void);

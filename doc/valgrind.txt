@@ -1,0 +1,14 @@
+Strip errors from SDL
+=====================
+
+Run::
+
+ valgrind --leak-check=yes --gen-suppressions ./freedink -window -nosound
+
+Copy paste the relevant output in::
+
+ grep -v ^== >> /tmp/suppressions
+
+Then give those exclusions to Valgrind::
+
+ valgrind --leak-check=yes --suppressions=/tmp/suppressions ./freedink -window -nosound

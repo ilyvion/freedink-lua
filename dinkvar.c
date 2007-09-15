@@ -77,7 +77,7 @@
 #include "str_util.h"
 
 int g_b_no_write_ini = 0;
-bool no_cheat =  true;
+/*bool*/int no_cheat =  /*true*/1;
 const int dversion = 107;
 int last_saved_game = 0;
 
@@ -87,11 +87,11 @@ int g_b_kill_app = 0;
 int dinkspeed = 3;
 char current_map[255] = "MAP.DAT";
 time_t time_start;
-bool item_screen = false;
-bool midi_active = true;
+/*bool*/int item_screen = /*false*/0;
+/*bool*/int midi_active = /*true*/1;
 char dversion_string[7] = "v1.07";
 
-int load_script(char filename[15], int sprite, bool set_sprite);
+int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 void strchar(char *string, char ch);
 /* Path where Dink is installed. Used to write dinksmallwood.ini in
    log_path(), and in the editor (?) */
@@ -101,8 +101,8 @@ void update_status_all(void);
 int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 
 void add_exp(int num, int h);
-bool locate(int script, char proc[20]);
-bool exist(char name[255]);
+/*bool*/int locate(int script, char proc[20]);
+/*bool*/int exist(char name[255]);
 void draw_status_all(void);
 void check_seq_status(int h);
 
@@ -117,14 +117,14 @@ unsigned short decipher_savegame = 0;
 int draw_map_tiny = -1;
 
 char last_debug[200];
-int walk_off_screen = false;
+int walk_off_screen = /*false*/0;
 char cbuf[64000];
-bool cd_inserted;
+/*bool*/int cd_inserted;
 const int old_burn = 0;
 
 /* Skip flipping the double buffer for this frame only - used when
    setting up show_bmp and copy_bmp */
-bool abort_this_flip = false;
+/*bool*/int abort_this_flip = /*false*/0;
 
 int var_exists(char name[20], int scope);
 void make_int(char name[80], int value, int scope, int script);
@@ -133,7 +133,7 @@ void make_int(char name[80], int value, int scope, int script);
 
 
 
-show_bmp showb;
+struct show_bmp showb;
 
 int keep_mouse = 0;
 
@@ -141,11 +141,11 @@ struct wait_for_button wait;
 
 
 
-attackinfo_struct bow;
+struct attackinfo_struct bow;
 
 int screenlock = 0;
 
-talk_struct talk;
+struct talk_struct talk;
 
 struct idata
 {
@@ -161,9 +161,9 @@ int * pvision, * plife, * presult, * pspeed, * ptiming, *plifemax, *pexper, *pma
 int *pupdate_status, *pmissile_target, *penemy_sprite, *pmagic_cost, *pmissle_source;
 int flife, fexp, fstrength, fdefense, fgold, fmagic, fmagic_level, flifemax, fraise, last_magic_draw;
 int fcur_weapon, fcur_magic;
-const int max_idata = 600;
+#define MAX_IDATA 600
 int mbase_timing;
-idata id[max_idata];
+struct idata id[MAX_IDATA];
 
 unsigned long mold;
 
@@ -171,7 +171,7 @@ int item_timer;
 int item_pic;
 
 int mbase_count;
-bool no_transition = false;
+/*bool*/int no_transition = /*false*/0;
 
 
 
@@ -184,21 +184,21 @@ struct player_short_info
         
 };
 
-player_short_info short_play;
+struct player_short_info short_play;
 
 
 int push_active = 1;
 
 
-bool turn_on_plane = /*FALSE*/0;
+/*bool*/int turn_on_plane = /*FALSE*/0;
 const int text_timer = 77;
 const int text_min = 2700;
-const int max_sprites = 4000;
+#define MAX_SPRITES 4000
 int stop_entire_game;
-const int max_callbacks = 100;
-const int max_scripts = 200;
+#define MAX_CALLBACKS 100
+#define MAX_SCRIPTS 200
 const int max_game = 20;
-bool in_enabled = false;
+/*bool*/int in_enabled = /*false*/0;
 char *in_string;
 
 
@@ -210,25 +210,25 @@ struct refinfo
         int level;
         long end;
         int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
-        bool skipnext;
+        /*bool*/int skipnext;
         int onlevel;
         int proc_return;
 };
 
 
-bool first_frame = false;
+/*bool*/int first_frame = /*false*/0;
 
 /* If true, and if the engine is executing a screen's attached script,
    and if main() loads new graphics (preload_seq()...), then
    load_sprites and load_sprite_pak will display a "Please Wait"
    animation. */
-bool no_running_main = false;
+/*bool*/int no_running_main = /*false*/0;
 
 struct call_back
 {
         
         int owner;
-        bool active;
+        /*bool*/int active;
     int type;
         char name[20];
         int offset;
@@ -238,17 +238,18 @@ struct call_back
 };
 
 
-call_back callback[max_callbacks];
+struct call_back callback[MAX_CALLBACKS];
+/* TODO: Used 1->100 in the game, should it be MAX_CALLBACKS+1 ? */
 
-char *rbuf[max_scripts]; //pointers to buffers we may need
+char *rbuf[MAX_SCRIPTS]; //pointers to buffers we may need
 
-refinfo *rinfo[max_scripts];
+struct refinfo *rinfo[MAX_SCRIPTS];
 
 int process_warp = 0;
 /* Tell the engine that we're fading down */
-bool process_downcycle = false;
+/*bool*/int process_downcycle = /*false*/0;
 /* or fading up */
-bool process_upcycle = false;
+/*bool*/int process_upcycle = /*false*/0;
 unsigned long cycle_clock = 0;
 int cycle_script = 0;
 
@@ -263,7 +264,7 @@ long nlist[10];
 int process_count = 0;
 rect sp_alt;
 int hard_tile = 0;
-bool sp_screenmatch = 0;
+/*bool*/int sp_screenmatch = 0;
 char in_temp[200];
 int in_command;
 int in_finish;
@@ -273,7 +274,7 @@ int in_huh = 0;
 char in_default[200];
 int in_master = 0;
 
-bool sound_on = true;
+/*bool*/int sound_on = /*true*/1;
 char dir[80];
 
 
@@ -282,22 +283,22 @@ char dir[80];
 
 
 
-int process_line (int script, char *s, bool doelse);
+int process_line (int script, char *s, /*bool*/int doelse);
 
 
 
 
-bool please_wait = false;
+/*bool*/int please_wait = /*false*/0;
 int  show_dot = /*FALSE*/0;
 int  plane_process = /*TRUE*/1;
-hit_map hm;
+struct hit_map hm;
 
 /* HWND     g_hWnd; */
-sprite_index s_index[max_sequences];
+struct sprite_index s_index[MAX_SEQUENCES];
 int last_sprite_added = 0;
 unsigned long timer = 0;
 char *command_line;
-bool dinkedit = false;
+/*bool*/int dinkedit = /*false*/0;
 int base_timing;
 int weapon_script = 0;
 int magic_script = 0;
@@ -306,20 +307,20 @@ int sp_mode = 0;
 int fps,fps_final = 0;
 int last_sprite_created;
 int move_screen = 0;
-bool move_gonna = false;
+/*bool*/int move_gonna = /*false*/0;
 int move_counter = 0;
 int m1x,m1y;
 int m2x,m2y;
 int m3x,m3y;
 int playx = 620;
-bool windowed = false;
+/*bool*/int windowed = /*false*/0;
 int playl = 20;
 /* HINSTANCE MyhInstance = NULL; */
-bool mouse1 = false;
+/*bool*/int mouse1 = /*false*/0;
 int cur_sprite = 1;
 int playy = 399;
 int cur_map,cur_tile;
-seth_joy sjoy;
+struct seth_joy sjoy;
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount; 
 unsigned long timecrap;
@@ -333,29 +334,30 @@ int sz,sy,x_offset,y_offset;
 
 int mode;
 
-sequence seq[max_sequences]; 
-map_info map;
-small_map pam;
+struct sequence seq[MAX_SEQUENCES]; 
+struct map_info map;
+struct small_map pam;
 
 
-bool trig_man = false;
-bool total_trigger = false;
-bool debug_mode = false;
+/*bool*/int trig_man = /*false*/0;
+/*bool*/int total_trigger = /*false*/0;
+/*bool*/int debug_mode = /*false*/0;
 
-pic_info     k[max_sprites];       // Sprite data
-GFX_pic_info GFX_k[max_sprites];   // Sprite data (SDL)
-player_info play;
+struct pic_info     k[MAX_SPRITES];       // Sprite data
+struct GFX_pic_info GFX_k[MAX_SPRITES];   // Sprite data (SDL)
+
+struct player_info play;
 
 
 
 
 /* LPDIRECTDRAWSURFACE     game[max_game];       // Game pieces */
 
-sp spr[max_sprites_at_once]; //max sprite control systems at once
+struct sp spr[MAX_SPRITES_AT_ONCE]; //max sprite control systems at once
 /* LPDIRECTDRAWPALETTE     lpDDPal = NULL;        // The primary surface palette */
 /* PALETTEENTRY    pe[256]; */
 
-int bActive = false;        // is application active/foreground?
+int bActive = /*false*/0;        // is application active/foreground?
 //LPDIRECTINPUT lpDI;
 
 
@@ -376,8 +378,8 @@ unsigned char torusColors[256];  // Marks the colors used in the torus
 /* HWND                    hWndMain = NULL; */
 //JOYINFOEX jinfo; //joystick info
 SDL_Joystick* jinfo;
-int joystick = true;
-hardness hmap;
+int joystick = /*true*/1;
+struct hardness hmap;
 
 
 
@@ -440,7 +442,7 @@ doit:
 
 /* Split 'str' in words separated by 'liney', and copy the #'num' one
    in 'return1' */
-bool separate_string (char str[255], int num, char liney, char *return1) 
+/*bool*/int separate_string (char str[255], int num, char liney, char *return1) 
 {
   int l;
   int k;
@@ -466,7 +468,7 @@ bool separate_string (char str[255], int num, char liney, char *return1)
   replace("\r","",return1); //Take the /r off it.
   replace("\n","",return1); //Take the /n off it.
         
-  return(false);
+  return(/*false*/0);
 
 done:
   if (l < num)  strcpy(return1,"");
@@ -475,7 +477,7 @@ done:
   replace("\n","",return1); //Take the /n off it.
         
   //Msg("Took %s and turned it to %s.",str, return1);
-  return(true);
+  return(/*true*/1);
 }
 
 
@@ -759,7 +761,7 @@ char * lmon(long money, char *dest)
 /* } */
 
 
-bool compare(char *orig, char *comp)
+/*bool*/int compare(char *orig, char *comp)
 {
         
         int len;
@@ -769,17 +771,17 @@ bool compare(char *orig, char *comp)
         
         
         len = strlen(comp);
-        if (strlen(orig) != len) return(false);
+        if (strlen(orig) != len) return(/*false*/0);
         
         
         if (strncasecmp(orig,comp,len) == 0)
         {
-                return(true);
+                return(/*true*/1);
         }
         
         //Msg("I'm sorry, but %s does not equal %s.",orig, comp);
         
-        return(false);
+        return(/*false*/0);
 }
 
 /**
@@ -787,7 +789,7 @@ bool compare(char *orig, char *comp)
  * applications like the DinkFrontEnd. Also notify whether Dink is
  * running or not.
  */
-void log_path(bool playing)
+void log_path(/*bool*/int playing)
 {
   if (g_b_no_write_ini)
     return; //fix problem with NT security if -noini is set
@@ -813,98 +815,6 @@ void log_path(bool playing)
 }
 
 
-/* BOOL init_mouse(HWND hwnd) */
-/* { */
-/*     if (g_pdi) */
-/*         { */
-/*           Msg("Mouse already initted? what the?"); */
-/*           return true; */
-/*         } */
-        
-/*         HRESULT hr; */
-        
-/*     /\* */
-/*         *  Register with DirectInput and get an IDirectInput to play with. */
-/*         *\/ */
-/*     hr = DirectInputCreate(MyhInstance, DIRECTINPUT_VERSION, &g_pdi, NULL); */
-        
-/*     if (FAILED(hr)) { */
-/*         Msg( "DirectInputCreate"); */
-/*         return FALSE; */
-/*     } */
-        
-/*     /\* */
-/*         *  Obtain an interface to the system mouse device. */
-/*         *\/ */
-/*     hr = g_pdi->CreateDevice(GUID_SysMouse, &g_pMouse, NULL); */
-        
-/*     if (FAILED(hr)) { */
-/*         Msg("CreateDevice(SysMouse)"); */
-/*         return FALSE; */
-/*     } */
-        
-/*     /\* */
-/*         *  Set the data format to "mouse format". */
-/*         *\/ */
-/*     hr = g_pMouse->SetDataFormat(&c_dfDIMouse); */
-        
-/*     if (FAILED(hr)) { */
-/*                 Msg("SetDataFormat(SysMouse, dfDIMouse)"); */
-/*         return FALSE; */
-/*     } */
-        
-/*     /\* */
-/*         *  Set the cooperativity level. */
-/*         *\/ */
-/*     hr = g_pMouse->SetCooperativeLevel(hwnd, */
-/*                 DISCL_EXCLUSIVE | DISCL_FOREGROUND); */
-        
-/*     if (FAILED(hr)) { */
-/*                 Msg( "Error: SetCooperativeLevel(SysMouse)"); */
-/*         return FALSE; */
-/*     } */
-        
-/*     /\* */
-/*         *  Set the buffer size to DINPUT_BUFFERSIZE elements. */
-/*         *  The buffer size is a DWORD property associated with the device. */
-/*         *\/ */
-/*     DIPROPDWORD dipdw = */
-/*         { */
-/*                 { */
-/*                         sizeof(DIPROPDWORD),        // diph.dwSize */
-/*                 sizeof(DIPROPHEADER),       // diph.dwHeaderSize */
-/*                 0,                          // diph.dwObj */
-/*                 DIPH_DEVICE,                // diph.dwHow */
-/*                 }, */
-/*                 DINPUT_BUFFERSIZE,              // dwData */
-/*         }; */
-        
-/*     hr = g_pMouse->SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph); */
-        
-/*     if (FAILED(hr)) { */
-/*                 Msg( "Set buffer size(SysMouse)"); */
-/*         return FALSE; */
-/*     } */
-        
-    
-        
-/*         return TRUE; */
-        
-/* } */
-
-
-
-
-int GetKeyboard(int key)
-{
-  // returns 0 if the key has been depressed, else returns 1 and sets key to code recd.
-  int keystate_size = -1;
-  Uint8 *keystate;
-  SDL_PumpEvents();
-  keystate = SDL_GetKeyState (&keystate_size);
-  return keystate[key];
-  // return (GetAsyncKeyState(key));
-}
 
 void Msg(char *fmt, ...)
 {
@@ -1023,17 +933,17 @@ void TRACE(char *fmt, ...)
 /* } */
 
 
-bool exist(char name[255])
+/*bool*/int exist(char name[255])
 {
   char tmp_filename[PATH_MAX];
 
   FILE *fp;
   fp = fopen(ciconvertbuf(name, tmp_filename), "rb");
   if (!fp)
-    return false;
+    return /*false*/0;
   
   fclose(fp);
-  return true;
+  return /*true*/1;
 }
 
 
@@ -1067,10 +977,10 @@ void add_text(char *tex ,char *filename)
 int getpic(int h)
 {
         if (spr[h].pseq == 0) return(0);
-        if (spr[h].pseq > max_sequences)
+        if (spr[h].pseq > MAX_SEQUENCES)
         {
                 
-                Msg("Sequence %d?  But max is %d!", spr[h].pseq, max_sequences);
+                Msg("Sequence %d?  But max is %d!", spr[h].pseq, MAX_SEQUENCES);
                 return(0);
         }
         return(seq[spr[h].pseq].frame[spr[h].pframe]);
@@ -1080,19 +990,18 @@ int getpic(int h)
 
 void add_hardness (int sprite, int num)
 {
-        
-        for (int  xx = spr[sprite].x + k[getpic(sprite)].hardbox.left; xx < spr[sprite].x + k[getpic(sprite)].hardbox.right; xx++)
-        {
-                for (int yy = spr[sprite].y + k[getpic(sprite)].hardbox.top; yy < spr[sprite].y + k[getpic(sprite)].hardbox.bottom; yy++)
-                {
-                        if ( (xx-20 > 600) | (xx-20 < 0)| (yy > 400) | (yy < 0))
-                        {
-                        } else
-                                
-                                hm.x[xx-20].y[yy] = num;
-                }       
-        }
-        
+  int xx;
+  for (xx = spr[sprite].x + k[getpic(sprite)].hardbox.left; xx < spr[sprite].x + k[getpic(sprite)].hardbox.right; xx++)
+    {
+      int yy;
+      for (yy = spr[sprite].y + k[getpic(sprite)].hardbox.top; yy < spr[sprite].y + k[getpic(sprite)].hardbox.bottom; yy++)
+	{
+	  if ( (xx-20 > 600) | (xx-20 < 0)| (yy > 400) | (yy < 0))
+	    ; /* Nothing */
+	  else
+	    hm.x[xx-20].y[yy] = num;
+	}       
+    }
 }
 
 
@@ -1100,17 +1009,15 @@ void add_hardness (int sprite, int num)
 
 void setup_anim (int fr, int start,int delay)
 {
-        //** start is sprite sequence #, don't know why it is called start
-        
-        for (int o = 1; o <= s_index[start].last; o++)
-                
-        {
-                seq[fr].frame[o] = s_index[start].s+o;
-                seq[fr].delay[o] = delay;
-        }
-        
-        seq[fr].frame[s_index[start].last+1] = 0;
-        
+  //** start is sprite sequence #, don't know why it is called start
+  int o;      
+  for (o = 1; o <= s_index[start].last; o++)
+    {
+      seq[fr].frame[o] = s_index[start].s+o;
+      seq[fr].delay[o] = delay;
+    }
+  
+  seq[fr].frame[s_index[start].last+1] = 0;
 }
 
 
@@ -1118,9 +1025,9 @@ unsigned char get_hard(int h,int x1, int y1)
 {
         int value;
         
-        if ((x1 < 0) || (y1 < 0)) return(false);
-        if ((x1 > 599) ) return(false);
-        if (y1 > 399) return(false);
+        if ((x1 < 0) || (y1 < 0)) return(/*false*/0);
+        if ((x1 > 599) ) return(/*false*/0);
+        if (y1 > 399) return(/*false*/0);
         
         value =  hm.x[x1].y[y1];        
         
@@ -1132,9 +1039,9 @@ unsigned char get_hard_play(int h,int x1, int y1)
 {
         int value;
         x1 -= 20;
-        if ((x1 < 0) || (y1 < 0)) return(false);
-        if ((x1 > 599) ) return(false);
-        if (y1 > 399) return(false);
+        if ((x1 < 0) || (y1 < 0)) return(/*false*/0);
+        if ((x1 > 599) ) return(/*false*/0);
+        if (y1 > 399) return(/*false*/0);
         
         value =  hm.x[x1].y[y1];        
         
@@ -1180,24 +1087,18 @@ unsigned char get_hard_map(int h,int x1, int y1)
 
 void fill_hardxy(rect box)
 {
-        //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
-        
-                         if (box.right > 599) box.right = 599;
-                         if (box.top < 0) box.top = 0;
-                         if (box.bottom > 399) box.bottom = 399;
-                         if (box.left < 0) box.left = 0;
-                         
-                         
-                         for (int x1 = box.left; x1 < box.right; x1++)
-                         {
-                                 for (int y1 = box.top; y1 < box.bottom; y1++)
-                                 {
-                                         hm.x[x1].y[y1] = get_hard_map(0,x1,y1);
-                                         
-                                 }
-                                 
-                         }
-                         
+  int x1, y1;
+  //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
+  
+  if (box.right > 599) box.right = 599;
+  if (box.top < 0) box.top = 0;
+  if (box.bottom > 399) box.bottom = 399;
+  if (box.left < 0) box.left = 0;
+  
+  
+  for (x1 = box.left; x1 < box.right; x1++)
+    for (y1 = box.top; y1 < box.bottom; y1++)
+      hm.x[x1].y[y1] = get_hard_map(0,x1,y1);
 }
 
 
@@ -1248,30 +1149,16 @@ int realhard(int tile)
 
 void fill_whole_hard(void)
 {
-        
-        for (int til=0; til < 96; til++)
-        {
-                int offx = (til * 50 - ((til / 12) * 600));
-                int offy = (til / 12) * 50;
-                
-                for (int x = 0; x < 50; x++)
-                {
-                        for (int y = 0; y < 50; y++)
-                        {
-                                
-                                
-                                hm.x[offx +x].y[offy+y] = hmap.tile[  realhard(til)  ].x[x].y[y];
-                                
-                                
-                        }
-                }
-                
-                
-        }
-        
-        
-        
-        
+  int til;
+  for (til=0; til < 96; til++)
+    {
+      int offx = (til * 50 - ((til / 12) * 600));
+      int offy = (til / 12) * 50;
+      int x, y;
+      for (x = 0; x < 50; x++)
+	for (y = 0; y < 50; y++)
+	  hm.x[offx +x].y[offy+y] = hmap.tile[  realhard(til)  ].x[x].y[y];
+    }
 }
 
 /* Draw harness. Used by freedinkedit and updateFrame() in hard-coded
@@ -1281,10 +1168,11 @@ void drawallhard( void)
   rect box_crap;
   int ddrval;
 /*   DDBLTFX     ddbltfx; */
+  int x1, y1;
 
   /* TODO: test me! Then factor the code */  
-  for (int x1=0; x1 < 600; x1++)
-    for (int y1=0; y1 < 400; y1++)
+  for (x1=0; x1 < 600; x1++)
+    for (y1=0; y1 < 400; y1++)
       {
 	if (hm.x[x1].y[y1] == 1) 
 	  {
@@ -1401,14 +1289,14 @@ void drawallhard( void)
 
 void fix_dead_sprites( void )
 {
-        
-        if (dinkedit) return;
-        
-        for (int i = 1; i < 100; i++)
-        {
-                if (play.spmap[*pmap].type[i] == 6)
-                {
-                        
+  int i;
+  if (dinkedit) return;
+  
+  for (i = 1; i < 100; i++)
+    {
+      if (play.spmap[*pmap].type[i] == 6)
+	{
+	  
                         if  ((thisTickCount > (play.spmap[*pmap].last_time +  300000)) ||
                                 (thisTickCount  +400000 < play.spmap[*pmap].last_time +  300000) )
                                 
@@ -1440,8 +1328,7 @@ void fix_dead_sprites( void )
                 }
                 
                 
-        }
-        
+    }
 }
 
 
@@ -1468,8 +1355,8 @@ void load_map(const int num)
                          if (shit == 0) Msg("ERROR:  Couldn't read map %d?!?", num);
                          fclose(fp);
                          
-                         spr[1].move_active = false;
-                         spr[1].freeze = false;
+                         spr[1].move_active = /*false*/0;
+                         spr[1].freeze = /*false*/0;
                          screenlock = 0;
                          fill_whole_hard();
              fix_dead_sprites();                         
@@ -1579,14 +1466,14 @@ void attach(void)
 		     "&missile_target", "&enemy_sprite", "&magic_cost",
 		     "&missle_source" };
   int n, i;
-  for (int n = 0; n < 22; n++)
+  for (n = 0; n < 22; n++)
     {
       if (!var_exists(var_names[n], 0)) /* 0 = global scope */
 	make_int(var_names[n], 0, 0, -1);
       /* TODO: setting script to -1 is asking for troubles... */
     }
 
-  for (i = 1; i < max_vars; i++)
+  for (i = 1; i < MAX_VARS; i++)
     {
       if (compare("&life", play.var[i].name)) plife = &play.var[i].var;
       if (compare("&vision", play.var[i].name)) pvision = &play.var[i].var;
@@ -1615,7 +1502,7 @@ void attach(void)
 
 
 
-bool add_time_to_saved_game(int num)
+/*bool*/int add_time_to_saved_game(int num)
 {
         FILE *          fp;
         char crap[80];
@@ -1626,7 +1513,7 @@ bool add_time_to_saved_game(int num)
                                 if (!fp)
                                 {
                                         Msg("Couldn't load save game %d", num);
-                                        return(false);
+                                        return(/*false*/0);
                                 }
                                 else
                                 {
@@ -1656,13 +1543,13 @@ bool add_time_to_saved_game(int num)
                                 }
                                 Msg("Wrote it.(%d of time)", play.minutes);
                                 
-                                return(true);   
+                                return(/*true*/1);   
 }
 
 
 
 
-bool load_game(int num)
+/*bool*/int load_game(int num)
 {
         FILE *          fp;
         char crap[80];
@@ -1686,10 +1573,10 @@ bool load_game(int num)
         
         
         
-        bow.active = false;
+        bow.active = /*false*/0;
     weapon_script = 0;
         magic_script = 0;
-        midi_active = true;
+        midi_active = /*true*/1;
         
         
         if (last_saved_game > 0)
@@ -1709,7 +1596,7 @@ bool load_game(int num)
                                 if (!fp)
                                 {
                                         Msg("Couldn't load save game %d", num);
-                                        return(false);
+                                        return(/*false*/0);
                                 }
                                 else
                                 {
@@ -1739,7 +1626,7 @@ bool load_game(int num)
                                         spr[1].base_walk = play.base_walk;
                                         spr[1].base_hit = play.base_hit;
                                         
-                                        int script = load_script("main", 0, true);
+                                        int script = load_script("main", 0, /*true*/1);
                                         locate(script, "main");
                                         run_script(script);
                                         //lets attach our vars to the scripts
@@ -1751,7 +1638,7 @@ bool load_game(int num)
                                         
                                         if (*pcur_weapon != 0) 
                                         {
-                                                if (play.item[*pcur_weapon].active == false)
+                                                if (play.item[*pcur_weapon].active == /*false*/0)
                                                 {
                                                         *pcur_weapon = 1;
                                                         weapon_script = 0;
@@ -1759,12 +1646,12 @@ bool load_game(int num)
                                                 } else
                                                 {
                                                         
-                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, false);
+                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
                                                         
                                                         
                                                         if (locate(weapon_script, "DISARM")) run_script(weapon_script);
                                                         
-                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, false);
+                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
                                                         
                                                         
                                                         if (locate(weapon_script, "ARM")) run_script(weapon_script);
@@ -1772,7 +1659,7 @@ bool load_game(int num)
                                         }
                                         if (*pcur_magic != 0) 
                                         {
-                                                if (play.item[*pcur_magic].active == false)
+                                                if (play.item[*pcur_magic].active == /*false*/0)
                                                 {
                                                         *pcur_magic = 0;
                                                         magic_script = 0;
@@ -1780,9 +1667,9 @@ bool load_game(int num)
                                                 } else
                                                 {
                                                         
-                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, false);
+                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
                                                         if (locate(magic_script, "DISARM")) run_script(magic_script);
-                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, false);
+                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
                                                         if (locate(magic_script, "ARM")) run_script(magic_script);
                                                 }
                                         }
@@ -1794,7 +1681,7 @@ bool load_game(int num)
                                         
                                         last_saved_game = num;
                                         
-                                        return(true);
+                                        return(/*true*/1);
                                 }
                                 
 }
@@ -1804,12 +1691,12 @@ void kill_cur_item( void )
         
         if (*pcur_weapon != 0) 
         {
-                if (play.item[*pcur_weapon].active == true)
+                if (play.item[*pcur_weapon].active == /*true*/1)
                 {
                         
                         if (weapon_script != 0) if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-                        weapon_script = load_script(play.item[*pcur_weapon].name, 0, false);
-                        play.item[*pcur_weapon].active = false;
+                        weapon_script = load_script(play.item[*pcur_weapon].name, 0, /*false*/0);
+                        play.item[*pcur_weapon].active = /*false*/0;
                         *pcur_weapon = 0;
                         if (weapon_script != 0) if (locate(weapon_script, "HOLDINGDROP")) run_script(weapon_script);
                         
@@ -1826,23 +1713,20 @@ void kill_cur_item( void )
 
 void kill_cur_item_script( char name[20])
 {
-        int select = 0;
-        for (int i = 1; i < 17; i++)
-        {
-                if (play.item[i].active)
-                        if (compare(play.item[i].name, name))
-                        {
-                                select = i; 
-                                goto found;
-                                
-                        }
-                        
-        }
-        
-        
-        return;
-        
-found:
+  int select = 0;
+  int i;
+  for (i = 1; i < 17; i++)
+    {
+      if (play.item[i].active)
+	if (compare(play.item[i].name, name))
+	  {
+	    select = i; 
+	    goto found;
+	  }
+    }
+  return;
+  
+ found:
         
         if (*pcur_weapon == select)
                 
@@ -1856,8 +1740,8 @@ found:
                 weapon_script = 0;
         }
         
-        int script = load_script(play.item[select].name, 0, false);
-        play.item[select].active = false;
+        int script = load_script(play.item[select].name, 0, /*false*/0);
+        play.item[select].active = /*false*/0;
         
         
         
@@ -1870,20 +1754,18 @@ found:
 
 void kill_cur_magic_script( char name[20])
 {
-        int select = 0;
-        for (int i = 1; i < 9; i++)
-        {
-                if (play.mitem[i].active)
-                        if (compare(play.mitem[i].name, name))
-                        {
-                                select = i; 
-                                goto found;
-                                
-                        }
-        }
-        
-        
-        return;
+  int select = 0;
+  int i;
+  for (i = 1; i < 9; i++)
+    {
+      if (play.mitem[i].active)
+	if (compare(play.mitem[i].name, name))
+	  {
+	    select = i; 
+	    goto found;
+	  }
+    }
+  return;
         
 found:
         
@@ -1899,8 +1781,8 @@ found:
                 magic_script = 0;
         }
         
-        int script = load_script(play.mitem[select].name, 0, false);
-        play.mitem[select].active = false;
+        int script = load_script(play.mitem[select].name, 0, /*false*/0);
+        play.mitem[select].active = /*false*/0;
         
         
         if (locate(script, "DROP")) run_script(script);
@@ -1917,12 +1799,12 @@ void kill_cur_magic( void )
         
         if (*pcur_magic != 0) 
         {
-                if (play.mitem[*pcur_magic].active == true)
+                if (play.mitem[*pcur_magic].active == /*true*/1)
                 {
                         
                         if (magic_script != 0) if (locate(magic_script, "DISARM")) run_script(magic_script);
-                        magic_script = load_script(play.mitem[*pcur_magic].name, 0, false);
-                        play.mitem[*pcur_magic].active = false;
+                        magic_script = load_script(play.mitem[*pcur_magic].name, 0, /*false*/0);
+                        play.mitem[*pcur_magic].active = /*false*/0;
                         *pcur_magic = 0;
                         
                         if (magic_script != 0) if (locate(magic_script, "HOLDINGDROP")) run_script(magic_script);       
@@ -1944,7 +1826,7 @@ void update_screen_time(void )
         //Msg("Time was saved as %d", play.spmap[*pmap].last_time);
 }
 
-bool load_game_small(int num, char * line, int *mytime)
+/*bool*/int load_game_small(int num, char * line, int *mytime)
 {
         FILE *          fp;
         char crap[80];
@@ -1955,16 +1837,16 @@ bool load_game_small(int num, char * line, int *mytime)
                                 if (!fp)
                                 {
                                         Msg("Couldn't quickload save game %d", num);
-                                        return(false);
+                                        return(/*false*/0);
                                 }
                                 else
                                 {
                                         
-                                        fread(&short_play,sizeof(player_short_info),1,fp);
+                                        fread(&short_play,sizeof(struct player_short_info),1,fp);
                                         fclose(fp);
                                         *mytime = short_play.minutes;                   
                                         strcpy(line, short_play.gameinfo); 
-                                        return(true);
+                                        return(/*true*/1);
                                 }
                                 
 }
@@ -2059,7 +1941,7 @@ void draw_wait()
 			  SDL_Rect dst = {232, 0};
 			  SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSPrimary, &dst);
 			}
-                        please_wait = false;
+                        please_wait = /*false*/0;
                 } else
                 {
 /*                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k, */
@@ -2069,7 +1951,7 @@ void draw_wait()
 			  SDL_Rect dst = {232, 0};
 			  SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSPrimary, &dst);
 			}
-                        please_wait = true;
+                        please_wait = /*true*/1;
                         
                 }
         }
@@ -2081,7 +1963,7 @@ void draw_wait()
 
 
 void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
-			 rect hardbox, bool notanim, bool black, bool leftalign, bool samedir)
+			 rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
   int work;
 
@@ -2101,18 +1983,20 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
   int sprite = 71;
   /*BOOL*/int trans = /*FALSE*/0;
-  bool reload = false;
+  /*bool*/int reload = /*false*/0;
 
   char crap[200];
 
   int save_cur = cur_sprite;
+
+  int oo;
 
   if (s_index[nummy].last != 0)
     {
       //  Msg("Saving sprite %d", save_cur);
       cur_sprite = s_index[nummy].s+1;
       //Msg("Temp cur_sprite is %d", cur_sprite);
-      reload = true;
+      reload = /*true*/1;
     }
 
 
@@ -2153,7 +2037,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	       }
   */
 
-  for (int oo = 1; oo <= 51; oo++)
+  for (oo = 1; oo <= 51; oo++)
     {
       //load sprite
       sprite = cur_sprite;
@@ -2436,11 +2320,12 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* - org: path to the file, relative to the current game (dink or dmod) */
 /* - nummy: ??? */
 void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
-		  rect hardbox, bool notanim, bool black, bool leftalign)
+		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
   int work;
 /*   PALETTEENTRY holdpal[256]; */
   char crap[200],hold[5];
+  int oo;
 
   if (no_running_main) draw_wait();
 
@@ -2464,7 +2349,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   //Msg("Checking for %s..", crap);
   if (exist(ciconvert(crap)))
     {
-      load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, true);
+      load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
   sprintf(crap, "%s01.BMP",org);
@@ -2474,7 +2359,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       //Msg("Checking for %s..", crap);
       if (exist(ciconvert(crap)))
 	{
-	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, false);
+	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
 	  return;
 	}
       //    Msg("Dir bad for sprite, changing");
@@ -2492,7 +2377,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 /*     } */
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
-  for (int oo = 1; oo <= 1000; oo++)
+  for (oo = 1; oo <= 1000; oo++)
     {
       if (oo < 10) strcpy(hold, "0"); else strcpy(hold,"");
       sprintf(crap, "%s%s%d.BMP",org,hold,oo);
@@ -2633,7 +2518,8 @@ void figure_out(char line[255], int load_seq)
         memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
-        for (int i=1; i <= 14; i++)
+	int i;
+        for (i = 1; i <= 14; i++)
         {
                 separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
@@ -2645,22 +2531,23 @@ void figure_out(char line[255], int load_seq)
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
 	  memset(&hardbox, 0, sizeof(rect));     
-                seq[atol(ev[3])].active = true;
-                strcpy(seq[atol(ev[3])].data, line);
+                seq[atol(ev[3])].active = /*true*/1;
+		if (seq[atol(ev[3])].data != line)
+		  strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
                 {
-                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,true, true, false); 
+                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*true*/1, /*false*/0); 
                 } else
                         if (compare(ev[4], "LEFTALIGN"))
                         {
-                                load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,false, false, true); 
+                                load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*false*/0, /*false*/0, /*true*/1); 
                         } else
                                 
                                 if (compare(ev[4], "NOTANIM"))
                                 {
                                         
                                         //not an animation!
-                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,false, false, false); //Crap
+                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*false*/0, /*false*/0, /*false*/0); //Crap
                                 } else
                                 {
                                         //yes, an animation!
@@ -2669,7 +2556,7 @@ void figure_out(char line[255], int load_seq)
                                         hardbox.right = atol(ev[9]);
                                         hardbox.bottom = atol(ev[10]);
                                         
-                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,true, false, false); //Crap
+                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*false*/0, /*false*/0); //Crap
                                 }
                                 
                                 
@@ -2763,7 +2650,8 @@ void figure_out(char line[255], int load_seq)
 
 void program_idata(void)
 {
-        for (int i = 1; i < max_idata; i++)
+  int i;
+        for (i = 1; i < MAX_IDATA; i++)
         {
                 if (id[i].type == 0) return;
                 
@@ -2808,8 +2696,8 @@ void program_idata(void)
 
 void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, rect crect)
 {
-        
-        for (int i = 1; i < max_idata; i++)
+  int i;
+        for (i = 1; i < MAX_IDATA; i++)
         {
                 if (id[i].type == 0)
                 {
@@ -2827,7 +2715,7 @@ void make_idata(int type, int myseq, int myframe, int xoffset, int yoffset, rect
                 
         }
         
-        Msg("Out of idata spots (max is %d), no more sprite corrections can be allowed.", max_idata);
+        Msg("Out of idata spots (max is %d), no more sprite corrections can be allowed.", MAX_IDATA);
 }
 
 void pre_figure_out(char line[255], int load_seq)
@@ -2837,7 +2725,8 @@ void pre_figure_out(char line[255], int load_seq)
         memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0; int special = 0;
         int special2 = 0;
-        for (int i=1; i <= 14; i++)
+	int i;
+        for (i=1; i <= 14; i++)
         {
                 separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
@@ -2856,22 +2745,22 @@ void pre_figure_out(char line[255], int load_seq)
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 
 	  memset(&hardbox, 0, sizeof(rect));     
-                seq[atol(ev[3])].active = true;
+                seq[atol(ev[3])].active = /*true*/1;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
                 {
-                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,true, true, false); 
+                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*true*/1, /*false*/0); 
                 } else
                         if (compare(ev[4], "LEFTALIGN"))
                         {
-                                load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,false, false, true); 
+                                load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*false*/0, /*false*/0, /*true*/1); 
                         } else
                                 
                                 if (compare(ev[4], "NOTANIM"))
                                 {
                                         
                                         //not an animation!
-                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,false, false, false); //Crap
+                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*false*/0, /*false*/0, /*false*/0); //Crap
                                 } else
                                 {
                                         //yes, an animation!
@@ -2880,7 +2769,7 @@ void pre_figure_out(char line[255], int load_seq)
                                         hardbox.right = atol(ev[9]);
                                         hardbox.bottom = atol(ev[10]);
                                         
-                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,true, false, false); //Crap
+                                        load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*false*/0, /*false*/0); //Crap
                                 }
                                 
                                 
@@ -2930,7 +2819,7 @@ void pre_figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy       
                 strcpy(seq[atol(ev[3])].data, line);
-                seq[atol(ev[3])].active = true;
+                seq[atol(ev[3])].active = /*true*/1;
                 return; 
         }
         
@@ -3010,8 +2899,9 @@ int draw_num(int mseq, char nums[50], int mx, int my)
   int length = 0;
 /*   HRESULT             ddrval; */
   int rnum = 0;
-  
-  for (int i=0; i < strlen(nums); i++)
+  int i;
+
+  for (i=0; i < strlen(nums); i++)
     {
       if (nums[i] == '0') rnum = 10;
       else if (nums[i] == '1') rnum = 1;
@@ -3092,18 +2982,24 @@ void draw_exp()
 	sprintf(buffer, "%ld", fexp);
         strcpy(nums, buffer);
         if (strlen(nums) < 5)
-                for (int i = 1; i < (6 - strlen(nums)); i++)
-                        strcat(final, "0");
-                strcat(final, nums);
-                strcat(final,"/");
+	  {
+	    int i;
+	    for (i = 1; i < (6 - strlen(nums)); i++)
+	      strcat(final, "0");
+	  }
+	strcat(final, nums);
+	strcat(final,"/");
                 
 		sprintf(buffer, "%ld", fraise);
                 strcpy(nums, buffer);
                 if (strlen(nums) < 5)
-                        for (int i = 1; i < (6 - strlen(nums)); i++)
-                                strcat(final, "0");
-                        strcat(final, nums);
-                        draw_num(181, final, 404, 459);
+		  {
+		    int i;
+		    for (i = 1; i < (6 - strlen(nums)); i++)
+		      strcat(final, "0");
+		  }
+		strcat(final, nums);
+		draw_num(181, final, 404, 459);
                         
 }
 
@@ -3119,11 +3015,14 @@ void draw_strength()
 	sprintf(buffer, "%ld", fstrength);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
-                for (int i = 1; i < (4 - strlen(nums)); i++)
-                        strcat(final, "0");
-                strcat(final, nums);
-                //Msg("Drawing %s..",final);
-                draw_num(182, final, 81, 415);
+	  {
+	    int i;
+	    for (i = 1; i < (4 - strlen(nums)); i++)
+	      strcat(final, "0");
+	  }
+	strcat(final, nums);
+	//Msg("Drawing %s..",final);
+	draw_num(182, final, 81, 415);
 }
 
 
@@ -3137,10 +3036,13 @@ void draw_defense()
 	sprintf(buffer, "%ld", fdefense);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
-                for (int i = 1; i < (4 - strlen(nums)); i++)
-                        strcat(final, "0");
-                strcat(final, nums);
-                draw_num(183, final, 81, 437);
+	  {
+	    int i;
+	    for (i = 1; i < (4 - strlen(nums)); i++)
+	      strcat(final, "0");
+	  }
+	strcat(final, nums);
+	draw_num(183, final, 81, 437);
 }
 
 
@@ -3154,10 +3056,13 @@ void draw_magic()
 	sprintf(buffer, "%ld", fmagic);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
-                for (int i = 1; i < (4 - strlen(nums)); i++)
-                        strcat(final, "0");
-                strcat(final, nums);
-                draw_num(184, final, 81, 459);
+	  {
+	    int i;
+	    for (i = 1; i < (4 - strlen(nums)); i++)
+	      strcat(final, "0");
+	  }
+	strcat(final, nums);
+	draw_num(184, final, 81, 459);
 }
 
 
@@ -3188,10 +3093,13 @@ void draw_gold()
 	sprintf(buffer, "%ld", fgold);
         strcpy(nums, buffer);
         if (strlen(nums) < 5)
-                for (int i = 1; i < (6 - strlen(nums)); i++)
-                        strcat(final, "0");
-                strcat(final, nums);
-                draw_num(185, final, 298, 457);
+	  {
+	    int i;
+	    for (i = 1; i < (6 - strlen(nums)); i++)
+	      strcat(final, "0");
+	  }
+	strcat(final, nums);
+	draw_num(185, final, 298, 457);
 }
 
 
@@ -3507,16 +3415,16 @@ void draw_status_all(void)
 
 
 
-bool inside_box(int x1, int y1, rect box)
+/*bool*/int inside_box(int x1, int y1, rect box)
 {
         
-        if (x1 > box.right) return(false);
-        if (x1 < box.left) return(false);
+        if (x1 > box.right) return(/*false*/0);
+        if (x1 < box.left) return(/*false*/0);
         
-        if (y1 > box.bottom) return(false);
-        if (y1 < box.top) return(false);
+        if (y1 > box.bottom) return(/*false*/0);
+        if (y1 < box.top) return(/*false*/0);
         
-        return(true);
+        return(/*true*/1);
         
 }
 
@@ -3524,8 +3432,8 @@ bool inside_box(int x1, int y1, rect box)
 
 int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 {
-        
-    for (int x=1; x < max_sprites_at_once; x++)
+  int x;
+    for (x = 1; x < MAX_SPRITES_AT_ONCE; x++)
         {
                 if (spr[x].active == /*FALSE*/0)
                 {
@@ -3581,7 +3489,7 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 }
 
 
-bool get_box (int h, rect * box_crap, rect * box_real )
+/*bool*/int get_box (int h, rect * box_crap, rect * box_real )
 {
   rect math;
   int sz,sy,x_offset,y_offset;
@@ -3710,10 +3618,10 @@ bool get_box (int h, rect * box_crap, rect * box_real )
 Msg("Ok, sprite %d is being scaled.", h);
 }
         */
-    return(true);
+    return(/*true*/1);
     
  nodraw:         
-    return(false);  
+    return(/*false*/0);  
 }
 
 
@@ -3761,10 +3669,10 @@ Msg("Ok, sprite %d is being scaled.", h);
 void refigure_out(char line[255])
 {
         char ev[15][100];
-        memset(&ev, 0, sizeof(ev));
         int myseq = 0,myframe = 0;
-        
-        for (int i=1; i <= 14; i++)
+        int i;
+        memset(&ev, 0, sizeof(ev));
+        for (i = 1; i <= 14; i++)
         {
                 separate_string(line, i,' ',ev[i]);
                 //   Msg("Word %d is \"%s\"",i,ev[i]);
@@ -3794,13 +3702,14 @@ a single character, updating the null at the end. */
 
 void kill_callbacks_owned_by_script(int script)
 {
-        for (int i = 1; i < max_callbacks; i++)
+  int i;
+        for (i = 1; i < MAX_CALLBACKS; i++)
         {
         if (callback[i].owner == script)
                 { 
                         if (debug_mode) Msg("Kill_all_callbacks just killed %d for script %d", i, script);
                         //killed callback
-                        callback[i].active = false;
+                        callback[i].active = /*false*/0;
                 }
         }
         
@@ -3810,15 +3719,16 @@ void kill_script(int k)
 {
         if (rinfo[k] != NULL)
         {
+	  int i;
                 kill_callbacks_owned_by_script(k);
                 
                 //now lets kill all local vars assocated with this script
                 
-                for (int i = 1; i < max_vars; i++)
+                for (i = 1; i < MAX_VARS; i++)
                 {
                         if (play.var[i].active) if (play.var[i].scope == k)
                         {
-                                play.var[i].active = false;
+                                play.var[i].active = /*false*/0;
                         }
                         
                 }
@@ -3839,14 +3749,14 @@ void kill_script(int k)
 void kill_all_scripts(void)
 {
         int k = 1;
-        for (; k < max_scripts; k++)
+        for (; k < MAX_SCRIPTS; k++)
         {
                 
                 if (rinfo[k] != NULL) if (rinfo[k]->sprite != 1000)
                         kill_script(k);
         }
         
-        for (k = 1; k <= max_callbacks; k++)
+        for (k = 1; k < MAX_CALLBACKS; k++)
         {
         if (callback[k].active)
                 {
@@ -3865,14 +3775,14 @@ void kill_all_scripts(void)
 void kill_all_scripts_for_real(void)
 {
         int k = 1;
-        for (; k < max_scripts; k++)
+        for (; k < MAX_SCRIPTS; k++)
         {
                 
                 if (rinfo[k] != NULL) 
                         kill_script(k);
         }
         
-        for (; k <= max_callbacks; k++)
+        for (; k <= MAX_CALLBACKS; k++)
         {
                 
                 callback[k].active = 0;
@@ -3880,20 +3790,20 @@ void kill_all_scripts_for_real(void)
 }
 
 
-bool read_next_line(int script, char *line)
+/*bool*/int read_next_line(int script, char *line)
 {
-        
+  int k;
         if (  (rinfo[script] == NULL) || (rbuf == NULL) )
         {
                 
                 Msg("  ERROR:  Tried to read script %d, it doesn't exist.", script);
-                return(false);
+                return(/*false*/0);
         }
         
         if (rinfo[script]->current >= rinfo[script]->end)
         {
                 //at end of buffer
-                return(false);
+                return(/*false*/0);
         }
         
         /*              if (rinfo[script]->current < -1);
@@ -3905,7 +3815,7 @@ bool read_next_line(int script, char *line)
         
         strcpy(line, "");
         
-        for (int k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
+        for (k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
         {
                 
                 
@@ -3915,14 +3825,14 @@ bool read_next_line(int script, char *line)
                 
                 if (  (rbuf[script][k] == '\n') || (rbuf[script][k] == '\r')  )
                 {
-                        return(true);
+                        return(/*true*/1);
                 }
                 
-                if (rinfo[script]->current >= rinfo[script]->end) return(false);
+                if (rinfo[script]->current >= rinfo[script]->end) return(/*false*/0);
                 
         }
         
-        return(false);
+        return(/*false*/0);
 }
 
 
@@ -4010,13 +3920,13 @@ void decompress_nocomp (FILE *in)
 }
 
 
-int load_script(char filename[15], int sprite, bool set_sprite)
+int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
 {
         
         char temp[100];
         int script;
         FILE *stream;  
-        bool comp = false;
+        /*bool*/int comp = /*false*/0;
         char tab[10];
         
         Msg("LOADING %s",filename);
@@ -4052,10 +3962,10 @@ int load_script(char filename[15], int sprite, bool set_sprite)
         
         strtoupper(temp);  
         Msg("Temp thingie is %c",temp[strlen(temp)-1]);
-        if (temp[strlen(temp)-1] == 'D') comp = true; else comp = false;
+        if (temp[strlen(temp)-1] == 'D') comp = /*true*/1; else comp = /*false*/0;
         
         int k=1;
-        for (; k < max_scripts; k++)
+        for (; k < MAX_SCRIPTS; k++)
         {
                 if (rbuf[k] == NULL)
                 {
@@ -4145,37 +4055,35 @@ found:
 }
 
 
-void strip_beginning_spaces(char *s)
+void strip_beginning_spaces(char *str)
 {
-        
-        
-        char * h;
-        h = s;
-        
-        
-        if (s[0] != 32) 
-        {
-                return;
-        }
-        
-        while(h[0] == 32)
-        {
-                h = &h[1];
-        }
-        
-        
-        strcpy(s, h);
-        
+  char *pc = str;
+  int diff = 0;
+  int i;
+  
+  /* Find first non-space character (pos) */
+  while (*pc == ' ')
+    pc++;
+  diff = pc - str;
+
+  /* Shift string to the left from pos */
+  /* Don't use str(str, pc) to avoid memory overlap */
+  while (*pc != '\0')
+    {
+      *(pc - diff) = *pc;
+      pc++;
+    }
+  *(pc - diff) = '\0';
 }
 
 
 
-bool locate(int script, char proc[20])
+/*bool*/int locate(int script, char proc[20])
 {
         
         if (rinfo[script] == NULL) 
         {
-                return(false);
+                return(/*false*/0);
                 
         }
         int saveme = rinfo[script]->current;
@@ -4206,14 +4114,14 @@ bool locate(int script, char proc[20])
                                 //clean up vars so it is ready to run
                                 if (rinfo[script]->sprite != 1000)
                                 {
-                                        spr[rinfo[script]->sprite].move_active = false;
+                                        spr[rinfo[script]->sprite].move_active = /*false*/0;
                                         
                                 }
-                                rinfo[script]->skipnext = false;
+                                rinfo[script]->skipnext = /*false*/0;
                                 rinfo[script]->onlevel = 0;
                                 rinfo[script]->level = 0;
                                 
-                                return(true);
+                                return(/*true*/1);
                                 //this is desired proc
                                 
                         }
@@ -4223,11 +4131,11 @@ bool locate(int script, char proc[20])
         
         //Msg("Locate ended on %d.", saveme);
         rinfo[script]->current = saveme;
-        return(false);
+        return(/*false*/0);
         
 }
 
-bool locate_goto(char proc[50], int script)
+/*bool*/int locate_goto(char proc[50], int script)
 {
         rinfo[script]->current = 0;
         char line[200];
@@ -4247,18 +4155,18 @@ bool locate_goto(char proc[50], int script)
                 {
                         if (debug_mode) Msg("Found goto : Line is %s, word is %s.", line, ev[1]);
                         
-                        rinfo[script]->skipnext = false;
+                        rinfo[script]->skipnext = /*false*/0;
                         rinfo[script]->onlevel = 0;
                         rinfo[script]->level = 0;
                         
                         
-                        return(true);
+                        return(/*true*/1);
                         //this is desired proc
                 }
                 
         }
     Msg("ERROR:  Cannot goto %s in %s.", proc, rinfo[script]->name);
-        return(false);
+        return(/*false*/0);
         
 }
 
@@ -4275,6 +4183,7 @@ if (compare(play.var[i].name, "&exp")) map_vision = play.var[i].var;
 
 void decipher(char *crap, int script)
 {
+  int i;
         
         if (compare(crap, "&current_sprite")) 
         {
@@ -4294,11 +4203,11 @@ void decipher(char *crap, int script)
         
         
         
-        for (int i = 1; i < max_vars; i ++)
+        for (i = 1; i < MAX_VARS; i ++)
         {
                 
                 
-                if (play.var[i].active == true) if (  (play.var[i].scope == 0) | (play.var[i].scope == script) )
+                if (play.var[i].active == /*true*/1) if (  (play.var[i].scope == 0) | (play.var[i].scope == script) )
                         if (compare(play.var[i].name, crap))
                         {
                                 
@@ -4320,10 +4229,11 @@ void decipher_string(char line[200], int script)
         char buffer[20];
         char crab[100];
         int mytime;
-        for (int i = 1; i < max_vars; i ++)
+	int i;
+        for (i = 1; i < MAX_VARS; i ++)
         {
                 
-                if (play.var[i].active == true) if (  (play.var[i].scope == 0) | (play.var[i].scope == script) )
+                if (play.var[i].active == /*true*/1) if (  (play.var[i].scope == 0) | (play.var[i].scope == script) )
                         
                 {
                         sprintf(crap, "%d", play.var[i].var);
@@ -4394,9 +4304,9 @@ void decipher_string(char line[200], int script)
 
 
 
-bool get_parms(char proc_name[20], int script, char *h, int p[10])
+/*bool*/int get_parms(char proc_name[20], int script, char *h, int p[10])
 {
-        
+  int i;
         char crap[100];
         
         strip_beginning_spaces(h);
@@ -4410,12 +4320,12 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                 Msg("Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
                 
                 
-                return(false);
+                return(/*false*/0);
         }
         
         
         
-        for (int i = 0; i < 10; i++)
+        for (i = 0; i < 10; i++)
         {
                 
                 strip_beginning_spaces(h);
@@ -4474,7 +4384,7 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                                         Msg("Missing ) in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
                                         h = &h[1];
                                         
-                                        return(false);
+                                        return(/*false*/0);
                                 }
                                 
                                 strip_beginning_spaces(h);
@@ -4489,14 +4399,14 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                                         //Msg("Missing ; in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
                                         //      h = &h[1];
                                         
-                                        return(true);
+                                        return(/*true*/1);
                                 }
                                 
                                 
                                 
                                 
                                 
-                                return(true);
+                                return(/*true*/1);
                         }
                         
                         
@@ -4512,27 +4422,26 @@ bool get_parms(char proc_name[20], int script, char *h, int p[10])
                         {
                                 Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, h);
                                 
-                                return(false);
+                                return(/*false*/0);
                         }
                         
         }
         
         
-        return(true);
+        return(/*true*/1);
 }
 
 
 int add_callback(char name[20], int n1, int n2, int script)
 {
-        
-        
-        for (int k = 1; k < max_callbacks; k++)
+  int k;
+        for (k = 1; k < MAX_CALLBACKS; k++)
         {
-                if (callback[k].active == false)
+                if (callback[k].active == /*false*/0)
                 {
                         memset(&callback[k],0, sizeof(callback[k]));
                         
-                        callback[k].active = true;
+                        callback[k].active = /*true*/1;
                         callback[k].min = n1;
                         callback[k].max = n2;
                         callback[k].owner = script;
@@ -4552,8 +4461,8 @@ int add_callback(char name[20], int n1, int n2, int script)
 
 int add_sprite(int x1, int y, int brain,int pseq, int pframe )
 {
-        
-    for (int x=1; x < max_sprites_at_once; x++)
+  int x;    
+    for (x = 1; x < MAX_SPRITES_AT_ONCE; x++)
         {
                 if (spr[x].active == /*FALSE*/0)
                 {
@@ -4637,16 +4546,16 @@ void check_frame_status(int h, int frame)
 /*         HRESULT dderror; */
         char word1[80];
         
-        if (seq[h].active == false) return;
+        if (seq[h].active == /*false*/0) return;
         
         if (h > 0) 
         {
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
                 if (seq[h].frame[1] == 0)       
                 {       
-                        first_frame = true;
+                        first_frame = /*true*/1;
                         figure_out(seq[h].data, 0);
-                        first_frame = false;
+                        first_frame = /*false*/0;
                 }
                 else
                 {
@@ -4674,8 +4583,8 @@ void check_seq_status(int h)
 /*         HRESULT dderror; */
         char word1[80];
     
-        if (seq[h].active == false) return;
-        if (h > 0) if (h < max_sequences) 
+        if (seq[h].active == /*false*/0) return;
+        if (h > 0) if (h < MAX_SEQUENCES) 
         {
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
                 
@@ -4706,7 +4615,8 @@ void check_seq_status(int h)
 
 void check_base(int base)
 {
-        for (int i=1; i < 10; i++)
+  int i;
+        for (i = 1; i < 10; i++)
         {
                 if (seq[base+i].active == /*TRUE*/1) check_seq_status(base+i);
                 
@@ -4792,8 +4702,9 @@ int say_text_xy(char text[200], int mx, int my, int script)
 
 int does_sprite_have_text(int sprite)
 {
+  int k;
         //Msg("getting callback # with %d..", sprite);
-        for (int k = 1; k <= max_sprites_at_once; k++)
+        for (k = 1; k <= MAX_SPRITES_AT_ONCE; k++)
         {
                 if (   spr[k].active) if (spr[k].owner == sprite) if (spr[k].brain == 8) 
                 {
@@ -4810,8 +4721,8 @@ int does_sprite_have_text(int sprite)
 
 int var_exists(char name[20], int scope)
 {
-        
-        for (int i = 1; i < max_vars; i++)
+  int i;
+        for (i = 1; i < MAX_VARS; i++)
         {
                 if (play.var[i].active)
                 {
@@ -4836,6 +4747,7 @@ int var_exists(char name[20], int scope)
 void make_int(char name[80], int value, int scope, int script)
 {
         int dupe;
+	int i;
         if (strlen(name) > 19)
         {
                 
@@ -4861,12 +4773,12 @@ void make_int(char name[80], int value, int scope, int script)
         
         //make new var
         
-        for (int i = 1; i < max_vars; i++)
+        for (i = 1; i < MAX_VARS; i++)
         {
-                if (play.var[i].active == false)
+                if (play.var[i].active == /*false*/0)
                 {
                         
-                        play.var[i].active = true;
+                        play.var[i].active = /*true*/1;
                         play.var[i].scope = scope;
                         strcpy(play.var[i].name, name); 
                         //g("var %s created, used slot %d ", name,i);
@@ -4876,7 +4788,7 @@ void make_int(char name[80], int value, int scope, int script)
         }
         
         
-        Msg("ERROR: Out of var space, all %d used.", max_vars);
+        Msg("ERROR: Out of var space, all %d used.", MAX_VARS);
 }
 
 
@@ -4885,6 +4797,9 @@ int var_equals(char name[20], char newname[20], char math, int script, char rest
         int k;  
     int newret;
         
+        int newval = 0;
+        
+        
         if (name[0] != '&')
         {
                 Msg("ERROR (var equals): Unknown var %s in %s offset %d.",name, rinfo[script]->name, rinfo[script]->current);
@@ -4892,9 +4807,9 @@ int var_equals(char name[20], char newname[20], char math, int script, char rest
         }
         
         int i = 1;
-        for (; i < max_vars; i++)
+        for (; i < MAX_VARS; i++)
         {
-                if  (play.var[i].active == true)
+                if  (play.var[i].active == /*true*/1)
                 {
                         
                         if ( (play.var[i].scope == 0) | (play.var[i].scope == script))
@@ -4919,23 +4834,20 @@ int var_equals(char name[20], char newname[20], char math, int script, char rest
 next:
         
         
-        int newval = 0;
-        
-        
         
         if (strchr(rest, '(') != NULL) 
                 
         {
-                newret = process_line(script, rest, false);
+                newret = process_line(script, rest, /*false*/0);
                 newval = returnint;
                 goto next2;
         }
         
         
         if (strchr(newname, ';') != NULL) replace(";", "", newname); 
-        for (k = 1; k < max_vars; k++)
+        for (k = 1; k < MAX_VARS; k++)
         {
-                if (play.var[k].active == true)
+                if (play.var[k].active == /*true*/1)
                 {
                         if ( (play.var[i].scope == 0) | (play.var[i].scope == script))
                                 if (compare(newname, play.var[k].name))
@@ -4990,19 +4902,20 @@ next2:
 void get_word(char line[300], int word, char *crap)
 {
         int cur = 0;
-        
-        bool space_mode = false;
+        int k;
+
+        /*bool*/int space_mode = /*false*/0;
         char save_word[100];
         save_word[0] = 0;
         
-        for (int k = 0; k < strlen(line); k++)
+        for (k = 0; k < strlen(line); k++)
         {
                 
-                if (space_mode == true)
+                if (space_mode == /*true*/1)
                 {
                         if (line[k] != ' ')
                         {
-                                space_mode = false;
+                                space_mode = /*false*/0;
                                 strcpy(save_word, "");
                                 
                         }
@@ -5010,13 +4923,13 @@ void get_word(char line[300], int word, char *crap)
                 
                 
                 
-                if (space_mode == false)
+                if (space_mode == /*false*/0)
                 {
                         if (line[k] == ' ')
                         {
                                 cur++;        
                                 if (word == cur) goto done;
-                                space_mode = true;
+                                space_mode = /*true*/1;
                                 strcpy(save_word, "");
                                 
                                 goto dooba;
@@ -5032,7 +4945,7 @@ dooba:;
           
         }
         
-        if (space_mode == false)
+        if (space_mode == /*false*/0)
         {
                 
                 if (cur+1 != word) strcpy(save_word, "");
@@ -5136,12 +5049,13 @@ int var_figure(char h[200], int script)
 
 void kill_text_owned_by(int sprite)
 {
-        for (int i = 1; i < max_sprites_at_once; i++)
+  int i;
+        for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
         {
                 if (spr[i].active)
                         if (spr[i].brain == 8) if (spr[i].owner == sprite)
                         {
-                                spr[i].active = false;
+                                spr[i].active = /*false*/0;
                                 
                                 
                         }
@@ -5149,32 +5063,34 @@ void kill_text_owned_by(int sprite)
         
 }
 
-bool text_owned_by(int sprite)
+/*bool*/int text_owned_by(int sprite)
 {
-        for (int i = 1; i < max_sprites_at_once; i++)
+  int i;
+        for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
         {
                 if (spr[i].active)
                         if (spr[i].brain == 8) if (spr[i].owner == sprite)
                         {
                                 
-                                return(true);
+                                return(/*true*/1);
                                 
                                 
                                 
                         }
         }
-        return(false);  
+        return(/*false*/0);  
 }
 
 
 void kill_text_owned_by_safe(int sprite)
 {
-        for (int i = 1; i < max_sprites_at_once; i++)
+  int i;
+        for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
         {
                 if (spr[i].active)
                         if (spr[i].brain == 8) if (spr[i].owner == sprite)
                         {
-                                spr[i].active = false;
+                                spr[i].active = /*false*/0;
                                 
                                 if (spr[i].callback != 0) run_script(spr[i].callback);
                         }
@@ -5187,7 +5103,8 @@ void kill_text_owned_by_safe(int sprite)
 
 void kill_scripts_owned_by(int sprite)
 {
-        for (int i = 1; i < max_scripts; i++)
+  int i;
+        for (i = 1; i < MAX_SCRIPTS; i++)
         {
                 if (rinfo[i] != NULL)
                 {
@@ -5204,7 +5121,7 @@ void kill_scripts_owned_by(int sprite)
 
 void kill_sprite_all (int sprite)
 {
-        spr[sprite].active = false;
+        spr[sprite].active = /*false*/0;
         
         kill_text_owned_by(sprite);
         kill_scripts_owned_by(sprite);
@@ -5218,13 +5135,13 @@ void kill_returning_stuff( int script)
         //Msg("Checking callbacks..");
         //check callbacks
         int i = 1;
-        for (; i < max_callbacks; i++)
+        for (; i < MAX_CALLBACKS; i++)
         {
                 if (callback[i].active) if (callback[i].owner == script)
                         //      if (compare(callback[i].name, ""))
                 {
                         Msg("killed a returning callback, ha!");
-                        callback[i].active = false;
+                        callback[i].active = /*false*/0;
                 }
                 
         }
@@ -5245,7 +5162,7 @@ void kill_returning_stuff( int script)
 
 
 
-bool talk_get(int script)
+/*bool*/int talk_get(int script)
 {
         char line[200], check[200], checker[200];
         int cur = 1;
@@ -5337,17 +5254,17 @@ morestuff:
                         Msg("Error: choice() has 0 options in script %s, offset %d.",
                                 rinfo[script]->name, rinfo[script]->current);
                         
-                        return(false);
+                        return(/*false*/0);
                 }
                 //all done, lets jam
                 //Msg("found choice_end, leaving!");
                 talk.last = cur-1;
                 talk.cur = 1;
-                talk.active = true;
+                talk.active = /*true*/1;
                 talk.page = 1;
                 talk.cur_view = 1;
                 talk.script = script;
-                return(true);
+                return(/*true*/1);
                 
         }
         
@@ -5366,7 +5283,7 @@ morestuff:
                 {
                         Msg("Error with choice() statement in script %s, offset %d. (%s?)",
                                 rinfo[script]->name, rinfo[script]->current, check);
-                        return(false);
+                        return(/*false*/0);
                 }
                 
                 separate_string(check, 2, '(', checker);          
@@ -5461,7 +5378,7 @@ void get_right(char line[200], char thing[100], char *ret)
                         Msg("Error with an SP command - Sprite %d is invalid.", h);
                         return(-1);
                 }
-                if (spr[h].active == false) return(-1);
+                if (spr[h].active == /*false*/0) return(-1);
                 if (val != -1)
                 {
                         *change = val;
@@ -5504,7 +5421,7 @@ void get_right(char line[200], char thing[100], char *ret)
         int change_sprite_noreturn(int h,  int val, int * change)
         {
                 //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
-                if (spr[h].active == false) return(-1);
+                if (spr[h].active == /*false*/0) return(-1);
                 
                 {
                         *change = val;
@@ -5517,7 +5434,7 @@ void get_right(char line[200], char thing[100], char *ret)
         
 void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 {
-  if (::g_b_kill_app) return; //don't try, we're quitting
+  if (g_b_kill_app) return; //don't try, we're quitting
   if (spr[h].brain == 8) return;
   
   if (spr[h].nodraw == 1) return;
@@ -5639,7 +5556,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                                 
                                 
                                 spr[k].seq = base + 1;
-                                if (seq[spr[k].seq].active == false)
+                                if (seq[spr[k].seq].active == /*false*/0)
                                 {
                                         spr[k].seq = base + 9;
                                         
@@ -5663,8 +5580,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 2;
                         
-                        if (seq[spr[k].seq].active == false) if (seq[base+3].active) spr[k].seq = base +3;
-                        if (seq[spr[k].seq].active == false) if (seq[base+1].active) spr[k].seq = base +1;              
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+3].active) spr[k].seq = base +3;
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+1].active) spr[k].seq = base +1;              
                         
                         
                         if (old_seq != spr[k].seq)
@@ -5682,7 +5599,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                         {
                                 spr[k].seq = base + 3;
-                                if (seq[spr[k].seq].active == false)
+                                if (seq[spr[k].seq].active == /*false*/0)
                                         spr[k].seq = base + 7;
                                 
                         }
@@ -5704,8 +5621,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         spr[k].my = 0;
                         if (base != -1)
                                 spr[k].seq = base + 4;
-                        if (seq[spr[k].seq].active == false) if (seq[base+7].active) spr[k].seq = base +7;
-                        if (seq[spr[k].seq].active == false) if (seq[base+1].active) spr[k].seq = base +1;
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+7].active) spr[k].seq = base +7;
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+1].active) spr[k].seq = base +1;
                 }
                 
                 if (dir1 == 6)
@@ -5715,8 +5632,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 6;
                         
-                        if (seq[spr[k].seq].active == false) if (seq[base+3].active) spr[k].seq = base +3;
-                        if (seq[spr[k].seq].active == false) if (seq[base+9].active) spr[k].seq = base +9;              
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+3].active) spr[k].seq = base +3;
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+9].active) spr[k].seq = base +9;              
                         
                 }
                 
@@ -5729,7 +5646,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                                 spr[k].seq = base + 7;
                                 
                                 
-                                if (seq[spr[k].seq].active == false)
+                                if (seq[spr[k].seq].active == /*false*/0)
                                 {
                                         
                                         spr[k].seq = base + 3;
@@ -5744,8 +5661,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 8;
                         
-                        if (seq[spr[k].seq].active == false) if (seq[base+7].active) spr[k].seq = base +7;
-                        if (seq[spr[k].seq].active == false) if (seq[base+9].active) spr[k].seq = base +9;              
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+7].active) spr[k].seq = base +7;
+                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+9].active) spr[k].seq = base +9;              
                         
                 }
                 
@@ -5757,7 +5674,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                         {
                                 spr[k].seq = base + 9;
-                                if (seq[spr[k].seq].active == false)
+                                if (seq[spr[k].seq].active == /*false*/0)
                                 {
                                         spr[k].seq = base + 1;
                                 }
@@ -5773,7 +5690,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                 }
                 
                 
-                if (seq[spr[k].seq].active == false)
+                if (seq[spr[k].seq].active == /*false*/0)
                 {
                         //spr[k].mx = 0;
                         //spr[k].my = 0;
@@ -5792,8 +5709,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 
 void update_play_changes( void )
 {
-        
-        for (int j = 1; j < 100; j++)
+  int j;
+        for (j = 1; j < 100; j++)
         {
                 if (pam.sprite[j].active)
                         if (play.spmap[*pmap].type[j] != 0)
@@ -5860,7 +5777,7 @@ void update_play_changes( void )
 
 void update_status_all(void)
 {
-        bool drawexp = false;
+        /*bool*/int drawexp = /*false*/0;
         int next = next_raise();
     int script;
         if (next != fraise)
@@ -5869,7 +5786,7 @@ void update_status_all(void)
                 
                 if (fraise > next) fraise = next;
                 //make noise here 
-                drawexp = true;
+                drawexp = /*true*/1;
                 SoundPlayEffect( 13,15050, 0,0 ,0);
                 
                 
@@ -5882,7 +5799,7 @@ void update_status_all(void)
                 //make noise here
                 
                 if (fexp > *pexper) fexp = *pexper;
-                drawexp = true;
+                drawexp = /*true*/1;
                 SoundPlayEffect( 13,29050, 0,0 ,0);     
                 
                 if (fexp >= fraise)
@@ -5891,7 +5808,7 @@ void update_status_all(void)
                         *pexper -= next;
                         fexp = 0;
                         
-                        script = load_script("lraise", 1, false);
+                        script = load_script("lraise", 1, /*false*/0);
                         if (locate(script, "raise")) run_script(script);
                 }
         }
@@ -5961,7 +5878,7 @@ void update_status_all(void)
         
         if (*pmagic_level < *pmagic_cost) 
         {
-                if (item_screen == false)
+                if (item_screen == /*false*/0)
                         *pmagic_level += *pmagic;
                 if (*pmagic_level > *pmagic_cost) *pmagic_level = *pmagic_cost;
         }
@@ -5987,7 +5904,7 @@ void update_status_all(void)
         
         if (flife < 1)
         {
-                script = load_script("dinfo", 1000, false);
+                script = load_script("dinfo", 1000, /*false*/0);
                 if (locate(script, "die")) run_script(script);
         }
         
@@ -6000,23 +5917,26 @@ void place_sprites_game(void)
 {
         int sprite;
         
-        /*BOOL*/int bs[max_sprites_at_once];
-        int rank[max_sprites_at_once];
+        /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
+        int rank[MAX_SPRITES_AT_ONCE];
         int highest_sprite;
         
         update_play_changes();
         
         memset(&bs,0,sizeof(bs));
         int hs;
+        int r1;
+        int j;
+	int oo;
         
-        for (int r1 = 1; r1 < 100; r1++)
+        for (r1 = 1; r1 < 100; r1++)
         {
-                
+	  int h1;
                 highest_sprite = 20000; //more than it could ever be
                 
                 rank[r1] = 0;
                 
-                for (int h1 = 1; h1 < 100;  h1++)
+                for (h1 = 1; h1 < 100;  h1++)
                 {
                         if (bs[h1] == /*FALSE*/0)
                         {
@@ -6038,17 +5958,14 @@ void place_sprites_game(void)
         
         
         
-        
-        int j;
-        
-        for (int oo =1; rank[oo] > 0; oo++)
+        for (oo = 1; rank[oo] > 0; oo++)
         {
                 //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);               
                 j = rank[oo];
                 
                 
                 
-                if (pam.sprite[j].active == true) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
+                if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
                 {
                         
                         
@@ -6082,7 +5999,7 @@ void place_sprites_game(void)
                                 /*if (pam.sprite[j].prop == 0)
                                         add_hardness(sprite, 1); else */ add_hardness(sprite,100+j);
                                 }
-                                spr[sprite].active = false;
+                                spr[sprite].active = /*false*/0;
                         }
                         
                         if (pam.sprite[j].type == 1)
@@ -6168,7 +6085,7 @@ void place_sprites_game(void)
                                 
                                 if (strlen(pam.sprite[j].script) > 1)
                                 {
-                                        spr[sprite].script = load_script(pam.sprite[j].script, sprite, true);
+                                        spr[sprite].script = load_script(pam.sprite[j].script, sprite, /*true*/1);
                                         
                                 }
                                 
@@ -6187,18 +6104,18 @@ void place_sprites_game(void)
         
         
         
-bool kill_last_sprite(void)
+/*bool*/int kill_last_sprite(void)
 {
   int found = 0;
-  bool nosetlast = false;
-
-  for (int k=1; k < max_sprites_at_once; k++ )
+  /*bool*/int nosetlast = /*false*/0;
+  int k;
+  for (k=1; k < MAX_SPRITES_AT_ONCE; k++ )
     {    
       if (spr[k].active) 
         {
           if (spr[k].live)
             {
-              nosetlast = true;
+              nosetlast = /*true*/1;
             }
           else
             {
@@ -6210,13 +6127,13 @@ bool kill_last_sprite(void)
   if (found > 1)
     {
       spr[found].active = /*FALSE*/0;
-      if (nosetlast == false)
+      if (nosetlast == /*false*/0)
 	last_sprite_created = found - 1;
-      return(true);
+      return(/*true*/1);
     }
   
   //we didn't kill any sprites, only 1 remains
-  return(false);
+  return(/*false*/0);
 }
 
 
@@ -6271,14 +6188,14 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
     SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
   }
 
-  showb.active = true;
+  showb.active = /*true*/1;
   showb.showdot = showdot;
   showb.script = script;
 
   // After show_bmp(), and before the flip_it() call in updateFrame(),
   // other parts of the code will draw sprites on lpDDSBack and mess
   // the showbmp(). So skip the next flip_it().
-  abort_this_flip = true;
+  abort_this_flip = /*true*/1;
   
 /*   RECT rcRect; */
 /*   SetRect(&rcRect, 0,0,640, 480); */
@@ -6351,7 +6268,7 @@ void copy_bmp( char name[80])
   }
   
 
-  abort_this_flip = true;
+  abort_this_flip = /*true*/1;
   
 /*   RECT rcRect; */
 /*   SetRect(&rcRect, 0,0,640, 480); */
@@ -6488,18 +6405,20 @@ void copy_bmp( char name[80])
         {
                 int sprite;
                 
-                /*BOOL*/int bs[max_sprites_at_once];
-                int rank[max_sprites_at_once];
+                /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
+                int rank[MAX_SPRITES_AT_ONCE];
                 int highest_sprite;
                 memset(&bs,0,sizeof(bs));
                 int hs;
-                for (int r1 = 1; r1 < 100; r1++)
+		int r1;
+                for (r1 = 1; r1 < 100; r1++)
                 {
+		  int h1;
                         highest_sprite = 20000; //more than it could ever be
                         
                         rank[r1] = 0;
                         
-                        for (int h1 = 1; h1 < 100;  h1++)
+                        for (h1 = 1; h1 < 100;  h1++)
                         {
                                 if (bs[h1] == /*FALSE*/0)
                                 {
@@ -6523,13 +6442,14 @@ void copy_bmp( char name[80])
                 
                 
                 int j;
-                
-                for (int oo =1; rank[oo] > 0; oo++)
+                int oo;
+
+                for (oo =1; rank[oo] > 0; oo++)
                 {
                         //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);               
                         j = rank[oo];
                         
-                        if (pam.sprite[j].active == true) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
+                        if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
                         {
                                 
                                 check_seq_status(pam.sprite[j].seq);
@@ -6546,7 +6466,7 @@ void copy_bmp( char name[80])
                                         //Msg("Background sprite %d has hard of %d..", j, pam.sprite[j].hard);
                                         check_sprite_status_full(sprite);
                                         draw_sprite_game(GFX_lpDDSTwo, sprite);
-                                        spr[sprite].active = false;
+                                        spr[sprite].active = /*false*/0;
                                 }
                         }
                 }
@@ -6556,22 +6476,22 @@ void copy_bmp( char name[80])
         {
                 int sprite;
                 
-                /*BOOL*/int bs[max_sprites_at_once];
-                int rank[max_sprites_at_once];
+                /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
+                int rank[MAX_SPRITES_AT_ONCE];
                 int highest_sprite;
                 
                 
                 memset(&bs,0,sizeof(bs));
                 int hs;
-                
-                for (int r1 = 1; r1 < 100; r1++)
+                int r1;
+                for (r1 = 1; r1 < 100; r1++)
                 {
-                        
+		  int h1;
                         highest_sprite = 20000; //more than it could ever be
                         
                         rank[r1] = 0;
                         
-                        for (int h1 = 1; h1 < 100;  h1++)
+                        for (h1 = 1; h1 < 100;  h1++)
                         {
                                 if (bs[h1] == /*FALSE*/0)
                                 {
@@ -6595,13 +6515,13 @@ void copy_bmp( char name[80])
                 
                 
                 int j;
-                
-                for (int oo =1; rank[oo] > 0; oo++)
+                int oo;
+                for (oo =1; rank[oo] > 0; oo++)
                 {
                         //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);               
                         j = rank[oo];
                         
-                        if (pam.sprite[j].active == true) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
+                        if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
                         {
                                 {
                                         //make it part of the background (much faster)
@@ -6619,7 +6539,7 @@ void copy_bmp( char name[80])
                                                 add_hardness(sprite, 1); else */ add_hardness(sprite,100+j);
                                                 
                                         }
-                                        spr[sprite].active = false;
+                                        spr[sprite].active = /*false*/0;
                                 }
                                 
                                 
@@ -6632,24 +6552,24 @@ void copy_bmp( char name[80])
         
         
         
-        void add_item(char name[10], int mseq, int mframe, bool magic)
+        void add_item(char name[10], int mseq, int mframe, /*bool*/int magic)
         {
-                if (magic == false)
+                if (magic == /*false*/0)
                 {
                         //add reg item
-                        
-                        for (int i = 1; i < 17; i ++)
+		  int i;
+                        for (i = 1; i < 17; i ++)
                         {
-                                if (play.item[i].active == false)
+                                if (play.item[i].active == /*false*/0)
                                 {
                                         if (debug_mode)
                                                 Msg("Weapon/item %s added to inventory.",name);
                                         play.item[i].seq = mseq;
                                         play.item[i].frame = mframe;
                                         strcpy(play.item[i].name, name);
-                                        play.item[i].active = true;
+                                        play.item[i].active = /*true*/1;
                                         
-                                        int crap1 = load_script(play.item[i].name, 1000, false);
+                                        int crap1 = load_script(play.item[i].name, 1000, /*false*/0);
                                         if (locate(crap1, "PICKUP")) run_script(crap1);
                                         
                                         return;
@@ -6659,9 +6579,10 @@ void copy_bmp( char name[80])
                 } else
                 {
                         //add magic item
-                        for (int i = 1; i < 9; i ++)
+		  int i;
+                        for (i = 1; i < 9; i ++)
                         {
-                                if (play.mitem[i].active == false)
+                                if (play.mitem[i].active == /*false*/0)
                                 {
                                         if (debug_mode)
                                                 Msg("Magic %s added to inventory.",name);
@@ -6669,9 +6590,9 @@ void copy_bmp( char name[80])
                                         play.mitem[i].frame = mframe;
                                         strcpy(play.mitem[i].name, name);
                                         
-                                        play.mitem[i].active = true;
+                                        play.mitem[i].active = /*true*/1;
                                         
-                                        int crap = load_script(play.mitem[i].name, 1000, false);
+                                        int crap = load_script(play.mitem[i].name, 1000, /*false*/0);
                                         if (locate(crap, "PICKUP")) run_script(crap);
                                         
                                         return;
@@ -6702,10 +6623,11 @@ void copy_bmp( char name[80])
         
         void fill_hard_sprites(void )
         {
-                /*BOOL*/int bs[max_sprites_at_once];
-                int rank[max_sprites_at_once];
+                /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
+                int rank[MAX_SPRITES_AT_ONCE];
                 int highest_sprite;
-                int h;  
+                int h;
+		int j;
                 memset(&bs,0,sizeof(bs));
                 
                 //Msg("filling sprite hardness...");
@@ -6714,13 +6636,13 @@ void copy_bmp( char name[80])
                 int max_s = last_sprite_created;
                 
                 int height;
-                
-                for (int r1 = 1; r1 <= max_s; r1++)
+                int r1;
+                for (r1 = 1; r1 <= max_s; r1++)
                 {
-                        
+		  int h1;
                         highest_sprite = 22024; //more than it could ever be
                         rank[r1] = 0;
-                        for (int h1 = 1; h1 < max_s+1; h1++)
+                        for (h1 = 1; h1 < max_s+1; h1++)
                         {
                                 if (spr[h1].active)
                                 { 
@@ -6742,7 +6664,7 @@ void copy_bmp( char name[80])
                 
                 
                 
-                for ( int j = 1; j <= max_s; j++)
+                for ( j = 1; j <= max_s; j++)
                 {
                         h = rank[j];
                         if (h > 0) 
@@ -6784,7 +6706,7 @@ void copy_bmp( char name[80])
         
         
         
-        int process_line (int script, char *s, bool doelse)
+        int process_line (int script, char *s, /*bool*/int doelse)
         {
                 char * h, *p;
                 int i;
@@ -6793,11 +6715,13 @@ void copy_bmp( char name[80])
                 char temp[100];
                 char first[2];
                 int sprite = 0;
-                
+                int kk;
+
                 if (rinfo[script]->level < 1) rinfo[script]->level = 1;
                 
                 
-                for (int kk =1; kk < 15; kk++) ev[kk][0] = 0;
+                for (kk = 1; kk < 15; kk++)
+		  ev[kk][0] = 0;
                 h = s;
                 if (h[0] == 0) return(0);    
                 if (  (h[0] == '/') && (h[1] == '/'))
@@ -6811,7 +6735,7 @@ void copy_bmp( char name[80])
                 
                 for ( i=1; i <= 14; i++)
                 {
-                        if (separate_string(h, i,' ',ev[i]) == false) goto pass;
+                        if (separate_string(h, i,' ',ev[i]) == /*false*/0) goto pass;
                 }
                 
 pass:
@@ -6856,7 +6780,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d == %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6868,7 +6792,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d > %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6880,7 +6804,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d < %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6902,7 +6826,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d <= %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6914,7 +6838,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d >= %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6926,7 +6850,7 @@ pass:
                         {
                                 h = &h[1];
                                 strip_beginning_spaces(h);
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 replace("==", "", temp);
                                 sprintf(line, "%d != %s", returnint, temp); 
                                 returnint = var_figure(line, script);                   
@@ -6941,7 +6865,7 @@ pass:
                                 h = &h[1];
                                 p = &p[1];
                                 strcpy(line, p); 
-                                process_line(script, h, false);
+                                process_line(script, h, /*false*/0);
                                 
                                 //8
                                 Msg("Returned %d for the returnint", returnint);
@@ -6994,7 +6918,7 @@ pass:
                 h = &h[1];
                 if (rinfo[script]->skipnext) 
                 {
-                        rinfo[script]->skipnext = false;
+                        rinfo[script]->skipnext = /*false*/0;
                         rinfo[script]->onlevel = ( rinfo[script]->level - 1);
                         //Msg("Skipping until level %d is met..", rinfo[script]->onlevel);
                         
@@ -7053,7 +6977,7 @@ pass:
                 if (rinfo[script]->skipnext)
                 {
                         //sorry, can't do it, you were told to skip the next thing
-                        rinfo[script]->skipnext = false;
+                        rinfo[script]->skipnext = /*false*/0;
                         strcpy(s, h);
                         return(3);
         }
@@ -7083,7 +7007,7 @@ pass:
                         } else
                         {
                                 //they shouldn't run the next thing
-                                rinfo[script]->skipnext = true;
+                                rinfo[script]->skipnext = /*true*/1;
                                 //Msg("No to else...");
                                 
                         }
@@ -7193,7 +7117,7 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                add_item(slist[0], nlist[1], nlist[2], false);
+                                add_item(slist[0], nlist[1], nlist[2], /*false*/0);
                         }
                         
                         strcpy(s, h);  
@@ -7222,7 +7146,7 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                add_item(slist[0], nlist[1], nlist[2], true);
+                                add_item(slist[0], nlist[1], nlist[2], /*true*/1);
                         }
                         
                         strcpy(s, h);  
@@ -7267,7 +7191,7 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                wait.active = false;
+                                wait.active = /*false*/0;
                                 show_bmp(slist[0], nlist[1], nlist[2], script);
                         }
                         
@@ -7282,14 +7206,14 @@ pass:
                         h = &h[strlen(ev[1])];
                         strcpy(s, h);  
                         wait.script = script;
-                        wait.active = true;
+                        wait.active = /*true*/1;
                         wait.button = 0;
                         return(2);
                 }
                 
                 if (compare(ev[1], "stop_wait_for_button"))
                 {
-                        wait.active = false;
+                        wait.active = /*false*/0;
                         
                         return(0);
                 }
@@ -7353,10 +7277,11 @@ pass:
                 
                 if (compare(ev[1], "free_items"))
                 {
+		  int i;
                         returnint = 0;
-                        for (int i = 1; i < 17; i ++)
+                        for (i = 1; i < 17; i ++)
                         {
-                                if (play.item[i].active == false)
+                                if (play.item[i].active == /*false*/0)
                                 {
                                         returnint += 1;
                                 }
@@ -7385,11 +7310,12 @@ pass:
                 
                 if (compare(ev[1], "free_magic"))
                 {
+		  int i;
                         returnint = 0;
                         
-                        for (int i = 1; i < 9; i ++)
+                        for (i = 1; i < 9; i ++)
                         {
-                                if (play.mitem[i].active == false)
+                                if (play.mitem[i].active == /*false*/0)
                                 {
                                         returnint += 1;
                                 }
@@ -7411,7 +7337,7 @@ pass:
                 {
                         
                         if (weapon_script != 0) if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, false);
+                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
                         if (locate(weapon_script, "ARM")) run_script(weapon_script);
                         
                         
@@ -7423,7 +7349,7 @@ pass:
                         
                         
                         if (magic_script != 0) if (locate(magic_script, "DISARM")) run_script(magic_script);
-                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, false);
+                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
                         if (locate(magic_script, "ARM")) run_script(magic_script);
                         
                         return(0);
@@ -7534,7 +7460,7 @@ pass:
                                 decipher_string(slist[0], script);                               
                                 sprite = say_text_xy(slist[0], nlist[1], nlist[2], script);
                                 spr[sprite].callback = script;
-                                spr[sprite].live = true;
+                                spr[sprite].live = /*true*/1;
                                 play.last_talk = script;         
                                 strcpy(s, h);  
                                 
@@ -7569,16 +7495,17 @@ pass:
                 
                 if (compare(ev[1], "restart_game"))
                 {
-                        
+		  int u;
+		  int script;
                         while (kill_last_sprite()); 
                         kill_repeat_sounds_all();
                         kill_all_scripts_for_real();
                         mode = 0;
                         kill_all_vars();
                         memset(&hm, 0, sizeof(hm));
-                        for (int u = 1; u <= 10; u++)
+                        for (u = 1; u <= 10; u++)
                                 play.button[u] = u;
-                        int script = load_script("main", 0, true);
+                        script = load_script("main", 0, /*true*/1);
                         
                         locate(script, "main");
                         run_script(script);
@@ -7669,7 +7596,7 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 
-                                spr[nlist[0]].move_active = true;
+                                spr[nlist[0]].move_active = /*true*/1;
                                 spr[nlist[0]].move_dir = nlist[1];
                                 spr[nlist[0]].move_num = nlist[2];
                                 spr[nlist[0]].move_nohard = nlist[3];
@@ -7697,20 +7624,20 @@ pass:
                                         return(0);
                                 }
                                 kill_scripts_owned_by(nlist[0]);
-                                if (load_script(slist[1], nlist[0], true) == 0)
+                                if (load_script(slist[1], nlist[0], /*true*/1) == 0)
                                 {
                                         returnint = 0;
                                         return(0);
                                 }
-                                if (no_running_main == true) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
+                                if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
                                 
-                                if (no_running_main == false)
+                                if (no_running_main == /*false*/0)
                                         locate(spr[nlist[0]].script, "MAIN");
                                 
                                 
                                 int tempreturn = spr[nlist[0]].script;
                                 
-                                if (no_running_main == false)
+                                if (no_running_main == /*false*/0)
                                         run_script(spr[nlist[0]].script);           
                                 
                                 
@@ -7729,7 +7656,7 @@ pass:
                         int p[20] = {2,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                int mysc = load_script(slist[0], 1000, true);
+                                int mysc = load_script(slist[0], 1000, /*true*/1);
                                 if (mysc == 0)
                                 {
                                         returnint = 0;
@@ -7791,7 +7718,7 @@ pass:
                 if (compare(ev[1], "fade_down"))
                 {
                         // (sprite, direction, until, nohard);
-                        process_downcycle = true;
+                        process_downcycle = /*true*/1;
                         cycle_clock = thisTickCount+1000;
                         cycle_script = script;
                         return(2);
@@ -7800,7 +7727,7 @@ pass:
                 {
                         // (sprite, direction, until, nohard);
                         h = &h[strlen(ev[1])];
-                        process_upcycle = true;
+                        process_upcycle = /*true*/1;
                         cycle_script = script; 
                         
                         strcpy(s, h);  
@@ -7910,14 +7837,14 @@ pass:
                 
                 if (compare(ev[1], "turn_midi_off"))
                 {
-                        midi_active = false;
+                        midi_active = /*false*/0;
                         strcpy(s, h);  
                         return(0);
                         
                 }
                 if (compare(ev[1], "turn_midi_on"))
                 {
-                        midi_active = true;
+                        midi_active = /*true*/1;
                         strcpy(s, h);  
                         return(0);
                         
@@ -8110,7 +8037,7 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 //Msg("Move stop running %d to %d..", nlist[0], nlist[0]);  
-                                spr[nlist[0]].move_active = true;
+                                spr[nlist[0]].move_active = /*true*/1;
                                 spr[nlist[0]].move_dir = nlist[1];
                                 spr[nlist[0]].move_num = nlist[2];
                                 spr[nlist[0]].move_nohard = nlist[3];
@@ -8336,8 +8263,8 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                
-                                for (int jj = 1; jj <= last_sprite_created; jj++)
+			  int jj;
+                                for (jj = 1; jj <= last_sprite_created; jj++)
                                 {
                                         if (spr[jj].brain == 15) if (spr[jj].brain_parm == nlist[0])
                                         {
@@ -8380,7 +8307,8 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                for (int ii = 1; ii <= last_sprite_created; ii++)
+			  int ii;
+                                for (ii = 1; ii <= last_sprite_created; ii++)
                                 {
                                         
                                         if (spr[ii].sp_index == nlist[0])
@@ -8499,7 +8427,8 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                for (int i = 1; i <= last_sprite_created; i++)
+			  int i;
+                                for (i = 1; i <= last_sprite_created; i++)
                                 {
                                         if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
                                                 (spr[i].active == 1)
@@ -8524,9 +8453,9 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                
+			  int i;
                                 int cter = 0;
-                                for (int i = 1; i <= last_sprite_created; i++)
+                                for (i = 1; i <= last_sprite_created; i++)
                                 {
                                         if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
                                                 (spr[i].active == 1)
@@ -8544,21 +8473,22 @@ pass:
                                         return(0);
                                 }
                                 
-                                int mypick = (rand() % cter)+1;
-                                cter = 0;
-                for (int ii = 1; ii <= last_sprite_created; ii++)
-                                {
-                                        if (   (spr[ii].brain == nlist[0]) && (ii != nlist[1]) ) if
-                                                (spr[ii].active == 1)
-                                        {
-                                                cter++;
-                                                if (cter == mypick)
-                                                {
-                                                        returnint = ii;
-                                                        return(0);
-                                                }
+				{
+				  int mypick = (rand() % cter)+1;
+				  int ii;
+				  cter = 0;
+				  for (ii = 1; ii <= last_sprite_created; ii++)
+				    {
+				      if (spr[ii].brain == nlist[0] && ii != nlist[1] && spr[ii].active == 1)
+					{
+					  cter++;
+					  if (cter == mypick)
+					    {
+					      returnint = ii;
+					      return(0);
+					    }
                                         }
-                                        
+				    }
                                 }
                                 
                                 
@@ -8655,9 +8585,9 @@ pass:
                         spr[1].seq = 0;
                         spr[1].pseq = 100+spr[1].dir;
                         spr[1].pframe = 1;
-                        bow.active = true;
+                        bow.active = /*true*/1;
                         bow.script = script;
-                        bow.hitme = false;
+                        bow.hitme = /*false*/0;
                         bow.time = 0;
                         
                         /*      bowsound->Release();
@@ -8799,14 +8729,16 @@ pass:
                 
                 if (compare(ev[1], "disable_all_sprites"))
                 {     
-                        for (int jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = true;
+		  int jj;
+                        for (jj = 1; jj < last_sprite_created; jj++)
+                                if (spr[jj].active) spr[jj].disabled = /*true*/1;
                                 return(0);
                 }
                 if (compare(ev[1], "enable_all_sprites"))
                 {     
-                        for (int jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = false;
+		  int jj;
+                        for (jj = 1; jj < last_sprite_created; jj++)
+                                if (spr[jj].active) spr[jj].disabled = /*false*/0;
                                 return(0);
                 }
                 
@@ -9271,8 +9203,9 @@ pass:
                         int p[20] = {2,0,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
+			  int i;
                                 returnint = 0;
-                                for (int i = 1; i < 17; i++)
+                                for (i = 1; i < 17; i++)
                                 {
                                         if (play.item[i].active)
                                         {
@@ -9294,8 +9227,9 @@ pass:
                         int p[20] = {2,0,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
+			  int i;
                                 returnint = 0;
-                                for (int i = 1; i < 9; i++)
+                                for (i = 1; i < 9; i++)
                                 {
                                         if (play.mitem[i].active)
                                         {
@@ -9344,7 +9278,8 @@ pass:
                 {     
                         h = &h[strlen(ev[1])];
                         int m = 0;
-                        for (int i = 1; i < max_scripts; i++)
+			int i;
+                        for (i = 1; i < MAX_SCRIPTS; i++)
                                 if (rinfo[i] != NULL) m++;
                                 returnint = m;
                                 return(0);
@@ -9644,7 +9579,7 @@ pass:
                                                                         strip_beginning_spaces(h);
                                                                         //Msg("running if with string of %s", h);
                                                                         
-                                                                        process_line(script, h, false);
+                                                                        process_line(script, h, /*false*/0);
                                                                         //Msg("Result is %d", returnint);        
                                                                         
                                                                         if (returnint != 0)
@@ -9655,7 +9590,7 @@ pass:
                                                                         } else
                                                                         {
                                                                                 //don't do it!
-                                                                                rinfo[script]->skipnext = true;
+                                                                                rinfo[script]->skipnext = /*true*/1;
                                                                                 if (debug_mode) Msg("If returned false, skipping next thing");
                                                                         }
                                                                         
@@ -9751,7 +9686,7 @@ pass:
                                                                         int p[20] = {2,2,0,0,0,0,0,0,0,0};  
                                                                         if (get_parms(ev[1], script, h, p))
                                                                         {
-                                                                                int myscript1 = load_script(slist[0],rinfo[script]->sprite, false);
+                                                                                int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
                                                                                 if (myscript1 == 0)
                                                                                 {
                                                                                         Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
@@ -9782,7 +9717,7 @@ pass:
                                                                         separate_string(h, 1,'(',line);
                                                                         
                                                                         
-                                                                        int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);
+                                                                        int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, /*false*/0);
                                                                         
                                                                         if (locate( myscript, line))
                                                                         {
@@ -9851,7 +9786,7 @@ void run_script (int script)
                         if (compare(line, "\n")) break;
                         
                         
-                        result = process_line(script,line, false);
+                        result = process_line(script,line, /*false*/0);
                         if (result == 3) 
                         {
 redo:
@@ -9861,7 +9796,7 @@ crappa:
                         if (compare(line, "\n")) goto redo;
                         if (compare(line, "\\\\")) goto redo;
                         //           Msg("processing %s knowing we are going to skip it...", line);
-                        result = process_line(script,line, true);
+                        result = process_line(script,line, /*true*/1);
                         }
                         
                         if (result == 5) goto crappa;
@@ -9898,7 +9833,7 @@ redo2:
                                 if (compare(line, "\n")) goto redo2;
                                 if (compare(line, "\\\\")) goto redo2;
                                 }
-                                result = process_line(script,line, true);
+                                result = process_line(script,line, /*true*/1);
                         }
                         
                         
@@ -9930,13 +9865,13 @@ redo2:
 void process_callbacks(void)
 {
         int thist = SDL_GetTicks();
+        int i, k;
         
-        
-        for (int i = 1; i < max_scripts; i++)
+        for (i = 1; i < MAX_SCRIPTS; i++)
         {
                 if (rinfo[i] != NULL)
                 {
-                        if (rinfo[i]->sprite > 0) if (rinfo[i]->sprite != 1000) if (spr[rinfo[i]->sprite].active == false) 
+                        if (rinfo[i]->sprite > 0) if (rinfo[i]->sprite != 1000) if (spr[rinfo[i]->sprite].active == /*false*/0) 
                         {
                                 //kill this script, owner is dead
                                 if (debug_mode)
@@ -9952,7 +9887,7 @@ void process_callbacks(void)
         }
         
         
-        for (int k = 1; k < max_callbacks; k++)
+        for (k = 1; k < MAX_CALLBACKS; k++)
         {
                 if (callback[k].active)
                 {
@@ -9962,7 +9897,7 @@ void process_callbacks(void)
                                 //kill this process, it's owner sprite is 'effin dead.
                                 if (debug_mode) Msg("Killed callback %s because script %d is dead.",
                                         k, callback[k].owner);
-                                callback[k].active = false;
+                                callback[k].active = /*false*/0;
                                 
                         } else
                         {
@@ -9987,7 +9922,7 @@ void process_callbacks(void)
                                                         //callback defined no proc name, so lets assume they want to start the script where it   
                                                         //left off
                                                         //kill this callback
-                                                        callback[k].active = false;
+                                                        callback[k].active = /*false*/0;
                                                         run_script(callback[k].owner);
                                                         if (debug_mode) Msg("Called script %d with callback %d.", callback[k].owner, k);
                                                         
@@ -10020,7 +9955,8 @@ void process_callbacks(void)
 
 void init_scripts(void)
 {
-        for (int k = 1; k < max_scripts; k++)
+  int k;
+        for (k = 1; k < MAX_SCRIPTS; k++)
         {
                 if (rinfo[k] != NULL && rinfo[k]->sprite != 0
 		    && rinfo[k]->sprite != 1000 /* don't go out of bounds in spr[300] */

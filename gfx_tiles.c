@@ -41,7 +41,7 @@ SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
 
 /* Animated tiles current status */
 int water_timer;
-bool fire_forward;
+/*bool*/int fire_forward;
 int fire_flip;
 
 
@@ -58,9 +58,10 @@ int fire_flip;
 void load_tiles(void) {
   char crap[30];
   char crap1[10];
+  int h;
 
   Msg("loading tilescreens...");
-  for (int h=1; h < NB_TILE_SCREENS; h++)
+  for (h=1; h < NB_TILE_SCREENS; h++)
     {
       if (h < 10)
 	strcpy(crap1,"0");
@@ -145,7 +146,8 @@ void draw_map_game(void)
 {
 /*   RECT                rcRect; */
   int pa, cool;
-                
+  int x;
+              
   *pvision = 0;
                 
   while (kill_last_sprite());
@@ -153,7 +155,7 @@ void draw_map_game(void)
   kill_all_scripts();
 
   /* 96 = 12 * 8 tile squares; 1 tile square = 50x50 pixels */
-  for (int x=0; x<96; x++)
+  for (x = 0; x < 96; x++)
     {
       cool = pam.t[x].num / 128;
       pa = pam.t[x].num - (cool * 128);
@@ -182,14 +184,14 @@ void draw_map_game(void)
                 
   if (strlen(pam.script) > 1)
     {
-      int ms = load_script(pam.script,0, true);
+      int ms = load_script(pam.script,0, /*true*/1);
                         
       if (ms > 0) 
 	{
 	  locate(ms, "main");
-	  no_running_main = true;
+	  no_running_main = /*true*/1;
 	  run_script(ms);
-	  no_running_main = false;
+	  no_running_main = /*false*/0;
 	}
     }
                 
@@ -214,8 +216,9 @@ void draw_map_game_background(void)
 {
 /*   RECT rcRect; */
   int pa, cool;
-                
-  for (int x=0; x<96; x++)
+  int x;
+              
+  for (x = 0; x < 96; x++)
     {
       cool = pam.t[x].num / 128;
       pa = pam.t[x].num - (cool * 128);
@@ -257,19 +260,15 @@ void process_animated_tiles(void)
 	
   if (water_timer < thisTickCount)
     {
-		
+      int x;
+
       water_timer = thisTickCount + ((rand() % 2000));
-		
       flip = ((rand() % 2)+1);		
 		
-		
-		
-		
-      for (int x=0; x<96; x++)
+      for (x = 0; x < 96; x++)
 	{
-	  if (pam.t[x].num > 896) if (pam.t[x].num < (896+128))
-				    {
-				
+	  if (pam.t[x].num > 896 && pam.t[x].num < (896+128))
+	    {
 				      cool = pam.t[x].num / 128;
 				      pa = pam.t[x].num - (cool * 128);
 /* 				      rcRect.left = (pa * 50- (pa / 12) * 600); */
@@ -303,7 +302,7 @@ void process_animated_tiles(void)
 	
   //if (water_timer < thisTickCount)
   {
-		
+    int x;
     //	water_timer = thisTickCount + ((rand() % 2000)+1000);
 		
     if (fire_forward) fire_flip++;
@@ -312,7 +311,7 @@ void process_animated_tiles(void)
     if (fire_flip < 1)
       {
 	fire_flip = 5;
-	fire_forward = false;
+	fire_forward = /*false*/0;
       }
 		
     //	if (fire_flip > 4)
@@ -323,9 +322,9 @@ void process_animated_tiles(void)
 		
 		
 		
-    for (int x=0; x<96; x++)
+    for (x = 0; x < 96; x++)
       {
-	if (pam.t[x].num > 2304) if (pam.t[x].num < (2304+128))
+	if (pam.t[x].num > 2304 && pam.t[x].num < (2304+128))
 				   {
 				
 				     cool = pam.t[x].num / 128;

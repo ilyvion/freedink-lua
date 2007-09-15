@@ -29,13 +29,13 @@
 #include "sfx.h"
 #include "io_util.h"
 
-soundstruct soundinfo[num_soundbanks+1];
+struct soundstruct soundinfo[NUM_SOUNDBANKS+1];
 
-const int max_sounds = 100;
+#define MAX_SOUNDS 100
 static struct
 {
   Mix_Chunk *sound;
-} registered_sounds[max_sounds];
+} registered_sounds[MAX_SOUNDS];
 
 /**
  * Load sounds in the standard paths
@@ -67,7 +67,7 @@ int CreateBufferFromWaveFile(char* filename, int dwBuf)
 int get_channel(int sound) {
   int i;
   /* Check all channels to see if it is playing the sound */
-  for (i = 0; i < num_soundbanks; i++)
+  for (i = 0; i < NUM_SOUNDBANKS; i++)
     {
       if (Mix_GetChunk(i) == registered_sounds[sound].sound)
         return i;
@@ -80,10 +80,10 @@ int get_channel(int sound) {
  */
 int playing(int sound)
 {
-  if (sound >= max_sounds)
+  if (sound >= MAX_SOUNDS)
     {
       Msg("Attempting to get the status of sound %d (> MAX_SOUNDS=%d)",
-          sound, max_sounds);
+          sound, MAX_SOUNDS);
       return 0;
     }
 
@@ -96,12 +96,13 @@ int playing(int sound)
  */
 void kill_repeat_sounds(void)
 {
+  int i;
   if (!sound_on)
     return;
   
   Msg("Killing repeating sound");
 
-  for (int i=1; i <= num_soundbanks; i++)
+  for (i = 1; i <= NUM_SOUNDBANKS; i++)
     {
       // Msg("Bank #%d: repeat=%d, owner=%d, survive=%d", i,
       //   soundinfo[i].repeat, soundinfo[i].owner, soundinfo[i].survive);
@@ -120,10 +121,11 @@ void kill_repeat_sounds(void)
  */
 void kill_repeat_sounds_all(void)
 {
+  int i;
   if (!sound_on)
     return;
   
-  for (int i = 1; i <= num_soundbanks; i++)
+  for (i = 1; i <= NUM_SOUNDBANKS; i++)
     {
       if (soundinfo[i].repeat && (soundinfo[i].owner == 0))
         {
@@ -223,16 +225,17 @@ See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
 
 
   */
+  int i;
 
   if (!sound_on)
     return;
   
-  for (int i = 1; i <= num_soundbanks; i++)
+  for (i = 1; i <= NUM_SOUNDBANKS; i++)
     {
       if (soundinfo[i].repeat && (soundinfo[i].owner != 0))
 	{
 	  if ((spr[soundinfo[i].owner].sound == 0)
-	       || (spr[soundinfo[i].owner].active == false) )
+	      || (spr[soundinfo[i].owner].active == /*false*/0) )
 	    {
 	      Mix_HaltChannel(i-1);
 	      soundinfo[i].owner = 0;
@@ -250,7 +253,7 @@ See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
 	{
 	  if (soundinfo[i].owner != 0)
 	    {
-	      if (spr[soundinfo[i].owner].active == false)
+	      if (spr[soundinfo[i].owner].active == /*false*/0)
 		{
 		  Mix_HaltChannel(i-1);
 		}
@@ -292,7 +295,7 @@ int EditorSoundPlayEffect(int sound)
  * (Check playbank in the original source code)
  **/
 
-int SoundPlayEffect(int sound, int min, int plus, int sound3d, bool repeat)
+int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat)
 {
   int channel;
   int channel_index;
@@ -328,10 +331,10 @@ int SoundStopEffect( int sound )
 {
   int channel;
 
-  if (sound >= max_sounds)
+  if (sound >= MAX_SOUNDS)
     {
       fprintf(stderr, "Attempting to get stop sound %d (> MAX_SOUNDS=%d)",
-	      sound, max_sounds);
+	      sound, MAX_SOUNDS);
       return 0;
     }
 
@@ -379,7 +382,7 @@ int InitSound()
     if (CD_INDRIVE(SDL_CDStatus(cdrom))) {
       /* TODO: do some test about the presence of audio tracks in the
          CD - though fortunately SDL_Mixer does not read data track */
-      cd_inserted = true;
+      cd_inserted = /*true*/1;
     } 
     
     /* This newly opened CD-ROM becomes the default CD used when other
@@ -395,7 +398,7 @@ int InitSound()
     }
 
   /* Allocate channels to play effects to */
-  Mix_AllocateChannels(num_soundbanks);
+  Mix_AllocateChannels(NUM_SOUNDBANKS);
 
   return 1;
   }
@@ -413,7 +416,7 @@ void DestroySound(void)
   /**
    * Frees up resources associated with a sound effect
    */
-  for (idxKill = 0; idxKill < max_sounds; idxKill++)
+  for (idxKill = 0; idxKill < MAX_SOUNDS; idxKill++)
     {
       if (registered_sounds[idxKill].sound != NULL)
         {
