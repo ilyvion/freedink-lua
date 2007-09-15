@@ -1,5 +1,10 @@
-# Non-free material, cannot be committed
-ddutil.cpp
-ddutil.h
 *.res
 *.exe
+*.o
+*~
+dink
+freedink
+freedinkedit
+# NCC
+*.nccout
+.tmp.c

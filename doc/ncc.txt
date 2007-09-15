@@ -1,0 +1,9 @@
+NCC (http://students.ceid.upatras.gr/~sxanth/ncc/) helps browsing the
+code by presenting global variables and functions according to where
+they are used and what they use in turn. It can be useful to get
+acquainted with the code. It is invoked as a wrapper for gcc.
+
+$ make CC="ncc -ncgcc -ncld -ncfabs" AR=nccar LD=nccld
+$ nccnav freedink.nccout
+
+v2.7 includes a patch by me ;)
