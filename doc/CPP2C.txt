@@ -1,0 +1,60 @@
+Conversion from 'C++' to C
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dink is originally written in VC++. However, the author (Seth
+A. Robison) make few use of C++ specific features, notably no object
+besides DX.
+
+Now, the code uses SDL, a pure C library. In addition, better coding
+style is one of our goal. Converting to C allow better checking with
+-Wall -ansi -pedantic. It also compiles faster, mainly because less
+#include x*100kB are compiled each time. I also read the resulting
+programs are faster, though I wonder if it matters in our case. In
+addition, strict conformance to the ANSI standard makes to program
+more portable.
+
+Some of the changes are tricky. I did my best to make those changes
+recoverable. Here is what I did:
+
+- auto typedef of structure: C++ automatically 'typedef' the new
+structures. In the new version, structure will be named explicitly,
+for the sake of clarity. Maybe, later, when the code will be perfect,
+we may go back to typedef, automatic or not.
+
+  - true/TRUE => 1, false/FALSE => 0. C uses error report, not really
+boolean values. To comply with C's ethic, I made no distinction
+between boolean and integer values. 
+
+- bool/BOOL => int or unsigned char: in structures, bool does not
+necessarily save space because of alignements, and int is faster. But
+if the structure is written directly to the disk, it will be
+incompatible with old saves... So in critical structures, and in
+structures using tables of bool (where this actually save space),
+bool=>BOOL_1BYTE - can easily be found. For every other use
+(parameters and return values), bool=>/*bool*/int. I am not 100% sure
+I did not altered the way Dink saves game, or the way Dinkedit saves
+map.dat, hard.dat and dink.dat...
+
+- const => #define + UPPERCASE. Then I changed all references in the code.
+
+- Very important: initialise the extern variables somewhere - here in
+dink.c, where it was intented to be. C and C++ do not have exactly the
+same policy on default initialization, and thus converted C program
+may have several instances of the global variables (which caused some
+nice bug I had big troubles to fix ;))
+
+- for(int ...) => { int ...; for() }
+or int ...; [...] for()
+on a case-by-case basis
+
+- And of course, simple but tedious, arrange variables so they are
+declared before any instruction in the current bloc...
+
+	
+I carefully noted those changes since the fact Dink loads does not
+guarantee it is still 100% compatible with the old version.
+
+I also replaced some calls to strdup, which is not ANSI, to malloc+strcpy.
+
+-- 
+Sylvain Beucler
