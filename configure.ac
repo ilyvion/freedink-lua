@@ -14,6 +14,8 @@ AC_PROG_CC
 if test x"$host" == x"$target"; then
 AM_BINRELOC
 fi
+AC_CHECK_TOOL(WINDRES, windres)
+AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
