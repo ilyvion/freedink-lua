@@ -23,15 +23,75 @@
 
 #include <config.h>
 
+#include <stdio.h>
 #include <stdlib.h>
-#include "binreloc.h"
+#include <math.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "binreloc.h"
 /* Msg */
 #include "dinkvar.h"
 #include "gfx.h"
 #include "input.h"
+#include "io_util.h"
 #include "init.h"
+
+/* Create a mask in MSB for using r,g,b as the transparent color */
+Uint8 *create_mask_msb(SDL_Surface *source, Uint8 r, Uint8 g, Uint8 b) {
+  Uint32 transparent;
+  Uint32 *pixels;
+  SDL_Surface *surface;
+  Uint8 *mask;
+
+  /* Convert surface to 32bit to ease parsing the pixel data */
+  surface = SDL_CreateRGBSurface(SDL_SWSURFACE, source->w, source->h, 32,
+			      0xff000000, 0x00ff0000, 0x0000ff00, 0x00000000);
+  if(surface == NULL) {
+    fprintf(stderr, "Could not convert surface to 32bit: %s", SDL_GetError());
+    return NULL;
+  }
+
+  SDL_BlitSurface(source, NULL, surface, NULL);
+
+  transparent = SDL_MapRGB(surface->format, r, g, b);
+
+  if (SDL_MUSTLOCK(surface))
+    SDL_LockSurface(surface);
+  pixels = (Uint32*) surface->pixels;
+  if (SDL_MUSTLOCK(surface))
+    SDL_UnlockSurface(surface);
+    
+  /* 8 bits per Uint8 */
+  mask = malloc(ceil(surface->w / 8.0) * surface->h);
+
+  { 
+    int i, row, col;
+    i = -1;
+    for (row = 0; row < surface->h; row++)
+      {
+	for (col = 0; col < surface->w; col++)
+	  {
+	    /* Shift to the next mask bit */
+	    if (col % 8 == 0)
+	      {
+		i++;
+		mask[i] = 0;
+	      }
+	    else
+	      {
+		mask[i] <<= 1;
+	      }
+	    
+	    /* Set the current mask bit */
+	    if (pixels[row*surface->w + col] != transparent)
+	      mask[i] |= 0x01;
+	  }
+      }
+  }
+  SDL_FreeSurface(surface);
+  return mask;
+}
+
 
 /* The goal is to replace freedink and freedinkedit's doInit() by a
    common init procedure. This procedure will also initialize each
@@ -73,7 +133,16 @@ int init(void)
 	  fprintf(stderr, "Error loading %s: %s\n", icon_file, SDL_GetError());
 	else
 	  {
-	    SDL_WM_SetIcon(icon, NULL); /* TODO: support transparency */
+	    /* Sets the color key to black (ahem): */
+	    /* SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 255, 0)); */
+	    /* Trying with a manual mask instead: */
+	    Uint8 *mask;
+	    mask = create_mask_msb(icon, 255, 255, 0); /* Yellow */
+	    if (mask != NULL)
+	      {
+		SDL_WM_SetIcon(icon, mask);
+		free(mask);
+	      }
 	    SDL_FreeSurface(icon);
 	  }
 	free(icon_file);

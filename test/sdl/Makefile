@@ -3,6 +3,7 @@ LDFLAGS=$(shell sdl-config --libs)
 
 .PHONY: all
 
-all: joytest mousetest
+all: joytest mousetest msb
+
 clean:
-	-rm -f mousetest joytest *~
+	-rm -f mousetest joytest msb *~
