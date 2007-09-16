@@ -16,6 +16,8 @@ stamp-h1
 *.tar.gz
 *.tar.bz2
 *.zip
+*.o
+*.a
 *~
 # Autopackage
 freedink.xml

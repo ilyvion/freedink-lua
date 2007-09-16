@@ -1,6 +1,5 @@
 *.res
 *.exe
-*.o
 *~
 freedink
 freedinkedit
