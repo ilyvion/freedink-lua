@@ -12,7 +12,13 @@ config.status
 config.h.in
 config.h
 stamp-h1
+*.tar
 *.tar.gz
 *.tar.bz2
 *.zip
 *~
+# Autopackage
+freedink.xml
+freedink.xml.old
+*.package
+*.package.meta

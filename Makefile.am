@@ -1,2 +1,2 @@
 AUTOMAKE_OPTIONS = gnits
-SUBDIRS = src share/freedink
+SUBDIRS = src share/freedink autopackage

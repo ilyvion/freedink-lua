@@ -20,6 +20,6 @@ fi
 # Enable no-portability to disable GNU make extensions warnings, such as $(shell)
 #if autoreconf --install --symlink --warnings=all --warnings=no-portability $*
 if autoreconf --install --symlink --warnings=all $*
-then echo "You now can run ./configure.sh"
+then echo "You now can run ./configure"
 else echo "*** Error: please check the messages above. ***"
 fi

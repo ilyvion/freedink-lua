@@ -28,5 +28,7 @@ AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
 
-AC_CONFIG_FILES([Makefile src/Makefile share/freedink/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile share/freedink/Makefile \
+  autopackage/Makefile autopackage/default.apspec])
+
 AC_OUTPUT

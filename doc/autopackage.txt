@@ -1,0 +1,25 @@
+Autopackage
+===========
+
+Homepage: http://autopackage.org/
+
+This tool acts as a wrapper for GCC and tries hard to produce a
+package that can work on many GNU/Linux distributions. No .deb / .rpm
+/ .tgz with different versions of each distros - one size fits all!
+
+In particular, it will recompile with an older glibc that everybody
+have, and double-compile C++ apps against libstdc++ versions 5 and 6.
+
+
+My favorite documentation so far is the tutorial:
+http://autopackage.org/docs/tutorials/glb.html
+and the explanation of binary portability issues:
+http://autopackage.org/docs/devguide/ch07.html
+
+
+Our autopackage was init'd through:
+makepackage --mkspec > default.apspec.in
+
+
+Currently we do not deal with SDL dependencies, this will be fixed
+later on.
