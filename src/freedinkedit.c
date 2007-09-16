@@ -51,6 +51,11 @@
 
 #define NAME "DinkEdit"
 #define TITLE "DinkEdit"
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 /* #define WIN32_LEAN_AND_MEAN */
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,19 +70,12 @@
 /* GetModuleFileName */
 #include <windows.h>
 #endif
-/* For GetStockBrush */
-/* #include <windowsx.h> */
-/* For VK_* */
-/* #include <winuser.h> */
-/* #include <mmsystem.h> */
-/* #include <ddraw.h> */
-/* #include <dsound.h> */
+#include <getopt.h>
 
 #include "SDL.h"
 #include "SDL_rotozoom.h"
 
 #include "init.h"
-/* #include "ddutil.h" */
 #include "dinkvar.h"
 #include "fastfile.h"
 #include "gfx.h"
@@ -5614,57 +5612,129 @@ if (sound_on)
 } /* initFail */
   
 
-  
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_version ()
+{
+  printf ("freedinkedit (%s) %s\n", PACKAGE_NAME, VERSION);
+  printf ("Copyright (C) 2007 by contributors\n");
+  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
+  printf ("This is free software: you are free to change and redistribute it.\n");
+  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
+  exit (EXIT_SUCCESS);
+}
+
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_help (int argc, char *argv[])
+{
+  printf ("Usage: %s [OPTIONS]...\n", argv[0]);
+  printf ("\n");
+  printf ("TODO                  Display the default configuration here\n");
+  printf ("-h, --help            Display this help screen\n");
+  printf ("-v, --version         Display the version\n");
+  printf ("\n");
+  printf ("-g, --game <dir>      Specify a DMod directory\n");
+  /* printf ("-f, --fontdir <dir>   Specify an alternative font directory\n"); */
+  printf ("\n");
+  printf ("-d, --debug           Explain what is being done\n");
+  printf ("-s, --nosound         Do not play sound\n");
+  printf ("-w, --window          Use windowed mode instead of screen mode\n");
+  printf ("\n");
+
+  /* printf ("Type 'info freedink' for more information\n"); */
+  printf ("Report bugs to %s.\n", PACKAGE_BUGREPORT);
+
+  exit (EXIT_SUCCESS);
+}
+
 /*bool*/int check_arg(int argc, char *argv[])
 {
-	  char shit[200];
-	  int i;
+  int c;
 
-	  //	strupr(crap);
-	  strcpy(dir, "dink");
-	  for (i = 1; i < argc; i++)
-	  {
-/* 		  separate_string(crap, i,' ',shit); */
-	    strcpy(shit, argv[i]);
+  /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
+     '-window' (with one dash '-' only) are required to maintain
+     backward compatibility with the original game */
+  struct option long_options[] = 
+    {
+      {"debug",   no_argument,       NULL, 'd'},
+      /* {"fontdir", required_argument, NULL, 'f'}, */
+      {"game",    required_argument, NULL, 'g'},
+      {"help",    no_argument,       NULL, 'h'},
+      {"noini",   no_argument,       NULL, 'i'},
+      {"nojoy",   no_argument,       NULL, 'j'},
+      {"nosound", no_argument,       NULL, 's'},
+      {"version", no_argument,       NULL, 'v'},
+      {"window",  no_argument,       NULL, 'w'},
+      {0, 0, 0, 0}
+    };
+  
+  /* char short_options[] = "df:g:hijsvw"; */
+  /* char *default_fontdir = "../fonts/"; */
+  char short_options[] = "dg:hijsvw";
 
-		  if (strncasecmp(shit,"-window",strlen("-window")) == 0)
-		  {
-			  windowed = /*true*/1;
-			  
-		  }
+  // TODO: perform this in the initialization
+  strcpy(dir, "dink");
 
-         if (strncasecmp(shit,"-debug",strlen("-debug")) == 0)
-		  {
-			 remove("debug.txt"); 
-			 debug_mode = /*true*/1;
-			  
-		  }
+  /* g_fontdir = malloc(strlen(default_fontdir) + 1); */
+  /* strcpy(g_fontdir, default_fontdir); */
 
-
-  		  if (strncasecmp(shit,"-game",strlen("-game")) == 0)
-		  {
-/* 		separate_string(crap, i+1,' ',shit); */
-		    strcpy(shit, argv[i+1]);
-		strcpy(dir, shit);
-		Msg("Working directory %s requested.",dir);  
-		  
-		  }
-
-if (strncasecmp(shit,"-nosound",strlen("-nosound")) == 0)  sound_on = /*false*/0;
-
-		  
-	  }
-	  
-	  
-if (chdir(dir) == -1) 
-{
-    sprintf(shit,"Game dir \"%s\" not found!",dir);
-
-	TRACE(shit);
-}	  
- 
-  return(/*true*/1);
-  }
+  /* Loop through each argument */
+  while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
+    {
+      switch (c) {
+      case 'd':
+	  debug_mode = 1;
+	  remove("dink/debug.txt");
+	  break;
+      case 'g':
+	{
+/* 	/\* The next argument is the game directory, make sure this *\/ */
+/* 	/\* isn't the last argument. *\/ */
+/* 	strcpy (dir, optarg); */
+/* 	Msg (("Working directory %s requested.", dir)); */
+	  strcpy(dir, optarg);
+	  Msg("Working directory %s requested.",dir);
+	}
+	break;
+      case 'h':
+	print_help(argc, argv);
+	break;
+      case 's':
+	sound_on = 0;
+	break;
+      case 'v':
+	print_version();
+	break;
+      case 'w':
+	  windowed = 1;
+	  // Beuc: enabling transition is more fun :)
+	  //no_transition = true;
+	  break;	
+      default:
+	exit (EXIT_FAILURE);
+      }
+    }
+	
+  if (chdir(dir) == -1) 
+    {
+      char message[200];
+      sprintf(message, "Game dir \"%s\" not found!", dir);
+      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
+      
+      initFail(message);
+      return 0;
+    }	  
+  
+  Msg("Dir is now %s.", dir);
+  return 1;
+}
   
 void load_batch(void)
 {
@@ -6307,7 +6377,7 @@ int main(int argc, char *argv[])
 #endif
   
   strcpy(dinkpath, dir_final);
-  printf("Switching to dir %s.",dinkpath);
+/*   printf("Switching to dir %s.",dinkpath); */
   if (chdir(dinkpath)) 
     {
       char crap[255];

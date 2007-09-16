@@ -7,7 +7,7 @@ AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 # Woe icon and app infos
 # Also check http://fragglet.livejournal.com/4448.html
 .rc.o:
-	$(WINDRES) -i $< --input-format=rc -o $@
+	$(WINDRES) -i $< -o $@
 
 if HAVE_WINDRES
 WOERES=woeres.rc

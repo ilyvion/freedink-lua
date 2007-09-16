@@ -2,7 +2,7 @@
  * FreeDink game-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2005, 2007  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2005, 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -25,8 +25,11 @@
 #define NAME "GNU FreeDink"
 #define TITLE "GNU FreeDink"
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5671,51 +5674,160 @@ void load_batch(void)
   program_idata();
 }
 
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_version ()
+{
+  printf ("%s %s\n", PACKAGE_NAME, VERSION);
+  printf ("Copyright (C) 2007 by contributors\n");
+  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
+  printf ("This is free software: you are free to change and redistribute it.\n");
+  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
+  exit (EXIT_SUCCESS);
+}
 
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_help (int argc, char *argv[])
+{
+  printf ("Usage: %s [OPTIONS]...\n", argv[0]);
+  printf ("\n");
+  printf ("TODO                  Display the default configuration here\n");
+  printf ("-h, --help            Display this help screen\n");
+  printf ("-v, --version         Display the version\n");
+  printf ("\n");
+  printf ("-g, --game <dir>      Specify a DMod directory\n");
+  /* printf ("-f, --fontdir <dir>   Specify an alternative font directory\n"); */
+  printf ("\n");
+  printf ("-d, --debug           Explain what is being done\n");
+  printf ("-i, --noini           Do not attempt to write dinksmallwood.ini\n");
+  printf ("-j, --nojoy           Do not attempt to use joystick\n");
+  printf ("-s, --nosound         Do not play sound\n");
+  printf ("-w, --window          Use windowed mode instead of screen mode\n");
+  printf ("\n");
 
+  /* printf ("Type 'info freedink' for more information\n"); */
+  printf ("Report bugs to %s.\n", PACKAGE_BUGREPORT);
+
+  exit (EXIT_SUCCESS);
+}
+
+/**
+ * Check the command line arguments and initialize the required global
+ * variables
+ */
 int check_arg(int argc, char *argv[])
 {
-  char option[200];
-  int i;
+  int c;
+
+  /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
+     '-window' (with one dash '-' only) are required to maintain
+     backward compatibility with the original game */
+  struct option long_options[] = 
+    {
+      {"debug",   no_argument,       NULL, 'd'},
+      /* {"fontdir", required_argument, NULL, 'f'}, */
+      {"game",    required_argument, NULL, 'g'},
+      {"help",    no_argument,       NULL, 'h'},
+      {"noini",   no_argument,       NULL, 'i'},
+      {"nojoy",   no_argument,       NULL, 'j'},
+      {"nosound", no_argument,       NULL, 's'},
+      {"version", no_argument,       NULL, 'v'},
+      {"window",  no_argument,       NULL, 'w'},
+      {0, 0, 0, 0}
+    };
+  
+  /* char short_options[] = "df:g:hijsvw"; */
+  /* char *default_fontdir = "../fonts/"; */
+  char short_options[] = "dg:hijsvw";
 
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
 
-  for (i = 1; i < argc; i++)
+  /* g_fontdir = malloc(strlen(default_fontdir) + 1); */
+  /* strcpy(g_fontdir, default_fontdir); */
+
+  /* Loop through each argument */
+  while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
     {
-/*       separate_string(crap, i, ' ', option); */
-      strcpy(option, argv[i]);
-
-      if (strncasecmp(option, "-window", strlen("-window")) == 0)
+      switch (c) {
+      case 'd':
+	  debug_mode = 1;
+	  remove("dink/debug.txt");
+	  break;
+/*       case 'f': */
+/* 	{ */
+/* 	  char *tmp = malloc(256); */
+/* 	  char *olddir = malloc(256); */
+/* 	  free (g_fontdir); */
+	  
+/* 	  g_fontdir = optarg; */
+	  
+/* 	  /\* Get the absolute path of the font directory. This *\/ */
+/* 	  /\* must be done because dink changes the cwd to the game *\/ */
+/* 	  /\* dir and a relative path the fonts may no longer work. *\/ */
+/* 	  dink_getcwd (olddir, 255); */
+/* 	  if (dink_chdir (g_fontdir) == -1) */
+/* 	    { */
+/* 	      Msg (("Unable to find font dir, %s.", g_fontdir)); */
+/* 	      exit(EXIT_FAILURE); */
+/* 	    } */
+/* 	  dink_getcwd (tmp, 254); */
+/* 	  /\* Add a frontslash if there isn't one *\/ */
+/* 	  if (tmp[strlen (tmp) - 1] != '/') */
+/* 	    { */
+/* 	      int len = strlen (tmp); */
+	      
+/* 	      tmp[len] = '/'; */
+/* 	      tmp[len + 1] = '\0'; */
+/* 	    } */
+	  
+/* 	  /\* free (g_fontdir); *\/ */
+/* 	  g_fontdir = tmp; */
+/* 	  dink_chdir (olddir); */
+	  
+/* 	  Msg (("Fontdir is now %s.", g_fontdir)); */
+/* 	} */
+/* 	break; */
+      case 'g':
 	{
-	  windowed = /*true*/1;
+/* 	/\* The next argument is the game directory, make sure this *\/ */
+/* 	/\* isn't the last argument. *\/ */
+/* 	strcpy (dir, optarg); */
+/* 	Msg (("Working directory %s requested.", dir)); */
+	  strcpy(dir, optarg);
+	  Msg("Working directory %s requested.",dir);
+	}
+	break;
+      case 'h':
+	print_help(argc, argv);
+	break;
+      case 'j':
+	joystick = 0;
+	break;
+      case 'i':
+	g_b_no_write_ini = 1;
+	break;
+      case 's':
+	sound_on = 0;
+	break;
+      case 'v':
+	print_version();
+	break;
+      case 'w':
+	  windowed = 1;
 	  // Beuc: enabling transition is more fun :)
-	  //no_transition = true;	  
-	}
-		
-      if (strncasecmp(option, "-debug", strlen("-debug")) == 0)
-	{
-	  debug_mode = /*true*/1;
-	  remove("dink\\debug.txt");
-	}
-      
-      if (strncasecmp(option, "-nojoy", strlen("-nojoy")) == 0)
-	  joystick = /*false*/0;
-
-      if (strncasecmp(option, "-noini", strlen("-noini")) == 0)
-	  g_b_no_write_ini = 1;
-      
-      if (strncasecmp(option, "-game", strlen("-game")) == 0)
-	{
-	  char gamedir[200];
-/* 	  separate_string(crap, i+1,' ',gamedir); */
-	  strcpy(gamedir, argv[i+1]);
-	  strcpy(dir, gamedir);
-	  Msg("Working directory %s requested.",dir);  
-	}
-				
-      if (strncasecmp(option, "-nosound", strlen("-nosound")) == 0)
-	sound_on = /*false*/0;
+	  //no_transition = true;
+	  break;	
+      default:
+	exit (EXIT_FAILURE);
+      }
     }
 	
   if (chdir(dir) == -1) 
