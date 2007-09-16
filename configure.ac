@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([GNU FreeDink],[1.07],[beuc@beuc.net])
+AC_INIT([GNU FreeDink],[1.07.20070916],[beuc@beuc.net])
 AC_CONFIG_AUX_DIR(autotools)
 # For future version of aclocal:
 AC_CONFIG_MACRO_DIR(autotools/macros)
@@ -11,7 +11,7 @@ AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_CC
 
-if [ x"$host" == x"$target" ]; then
+if test x"$host" == x"$target"; then
 AM_BINRELOC
 fi
 

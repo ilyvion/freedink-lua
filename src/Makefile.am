@@ -1,6 +1,7 @@
 # No pedantic for now, will do that in a bit.
 #AM_CFLAGS = -Wall -ansi -pedantic
 # Cf. (autoconf.info)Installation Directory Variables:
+# Don't use DATADIR, it conflicts with something in MinGW
 AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 
 COMMON_OBJS=bgm.c bgm.h dinkvar.c dinkvar.h fastfile.c fastfile.h	\

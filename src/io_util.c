@@ -206,7 +206,7 @@ find_data_file(const char *filename)
       }
   }
 #else
-  dir = br_find_data_dir(DATADIR);
+  dir = br_find_data_dir(DEFAULT_DATA_DIR);
 #endif
   if (dir != NULL)
     {
