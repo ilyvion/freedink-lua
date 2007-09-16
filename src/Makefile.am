@@ -4,6 +4,12 @@
 # Don't use DATADIR, it conflicts with something in MinGW
 AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 
+# Gnulib:
+AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib
+#?AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib -I$(top_builddir)/gnulib/lib
+LDADD = $(top_builddir)/gnulib/lib/libgnu.a
+# _Not_ LIBADD...
+
 # Woe icon and app infos
 # Also check http://fragglet.livejournal.com/4448.html
 .rc.o:

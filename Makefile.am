@@ -1,2 +1,5 @@
 AUTOMAKE_OPTIONS = gnits
-SUBDIRS = src share/freedink autopackage
+# Gnulib:
+ACLOCAL_AMFLAGS = -I gnulib/m4
+
+SUBDIRS = gnulib/lib src share/freedink autopackage

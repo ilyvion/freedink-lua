@@ -1,0 +1,18 @@
+Gnulib is a set of C snipets that provide a portable implementation of
+common C functions and symbols (such as strdup, getopt, etc.). When
+you include one in your project, it is used as fallback if the host
+implementation does not exist or is broken.
+
+This permits to rely on standard and stable C functions.
+
+http://www.gnu.org/software/gnulib/
+http://www.gnu.org/software/gnulib/manual/gnulib.html
+
+
+Initial import:
+/usr/src/gnulib/gnulib-tool \
+  --source-base=gnulib/lib --m4-base=gnulib/m4 \
+  --import getopt
+
+Then follow the manual and instructions from gnulib-tool (changes are
+scattered among the autotools build system files).
