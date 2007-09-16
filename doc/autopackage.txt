@@ -18,7 +18,19 @@ http://autopackage.org/docs/devguide/ch07.html
 
 
 Our autopackage was init'd through:
-makepackage --mkspec > default.apspec.in
+$ makepackage --mkspec > default.apspec.in
+
+The package can be generated through:
+$ cd ~/freedink/ # not ~/freedink/autopackage/
+$ makepackage
+
+If that's the first time you install an autopackage:
+http://autopackage.org/docs/howto-install/
+
+If you already installed the Autopackage manager, but wish to use the
+command line:
+$ package install "GNU FreeDink 1.07.20070916.package"
+$ package remove freedink
 
 
 Currently we do not deal with SDL dependencies, this will be fixed
