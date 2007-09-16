@@ -6154,8 +6154,9 @@ void getdir(char final[])
   char path[255];
   GetModuleFileName(NULL, path, 255);
   char c_cur = 0;
+  int k;
 
-  for (int k=strlen(path);path[k] != '\\'; k--)
+  for (k = strlen(path); path[k] != '\\'; k--)
     {
       c_cur = k;
     }

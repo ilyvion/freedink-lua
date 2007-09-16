@@ -1,0 +1,54 @@
+Cross-compilation
+=================
+
+# Install a cross-compiler version of GCC
+aptitude install mingw32
+
+
+# Install precompiled SDL binaries
+VERSION=1.2.12
+mkdir -p -m 775 /usr/local/cross-tools/i386-mingw32msvc
+cd /usr/local/cross-tools
+ln -s i386-mingw32msvc i386-mingw32
+# Cf. http://libsdl.org/download-1.2.php
+wget http://libsdl.org/release/SDL-devel-$VERSION-mingw32.tar.gz
+tar xzf SDL-devel-$VERSION-mingw32.tar.gz
+mv SDL-$VERSION/* i386-mingw32msvc/
+rmdir SDL-$VERSION
+
+# Install precompiled SDL_mixer binaries
+VERSION=1.2.8
+wget http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-devel-$VERSION-VC8.zip
+unzip SDL_mixer-devel-$VERSION-VC8.zip
+cp -r SDL_mixer-$VERSION/include/* i386-mingw32msvc/include/SDL/
+cp -r SDL_mixer-$VERSION/lib/* i386-mingw32msvc/lib/
+rm -rf SDL_mixer-$VERSION/
+
+# Install precompiled SDL_mixer binaries
+VERSION=2.0.9
+wget http://libsdl.org/projects/SDL_ttf/release/SDL_ttf-devel-$VERSION-VC8.zip
+unzip SDL_ttf-devel-$VERSION-VC8.zip
+cp -r SDL_ttf-$VERSION/include/* i386-mingw32msvc/include/SDL/
+cp -r SDL_ttf-$VERSION/lib/* i386-mingw32msvc/lib/
+rm -rf SDL_ttf-$VERSION/
+
+# Cross-compile SDL_gfx
+cd /usr/src
+VERSION=2.0.16
+wget http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-$VERSION.tar.gz
+tar xzf SDL_gfx-$VERSION.tar.gz
+cd SDL_gfx-$VERSION
+# Refresh and mark as DLL-compliant (patch sent)
+rm -f acinclude.m4
+sed -i -e 's/-version-info/-no-undefined -version-info/' Makefile.am
+autoreconf --force --install --symlink
+export SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
+make
+make install
+
+
+# Cross-compile FreeDink
+cd ~/freedink/
+export SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu

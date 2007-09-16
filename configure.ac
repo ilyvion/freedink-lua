@@ -11,7 +11,9 @@ AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_CC
 
+if [ x"$host" == x"$target" ]; then
 AM_BINRELOC
+fi
 
 dnl Check for SDL
 SDL_VERSION=1.2.0

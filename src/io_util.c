@@ -27,7 +27,16 @@
 #include <string.h>
 #include <dirent.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "binreloc.h"
+
+/* TODO: use Gnulib */
+#ifndef PATH_MAX
+#  define PATH_MAX 255
+#endif
 
 /* Returns a pointer to the end of the current path element (file or
    directory) */
@@ -183,7 +192,7 @@ find_data_file(const char *filename)
   {
     /* Get executable's directory */
     char myself[MAX_PATH];
-    int success = GetModuleFilename(NULL, myself, MAX_PATH);
+    int success = GetModuleFileName(NULL, myself, MAX_PATH);
     if (success)
       {
 	int len = strlen(myself);
@@ -210,9 +219,9 @@ find_data_file(const char *filename)
 	}
     }
 
-  /* Try compile-time DATADIR */
-  retpath = (char*) realloc(retpath, strlen(DATADIR) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
-  sprintf(retpath, "%s/%s/%s", DATADIR, PACKAGE, filename);
+  /* Try compile-time datadir */
+  retpath = (char*) realloc(retpath, strlen(DEFAULT_DATA_DIR) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
+  sprintf(retpath, "%s/%s/%s", DEFAULT_DATA_DIR, PACKAGE, filename);
   if (exist(retpath))
     return retpath;
 
