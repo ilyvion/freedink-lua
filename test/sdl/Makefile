@@ -1,9 +1,10 @@
-CFLAGS=$(shell sdl-config --cflags) -g
-LDFLAGS=$(shell sdl-config --libs)
+CFLAGS=-Wall -g $(shell sdl-config --cflags)
+LDLIBS=$(shell sdl-config --libs)
 
 .PHONY: all
 
-all: joytest mousetest msb
+PROGS = joytest mousetest msb ticks
+all: $(PROGS)
 
 clean:
-	-rm -f mousetest joytest msb *~
+	-rm -f $(PROGS) $(PROGS:%=%.exe) *~

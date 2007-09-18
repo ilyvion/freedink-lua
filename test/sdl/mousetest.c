@@ -47,7 +47,6 @@ int main(void)
 {
   SDL_Surface *screen, *pic;
   int quit = 0;
-  int mouse_focus = 1;
   double px = 320, py = 240;
   int mouse_dx = 0, mouse_dy = 0;
   int keyboard_dx = 0, keyboard_dy = 0;
@@ -89,7 +88,6 @@ int main(void)
 
   /* Synchronize physical and game mouse */
   {
-    SDL_Event event;
     int tmp_dx, tmp_dy;
 
     ignore_mouse_event = 1;
@@ -139,6 +137,8 @@ int main(void)
 	      case SDLK_DOWN:
 		keyboard_dy = 1;
 		break;
+	      default:
+		break;
 	      }
 	    break;
 
@@ -152,6 +152,8 @@ int main(void)
 	      case SDLK_UP:
 	      case SDLK_DOWN:
 		keyboard_dy = 0;
+		break;
+	      default:
 		break;
 	      }
 	    break;

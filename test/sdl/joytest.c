@@ -244,4 +244,5 @@ int main(void) {
   }
   SDL_JoystickClose(joystick);
   SDL_Quit();
+  return 0;
 }
