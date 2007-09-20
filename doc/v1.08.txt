@@ -60,6 +60,9 @@ List of changes
 
 Compiled by merging the list of fixes in each of the links above:
 
+Framerate: see framerate.txt. It also sets the Dink speed a bit
+differently, but I'm unsure of the effect.
+
 [TODO]
 
 
@@ -85,3 +88,15 @@ Digest:
   and a couple clean-up.
 
 - dinkvar.h: ~190kB. TrueColor mode, scope?, ...
+
+
+Compilation
+===========
+
+The readme.txt says that you need VS.NET or VS2005. The 'Express'
+version from MS won't work, because it only support console and .net
+applications (eg. it's doesn't provide windows.h).
+
+Trying to compile with VC++6 triggers lots of C++ template errors and
+one undefined DDLOCK_DONOTWAIT symbol, plus loads of warnings about
+truncated mangled names. I haven't put much work into it.

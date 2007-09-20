@@ -1,0 +1,35 @@
+v1.08 uses Sleep(1) in a loop to try to reach an accurate delay of
+12ms between frames, targetting 83 frames per second (FPS).
+
+This doesn't work, because Sleep will rely on the Woe timer
+resolution, which may vary and is around 10-25ms (I was 10ms and 15ms
+on the two computers I tried).
+
+With 10ms: it waits once (10ms<12ms) and another time (20ms>12ms) then
+stops. So we got a framerate of 50.
+
+With 15ms: it waits once (15ms>12ms) and we get a framerate of 60.
+
+Under GNU/Linux this approachs triggers similar issues, but there are
+many different ways to support the timer (HZ parameter set to 100, 250
+or 1000; tickless kernels for laptop...) so this isn't reliable
+either.
+
+Check test/sdl/ticks.c if you want to experiment.
+
+
+There is a way to set the Woe timer resolution to 1ms. However, it
+doesn't seem like v1.08 is using it. Incidentally the Woe port of SDL
+does it by default. It is not always possible to do so under
+GNU/Linux. I'm not sure all computers support such a high timer
+resolution anyway.
+
+
+So, v1.08's framerate is not set to 83 FPS, and is pretty variable. In
+FreeDink, we use GFL_gfx's framerate functions to get a pretty
+accurate framerate despite of the OS's timer limitations. We set the
+framerate to 60 because that sounded a good average value, close to
+v1.08's in practice.
+
+Side note: with this, FreeDink does not necessarily take 100% CPU when
+running anymore, which is good news.

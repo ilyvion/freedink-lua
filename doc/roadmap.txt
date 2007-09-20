@@ -18,7 +18,7 @@ to a library that could be reused by other tools (WDE).
 
 Status: currently the code is being split and compiles without warning
 under vanilla g++ (no -Wall option or anything). Most VC++ warnings
-have been fixed.
+have been fixed. The code was then converted to C (not ANSI yet).
 
 - Encapsulate sound/video/input data, so that the engine can easily
 switch from a library to another.
@@ -36,9 +36,9 @@ Port the game from DirectX to SDL
   - WAV (Half-done: SDL_Mixer, but we lack pitch shift and volume unit
     conversion)
 - Input
-  - Keyboard (Half-done: keycodes are different now)
-  - Mouse (Half-done: only work in absolute mode, not relative, so
-    keyboard can't control mouse)
+  - Keyboard (Neary done: a few Dinkedit glitches; decide whether to
+    use unicode instead of keycodes for letters in the game)
+  - Mouse (Nearly done: Ctrl+Mouse not supported in the editor)
 - Graphics
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
@@ -48,13 +48,10 @@ Port the game from DirectX to SDL
   - Fonts (In progress: SDL_ttf installed, but the font doesn't render
     the same; fonts should not use the current screen's palette)
 - Timer (Done: SDL_GetTicks)
-- Frame rate limiting?
+- Frame rate limiting (Done: SDL_gfx / SDL_framerate.h)
 
-[ ] Handle remaining portability issues
-
-Use autoconf for this, and switch to automake along the way.
-"autoconfiscate"
-Fix the additional compilation errors.
+[X] Handle remaining portability issues: use autoconf for this
+    ("autoconfiscate"), and switch to automake along the way.
 
 [Milestone 1]: we have a portable game engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
