@@ -69,7 +69,6 @@
 #include "sfx.h"
 #include "dinkvar.h"
 #include "update_frame.h"
-#include "resource.h"
 #include "init.h"
 #include "io_util.h"
 #include "input.h"

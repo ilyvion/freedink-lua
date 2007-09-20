@@ -83,7 +83,6 @@
 #include "gfx_utils.h"
 #include "gfx_fonts.h"
 #include "sfx.h"
-#include "resource.h"
 #include "io_util.h"
 
 //Dinkedit-only vars

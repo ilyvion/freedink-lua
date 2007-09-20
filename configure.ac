@@ -44,7 +44,7 @@ AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixe
 
 
 AC_CONFIG_FILES([Makefile gnulib/lib/Makefile \
-  src/Makefile share/freedink/Makefile \
+  src/Makefile src/woeres.rc share/freedink/Makefile \
   autopackage/Makefile autopackage/default.apspec])
 
 AC_OUTPUT
