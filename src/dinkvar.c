@@ -57,6 +57,7 @@
 
 #include "SDL.h"
 #include "SDL_mixer.h"
+#include "SDL_framerate.h"
 #include "SDL_rotozoom.h"
 
 /* #include "ddutil.h" */
@@ -321,8 +322,12 @@ int cur_sprite = 1;
 int playy = 399;
 int cur_map,cur_tile;
 struct seth_joy sjoy;
+
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount; 
+/* SDL_gfx accurate framerate */
+FPSmanager framerate_manager;
+
 unsigned long timecrap;
 rect math,box_crap,box_real;
 

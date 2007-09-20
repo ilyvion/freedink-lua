@@ -29,6 +29,7 @@
 /* #include <windows.h> */
 /* #include <ddraw.h> */
 #include "SDL.h"
+#include "SDL_framerate.h"
 
 #include "dinkvar.h"
 #include "freedink.h"
@@ -159,6 +160,10 @@ demon:
 	//Sleep(66);
 	
 	//redink1 - 'lock the framerate to 83 FPS'... Seth told me to.
+	/* Beuc: that doesn't work. Waiting for 1ms is not guaranteed
+	   to work accurately, most often computer will wait for
+	   delays such as 10ms or 15ms. My tests give framerates of
+	   respectively 50 and 60 FPS. */
 /* Woe: */
 /* 	while (thisTickCount - lastTickCount < 12) */
 /* 	  { */
@@ -167,16 +172,18 @@ demon:
 /* 	  } */
 
 /* SDL */
-	while (thisTickCount - lastTickCount < 12)
-	  {
-	    SDL_Delay (1);
-	    thisTickCount = SDL_GetTicks ();
-	  }
+/* 	while (thisTickCount - lastTickCount < 12) */
+/* 	  { */
+/* 	    SDL_Delay (1); */
+/* 	    thisTickCount = SDL_GetTicks (); */
+/* 	  } */
 
-/* Alternative - same effect: */
-/* 	if ((thisTickCount - lastTickCount) < 12) */
-/* 	  SDL_Delay(12 - (thisTickCount - lastTickCount)); */
-/* 	thisTickCount = SDL_GetTicks(); */
+	/* SDL_gfx has a more clever algorithm, which accurately sets
+	   the framerate to a fixed value. */
+	SDL_framerateDelay(&framerate_manager);
+
+
+	thisTickCount = SDL_GetTicks();
 
 	fps_final = thisTickCount - lastTickCount;
 	

@@ -36,6 +36,7 @@
 #endif
 
 #include "SDL.h"
+#include "SDL_framerate.h"
 #include "rect.h"
 
 #define MAX_VARS 250
@@ -477,6 +478,7 @@ extern struct sp spr[];
 extern struct talk_struct talk;
 extern Uint32 thisTickCount;
 extern Uint32 lastTickCount;
+extern FPSmanager framerate_manager;
 extern /*bool*/int total_trigger;
 extern /*bool*/int trig_man;
 extern /*bool*/int turn_on_plane;

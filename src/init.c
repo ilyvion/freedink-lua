@@ -30,6 +30,7 @@
 #include <math.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_framerate.h"
 #include "binreloc.h"
 /* Msg */
 #include "dinkvar.h"
@@ -115,6 +116,13 @@ int init(void)
       Msg("SDL_Init: %s\n", SDL_GetError());
       return 0;
     }
+
+  SDL_initFramerate(&framerate_manager);
+  /* The official v1.08 .exe runs 50-60 FPS in practice, despite the
+     documented intent of running 83 FPS (or 12ms delay). */
+  /* SDL_setFramerate(manager, 83); */
+  SDL_setFramerate(&framerate_manager, 60);
+
 
   /* TODO: move to gfx.cpp */
   /* Init graphics subsystem */

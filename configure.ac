@@ -37,8 +37,10 @@ AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
 
-# Somewhat optional
-AC_CHECK_HEADERS(SDL/SDL.h SDL/SDL_rotozoom.h SDL/SDL_ttf.h SDL/SDL_mixer.h)
+# Somewhat optional. This doesn't work well because the preprocessor
+# test doesn't include -I/usr/include/SDL. Defines matching contants
+# in config.h (e.g. HAVE_SDL_FRAMERATE_H).
+#AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h SDL_mixer.h)
 
 
 AC_CONFIG_FILES([Makefile gnulib/lib/Makefile \
