@@ -26,6 +26,8 @@ AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
+AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
+  be redefined (and saved by autoconf) for cross-compilation.])
 AM_PATH_SDL($SDL_VERSION,
             :,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
