@@ -189,7 +189,7 @@ void flip_it_second(void)
 {
 /*         DDBLTFX     ddbltfx; */
         
-        rect rcRectSrc;    rect rcRectDest;
+  rect rcRectSrc;    rect rcRectDest;
 /*         POINT p; */
         
 /*         if (!windowed) */
@@ -234,27 +234,23 @@ void flip_it_second(void)
                 
 /*                 ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
 /*                 ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
-		// GFX
-		{
-		  // TODO: work directly on either lpDDSBack or
-		  // lpDDSPrimary: the double buffer (Back) is managed
-		  // by SDL, and SDL_Flip is used to refresh the
-		  // physical screen (Primary), so only one of them is
-		  // necessary.
-		  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-		  
-		  if (trigger_palette_change)
-		    {
-		      // Apply the logical palette to the physical
-		      // screen. This may trigger a Flip (so don't do
-		      // that until Back is read), but not necessarily
-		      // (so do a Flip anyway).
-		      SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
-				     cur_screen_palette, 0, 256);
-		      trigger_palette_change = 0;
-		    }
-		  SDL_Flip(GFX_lpDDSPrimary);
-		}
+  // GFX
+  {
+    /* We work directly on either lpDDSBack (no lpDDSPrimary as in the
+       original game): the double buffer (Back) is directly managed by
+       SDL; SDL_Flip is used to refresh the physical screen. */
+    if (trigger_palette_change)
+      {
+	// Apply the logical palette to the physical
+	// screen. This may trigger a Flip (so don't do
+	// that until Back is read), but not necessarily
+	// (so do a Flip anyway).
+	SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
+		       cur_screen_palette, 0, 256);
+	trigger_palette_change = 0;
+      }
+    SDL_Flip(GFX_lpDDSBack);
+  }
 /* 	} */
 }
 
@@ -6164,7 +6160,6 @@ if (!exist(tdir))
 	       even if we change the screen palette: */
 	    SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
 	    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
-	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
 
 	    /* TODO: wrap LoadBMP, and move buffer initialization
 	       right after palette initialization */

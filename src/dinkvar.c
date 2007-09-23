@@ -1930,8 +1930,8 @@ void draw_wait()
 	  // GFX
 	  {
 	    SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[7]].k->w, GFX_k[seq[423].frame[7]].k->h};
-	    SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSPrimary, &dst);
-	    SDL_UpdateRects(GFX_lpDDSPrimary, 1, &dst);
+	    SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSBack, &dst);
+	    SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
 	  }
 	  please_wait = /*false*/0;
 	}
@@ -1942,8 +1942,8 @@ void draw_wait()
 	  // GFX
 	  {
 	    SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[8]].k->w, GFX_k[seq[423].frame[8]].k->h};
-	    SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSPrimary, &dst);
-	    SDL_UpdateRects(GFX_lpDDSPrimary, 1, &dst);
+	    SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSBack, &dst);
+	    SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
 	  }
 	  please_wait = /*true*/1;
           

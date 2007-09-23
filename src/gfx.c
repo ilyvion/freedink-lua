@@ -36,9 +36,8 @@
 // LPDIRECTDRAWSURFACE     lpDDSTrick2 = NULL;       // Offscreen surface 2
 
 
-SDL_Surface *GFX_lpDDSPrimary = NULL; /* The physical screen */
-SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer for physical screen -
-				      TODO: useless with SDL */
+SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer and link to physical
+				      screen*/
 
 /* GFX_lpDDSTwo: holds the base scene */
 /* Rationale attempt :*/

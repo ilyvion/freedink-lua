@@ -33,7 +33,6 @@
 /* extern LPDIRECTDRAWSURFACE lpDDSTrick2; */
 /* extern LPDIRECTDRAWSURFACE lpDDSTwo; */
 
-extern SDL_Surface *GFX_lpDDSPrimary;
 extern SDL_Surface *GFX_lpDDSBack;
 extern SDL_Surface *GFX_lpDDSTrick;
 extern SDL_Surface *GFX_lpDDSTrick2;

@@ -3971,22 +3971,20 @@ void flip_it(void)
 
       // GFX
       {
-	// TODO: work directly on either lpDDSBack or lpDDSPrimary:
-	// the double buffer (Back) is managed by SDL, and SDL_Flip is
-	// used to refresh the physical screen (Primary), so only one
-	// of them is necessary.
-	SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSPrimary, NULL);
-
+	/* We work directly on either lpDDSBack (no lpDDSPrimary as in
+	   the original game): the double buffer (Back) is directly
+	   managed by SDL; SDL_Flip is used to refresh the physical
+	   screen. */
 	if (trigger_palette_change)
 	  {
 	    // Apply the logical palette to the physical screen. This
 	    // may trigger a Flip (so don't do that until Back is
 	    // read), but not necessarily (so do a Flip anyway).
-	    SDL_SetPalette(GFX_lpDDSPrimary, SDL_PHYSPAL,
+	    SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
 			   cur_screen_palette, 0, 256);
 	    trigger_palette_change = 0;
 	  }
-	SDL_Flip(GFX_lpDDSPrimary);
+	SDL_Flip(GFX_lpDDSBack);
       }
 /*     } */
 }
@@ -6159,7 +6157,6 @@ static int doInit(int argc, char *argv[])
       SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, cur_screen_palette, 0, 256);
       SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_SetPalette(GFX_lpDDSPrimary, SDL_LOGPAL, cur_screen_palette, 0, 256);
 /*     } */
   
   /* Display splash screen */

@@ -169,22 +169,22 @@ int init(void)
      and is a pre-requisite for SDL_Flip to use hardware, see
      http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
   if (windowed)
-    GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
+    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
   else
-    GFX_lpDDSPrimary = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-  if (GFX_lpDDSPrimary == NULL)
+    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+  if (GFX_lpDDSBack == NULL)
     {
       fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
       exit(1);
     }
-  if (GFX_lpDDSPrimary->flags & SDL_HWSURFACE)
+  if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
     printf("INFO: Using hardware video mode.\n");
   else
     printf("INFO: Not using a hardware video mode.\n");
 
   // GFX
-  GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8,
-  				       0, 0, 0, 0);
+  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
+  /* 				       0, 0, 0, 0); */
 
   // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
   // doInit()
