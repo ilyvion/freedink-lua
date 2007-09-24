@@ -37,7 +37,7 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
   /* bmp = IMG_Load (file); */
   if (bmp == NULL)
     {
-      fprintf(stderr, "load_palette_from_bmp: couldn't open %s", file);
+      fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", file);
       return 0;
     }
 
