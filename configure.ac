@@ -32,17 +32,20 @@ AM_PATH_SDL($SDL_VERSION,
             :,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
-CFLAGS="$CFLAGS $SDL_CFLAGS"
+# Technically this should set CFLAGS, but sdl-config lacks a
+# --cppflags switch, and setting CPPFLAGS is needed for
+# AC_CHECK_HEADERS, so we define CPPFLAGS.
+CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
 
-# Somewhat optional. This doesn't work well because the preprocessor
-# test doesn't include -I/usr/include/SDL. Defines matching contants
-# in config.h (e.g. HAVE_SDL_FRAMERATE_H).
-#AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h SDL_mixer.h)
+# Somewhat optional. Defines matching contants in config.h
+# (e.g. HAVE_SDL_FRAMERATE_H).
+AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h SDL_mixer.h,
+  [], AC_MSG_ERROR([Could not find necessary SDL libs headers]))
 
 
 AC_CONFIG_FILES([Makefile gnulib/lib/Makefile \
