@@ -27,19 +27,12 @@
 
 /* Get a colors palette from the specified image */
 int
-load_palette_from_bmp (char *file, SDL_Color *palette)
+load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette)
 {
   int i;
-  SDL_Surface *bmp;
-  char tmp_filename[PATH_MAX];
 
-  bmp = SDL_LoadBMP(ciconvertbuf(file, tmp_filename));
-  /* bmp = IMG_Load (file); */
   if (bmp == NULL)
-    {
-      fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", file);
-      return 0;
-    }
+    return 0;
 
   for (i = 0; i < bmp->format->palette->ncolors; i++)
     {
@@ -56,8 +49,28 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
   palette[255].g = 255;
   palette[255].b = 255;
 
-  SDL_FreeSurface (bmp);
   return 1;
+}
+
+/* Get a colors palette from the specified image */
+int
+load_palette_from_bmp (char *file, SDL_Color *palette)
+{
+  SDL_Surface *bmp;
+  char tmp_filename[PATH_MAX];
+  int success = 0;
+
+  bmp = SDL_LoadBMP(ciconvertbuf(file, tmp_filename));
+  /* bmp = IMG_Load (file); */
+  if (bmp == NULL)
+    {
+      fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", file);
+      return 0;
+    }
+
+  success = load_palette_from_surface(bmp, palette);
+  SDL_FreeSurface(bmp);
+  return success;
 }
 
 

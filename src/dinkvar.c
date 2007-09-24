@@ -2188,7 +2188,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
 	    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
 	    
-	    GFX_k[sprite].k = SDL_LoadBMP_RW(rw, 0);
+	    GFX_k[sprite].k = load_bmp_from_mem(rw);
 	    // bmp_surf = IMG_Load_RW (rw, 0);
 	    if (GFX_k[sprite].k == NULL)
 	      {
@@ -2376,7 +2376,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       /* Set the pixel data */
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
-      GFX_k[cur_sprite].k = SDL_LoadBMP(ciconvert(crap));
+      GFX_k[cur_sprite].k = load_bmp(crap);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)
 	/* First frame didn't load! */
 	/* It's normal if we're at the end of a sequence */
@@ -6131,7 +6131,6 @@ void place_sprites_game(void)
 void show_bmp( char name[80], int showdot, int reserved, int script)
 {
   SDL_Surface *image = NULL;
-  SDL_Color palette[256];
   
   if (!exist(name)) 
     {
@@ -6141,43 +6140,18 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
   
   // memory leak?
   //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-  // GFX
-  /* image = SDL_LoadBMP(ciconvert(name)); */
   
 /*   lpDDPal = DDLoadPalette(lpDD, name); */
-  // GFX
-  load_palette_from_bmp(name, palette);
 
 /*   if (lpDDPal) */
 /*     lpDDSPrimary->SetPalette(lpDDPal); */
-  // GFX
-  change_screen_palette(palette);
   
-  // load the image again, with the new global palette - DX color
-  // conversion is thus avoided
-/*   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak? */
-  // GFX
-  {
-    // LoadBMP wrapper - conversion with edited palette (0=black,
-    // 255=white). That's exactly what DX does.
+  image = load_bmp_setpal(name);
+  if (image == NULL)
     {
-      SDL_Surface *conv;
-      image = SDL_LoadBMP(ciconvert(name));
-      if (image == NULL)
-	{
-	  fprintf(stderr, "Couldn't load %s\n", name);
-	  return;
-	}
-      conv = SDL_LoadBMP(ciconvert(name)); // maybe use SDL_CreateRGBSurfaceFrom
-      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_BlitSurface(conv, NULL, image, NULL);
-      SDL_FreeSurface(conv);
+      fprintf(stderr, "Couldn't load %s\n", name);
+      return;
     }
-    // Now use the reference palette, so that no color conversion will
-    // occur when blitting the image in various game buffers -
-    // i.e. palette indexes won't change.
-    SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
-  }
 
   showb.active = /*true*/1;
   showb.showdot = showdot;
@@ -6215,7 +6189,6 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 void copy_bmp( char name[80])
 {
   SDL_Surface *image = NULL;
-  SDL_Color palette[256];
 
   if (!exist(name)) 
     {
@@ -6225,39 +6198,19 @@ void copy_bmp( char name[80])
   
   // memory leak?
   //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-  //GFX: done later on
-  //image = SDL_LoadBMP(name);
   
 /*   lpDDPal = DDLoadPalette(lpDD, name); */
-  // GFX
-  load_palette_from_bmp(name, palette);
 
 /*   if (lpDDPal) */
 /*     lpDDSPrimary->SetPalette(lpDDPal); */
-  // GFX
-  change_screen_palette(palette);
 
-  // load the image again, with the new global palette - DX color
-  // conversion is thus avoided
-/*   lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0); // memory leak? */
-  // GFX
-  {
-    // LoadBMP wrapper - conversion with edited palette (0=black,
-    // 255=white). That's exactly what DX does.
+  image = load_bmp_setpal(name);
+  if (image == NULL)
     {
-      SDL_Surface *conv;
-      image = SDL_LoadBMP(ciconvert(name));
-      conv = SDL_LoadBMP(ciconvert(name)); // maybe use SDL_CreateRGBSurfaceFrom
-      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_BlitSurface(conv, NULL, image, NULL);
-      SDL_FreeSurface(conv);
+      fprintf(stderr, "Couldn't load %s\n", name);
+      return;
     }
-    // Now use the reference palette, so that no color conversion will
-    // occur when blitting the image in various game buffers -
-    // i.e. palette indexes won't change.
-    SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
-  }
-  
+
 
   abort_this_flip = /*true*/1;
   

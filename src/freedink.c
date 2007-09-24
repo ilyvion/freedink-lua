@@ -3969,23 +3969,23 @@ void flip_it(void)
 /*       ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
 /*       ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 
-      // GFX
+  // GFX
+  {
+    /* We work directly on either lpDDSBack (no lpDDSPrimary as in
+       the original game): the double buffer (Back) is directly
+       managed by SDL; SDL_Flip is used to refresh the physical
+       screen. */
+    if (trigger_palette_change)
       {
-	/* We work directly on either lpDDSBack (no lpDDSPrimary as in
-	   the original game): the double buffer (Back) is directly
-	   managed by SDL; SDL_Flip is used to refresh the physical
-	   screen. */
-	if (trigger_palette_change)
-	  {
-	    // Apply the logical palette to the physical screen. This
-	    // may trigger a Flip (so don't do that until Back is
-	    // read), but not necessarily (so do a Flip anyway).
-	    SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
-			   cur_screen_palette, 0, 256);
-	    trigger_palette_change = 0;
-	  }
-	SDL_Flip(GFX_lpDDSBack);
+	// Apply the logical palette to the physical screen. This
+	// may trigger a Flip (so don't do that until Back is
+	// read), but not necessarily (so do a Flip anyway).
+	SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
+		       cur_screen_palette, 0, 256);
+	trigger_palette_change = 0;
       }
+    SDL_Flip(GFX_lpDDSBack);
+  }
 /*     } */
 }
 
@@ -6121,15 +6121,6 @@ static int doInit(int argc, char *argv[])
   srand((unsigned)time(NULL));
 	
 
-  /* Initialize graphic buffers */
-  if (exist("tiles/splash.bmp"))
-    ciconvertbuf("tiles/splash.bmp", tmp_filename);
-  else
-    ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename);
-  GFX_lpDDSTwo = SDL_LoadBMP(tmp_filename);
-  GFX_lpDDSTrick = SDL_LoadBMP(tmp_filename);
-  GFX_lpDDSTrick2 = SDL_LoadBMP(tmp_filename);
-  
   if (exist("tiles/TS01.bmp"))
     load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal);
   else
@@ -6145,18 +6136,24 @@ static int doInit(int argc, char *argv[])
       /* Physical palette (the one we can change to make visual effects) */
       change_screen_palette(GFX_real_pal);
 
+      /* Initialize graphic buffers */
       /* When a new image is loaded in DX, it's color-converted using
 	 the main palette (possibly altering the colors to match the
-	 palette); currently we don't do that (although that'd be more
-	 efficient that conversion each time the original image is
-	 used). We work around this by making the conversion happen at
-	 the first blit to a buffer surface - and we never change the
-	 buffer's palette again, so we're sure there isn't any
-	 conversion even if we change the screen palette: */
-      SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_SetPalette(GFX_lpDDSTrick, SDL_LOGPAL, cur_screen_palette, 0, 256);
-      SDL_SetPalette(GFX_lpDDSTrick2, SDL_LOGPAL, cur_screen_palette, 0, 256);
+	 palette); currently we emulate that by wrapping SDL_LoadBMP,
+	 converting image to the internal palette at load time - and
+	 we never change the buffer's palette again, so we're sure
+	 there isn't any conversion even if we change the screen
+	 palette: */
+      ciconvertbuf("tiles/splash.bmp", tmp_filename);
+      if (!exist(tmp_filename))
+	ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename);
+      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
+      GFX_lpDDSTwo = load_bmp(tmp_filename);
+      GFX_lpDDSTrick = load_bmp(tmp_filename);
+      GFX_lpDDSTrick2 = load_bmp(tmp_filename);
+
+      /* Copy splash screen to the screen during loading time */
+      SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 /*     } */
   
   /* Display splash screen */
@@ -6166,24 +6163,6 @@ static int doInit(int argc, char *argv[])
 /*   rcRect.bottom = y; */
 /*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo, */
 /* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
-  // GFX
-  {
-    // Load it again and blit it to achieve palette conversion
-    /* TODO: wrap LoadBMP, and move buffer initialization right after
-       palette initialization */
-    SDL_Surface *splashscreen = NULL;
-    if (exist("tiles/splash.BMP") &&
-	(splashscreen = SDL_LoadBMP(ciconvertbuf("tiles/splash.BMP", tmp_filename))) == NULL)
-      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-    else if ((splashscreen = SDL_LoadBMP(ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename))) == NULL)
-      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-
-    if (splashscreen != NULL) {
-      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSTwo, NULL);
-      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
-      SDL_FreeSurface(splashscreen);
-    }
-  }
   flip_it();
 
   if (cd_inserted)

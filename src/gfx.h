@@ -43,4 +43,7 @@ extern SDL_Color GFX_real_pal[256];
 extern int trigger_palette_change;
 extern SDL_Color cur_screen_palette[256];
 extern void change_screen_palette(SDL_Color* new_palette);
+extern SDL_Surface* load_bmp(char *filename);
+extern SDL_Surface* load_bmp_from_mem(SDL_RWops *rw);
+extern SDL_Surface* load_bmp_setpal(char *filename);
 #endif

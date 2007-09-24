@@ -75,7 +75,7 @@ void load_tiles(void) {
       
 /*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
       // GFX
-      GFX_tiles[h] = SDL_LoadBMP(ciconvert(crap));
+      GFX_tiles[h] = load_bmp(crap);
       
       if(GFX_tiles[h] == NULL) {
 	fprintf(stderr, "Couldn't find tilescreen %s: %s\n", crap, SDL_GetError());

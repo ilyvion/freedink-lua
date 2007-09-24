@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include "SDL.h"
+#include "io_util.h"
 #include "gfx.h"
 
 // // DELETEME
@@ -116,6 +117,85 @@ void change_screen_palette(SDL_Color* new_palette) {
     cur_screen_palette[255].g = 255;
     cur_screen_palette[255].b = 255;
 
+    /* Applying the logical palette to the physical screen may trigger
+       a Flip, so don't do it right now */
     trigger_palette_change = 1;
   }
+}
+
+
+/* LoadBMP wrapper. Load a new graphic from file, and apply the
+   reference palette so that all subsequent blits are faster (color
+   convertion is avoided) - although the initial loading time will be
+   somewhat longer. */
+static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int set_pal) {
+  SDL_Surface *image, *copy;
+  char tmp_filename[PATH_MAX];
+
+  if (from_mem == 1)
+    image = SDL_LoadBMP_RW(rw, 0);
+  else
+    image = SDL_LoadBMP(ciconvertbuf(filename, tmp_filename));
+
+  if (image == NULL)
+    return NULL;
+
+  /* Copy the surface */
+  /* TODO: how about using SDL_DisplayFormat()? */
+  copy = SDL_ConvertSurface(image, image->format, image->flags);
+
+  if (set_pal == 1)
+    {
+      SDL_Color palette[256];
+      load_palette_from_surface(image, palette);
+      change_screen_palette(palette);
+      /* Pretend that the image uses the current screen and buffers
+	 palette, to avoid color conversion to the reference palette
+	 (maintain palette indexes). We maintain palette indexes so
+	 that they will match the physical screen's palette, which we
+	 just change. */
+      /* Note: cur_screen_palette is not exactly the same as palette,
+	 because DX reserves some indexes, and FreeDink reimplement
+	 this limitation for compatibility. So we still need a blit
+	 with color convertion to take reserved indexes into
+	 account. Typically skipping this step will reverse black and
+	 white (with Dink palette indexes: 255 and 0; with DX reserved
+	 indexes: 0 and 255). */
+      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
+    }
+  else
+    {
+      /* Prepare a color conversion to the reference palette */
+      SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+    }
+
+  /* Blit the copy back to the original, with a potentially different
+     palette, which triggers color conversion to image's palette. */
+  SDL_BlitSurface(copy, NULL, image, NULL);
+  SDL_FreeSurface(copy);
+  
+  /* In the end, the image must use the reference palette: that way no
+     mistaken color conversion will occur during blits to other
+     surfaces/buffers. Blits should also be faster(?). */
+  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+
+  return image;
+}
+
+/* LoadBMP wrapper, from file */
+SDL_Surface* load_bmp(char *filename)
+{
+  return load_bmp_internal(filename, NULL, 0, 0);
+}
+
+/* LoadBMP wrapper, from memory */
+SDL_Surface* load_bmp_from_mem(SDL_RWops *rw)
+{
+  return load_bmp_internal(NULL, rw, 1, 0);
+}
+
+/* LoadBMP wrapper + use as current palette */
+SDL_Surface* load_bmp_setpal(char *filename)
+{
+  return load_bmp_internal(filename, NULL, 0, 1);
 }

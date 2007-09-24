@@ -6086,10 +6086,10 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	  
 	  // create and set the palette
 
-	  sprintf(tdir, "TILES\\ESPLASH.BMP");	  
+	  sprintf(tdir, "TILES/ESPLASH.BMP");	  
      if (!exist(tdir))
 	{
-        sprintf(tdir, "..\\DINK\\TILES\\ESPLASH.BMP");	  
+        sprintf(tdir, "../DINK/TILES/ESPLASH.BMP");	  
 	
 		
 	}
@@ -6118,7 +6118,7 @@ if (!exist(tdir))
 
 /* 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0); */
 	  // GFX
-	  GFX_lpDDSTwo = SDL_LoadBMP(ciconvert(tdir));
+	  GFX_lpDDSTwo = load_bmp(tdir);
 	  if (!GFX_lpDDSTwo)
 	  {
 	   return initFail("Couldn't load esplash.bmp.");
@@ -6136,14 +6136,8 @@ if (!exist(tdir))
 	  
 	  //if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
 	  
-	  // Display esplash screen
-	  if (GFX_lpDDSTwo)
-	  {
 /* 	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
 /* 					 &rcRect, DDBLTFAST_NOCOLORKEY); */
-	    // GFX
-	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-	  }
 
 
 	  // GFX
@@ -6151,30 +6145,16 @@ if (!exist(tdir))
 	    change_screen_palette(GFX_real_pal);
 	    
 	    /* When a new image is loaded in DX, it's color-converted
-	       using the main palette; currently we don't do that
-	       (although that'd be more efficient that conversion each
-	       time the original image is used). We work around this
-	       by making the conversion happen at the first blit to a
-	       buffer surface - and we never change the buffer's
+	       using the main palette (possibly altering the colors to
+	       match the palette); currently we emulate that by
+	       wrapping SDL_LoadBMP, converting image to the internal
+	       palette at load time - and we never change the buffer's
 	       palette again, so we're sure there isn't any conversion
 	       even if we change the screen palette: */
-	    SDL_SetPalette(GFX_lpDDSTwo, SDL_LOGPAL, cur_screen_palette, 0, 256);
 	    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
 
-	    /* TODO: wrap LoadBMP, and move buffer initialization
-	       right after palette initialization */
-	    SDL_Surface *splashscreen = NULL;
-	    if (exist("tiles/esplash.BMP") &&
-		(splashscreen = SDL_LoadBMP(ciconvertbuf("tiles/esplash.BMP", tmp_filename))) == NULL)
-	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-	    else if ((splashscreen = SDL_LoadBMP(ciconvertbuf("../dink/tiles/esplash.BMP", tmp_filename))) == NULL)
-	      printf("Error loading tiles/splash.BMP: %s\n", SDL_GetError());
-	    
-	    if (splashscreen != NULL) {
-	      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSTwo, NULL);
-	      SDL_BlitSurface(splashscreen, NULL, GFX_lpDDSBack, NULL);
-	      SDL_FreeSurface(splashscreen);
-	    }
+	    /* Copy splash screen to the screen during loading time */
+	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	  }
 
 	  flip_it_second();
