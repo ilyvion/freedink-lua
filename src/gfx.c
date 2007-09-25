@@ -105,8 +105,9 @@ void change_screen_palette(SDL_Color* new_palette) {
        when you enter "negative" color mode. This does not affect
        other indexes. Technically this happens when you get a palette
        from GetEntries(), and when you CreatePalette() without
-       specifying DDPCAPS_ALLOW256. But well, reproducing the bug is
-       important for backward compatibility. */
+       specifying DDPCAPS_ALLOW256 (so respectively, in
+       change_screen_palette() and load_palette_from_*()). But well,
+       reproducing the bug is important for backward compatibility. */
 
     memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
 

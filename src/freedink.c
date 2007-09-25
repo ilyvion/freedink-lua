@@ -6132,10 +6132,6 @@ static int doInit(int argc, char *argv[])
       // Disabled: already done:
       //lpDDSPrimary->SetPalette(lpDDPal);
 
-      // GFX
-      /* Physical palette (the one we can change to make visual effects) */
-      change_screen_palette(GFX_real_pal);
-
       /* Initialize graphic buffers */
       /* When a new image is loaded in DX, it's color-converted using
 	 the main palette (possibly altering the colors to match the
@@ -6144,16 +6140,22 @@ static int doInit(int argc, char *argv[])
 	 we never change the buffer's palette again, so we're sure
 	 there isn't any conversion even if we change the screen
 	 palette: */
+      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
+
       ciconvertbuf("tiles/splash.bmp", tmp_filename);
       if (!exist(tmp_filename))
 	ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename);
-      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
+
       GFX_lpDDSTwo = load_bmp(tmp_filename);
       GFX_lpDDSTrick = load_bmp(tmp_filename);
       GFX_lpDDSTrick2 = load_bmp(tmp_filename);
 
       /* Copy splash screen to the screen during loading time */
       SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+
+      // GFX
+      /* Physical palette (the one we can change to make visual effects) */
+      change_screen_palette(GFX_real_pal);
 /*     } */
   
   /* Display splash screen */
