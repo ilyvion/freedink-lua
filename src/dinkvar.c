@@ -2200,7 +2200,11 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	    if (leftalign)
 	      ; // ?
 	    else if (black)
-	      // TODO: use SDL_RLEACCEL?
+
+	      /* TODO: use SDL_RLEACCEL? "RLE acceleration can
+		 substantially speed up blitting of images with large
+		 horizontal runs of transparent pixels" (man
+		 SDL_SetColorKey) */
 	      /* We might want to directly use the hard-coded
 		 '0' index for efficiency */
 	      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
