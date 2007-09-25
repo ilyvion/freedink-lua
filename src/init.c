@@ -159,7 +159,6 @@ int init(void)
       }
   }
 
-  /* TODO: is that portable? */
   putenv("SDL_VIDEO_CENTERED=1");
 
   /* SDL_HWSURFACE is supposed to give direct memory access */

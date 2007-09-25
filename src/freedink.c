@@ -3761,12 +3761,6 @@ void CyclePalette()
 /*       return; */
 /*     } */
 
-  // GFX
-  /* TODO: SDL doesn't seem to like some of the palettes we use. Some
-     palettes are not accepted and the screen is not refreshed. If the
-     last palette you use is not accepted, the game looks
-     frozen. Currently only the start and end palettes are shown, so
-     the fading essentially doesn't work :/ */
   change_screen_palette(palette);
 
   if (process_downcycle) 
@@ -5611,9 +5605,6 @@ int initFail(char mess[200])
 /*     case WM_CREATE: */
 /*       break; */
 
-
-/* TODO TODO: handle the "closing the SDL window" event */
-
 /*     case WM_IMDONE: */
 /*       Msg("Sending quit message."); */
 /*       PostQuitMessage(0); */
@@ -6084,9 +6075,6 @@ static int doInit(int argc, char *argv[])
       load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
     }
 
-  // TODO: setpalette will be called again later
-  /* GFX: it will be called by reloading TS01.BMP - this seems
-     redundant, maybe we should remove this. */
 /*   if (lpDDPal) */
 /*     { */
 /*       lpDDSPrimary->SetPalette(lpDDPal); */

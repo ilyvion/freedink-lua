@@ -23,6 +23,12 @@ manually work-around the few cases where direct access to the buffer
 is performed (like fill_screen). Maybe such an alternative approach
 can be use for a later truecolor version.
 
+In practice, this means that all palettes are altered, both when
+directly manipulated (GFX_real_pal, CyclePalette(), etc.) and when
+applied to the screen (change_screen_palette). No original,
+non-overwritten palette currently exist in the game.
+
+
 -----
 
 
