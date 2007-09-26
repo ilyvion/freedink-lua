@@ -43,7 +43,7 @@ int mouse_event_filter(const SDL_Event *event)
   return 1;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
   SDL_Surface *screen, *pic;
   int quit = 0;

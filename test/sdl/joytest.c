@@ -30,7 +30,7 @@
 #define IMIN(a,b) ((a < b) ? a : b)
 #define IMAX(a,b) ((a > b) ? a : b)
 
-int main(void) {
+int main(int argc, char *argv[]) {
   SDL_Joystick *joystick;
   int i;
   int quit = 0;
