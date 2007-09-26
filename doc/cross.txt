@@ -99,3 +99,28 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config ./configure \
   --disable-music-mp3
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
+
+
+Static build
+============
+
+- You need to add -lwinmm
+
+i586-mingw32msvc-gcc mousetest.c \
+  `/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config --cflags \
+  --static-libs` -lwinmm
+
+- I have some troubles with SDL_gfx which tries to use
+  __imp__SDL_setFramerate:
+
+$ i586-mingw32msvc-gcc  -g -O2 -static  -o freedink.exe  bgm.o dinkvar.o fastfile.o str_util.o io_util.o sfx.o gfx.o gfx_tiles.o gfx_utils.o gfx_fonts.o init.o rect.o input.o binreloc.o woeres.o freedink.o update_frame.o ../gnulib/lib/libgnu.a -lSDL_mixer -lSDL_ttf -lSDL_gfx  -L/usr/local/cross-tools/i386-mingw32/lib -lmingw32 -lSDLmain -lSDL -mwindows -lwinmm
+dinkvar.o: In function `draw_sprite_game':/home/me/projets_en_cours/dinkprog/freedink/cross/src/../../src/dinkvar.c:5479: référence indéfinie vers « __imp__zoomSurface »
+init.o: In function `init':/home/me/projets_en_cours/dinkprog/freedink/cross/src/../../src/init.c:120: référence indéfinie vers « __imp__SDL_initFramerate »:/home/me/projets_en_cours/dinkprog/freedink/cross/src/../../src/init.c:124: référence indéfinie vers « __imp__SDL_setFramerate »
+update_frame.o: In function `updateFrame':/home/me/projets_en_cours/dinkprog/freedink/cross/src/../../src/update_frame.c:183: référence indéfinie vers « __imp__SDL_framerateDelay »
+
+instead of _SDL_setFramerate:
+
+$ i586-mingw32msvc-nm /usr/local/cross-tools/i386-mingw32/lib/libSDL_gfx.a | grep -i setFramerate
+00000030 T _SDL_setFramerate
+
+It's probably something to fix in the SDL_gfx build system.

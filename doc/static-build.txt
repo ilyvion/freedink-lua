@@ -1,0 +1,171 @@
+Statically compiling for GNU/Linux
+==================================
+
+Thread "[SDL] Embed SDL.dll in the .exe"
+http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-September/062841.html
+
+
+Distros compile libSDL with a number of backends (such as X11 and
+AAlib for graphics, ALSA and OSS for sounds, etc.) which will trigger
+a lot of dependencies.
+
+You may need to statically compile against a manually-compiled libSDL
+which fewer backends enabled.
+
+Another solution may be to have SDL use relaytool (check
+http://autopackage.org/docs/tutorials/glb-binport.html).
+
+
+Technical note: maybe use -Wl,--as-needed, it's supposed to reduce the
+number of NEEDED symbols (objdump -x src/freedink | grep NEEDED). The
+SDL list says it "makes the target only depend on first-level
+dependencies".
+
+
+Compiling with the distro's SDL
+===============================
+
+Here's an attempt to list the minimum dependencies to statically
+compile against Debian Etch's libsdl1.2-dev:
+
+  ##
+  # Dynamic
+  ##
+
+  # glibc-related, better keep them dynamic I think
+  -ldl # dlopen
+  -lpthreads # threads
+
+  # X11 - conflicts with SDL_x11dyn.o if statically
+  # compiled. Something to do with ./configure --enable-x11-shared ?
+  -lX11
+
+  ##
+  # Static
+  ##
+
+  # Maths
+  -lm
+
+  # AAlib text-mode graphics backend
+  aptitude install libaa1-dev
+  aptitude install libgpmg1-dev # mouse support
+  -laa -lgpm
+  # caca text-mode graphics backend
+  aptitude install libcaca-dev
+  aptitude install libslang2-dev
+  aptitude install libncurses5-dev
+  -lcaca -lslang -lncurses -lcucul
+
+  # Direct frame buffer graphics backend
+  aptitude install libdirectfb-dev
+  aptitude install libfusionsound-0.9-25
+  -ldirectfb -ldirect -lfusion
+  # SVGA graphics backend
+  aptitude install libsvga1-dev
+  -lvga
+
+  # ALSA sound backend
+  aptitude install libasound2-dev
+  -lasound
+  # aRts sound backend
+  aptitude install libarts1-dev
+  -lartsc
+  # ESD sound backend
+  aptitude install libesd0-dev
+  -lesd
+  # NAS sound backend
+  aptitude install libaudio-dev
+  -laudio
+
+$ gcc -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT joytest.c \
+  -L/usr/lib -Wl,--as-needed -Wl,-Bstatic -lSDL -lcaca -lslang -laa \
+  -laudio -lesd -lartsc -lvga -ldirectfb -ldirect -lfusion -lcurses \
+  -lcucul -lasound -lgpm -lm -Wl,-Bdynamic -lX11 -ldl -lpthread -o \
+  joytest
+# --as-needed doesn't seem useful here.
+$ ls -lh joytest
+-rwxr-xr-x 1 me me 2,5M 2007-09-26 22:24 joytest
+$ strip joytest
+$ ls -lh joytest
+-rwxr-xr-x 1 me me 2,0M 2007-09-26 22:24 joytest
+me@dmc:~/freedink/test/sdl$ ldd joytest
+        linux-gate.so.1 =>  (0xffffe000)
+        libX11.so.6 => /usr/lib/libX11.so.6 (0xb7ee2000)
+        libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb7ede000)
+        libpthread.so.0 => /lib/tls/i686/cmov/libpthread.so.0 (0xb7ecc000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7d9b000)
+        libXau.so.6 => /usr/lib/libXau.so.6 (0xb7d98000)
+        /lib/ld-linux.so.2 (0xb7fe8000)
+        libXdmcp.so.6 => /usr/lib/libXdmcp.so.6 (0xb7d92000)
+
+Here we still have a dynamic executable, with the usual glibc
+issues. Compiling with apgcc from Apbuild (Autopackage) may help.
+
+
+Compiling with a custom simpler SDL
+===================================
+
+We can try to recompile SDL ourself and get rid of the X11 conflicts,
+allowing for a truly static executable:
+
+$ cd SDL-1.2.12
+# not sure if both options are mandatory:
+$ ./configure --disable-x11-shared --disable-shared
+$ make && make install
+...
+
+$ gcc -static -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT \
+  joytest.c -L/usr/local/lib -L/usr/lib -lSDL -laudio -lvga -ldirectfb \
+  -ldirect -lfusion -lm -lXrandr -lXrender -lX11 -lXau -lXdmcp \
+  -lXext -ldl -lpthread -o joytest
+/usr/local/lib/libSDL.a(SDL_alsa_audio.o): In function `LoadALSALibrary':
+./src/audio/alsa/SDL_alsa_audio.c:139: warning: Using 'dlopen' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/libdirect.a(stream.o): In function `tcp_open':
+(.text+0x891): warning: Using 'getaddrinfo' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/libaudio.a(ConnSvr.o): In function `MakeTCPConnection':
+/home/steve/debian/nas/nas-1.8/lib/audio/ConnSvr.c:981: warning: Using 'gethostbyname' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/lib/libX11.a(x11_trans.o): In function `_X11TransSocketINETConnect':
+(.text+0x1da4): warning: Using 'getservbyname' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+$ ls -lh joytest
+-rwxr-xr-x 1 me me 4,4M 2007-09-26 23:52 joytest
+$ strip joytest
+$ ls -lh joytest
+-rwxr-xr-x 1 me me 2,3M 2007-09-26 23:52 joytest
+$ ldd joytest
+        not a dynamic executable
+$ ./joytest
+# Runs fine until I exit the app:
+*** glibc detected *** double free or corruption (out): 0xb7ba4230 ***
+Abandon
+
+The resulting binary also crashes with a floating point exception
+under Fedora 7 :/
+
+Maybe it can work with a different SDL setup, namely one that wouldn't
+use dlopen.
+
+
+Something in-between works. The improvement over using the distro's
+SDL is that X11 is now statically linked:
+$ gcc -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT joytest.c \
+  -L/usr/local/lib -L/usr/lib -Wl,-Bstatic -lSDL -laudio -lvga \
+  -ldirectfb -ldirect -lfusion -lm -lXrandr -lXrender -lX11 -lXau \
+  -lXdmcp -lXext -o joytest -Wl,-Bdynamic -ldl -lpthread
+$ ls -lh joytest
+-rwxr-xr-x 1 me me 3,6M 2007-09-26 23:50 joytest
+$ strip joytest
+me@dmc:~/freedink/test/sdl$ ls -lh joytest
+-rwxr-xr-x 1 me me 1,8M 2007-09-26 23:50 joytest
+$ ldd joytest
+        linux-gate.so.1 =>  (0xffffe000)
+        libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb7f5a000)
+        libpthread.so.0 => /lib/tls/i686/cmov/libpthread.so.0 (0xb7f48000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7e17000)
+        /lib/ld-linux.so.2 (0xb7f78000)
+
+
+Try switching from dlopen to relaytool
+======================================
+
+Left as exercise to the reader ;)
