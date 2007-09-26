@@ -13,6 +13,8 @@ AC_PROG_CC
 
 # Gnulib
 gl_EARLY
+# TODO: Claudio says those next 3 lines should be handled by
+# gnulib/m4/gnulib-cache.m4. Test and remove if there's no problem.
 gl_SOURCE_BASE(gnulib/lib)
 gl_M4_BASE(gnulib/m4)
 gl_MODULES(getopt)
