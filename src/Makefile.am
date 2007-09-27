@@ -9,8 +9,6 @@ AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib -I$(top_builddir)/gnulib/lib
 LDADD = $(top_builddir)/gnulib/lib/libgnu.a
 # _Not_ LIBADD...
-# If you wanna try a static build:
-#AM_LDFLAGS=-static
 
 # Woe icon and app infos
 # Also check http://fragglet.livejournal.com/4448.html

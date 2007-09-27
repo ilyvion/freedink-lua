@@ -102,6 +102,13 @@ me@dmc:~/freedink/test/sdl$ ldd joytest
 Here we still have a dynamic executable, with the usual glibc
 issues. Compiling with apgcc from Apbuild (Autopackage) may help.
 
+SDL_ttf
+  aptitude install libsdl-ttf2.0-dev libfreetype6-dev zlib1g-dev
+  -lSDL_ttf -lfreetype -lz
+
+SDL_mixer
+  aptitude install libsdl-mixer1.2-dev libsmpeg-dev
+  -lSDL-mixer -lvorbisfile -lvorbis -logg -lsmpeg -lstdc++
 
 Compiling with a custom simpler SDL
 ===================================

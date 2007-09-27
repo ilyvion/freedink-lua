@@ -24,3 +24,6 @@ freedink.xml
 freedink.xml.old
 *.package
 *.package.meta
+# my build dirs:
+cross
+native
