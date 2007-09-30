@@ -1,0 +1,16 @@
+Source: freedink
+Section: games
+Priority: extra
+Maintainer: Sylvain Beucler <beuc@beuc.net>
+Build-Depends: debhelper (>= 5), autotools-dev, libsdl1.2-dev, libsdl-gfx1.2-dev, libsdl-ttf2.0-dev, libsdl-mixer1.2-dev
+Standards-Version: 3.7.2
+
+Package: freedink
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: GNU FreeDink
+ Free extension of the Dink Smallwood game engine with emphasis on
+ freedom, backward compatibility, portability, documentation, and
+ power.
+ .
+ Homepage: http://www.gnu.org/software/freedink/
