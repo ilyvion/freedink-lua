@@ -1,2 +1,2 @@
-dist_pkgdata_DATA = dink.bmp jump.wav stop.wav LiberationSans-Regular.ttf
+dist_pkgdata_DATA = freedink.bmp LiberationSans-Regular.ttf jump.wav stop.wav
 EXTRA_DIST = freedink.ico

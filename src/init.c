@@ -136,7 +136,7 @@ int init(void)
     char *icon_file;
     SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
-    if ((icon_file = find_data_file("dink.bmp")) != NULL)
+    if ((icon_file = find_data_file("freedink.bmp")) != NULL)
       {
 	SDL_Surface *icon;
 	if ((icon = SDL_LoadBMP(icon_file)) == NULL)
