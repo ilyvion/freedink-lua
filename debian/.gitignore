@@ -1,3 +1,9 @@
+# rules:
 build-stamp
 build
 freedink
+# debhelper:
+files
+freedink.postinst.debhelper
+freedink.postrm.debhelper
+freedink.substvars
