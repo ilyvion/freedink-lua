@@ -1,0 +1,117 @@
+Dink search path
+================
+
+Original game
+-------------
+
+Layout:
+Dink Smallwood/dink.exe
+Dink Smallwood/dink/
+Dink Smallwood/dink/Map.dat
+Dink Smallwood/dink/Graphics/
+Dink Smallwood/dink/Sound/
+Dink Smallwood/dink/Story/
+Dink Smallwood/dink/Tiles/
+Dink Smallwood/island/Story/
+Dink Smallwood/island/Tiles/
+
+1) chdir(GetModuleFileName())
+2) dir = -game|"dink"
+3) chdir(dir)
+
+Determined on startup:
+DMod => C:\Dink Smallwood\dmod\
+Dink => DMod\..\dink\
+.ini => C:\GetWindowsDirectory()\dinksmallwood.ini
+Window icon => embedded resource
+Dinkedit sounds => embedded resource
+Saved games => DMod/bin/freedink
+
+Determined at runtime (search path):
+Font => DMod
+     => C:\GetWindowsDirectory()\Fonts
+
+It'd be the same, and more intuitive, to consider:
+pkgdatadir = C:\Dink Smallwood\
+DMod = $pkgdatadir/dmod/
+Dink = $pkgdatadir/dink/
+
+
+FreeDink under GNU/Linux (proposal)
+-----------------------------------
+
+Layout:
+/usr/share/freedink/freedink.bmp
+/usr/share/freedink/dink/Map.dat
+/usr/share/freedink/dink/Graphics/
+/usr/share/freedink/dink/Story/
+/usr/share/freedink/dink/Sound/
+/usr/share/freedink/dink/Tiles/
+/usr/share/freedink/island/Story/
+/usr/share/freedink/island/Tiles/
+
+Determined on startup:
+pkgdatadir = $exedir/../share/freedink/ # binreloc
+	   (test: -d)
+	   FALLBACK $default_data_dir
+dinkdir = -dinkdir
+	|| ./
+	(test: -d $dinkdir/dink/Graphics -a -d $dinkdir/dink/Tiles)
+	FALLBACK $pkgdatadir
+DMod = -game
+     || $pkgdatadir/dmod/ (if dmod doesn't coutain '/' or '\')
+     || ERROR
+Dink = $dinkdir/dink/
+     (? DMod/../dink/) (beware of symlinks)
+
+Determined at runtime (search path):
+Resources (freedink.bmp, LiberationSans-Regular.ttf, stop.wav, jump.wav)
+  = $dinkdir
+  || $pkgdatadir
+Font = DMod
+     || C:\Windows\Fonts\ || (? /usr/share/fonts/truetype/**/*.ttf)
+.ini = $binreloc/etc/dinksmallwood.ini || C:\GetWindowsDirectory()\dinksmallwood.ini
+     || /etc/dinksmallwood.ini .ini
+     || ~/.freedink/dinksmallwood.ini
+Write saved games => DMod
+      	    	  FALLBACK ~/.freedink/dmod/*.dat
+		  FALLBACK /tmp/ ? (security?)
+Read saved games => ~/.freedink/dmod/*.dat
+     	   	 => DMod
+
+
+Use cases:
+~$ freedink -game island
+DMod => ~/island/
+DMod => /usr/share/freedink/island/
+Dink => ~/
+Dink => /usr/share/freedink/dink/
+Icon => /usr/share/freedink/
+
+~$ freedink -dinkdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
+DMod => ~/island/
+DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/
+Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/
+Icon => /usr/share/freedink/
+
+/mnt/woe/Program\ Files/Dink\ Smallwood$ freedink -game island
+DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/
+Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/
+
+~$ freedink -dinkdir ~/myshare/freedink/ -game island
+DMod => ~/island/
+DMod => ~/myshare/freedink/island/
+Dink => 
+Icon => ~/myshare/freedink/
+Icon => /usr/share/freedink/
+
+
+FreeDink under Woe (proposal)
+-----------------------------
+
+pkgdatadir = dirname(GetModuleFileName())
+Window icon +|| embedded resource
+Default font +|| embedded resource
+Dinkedit sounds +|| embedded resource
+
+id.
