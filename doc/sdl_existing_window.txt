@@ -1,0 +1,26 @@
+The goal is to embed the SDL window in an existing application. Think
+Windinkedit...
+
+Solutions
+---------
+
+- Avoid the problem: MDI instead of SDI (think Gimp)
+- "SDL_WINDOWID hack":
+  - Gtk+: http://gtksdl.sourceforge.net/
+    Update: http://gtk.developpez.com/faq/?page=gtksdl
+    Troubles: http://www.developpez.net/forums/showthread.php?t=202660
+  - Qt: http://doc.qtfr.org/post/2007/02/21/Integration-de-SDL
+- Manually copy from non-window SDL_Surface to the GUI toolkit:
+  http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062881.html
+
+
+putenv or SDL_putenv?
+---------------------
+
+- http://lists.libsdl.org/htdig.cgi/sdl-libsdl.org/2001-August/019141.html
+
+It says that SDL_putenv is only for WinCE?
+
+- http://lists.libsdl.org/htdig.cgi/sdl-libsdl.org/2005-September/051604.html
+
+Different environment blocks?
