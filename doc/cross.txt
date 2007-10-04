@@ -85,10 +85,18 @@ provided with the official releases).
 # SDL
 VERSION=1.2.12
 cd /usr/src/
+# Get DX headers
+# TODO: maybe it'd be legally cleaner to use those from libwine-dev?
+wget http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
+tar xzf directx-devel.tar.gz -C /usr/local/cross-tools/i386-mingw32msvc/
 wget http://libsdl.org/release/SDL-$VERSION.tar.gz
 tar xzf SDL-$VERSION.tar.gz
 cd SDL-$VERSION
-./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
+CPPFLAGS="-I /usr/local/cross-tools/i386-mingw32msvc/include" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
+# if you don't want stdout.txt and stderr.txt to be created:
+#  --disable-stdio-redirect
+# note: no need for -L, mingw already has libdsound.a, etc.
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
 
@@ -127,22 +135,23 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
 
-# SDL_image
-# (not used now, but may be in the future)
+# SDL_gfx
+#(see previous section)
 
-# - dep1: JPEG
+# SDL_image - dep1: JPEG
 cd /usr/src/
 wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
-# That tarball is very old and this shows in ./configure and
-# libtool. We may consider checking for more recent code, possibly
-# from distro packages
 tar xzf jpegsrc.v6b.tar.gz
 cd jpeg-6b
 CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
   ./configure \
   --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
-# Shared build: would need to reliboolize, recreate configure.ac
+make
+make install-lib
+# Shared build: would need to reliboolize, recreate configure.ac. The
+# sources from Debian do not appear to support cross-compilation to
+# mingw either.
 #  --enable-shared
 ## Need to do a lot of things manually:
 #CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
@@ -155,12 +164,14 @@ CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
 #chmod 755 libtool
 ##ln -fs /usr/share/libtool/ltmain.sh
 #make
-#make install-lib
+#make install
 
 # TODO: libpng and libtiff
 # http://www.libpng.org/pub/png/libpng.html
 # http://www.remotesensing.org/libtiff/
 
+# SDL_image
+# (not used now, but may be in the future)
 VERSION=1.2.6
 cd /usr/src/
 wget http://libsdl.org/projects/SDL_image/release/SDL_image-$VERSION.tar.gz
@@ -172,6 +183,7 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   --host=i586-mingw32msvc --build=i686-pc-linux-gnu
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
+
 
 Static build
 ============

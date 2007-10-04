@@ -63,7 +63,7 @@ if test x"$static" = x"1"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type)
     *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
-        LIBS="$LIBS -lfreetype -lwinmm"
+        LIBS="$LIBS -lfreetype -lwinmm -ldxguid"
 	LDFLAGS="$LDFLAGS -static"
         ;;
     *)
