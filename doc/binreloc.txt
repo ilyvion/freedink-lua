@@ -26,3 +26,11 @@ Beware that BinReloc is working for the Linux kernel only. This is not
 a portable way to find where the binary is installed. Under Woe, one
 can use GetModuleFilename(). Under other OSes, we could fallback to,
 eg, datadir='../share' and datadir='/usr/local/share' (compile-time).
+
+
+A more portable alternative can be found in the 'relocatable-prog'
+module from Gnulib. However, relocatability is not enabled by default,
+and one of the maintainers mentions undocumented (and unfixed)
+security issues...
+(http://lists.gnu.org/archive/html/bug-gnulib/2007-10/msg00043.html)
+Don't they want people to use it? :/
