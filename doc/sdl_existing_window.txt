@@ -9,6 +9,7 @@ Solutions
   - Gtk+: http://gtksdl.sourceforge.net/
     Update: http://gtk.developpez.com/faq/?page=gtksdl
     Troubles: http://www.developpez.net/forums/showthread.php?t=202660
+  - gtkmm: http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062896.html
   - Qt: http://doc.qtfr.org/post/2007/02/21/Integration-de-SDL
 - Manually copy from non-window SDL_Surface to the GUI toolkit:
   http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062881.html
