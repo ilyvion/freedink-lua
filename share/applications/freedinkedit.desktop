@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FreeDinkedit
+Comment=Portable Dink Smallwood game editor
+Exec=freedinkedit
+Icon=freedink
+Categories=Game;AdventureGame;

@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = gnits
 # Gnulib:
 ACLOCAL_AMFLAGS = -I gnulib/m4
 
-SUBDIRS = autopackage gnulib/lib src share/freedink
+SUBDIRS = autopackage gnulib/lib src share
 
 # Copy those directly and recursively:
 EXTRA_DIST = bootstrap debian doc test utils

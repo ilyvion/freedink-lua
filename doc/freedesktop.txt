@@ -1,0 +1,23 @@
+freedesktop.org promotes a standard way to deal with graphical
+environments such as Gnome, KDE or Enlightenment.
+
+We use their specifications to provide menu entries (see
+share/applications) along with associated icons (share/pixmaps).
+
+
+References:
+
+- Desktop menu entry syntax:
+http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+
+- Where to put icons, and under what format:
+http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html#icon_lookup
+
+- Menu categories:
+http://standards.freedesktop.org/menu-spec/menu-spec-1.0.html#category-registry
+
+
+There are tools to check the .desktop files syntax and install
+them. However, I tried the Debian Lenny 'desktop-file-utils' package,
+and it complains about a missing "Encoding" field while it is marked
+as deprecated in the specification... We'll do without for now.

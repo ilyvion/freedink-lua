@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FreeDink
+Comment=Humorous zelda-like isometric adventure/RPG
+Exec=freedink
+Icon=freedink
+Categories=Game;AdventureGame;

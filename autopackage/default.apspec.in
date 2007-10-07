@@ -83,7 +83,7 @@ echo '*' | import
 # Put your installation script here. See the quickstart guide on
 # the website for an API cheat-sheet
 installExe bin/*
-installData share/freedink
+installData share
 
 [Uninstall]
 # Usually just the following line is enough to uninstall everything

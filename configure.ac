@@ -46,7 +46,7 @@ LIBS="$LIBS $SDL_LIBS"
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
-AC_CHECK_LIB(SDL_image,IMG_Load_RW,,AC_MSG_ERROR([You need to install SDL_image]))
+AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_ERROR([You need to install SDL_image]))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
 
 # Somewhat optional. Defines matching contants in config.h
@@ -97,8 +97,8 @@ if test x"$static" = x"1"; then
 fi
 
 
-AC_CONFIG_FILES([Makefile gnulib/lib/Makefile \
-  src/Makefile src/woeres.rc share/freedink/Makefile \
+AC_CONFIG_FILES([Makefile gnulib/lib/Makefile src/Makefile \
+  src/woeres.rc share/Makefile share/freedink/Makefile \
   autopackage/Makefile autopackage/default.apspec])
 
 AC_OUTPUT

@@ -13,3 +13,11 @@ make it compatible with SDL_Mixer.
 
 
 Legal: not necessarily freely distributable. I need to ask Seth.
+
+
+freedink.ico
+============
+
+(and hence freedink.bmp, freedink_xpm.c, freedink.png)
+
+From the original Dink source package, see doc/license-orig.txt
