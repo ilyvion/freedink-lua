@@ -46,12 +46,14 @@ LIBS="$LIBS $SDL_LIBS"
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
+AC_CHECK_LIB(SDL_image,IMG_Load_RW,,AC_MSG_ERROR([You need to install SDL_image]))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H).
-AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h SDL_mixer.h,
-  [], AC_MSG_ERROR([Could not find necessary SDL libs headers]))
+AC_CHECK_HEADERS([SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h \
+  SDL_image.h SDL_mixer.h], [],
+  AC_MSG_ERROR([Could not find necessary SDL libs headers]))
 
 
 # Dynamic and static builds
@@ -81,6 +83,7 @@ if test x"$static" = x"1"; then
 	# Etch SDL packages.
         LIBS="-Wl,-Bstatic \
 	  -lSDL_gfx \
+	  -lSDL_image -ljpeg -lpng -ltiff -lz \
           -lSDL_ttf -lfreetype -lz \
           -lSDL_mixer -lvorbisfile -lvorbis -logg -lsmpeg \
 	  -lSDL \

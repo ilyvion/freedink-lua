@@ -1,7 +1,7 @@
 #!/bin/sh
 #Generates ./configure, Makefile.in's and tools
 
-set -x
+set -ex
 if [ "x$1" = xclean ]; then
     test ! -f Makefile || make maintainer-clean
 
@@ -16,6 +16,14 @@ if [ "x$1" = xclean ]; then
     find -name "Makefile.in" | xargs -r rm
     rm -rf autotools/
     exit;
+fi
+
+# Gnulib
+# git clone git://git.savannah.gnu.org/gnulib.git
+if [ ! -f gnulib/lib/Makefile.am ]; then
+    /usr/src/gnulib/gnulib-tool \
+      --source-base=gnulib/lib --m4-base=gnulib/m4 \
+      --import
 fi
 
 # Enable no-portability to disable GNU make extensions warnings, such as $(shell)

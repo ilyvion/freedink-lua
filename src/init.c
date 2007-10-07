@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "SDL.h"
+#include "SDL_image.h"
 #include "SDL_ttf.h"
 #include "SDL_framerate.h"
 #include "binreloc.h"
@@ -38,8 +39,12 @@
 #include "input.h"
 #include "io_util.h"
 #include "init.h"
+#include "freedink_xpm.h"
 
 /* Create a mask in MSB for using r,g,b as the transparent color */
+/* This is not used anymore since we switched from a
+   SDL_LoadBMP(icon.bmp) to IMG_Load(icon.xpm), but this is still a
+   useful general-purpose function. */
 Uint8 *create_mask_msb(SDL_Surface *source, Uint8 r, Uint8 g, Uint8 b) {
   Uint32 transparent;
   Uint32 *pixels;
@@ -134,28 +139,42 @@ int init(void)
 
   {
     char *icon_file;
+    SDL_Surface *icon = NULL;
+    Uint8 *mask = NULL;
     SDL_WM_SetCaption(PACKAGE_STRING, NULL);
 
+    /* TODO: also look for freedink.xpm */
     if ((icon_file = find_data_file("freedink.bmp")) != NULL)
       {
-	SDL_Surface *icon;
 	if ((icon = SDL_LoadBMP(icon_file)) == NULL)
 	  fprintf(stderr, "Error loading %s: %s\n", icon_file, SDL_GetError());
 	else
 	  {
-	    /* Sets the color key to black (ahem): */
-	    /* SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 255, 0)); */
 	    /* Trying with a manual mask instead: */
-	    Uint8 *mask;
+	    /* TODO: we could use the top-left pixel color */
 	    mask = create_mask_msb(icon, 255, 255, 0); /* Yellow */
-	    if (mask != NULL)
-	      {
-		SDL_WM_SetIcon(icon, mask);
-		free(mask);
-	      }
-	    SDL_FreeSurface(icon);
 	  }
 	free(icon_file);
+      }
+
+    if (icon == NULL)
+      {
+	if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
+	  fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
+      }
+
+    if (icon != NULL)
+      {
+	if (mask != NULL)
+	  {
+	    SDL_WM_SetIcon(icon, mask);
+	    free(mask);
+	  }
+	else
+	  {
+	    SDL_WM_SetIcon(icon, NULL);
+	  }
+	SDL_FreeSurface(icon);
       }
   }
 
