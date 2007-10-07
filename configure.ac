@@ -14,6 +14,7 @@ AC_CANONICAL_HOST
 AC_PROG_CC
 
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
+# gnulib-tool --source-base=gnulib/lib --m4-base=gnulib/m4 --import
 gl_EARLY
 gl_INIT
 
@@ -84,7 +85,7 @@ if test x"$static" = x"1"; then
           -lSDL_mixer -lvorbisfile -lvorbis -logg -lsmpeg \
 	  -lSDL \
 	  -lvga -ldirectfb -ldirect -lfusion \
-          -lcaca -lcucul -lslang -laa -lcurses \
+          -lcaca -lcucul -laa -lslang -lcurses \
           -laudio -lesd -lartsc -lasound -lgpm \
           -lm \
 	  -Wl,-Bdynamic -lX11 -ldl -lpthread -lstdc++"
