@@ -83,7 +83,7 @@ struct tile
 struct sprite_placement
 {
   int x,y,seq,frame, type,size;
-  /*bool*/int active;
+  BOOL_1BYTE active;
   int rotation, special,brain;
   
   char script[13];
