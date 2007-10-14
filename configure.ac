@@ -58,7 +58,7 @@ AC_CHECK_HEADERS([SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h \
 
 # Dynamic and static builds
 AC_ARG_ENABLE([static],
-  AC_HELP_STRING([--enable-static], [embed SDL and dependencies in the executable [[default=no]]]),
+  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default=no]]]),
   [static=1], [static=0])
 
 
