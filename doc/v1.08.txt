@@ -63,6 +63,20 @@ Compiled by merging the list of fixes in each of the links above:
 Framerate: see framerate.txt. It also sets the Dink speed a bit
 differently, but I'm unsure of the effect.
 
+
+From dinkc.chm, entry for say():
+
+"Also in 1.07 and earlier, Dink would not interpret lines with a colon
+correctly, like so:say("bonus: 5 points", 1); // would not display any
+text at all!This issue has also been fixed in 1.08."
+
+entry for sp_move_nohard():
+"In 1.07 and earlier, the move_no_hard value only had an effect when
+the active_sprite was actively moving (through move and move_stop
+commands).In 1.08+, the move_no_hard value should take effect at all
+times."
+
+
 [TODO]
 
 
