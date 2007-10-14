@@ -21,7 +21,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
  * sprites(6), screen hardness(8), tile hardness(4), sprite
  * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
@@ -188,13 +188,13 @@ void finiObjects(void);
 void flip_it_second(void)
 {
 /*         DDBLTFX     ddbltfx; */
-        
+
   rect rcRectSrc;    rect rcRectDest;
 /*         POINT p; */
-        
+
 /*         if (!windowed) */
 /*         { */
-                
+
 /*                 while( 1 ) */
 /*                 { */
 /*                         ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
@@ -211,27 +211,27 @@ void flip_it_second(void)
 /*                         } */
 /*                         if( ddrval != DDERR_WASSTILLDRAWING ) */
 /*                         { */
-                                
-                                
+
+
 /*                         } */
 /*                 }  */
-                
+
 /*         } else */
 /*         { */
 /*                 //windowed mode, no flipping              */
 /*                 p.x = 0; p.y = 0;     */
 /*                 ClientToScreen(hWndMain, &p); */
 /*                 GetClientRect(hWndMain, &rcRectDest); */
-                
+
 /*                 //rcRectDest.top += winoffset; */
 /*                 rcRectDest.bottom = 480; */
 /*                 rcRectDest.right = 640; */
-                
+
 /*                 OffsetRect(&rcRectDest, p.x, p.y); */
 /*                 SetRect(&rcRectSrc, 0, 0, 640, 480); */
-                
+
 /*                 ddbltfx.dwSize = sizeof(ddbltfx); */
-                
+
 /*                 ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
 /*                 ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
   // GFX
@@ -268,9 +268,9 @@ void flip_it_second(void)
 /*     ddrval = lpDDSPrimary->Restore(); */
 /*     if( ddrval == DD_OK ) */
 /*     { */
-            
-		
-		
+
+
+
 /* 		ddrval = lpDDSTwo->Restore(); */
 /* //reload_batch(); */
 
@@ -289,11 +289,11 @@ void flip_it_second(void)
 
 /*   } */
 
-  
+
 /*       for (int h=1; h < tile_screens; h++) */
 /* 	{ */
 /*         ddrval = tiles[h]->Restore(); */
-  	 
+
 /*         if( ddrval == DD_OK ) */
 /*         { */
 /*       	 if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, ""); */
@@ -301,7 +301,7 @@ void flip_it_second(void)
 /*   Msg("Loaded tilescreen %d",h);  */
 /* //		sprintf(crap, "TS%d.BMP",h); */
 /* 		DDReLoadBitmap(tiles[h], crap);  */
-	 
+
 /* 		} */
 /* 	  } */
 
@@ -350,7 +350,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 /*   DDBLTFX     ddbltfx; */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
 /*   ddbltfx.dwFillColor = 0; */
-  
+
   if (get_box(h, &box_crap, &box_real))
     {
 /*       while(1) */
@@ -403,7 +403,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 /* 	    { */
 /* 	      if (ddrval == DDERR_WASSTILLDRAWING) */
 /* 		goto again; */
-	      
+
 /* 	      //dderror(ddrval); */
 /* 	      dderror(ddrval); */
 /* 	      if (draw_map_tiny > 0)  */
@@ -425,7 +425,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
     }
 }
 
-	
+
 	void place_sprites(void )
 	{
 		int sprite;
@@ -434,59 +434,59 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
 	int rank[MAX_SPRITES_AT_ONCE];
 	int r1;
-	
+
 	memset(&bs,0,sizeof(bs));
-		
+
 		for (r1 = 1; r1 < 100; r1++)
 		{
 		  int h1;
-			
+
 			highest_sprite = 2000; //more than it could ever be
-			
+
 			rank[r1] = 0;
-			
+
 			for (h1 = 1; h1 < 100;  h1++)
 			{
 					if (bs[h1] == /*FALSE*/0)
 					{
-						if (pam.sprite[h1].que == 0) que = pam.sprite[h1].y; else 
-							
+						if (pam.sprite[h1].que == 0) que = pam.sprite[h1].y; else
+
 						{
 							que = pam.sprite[h1].que;
 				//		Msg("hahha.. que is not 0.");
-						
+
 						}
-							
+
 							if ( que < highest_sprite )
 						{
 							highest_sprite = que;
 							rank[r1] = h1;
 						}
-						
+
 					}
-					
-				
+
+
 			}
-			if (rank[r1] != 0)	
+			if (rank[r1] != 0)
 				bs[rank[r1]] = /*TRUE*/1;
 		}
-		
-     
 
-		
+
+
+
 		int j, oo;
-		
+
 		for (oo =1; rank[oo] > 0; oo++)
 		{
-//Msg("O				k, rank[%d] is %d.",oo,rank[oo]);		
+//Msg("O				k, rank[%d] is %d.",oo,rank[oo]);
 			j = rank[oo];
-				
+
 			if (j >= MAX_SPRITES_AT_ONCE)
 			{
           j = 1;
 		  Msg("Trying to process sprite %d, why?",j);
 			}
-			
+
 			if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == map_vision))
 			{
 				//we have instructions to make a sprite
@@ -494,7 +494,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 				if (  (pam.sprite[j].type == 0)  | (pam.sprite[j].type == 2) )
 				{
 				//make it part of the background (much faster)
-					
+
 				sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
 				pam.sprite[j].seq,pam.sprite[j].frame,
 				pam.sprite[j].size);
@@ -502,67 +502,67 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 
 			    check_sprite_status(sprite);
 				spr[sprite].sp_index = j;
-					
+
 				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
 
 				if (pam.sprite[j].type == 0)
 				  draw_sprite(GFX_lpDDSTwo, sprite);
-				
-				
+
+
 				if (spr[sprite].hard == 0)
 				{
 				if (pam.sprite[j].prop == 0)
 					add_hardness(sprite, 1); else add_hardness(sprite,100+j);
-				
-				
+
+
 				}
-				
-				
+
+
 				spr[sprite].active = /*false*/0;
 				}
-				
+
 				if (pam.sprite[j].type == 1)
 				{
 				//make it a living sprite
-					
+
 				sprite =	add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
 					pam.sprite[j].seq,pam.sprite[j].frame,
 					pam.sprite[	j].size);
-	
+
 				spr[sprite].que = pam.sprite[j].que;
 				check_sprite_status(sprite);
 				spr[sprite].hard = pam.sprite[j].hard;
-			   
+
 				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
-				
+
 				if (spr[sprite].hard == 0)
 				{
 				if (pam.sprite[j].prop == 0)
 					add_hardness(sprite, 1); else add_hardness(sprite,100+j);
-				
-				
+
+
 				}
-				
-				
-				
-				
+
+
+
+
 				}
 			}
-			
+
 		}
-		
-		
+
+
 	}
-	
+
 
 
 /* Draw background from tiles */
 void draw_map(void)
 {
   rect rcRect;
-  int pa, cool,crap;   
+  int pa, cool,crap;
   int x;
-  
+
   /* Replaced by a call to fill_screen(0) */
   fill_screen(0);
   /*
@@ -573,9 +573,9 @@ void draw_map(void)
   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
   */
   fill_whole_hard();
-  
-  while (kill_last_sprite()); 
-  
+
+  while (kill_last_sprite());
+
   for (x = 0; x < 96; x++)
     {
       cool = pam.t[x].num / 128;
@@ -584,8 +584,8 @@ void draw_map(void)
       rcRect.top = (pa / 12) * 50;
       rcRect.right = rcRect.left + 50;
       rcRect.bottom = rcRect.top + 50;
-      
-      
+
+
 /*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
 /* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
       // GFX
@@ -613,14 +613,14 @@ void draw_current( void)
   int x,cool;
   cool = cur_tile / 128;
   x = cur_tile - (cool * 128);
-  
-  //x = cur_tile; 
+
+  //x = cur_tile;
   rcRect.left = (x * 50- (x / 12) * 600);
   rcRect.top = (x / 12) * 50;
   rcRect.right = rcRect.left + 50;
   rcRect.bottom = rcRect.top + 50;
-  
-  //(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );	
+
+  //(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
 /*   lpDDSTwo->BltFast( 590,430 , tiles[cool+1], */
 /* 		     &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
   //GFX
@@ -733,7 +733,7 @@ draw_this_map(struct map_info* pmap)
 	    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 	  }
 	}
-      
+
       /* M mark - screen has MIDI */
       if (pmap->music[x+1] != 0)
 	{
@@ -815,7 +815,7 @@ char crap[120];
  fp = fopen(ciconvert(crap), "rb");
             if (fp)
 				{
-	       Msg("World data loaded."); 
+	       Msg("World data loaded.");
       	fread(&buffmap,sizeof(struct map_info),1,fp);
    	 fclose(fp);
 				buf_mode = /*true*/1;
@@ -831,15 +831,15 @@ char crap[120];
 void draw_used_buff(void)
 {
   load_info_buff();
-  
-  if (!buf_mode) 
+
+  if (!buf_mode)
     {
       //failed
       /* TODO: display error message to the user */
       draw_used();
       return;
     }
-  
+
   draw_this_map(&buffmap);
 }
 
@@ -865,7 +865,7 @@ int add_new_map_buff(void)
 
 FILE *          fp;
 long now;
- 
+
 char crap[120];
  sprintf(crap, "%sMAP.DAT", buf_path);
 
@@ -888,7 +888,7 @@ void check_keyboard(void)
      combined value in a short int; the most-significant bit indicates
      if the key is currently pressed; the least significant bit
      indicates if the key was pressed since the last call. */
-  
+
   /* Check if the key was just pressed, or only maintained pressed */
   for (x = 1; x <= 255; x++)
     {
@@ -899,7 +899,7 @@ void check_keyboard(void)
       sjoy.key[x] = /*FALSE*/0;
       if (getkey(x))
 	{
-	  if (sjoy.kletgo[x] == /*TRUE*/1) 
+	  if (sjoy.kletgo[x] == /*TRUE*/1)
 	    /* We just changed from "released" to "pressed" */
 	    {
 	      sjoy.key[x] = /*TRUE*/1;
@@ -907,7 +907,7 @@ void check_keyboard(void)
 	  sjoy.kletgo[x] = /*FALSE*/0;
 	}
       else
-	sjoy.kletgo[x] = /*TRUE*/1;	
+	sjoy.kletgo[x] = /*TRUE*/1;
     }
   sjoy.kletgo[SDLK_LSHIFT] = /*TRUE*/1;
   sjoy.kletgo[SDLK_RSHIFT] = /*TRUE*/1;
@@ -924,10 +924,10 @@ int e2;
 
 //memset(&sjoy,0,sizeof(sjoy));
 
-      for (e2 = 1; e2 <= 10; e2++) 
+      for (e2 = 1; e2 <= 10; e2++)
 	  {
 		  sjoy.joybit[e2] = /*FALSE*/0;
-	  	  
+
 	  }
 sjoy.right = /*FALSE*/0;
 sjoy.left = /*FALSE*/0;
@@ -1004,8 +1004,8 @@ if (joystick)
 // 	 total = total - 1;
 //  }
 
-      
-      
+
+
 //  if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
 //  if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
 //  if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
@@ -1023,28 +1023,28 @@ if (GetKeyboard(SDLK_TAB /* 9 */)) sjoy.joybit[5] = /*TRUE*/1; //tab
 
 
  for (x5 = 1; x5 <= 10; x5++)
-   sjoy.button[x5] = /*FALSE*/0; 
+   sjoy.button[x5] = /*FALSE*/0;
 
-	  
+
  for (x=1; x <=10; x++)
-   
+
    {
      if (sjoy.joybit[x])
        {
-	 if (sjoy.letgo[x] == /*TRUE*/1) 
+	 if (sjoy.letgo[x] == /*TRUE*/1)
 	   {
 			 sjoy.button[x] = /*TRUE*/1;
 			 sjoy.letgo[x] = /*FALSE*/0;
 	   }
-	 
+
        }
    }
 
 
-for (x2 = 1; x2 <= 10; x2++) 
+for (x2 = 1; x2 <= 10; x2++)
 	  {
 		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
-	  	  
+
 	  }
 
 
@@ -1064,66 +1064,66 @@ void loadtile(int tileset)
 {
 /*   DDBLTFX     ddbltfx; */
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
-  
+
   //feel tile background with a color
-  
+
 /*   ddbltfx.dwFillColor = 0; */
 /*   ddbltfx.dwSize = sizeof(ddbltfx); */
 /*   lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
-  
-  spr[1].seq = 3; spr[1].seq_orig = 3; 
+
+  spr[1].seq = 3; spr[1].seq_orig = 3;
   //  if (mode == 3)
   if (mode == MODE_SCREEN_TILES)
     {
       m3x = spr[1].x; m3y = spr[1].y;
       spr[1].x = m2x; spr[1].y = m2y; mode = 2;
-      spr[1].speed = 50;  
+      spr[1].speed = 50;
     }
 
   //  if (mode == 4)
   if (mode == MODE_TILE_HARDNESS)
     {
       spr[1].x = m2x; spr[1].y = m2y; mode = 2;
-      spr[1].speed = 50;  
+      spr[1].speed = 50;
     }
 
 /*   lpDDSTwo->BltFast(0, 0, tiles[tileset], &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT); */
   // GFX
   SDL_BlitSurface(GFX_tiles[tileset], NULL, GFX_lpDDSTwo, NULL);
   cur_screen = tileset;
-  
+
   last_mode = tileset;
-  
+
   while(kill_last_sprite());
 }
 
 
 int sp_get( int num)
 {
-	
+
 int t = 1;
  int j;
 	for (j = 1; j < MAX_SEQUENCES; j++)
 	{
      check_frame_status(j, 1);
-		
+
 		if (seq[j].frame[1] != 0)
 	 {
-       if (t == num) 
+       if (t == num)
 	   {
-		
-	
+
+
 		   return(j);
-		
+
 	   }
 		   t++;
 
 	 }
 
 
-	
+
 	}
 
 return(0);
@@ -1145,7 +1145,7 @@ static void draw_sprite_picker_grid(void)
   for (x2 = 1; x2 <= 12; x2++)
     {
 /*       ddbltfx.dwFillColor = 120; */
-      
+
 /*       box_crap.top = 0; */
 /*       box_crap.bottom = 400; */
 /*       box_crap.left = (x2*50) -1; */
@@ -1160,7 +1160,7 @@ static void draw_sprite_picker_grid(void)
 	SDL_FillRect(GFX_lpDDSTwo, &dst, 120);
       }
     }
-  
+
   /* Draw horizontal lines */
   for (x3 = 1; x3 <= 8; x3++)
     {
@@ -1186,32 +1186,32 @@ static void draw_sprite_picker_grid(void)
    selector */
 void draw15(int num)
 {
-  int crap;   
+  int crap;
 /*   DDBLTFX ddbltfx; */
   rect  crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
-  int dd;	
+  int dd;
   int x1;
   //get_sp_seq(2);
-  
+
   while(kill_last_sprite());
-  
-  
+
+
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
 /*   ddbltfx.dwFillColor = 0; */
 /*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
   SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
-  
+
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
-  
+
   Say("Please wait, loading sprite data into SmartCache system...", 147,160);
-  
+
   flip_it_second();
-  
+
   /* Draw sprites */
   for (x1 = 0; x1 <= 11; x1++)
     {
@@ -1219,21 +1219,21 @@ void draw15(int num)
       for (y1=0; y1 <= 7; y1++)
 	{
 	  num++;
-	  
+
 	  se = sp_get(num);
 	  check_seq_status(se);
-	  
+
 	  if (se > 0)
 	    {
 	      frame = 1;
-	      
+
 /* 	      Rect.left = x1 * 50; */
 /* 	      Rect.top = y1 * 50; */
 /* 	      Rect.right = Rect.left + 50; */
 /* 	      Rect.bottom = Rect.top + 50; */
-	      
+
 /* 	      crapRec = k[seq[se].frame[frame]].box; */
-	      
+
 /* 	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k, */
 /* 				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 	      // GFX
@@ -1262,7 +1262,7 @@ void draw15(int num)
 
 
 /* 	      if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.", se, frame); */
-	    }		
+	    }
 	}
     }
   draw_sprite_picker_grid();
@@ -1272,12 +1272,12 @@ void draw15(int num)
    sequence */
 void draw96(int def)
 {
-  int crap;   
+  int crap;
 /*   DDBLTFX ddbltfx; */
   rect crapRec, Rect, box_crap;
   int frame,ddrval;
   int se;
-  int dd;	
+  int dd;
   int x1;
 
   //get_sp_seq(2);
@@ -1285,17 +1285,17 @@ void draw96(int def)
   check_seq_status(se);
   int num = 0;
   while(kill_last_sprite());
-  
+
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
 /*   ddbltfx.dwFillColor = 0; */
 /*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
-  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);  
-  
+  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
-  
+
   for (x1=0; x1 <= 11; x1++)
     {
       int y1;
@@ -1309,21 +1309,21 @@ void draw96(int def)
 	    }
 	  //se = sp_get(num);
 	  frame = 1;
-	  
+
 /* 	  Rect.left = x1 * 50; */
 /* 	  Rect.top = y1 * 50; */
 /* 	  Rect.right = Rect.left + 50; */
 /* 	  Rect.bottom = Rect.top + 50; */
-	  
+
 	  if (def > 0 && num == def)
 	    {
 	      //set default location to sprite they are holding
 	      spr[1].x = x1*50;
 	      spr[1].y = y1 *50;
 	    }
-	  
+
 /* 	  crapRec = k[seq[se].frame[num]].box; */
-	  
+
 /* 	  dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[num]].k, */
 /* 			     &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx ); */
 	  // GFX
@@ -1349,13 +1349,13 @@ void draw96(int def)
 		SDL_BlitSurface(GFX_k[seq[se].frame[num]].k, &src, GFX_lpDDSTwo, &dst);
 	      }
 	  }
-	  
+
 /* 	  if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame); */
 	}
     }
-  
+
  pass:
-  draw_sprite_picker_grid();  
+  draw_sprite_picker_grid();
 }
 
 
@@ -1366,7 +1366,7 @@ void sp_add( void )
 	{
 		if (pam.sprite[j].active == /*false*/0)
 		{
-		  
+
 			last_sprite_added = j;
 			//Msg("Adding sprite %d, seq %d, frame %d.",j,sp_seq,sp_frame);
 			pam.sprite[j].active = /*true*/1;
@@ -1398,9 +1398,9 @@ void sp_add( void )
 			pam.sprite[j].defense = sp_defense;
 			pam.sprite[j].hitpoints = sp_hitpoints;
 			pam.sprite[j].sound = sp_sound;
-		    pam.sprite[j].vision = map_vision;	
-		    pam.sprite[j].nohit = sp_nohit;		
-			pam.sprite[j].touch_damage = sp_touch_damage;		
+		    pam.sprite[j].vision = map_vision;
+		    pam.sprite[j].nohit = sp_nohit;
+			pam.sprite[j].touch_damage = sp_touch_damage;
 			rect_copy(&pam.sprite[j].alt , &spr[1].alt);
 		    return;
 		}
@@ -1417,8 +1417,8 @@ void smart_add(void)
 {
 
 
-	
-	
+
+
 	sp_add();
 
 if (sp_screenmatch)
@@ -1432,7 +1432,7 @@ if (spr[1].size == 100)
 	if ((spr[1].x - k[getpic(1)].xoffset) + k[getpic(1)].box.right > 620)
 	{
 	Msg("need to add it to the right");
-		
+
 		//need to add it to the right
 		if (map.loc[cur_map+1] > 0)
 		{
@@ -1454,7 +1454,7 @@ if (spr[1].size == 100)
 	if ((spr[1].x - k[getpic(1)].xoffset) - k[getpic(1)].box.right < 20)
 	{
 	Msg("need to add it to the right");
-		
+
 		//need to add it to the left
 		if (map.loc[cur_map-1] > 0)
 		{
@@ -1476,7 +1476,7 @@ if (spr[1].size == 100)
 	if ((spr[1].y - k[getpic(1)].yoffset) + k[getpic(1)].box.bottom > 400)
 	{
 	Msg("need to add it to the bottom");
-		
+
 		//need to add it to the bottom
 		if (map.loc[cur_map+32] > 0)
 		{
@@ -1498,7 +1498,7 @@ if (spr[1].size == 100)
 	if ((spr[1].y - k[getpic(1)].yoffset) - k[getpic(1)].box.bottom < 0)
 	{
 	Msg("need to add it to the top");
-		
+
 		//need to add it to the left
 		if (map.loc[cur_map-32] > 0)
 		{
@@ -1548,434 +1548,398 @@ void blit(int seq1, int frame, SDL_Surface *GFX_lpdest, int tx, int ty)
 }
 
 
+/**
+ * Display the appropriate input dialog
+ */
 void check_in(void)
-
 {
+  in_huh = in_master;
 
+  /**
+   * - Sprite dialogs:
+   *  1 = size
+   *  2 = type (background|sprite)
+   *  3 = brain
+   *  4 = speed
+   *  5 = timer (timing)
+   *  6 = base_walk
+   *  7 = base_idle
+   *  8 = que
+   *  9 = hard (hardness_type - background|sprite)
+   * 10 = prop (is_warp)
+   * 11 = warp_map
+   * 12 = warp_x
+   * 13 = warp_y
+   * 14 = parm_seq
+   * 15 = script
+   * 16 = base_die
+   * 17 = sound (looping sound)
+   * 18 = hitpoints
+   * 19 = nohit
+   * 20 = touch_damage
+   * 21 = base_attack
+   * 22 = defense
+   * 
+   * - Map dialogs:
+   * 30 = 'L' - load screen from another map
+   * 
+   * 33 = 'M' - screen midi
+   * 34 = 'S' - screen type (indoors / outside)
+   * 
+   * - Screen dialogs:
+   * 31 = 'B' - screen script
+   * 32 = 'V' - vision
+   **/
 
-	in_huh = in_master;
+  /* In: */
+  /* in_master = identifier for the property we need to edit */
+  /* Out: */
+  /* in_max = maximum length of input (as text) + 1 */
+  /* in_command = data type (int|string) */
+  /* in_int =  pointer to the integer value to update */
+  /* in_string = pointer to the string to update */
+  /* in_onflag = trigger the creation of an input window */
+  /* in_enabled ? */
 
-	
-	
+  if (in_master == 1)
+    {
+      in_command = 1; //number
+      in_int = &spr[1].size;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",spr[1].size); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Size?",260,175);
+    }
 
+  if (in_master == 2)
+    {
+      in_command = 1; //number
+      in_int = &sp_type;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_type); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Type?",260,175);
+      Say("Type controls the sprites basic type - 0 means it is ornamental only"
+	  "(cannot walk behind or think) 1 - means normal sprite.  (for a tree or person)"
+	  ,10,10);
+    }
 
-	if (in_master == 1)
-	  {	
-                            in_command = 1; //number
-							in_int = &spr[1].size;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",spr[1].size); //set default
-				blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Size?",260,175);
-	  }
+  if (in_master == 3)
+    {
+      in_command = 1; //number
+      in_int = &sp_brain;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_brain); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Brain?",260,175);
+      Say("Brains are a predefined way for this sprite to behave. 0 = No movement, 1 = Dink,"
+	  " 2 = Dumb Sprite Bouncer, 3 = Duck, 4 = Pig, 6 = repeat, 7 = one loop then kill,"
+	  " 9 = moster (all diag), 10 = monster(no diag)"
+	  ,10,10);
+    }
 
+  if (in_master == 4)
+    {
+      in_command = 1; //number
+      in_int = &sp_speed;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_speed); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Speed?",260,175);
+      Say("Speed rating allows you to adjust how fast a certain sprite moves.  Works with"
+	  " most brains."
+	  ,10,10);
+    }
 
+  if (in_master == 5)
+    {
+      in_command = 1; //number
+      in_int = &sp_timer;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_timer); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Timing?",260,175);
+      Say("This is the delay the CPU waits before processing the sprite after each cycle.  "
+	  "(in thousands of a second - so 33 would mean 30 times a second)"
+	  ,10,10);
+    }
 
+  if (in_master == 6)
+    {
+      in_command = 1; //number
+      in_int = &sp_base_walk;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_base_walk); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Base Walk?",260,175);
+      Say("The base for which the CPU adds 1 through 9 to make the sprite move, depending on"
+	  " direction.  Must be a multiple of ten. (ie, 20 to look like a duck, 40 to look like a pig)"
+	  ,10,10);
+    }
 
+  if (in_master == 7)
+    {
+      in_command = 1; //number
+      in_int = &sp_base_idle;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_base_idle); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Base Idle?",260,175);
+      Say("Some brains can optionally use extra sprites for their \'idle\' pose."
+	  ,10,10);
+    }
 
-if (in_master == 2)
-{
+  if (in_master == 8)
+    {
+      in_command = 1; //number
+      in_int = &sp_que;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_que); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Depth Que?",250,175);
+      Say("From 1 to 20000, 0 for default.  (defaults to y cord)"
+	  ,10,10);
+    }
 
-                            in_command = 1; //number
-							in_int = &sp_type;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_type); //set default
-				blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Type?",260,175);
-					   	Say("Type controls the sprites basic type - 0 means it is ornamental only"
-							"(cannot walk behind or think) 1 - means normal sprite.  (for a tree or person)"
-							,10,10);
-						
+  if (in_master == 9)
+    {
+      in_command = 1; //number
+      in_int = &sp_hard;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_hard); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Hardness?",260,175);
+      Say("Sets how hardness works.  1 means normal, (monsters) 0 means added to background. (walls, trees)"
+	  ,10,10);
+    }
+
+  if (in_master == 10)
+    {
+      in_command = 1; //number
+      in_int = &sp_prop;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_prop); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("New Properties?",260,175);
+      Say("Sets special properties for the hardblock.  0 = normal (just hard) 1 = warp."
+	  ,10,10);
+    }
+
+  if (in_master == 11)
+    {
+      in_command = 1; //number
+      in_int = &sp_warp_map;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_warp_map); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("Warp Map #",260,175);
+      Say("These parms are valid if the hard block property setting is 1.  (warp)"
+	  ,10,10);
+    }
+
+  if (in_master == 12)
+    {
+      in_command = 1; //number
+      in_int = &sp_warp_x;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_warp_x); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("Warp X:",260,175);
+      Say("The X location to warp to.  (20 to 619)"
+	  ,10,10);
+    }
+
+  if (in_master == 13)
+    {
+      in_command = 1; //number
+      in_int = &sp_warp_y;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_warp_y); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("Warp Y:",260,175);
+      Say("The Y location to warp to.  (0 to 499)"
+	  ,10,10);
+    }
+
+  if (in_master == 14)
+    {
+      in_command = 1; //number
+      in_int = &sp_parm_seq;
+      in_max = 10; //max _length
+      sprintf(in_default,"%d",sp_parm_seq); //set default
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("Sequence:",260,175);
+      Say("This parm is used by some brains/settings if set.  A sequence is an animation #."
+	  ,10,10);
+    }
+
+  if (in_master == 15)
+    {
+      in_command = 2; //string
+      sprintf(in_default, "%s", sp_script);
+      in_max = 13;
+      in_string = sp_script;
+      blit(30,1,GFX_lpDDSBack,250,170);
+      Say("Script:",260,175);
+      Say("Filename of script this sprite uses."
+	  ,10,10);
+    }
+
+    if (in_master == 16)
+      {
+	in_command = 1; //number
+	in_int = &sp_base_die;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_base_die); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Base Death:",260,175);
+	Say("If this sprite dies, this will be used."
+	    ,10,10);
+      }
+
+    if (in_master == 17)
+      {
+	in_command = 1; //number
+	in_int = &sp_sound;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_sound); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Sound:",260,175);
+	Say("This sprite will play this sound looped until it dies."
+	    ,10,10);
+      }
+
+    if (in_master == 18)
+      {
+	in_command = 1; //number
+	in_int = &sp_hitpoints;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_hitpoints); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Hitpoints:",260,175);
+	Say("How strong is this creature?  (0 = not alive/invincable)"
+	    ,10,10);
+      }
+
+    if (in_master == 19)
+      {
+	in_command = 1; //number
+	in_int = &sp_nohit;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_nohit); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Nohit:",260,175);
+	Say("Can this this be punched? 0 if yes.  Either way it will"
+	    "still check for hit() if a script is attached."
+	    ,10,10);
+      }
+
+    if (in_master == 20)
+      {
+	in_command = 1; //number
+	in_int = &sp_touch_damage;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_touch_damage); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Touch Damage:",260,175);
+	Say("If not 0, the hardbox of this sprite will cause this"
+	    "much damage if touched."
+	    ,10,10);
+      }
+
+    if (in_master == 21)
+      {
+	in_command = 1; //number
+	in_int = &sp_base_attack;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_base_attack); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Base Attack:",260,175);
+	Say("If not -1, this monster can attack with this sprite base. (base + dir)"
+	    ,10,10);
+      }
+
+    if (in_master == 22)
+      {
+	in_command = 1; //number
+	in_int = &sp_defense;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",sp_defense); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Defense:",260,175);
+	Say("This will deducted from any attack."
+	    ,10,10);
+      }
+
+    if (in_master == 30)
+      {
+	in_command = 2; //string
+	sprintf(in_default, "%s",  buf_path);
+	in_max = 80;
+	in_string = buf_path;
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Path:",260,175);
+	Say("Enter the path with trailing backslash to a dir containing"
+	    " another dink.dat and map.dat file to choose a replacement"
+	    " for this block. (or enter to choose a replacement from the"
+	    " current map)"
+	    ,10,10);
+      }
+
+    if (in_master == 31)
+      {
+	in_command = 2; //string
+	sprintf(in_default, "%s",  pam.script);
+	in_max = 20;
+	in_string = pam.script;
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Script:",260,175);
+	Say("This script will be run before the screen is drawn.  A good place"
+	    "to change the vision, ect."
+	    ,10,10);
+      }
+
+    if (in_master == 32)
+      {
+	in_command = 1; //number
+	in_int = &map_vision;
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",map_vision); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Vision:",260,175);
+	Say("Current vision.  If not 0, any sprites you add will ONLY show up"
+	    " in the game if the vision level matches this one."
+	    ,10,10);
+      }
+
+    if (in_master == 33)
+      {
+	in_command = 1; //number
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",*in_int); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Music # for screen?:",260,175);
+	Say("Will play #.MID for this screen if nothing else is playing."
+	    ,10,10);
+      }
+
+    if (in_master == 34)
+      {
+	in_command = 1; //number
+	in_max = 10; //max _length
+	sprintf(in_default,"%d",*in_int); //set default
+	blit(30,1,GFX_lpDDSBack,250,170);
+	Say("Screentype?:",260,175);
+	Say("Enter 1 for 'indoors'.  (so it won't show up on the player map)."
+	    ,10,10);
+      }
+
+    old_command = in_master;
+
+    in_master = 0;
+    in_onflag = /*true*/1;
 }
 
-
-if (in_master == 3)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_brain;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_brain); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                         Say("New Brain?",260,175);
-					     	Say("Brains are a predefined way for this sprite to behave. 0 = No movement, 1 = Dink,"
-							" 2 = Dumb Sprite Bouncer, 3 = Duck, 4 = Pig, 6 = repeat, 7 = one loop then kill,"
-						    " 9 = moster (all diag), 10 = monster(no diag)"
-							,10,10);
-                      						
-
-}
-
-
-if (in_master == 4)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_speed;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_speed); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Speed?",260,175);
-					   	Say("Speed rating allows you to adjust how fast a certain sprite moves.  Works with"
-							" most brains."
-							,10,10);
-						
-}
-
-
-if (in_master == 5)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_timer;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_timer); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Timing?",260,175);
-					   	Say("This is the delay the CPU waits before processing the sprite after each cycle.  "
-							"(in thousands of a second - so 33 would mean 30 times a second)"
-							,10,10);
-						
-}
-
-
-if (in_master == 6)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_base_walk;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_base_walk); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Base Walk?",260,175);
-					   	Say("The base for which the CPU adds 1 through 9 to make the sprite move, depending on"
-							" direction.  Must be a multiple of ten. (ie, 20 to look like a duck, 40 to look like a pig)"
-							,10,10);
-						
-}
-
-if (in_master == 7)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_base_idle;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_base_idle); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Base Idle?",260,175);
-					   	Say("Some brains can optionally use extra sprites for their \'idle\' pose."
-							
-							,10,10);
-						
-}
-
-
-if (in_master == 8)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_que;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_que); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Depth Que?",250,175);
-					   	Say("From 1 to 20000, 0 for default.  (defaults to y cord)"
-							
-							,10,10);
-						
-}
-
-
-if (in_master == 9)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_hard;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_hard); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Hardness?",260,175);
-					   	Say("Sets how hardness works.  1 means normal, (monsters) 0 means added to background. (walls, trees)"
-							
-							,10,10);
-						
-}
-
-if (in_master == 10)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_prop;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_prop); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("New Properties?",260,175);
-					        Say("Sets special properties for the hardblock.  0 = normal (just hard) 1 = warp."
-							,10,10);
-						
-}
-
-if (in_master == 11)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_warp_map;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_warp_map); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Warp Map #",260,175);
-					        Say("These parms are valid if the hard block property setting is 1.  (warp)"
-							
-								,10,10);
-						
-}
-
-if (in_master == 12)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_warp_x;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_warp_x); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Warp X:",260,175);
-					        Say("The X location to warp to.  (20 to 619)"
-								,10,10);
-						
-}
-
-if (in_master == 13)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_warp_y;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_warp_y); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Warp Y:",260,175);
-					        Say("The Y location to warp to.  (0 to 499)"
-								,10,10);
-						
-}
-
-if (in_master == 14)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_parm_seq;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_parm_seq); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Sequence:",260,175);
-					        Say("This parm is used by some brains/settings if set.  A sequence is an animation #."
-								,10,10);
-						
-}
-if (in_master == 15)
-{
-
-                            in_command = 2; //string
-							sprintf(in_default, "%s", sp_script);
-                             in_max = 13; 
-                              in_string = sp_script;
-
-							blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Script:",260,175);
-					        Say("Filename of script this sprite uses."
-								,10,10);
-						
-}
-
-
-if (in_master == 16)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_base_die;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_base_die); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Base Death:",260,175);
-					        Say("If this sprite dies, this will be used."
-								,10,10);
-						
-}
-
-if (in_master == 17)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_sound;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_sound); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Sound:",260,175);
-					        Say("This sprite will play this sound looped until it dies."
-								,10,10);
-						
-}
-
-if (in_master == 18)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_hitpoints;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_hitpoints); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Hitpoints:",260,175);
-					        Say("How strong is this creature?  (0 = not alive/invincable)"
-								,10,10);
-						
-}
-
-if (in_master == 19)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_nohit;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_nohit); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Nohit:",260,175);
-					        Say("Can this this be punched? 0 if yes.  Either way it will"
-							"still check for hit() if a script is attached."
-								,10,10);
-						
-}
-
-
-if (in_master == 20)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_touch_damage;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_touch_damage); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Touch Damage:",260,175);
-					        Say("If not 0, the hardbox of this sprite will cause this"
-							"much damage if touched."
-								,10,10);
-						
-}
-
-
-if (in_master == 21)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_base_attack;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_base_attack); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Base Attack:",260,175);
-					        Say("If not -1, this monster can attack with this sprite base. (base + dir)"
-							
-								,10,10);
-						
-}
-
-if (in_master == 22)
-{
-
-                            in_command = 1; //number
-							in_int = &sp_defense;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",sp_defense); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Defense:",260,175);
-					        Say("This will deducted from any attack."
-							
-								,10,10);
-						
-}
-
-
-if (in_master == 30)
-{
-
-                            in_command = 2; //string
-							sprintf(in_default, "%s",  buf_path);
-                             in_max = 80; 
-                              in_string = buf_path;
-
-							blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Path:",260,175);
-					        Say("Enter the path with trailing backslash to a dir containing another dink.dat and map.dat file to choose a replacement"
-								"for this block. (or enter to choose a replacement from the current map)"
-								,10,10);
-						
-}
-
-
-if (in_master == 31)
-{
-
-                            in_command = 2; //string
-							sprintf(in_default, "%s",  pam.script);
-                             in_max = 20; 
-                              in_string = pam.script;
-
-							blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Script:",260,175);
-					        Say("This script will be run before the screen is drawn.  A good place"
-								"to change the vision, ect."
-								,10,10);
-						
-}
-
-if (in_master == 32)
-{
-
-                            in_command = 1; //number
-							in_int = &map_vision;
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",map_vision); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Vision:",260,175);
-					        Say("Current vision.  If not 0, any sprites you add will ONLY show up"
-							" in the game if the vision level matches this one."
-								,10,10);
-						
-}
-
-
-if (in_master == 33)
-{
-
-                            in_command = 1; //number
-							
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Music # for screen?:",260,175);
-					        Say("Will play #.MID for this screen if nothing else is playing."							
-								,10,10);
-						
-}
-
-if (in_master == 34)
-{
-
-                            in_command = 1; //number
-							
-                            in_max = 10; //max _length
-							sprintf(in_default,"%d",*in_int); //set default
-						    blit(30,1,GFX_lpDDSBack,250,170);
-	                        Say("Screentype?:",260,175);
-					        Say("Enter 1 for 'indoors'.  (so it won't show up on the player map)."							
-								,10,10);
-						
-}
-
-old_command = in_master;
-
-in_master = 0;	
-in_onflag = /*true*/1;
-
-	
-}
 
 //this changes all none 0 blocks in this tile to num
 void change_tile(int tile, int num)
@@ -1986,20 +1950,20 @@ void change_tile(int tile, int num)
 	  int y;
 		for (y = 0; y < 50; y++)
 		{
-			
-			
+
+
 			if (hmap.tile[tile].x[x].y[y] != 0)
 			{
 			hmap.tile[tile].x[x].y[y] = num;
 			}
 		}
 	}
-			
+
 
 }
 
- 
- 
+
+
 void copy_front_to_two( void)
 {
 /*   RECT rcRect; */
@@ -2007,7 +1971,7 @@ void copy_front_to_two( void)
 /*   rcRect.top = 0; */
 /*   rcRect.right = x; */
 /*   rcRect.bottom = y; */
-  
+
 /*   lpDDSTwo->BltFast( 0, 0, lpDDSBack, */
 /* 		     &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
   // GFX
@@ -2022,13 +1986,13 @@ void shrink_screen_to_these_cords(int x1, int y1)
 /*   DDBLTFX ddbltfx; */
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof(ddbltfx); */
-  
+
 /*   SetRect(&crapRec, playl, 0, playx, 400); */
 /*   SetRect(&Rect, x1, y1, x1+20, y1+20); */
-  
+
 /*   lpDDSBack->Blt(&Rect, lpDDSTwo, */
 /* 		 &crapRec, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
-  
+
   // GFX
   /* Generic scaling - except no transparency (plus I'm sure scaling
      is necessary) */
@@ -2086,7 +2050,7 @@ void UpdateCursorPosition(int dx, int dy)
     spr[1].x += dx;
     spr[1].y += dy;
     /* Clip the cursor to our client area */
-    
+
     /* Try to get the mouse (and the focus) within the window, not
        100% safe but good enough */
     SDL_WarpMouse(320, 240);
@@ -2124,11 +2088,11 @@ void  Scrawl_OnMouseInput(void)
     }
   return;
 
-	
+
 /* 	BOOL fDone = 0; */
 
 /*     while (!fDone) { */
-   
+
 /* 		DIDEVICEOBJECTDATA od; */
 
 /*         DWORD dwElements = 1; */
@@ -2149,7 +2113,7 @@ void  Scrawl_OnMouseInput(void)
 /*              *\/ */
 /*         //    PostMessage(hwnd, WM_SYNCACQUIRE, 0, 0L); */
 /*          //   break; */
- 
+
 /* 		Msg("Have no aquisition!!"); */
 /* 		g_pMouse->Acquire(); */
 
@@ -2176,7 +2140,7 @@ void  Scrawl_OnMouseInput(void)
 case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break;
 
 
- 
+
 
 
         }
@@ -2202,106 +2166,92 @@ case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break;
 }
 
 
-
+/**
+ * So-called "Movie2000 sprite movie maker" feature. It will dump a
+ * series of DinkC moves that you specify using the mouse
+ * (destination) and the numpad (direction). Check
+ * http://www.dinknetwork.com/file/movie2000_tutorial
+ */
 void write_moves(void)
 {
-char crap[100];
-char move[100];
-char fname[100];
+  char crap[100];
+  char move[100];
+  char fname[100];
 
-strcpy(fname, sp_script);
-
-if (strlen(sp_script) > 2)
-{
-
-} else
-{
-strcpy(fname, "CRAP");
-}
-	
-	if (sjoy.key[SDLK_KP8 /* 104 */])
- {
-EditorSoundPlayEffect( SOUND_JUMP );	
-	sprintf(crap, "story\\%s.c",fname);
-
-sprintf(move, "move_stop(&current_sprite, 8, %d, 1)\n",spr[1].y);
-	add_text( move, crap);
- }
-if (sjoy.key[SDLK_KP4 /* 100 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-
-	sprintf(move, "move_stop(&current_sprite, 4, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-if (sjoy.key[SDLK_KP5 /* 101 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	
-  add_text( "//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n", crap);	
- }
+  strcpy(fname, sp_script);
+  if (strlen(sp_script) <= 2)
+    strcpy(fname, "CRAP");
 
 
-if (sjoy.key[SDLK_KP2 /* 98 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 2, %d, 1)\n",spr[1].y);
-	add_text( move, crap);
- }
-
-
-if (sjoy.key[SDLK_KP6 /* 102 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 6, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-if (sjoy.key[SDLK_KP7 /* 103 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 7, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-if (sjoy.key[SDLK_KP1 /* 97 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 1, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-if (sjoy.key[SDLK_KP9 /* 105 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 9, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-if (sjoy.key[SDLK_KP3 /* 99 */])
- {
-	EditorSoundPlayEffect( SOUND_JUMP );
-	sprintf(crap, "story\\%s.c",fname);
-	sprintf(move, "move_stop(&current_sprite, 3, %d, 1)\n",spr[1].x);
-	add_text( move, crap);
- }
-
-
+  if (sjoy.key[SDLK_KP8 /* 104 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 8, %d, 1)\n", spr[1].y);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP4 /* 100 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 4, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP5 /* 101 */])
+    {
+      EditorSoundPlayEffect(SOUND_JUMP);
+      sprintf(crap, "story/%s.c",fname);
+      add_text("//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n", crap);
+    }
+  if (sjoy.key[SDLK_KP2 /* 98 */])
+    {
+      EditorSoundPlayEffect(SOUND_JUMP);
+      sprintf(crap, "story/%s.c", fname);
+      sprintf(move, "move_stop(&current_sprite, 2, %d, 1)\n", spr[1].y);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP6 /* 102 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 6, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP7 /* 103 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 7, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP1 /* 97 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 1, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP9 /* 105 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 9, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
+  if (sjoy.key[SDLK_KP3 /* 99 */])
+    {
+      EditorSoundPlayEffect( SOUND_JUMP );
+      sprintf(crap, "story/%s.c",fname);
+      sprintf(move, "move_stop(&current_sprite, 3, %d, 1)\n", spr[1].x);
+      add_text(move, crap);
+    }
 }
 
 
 void draw_hard_tile(int x1, int y1, int tile)
 {
 /* HRESULT             ddrval; */
-rect box;	
+rect box;
 
 /*                DDBLTFX     ddbltfx; */
 /* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
@@ -2312,14 +2262,14 @@ rect box;
 		  int y;
 			for (y = 0; y < 50; y++)
 			{
-				
-				
+
+
 			if (hmap.tile[tile].x[x].y[y] == 1)
 			{
 			//draw it
-			
+
 /*  ddbltfx.dwFillColor = RGB(255,255,255); */
- 
+
 /*  SetRect(&box, x1+x+20,y1+y,x1+x+1+20,y1+y+1); */
 /*  ddrval = lpDDSBack->Blt(&box ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
  // GFX
@@ -2332,7 +2282,7 @@ rect box;
    SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
  }
  //if (ddrval != DD_OK) dderror(ddrval);
-				
+
 			}
 
 			}
@@ -2343,7 +2293,7 @@ rect box;
 
 /*
  * updateFrame
- * 
+ *
  * Decide what needs to be blitted next, wait for flip to complete,
  * then flip the buffers.
  */
@@ -2351,12 +2301,12 @@ void updateFrame(void)
 {
   //    static DWORD        lastTickCount[4] = {0,0,0,0};
   //    static int          currentFrame[3] = {0,0,0};
-  unsigned long thisTickCount; 
+  unsigned long thisTickCount;
   //  char buffer[20];
-  unsigned char state[256]; 
+  unsigned char state[256];
   rect                rcRect;
   rect  crapRec, Rect;
-  rect rcRectSrc;  
+  rect rcRectSrc;
   rect rcRectDest, box_crap,box_real;
 /*   POINT p; */
   char msg[500];
@@ -2371,7 +2321,7 @@ void updateFrame(void)
 /*   DDBLTFX     ddbltfx; */
   /*BOOL*/int kickass,cool;
   /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
-	
+
   int rank[MAX_SPRITES_AT_ONCE];
   int highest_sprite;
   int crap;
@@ -2381,8 +2331,8 @@ void updateFrame(void)
   // Decide which frame will be blitted next
   thisTickCount = SDL_GetTicks();
   strcpy(buff,"Nothing");
-  state[1] = 0;  
-  check_joystick();	
+  state[1] = 0;
+  check_joystick();
   Scrawl_OnMouseInput();
   kickass = /*false*/0;
   rcRect.left = 0;
@@ -2392,7 +2342,7 @@ void updateFrame(void)
 
   if (draw_map_tiny != -1)
     {
-		
+
     tiny_again:
       if (draw_map_tiny  == 769)
 	{
@@ -2401,30 +2351,30 @@ void updateFrame(void)
 	  //all done
 	} else
 	{
-		
-		
+
+
 	  draw_map_tiny++;
-		
+
 	  copy_front_to_two();
-		
-		
+
+
 	  if (map.loc[draw_map_tiny] != 0)
 	    {
 	      //a map exists here
 	      load_map(map.loc[draw_map_tiny]);
 	      //map loaded, lets display it
 	      draw_map();
-			
+
 	      goto pass_flip;
 	    } else goto tiny_again;
-		
-		
-		
+
+
+
 	}
-	
+
     }
-	
-	
+
+
 /*   while( 1 ) */
 /*     { */
 /*       ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
@@ -2432,7 +2382,7 @@ void updateFrame(void)
       // GFX
       SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
-		
+
 /*       if( ddrval == DD_OK ) */
 /*         { */
 /* 	  break; */
@@ -2449,17 +2399,17 @@ void updateFrame(void)
 /*         { */
 /* 	  return; */
 /*         } */
-    
+
 /*     } */
 
  pass_flip:
 
   memset(&bs,0,sizeof(bs));
-		
+
   int	max_s = 105;
-		
+
   //max_sprites_at_once;
-		
+
   /*for (int r2 = 1; r2 < max_sprites_at_once; r2++)
     {
     if (spr[r2].active) max_s = r2+1;
@@ -2467,25 +2417,25 @@ void updateFrame(void)
   */
   int height;
 
-	
-									
+
+
   spr[1].que = 20000;
   if (mode == MODE_SCREEN_SPRITES) if (   ! ((spr[1].pseq == 10) && (spr[1].pframe == 8)) ) spr[1].que = sp_que;
-	
+
   if (!in_enabled)
     {
       int r1;
     for (r1 = 1; r1 < max_s+1; r1++)
       {
-	int h1;		
+	int h1;
 	highest_sprite = 22024; //more than it could ever be
-			
+
 	rank[r1] = 0;
-			
+
 	for (h1 = 1; h1 < max_s+1; h1++)
 	  {
 	    if (spr[h1].active)
-	      { 
+	      {
 		if (bs[h1] == /*FALSE*/0)
 		  {
 		    //Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
@@ -2495,42 +2445,42 @@ void updateFrame(void)
 			highest_sprite = height;
 			rank[r1] = h1;
 		      }
-						
+
 		  }
-					
+
 	      }
-				
+
 	  }
-	if (rank[r1] != 0)	
+	if (rank[r1] != 0)
 	  bs[rank[r1]] = /*TRUE*/1;
       }
     }
-		
 
 
-						
+
+
 
   if (!in_enabled)
-    
+
     for (jj = 1; jj < max_s; jj++)
       {
-	
+
 	int h = rank[jj];
 	//Msg("Studying %d.,",h);
 
 	if (spr[h].active)
 	  {
-			
+
 	    //        Msg("Sprite %d is active.",h);
-			
-				
+
+
 	    if (spr[h].brain == 1)
 	      {
 		if ( (spr[h].seq == 0) | (mode == MODE_TILE_HARDNESS)  )
-		  {		
-					
+		  {
 
-							
+
+
 		    //if (mode == 7)
 		    if (mode == MODE_SPRITE_HARDNESS)
 		      {
@@ -2569,7 +2519,7 @@ void updateFrame(void)
 			    //they hit tab, lets toggle what mode they are in
 			    char death[150];
 			    char filename[10];
-	
+
 			    sprintf(death, "SET_SPRITE_INFO %d %d %d %d %d %d %d %d\n",
 				    sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].xoffset,  k[seq[sp_seq].frame[sp_frame]].yoffset,
 
@@ -2600,10 +2550,10 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].xoffset += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_LEFT /* 37 */])
 				  {
-							
+
 				    k[seq[sp_seq].frame[sp_frame]].xoffset -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
@@ -2612,22 +2562,22 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 			      } else
-					
+
 			      {
 				if (sjoy.right)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].xoffset +=  modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.left)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].xoffset -=  modif;
@@ -2638,13 +2588,13 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.down)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 
 			      }
 
@@ -2664,10 +2614,10 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_LEFT /* 37 */])
 				  {
-							
+
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
@@ -2676,22 +2626,22 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 			      } else
-					
+
 			      {
 				if (sjoy.right)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right +=  modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.left)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right -=  modif;
@@ -2702,13 +2652,13 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.down)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 
 			      }
 
@@ -2716,7 +2666,7 @@ void updateFrame(void)
 			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.right <= k[seq[sp_seq].frame[sp_frame]].hardbox.left)
 			      k[seq[sp_seq].frame[sp_frame]].hardbox.left = k[seq[sp_seq].frame[sp_frame]].hardbox.right -1;
 
-						
+
 			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.bottom <= k[seq[sp_seq].frame[sp_frame]].hardbox.top)
 			      k[seq[sp_seq].frame[sp_frame]].hardbox.top = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -1;
 
@@ -2736,10 +2686,10 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_LEFT /* 37 */])
 				  {
-							
+
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
@@ -2748,22 +2698,22 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.key[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 			      } else
-					
+
 			      {
 				if (sjoy.right)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left +=  modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.left)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left -=  modif;
@@ -2774,13 +2724,13 @@ void updateFrame(void)
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 				if (sjoy.down)
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-						
+
 
 			      }
 
@@ -2788,7 +2738,7 @@ void updateFrame(void)
 			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.left >= k[seq[sp_seq].frame[sp_frame]].hardbox.right)
 			      k[seq[sp_seq].frame[sp_frame]].hardbox.right = k[seq[sp_seq].frame[sp_frame]].hardbox.left +1;
 
-						
+
 			    if (k[seq[sp_seq].frame[sp_frame]].hardbox.top >= k[seq[sp_seq].frame[sp_frame]].hardbox.bottom)
 			      k[seq[sp_seq].frame[sp_frame]].hardbox.bottom = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom +1;
 
@@ -2829,13 +2779,17 @@ void updateFrame(void)
 			  }
 
 			int modif = 0;
-			if (SDL_GetModState()&KMOD_SHIFT) modif = 9;
+			if (SDL_GetModState()&KMOD_SHIFT)
+			  modif = 9;
 
 			if (sjoy.key['m'])
 			  {
-			    if (sp_screenmatch) sp_screenmatch = /*false*/0; else sp_screenmatch = /*true*/1;
+			    if (sp_screenmatch)
+			      sp_screenmatch = /*false*/0;
+			    else
+			      sp_screenmatch = /*true*/1;
 			  }
-               
+
 
 			if (SDL_GetModState()&KMOD_ALT) // alt
 			  {
@@ -2843,47 +2797,43 @@ void updateFrame(void)
 			    if (sjoy.key['w' /* 87 */])
 			      {
 				//pressed W
-				if (  ((spr[1].pseq == 10) & (spr[1].pframe == 8)  ) )
-						
+				if (((spr[1].pseq == 10) & (spr[1].pframe == 8)))
 				  {
                                     //a sprite is not chosen
 				    hold_warp_map = cur_map;
 				    hold_warp_x = spr[1].x;
 				    hold_warp_y= spr[1].y;
-				    EditorSoundPlayEffect( SOUND_JUMP );
-
-
-				  } else
+				    EditorSoundPlayEffect(SOUND_JUMP);
+				  }
+				else
 				  {
 				    sp_warp_map = hold_warp_map ;
 				    sp_warp_x = hold_warp_x;
 				    sp_warp_y = hold_warp_y;
-				    EditorSoundPlayEffect( SOUND_JUMP );
-									   
+				    EditorSoundPlayEffect(SOUND_JUMP);
 				  }
-
-
 			      }
-							   
 			  }
 
-						
-			if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			/**
+			 * Edit sprite properties
+			 */
+			if (!((spr[1].pseq == 10) & (spr[1].pframe == 8)))
 			  {
 			    //they are wheeling around a sprite
 			    if (spr[1].x > 1500) spr[1].x = 1500;
 			    if (spr[1].y > 1500) spr[1].y = 1500;
 
 			    if (spr[1].size > 1500) spr[1].size = 1500;
-	
+
 			    /* if (GetKeyboard(VK_OEM_4 /\* 219 *\/)) // '[' for US */
 			    if (GetKeyboard(SDLK_LEFTBRACKET))
 			      spr[1].size -= 1+modif;
 			    /* if (GetKeyboard(VK_OEM_6 /\* 221 *\/)) // ']' for US */
 			    if (GetKeyboard(SDLK_RIGHTBRACKET))
 			      spr[1].size += 1+modif;
-						  	
-						
+
+
 			    if (SDL_GetModState()&KMOD_SHIFT)
 			      {
 				//shift is being held down
@@ -2892,82 +2842,54 @@ void updateFrame(void)
 				if (getkey('3'))  in_master = 13;
 				if (getkey('4'))  in_master = 14;
 				if (getkey('5'))  in_master = 15;
-					
+
 				if (getkey('6'))  in_master = 16;
 				if (getkey('7'))  in_master = 17;
 				if (getkey('8'))  in_master = 18;
 				if (getkey('9'))  in_master = 19;
-						
-						
-                        
-			      } else
-			      if (SDL_GetModState()&KMOD_ALT)
-				{
+
+
+
+			      }
+			    else if (SDL_GetModState()&KMOD_ALT)
+			      {
 				  //alt is being held down
 				  if (getkey('1' /* 49 */))  in_master = 20;
 				  if (getkey('2'))  in_master = 21;
-				  if (getkey('3'))  in_master = 22; 
+				  if (getkey('3'))  in_master = 22;
 				  /*(getkey('4' /\* 52 *\/))  in_master = 14;
 				    if (getkey(53))  in_master = 15;
-					
+
 				    if (getkey(54))  in_master = 16;
 				    if (getkey(55))  in_master = 17;
 				    if (getkey(56))  in_master = 18;
 				    if (getkey(57))  in_master = 19;
-					
+
 				  */
-				} else
-					
-							
-							
-				{
+			      }
+			    else
+			      {
 				  //shift is not being held down
-					
-				  if (getkey('0')) 
-				    {
-				      in_master = 10;
-						
-				    }
-
-								
-				  if (getkey('1')) 
-				    {
-				      in_master = 1;
-						
-				    }
-
-				  if (getkey('2')) 
-				    {
-				      in_master = 2;
-							
-				    }
-
-				  if (getkey('3')) 
-				    {
-				      in_master = 3;
-							
-				    }
-				  if (getkey('4')) 
-				    {
-				      in_master = 4;
-							
-				    }
+				  if (getkey('1')) in_master = 1;
+				  if (getkey('2')) in_master = 2;
+				  if (getkey('3')) in_master = 3;
+				  if (getkey('4')) in_master = 4;
 				  if (getkey('5')) in_master = 5;
 				  if (getkey('6')) in_master = 6;
 				  if (getkey('7')) in_master = 7;
 				  if (getkey('8')) in_master = 8;
 				  if (getkey('9')) in_master = 9;
-					 
-				}
+				  if (getkey('0')) in_master = 10;
+			      }
 
 
 			    if (sjoy.key['s' /* 83 */])
 			      {
 				smart_add();
-								
+
 				draw_map();
 			      }
-							
+
 			    if ( (sjoy.button[2]) | (mouse1) )
 			      {
 				smart_add();
@@ -2975,24 +2897,24 @@ void updateFrame(void)
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
 				spr[1].size = 100;
-				rect_set(&spr[1].alt,0,0,0,0);	
-		
+				rect_set(&spr[1].alt,0,0,0,0);
+
 			      }
 
 			    if (sjoy.key[SDLK_DELETE /* 46 */])
 			      {
-								
+
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
 				spr[1].size = 100;
-				rect_set(&spr[1].alt,0,0,0,0);	
-					
+				rect_set(&spr[1].alt,0,0,0,0);
+
 			      }
 
 			  } else
 			  {
 			    //no sprite is currently selected
-					
+
 			    int max_spr = 0;
 			    int jj;
 
@@ -3004,8 +2926,8 @@ void updateFrame(void)
 			      {
 				if ( pam.sprite[jj].active) if (pam.sprite[jj].vision == map_vision) max_spr++;
 			      }
-      
-	
+
+
 			    if (max_spr > 0)
 			      {
 
@@ -3013,7 +2935,7 @@ void updateFrame(void)
 				if (GetKeyboard(SDLK_LEFTBRACKET))
 				  {
 				    sp_cycle--;
-				 
+
 				    if (sp_cycle < 1) sp_cycle = max_spr;
 				  }
 
@@ -3021,9 +2943,9 @@ void updateFrame(void)
 				if (GetKeyboard(SDLK_RIGHTBRACKET))
 				  {
 				    sp_cycle++;
-				 
+
 				    if (sp_cycle > max_spr) sp_cycle = 1;
-				 
+
 				  }
 
 
@@ -3031,12 +2953,12 @@ void updateFrame(void)
 			      }
 
 
-			 
+
 			    //Msg("Cycle is %d", sp_cycle);
 			    int realpic = 0;
 
 			    if (sp_cycle > 0)
-			      { 
+			      {
 				//lets draw a frame around the sprite we want
 				int dumbpic = 0;
 				int jh;
@@ -3049,12 +2971,12 @@ void updateFrame(void)
 								    realpic = jh;
 								  }
 				    if (jh == 99) goto fail;
-		
+
 				  }
 
-				last_sprite_added = realpic;	
+				last_sprite_added = realpic;
 
-    
+
 /* 				ddbltfx.dwSize = sizeof(ddbltfx); */
 /* 				ddbltfx.dwFillColor = 235; */
 
@@ -3063,7 +2985,7 @@ void updateFrame(void)
 								 pam.sprite[realpic].size);
 				rect_copy(&spr[sprite].alt , &pam.sprite[realpic].alt);
 				get_box(sprite, &box_crap, &box_real);
-                            
+
 
 
 
@@ -3122,12 +3044,12 @@ void updateFrame(void)
 				//	if (ddrval != DD_OK) dderror(ddrval);
 
 				spr[sprite].active = /*false*/0;
-				
+
 			      }
 
 			  fail:
 
-							
+
 			    if ( (sjoy.button[2]) | (mouse1))
 			      {
 				//pick up a sprite already placed by hitting enter
@@ -3137,32 +3059,32 @@ void updateFrame(void)
 				  {
 				    if ( pam.sprite[uu].active) if ( ( pam.sprite[uu].vision == 0) || (pam.sprite[uu].vision == map_vision))
 								  {
-							
+
 								    int	sprite = add_sprite_dumb(pam.sprite[uu].x,pam.sprite[uu].y,0,
 												 pam.sprite[uu].seq, pam.sprite[uu].frame,
 												 pam.sprite[uu].size);
-								    rect_copy(&spr[sprite].alt , &pam.sprite[uu].alt);			                 
+								    rect_copy(&spr[sprite].alt , &pam.sprite[uu].alt);
 								    get_box(sprite, &box_crap, &box_real);
 								    if (realpic > 0) goto spwarp;
 								    //Msg("Got sprite %d's info. X%d Y %d.",uu,box_crap.left,box_crap.right);
 
-								    if (inside_box(spr[1].x,spr[1].y,box_crap)) 
-									
+								    if (inside_box(spr[1].x,spr[1].y,box_crap))
+
 								      {
 									//this is the sprite they want to edit, lets convert them into it
-									//						Msg("FOUND SPRITE!  It's %d, huh.",uu); 
-								
-									if ( 4 > 9) 
+									//						Msg("FOUND SPRITE!  It's %d, huh.",uu);
+
+									if ( 4 > 9)
 									  {
 									  spwarp:
 									    Msg("Ah yeah, using %d!",realpic);
 									    uu = realpic;
 									  }
-									
-									
-									spr[1].x = pam.sprite[uu].x; 
-									spr[1].y = pam.sprite[uu].y; 
-									spr[1].size = pam.sprite[uu].size; 
+
+
+									spr[1].x = pam.sprite[uu].x;
+									spr[1].y = pam.sprite[uu].y;
+									spr[1].size = pam.sprite[uu].size;
 									sp_type = pam.sprite[uu].type;
 									sp_brain = pam.sprite[uu].brain;
 									sp_speed = pam.sprite[uu].speed;
@@ -3178,9 +3100,9 @@ void updateFrame(void)
 									sp_frame = pam.sprite[uu].frame;
 									spr[1].pseq = pam.sprite[uu].seq;
 									spr[1].pframe = pam.sprite[uu].frame;
-								
+
 									sp_prop = pam.sprite[uu].prop;
-								
+
 									sp_warp_map = pam.sprite[uu].warp_map;
 									sp_warp_x = pam.sprite[uu].warp_x;
 									sp_warp_y = pam.sprite[uu].warp_y;
@@ -3189,41 +3111,41 @@ void updateFrame(void)
 
 									sp_base_die = pam.sprite[uu].base_die;
 									sp_gold = pam.sprite[uu].gold;
-									sp_hitpoints = pam.sprite[uu].hitpoints;	
+									sp_hitpoints = pam.sprite[uu].hitpoints;
 
-									sp_exp = pam.sprite[uu].exp;	
-									sp_nohit = pam.sprite[uu].nohit;	
-									sp_touch_damage = pam.sprite[uu].touch_damage;	
-									sp_defense = pam.sprite[uu].defense;	
-									sp_strength = pam.sprite[uu].strength;	
-									sp_sound = pam.sprite[uu].sound;	
-							
+									sp_exp = pam.sprite[uu].exp;
+									sp_nohit = pam.sprite[uu].nohit;
+									sp_touch_damage = pam.sprite[uu].touch_damage;
+									sp_defense = pam.sprite[uu].defense;
+									sp_strength = pam.sprite[uu].strength;
+									sp_sound = pam.sprite[uu].sound;
+
 									pam.sprite[uu].active = /*false*/0; //erase sprite
 									draw_map();
 									spr[sprite].active = /*false*/0;
 									break;
 								      }
 								    spr[sprite].active = /*false*/0;
-				
+
 								  }
 				  }
-							
-							
+
+
 			      }
-					
-							
+
+
 			    if ((SDL_GetModState()&KMOD_ALT) & (GetKeyboard(SDLK_DELETE /* 46 */)))
 			      {
 				int ll;
 				for (ll = 1; ll < 100; ll++)
-				  { 
+				  {
 				    pam.sprite[ll].active = /*false*/0;
 				  }
 				draw_map();
 				rect_set(&spr[h].alt,0,0,0,0);
 			      }
 			  }
-						
+
 			if ( (sjoy.realkey['z']) | (sjoy.realkey['x']) )
 			  {
 			    if (  (spr[h].alt.right == 0) & (spr[h].alt.left == 0) & (spr[h].alt.top == 0) &
@@ -3233,13 +3155,13 @@ void updateFrame(void)
 			/* Trim a sprite? */
                         if (sjoy.realkey['z'])
 			  {
-             
+
 			    if (sjoy.key[SDLK_RIGHT /* 39 */])
 			      {
 				spr[h].alt.left += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-						
+
 			    if (sjoy.key[SDLK_LEFT /* 37 */])
 			      {
 				spr[h].alt.left -= spr[h].speed +modif;
@@ -3250,33 +3172,33 @@ void updateFrame(void)
 				spr[h].alt.top += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-			    
+
 			    if (sjoy.key[SDLK_UP /* 38 */])
 			      {
 				spr[h].alt.top -= spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-							
+
 
 			    if (spr[h].alt.top < 0) spr[h].alt.top = 0;
 			    if (spr[h].alt.left < 0) spr[h].alt.left = 0;
 			    goto b1end;
 			  }
-						
-						
-						
+
+
+
 			if (sjoy.realkey['x'])
 			  {
-             
+
 			    if (sjoy.key[SDLK_RIGHT /* 39 */])
 			      {
 				spr[h].alt.right += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-						
+
 			    if (sjoy.key[SDLK_LEFT /* 37 */])
 			      {
-						
+
 				spr[h].alt.right -= spr[h].speed +modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
@@ -3285,37 +3207,37 @@ void updateFrame(void)
 				spr[h].alt.bottom += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-						
+
 			    if (sjoy.key[SDLK_UP /* 38 */])
 			      {
 				spr[h].alt.bottom -= spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
-						
+
 				//	Msg("Bottom is %d..",spr[h].alt.bottom);
-						
+
 			      }
 			    if (spr[h].alt.bottom > k[getpic(h)].box.bottom) spr[h].alt.bottom = k[getpic(h)].box.bottom;
 			    if (spr[h].alt.right > k[getpic(h)].box.right) spr[h].alt.right = k[getpic(h)].box.right;
-                        
+
 			    goto b1end;
 
 			  }
 
 
 			if (spr[1].size < 1) spr[1].size = 1;
-						
-						
+
+
 			if (SDL_GetModState()&KMOD_CTRL)
 			  {
 			    if (sjoy.key[SDLK_RIGHT /* 39 */])
 			      {
-						
+
 				sp_cycle = 0;
-							
+
 				spr[h].x += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-			    
+
 			    if (sjoy.key[SDLK_LEFT /* 37 */])
 			      {
 				spr[h].x -= spr[h].speed +modif;
@@ -3328,24 +3250,24 @@ void updateFrame(void)
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-			    
+
 			    if (sjoy.key[SDLK_DOWN /* 40 */])
 			      {
 				spr[h].y += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-						
+
 			  } else
-					
+
 			  {
 			    if (sjoy.right)
 			      {
 				spr[h].x += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
-				sp_cycle = 0;	
+				sp_cycle = 0;
 			      }
-						
+
 			    if (sjoy.left)
 			      {
 				spr[h].x -= spr[h].speed +modif;
@@ -3358,7 +3280,7 @@ void updateFrame(void)
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-						
+
 			    if (sjoy.down)
 			      {
 				spr[h].y += spr[h].speed + modif;
@@ -3366,7 +3288,7 @@ void updateFrame(void)
 				sp_cycle = 0;
 
 			      }
-						
+
 
 			  }
 
@@ -3374,15 +3296,15 @@ void updateFrame(void)
 
 
 
-			if (  (sjoy.button[1]) ) 
+			if (  (sjoy.button[1]) )
 			  {
 			    //return to edit mode or drop sprite, depending..
 			    if (((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
-						
+
 			      {
-								
-				rect_set(&spr[1].alt,0,0,0,0);	
-		
+
+				rect_set(&spr[1].alt,0,0,0,0);
+
 				spr[1].size = 100;
 				mode = MODE_SCREEN_TILES;
 				spr[1].x = m4x;
@@ -3393,76 +3315,76 @@ void updateFrame(void)
 			      {
 				smart_add();
 				draw_map();
-				rect_set(&spr[1].alt,0,0,0,0);	
-		
+				rect_set(&spr[1].alt,0,0,0,0);
+
 				spr[1].pseq = 10;
 				spr[1].pframe = 8;
 				spr[1].size = 100;
-								
+
 			      }
 			  }
-						
-						
+
+
 			if (sjoy.key['e'])
 			  {
-			    //they hit E, go to sprite picker	
-			    rect_set(&spr[1].alt,0,0,0,0);	
-							
-			    spr[1].size = 100;		
+			    //they hit E, go to sprite picker
+			    rect_set(&spr[1].alt,0,0,0,0);
+
+			    spr[1].size = 100;
 			    //mode = 5;
 			    mode = MODE_SPRITE_PICKER;
 			    m6x = spr[h].x;
 			    m6y = spr[h].y;
 			    spr[h].x = m5x;
 			    spr[h].y = m5y;
-							
+
 			    spr[1].seq = 3;
 			    spr[1].speed = 50;
 			    if (sp_seq == 0) draw15(sp_picker); else draw96(sp_frame);
 			    goto sp_edit_end;
-							
+
 			  }
 			if (sjoy.button[5])
 			  {
 			    //they hit tab, return to tile edit mode
 			    if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
-											
+
 			      {
 				smart_add();
-				rect_set(&spr[1].alt,0,0,0,0);	
-		
+				rect_set(&spr[1].alt,0,0,0,0);
+
 				draw_map();
 			      }
-			    spr[1].size = 100;		
+			    spr[1].size = 100;
 			    mode = MODE_SCREEN_TILES;
 			    spr[h].x = m4x;
 			    spr[h].y = m4y;
-							
+
 			    spr[1].seq = 3;
 			    spr[1].speed = 50;
 			    //	if (sp_seq == 0) draw15(); else draw96();
 			    goto sp_edit_end;
-							
+
 			  }
-						
-						
+
+
 			goto b1end;
-						
+
 		      }
-					
-					
+
+
 		    if ( (mode == MODE_SCREEN_TILES) & (sjoy.button[5]))
 		      {
 
 			//they chose sprite picker mode
-			//while (kill_last_sprite()); 
+			//while (kill_last_sprite());
 
 
 			mode = MODE_SCREEN_SPRITES;
-						
+
 			spr[1].pseq = 10;
 			spr[1].pframe = 8;
-								
+
 			spr[1].speed = 1;
 			selx = 1;
 			sely = 1;
@@ -3470,31 +3392,31 @@ void updateFrame(void)
 			m4y = spr[h].y;
 			//spr[h].x = m5x;
 			//spr[h].y = m5y;
-						
+
 			//if (sp_seq == 0)
 			//	draw15(); else draw96();
-						
+
 		      } else
-						
-						
-						
-						
-						
-						
+
+
+
+
+
+
 		      if (mode == MODE_SPRITE_PICKER)
 			{
-			  //picking a sprite	
+			  //picking a sprite
 			  if (sp_seq != 0)
 			    {
 			      //they are in select sprite phase 2
-							
+
 			      if (sjoy.key['e'])
 				{
 				  //they want to 'edit' the sprite
 				  mode = MODE_SPRITE_HARDNESS;
 				  m5x = spr[h].x;
 				  m5y = spr[h].y;
-									
+
 				  //lets blank the screen
 /* 				  ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /* 				  ddbltfx.dwSize = sizeof( ddbltfx); */
@@ -3507,40 +3429,40 @@ void updateFrame(void)
 				  int holdy = (spr[1].y / 50)+1;
 				  holdx = holdx * 8;
 				  if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
-									
+
 				  int spman = add_sprite_dumb(320,200 , 0,sp_seq,holdx + holdy,100 );
 
 				  sp_frame = holdx + holdy;
 				  spr[1].pseq = 10;
 				  spr[1].pframe = 8;
 
-									
+
 				  spr[1].speed = 1;
 				  goto sp_edit_end;
-									
+
 				}
 
-			      if (  (sjoy.button[1]) ) 
+			      if (  (sjoy.button[1]) )
 				{
-									
-									
+
+
 				  //returning to main sprite picker mode
 				  sp_seq = 0;
-									
+
 				  draw15(sp_picker);
 				  spr[h].x = m5ax;
 				  spr[h].y = m5ay;
-									
+
 				  goto sp_edit_end;
 				}
-								
+
 			      if (sjoy.button[5])
 				{
 				  //leave to screen editor
 				sp_fin:
 				  m5x = spr[h].x;
 				  m5y = spr[h].y;
-								
+
 				  draw_map();
 				  spr[h].x = m6x;
 				  spr[h].y = m6y;
@@ -3551,17 +3473,17 @@ void updateFrame(void)
 				  spr[h].speed = 1;
 				  mode = MODE_SCREEN_SPRITES;
 				  goto sp_edit_end;
-								
+
 				}
-								
+
 			      if (sjoy.button[2])
 				{
-									
+
 				  // go to mode 6, sprite placement
 				  m5x = spr[h].x;
 				  m5y = spr[h].y;
-									
-								   
+
+
 				  holdx = (spr[1].x / 50);
 				  int holdy = (spr[1].y / 50)+1;
 				  holdx = holdx * 8;
@@ -3575,17 +3497,17 @@ void updateFrame(void)
 				  mode = MODE_SCREEN_SPRITES;
 				  spr[h].speed = 1;
 				  goto sp_edit_end;
-									
+
 				}
-								
-								
+
+
 			      goto sp_edit_end;
 			    }
-							
-							
-			  if (   (sjoy.button[5]) | (sjoy.button[1]) ) 
+
+
+			  if (   (sjoy.button[5]) | (sjoy.button[1]) )
 			    {
-								
+
 			      //exit to main editor
 			      /*m5x = spr[h].x;
 				m5y = spr[h].y;
@@ -3597,20 +3519,20 @@ void updateFrame(void)
 			      */
 			      m5x = spr[h].x;
 			      m5y = spr[h].y;
-								
+
 			      draw_map();
 			      spr[h].x = m6x;
 			      spr[h].y = m6y;
 			      spr[h].pseq = 10;
 			      spr[h].pframe = 8;
-								
+
 			      spr[h].speed = 1;
 			      mode = MODE_SCREEN_SPRITES;
 			      goto b1end;
 			      //goto sp_edit_end;
-								
+
 			    }
-							
+
 			  /* if (sjoy.key[VK_OEM_4 /\* 219 *\/]) // '[' for US */
 			  if (GetKeyboard(SDLK_LEFTBRACKET))
 			    {
@@ -3626,10 +3548,10 @@ void updateFrame(void)
 			      if (sp_picker < 400) sp_picker += 96;
 			      draw15(sp_picker);
 			    }
-							
+
 			  if (sjoy.button[2])
 			    {
-								
+
 			      //they chose a catagory, switch to phase 2, it will know cuz sp_seq > 0.
 			      holdx = (spr[1].x / 50);
 			      int holdy = (spr[1].y / 50)+1;
@@ -3641,46 +3563,46 @@ void updateFrame(void)
 			      sp_seq = sp_get(sp_picker+ (holdx + holdy));
 			      //	Msg("Sp_seq is %d",sp_seq);
 			      draw96(0);
-								
+
 			    }
-							
-							
+
+
 			}
 		  sp_edit_end:
-						
 
-  
-						
+
+
+
 		    if (mode == MODE_SCREEN_TILES) draw_current();
-						
-						
+
+
 		    if (mode == MODE_DIALOG)
 		      {
-							
+
 			spr[h].seq = 2;
 			spr[h].seq_orig = 2;
-			draw_used();	
+			draw_used();
 			spr[1].que = 20000;
 			mode = MODE_MAP_PICKER;
 			spr[2].active = /*FALSE*/0;
 			spr[3].active = /*FALSE*/0;
 			spr[4].active = /*FALSE*/0;
 		      }
-						
-		    if (mode == MODE_DIALOG) goto b1end;			
-						
-						
-						
-						
+
+		    if (mode == MODE_DIALOG) goto b1end;
+
+
+
+
 		    //mode equals 4, they are in hardness edit mode, so lets do this thang
-						
+
 		    if (mode == MODE_TILE_HARDNESS)
 		      {
-							
-							
+
+
 			if (spr[h].seq == 0)
 			  {
-								
+
 			    if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_RIGHT /* 39 */)) )
 			      {
 				spr[h].seq = 4;
@@ -3688,7 +3610,7 @@ void updateFrame(void)
 				if (selx < 8) selx++;
 				goto b1fun;
 			      }
-								
+
 			    if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_LEFT /* 37 */)) )
 			      {
 				spr[h].seq = 4;
@@ -3696,7 +3618,7 @@ void updateFrame(void)
 				if (selx > 1) selx--;
 				goto b1fun;
 			      }
-								
+
 			    if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_UP /* 38 */)) )
 			      {
 				spr[h].seq = 4;
@@ -3704,7 +3626,7 @@ void updateFrame(void)
 				if (sely > 1) sely--;
 				goto b1fun;
 			      }
-								
+
 			    if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_DOWN /* 40 */)) )
 			      {
 				spr[h].seq = 4;
@@ -3712,15 +3634,15 @@ void updateFrame(void)
 				if (sely <  8) sely++;
 				goto b1fun;
 			      }
-								
-								
+
+
 			    if (sjoy.right)
 			      {
 				spr[h].x += 9;
 				spr[h].seq = 4;
 				spr[h].frame = 1;
 				EditorSoundPlayEffect( SOUND_STOP );
-									
+
 			      }
 			    if (sjoy.left)
 			      {
@@ -3743,25 +3665,25 @@ void updateFrame(void)
 				spr[h].frame = 1;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-								
+
 			  }
-							
-							
+
+
 		      b1fun:
-							
+
 			//make sure they didn't go past the boundrys
 			if (mode != 1)
-			  {							
-							
+			  {
+
 			    if (spr[h].x + (9 * (selx -1))> 95+441) spr[h].x = (95+441) - (9 * (selx-1));
 			    if (spr[h].x < 95) spr[h].x = 95;
 			    if (spr[h].y < 0) spr[h].y = 0;
-			    if (spr[h].y + (9 * (sely -1))> 441) spr[h].y = 441 - (9 * (sely-1));	
-			  }							
-							
+			    if (spr[h].y + (9 * (sely -1))> 441) spr[h].y = 441 - (9 * (sely-1));
+			  }
+
 			//change a piece to hard
 			if (  GetKeyboard('z'))
-			  { 
+			  {
 			    int y;
 			    for (y = 0; y < sely; y++)
 			      {
@@ -3769,15 +3691,15 @@ void updateFrame(void)
 				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
-										
+
 				  }
 			      }
 			  }
-							
-							
+
+
 			//change a piece to soft
 			if (GetKeyboard('x'))
-			  { 
+			  {
 			    int y;
 			    for (y = 0; y < sely; y++)
 			      {
@@ -3785,20 +3707,20 @@ void updateFrame(void)
 				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
-										
+
 				  }
 			      }
-								
-								
+
+
 			  }
-							
-					
+
+
 			if ( (GetKeyboard('a')) & (SDL_GetModState()&KMOD_ALT ) )
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 2);
 			    Msg("Changing whole tile to 2");
-								 
+
 			    return;
 			  }
 
@@ -3807,7 +3729,7 @@ void updateFrame(void)
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 3);
 			    Msg("Chaning whole tile to 3");
-								 
+
 			    return;
 			  }
 			if ( (GetKeyboard('x')) & (SDL_GetModState()&KMOD_ALT ) )
@@ -3815,13 +3737,13 @@ void updateFrame(void)
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 1);
 			    Msg("Changing whole tile to 1");
-			    
+
 			    return;
 			  }
 
 
                         if (GetKeyboard('a'))
-			  { 
+			  {
 			    int y;
 			    for (y = 0; y < sely; y++)
 			      {
@@ -3829,13 +3751,13 @@ void updateFrame(void)
 				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
-										
+
 				  }
 			      }
-					
+
 			  }
                         if (GetKeyboard('s'))
-			  { 
+			  {
 			    int y;
 			    for (y = 0; y < sely; y++)
 			      {
@@ -3843,51 +3765,51 @@ void updateFrame(void)
 				for (x = 0; x < selx; x++)
 				  {
 				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
-										
+
 				  }
 			      }
-					
+
 			  }
-							
+
 
 			//update frame with current hard blocks, slow
-							
+
 			draw_hard();
-							
+
 			if (   (sjoy.button[1])  | (sjoy.button[2]) )
 			  {
-			    //quit hardness edit		
-								
+			    //quit hardness edit
+
 			    spr[h].seq = 3;
 			    spr[h].seq_orig = 3;
-							
+
 			    if (last_modereal == 8)
 			      {
 				//return to alt hardness editor
 				draw_map();
-				last_modereal = 0;	
+				last_modereal = 0;
 				spr[h].x = m4x;
 				spr[h].y = m4y;
-								
+
 				selx = 1;
 				sely = 1;
-									
+
 				mode = MODE_UNKNOWN;
 				return;
 				//goto skip_draw;
-									
-									
+
+
 			      }
-								
-			    if (last_mode > 0) { 
-									
+
+			    if (last_mode > 0) {
+
 			      loadtile(last_mode);
 			      selx = 1;
 			      sely = 1;
 			      goto b1end;
 			    }
 			    fill_whole_hard();
-							
+
 			    draw_map();
 			    spr[h].x = m4x;
 			    spr[h].y = m4y;
@@ -3895,7 +3817,7 @@ void updateFrame(void)
 			    selx = 1;
 			    sely = 1;
 			  }
-							
+
 			goto b1end;
 		      }
 
@@ -3905,7 +3827,7 @@ void updateFrame(void)
 		    if ( (sjoy.key['b']) )
 		      {
 			in_master = 31;
-	
+
 
 		      }
 
@@ -3919,45 +3841,45 @@ void updateFrame(void)
 		    if (    ( (mode == MODE_SCREEN_TILES) & (sjoy.button[2]) )  | (mode == MODE_TILE_PICKER) & (GetKeyboard(SDLK_SPACE)))
 
 		      {
-	
+
 			if (mode == MODE_SCREEN_TILES) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
-	
+
 			if (mode == MODE_TILE_PICKER)
-		
+
 			  {
-			    cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			    cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 			    cur_tile += (cur_screen * 128) - 128;
-		
-		
+
+
 			  }
 			while(kill_last_sprite());
 			draw_current();
-	
+
 			if (cur_tile > 0)
-		
+
 			  {
-		
+
 			    if (hmap.index[cur_tile] == 0)
 			      {
-			
+
 				int j;
 				for (j = 1; j < 799; j++)
 				  {
 				    if (hmap.tile[j].used == /*FALSE*/0)
 				      {
-					
+
 					hmap.index[cur_tile] = j;
 					hmap.tile[j].used = /*TRUE*/1;
 				    	hard_tile = j;
 					goto tilesel;
-					
+
 				      }
-		
+
 				  }
-	
-		
+
+
 			      } else hard_tile = hmap.index[cur_tile];
-		
+
 			  tilesel:
 			    cool = cur_tile / 128;
 			    xx = cur_tile - (cool * 128);
@@ -3965,20 +3887,20 @@ void updateFrame(void)
 /* 			    Rect.top = (xx / 12) * 50; */
 /* 			    Rect.right = Rect.left + 50; */
 /* 			    Rect.bottom = Rect.top + 50; */
-		
+
 /* 			    crapRec.top = 0; */
 /* 			    crapRec.left = 95; */
 /* 			    crapRec.bottom = 450; */
 /* 			    crapRec.right = 95+450; */
-		
+
 /* 			    ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /* 			    ddbltfx.dwSize = sizeof( ddbltfx); */
 
 			    spr[1].seq = 0;
 			    spr[1].pseq = 10;
 			    spr[1].pframe = 1;
-								
-		
+
+
 
 			    // Display the given tile square fullscreen, for hardness editing
 /* 			    lpDDSTwo->Blt(&crapRec , tiles[cool+1], */
@@ -4028,19 +3950,19 @@ void updateFrame(void)
 
 			    m4x = spr[h].x;
 			    m4y = spr[h].y;
-		
+
 			    spr[1].x = 95;
 			    spr[1].y = 0;
 			    selx = 1;
 			    sely = 1;
-		
+
 			    mode = MODE_TILE_HARDNESS;
-		
+
 			    kickass = /*TRUE*/1;
 			  }
-	
-    
-	
+
+
+
 		      }
 
 
@@ -4048,7 +3970,7 @@ void updateFrame(void)
 		    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) )
 		      {
 			//resizing the box
-	
+
 			if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_RIGHT /* 39 */)) )
 			  {
 			    spr[h].seq = 3;
@@ -4056,16 +3978,16 @@ void updateFrame(void)
 			    if (selx < 8) selx++;
 			    goto b1end;
 			  }
-	
+
 			if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_LEFT /* 37 */)) )
 			  {
 			    spr[h].seq = 3;
 			    spr[h].seq_orig = 3;
 			    if (selx > 1) selx--;
 			    goto b1end;
-	
+
 			  }
-	
+
 			if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_UP /* 38 */)) )
 			  {
 			    spr[h].seq = 3;
@@ -4073,7 +3995,7 @@ void updateFrame(void)
 			    if (sely > 1) sely--;
 			    goto b1end;
 			  }
-	
+
 			if ((SDL_GetModState()&KMOD_SHIFT) && (GetKeyboard(SDLK_DOWN /* 40 */)) )
 			  {
 			    spr[h].seq = 3;
@@ -4081,17 +4003,17 @@ void updateFrame(void)
 			    if (sely <  8) sely++;
 			    goto b1end;
 			  }
-	
+
 		      }
 
 
-		    if (GetKeyboard(SDLK_RIGHT /* 39 */)) 
+		    if (GetKeyboard(SDLK_RIGHT /* 39 */))
 		      {
 			spr[h].x += spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
 			EditorSoundPlayEffect( SOUND_STOP );
 			//PlayMidi("TOP.MID");
-	
+
 		      }
 
 
@@ -4101,10 +4023,10 @@ void updateFrame(void)
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			//EditorSoundPlayEffect( SOUND_JUMP );
-	
-	
+
+
 			pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num = cur_tile;
-	
+
 			for (y = 0; y < sely; y++)
 			  {
 			    int x;
@@ -4114,24 +4036,24 @@ void updateFrame(void)
 				holdx += (y * 12);
 				holdx += x;
 				pam.t[holdx].num = (cur_tile + (y * 12) + x);
-			
+
 			      }
 			  }
-	
-	
-			draw_map();	
+
+
+			draw_map();
 		      }
 
 
 
-		    if ( (GetKeyboard('c')) && (mode == MODE_SCREEN_TILES) ) 
+		    if ( (GetKeyboard('c')) && (mode == MODE_SCREEN_TILES) )
 		      {
-	
+
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			//SoundPlayEffect( SOUND_JUMP );
 			cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
-			draw_map();	
+			draw_map();
 		      }
 
 		    /* Tile selection */
@@ -4148,7 +4070,7 @@ void updateFrame(void)
 			if (GetKeyboard('8')) unit = 8;
 			if (GetKeyboard('9')) unit = 9;
 			if (GetKeyboard('0')) unit = 10;
-			
+
 			tile_no = unit;
 			if (SDL_GetModState()&KMOD_SHIFT)
 			  tile_no = 10 + unit;
@@ -4170,19 +4092,19 @@ void updateFrame(void)
 		    //if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
 
 
-		    if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER)) 
+		    if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
-			cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 			cur_tile += (cur_screen * 128) - 128;
 			//SoundPlayEffect( SOUND_JUMP );
 			m2x = spr[h].x;
 			m2y = spr[h].y;
 			spr[h].x = m3x;
 			spr[h].y = m3y;
-	
+
 			mode = MODE_SCREEN_TILES;
 			spr[h].speed = 50;
 			draw_map();
@@ -4191,18 +4113,18 @@ void updateFrame(void)
 
 
 
-		    if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER)) 
+		    if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
-			//cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50); 
+			//cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 			//SoundPlayEffect( SOUND_JUMP );
 			m2x = spr[h].x;
 			m2y = spr[h].y;
 			spr[h].x = m3x;
 			spr[h].y = m3y;
-	
+
 			mode = MODE_SCREEN_TILES;
 			draw_map();
 			last_mode = 0;
@@ -4211,14 +4133,14 @@ void updateFrame(void)
 
 
 		    if ( (sjoy.key[SDLK_SPACE])  && (mode == MODE_MAP_PICKER))
-		      {  
+		      {
 			//make_map_tiny();
 			draw_map_tiny = 0;
 
 		      }
 
 		    if ( (sjoy.key['l'])  && (mode == MODE_MAP_PICKER))
-		      {  
+		      {
 
 			//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
 			//{
@@ -4266,10 +4188,10 @@ void updateFrame(void)
 			if (buf_mode)
 			  {
 			    //lets replace this screen
- 
+
 			    buf_mode = /*false*/0;
-	
-		
+
+
 			    if (!load_map_buf(buffmap.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]))
 			      {
 
@@ -4278,8 +4200,8 @@ void updateFrame(void)
 				sjoy.button[2] = /*false*/0;
 				return;
 			      }
-	  
-		
+
+
 			    load_info();
 
 			    if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] == 0)
@@ -4288,50 +4210,50 @@ void updateFrame(void)
 				(
 				 map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]) = add_new_map();
 				//wrongo, let's add the map
-              
+
 				//draw_used();
-	 
-	 
+
+
 			      }
-		
+
 			    map.indoor[buf_map] = buffmap.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 			    map.music[buf_map] = buffmap.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-		
+
 			    save_map(map.loc[buf_map]);
-       
+
 			    save_info();
 			    draw_used();
 			    return;
 			  }
-	
+
 			load_info();
-	
+
 			cur_map=  (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
 			if (map.loc[cur_map] == 0)
 			  {
 			    //new map screen
-	
+
 			    map.loc[cur_map] = add_new_map();
 			    save_info();
-	
-	
+
+
 			  } else load_map(map.loc[cur_map]);
-	
+
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			k[seq[3].frame[1]].xoffset = -playl;
 			//SoundPlayEffect( SOUND_JUMP );
-	
+
 			Msg("Y is %d X is %d", spr[h].y, spr[h].x);
-	
+
 			m1x = spr[h].x;
 			m1y = spr[h].y;
 			spr[h].x = m3x;
 			spr[h].y = m3y;
-	
-	
+
+
 			mode = MODE_SCREEN_TILES;
-	
+
 			spr[h].speed = 50;
 			draw_map();
 		      }
@@ -4351,7 +4273,7 @@ void updateFrame(void)
 		      {
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
-	
+
 			cur_tile++;
 			//if (cur_tile > 127) cur_tile = 127;
 		      }
@@ -4360,7 +4282,7 @@ void updateFrame(void)
 		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.key['h']) )
 		      {
 			//start althard mode
-	
+
 
 			mode = MODE_UNKNOWN;
 			goto skip_draw;
@@ -4373,7 +4295,7 @@ void updateFrame(void)
 		    if (mode == MODE_SCREEN_HARDNESS)
 		      {
 			//mode for it
-			if (sjoy.key[SDLK_ESCAPE]) 
+			if (sjoy.key[SDLK_ESCAPE])
 			  {
 			    //exit mode 8
 			    mode = MODE_SCREEN_TILES;
@@ -4395,7 +4317,7 @@ void updateFrame(void)
 			    hard_tile--;
 			    if (hard_tile < 1) hard_tile = 799;
 			  }
- 
+
 			if (sjoy.key['c'])
 			  {
 			    //copy tile hardness from current block
@@ -4429,7 +4351,7 @@ void updateFrame(void)
 
 			char crapa[10];
 			sprintf(crapa, "%d",hard_tile);
-  
+
 			SaySmall(crapa,580,400,255,255,255);
 
 			if (sjoy.key[SDLK_RETURN])
@@ -4437,27 +4359,27 @@ void updateFrame(void)
 
 			    //they want to edit this alt hardness, less do it'
 			    cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
-	
-  
-      
+
+
+
 			    xx = cur_tile - (cool * 128);
 			    Rect.left = spr[1].x+20;
 			    Rect.top = spr[1].y;
 			    Rect.right = Rect.left + 50;
 			    Rect.bottom = Rect.top + 50;
-		
+
 			    crapRec.top = 0;
 			    crapRec.left = 95;
 			    crapRec.bottom = 450;
 			    crapRec.right = 95+450;
-		
+
 /* 			    ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /* 			    ddbltfx.dwSize = sizeof( ddbltfx); */
 			    spr[1].seq = 0;
 			    spr[1].pseq = 10;
 			    spr[1].pframe = 1;
-		
-		
+
+
 /* 			    lpDDSTwo->Blt(&crapRec , lpDDSBack, */
 /* 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx ); */
 			    // GFX
@@ -4509,16 +4431,16 @@ void updateFrame(void)
 
 			    m4x = spr[h].x;
 			    m4y = spr[h].y;
-		
+
 			    spr[1].x = 95;
 			    spr[1].y = 0;
 			    selx = 1;
 			    sely = 1;
-		
+
 			    mode = MODE_TILE_HARDNESS;
-		
+
 			    kickass = /*TRUE*/1;
-          
+
 			    hmap.tile[hard_tile].used = /*true*/1;
 			    last_modereal = 8;
 			  }
@@ -4529,8 +4451,8 @@ void updateFrame(void)
 
 		    if ((mode == MODE_SCREEN_TILES) && (SDL_GetModState()&KMOD_ALT)) if (sjoy.key['x'])
 									     {
-									       spr[h].seq = 2; 
-									       spr[h].seq_orig = 2; 
+									       spr[h].seq = 2;
+									       spr[h].seq_orig = 2;
 									       m3x = spr[h].x;
 									       m3y = spr[h].y;
 									       spr[h].x = m1x;
@@ -4539,17 +4461,17 @@ void updateFrame(void)
 									       spr[h].speed = 20;
 									       load_info();
 									       draw_used();
-									       while (kill_last_sprite()); 
+									       while (kill_last_sprite());
 									       return;
 									     }
 
 
-		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) ) 
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) )
 		      {
 			// jump to map selector selector from map mode
 			save_map(map.loc[cur_map]);
-			spr[h].seq = 2; 
-			spr[h].seq_orig = 2; 
+			spr[h].seq = 2;
+			spr[h].seq_orig = 2;
 			//SoundPlayEffect( SOUND_JUMP );
 			m3x = spr[h].x;
 			m3y = spr[h].y;
@@ -4560,12 +4482,12 @@ void updateFrame(void)
 			spr[h].speed = 20;
 			load_info();
 			draw_used();
-			while (kill_last_sprite()); 
-			return;	
+			while (kill_last_sprite());
+			return;
 		      }
 
 
-		    if (GetKeyboard(SDLK_LEFT /* 37 */)) 
+		    if (GetKeyboard(SDLK_LEFT /* 37 */))
 		      {
 			spr[h].x -= spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
@@ -4582,7 +4504,7 @@ void updateFrame(void)
 			EditorSoundPlayEffect( SOUND_STOP );
 		      }
 
-		    if (GetKeyboard(SDLK_UP /* 38 */)) 
+		    if (GetKeyboard(SDLK_UP /* 38 */))
 		      {
 			spr[h].y -= spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
@@ -4597,22 +4519,22 @@ void updateFrame(void)
 
 		    // end human brain (1)
 
-		
-		
+
+
 		    //if( (mode == 2) | (mode == 3) | (mode == 5) )
 		    if( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) | (mode == MODE_SPRITE_PICKER) )
 		      {
 			if ((selx * 50 + spr[1].x) > 600)
-			  { 
+			  {
 			    spr[1].x = 600 - (selx * 50);
 			  }
 		      }
-		
+
 		    //if( (mode == 2) )
 		    if( (mode == MODE_TILE_PICKER) )
 		      {
 			if ((sely * 50 + spr[1].y) > 450)
-			  { 
+			  {
 			    spr[1].y = 450 - (sely * 50);
 			  }
 		      }
@@ -4620,7 +4542,7 @@ void updateFrame(void)
 		    if( (mode == MODE_SCREEN_TILES) )
 		      {
 			if ((sely * 50 + spr[1].y) > 400)
-			  { 
+			  {
 			    spr[1].y = 400 - (sely * 50);
 			  }
 		      }
@@ -4629,57 +4551,57 @@ void updateFrame(void)
 		    if( (mode == MODE_SPRITE_PICKER) )
 		      {
 			if ((sely * 50 + spr[1].y) > 400)
-			  { 
+			  {
 			    spr[1].y = 400 - (sely * 50);
 			  }
 		      }
-		
+
 
 		  b1end:;
 
 		  } //end if seq is 0
 	      } //real end of human brain
-		
+
 
 	    if (spr[h].brain == 2)
 	      {
-			
-			
+
+
 		if (spr[h].y > (y-k[getpic(h)].box.bottom))
 		  {
 		    spr[h].my -= (spr[h].my * 2);
 		    // SoundPlayEffect( SOUND_JUMP );
-		  }         
-			
+		  }
+
 		if (spr[h].x > (x-k[getpic(h)].box.right))
 		  {
 		    spr[h].mx -= (spr[h].mx * 2);
 		    //SoundPlayEffect( SOUND_JUMP );
-		  }         
-			
+		  }
+
 		if (spr[h].y < 0)
 		  {
 		    spr[h].my -= (spr[h].my * 2);
 		    //SoundPlayEffect( SOUND_JUMP );
-		  }         
-			
-			
-		if (spr[h].x < 0) 
+		  }
+
+
+		if (spr[h].x < 0)
 		  {
 		    spr[h].mx -= (spr[h].mx * 2);
 		    //SoundPlayEffect( SOUND_JUMP );
-		  }         
-			
-			
+		  }
+
+
 		spr[h].x += spr[h].mx;
 		spr[h].y += spr[h].my;
-			
-			
+
+
 	      }
 	    // end robot(2)
-	
-	  
-		
+
+
+
 	    if (spr[h].seq > 0)
 	      {
 		if (spr[h].frame < 1)
@@ -4687,81 +4609,81 @@ void updateFrame(void)
 		    // new anim
 		    spr[h].pseq = spr[h].seq;
 		    spr[h].pframe = 1;
-				
+
 		    spr[h].frame = 1;
 		    spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[1]);
 		  } else
 		  {
 		    // not new anim
-				
+
 		    //is it time?
-				
+
 		    if (thisTickCount > spr[h].delay)
 		      {
-					
-					
+
+
 			spr[h].frame++;
 			spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
-					
+
 			spr[h].pseq = spr[h].seq;
 			spr[h].pframe = spr[h].frame;
-					
+
 			if (seq[spr[h].seq].frame[spr[h].frame] == -1)
 			  {
 			    spr[h].frame = 1;
 			    spr[h].pseq = spr[h].seq;
 			    spr[h].pframe = spr[h].frame;
 			    spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
-						
+
 			  }
-					
+
 			if (seq[spr[h].seq].frame[spr[h].frame] == 0)
 			  {
 			    spr[h].pseq = spr[h].seq;
 			    spr[h].pframe = spr[h].frame-1;
-						
+
 			    spr[h].frame = 0;
 			    spr[h].seq = 0;
-						
-						
+
+
 			  }
-					
-					
+
+
 		      }
-				
-		  }		
+
+		  }
 	      }
-	    int greba;			
-	
-		
-		
+	    int greba;
+
+
+
 	    if ( (mode == MODE_SCREEN_TILES) )
 	      {
 		//need offset to look right
 		k[seq[3].frame[1]].xoffset = -20;
 		greba = 20;
 	      }
-	    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) ) 
-			
+	    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) )
+
 	      {
 		//pick a tile, needs no offset
 		k[seq[3].frame[1]].xoffset = 0;
 		greba = 0;
 	      }
-	
+
 	    //		if (  !(( h == 1) & (mode == 9)) )
 	    if (  !(( h == 1) & (mode == MODE_UNKNOWN)) )
-		
+
 	      {
 
 		if (draw_map_tiny == -1)
-		  draw_sprite(GFX_lpDDSBack, h);            
+		  draw_sprite(GFX_lpDDSBack, h);
 		else
-		  draw_sprite(GFX_lpDDSTwo, h);            
+		  draw_sprite(GFX_lpDDSTwo, h);
 	      }
-			
+
 	    //Msg("Drew %d.",h);
-		
+
 	  skip_draw:
 	    if (spr[h].brain == 1)
 	      {
@@ -4775,7 +4697,7 @@ void updateFrame(void)
 			int x;
 			for (x = 0; x < selx; x++)
 			  {
-						
+
 /* 			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k, */
 /* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
@@ -4787,10 +4709,10 @@ void updateFrame(void)
 			    }
 			  }
 		      }
-				
+
 		  }
-			
-            
+
+
 		if ( (mode == MODE_TILE_HARDNESS))
 		  {
 		    /* Display the current "pencil"/square to draw hardness with */
@@ -4800,7 +4722,7 @@ void updateFrame(void)
 			int xx;
 			for (xx = 0; xx < selx; xx++)
 			  {
-						
+
 /* 			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k, */
 /* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
@@ -4812,41 +4734,41 @@ void updateFrame(void)
 			    }
 			  }
 		      }
-				
-				
+
+
 		  }
-			
+
 	      }
-		
-	
- 	
+
+
+
 
 	  }
 
       }
-		
-			
+
+
   //if (mode == 9)
   if (mode == MODE_UNKNOWN)
     {
       //mode = 8;
       mode = MODE_SCREEN_HARDNESS;
-	
-      fill_whole_hard();    
+
+      fill_whole_hard();
       while(kill_last_sprite());
       place_sprites();
-							
+
       /*	draw_map();
-        
-					
+
+
 		rcRect.top = 0;
 		rcRect.right = x;
 		rcRect.bottom = y;
 		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo,
 		&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-      */					
-      drawallhard();	 
-		
+      */
+      drawallhard();
+
       rcRect.left = 0;
       rcRect.right = 640;
       rcRect.top = 0;
@@ -4860,7 +4782,7 @@ void updateFrame(void)
       while(kill_last_sprite());
 
 
-  
+
 
 
     }
@@ -4873,17 +4795,17 @@ void updateFrame(void)
 /*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
 /*     { */
 /*       SetBkMode(hdc, TRANSPARENT);  */
-	
+
 /*       //   SetBkMode(hdc, OPAQUE); */
 /*       SetBkColor(hdc, 1); */
 /*       SetTextColor(hdc,RGB(200,200,200)); */
       FONTS_SetTextColor(200, 200, 200);
-	   
+
       //	TextOut(hdc,0,0, msg,lstrlen(msg));
       //	   if (mode == 0) strcpy(msg,"");
       if (mode == MODE_DIALOG)
 	strcpy(msg,"");
-	  
+
       if (mode == MODE_MAP_PICKER)
 	{
 	  if (20 * (spr[1].y / 20) != spr[1].y)
@@ -4897,7 +4819,7 @@ void updateFrame(void)
       if (mode == MODE_SCREEN_TILES)
 	{
 	  crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
-	  //((x-1) - (x / 12))*50, (x / 12) * 50, 
+	  //((x-1) - (x / 12))*50, (x / 12) * 50,
 	  sprintf(msg, "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
 		  "V to change vision, B to change maps base .C file.",mode,cur_map
 		  ,cur_tile, pam.t[crap].num);
@@ -4910,10 +4832,10 @@ void updateFrame(void)
 	  sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
 		  (spr[1].x / 9) -9,(spr[1].y / 9) +1,hmap.index[cur_tile], cur_tile);
 	}
-	   
+
       if (mode == MODE_SPRITE_PICKER)
 	{
-		   
+
 	  if (sp_seq == 0)
 	    {
 	      sprintf(msg, "Choose sequence and press ENTER.  ] for next page, [ for previous. ESC or TAB to exit. (now on page %d)",
@@ -4923,13 +4845,13 @@ void updateFrame(void)
 	      sprintf(msg, "Choose a sprite from sequence %d.  Enter to place sprite, TAB to exit or ESC to return to previous screen."
 		      " E to edit depth dot and hardbox",
 		      sp_seq);
-			   
+
 	    }
 	}
-	   
+
       if (mode == MODE_SCREEN_SPRITES)
 	{
-		   
+
 	  char crap7[10];
 	  if (sp_screenmatch) strcpy(crap7, "ScreenMatch is ON."); else strcpy(crap7, "ScreenMatch is OFF");
 
@@ -4937,54 +4859,54 @@ void updateFrame(void)
 		  "[ to scale (now at %d). DEL to erase sprite.  Press 1 through 9 to change sprite attributes. (shift for more)  Last sprite touched: %d  %s (M to toggle)"
 		  "Hold Z or X + arrow keys to trim a sprite. V to change Vision mode. X: %d Y: %d",
 		  spr[1].size,last_sprite_added,crap7, spr[1].x, spr[1].y);
-		   
-	  //lets draw the depth dot
-			
 
-		   
-		   
+	  //lets draw the depth dot
+
+
+
+
 	}
-	   
-	   
+
+
       if (mode == MODE_SPRITE_HARDNESS)
 	{
 
-	
+
 	  if (sp_mode == 0)
 	    {
 	      sprintf(msg, "Editting depth dot for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini.",
 		      sp_seq,sp_frame);
-		   
-	    }	   
-		   
+
+	    }
+
 	  if ( (sp_mode == 1) )
-		
+
 	    {
 	      sprintf(msg, "Editting hardbox up left cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
 		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.left,
 		      k[seq[sp_seq].frame[sp_frame]].hardbox.top);
-		   
-	    }	   
-		   
+
+	    }
+
 	  if ( (sp_mode == 2) )
-		
+
 	    {
 	      sprintf(msg, "Editting hardbox down right cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
 		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.right,
 		      k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);
-		   
-	    }	   
-	
- 
 
-   
+	    }
+
+
+
+
 
 
 	}
-	   
+
 
       if (mode == MODE_SCREEN_HARDNESS)
 	{
@@ -4996,7 +4918,7 @@ void updateFrame(void)
       {
 	int x;
 	for (x = 0; x < 256; x++)
-	  { 
+	  {
 	    if (GetKeyboard(x))
 	      {
 		sprintf(msg, "%s (Key %i)",msg,x);
@@ -5016,7 +4938,7 @@ void updateFrame(void)
 	  /* TODO: use Say() or Saysmall()? */
 	  print_text_wrap(msg, &rcRect, 0, 0);
 	}
-	   
+
 /*       lpDDSBack->ReleaseDC(hdc); */
 
 /*     } /\* GetDC(&hdc) *\/ */
@@ -5041,28 +4963,28 @@ void updateFrame(void)
 	    {
 	      if (pam.sprite[j].active == /*true*/1)
 		{
-         
+
 /* 		  ddbltfx.dwSize = sizeof(ddbltfx); */
 /* 		  ddbltfx.dwFillColor = 230; */
-	
+
 		  //info on the sprites  sprite info
 		  int temp = s_index[pam.sprite[j].seq].s + pam.sprite[j].frame;
-			
+
 
 		  int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
 						pam.sprite[j].seq,pam.sprite[j].frame,
 						pam.sprite[j].size);
-		  rect_copy(&spr[sprite2].alt , &pam.sprite[j].alt);                 
-				
+		  rect_copy(&spr[sprite2].alt , &pam.sprite[j].alt);
+
 		  get_box(sprite2, &box_crap, &box_real);
-                                
+
 		  spr[sprite2].active = /*false*/0;
 
 		  //box_crap.top = box_crpam.sprite[j].y - 25;
 		  box_crap.bottom = box_crap.top + 50;
 		  box_crap.left = box_crap.left + ( (box_crap.right - box_crap.left) / 2);
 		  box_crap.right = box_crap.left+ 50;
-				
+
 /* 		  ddrval = lpDDSBack->Blt(&box_crap ,k[seq[10].frame[5]].k,&k[seq[10].frame[5]].box, DDBLT_WAIT, &ddbltfx); */
 		  //       	if (ddrval != DD_OK) dderror(ddrval);
 		  // GFX
@@ -5078,19 +5000,19 @@ void updateFrame(void)
 		    SDL_BlitSurface(sprite, NULL, GFX_lpDDSBack, &dst);
 		    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 		  }
-				
+
 		  char crap5[200];
-		  
+
                   char crap6[20];
 
 		  strcpy(crap6,"");
 		  if (pam.sprite[j].hard == 0) strcpy(crap6,"HARD");
 
 		  sprintf(crap5, "B: %d %s",pam.sprite[j].brain,crap6);
-				
+
 		  if (pam.sprite[j].type == 0)
 		    {
-				
+
 		      SaySmall(crap5,box_crap.left+3,box_crap.top+3,255,255,255);
 		    }
 
@@ -5100,32 +5022,32 @@ void updateFrame(void)
 		    }
 		  if (strlen(pam.sprite[j].script) > 1)
 		    SaySmall(pam.sprite[j].script,box_crap.left+3,box_crap.top+35,255,0,0);
-				
+
 		  sprintf(crap6,"%d",j);
-			
+
 		  SaySmall(crap6,box_crap.left+20,box_crap.top-15,0,255,0);
-	
+
 
 		}
 	    }
 	}
-	
+
     }
   if (mode == MODE_SPRITE_HARDNESS)
     {
 /*       ddbltfx.dwSize = sizeof(ddbltfx); */
 /*       ddbltfx.dwFillColor = 230; */
-	
+
       if (sp_mode == 0)
 	{
 	  //draw depth dot for sprite attribute edit
-	  
+
 /* 	  box_crap.top = spr[2].y; */
 /* 	  box_crap.bottom = spr[2].y+1; */
 /* 	  box_crap.left = spr[2].x - 20; */
 /* 	  box_crap.right = spr[2].x + 20; */
-				
-				
+
+
 /* 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 /* 	  if (ddrval != DD_OK) dderror(ddrval); */
 	  // GFX
@@ -5142,8 +5064,8 @@ void updateFrame(void)
 /* 	  box_crap.bottom = spr[2].y+20; */
 /* 	  box_crap.left = spr[2].x; */
 /* 	  box_crap.right = spr[2].x +1; */
-				
-				
+
+
 /* 	  ddrval = lpDDSBack->Blt(&box_crap ,NULL,NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 /* 	  if (ddrval != DD_OK) dderror(ddrval); */
 	  // GFX
@@ -5160,9 +5082,9 @@ void updateFrame(void)
       if  ((sp_mode == 1) | (sp_mode == 2) )
 	{
 	  //draw hardbox dot for sprite attribute edit
-	  
+
 /* 	  box_crap = k[seq[sp_seq].frame[sp_frame]].hardbox; */
-	  
+
 /* 	  OffsetRect(&box_crap,320,200); */
 
 
@@ -5186,7 +5108,7 @@ void updateFrame(void)
       //text window is open, lets act accordingly
       //check_joystick();
 
-	
+
       if (getkey(SDLK_RETURN))
 	{
 
@@ -5197,46 +5119,46 @@ void updateFrame(void)
 	    {
 	      if (in_string != NULL)
 		{
-            
-		
+
+
 		  strcpy(in_string,in_temp);
-		 
-		   
+
+
 		} else Msg("Error, in_char pointer not set, can't issue a value.");
-		 
+
 	    }
 
-	
-         
+
+
 	  if (in_command == 1)
 	    {
 	      if (in_int != NULL)
 		{
 		  char *stop;
 		  int in_crap = strtol(in_temp, &stop,10);
-	    
+
 		  in_crap2 = in_crap;
-		
+
 		  if (   (old_command == 33) | (old_command == 34)  )
 		    {
 		      load_info();
 		    }
 
 		  *in_int = in_crap2;
-		
-		
-		
+
+
+
 		  if (   (old_command == 33) | (old_command == 34)  )
 		    {
 		      save_info();
 		    }
-		 
-		   
+
+
 		} else Msg("Error, in_int pointer not set, can't issue a value.");
-		 
+
 	    }
 
-		
+
 
 	  in_command = 0;
 
@@ -5256,9 +5178,9 @@ void updateFrame(void)
 		  sp_type = 1;
 		  sp_que = 0;
 		  sp_hard = 1;
-			
+
 		}
-			
+
 	      if (in_crap2 == 4)
 		{
 		  //default pig settings
@@ -5310,44 +5232,44 @@ void updateFrame(void)
 	      draw_map();
 
 	    }
-		
+
 	  in_enabled = /*false*/0;
-		
+
 	  if (mode == MODE_MAP_PICKER) if (old_command == 30)
 					 {
 					   draw_used_buff();
 					   return;
 					 }
-		
+
 	  if (mode == MODE_MAP_PICKER) if (old_command == 33)
 					 {
-		
+
 					   draw_used();
 					   return;
 					 }
-		
+
 	  if (mode == MODE_MAP_PICKER) if (old_command == 34)
 					 {
-		
+
 					   Msg("drawing used");
 					   draw_used();
 					   return;
 					 }
-		
+
 
 	  draw_map();
-	
-	  return;	
+
+	  return;
 	}
-	
+
       if (sjoy.key[SDLK_BACKSPACE])
 
 	//	if (getkey(8)) //this is a much faster backspace than the above
 	{
 	  if (strlen(in_temp) > 0)
 	    in_temp[strlen(in_temp)-1] = 0;
-		
-	} 
+
+	}
 
 
       if (in_max > strlen(in_temp))
@@ -5356,12 +5278,12 @@ void updateFrame(void)
 	  for (x = 32; x < 255; x++)
 	    {
 	      if (sjoy.key[x])
-		
+
 		{
 		  int key = key_convert(x);
-		  
+
 		  sprintf(in_temp, "%s%c",in_temp,key);
-		
+
 		}
 	    }
 	}
@@ -5387,13 +5309,13 @@ void updateFrame(void)
       // TODO: use copy_front_to_two()
       SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
 
-		
+
       strcpy(in_temp,in_default);
       in_x = 270;
       in_y = 190;
       in_onflag = /*false*/0;
       in_enabled = /*true*/1;
-         
+
 
 
     }
@@ -5406,7 +5328,7 @@ void updateFrame(void)
   if (GetKeyboard(SDLK_SPACE) && (mode != 1))
     {
       drawallhard();
-						
+
     }
 
 
@@ -5414,7 +5336,7 @@ void updateFrame(void)
 
   if (draw_map_tiny != -1)
     {
-          
+
       int huh = 0;
       //if (draw_map_tiny > 32) huh = 1;
       shrink_screen_to_these_cords(  (draw_map_tiny-1) * 20 - ((((draw_map_tiny-1) / 32) * 640) )   ,   ((((draw_map_tiny-1) / 32)- huh) * 20));
@@ -5426,7 +5348,7 @@ void updateFrame(void)
 
 /*   if (!windowed) */
 /*     { */
-	
+
 /*       while( 1 ) */
 /* 	{ */
 /* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
@@ -5444,7 +5366,7 @@ void updateFrame(void)
 /* 	    } */
 /* 	  if( ddrval != DDERR_WASSTILLDRAWING ) */
 /* 	    { */
-			
+
 /* 	      dderror(ddrval); */
 /* 	    } */
 /* 	}  */
@@ -5452,7 +5374,7 @@ void updateFrame(void)
 /*       if (draw_map_tiny != -1)  */
 /* 	{ */
 	  //extra flip
-		
+
 /* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
 /* 	} */
 
@@ -5462,23 +5384,23 @@ void updateFrame(void)
       /* Replaced by a call to flip_it_second() */
       flip_it_second();
       /*
-      //windowed mode, no flipping		 
-      p.x = 0; p.y = 0;    
+      //windowed mode, no flipping
+      p.x = 0; p.y = 0;
       ClientToScreen(hWndMain, &p);
       GetClientRect(hWndMain, &rcRectDest);
-	
+
       //rcRectDest.top += winoffset;
       rcRectDest.bottom = 480;
       rcRectDest.right = 640;
-	
+
       OffsetRect(&rcRectDest, p.x, p.y);
       SetRect(&rcRectSrc, 0, 0, 640, 480);
-	
-	
-	
-				
+
+
+
+
       ddbltfx.dwSize = sizeof(ddbltfx);
-	
+
       ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
       ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
       */
@@ -5494,7 +5416,7 @@ void updateFrame(void)
 void finiObjects( void )
 {
   printf("Running cleanup (finiObjects)\n");
-	  
+
 /* 	  if( lpDD != NULL ) */
 /* 	  { */
 /* 		  if( lpDDSPrimary != NULL ) */
@@ -5502,14 +5424,14 @@ void finiObjects( void )
 /* 			  lpDDSPrimary->Release(); */
 /* 			  lpDDSPrimary = NULL; */
 /* 		  } */
-		  
+
 /* 		  if( lpDDSTwo != NULL ) */
 /* 		  { */
 /* 			  lpDDSTwo->Release(); */
 /* 			  lpDDSTwo = NULL; */
 /* 		  } */
-		  
-		  
+
+
 /* 		  if( lpDDPal != NULL ) */
 /* 		  { */
 /* 			  lpDDPal->Release(); */
@@ -5519,7 +5441,7 @@ void finiObjects( void )
 /* 		  lpDD = NULL; */
 /* 	  } */
 
-	   
+
 /* 	  //destroy direct input mouse stuff */
 /* 	  if (g_pdi)      g_pdi   ->Release(), g_pdi    = NULL; */
 
@@ -5533,13 +5455,13 @@ void finiObjects( void )
 if (sound_on)
 	  DestroySound();
 
-	FastFileFini(); 
+	FastFileFini();
 	void kill_fonts();
 	kill_fonts();
 
 
   } /* finiObjects */
-  
+
 /* long FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
 /* 			   WPARAM wParam, LPARAM lParam) */
 /* { */
@@ -5548,50 +5470,50 @@ if (sound_on)
 /* 	  case WM_ACTIVATEAPP: */
 /* 		  bActive = wParam; */
 /* 		  break; */
-		  
+
 /* 	  case WM_SETCURSOR: */
 /* 		  SetCursor(NULL); */
 /* 		  return /\*TRUE*\/1; */
-		  
+
 /* 	  case WM_CREATE: */
 /* 		  break; */
-		  
+
 /* 	  case WM_KEYDOWN: */
 /* 		  switch( wParam ) */
 /* 		  { */
 /* 		  case 'Q' /\* 81 *\/: */
-			  
-			  
+
+
 /* 			  if (mode == MODE_MAP_PICKER) */
 /* 			  { */
-				  
+
 /* 				  save_hard(); */
 /* 				  Msg("Info saved."); */
 /* 				  PostMessage(hWnd, WM_CLOSE, 0, 0); */
 /* 			  } */
 /* 			  break; */
-			  
+
 /*         		case VK_F1: */
 /* 					{ */
 /* 					Msg("F1 pressed"); */
 /* 					} */
 /* 					break; */
-					
-					
+
+
 /* 		  } */
 /* 		  break; */
-		  
+
 /* 		  case WM_DESTROY: */
 /* 			  finiObjects(); */
 /* 			  PostQuitMessage( 0 ); */
 /* 			  break; */
 /* 	  } */
-	  
+
 /* 	  return DefWindowProc(hWnd, message, wParam, lParam); */
-	  
+
 /*   } /\* WindowProc *\/ */
-  
-  
+
+
 
 /*
  * This function is called if the initialization function fails
@@ -5605,7 +5527,7 @@ if (sound_on)
 /* 	  DestroyWindow( hwnd ); */
     return /*FALSE*/0;
 } /* initFail */
-  
+
 
 /**
  * Prints the version on the standard ouput. Based on the homonymous
@@ -5656,7 +5578,7 @@ print_help (int argc, char *argv[])
   /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
      '-window' (with one dash '-' only) are required to maintain
      backward compatibility with the original game */
-  struct option long_options[] = 
+  struct option long_options[] =
     {
       {"debug",   no_argument,       NULL, 'd'},
       /* {"fontdir", required_argument, NULL, 'f'}, */
@@ -5669,7 +5591,7 @@ print_help (int argc, char *argv[])
       {"window",  no_argument,       NULL, 'w'},
       {0, 0, 0, 0}
     };
-  
+
   /* char short_options[] = "df:g:hijsvw"; */
   /* char *default_fontdir = "../fonts/"; */
   char short_options[] = "dg:hijsvw";
@@ -5711,78 +5633,78 @@ print_help (int argc, char *argv[])
 	  windowed = 1;
 	  // Beuc: enabling transition is more fun :)
 	  //no_transition = true;
-	  break;	
+	  break;
       default:
 	exit (EXIT_FAILURE);
       }
     }
-	
-  if (chdir(dir) == -1) 
+
+  if (chdir(dir) == -1)
     {
       char message[200];
       sprintf(message, "Game dir \"%s\" not found!", dir);
       // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
-      
+
       initFail(message);
       return 0;
-    }	  
-  
+    }
+
   Msg("Dir is now %s.", dir);
   return 1;
 }
-  
+
 void load_batch(void)
 {
   char tmp_filename[PATH_MAX];
-	  FILE *stream;  
+	  FILE *stream;
 	  char line[255];
 
-	  Msg("Loading .ini");	  
-	  if (!exist("dink.ini")) 
+	  Msg("Loading .ini");
+	  if (!exist("dink.ini"))
 		  	  {
-	Msg("File not found.");	  
-	  	
+	Msg("File not found.");
+
 		  sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
 		 TRACE(line);
-		  
+
 	  }
 
 	  /* Open the text file in binary mode, so it's read the same
 	     way under different OSes (Unix has no text mode) */
-	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb" )) != NULL )   
+	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb" )) != NULL )
 	  {
-		  
+
 		  while(1)
 		  {
-			  if( fgets( line, 255, stream ) == NULL) 
+			  if( fgets( line, 255, stream ) == NULL)
 				  goto done;
-			  else    
+			  else
 			  {
-				  
+
 				  pre_figure_out(line, 0);
 			  }
-			  
+
 		  }
-		  
+
 done:
-	
+
 		      program_idata();
 
-		  
-		  fclose( stream );  
+
+		  fclose( stream );
 	  } else
 	  {
 		  TRACE("Dink.ini missing.");
 	  }
-	  
+
   }
-  
-  
 
 
-  
 
-  
+
+
+
+
 int SInitSound()
 {
   int i;
@@ -5826,7 +5748,7 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	  /*
 	  * set up and register window class
 	  */
-	  
+
 	  //initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
        dinkedit = /*true*/1;
 
@@ -5841,11 +5763,11 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  wc.lpszMenuName = NAME; */
 /* 	  wc.lpszClassName = NAME; */
 /* 	  RegisterClass( &wc ); */
-	  
+
 	  /*
 	  * create a window
 	  */
-	  
+
 	  windowed = /*false*/0;
 	  check_arg(argc, argv);
 
@@ -5856,12 +5778,12 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 			  NAME, */
 /* 			  TITLE, */
 /* 			  //        WS_POPUP, */
-			  
+
 /* 			  WS_SYSMENU|WS_CAPTION, */
-			  
+
 /* 			  0, */
 /* 			  0, */
-			  
+
 /* 			  640+winoffsetx, 480+winoffset, */
 /* 			  //        GetSystemMetrics(SM_CXSCREEN), */
 /* 			  //      GetSystemMetrics(SM_CYSCREEN), */
@@ -5870,17 +5792,17 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 			  hInstance, */
 /* 			  NULL ); */
 /* 		  hWndMain = hwnd;    */
-		  
+
 /* 		  if( !hwnd ) */
 /* 		  { */
 /* 			  return FALSE; */
 /* 		  } */
-		  
-		  
+
+
 /* 		  ShowWindow( hwnd, nCmdShow ); */
 /* 		  UpdateWindow( hwnd ); */
 /* 		  SetFocus( hwnd ); */
-		  
+
 /* 		  /\* */
 /* 		  * create the main DirectDraw object */
 /* 		  *\/ */
@@ -5889,36 +5811,36 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 		  { */
 /* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
 /* 		  } */
-		  
+
 /* 		  // Get exclusive mode */
-		  
-		  
+
+
 /* 		  // using DDSCL_NORMAL means we will coexist with GDI */
 /* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL ); */
-		  
+
 /* 		  if( ddrval != DD_OK )   */
 /* 		  {         */
 /* 			  lpDD->Release();  */
 /* 			  return initFail(hwnd, "Couldn't make windowed screen."); */
-			  
+
 /* 		  }    */
 /* 		  memset( &ddsd, 0, sizeof(ddsd) ); */
 /* 		  ddsd.dwSize = sizeof( ddsd ); */
 /* 		  ddsd.dwFlags = DDSD_CAPS; */
 /* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE; */
-		  
+
 /* 		  // The primary surface is not a page flipping surface this time */
 /* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
-		  
+
 /* 		  if( ddrval != DD_OK )     */
 /* 		  {        lpDD->Release();   */
 /* 		  return initFail(hwnd, "Couldn't make primary surface."); */
-		  
-		  
+
+
 /* 		  }  */
-		  
-		  
-		  
+
+
+
 /* 		  memset( &ddsd, 0, sizeof(ddsd) );  */
 /* 		  ddsd.dwSize = sizeof( ddsd ); */
 /* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH; */
@@ -5928,37 +5850,37 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSBack, NULL ); */
 /* 		  if( ddrval != DD_OK ) */
 /* 		  {        lpClipper-> Release(); */
-		  
+
 /* 		  lpDDSPrimary->Release();     */
 /* 		  lpDD->Release();  */
 /* 		  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode."); */
-		  
-		  
+
+
 /* 		  }    */
-		  
+
 
 		  // Create a clipper to ensure that our drawing stays inside our window
 /* 	  ddrval = lpDD->CreateClipper( 0, &lpClipper, NULL ); */
 /* 	  if( ddrval != DD_OK )    */
 /* 	  {       */
 /* 		  lpDDSPrimary->Release(); */
-		  
+
 /* 		  lpDD->Release();   */
 /* 		  return initFail(hwnd, "Couldn't make a Clipper object, god knows why."); */
-		  
+
 /* 	  } */
-	  
-	  
+
+
 /* 	  // setting it to our hwnd gives the clipper the coordinates from our window */
 /* 	  ddrval = lpClipper->SetHWnd( 0, hwnd );    */
 /* 	  if( ddrval != DD_OK )   */
 /* 	  { */
 /* 		  lpClipper-> Release();    */
 /* 		  lpDDSPrimary->Release(); */
-		  
+
 /* 		  lpDD->Release();      */
 /* 		  return initFail(hwnd, "Couldn't give Clipper window cords."); */
-		  
+
 /* 	  } */
 /* 	  // attach the clipper to the primary surface */
 /* 	  ddrval = lpDDSPrimary->SetClipper( lpClipper );  */
@@ -5967,27 +5889,27 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 		  lpClipper-> Release();    */
 /* 		  lpDDSPrimary->Release(); */
 /* 		  lpDD->Release();     */
-		  
+
 /* 		  return initFail(hwnd, "Couldn't attach Clipper to primary buffer."); */
 /* 	  } */
-	  
+
 
 /* 	  } */
-	  
-	  
-	  
-	  
+
+
+
+
 /* 	  if (!windowed) */
 /* 	  { */
-		  
+
 /* 		  hwnd = CreateWindowEx( */
 /* 			  0, */
 /* 			  NAME, */
 /* 			  TITLE, */
 /* 			  WS_POPUP, */
-			  
+
 /* 			  //WS_SYSMENU|WS_CAPTION, */
-			  
+
 /* 			  0, */
 /* 			  0, */
 /* 			  640, 480, */
@@ -5998,16 +5920,16 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 			  hInstance, */
 /* 			  NULL ); */
 /* 		  hWndMain = hwnd;    */
-		  
+
 /* 		  if( !hwnd ) */
 /* 		  { */
 /* 			  return FALSE; */
 /* 		  } */
-		  
+
 /* 		  ShowWindow( hwnd, nCmdShow ); */
 /* 		  UpdateWindow( hwnd ); */
 /* 		  SetFocus( hwnd ); */
-		  
+
 /* 		  /\* */
 /* 		  * create the main DirectDraw object */
 /* 		  *\/ */
@@ -6017,44 +5939,44 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
 /* 		  } */
 /* //		  	  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
-		  
+
 /* 		  // Get exclusive mode */
-		  
-		  
+
+
 /* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN ); */
-		  
-		  
+
+
 /* 		  if( ddrval != DD_OK ) */
 /* 		  { */
 /* 			  return initFail(hwnd, "Whatup?  Couldn't set to full screen."); */
 /* 		  } */
-		  
+
 /* 		  // Set the video mode to 640x480x8 */
 /* 		  ddrval = lpDD->SetDisplayMode( x, y, 8); */
 /* 		  if(ddrval != DD_OK) */
 /* 		  { */
 /* 			  return initFail(hwnd, "640 X 480, 8 bit not supported."); */
 /* 		  } */
-		  
+
 /* 		  // Create the primary surface with 1 back buffer */
-		  
+
 /* 		  ddsd.dwSize = sizeof( ddsd ); */
 /* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; */
 /* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | */
 /* 			  DDSCAPS_FLIP | */
 /* 			  DDSCAPS_COMPLEX; */
-		  
-		  
-		  
+
+
+
 /* 		  ddsd.dwBackBufferCount = 1; */
 /* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
 /* 		  if( ddrval != DD_OK ) */
 /* 		  { */
 /* 			  return initFail(hwnd, "Could not create primary surface."); */
 /* 		  } */
-		  
+
 /* 		  ddscaps.dwCaps = DDSCAPS_BACKBUFFER; */
-		  
+
 /* 		  /\* if (ddsd.ddsCaps.dwCaps == DDCAPS_BLTSTRETCH) */
 /* 		  { */
 /* 		  return initFail(hwnd, "Hardware blit stretching available."); */
@@ -6065,12 +5987,12 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 		  { */
 /* 			  return initFail(hwnd, "Could not create backbuffer,"); */
 /* 		  } */
-		  
+
 /* 	  } */
-	  
-	  
+
+
 	  //done with major initting of graphics engine
-	  
+
 
   /* New initialization */
   if (init() == 0)
@@ -6078,22 +6000,22 @@ static /*BOOL*/int doInit(int argc, char *argv[])
       exit(1);
     }
 
-	  
+
   memset(&hm, 0, sizeof(struct hit_map));
-		
-	  
+
+
 		//return initFail(hwnd, "CHEESEBURGERS RULE!");
-	  
+
 	  // create and set the palette
 
-	  sprintf(tdir, "TILES/ESPLASH.BMP");	  
+	  sprintf(tdir, "TILES/ESPLASH.BMP");
      if (!exist(tdir))
 	{
-        sprintf(tdir, "../DINK/TILES/ESPLASH.BMP");	  
-	
-		
+        sprintf(tdir, "../DINK/TILES/ESPLASH.BMP");
+
+
 	}
-	Msg("Checking %s", tdir);	
+	Msg("Checking %s", tdir);
 
 if (!exist(tdir))
 	{
@@ -6103,7 +6025,7 @@ if (!exist(tdir))
 /* 	  lpDDPal = DDLoadPalette(lpDD, tdir); */
 	  // GFX
 	  load_palette_from_bmp(tdir, GFX_real_pal);
-	  
+
 /* 	  if (lpDDPal) */
 /* 	    { */
 /* 	      lpDDSPrimary->SetPalette(lpDDPal); */
@@ -6128,14 +6050,14 @@ if (!exist(tdir))
 	  // GFX
 	  // needed?
 
-	  
+
 	  rcRect.left = 0;
 	  rcRect.top = 0;
 	  rcRect.right = x;
 	  rcRect.bottom = y;
-	  
+
 	  //if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
-	  
+
 /* 	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
 /* 					 &rcRect, DDBLTFAST_NOCOLORKEY); */
 
@@ -6143,7 +6065,7 @@ if (!exist(tdir))
 	  // GFX
 	  {
 	    change_screen_palette(GFX_real_pal);
-	    
+
 	    /* When a new image is loaded in DX, it's color-converted
 	       using the main palette (possibly altering the colors to
 	       match the palette); currently we emulate that by
@@ -6159,7 +6081,7 @@ if (!exist(tdir))
 
 	  flip_it_second();
 
-    load_batch();	
+    load_batch();
 
 
 
@@ -6167,15 +6089,15 @@ if (!exist(tdir))
     //game[15] = DDSetColorKey(game[15], RGB(0,0,0));
 load_hard();
 
-	  
+
 
 /*  for (int oo = 1; oo < 9; oo++)
   {
   sprintf(crap, "TILES\\S%d.BMP",oo);
-  
+
      if (!exist(crap))  sprintf(crap, "..\\DINK\\TILES\\S%d.BMP",oo);
-  
-    k[oo].k = DDSethLoad(lpDD, crap, 0, 0,oo); 
+
+    k[oo].k = DDSethLoad(lpDD, crap, 0, 0,oo);
 	if( k[oo].k == NULL )
     {
 		return initFail(hwnd, "Couldn't find a sprite.");
@@ -6192,7 +6114,7 @@ load_hard();
 
 // Load the tiles from the BMPs
  load_tiles();
-	
+
  {
    int i;
    for (i = 1; i <= 4; i++)
@@ -6245,7 +6167,7 @@ load_hard();
     seq[1].delay[2] = 50;
     seq[1].delay[3] = 50;
     seq[1].delay[4] = 50;
-    
+
 	seq[2].frame[1] = seq[10].frame[4];
     seq[2].frame[2] = seq[10].frame[4];
     seq[2].frame[3] = seq[10].frame[4];
@@ -6265,7 +6187,7 @@ load_hard();
     seq[3].delay[2] = 5;
     seq[3].delay[3] = 5;
     seq[3].delay[4] = 5;
- 
+
 	seq[4].frame[1] = seq[10].frame[1];
     seq[4].frame[2] = seq[10].frame[1];
     seq[4].frame[3] = 0;
@@ -6275,36 +6197,36 @@ load_hard();
     seq[4].delay[2] = 2;
     seq[4].delay[3] = 2;
     seq[4].delay[4] = 2;
-	
-	
+
+
 
 	if (sound_on) SInitSound();
 	//Go Pap!!
 	//	PlayMidi("sound\\TOP.MID");
     mode = MODE_DIALOG;
-    cur_tile = 1; 
-	load_info();        
+    cur_tile = 1;
+	load_info();
 /* initfonts("Arial"); */
   // FONTS
 	FONTS_initfonts("../LiberationSans-Regular.ttf");
 /*   FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf"); */
   FONTS_SetFont(FONTS_hfont_small);
 
-	
+
 //	 Msg("Hi, you suck.");
-	
+
 
 	memset(&sjoy,0,sizeof(sjoy)); //clear key/joystick values
 
 
 playl = 20;
-playx = 620;	
+playx = 620;
 playy = 480;
 sp_seq = 0;
 
 // init_mouse(hwnd);
 
-	
+
 // g_pMouse->Acquire();
 
 
@@ -6342,33 +6264,33 @@ void getdir(char *dir, char *final)
 int main(int argc, char *argv[])
 {
 /*   MSG msg; */
-  
+
   char dir_temp[256], dir_final[256];
 #ifdef _WIN32
   getdir(dir_temp, dir_final);
 #else
   strcpy(dir_final, ".");
 #endif
-  
+
   strcpy(dinkpath, dir_final);
 /*   printf("Switching to dir %s.",dinkpath); */
-  if (chdir(dinkpath)) 
+  if (chdir(dinkpath))
     {
       char crap[255];
       sprintf(crap, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
       initFail(crap);
-      return(0);   
+      return(0);
     }
-  
+
 /*   lpCmdLine = lpCmdLine; */
 /*   command_line = lpCmdLine;  */
 /*   MyhInstance = hInstance; */
 /*   hPrevInstance = hPrevInstance; */
-  
+
   if(!doInit(argc, argv))
     return /*FALSE*/0;
-  
-  
+
+
   while(1)
     {
       SDL_Event event;
@@ -6383,8 +6305,8 @@ int main(int argc, char *argv[])
 
       updateFrame();
     }
-  
-  return(/*true*/1); 
+
+  return(/*true*/1);
 }
 
 
@@ -6395,7 +6317,7 @@ getkey(int key)
   if (sjoy.realkey[key])
     return(/*true*/1);
   else
-    return(/*false*/0);      
+    return(/*false*/0);
 }
 
 /* Human-readable representation of the keycode, used to display which
@@ -6407,10 +6329,10 @@ char
 key_convert(int key)
 {
   if (SDL_GetModState()&KMOD_SHIFT) key = toupper(key);
-  
+
   if (key == 190 /* VK_OEM_PERIOD */) if (SDL_GetModState()&KMOD_SHIFT) key = '>'; else key = '.';
   if (key == 188 /* VK_OEM_COMMA */) if (SDL_GetModState()&KMOD_SHIFT) key = '<'; else key = ',';
-  
+
   if (key == '1') if (SDL_GetModState()&KMOD_SHIFT) key = '!';
   if (key == '2') if (SDL_GetModState()&KMOD_SHIFT) key = '@';
   if (key == '3') if (SDL_GetModState()&KMOD_SHIFT) key = '#';
@@ -6418,16 +6340,16 @@ key_convert(int key)
   if (key == '5') if (SDL_GetModState()&KMOD_SHIFT) key = '%';
   if (key == '6') if (SDL_GetModState()&KMOD_SHIFT) key = '^';
   if (key == '7') if (SDL_GetModState()&KMOD_SHIFT) key = '&';
-  if (key == '8') if (SDL_GetModState()&KMOD_SHIFT) key = '*'; 
-  if (key == '9') if (SDL_GetModState()&KMOD_SHIFT) key = '('; 
-  if (key == '0') if (SDL_GetModState()&KMOD_SHIFT) key = ')'; 
-  
+  if (key == '8') if (SDL_GetModState()&KMOD_SHIFT) key = '*';
+  if (key == '9') if (SDL_GetModState()&KMOD_SHIFT) key = '(';
+  if (key == '0') if (SDL_GetModState()&KMOD_SHIFT) key = ')';
+
   if (key == 189 /* VK_OEM_MINUS */) if (SDL_GetModState()&KMOD_SHIFT) key = '_'; else key = '-';
   if (key == 187 /* VK_OEM_PLUS */) if (SDL_GetModState()&KMOD_SHIFT) key = '+'; else key = '=';
   if (key == 186 /* VK_OEM_1 */) if (SDL_GetModState()&KMOD_SHIFT) key = ':'; else key = ';';
   if (key == 222 /* VK_OEM_7 */) if (SDL_GetModState()&KMOD_SHIFT) key = '\"'; else key = '\'';
   if (key == 191 /* VK_OEM_2 */) if (SDL_GetModState()&KMOD_SHIFT) key = '?'; else key = '/';
   if (key == 220 /* VK_OEM_5 */) if (SDL_GetModState()&KMOD_SHIFT) key = '|'; else key = '\\';
-  
-  return(key); 
+
+  return(key);
 }
