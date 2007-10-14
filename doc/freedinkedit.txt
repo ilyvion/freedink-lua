@@ -1,0 +1,10 @@
+Tricky editor commands
+======================
+
+Warp
+----
+
+Go the warp destination screen and position. Type Alt+W. Then go to
+the warp sprite. Click on it to select it. Type Alt+W again to fill
+the warp_map / warp_x / warp_y fields. You normaly define those fields
+using Shift+1 / Shift+2 / Shift+3.

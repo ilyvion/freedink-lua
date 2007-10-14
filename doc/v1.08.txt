@@ -76,6 +76,10 @@ the active_sprite was actively moving (through move and move_stop
 commands).In 1.08+, the move_no_hard value should take effect at all
 times."
 
+entry for show_bmp():
+"1.07 had a couple bugs displaying the map dot: it would not be
+displayed properly if Dink was warped using DinkC or if he was on the
+32nd screen of any row.  This has been fixed in 1.08+."
 
 [TODO]
 
