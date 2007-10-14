@@ -27,3 +27,8 @@ freedink.xml.old
 # my build dirs:
 cross
 native
+# links to dinkdir for testing
+dink
+# NCC
+*.nccout
+.tmp.c
