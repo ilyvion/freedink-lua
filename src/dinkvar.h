@@ -203,10 +203,10 @@ struct seth_joy
   /*BOOL*/int letgo[17]; //copy of old above
   /*BOOL*/int button[17]; //has button been pressed recently?
 
-  /*BOOL*/int key[256]; /* true if key was just pressed, false is kept
+  /*BOOL*/int key[SDLK_LAST]; /* true if key was just pressed, false is kept
 		    pressed or released; reset before each loop */
-  /*BOOL*/int kletgo[256]; /* non-reset "is released?" value; used to set .key */
-  /*bool*/int realkey[256]; /* current GetAsyncKeyState value, in cache */
+  /*BOOL*/int kletgo[SDLK_LAST]; /* non-reset "is released?" value; used to set .key */
+  /*bool*/int realkey[SDLK_LAST]; /* current GetAsyncKeyState value, in cache */
 
   /*BOOL*/int right,left,up,down;
   /*BOOL*/int rightd,leftd,upd,downd;
