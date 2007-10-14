@@ -139,7 +139,10 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
     image = SDL_LoadBMP(ciconvertbuf(filename, tmp_filename));
 
   if (image == NULL)
-    return NULL;
+    {
+      fprintf(stderr, "load_bmp_internal: %s\n", SDL_GetError());
+      return NULL;
+    }
 
   /* Copy the surface */
   /* TODO: how about using SDL_DisplayFormat()? */
