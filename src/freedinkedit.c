@@ -74,6 +74,7 @@
 
 #include "SDL.h"
 #include "SDL_rotozoom.h"
+#include "SDL_framerate.h"
 
 #include "init.h"
 #include "dinkvar.h"
@@ -2327,6 +2328,8 @@ void updateFrame(void)
   int crap;
 
   int jj;
+
+  SDL_framerateDelay(&framerate_manager);
 
   // Decide which frame will be blitted next
   thisTickCount = SDL_GetTicks();
