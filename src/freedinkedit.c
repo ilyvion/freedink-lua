@@ -891,7 +891,7 @@ void check_keyboard(void)
      indicates if the key was pressed since the last call. */
 
   /* Check if the key was just pressed, or only maintained pressed */
-  for (x = 1; x <= 255; x++)
+  for (x = 1; x < SDLK_LAST; x++)
     {
       /* Put the current keyboard state in cache */
       /* getkey() then can check sjoy.realkey - that is, from the cache */
@@ -3227,20 +3227,24 @@ void updateFrame(void)
 			  }
 
 
-			if (spr[1].size < 1) spr[1].size = 1;
+			if (spr[1].size < 1)
+			  spr[1].size = 1;
 
-
+			/* Precise positionning: move the sprite just
+			   1 pixel left/right/up/down, then don't do
+			   move until an arrow key is released and
+			   pressed again. */
 			if (SDL_GetModState()&KMOD_CTRL)
 			  {
 			    if (sjoy.key[SDLK_RIGHT /* 39 */])
 			      {
-
+				
 				sp_cycle = 0;
-
+				
 				spr[h].x += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-
+			    
 			    if (sjoy.key[SDLK_LEFT /* 37 */])
 			      {
 				spr[h].x -= spr[h].speed +modif;
@@ -3253,16 +3257,16 @@ void updateFrame(void)
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-
+			    
 			    if (sjoy.key[SDLK_DOWN /* 40 */])
 			      {
 				spr[h].y += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-
-			  } else
-
+			    
+			  }
+			else
 			  {
 			    if (sjoy.right)
 			      {
@@ -5278,7 +5282,7 @@ void updateFrame(void)
       if (in_max > strlen(in_temp))
 	{
 	  int x;
-	  for (x = 32; x < 255; x++)
+	  for (x = 32; x < SDLK_LAST; x++)
 	    {
 	      if (sjoy.key[x])
 
