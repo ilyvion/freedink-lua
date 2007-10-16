@@ -3541,7 +3541,7 @@ void updateFrame(void)
 			    }
 
 			  /* if (sjoy.key[VK_OEM_4 /\* 219 *\/]) // '[' for US */
-			  if (GetKeyboard(SDLK_LEFTBRACKET))
+			  if (sjoy.key[SDLK_LEFTBRACKET])
 			    {
 			      if (sp_picker > 95) sp_picker -= 96; else
 				{
@@ -3550,7 +3550,7 @@ void updateFrame(void)
 			      draw15(sp_picker);
 			    }
 			    /* if (sjoy.key[VK_OEM_6 /\* 221 *\/]) // ']' for US */
-			  if (GetKeyboard(SDLK_RIGHTBRACKET))
+			  if (sjoy.key[SDLK_RIGHTBRACKET])
 			    {
 			      if (sp_picker < 400) sp_picker += 96;
 			      draw15(sp_picker);
