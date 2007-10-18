@@ -1,0 +1,91 @@
+I've been concerned with the additional external data I introduced in
+FreeDink, namely the non-.ico icon file for use by SDL, the default
+font, and the 2 editor sounds. For ease of use, it would be best if
+those files could be embedded within the executable. The program will
+thus work even if data is not installed to /usr/share/freedink yet,
+and we won't have troubles finding out where to put those files under
+Woe.
+
+For the icon, the solution is simple: it's distributed as part of the
+Dink original source, compatible with the GNU GPL, thus it can be
+embedded directly in the executable at link time. So I converted it to
+the XPM format, which is actually a C source file containing an array
+of pixels. It's compiled as a .o and is linked with the application.
+
+For the font, and possibly for the editor sounds as well, we are
+dealing with data that are not compatible with the GNU GPL. I tried to
+find an Arial-lookalike font, but alas, the only decent fonts I found
+are the Liberation fonts which are GPL + exceptions/restrictions, and
+the Bitstream Vera-based fonts such as Arkpandora which uses a custom
+weird license. Both are incompatible with the GNU GPL. After asking
+licensing@gnu.org [gnu.org #344795] it appears that linking such data
+as .o makes them a combined work with FreeDink, so the data needs to
+be compatible with the GNU GPL, even if it is generic data. I also
+tried to find non-Arial GPL'd fonts; I used FreeSans from "Free UCS
+Outline Fonts" (http://savannah.nongnu.org/projects/freefont) but that
+didn't look very good in the engine (ugly antialiasing); maybe this
+works fine with something else than FreeType though.
+
+We're definitely in need of others ways to embed data.
+
+
+So first way was essentially "convert to .c source file".
+
+Other ways are more clearly separated from the executable and thus do
+not have license compatibility issues.
+
+
+First, we can use resources if the executable format supports
+them. That's the original Dinkedit solution, and this concerns Windows
+(PE/COFF executable format). The Woe API has functions to access such
+data reasonably easily (FindResource, LoadResource, LockResource,
+SizeofResource). Unfortunately there doesn't seem to be a similar
+feature in other executable formats. Furthermore, this would require a
+treatment for each executable format, possibly for each platform. Most
+OSes now use the ELF format though, but I couldn't find documentation
+about storing separate data resources in an ELF executable. I only
+found elfrc (http://ktown.kde.org/~frerich/elfrc.html) which works at
+the linker level (it produces .o files) - ie this just like the XPM
+solution except that works on any file format. If we find a way to
+replace sections of the ELF executable with arbitrary data, that would
+work, and I find that solution elegant. Meanwhile, we'll have to find
+something else.
+
+
+Self-extracting archives are another widespread way to bundle data
+within an executable. The data is simply appened at the end of the
+executable, and the program opens itself at run-time (finding itself
+is already non-trivial under Unix, but looks at Autopackage's
+(Linux-specific) binreloc, Gnulib's portable relocatable-prog module,
+elfrc's findPathToSelf, or a generic description at
+http://plan99.net/~isak/apkg-doc/devguide/autopackage.html#id2530987). There
+are also techniques based on shell scripts (see makeself(1) -
+http://www.megastep.org/makeself/) but we're talking real, compiled
+executables here.
+
+The program also needs to find where exactly the data is stored. Some
+archives modify the headers of the extracting code (the "stub"), see
+for example "How to Write a Simple Packer/Unpacker with a
+Self-Extractor (SFX)" at http://www.codeproject.com/file/packersfx.asp
+which uses unused sections of the IMAGE_DOS_HEADER. Other archivers
+just browse the whole file for a signature and start there. As far as
+I remember this is how 7-zip works. This technique allows to open
+self-extracting archives without actually executing them, and this is
+especially useful when you cannot do that because the stub is written
+for a different platform (eg accessing a self-extracting .exe under
+GNU/Linux). Chances are that other zip libraries can do that (opening
+a zip archive that do not start at the beginning of a file). I can see
+two main zip free libraries: libzip (http://www.nih.at/libzip/) and
+zziplib (http://zziplib.sourceforge.net/).
+
+
+So what I suggest is trying to zip the necessary resources, cat them
+to the end of our executables independently of the executable
+format/platform, embed a zip library within FreeDink and have our
+applications grab the data by opening themselves at runtime. This
+solution is based on existing technologies and should not be hard/long
+to implement.
+
+We need a bit of work to integrate this in the build system though,
+and test whether strip/upx-ucl/etc. do not break the whole thing. An
+automake hook should do the trick.
