@@ -134,9 +134,9 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
   char tmp_filename[PATH_MAX];
 
   if (from_mem == 1)
-    image = SDL_LoadBMP_RW(rw, 0);
+    image = IMG_Load_RW(rw, 0);
   else
-    image = SDL_LoadBMP(ciconvertbuf(filename, tmp_filename));
+    image = IMG_Load(ciconvertbuf(filename, tmp_filename));
 
   if (image == NULL)
     {

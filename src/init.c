@@ -146,7 +146,7 @@ int init(void)
     /* TODO: also look for freedink.xpm */
     if ((icon_file = find_data_file("freedink.bmp")) != NULL)
       {
-	if ((icon = SDL_LoadBMP(icon_file)) == NULL)
+	if ((icon = IMG_Load(icon_file)) == NULL)
 	  fprintf(stderr, "Error loading %s: %s\n", icon_file, SDL_GetError());
 	else
 	  {

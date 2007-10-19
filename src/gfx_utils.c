@@ -60,8 +60,7 @@ load_palette_from_bmp (char *file, SDL_Color *palette)
   char tmp_filename[PATH_MAX];
   int success = 0;
 
-  bmp = SDL_LoadBMP(ciconvertbuf(file, tmp_filename));
-  /* bmp = IMG_Load (file); */
+  bmp = IMG_Load(ciconvertbuf(file, tmp_filename));
   if (bmp == NULL)
     {
       fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", file);
