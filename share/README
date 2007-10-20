@@ -21,3 +21,44 @@ freedink.ico
 (and hence freedink.bmp, freedink_xpm.c, freedink.png)
 
 From the original Dink source package, see doc/license-orig.txt
+
+
+Extracting wav resources from dinkedit.exe
+==========================================
+
+I went the manual way. You need to get the position and length of the
+data using a PE/COFF (aka .exe) analyser:
+
+http://www.mikekohn.net/file_formats/anal_pe.php
+$ ./anal_pe dinkedit106.exe
+
+or
+http://code.google.com/p/pefile/wiki/UsageExamples
+$ python
+>>> import pefile
+>>> pe =  pefile.PE('dinkedit106.exe')
+>>> print pe.dump_info()
+
+
+First, all data offsets are base memory offsets, not file offsets. You
+can get the link between the two in the section header:
+.rsrc
+VirtualAddress = 0x3B9000 = 3907584 (memory)
+PointerToRawData = 0x1C800 = 120320 (file)
+
+Then you can compute the file offset:
+Resource OffsetToData = 3908016 (memory)
+=> (3908016 - 3907584) + 120320 (file)
+Size: 3356
+
+Resource OffsetToData = 3911372 (memory)
+=> (3911372 - 3907584) + 120320 (file)
+Size: 9196
+
+(alternatively you can look for 'RIFF' in the file using hexedit :))
+
+
+Now you can extract your data:
+
+dd if=dinkedit106.exe of=stop-orig.wav bs=1 skip=120752 count=3356
+dd if=dinkedit106.exe of=jump.wav      bs=1 skip=124108 count=9196
