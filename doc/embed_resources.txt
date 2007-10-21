@@ -68,15 +68,22 @@ archives modify the headers of the extracting code (the "stub"), see
 for example "How to Write a Simple Packer/Unpacker with a
 Self-Extractor (SFX)" at http://www.codeproject.com/file/packersfx.asp
 which uses unused sections of the IMAGE_DOS_HEADER. Other archivers
-just browse the whole file for a signature and start there. As far as
-I remember this is how 7-zip works. This technique allows to open
-self-extracting archives without actually executing them, and this is
-especially useful when you cannot do that because the stub is written
-for a different platform (eg accessing a self-extracting .exe under
-GNU/Linux). Chances are that other zip libraries can do that (opening
-a zip archive that do not start at the beginning of a file). I can see
-two main zip free libraries: libzip (http://www.nih.at/libzip/) and
-zziplib (http://zziplib.sourceforge.net/).
+just browse the whole file for a signature and start there. Last, zip
+SFXes go to the end of the file, browse the end-of-central-directory
+block and grab the entries offsets from there. This technique allows
+to open self-extracting archives without actually executing them, and
+this is especially useful when you cannot do that because the stub is
+written for a different platform (eg accessing a self-extracting .exe
+under GNU/Linux). So we can either open a zip archive that do not
+start at the beginning of a file, or write archives at the end of an
+existing file. I can see two main zip free libraries: libzip
+(http://www.nih.at/libzip/) and zzlib
+(http://zziplib.sourceforge.net/). zzlib even provide a SFX tutorial
+at http://zziplib.sourceforge.net/sfx-make.html (which is a quick
+hack, but works), as well as sample code for SDL rwops.
+
+test/embedded_font.c implements this; the SDL rwops wrapper needed a
+small fix to read archives that do not end with ".zip".
 
 
 So what I suggest is trying to zip the necessary resources, cat them
