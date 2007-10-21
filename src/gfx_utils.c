@@ -23,6 +23,7 @@
  */
 
 #include "SDL.h"
+#include "SDL_image.h"
 #include "io_util.h"
 
 /* Get a colors palette from the specified image */

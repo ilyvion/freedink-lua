@@ -22,8 +22,10 @@
 
 #include <string.h>
 #include "SDL.h"
+#include "SDL_image.h"
 #include "io_util.h"
 #include "gfx.h"
+#include "gfx_utils.h"
 
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
@@ -140,7 +142,8 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
 
   if (image == NULL)
     {
-      fprintf(stderr, "load_bmp_internal: %s\n", SDL_GetError());
+      /* fprintf(stderr, "load_bmp_internal: %s\n", SDL_GetError()); */
+      /* Maybe it's just because we're at the end of a sequence */
       return NULL;
     }
 

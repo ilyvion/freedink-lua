@@ -25,7 +25,7 @@ embedded_font: embedded_font.o SDL_rwops_zzip.o
 # - can't use -A and add files at the same time,
 # - can't >> from 'zip',
 # => temporary file
-	zip -0 -j font.zip ../../share/freedink/LiberationSans-Regular.ttf
+	zip -j font.zip ../../share/freedink/LiberationSans-Regular.ttf
 	cat font.zip >> embedded_font$(EXEEXT)
 	rm -f font.zip
 	zip -A embedded_font$(EXEEXT)

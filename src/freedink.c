@@ -28,6 +28,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "progname.h"
 
 #include <getopt.h>
 #include <stdio.h>
@@ -160,7 +161,7 @@ void check_joystick(void)
 	}
     }
   
-pass:
+/* pass: */
   if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = 1;
   if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = 1;
   if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = 1;
@@ -1272,9 +1273,13 @@ void pill_brain(int h)
 				spr[h].frame = 0;
 				
 				if (spr[h].script != 0)
-					if (locate(spr[h].script, "ATTACK")) run_script(spr[h].script); else
-						spr[h].move_wait = thisTickCount + ((rand() % 300)+10);;
-					return;
+				  {
+				    if (locate(spr[h].script, "ATTACK"))
+				      run_script(spr[h].script);
+				    else
+				      spr[h].move_wait = thisTickCount + ((rand() % 300)+10);
+				  }
+				return;
 					
 			}
 			
@@ -1867,20 +1872,22 @@ int check_if_move_is_legal(int u)
 		  spr[u].moveman = 0;			
 		  
 		  if (push_active)
-		    if (u == 1 && hardness != 2 && play.push_active == /*false*/0)
-		      {
-			if ((spr[u].dir == 2) | (spr[u].dir == 4) | (spr[u].dir == 6) | (spr[u].dir == 8))
-			  {
-			    //he  (dink)  is definatly pushing on something
-			    play.push_active = /*true*/1;
-			    play.push_dir = spr[u].dir;
-			    play.push_timer = thisTickCount;
-			  }
-		      }
-		    else
-		      {
-			if (play.push_dir != spr[1].dir) play.push_active = /*false*/0;
-		      }
+		    {
+		      if (u == 1 && hardness != 2 && play.push_active == /*false*/0)
+			{
+			  if ((spr[u].dir == 2) | (spr[u].dir == 4) | (spr[u].dir == 6) | (spr[u].dir == 8))
+			    {
+			      //he  (dink)  is definatly pushing on something
+			      play.push_active = /*true*/1;
+			      play.push_dir = spr[u].dir;
+			      play.push_timer = thisTickCount;
+			    }
+			}
+		      else
+			{
+			  if (play.push_dir != spr[1].dir) play.push_active = /*false*/0;
+			}
+		    }
 		  return(hardness);
 		}
 	    }
@@ -1990,7 +1997,7 @@ void bounce_brain(int h)
 
 void grab_trick(int trick)
 {
-  rect rcRect;
+/*   rect rcRect; */
 /*   HRESULT ddrval; */
   //Msg("making trick.");
   
@@ -2847,7 +2854,7 @@ void human_brain(int h)
 			char msg[30];
 			if (GetKeyboard(x5))
 			{
-			  int keycode;
+			  int keycode = x5;
 			  // Get the same keycodes than the original
 			  // Dink engines, for letters
 			  if (x5 >= 'a' && x5 <= 'z')
@@ -3681,7 +3688,7 @@ smoothend:;
 /* fade_down() - fade to black */
 void CyclePalette()
 {
-  /*bool*/int done_this_time = /*true*/1;     
+/*   /\*bool*\/int done_this_time = /\*true*\/1; */
   SDL_Color palette[256];
   int kk;
 
@@ -4469,7 +4476,7 @@ void process_talk()
   
   int sx = 184;
   int sy = 94, sy_hold, sy_ho;
-  int spacing = 12;
+/*   int spacing = 12; */
   int curxl = 126;
   int curxr = 462;
   int curyr = 200;
@@ -4780,7 +4787,7 @@ void process_talk()
       if (talk.curf == 0) talk.curf = 1;
       
       if (talk.curf > 7) talk.curf = 1;
-    again4:
+/*     again4: */
 /*       ddrval = lpDDSBack->BltFast( curxl, curyl, k[seq[456].frame[talk.curf]].k, */
 /* 				   &k[seq[456].frame[talk.curf]].box  , DDBLTFAST_SRCCOLORKEY  ); */
 /*       if (ddrval == DDERR_WASSTILLDRAWING) goto again4; */
@@ -5038,7 +5045,7 @@ void draw_item(int num, /*bool*/int magic, int mseq, int mframe)
 		
 	}
 	
-again:
+/* again: */
 	
 	check_seq_status(mseq);
 	
@@ -5341,7 +5348,7 @@ void process_show_bmp( void )
   // but we want to display the shiny mark on the map below. Besides,
   // after show_bmp(), other parts of the code drew sprites on
   // lpDDSBack, so we need to regenerate it anyway.
- again:
+/*  again: */
 /*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTrick, */
 /* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
 /*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
@@ -5408,7 +5415,7 @@ void drawscreenlock( void )
 {
 /*   HRESULT     ddrval; */
   
- loop:
+/*  loop: */
   //draw the screenlock icon
 /*   ddrval = lpDDSBack->BltFast(0, 0, k[seq[423].frame[9]].k, */
 /* 			      &k[seq[423].frame[9]].box  , DDBLTFAST_NOCOLORKEY  ); */
@@ -5417,7 +5424,7 @@ void drawscreenlock( void )
   // GFX
   SDL_BlitSurface(GFX_k[seq[423].frame[9]].k, NULL, GFX_lpDDSBack, NULL);
   
- loop2:
+/*  loop2: */
   //draw the screenlock icon
 /*   ddrval = lpDDSBack->BltFast(620, 0, k[seq[423].frame[10]].k, */
 /* 			      &k[seq[423].frame[10]].box  , DDBLTFAST_NOCOLORKEY  ); */
@@ -5848,8 +5855,8 @@ static int doInit(int argc, char *argv[])
 /*   RECT                rcRect; */
   
   
-  char crap[30];
-  char crap1[10];
+/*   char crap[30]; */
+/*   char crap1[10]; */
   char tmp_filename[PATH_MAX];
 	
 /*   RECT rcRectSrc;    RECT rcRectDest; */
@@ -6202,21 +6209,6 @@ static int doInit(int argc, char *argv[])
   //lets attach our vars to the scripts
   attach();
 	
-/*   initfonts("Arial"); */
-  // FONTS
-  {
-    char *font_file = find_data_file("LiberationSans-Regular.ttf");
-    if (font_file != NULL)
-      {
-	FONTS_initfonts(font_file);
-	free(font_file);
-      }
-    else
-      {
-	return initFail("Could not find LiberationSans-Regular.ttf");
-      }
-  }
-
   return 1;
 } /* doInit */
 
@@ -6250,6 +6242,9 @@ void getdir(char final[])
  */
 int main(int argc, char* argv[])
 {
+  set_program_name(argv[0]);
+  printf("Hi, I'm '%s'\n", get_full_program_name());
+
   /* Where am I installed? */
 #ifdef _WIN32
   getdir(dinkpath);

@@ -69,7 +69,7 @@ void input_init(void)
 	      printf("The names of the joysticks are:\n");
 	      for (i=0; i < SDL_NumJoysticks(); i++)
 		printf("    %s\n", SDL_JoystickName(i));
-	      printf("Picking the first one...\n", SDL_NumJoysticks());
+	      printf("Picking the first one...\n");
 	      jinfo = SDL_JoystickOpen(0);
 	      /* Don't activate joystick events, Dink polls joystick
 		 manually. */

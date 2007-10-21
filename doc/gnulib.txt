@@ -12,7 +12,10 @@ http://www.gnu.org/software/gnulib/manual/gnulib.html
 Initial import:
 /usr/src/gnulib/gnulib-tool \
   --source-base=gnulib/lib --m4-base=gnulib/m4 \
-  --import getopt
+  --import
 
 Then follow the manual and instructions from gnulib-tool (changes are
 scattered among the autotools build system files).
+
+We use the getopt module (for getopt_long()) and the relocatable-prog
+(get_full_program_name() and relocate()).

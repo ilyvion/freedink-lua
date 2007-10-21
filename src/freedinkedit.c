@@ -55,6 +55,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "progname.h"
 
 /* #define WIN32_LEAN_AND_MEAN */
 #include <stdio.h>
@@ -190,7 +191,7 @@ void flip_it_second(void)
 {
 /*         DDBLTFX     ddbltfx; */
 
-  rect rcRectSrc;    rect rcRectDest;
+/*   rect rcRectSrc;    rect rcRectDest; */
 /*         POINT p; */
 
 /*         if (!windowed) */
@@ -561,7 +562,8 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 void draw_map(void)
 {
   rect rcRect;
-  int pa, cool,crap;
+  int pa, cool;
+/*   int crap; */
   int x;
 
   /* Replaced by a call to fill_screen(0) */
@@ -799,7 +801,7 @@ sprintf(crap, "%sMAP.DAT", buf_path);
 			 holdme = (lsize * (num-1));
 			 fseek( fp, holdme, SEEK_SET);
 			 //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
-			 int shit = fread( &pam, lsize, 1, fp);       /* current player */
+			 fread( &pam, lsize, 1, fp);       /* current player */
 			 //Msg("Read %d bytes.",shit);
 			 fclose(fp);
 
@@ -918,8 +920,8 @@ void check_keyboard(void)
 void check_joystick(void)
 {
 
-int ddrval;
-int total;
+/* int ddrval; */
+/* int total; */
 int e2;
  int x5, x, x2;
 
@@ -1187,12 +1189,13 @@ static void draw_sprite_picker_grid(void)
    selector */
 void draw15(int num)
 {
-  int crap;
+/*   int crap; */
 /*   DDBLTFX ddbltfx; */
-  rect  crapRec, Rect, box_crap;
-  int frame,ddrval;
+/*   rect  crapRec, Rect, box_crap; */
+  int frame;
+/*   int ddrval; */
   int se;
-  int dd;
+/*   int dd; */
   int x1;
   //get_sp_seq(2);
 
@@ -1273,12 +1276,13 @@ void draw15(int num)
    sequence */
 void draw96(int def)
 {
-  int crap;
+/*   int crap; */
 /*   DDBLTFX ddbltfx; */
-  rect crapRec, Rect, box_crap;
-  int frame,ddrval;
+/*   rect crapRec, Rect, box_crap; */
+  int frame;
+/*   int ddrval; */
   int se;
-  int dd;
+/*   int dd; */
   int x1;
 
   //get_sp_seq(2);
@@ -2252,7 +2256,7 @@ void write_moves(void)
 void draw_hard_tile(int x1, int y1, int tile)
 {
 /* HRESULT             ddrval; */
-rect box;
+/* rect box; */
 
 /*                DDBLTFX     ddbltfx; */
 /* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
@@ -2307,8 +2311,9 @@ void updateFrame(void)
   unsigned char state[256];
   rect                rcRect;
   rect  crapRec, Rect;
-  rect rcRectSrc;
-  rect rcRectDest, box_crap,box_real;
+/*   rect rcRectSrc; */
+/*   rect rcRectDest; */
+  rect box_crap,box_real;
 /*   POINT p; */
   char msg[500];
   char buff[200];
@@ -3437,7 +3442,7 @@ void updateFrame(void)
 				  holdx = holdx * 8;
 				  if (seq[sp_seq].frame[holdx + holdy] == 0) goto sp_fin;
 
-				  int spman = add_sprite_dumb(320,200 , 0,sp_seq,holdx + holdy,100 );
+				  add_sprite_dumb(320,200 , 0,sp_seq,holdx + holdy,100 );
 
 				  sp_frame = holdx + holdy;
 				  spr[1].pseq = 10;
@@ -3845,7 +3850,7 @@ void updateFrame(void)
 
 
 
-		    if (    ( (mode == MODE_SCREEN_TILES) & (sjoy.button[2]) )  | (mode == MODE_TILE_PICKER) & (GetKeyboard(SDLK_SPACE)))
+		    if (((mode == MODE_SCREEN_TILES) && (sjoy.button[2]) ) || ((mode == MODE_TILE_PICKER) && (GetKeyboard(SDLK_SPACE))))
 
 		      {
 
@@ -3920,7 +3925,7 @@ void updateFrame(void)
 			       before scaling it.. */
 			    {
 			      SDL_Rect src, dst;
-			      SDL_Surface *scaled, *source;
+			      SDL_Surface *scaled;
 			      double sx, sy;
 			      src.x = xx * 50 - xx/12 * 600;
 			      src.y = xx/12 * 50;
@@ -4401,7 +4406,7 @@ void updateFrame(void)
 			       single 50x50 square of it... */
 			    {
 			      SDL_Rect src, dst;
-			      SDL_Surface *scaled, *source;
+			      SDL_Surface *scaled;
 			      double sx, sy;
 			      src.x = spr[1].x+20;
 			      src.y = spr[1].y;
@@ -4819,21 +4824,31 @@ void updateFrame(void)
 	    {
 	      spr[1].y += 10;
 	    }
-	  sprintf(msg, "Map # %d - Press ENTER to edit, SPACE to detail map. (%d)  (Q) to quit and save. L to replace a "
-		  "screen from another map file.  Z to toggle this help text.",mode,(((spr[1].y+1)*32) / 20)+(spr[1].x / 20),
-		  map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]);
+	  sprintf(msg,
+		  "Map # %d - Press ENTER to edit, SPACE to detail map. (%d)  (Q) to quit and save. L to replace a "
+		  "screen from another map file.  Z to toggle this help text.",
+		  mode,
+		  (((spr[1].y+1)*32) / 20)+(spr[1].x / 20));
+/* 		  map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]); */
 	}
       if (mode == MODE_SCREEN_TILES)
 	{
 	  crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 	  //((x-1) - (x / 12))*50, (x / 12) * 50,
-	  sprintf(msg, "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
-		  "V to change vision, B to change maps base .C file.",mode,cur_map
-		  ,cur_tile, pam.t[crap].num);
+	  sprintf(msg,
+		  "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
+		  "V to change vision, B to change maps base .C file.",
+		  mode);
+/* 		  cur_map, */
+/* 		  cur_tile, */
+/* 		  pam.t[crap].num); */
 	}
       if (mode == MODE_TILE_PICKER)
-	sprintf(msg, "Map # %d - Current tile # %d - ENTER to choose, SPACE to edit hardness.",mode,cur_map,
-		(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
+	sprintf(msg,
+		"Map # %d - Current tile # %d - ENTER to choose, SPACE to edit hardness.",
+		mode,
+		cur_map);
+/* 		(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)); */
       if (mode == MODE_TILE_HARDNESS)
 	{
 	  sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
@@ -4951,12 +4966,13 @@ void updateFrame(void)
 /*     } /\* GetDC(&hdc) *\/ */
 
 
-  if ( (mode == MODE_MAP_PICKER) )
+  if ((mode == MODE_MAP_PICKER))
     {
-
-      if (sjoy.key['z']) if (show_display) show_display = /*false*/0; else
-	  show_display = /*true*/1;
-
+      if (sjoy.key['z'])
+	{
+	  if (show_display) show_display = /*false*/0;
+	  else show_display = /*true*/1;
+	}
     }
 
 
@@ -4975,7 +4991,7 @@ void updateFrame(void)
 /* 		  ddbltfx.dwFillColor = 230; */
 
 		  //info on the sprites  sprite info
-		  int temp = s_index[pam.sprite[j].seq].s + pam.sprite[j].frame;
+/* 		  int temp = s_index[pam.sprite[j].seq].s + pam.sprite[j].frame; */
 
 
 		  int sprite2 = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
@@ -5746,12 +5762,12 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  DDSCAPS             ddscaps; */
 /* 	  HRESULT             ddrval; */
 	  rect                rcRect;
-	  char crap[100];
-	  char crap1[50];
-	  rect rcRectSrc;    rect rcRectDest;
+/* 	  char crap[100]; */
+/* 	  char crap1[50]; */
+/* 	  rect rcRectSrc;    rect rcRectDest; */
 /* 	  POINT p; */
        char tdir[100];
-       char tmp_filename[PATH_MAX];
+/*        char tmp_filename[PATH_MAX]; */
 	  /*
 	  * set up and register window class
 	  */
@@ -6212,13 +6228,7 @@ load_hard();
 	//	PlayMidi("sound\\TOP.MID");
     mode = MODE_DIALOG;
     cur_tile = 1;
-	load_info();
-/* initfonts("Arial"); */
-  // FONTS
-	FONTS_initfonts("../LiberationSans-Regular.ttf");
-/*   FONTS_initfonts("C:/WINNT/FONTS/Arial.ttf"); */
-  FONTS_SetFont(FONTS_hfont_small);
-
+    load_info();
 
 //	 Msg("Hi, you suck.");
 
@@ -6272,7 +6282,10 @@ int main(int argc, char *argv[])
 {
 /*   MSG msg; */
 
-  char dir_temp[256], dir_final[256];
+/*   char dir_temp[256]; */
+  char dir_final[256];
+  set_program_name(argv[0]);
+
 #ifdef _WIN32
   getdir(dir_temp, dir_final);
 #else
@@ -6337,8 +6350,8 @@ key_convert(int key)
 {
   if (SDL_GetModState()&KMOD_SHIFT) key = toupper(key);
 
-  if (key == 190 /* VK_OEM_PERIOD */) if (SDL_GetModState()&KMOD_SHIFT) key = '>'; else key = '.';
-  if (key == 188 /* VK_OEM_COMMA */) if (SDL_GetModState()&KMOD_SHIFT) key = '<'; else key = ',';
+  if (key == 190 /* VK_OEM_PERIOD */) { if (SDL_GetModState()&KMOD_SHIFT) key = '>'; else key = '.'; }
+  if (key == 188 /* VK_OEM_COMMA */)  { if (SDL_GetModState()&KMOD_SHIFT) key = '<'; else key = ','; }
 
   if (key == '1') if (SDL_GetModState()&KMOD_SHIFT) key = '!';
   if (key == '2') if (SDL_GetModState()&KMOD_SHIFT) key = '@';
@@ -6351,12 +6364,12 @@ key_convert(int key)
   if (key == '9') if (SDL_GetModState()&KMOD_SHIFT) key = '(';
   if (key == '0') if (SDL_GetModState()&KMOD_SHIFT) key = ')';
 
-  if (key == 189 /* VK_OEM_MINUS */) if (SDL_GetModState()&KMOD_SHIFT) key = '_'; else key = '-';
-  if (key == 187 /* VK_OEM_PLUS */) if (SDL_GetModState()&KMOD_SHIFT) key = '+'; else key = '=';
-  if (key == 186 /* VK_OEM_1 */) if (SDL_GetModState()&KMOD_SHIFT) key = ':'; else key = ';';
-  if (key == 222 /* VK_OEM_7 */) if (SDL_GetModState()&KMOD_SHIFT) key = '\"'; else key = '\'';
-  if (key == 191 /* VK_OEM_2 */) if (SDL_GetModState()&KMOD_SHIFT) key = '?'; else key = '/';
-  if (key == 220 /* VK_OEM_5 */) if (SDL_GetModState()&KMOD_SHIFT) key = '|'; else key = '\\';
+  if (key == 189 /* VK_OEM_MINUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '_'; else key = '-'; }
+  if (key == 187 /* VK_OEM_PLUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '+'; else key = '='; }
+  if (key == 186 /* VK_OEM_1 */) { if (SDL_GetModState()&KMOD_SHIFT) key = ':'; else key = ';'; }
+  if (key == 222 /* VK_OEM_7 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '\"'; else key = '\''; }
+  if (key == 191 /* VK_OEM_2 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '?'; else key = '/'; }
+  if (key == 220 /* VK_OEM_5 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '|'; else key = '\\'; }
 
   return(key);
 }

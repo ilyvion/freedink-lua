@@ -287,7 +287,7 @@ FastFileLock (struct FF_Handle *i, int off, int len)
     }
   if (len > i->len)
     {
-      printf("FastFileLock: len = %d > i->len = %d - exiting.\n", len, i->len);
+      printf("FastFileLock: len = %d > i->len = %ld - exiting.\n", len, i->len);
       fflush(stdout);
       return 0;
     }

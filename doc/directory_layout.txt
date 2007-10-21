@@ -37,11 +37,12 @@ DMod = $pkgdatadir/dmod/
 Dink = $pkgdatadir/dink/
 
 
-FreeDink under GNU/Linux (proposal)
------------------------------------
+FreeDink (all platforms)
+------------------------
 
 Layout:
-/usr/share/freedink/freedink.bmp
+/usr/bin/freedink
+/usr/share/freedink/LiberationSans-Regular.ttf
 /usr/share/freedink/dink/Map.dat
 /usr/share/freedink/dink/Graphics/
 /usr/share/freedink/dink/Story/
@@ -53,20 +54,22 @@ Layout:
 Determined once on startup:
 pkgdatadir = $exedir/../share/freedink/ # binreloc
 	   (test: -d)
-	   FALLBACK $default_data_dir
+	   FALLBACK $default_data_dir/freedink/
 dinkdir = -dinkdir # error if !-d
 	|| ./
+	|| $exedir
+	|| $pkgdatadir
 	(test: -d $dinkdir/dink/Graphics -a -d $dinkdir/dink/Tiles)
-	FALLBACK $pkgdatadir
 DMod = -game
-     || $dinkdir/dmod/ (if dmod doesn't contain '/' or '\')
+     || $dinkdir/dmod/
      || ERROR
 Dink = $dinkdir/dink/
      (? DMod/../dink/) (beware of symlinks)
 
 Checked each time (search path):
-Resources (freedink.bmp, LiberationSans-Regular.ttf, stop.wav, jump.wav)
-  = $dinkdir
+Resources (LiberationSans-Regular.ttf, stop.wav, jump.wav)
+  =  embedded resource
+  || $dinkdir
   || $pkgdatadir
 Font = DMod
      || C:\Windows\Fonts\ || (? /usr/share/fonts/truetype/**/*.ttf)
@@ -85,20 +88,21 @@ Use cases:
 DMod => ~/dmods/island/
 Dink => ~/dink/ # not ~/dmods/dink/
 Dink => /usr/share/freedink/dink/
+Icon => <freedink>
 Icon => /usr/share/freedink/
 
 ~$ freedink -dinkdir dmods/ -game dmods/island
 # or freedink -dinkdir dmods/ -game island
 DMod => ~/dmods/island/
 Dink => ~/dmods/dink/
-Icon => ~/dmods/
+Icon => <freedink>
 Icon => /usr/share/freedink/
 
 ~$ freedink -dinkdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
 DMod => ~/island/
 DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # no fallback
-Icon => /mnt/woe/Program\ Files/Dink\ Smallwood/ # with fallback
+Icon => <freedink> # with fallback
 Icon => /usr/share/freedink/
 
 /mnt/woe/Program\ Files/Dink\ Smallwood$ freedink -game island
@@ -106,14 +110,22 @@ DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/ # == ./island/
 DMod => /usr/share/freedink/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # == ./dink/
 Dink => /usr/share/freedink/
-Icon => /mnt/woe/Program\ Files/Dink\ Smallwood/ # if dink/ exists there
+Icon => <freedink>
+Icon => /usr/share/freedink/
+
+$ /mnt/woe/Program\ Files/Dink\ Smallwood/freedink -game island
+DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/ # == $exedir/island/
+DMod => /usr/share/freedink/island/
+Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # == $exedir/dink/
+Dink => /usr/share/freedink/
+Icon => <freedink>
 Icon => /usr/share/freedink/
 
 ~$ freedink -dinkdir ~/myshare/freedink/ -game island
 DMod => ~/island/
 DMod => ~/myshare/freedink/island/
 Dink => ~/myshare/freedink/dink/
-Icon => ~/myshare/freedink/
+Icon => <freedink>
 Icon => /usr/share/freedink/
 
 ~/freedink$ ./configure && make
@@ -122,7 +134,7 @@ DMod => ~/freedink/island
 DMod => ~/freedink/share/freedink/island/
 Dink => ~/freedink/dink/
 Dink => ~/freedink/share/freedink/dink/
-Icon => ~/freedink/
+Icon => <src/freedink>
 Icon => ~/freedink/share/freedink/island/
 
 ~/freedink$ mkdir native && cd native/
@@ -132,15 +144,5 @@ DMod => ~/freedink/native/island
 DMod => /usr/share/freedink/island/
 Dink => ~/freedink/native/dink/
 Dink => /usr/share/freedink/dink/
-Icon => ~/freedink/native/ # ./
+Icon => <src/freedink>
 Icon => /usr/share/freedink/
-
-
-FreeDink under Woe (proposal)
------------------------------
-
-pkgdatadir = dirname(GetModuleFileName())
-Resources (freedink.bmp, LiberationSans-Regular.ttf, stop.wav, jump.wav)
- +|| embedded resource
-
-id.

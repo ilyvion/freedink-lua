@@ -13,6 +13,9 @@ AC_CANONICAL_HOST
 # Checks for programs.
 AC_PROG_CC
 
+# Force binary relocatability by default
+enable_relocatable=1
+
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
 # gnulib-tool --source-base=gnulib/lib --m4-base=gnulib/m4 --import
 gl_EARLY
@@ -23,6 +26,16 @@ AM_BINRELOC
 fi
 AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
+AC_CHECK_PROG(ZIP, zip, zip)
+AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
+
+AC_ARG_ENABLE([upx],
+  AS_HELP_STRING([--enable-upx],[compress executables [[default=no]]]),
+  [upx=1], [upx=0])
+if test x"$upx" = x"1"; then
+   AC_CHECK_PROG(UPX, upx, upx)
+fi
+AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
@@ -32,11 +45,7 @@ AM_PATH_SDL($SDL_VERSION,
   :,
   AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
-
-# Technically this should set CFLAGS, but sdl-config lacks a
-# --cppflags switch, and setting CPPFLAGS is needed for
-# AC_CHECK_HEADERS, so we define CPPFLAGS.
-CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
+CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 # TODO: check with Cygwin + -mno-cygwin
@@ -48,12 +57,18 @@ AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
 AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_ERROR([You need to install SDL_image]))
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
+AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_ERROR([You need to install zzip]))
 
 # Somewhat optional. Defines matching contants in config.h
-# (e.g. HAVE_SDL_FRAMERATE_H).
-AC_CHECK_HEADERS([SDL.h SDL_rotozoom.h SDL_framerate.h SDL_ttf.h \
-  SDL_image.h SDL_mixer.h], [],
-  AC_MSG_ERROR([Could not find necessary SDL libs headers]))
+# (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
+# Gnulib's src and build directories ($top_srcdir and $top_builddir
+# not present here for some reason). Also sdl-config lacks a
+# --cppflags switch so we use SDL_CFLAGS.
+old_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
+AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
+  [], AC_MSG_ERROR([Could not find necessary SDL libs headers]))
+CPPFLAGS="$old_CPPFLAGS"
 
 
 # Dynamic and static builds

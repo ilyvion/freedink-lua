@@ -53,7 +53,7 @@ int CreateBufferFromWaveFile(char* filename, int dwBuf)
     
     if (registered_sounds[dwBuf].sound == NULL)
       {
-        fprintf(stderr, "Error loading %s - %s", filename, Mix_GetError());
+        fprintf(stderr, "Error loading %s - %s\n", filename, Mix_GetError());
         return 0;
       }
     
@@ -377,7 +377,7 @@ int InitSound()
     
     /* Did if open? Check if cdrom is NULL */
     if (!cdrom)
-      Msg (("Couldn't open drive: %s\n", SDL_GetError()));
+      Msg("Couldn't open drive: %s\n", SDL_GetError());
     
     if (CD_INDRIVE(SDL_CDStatus(cdrom))) {
       /* TODO: do some test about the presence of audio tracks in the
@@ -393,7 +393,7 @@ int InitSound()
   /* sabetts: Mix_OpenAudio (MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 1024) */
   if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 1024) == -1)
     {
-      Msg (("Mix_OpenAudio: %s", Mix_GetError ()));
+      Msg("Mix_OpenAudio: %s", Mix_GetError());
       return 0;
     }
 

@@ -1155,8 +1155,8 @@ void fill_whole_hard(void)
    cheat mode. */
 void drawallhard( void)
 {
-  rect box_crap;
-  int ddrval;
+/*   rect box_crap; */
+/*   int ddrval; */
 /*   DDBLTFX     ddbltfx; */
   int x1, y1;
 
@@ -1966,14 +1966,14 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
 /*   DDCOLORKEY          ddck; */
 
-  int x,y,dib_pitch;
-  unsigned char *src, *dst;
+/*   int x,y,dib_pitch; */
+/*   unsigned char *src, *dst; */
   char fname[20];
 
   //IDirectDrawSurface *pdds;
 
   int sprite = 71;
-  /*BOOL*/int trans = /*FALSE*/0;
+/*   /\*BOOL*\/int trans = /\*FALSE*\/0; */
   /*bool*/int reload = /*false*/0;
 
   char crap[200];
@@ -2192,7 +2192,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	    // bmp_surf = IMG_Load_RW (rw, 0);
 	    if (GFX_k[sprite].k == NULL)
 	      {
-		Msg (("unable to load %s from fastfile", crap));
+		Msg("unable to load %s from fastfile", crap);
 	      }
 	    
 	    SDL_FreeRW (rw);
@@ -2382,9 +2382,11 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       // GFX
       GFX_k[cur_sprite].k = load_bmp(crap);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)
-	/* First frame didn't load! */
-	/* It's normal if we're at the end of a sequence */
-	fprintf(stderr, "load_sprites: couldn't open %s\n", crap);
+	{
+	  /* First frame didn't load! */
+	  /* It's normal if we're at the end of a sequence */
+	  fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
+	}
 
       /* Define the offsets / center of the image */
       if (GFX_k[cur_sprite].k != NULL)
@@ -2909,7 +2911,7 @@ int draw_num(int mseq, char nums[50], int mx, int my)
       else if (nums[i] == '8') rnum = 8;
       else if (nums[i] == '9') rnum = 9;
       else if (nums[i] == '/') rnum = 11;
-    again:                  
+/*     again: */
       if ((rnum != 11) && (!(mseq == 442)))
 	{
 /* 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k, */
@@ -2974,7 +2976,7 @@ void draw_exp()
         
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-	sprintf(buffer, "%ld", fexp);
+	sprintf(buffer, "%d", fexp);
         strcpy(nums, buffer);
         if (strlen(nums) < 5)
 	  {
@@ -2985,7 +2987,7 @@ void draw_exp()
 	strcat(final, nums);
 	strcat(final,"/");
                 
-		sprintf(buffer, "%ld", fraise);
+		sprintf(buffer, "%d", fraise);
                 strcpy(nums, buffer);
                 if (strlen(nums) < 5)
 		  {
@@ -3007,7 +3009,7 @@ void draw_strength()
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
         
-	sprintf(buffer, "%ld", fstrength);
+	sprintf(buffer, "%d", fstrength);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
 	  {
@@ -3028,7 +3030,7 @@ void draw_defense()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-	sprintf(buffer, "%ld", fdefense);
+	sprintf(buffer, "%d", fdefense);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
 	  {
@@ -3048,7 +3050,7 @@ void draw_magic()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-	sprintf(buffer, "%ld", fmagic);
+	sprintf(buffer, "%d", fmagic);
         strcpy(nums, buffer);
         if (strlen(nums) < 3)
 	  {
@@ -3067,7 +3069,7 @@ void draw_level()
         char buffer[30];
         //*plevel = 15;
         //Msg("Drawing level.. which is %d ",*plevel);
-	sprintf(buffer, "%ld", *plevel);
+	sprintf(buffer, "%d", *plevel);
         strcpy(final, buffer);
         
         if (strlen(final) == 1)
@@ -3085,7 +3087,7 @@ void draw_gold()
         char nums[30];
         //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
         strcpy(final, "");
-	sprintf(buffer, "%ld", fgold);
+	sprintf(buffer, "%d", fgold);
         strcpy(nums, buffer);
         if (strlen(nums) < 5)
 	  {
@@ -3185,7 +3187,7 @@ void draw_icons( void )
     {
       //disarm old weapon
       //play.item[*pcur_weapon].seq,
-    again:                  
+/*     again: */
       
       check_seq_status(play.item[*pcur_weapon].seq);
       
@@ -3664,7 +3666,7 @@ Msg("Ok, sprite %d is being scaled.", h);
 void refigure_out(char line[255])
 {
         char ev[15][100];
-        int myseq = 0,myframe = 0;
+/*         int myseq = 0,myframe = 0; */
         int i;
         memset(&ev, 0, sizeof(ev));
         for (i = 1; i <= 14; i++)
@@ -4054,7 +4056,7 @@ void strip_beginning_spaces(char *str)
 {
   char *pc = str;
   int diff = 0;
-  int i;
+/*   int i; */
   
   /* Find first non-space character (pos) */
   while (*pc == ' ')
@@ -4242,9 +4244,9 @@ void decipher_string(char line[200], int script)
         
         if ((strchr(line, '&') != NULL) && (script != 0))
         {
-	  sprintf(buffer, "%ld", rinfo[script]->sprite);
+	  sprintf(buffer, "%d", rinfo[script]->sprite);
 	  replace("&current_sprite", buffer, line);
-	  sprintf(buffer, "%ld", script);
+	  sprintf(buffer, "%d", script);
 	  replace("&current_script", buffer, line);
                 
                 
@@ -4501,7 +4503,7 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
 void check_sprite_status(int h)
 {
 /*         HRESULT dderror; */
-        char word1[80];
+/*         char word1[80]; */
         //is sprite in memory?
         if (spr[h].pseq > 0) 
         {
@@ -4539,7 +4541,7 @@ void check_frame_status(int h, int frame)
 
 {
 /*         HRESULT dderror; */
-        char word1[80];
+/*         char word1[80]; */
         
         if (seq[h].active == /*false*/0) return;
         
@@ -4576,7 +4578,7 @@ void check_seq_status(int h)
 
 {
 /*         HRESULT dderror; */
-        char word1[80];
+/*         char word1[80]; */
     
         if (seq[h].active == /*false*/0) return;
         if (h > 0) if (h < MAX_SEQUENCES) 
@@ -6169,7 +6171,7 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 /*   RECT rcRect; */
 /*   SetRect(&rcRect, 0,0,640, 480); */
   
- again:
+/*  again: */
 /*   ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick, */
 /* 			       &rcRect, DDBLTFAST_NOCOLORKEY); */
 /*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
@@ -7007,7 +7009,7 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                int cb = add_callback(slist[0],nlist[1],nlist[2],script); 
+                                add_callback(slist[0],nlist[1],nlist[2],script); 
                                 //got all parms, let do it
                         }
                         
@@ -7472,7 +7474,7 @@ pass:
                                 //               Msg("Wait called for %d.", nlist[0]);
                                 strcpy(s, h);  
                                 kill_returning_stuff(script);
-                                int cb1 = add_callback("",nlist[0],0,script);            
+                                add_callback("",nlist[0],0,script);            
                                 
                                 return(2);
                         }
@@ -7966,7 +7968,7 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};  
                         if (get_parms(ev[1], script, h, p))
                         {
-                                sprintf(temp, "save%d.dat",nlist[0]);
+                                sprintf(temp, "save%ld.dat",nlist[0]);
                                 if (exist(temp)) returnint = 1; else returnint = 0;
                                 
                         }
@@ -9840,14 +9842,15 @@ void process_callbacks(void)
                 if (callback[k].active)
                 {
                         
-                        if (callback[k].owner > 0) if (rinfo[callback[k].owner] == NULL)
+                        if (callback[k].owner > 0 && rinfo[callback[k].owner] == NULL)
                         {
                                 //kill this process, it's owner sprite is 'effin dead.
                                 if (debug_mode) Msg("Killed callback %s because script %d is dead.",
                                         k, callback[k].owner);
                                 callback[k].active = /*false*/0;
                                 
-                        } else
+                        }
+			else
                         {
                                 
                                 if (callback[k].timer == 0)

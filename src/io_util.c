@@ -28,12 +28,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <errno.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 #include "binreloc.h"
+#include "progname.h"
+#include "SDL.h"
+#include "SDL_rwops_zzip.h"
 
 /* TODO: use Gnulib */
 #ifndef PATH_MAX
@@ -179,6 +183,25 @@ int exist(char name[255])
   return 1;
 }
 
+
+SDL_RWops *find_resource_as_rwops(char *name)
+{
+  /* Look in appended ZIP archive */
+  SDL_RWops* rwops = NULL;
+  /* get_full_program_name() checks /proc (Linux), then argv[0] +
+     PATH. Under Woe it uses GetModuleFileName(). The only way to make
+     it fail is to execl("./freedink", "idontexist", 0); */
+  char *myself = get_full_program_name();
+  char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
+  strcpy(zippath, myself);
+  strcat(zippath, "/");
+  strcat(zippath, name);
+  /* sample zippath: "/usr/bin/freedink/LiberationSans-Regular.ttf" */
+  rwops = SDL_RWFromZZIP(zippath, "rb");
+  return rwops;
+  /* Retrieve error (if any) with :
+     printf("%s\n", strerror(errno)); */
+}
 
 /* Try different options to get a data file, such as the default font,
    the application icon, etc. */

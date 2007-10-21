@@ -23,10 +23,14 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include "SDL.h"
 #include "SDL_ttf.h"
 #include "dinkvar.h"
 #include "gfx.h"
+#include "io_util.h"
 #include "gfx_fonts.h"
+static int FONTS_load_default_font(void);
 
 /* HFONT */
 /* #include <windows.h> */
@@ -36,12 +40,96 @@ TTF_Font *FONTS_hfont_small = NULL;
 /* The current font, when activated through FONTS_SetFont() */
 static TTF_Font *cur_font = NULL;
 
+/* TODO: lf.lfHeight = 18; */
+/* SDL_ttf makes the font bigger than Woe, let's try 17 instead of
+     18 */
+#define FONT_SIZE 17
+
 /* HFONT hfont_small = NULL; */
 
 static SDL_Color text_color;
 
 
-void FONTS_initfonts(char* fontname) {
+/**
+ * Init font subsystem
+ */
+void FONTS_init()
+{
+  TTF_Init();
+  FONTS_load_default_font();
+  FONTS_SetFont(FONTS_hfont_small);
+}
+
+/**
+ * Default font from resources and pkgdatadir
+ */
+static int FONTS_load_default_font() {
+  char *first_error = NULL;
+
+  if (FONTS_hfont_small != NULL) {
+    printf("load_default_font: font already loaded\n");
+    return -1;
+  }
+
+  /* Try from resources */
+  SDL_RWops* rwops;
+  rwops = find_resource_as_rwops("LiberationSans-Regular.ttf");
+  if (rwops == NULL)
+    {
+      /* Error comes from ZZIP, keep it for later if everything
+	 fails */
+      char *error = strerror(errno);
+      first_error = malloc(strlen(error) + 1);
+      strcpy(first_error, error);
+    }
+  else
+    {
+      FONTS_hfont_small = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
+      if (FONTS_hfont_small == NULL)
+	{
+	  char *error = TTF_GetError();
+	  first_error = malloc(strlen(error) + 1);
+	  strcpy(first_error, error);
+	}
+    }
+  
+  /* Fallback to package data directory */
+  if (FONTS_hfont_small == NULL)
+    {
+      char *path = find_data_file("LiberationSans-Regular.ttf");
+      if (path != NULL)
+	FONTS_hfont_small = TTF_OpenFont(path, FONT_SIZE);
+  
+      if (FONTS_hfont_small == NULL)
+	{
+	  fprintf(stderr, "Could not find LiberationSans-Regular.ttf\n");
+	  fprintf(stderr, "- loading from myself failed with: %s\n", first_error);
+	  if (path != NULL)
+	    fprintf(stderr, "- loading from %s failed with %s\n", path, TTF_GetError());
+	  else
+	    fprintf(stderr, "- file was not found in the data dir\n");
+	  /* TODO: clean-up before exiting */
+	  exit(1);
+	}
+
+      if (path != NULL)
+	free(path);
+    }
+
+  if (first_error != NULL)
+    free(first_error);
+
+  if (FONTS_hfont_small == NULL)
+    return -1;
+  return 0;
+}
+
+
+
+/**
+ * Change the current font (DinkC initfont() command)
+ */
+int FONTS_initfonts(char* fontname) {
   /* TODO: lf.lfWeight = 600; */
   /* TODO: lf.lfHeight = 18; */
   /* TODO: Load from Woe's system font dir if not found in the current
@@ -52,14 +140,32 @@ void FONTS_initfonts(char* fontname) {
     FONTS_hfont_small = NULL;
   }
 
-  /* SDL_ttf makes the font bigger than Woe, let's try 17 */
-  FONTS_hfont_small = TTF_OpenFont(fontname, 17);
-  FONTS_SetFont(FONTS_hfont_small);
+  /* Font from DMod directory */
+  if (FONTS_hfont_small == NULL)
+    {
+      FONTS_hfont_small = TTF_OpenFont(fontname, FONT_SIZE);
+    }
+
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+  if (FONTS_hfont_small == NULL)
+    {
+      /* Look in %WINDIR%\Fonts */
+      char *path = malloc(MAX_PATH + 7 + strlen(fontname) + 1);
+      GetWindowsDirectory(path, MAX_PATH);
+      strcat(path, "\\Fonts\\");
+      strcat(path, fontname);
+      FONTS_hfont_small = TTF_OpenFont(path, FONT_SIZE);
+    }
+#endif
 
   if (FONTS_hfont_small == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());
-    exit(1);
+    return -1;
   }
+
+  FONTS_SetFont(FONTS_hfont_small);
+
+  return 0;
 }
 
 void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b) {

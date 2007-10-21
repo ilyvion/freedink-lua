@@ -25,6 +25,7 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -39,10 +40,35 @@ AC_DEFUN([gl_INIT],
   gl_libdeps=
   gl_ltlibdeps=
   gl_source_base='gnulib/lib'
+  gl_FUNC_ALLOCA
+  gl_CANONICALIZE_LGPL
+  gl_ERROR
+  gl_EXITFAIL
   gl_GETOPT
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_INLINE
+  gl_FUNC_MALLOC_POSIX
+  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gl_MALLOCA
+  gl_PATHMAX
+  gl_FUNC_READLINK
+  gl_UNISTD_MODULE_INDICATOR([readlink])
+  gl_RELOCATABLE([$gl_source_base])
+  gl_FUNC_READLINK_SEPARATE
+  gl_CANONICALIZE_LGPL_SEPARATE
+  gl_MALLOCA
+  gl_RELOCATABLE_LIBRARY_SEPARATE
+  gl_FUNC_SETENV_SEPARATE
+  gl_FUNC_STRERROR_SEPARATE
+  gt_TYPE_SSIZE_T
+  AM_STDBOOL_H
+  gl_STDLIB_H
+  gl_FUNC_STRERROR
+  gl_STRING_MODULE_INDICATOR([strerror])
+  gl_HEADER_STRING_H
   gl_UNISTD_H
+  gl_XALLOC
   LIBGNU_LIBDEPS="$gl_libdeps"
   AC_SUBST([LIBGNU_LIBDEPS])
   LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
@@ -80,30 +106,94 @@ AC_DEFUN([gl_REPLACE_FUNCS], [
   AC_CHECK_FUNCS([$1], , [gl_LIBOBJ($ac_func)])
 ])
 
-# Like AC_LIBSOURCES, except check for typos now.
-# We rely on EXTRA_lib..._SOURCES instead.
+# Like AC_LIBSOURCES, except the directory where the source file is
+# expected is derived from the gnulib-tool parametrization,
+# and alloca is special cased (for the alloca-opt module).
+# We could also entirely rely on EXTRA_lib..._SOURCES.
 AC_DEFUN([gl_LIBSOURCES], [
   m4_foreach([_gl_NAME], [$1], [
-    m4_syscmd([test -r gnulib/lib/]_gl_NAME[ || test ! -d gnulib/lib])dnl
-    m4_if(m4_sysval, [0], [],
-      [AC_FATAL([missing gnulib/lib/]_gl_NAME)])
+    m4_if(_gl_NAME, [alloca.c], [], [
+      m4_syscmd([test -r gnulib/lib/]_gl_NAME[ || test ! -d gnulib/lib])dnl
+      m4_if(m4_sysval, [0], [],
+        [AC_FATAL([missing gnulib/lib/]_gl_NAME)])
+    ])
   ])
 ])
 
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
+  build-aux/config.libpath
+  build-aux/install-reloc
   build-aux/link-warning.h
-  lib/dummy.c
+  build-aux/reloc-ldflags
+  doc/relocatable.texi
+  lib/alloca.in.h
+  lib/areadlink.c
+  lib/areadlink.h
+  lib/c-ctype.c
+  lib/c-ctype.h
+  lib/canonicalize-lgpl.c
+  lib/canonicalize.h
+  lib/error.c
+  lib/error.h
+  lib/exitfail.c
+  lib/exitfail.h
   lib/getopt.c
+  lib/getopt.in.h
   lib/getopt1.c
-  lib/getopt_.h
   lib/getopt_int.h
   lib/gettext.h
-  lib/unistd_.h
+  lib/intprops.h
+  lib/malloc.c
+  lib/malloca.c
+  lib/malloca.h
+  lib/malloca.valgrind
+  lib/pathmax.h
+  lib/progname.c
+  lib/progname.h
+  lib/progreloc.c
+  lib/readlink.c
+  lib/relocatable.c
+  lib/relocatable.h
+  lib/relocwrapper.c
+  lib/setenv.c
+  lib/setenv.h
+  lib/stdbool.in.h
+  lib/stdlib.in.h
+  lib/strerror.c
+  lib/string.in.h
+  lib/unistd.in.h
+  lib/xalloc-die.c
+  lib/xalloc.h
+  lib/xmalloc.c
+  lib/xreadlink.c
+  lib/xreadlink.h
+  m4/absolute-header.m4
+  m4/alloca.m4
+  m4/canonicalize-lgpl.m4
+  m4/eealloc.m4
+  m4/error.m4
+  m4/exitfail.m4
+  m4/extensions.m4
   m4/getopt.m4
   m4/gnulib-common.m4
   m4/include_next.m4
+  m4/inline.m4
+  m4/longlong.m4
+  m4/malloc.m4
+  m4/malloca.m4
   m4/onceonly_2_57.m4
+  m4/pathmax.m4
+  m4/readlink.m4
+  m4/relocatable-lib.m4
+  m4/relocatable.m4
+  m4/setenv.m4
+  m4/ssize_t.m4
+  m4/stdbool.m4
+  m4/stdlib_h.m4
+  m4/strerror.m4
+  m4/string_h.m4
   m4/unistd_h.m4
+  m4/xalloc.m4
 ])

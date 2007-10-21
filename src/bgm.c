@@ -107,7 +107,7 @@ playMIDIFile(char *midi_filename)
   music_data = Mix_LoadMUS(ciconvertbuf(midi_filename, tmp_filename));
   if (music_data == NULL)
     {
-      Msg (("Unable to play '%s': %s", midi_filename, Mix_GetError()));
+      Msg("Unable to play '%s': %s", midi_filename, Mix_GetError());
       return 0;
     }
 

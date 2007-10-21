@@ -24,6 +24,7 @@
 #define _IO_UTIL_H
 
 #include <limits.h>
+#include "SDL.h"
 #ifndef PATH_MAX
 /* Woe */
 #define PATH_MAX MAX_PATH
@@ -37,6 +38,7 @@ extern "C"
 
   char* ciconvert (char *filename);
   char* ciconvertbuf (const char *filename, char *buf);
+  SDL_RWops *find_resource_as_rwops(const char *filename);
   char *find_data_file(const char *filename);
 
 #ifdef __cplusplus
