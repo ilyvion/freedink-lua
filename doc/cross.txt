@@ -213,6 +213,44 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
    --enable-static
 
 
+Misc
+====
+
+Those may be used later on.
+
+# zlib
+wget http://www.gzip.org/zlib/zlib-1.2.3.tar.gz
+CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
+  AR="i586-mingw32msvc-ar r" \
+  RANLIB="i586-mingw32msvc-ranlib" \
+  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+# TODO: --shared doesn't work, it says I should not set CC - but I
+# need it for cross-compilation. Then they say we should try libtool -
+# how about using it directly then? ;)
+
+# zziplib
+wget http://dfn.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.12.83.tar.bz2
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+    --prefix=/usr/local/cross-tools/i386-mingw32msvc
+# avoid compiling bins/ which has compilation errors:
+cd i586-pc-mingw32msvc/zzip
+make
+make install
+
+wget http://ovh.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.13.49.tar.bz2
+# --disable-mmap because of compilation errors in zzip/mmapped.c
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+    --prefix=/usr/local/cross-tools/i386-mingw32msvc --disable-mmap
+make
+# => doesn't work, it tries to use ftello which is apparently missing from mingw
+
+
+
 diff -ru SDL_gfx-2.0.16/SDL_framerate.h SDL_gfx-2.0.16.beuc/SDL_framerate.h
 --- SDL_gfx-2.0.16/SDL_framerate.h	2006-12-22 13:36:10.000000000 +0100
 +++ SDL_gfx-2.0.16.beuc/SDL_framerate.h	2007-09-27 01:46:10.000000000 +0200

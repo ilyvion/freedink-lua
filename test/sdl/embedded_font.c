@@ -90,10 +90,3 @@ int main (int argc, char *argv[])
 
   return 0;
 }
-
-/*
-make embedded_font
-zip font.zip LiberationSans-Regular.ttf
-upx embedded_font
-cat font.zip >> embedded_font
-*/
