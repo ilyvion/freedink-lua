@@ -55,7 +55,8 @@ freedinkedit_upx_stamp: freedinkedit
 	-$(UPX) --best freedinkedit
 	touch freedinkedit_upx_stamp
 else
-upx:
+freedink_upx_stamp:
+freedinkedit_upx_stamp:
 endif
 
 # Bundle resources
