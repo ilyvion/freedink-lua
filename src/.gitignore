@@ -6,3 +6,5 @@ freedinkedit
 # NCC
 *.nccout
 .tmp.c
+freedink_res_stamp
+freedinkedit_res_stamp

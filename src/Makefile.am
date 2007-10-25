@@ -39,7 +39,7 @@ COMMON_OBJS=bgm.c bgm.h dinkvar.c dinkvar.h fastfile.c fastfile.h	\
 bin_PROGRAMS = freedink freedinkedit
 freedink_SOURCES = $(COMMON_OBJS) freedink.c freedink.h update_frame.c	\
 	update_frame.h
-freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c freedinkeditres
+freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c
 
 
 # TODO: move to post-install hook (after install-strip)
