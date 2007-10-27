@@ -1,6 +1,18 @@
 Dink search path
 ================
 
+Question is: where should FreeDink look for files? (Where is the
+default font? Where are the DMods? Where are the base files / original
+game?)
+
+I want something:
+- that is compatible with the original game engine,
+- that works the same across platforms (eg. Woe and GNU/Linux)
+- allow to install base files in a read-only directory (/usr/share)
+  while allowing to run DMods from anywhere else (eg
+  ~/files/dmods/pota/). See "Use cases" below.
+
+
 Original game
 -------------
 
