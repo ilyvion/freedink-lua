@@ -82,7 +82,7 @@ if test x"$static" = x"1"; then
     # (cf. (autoconf.info)Using System Type)
     *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
         LIBS="$LIBS -lfreetype -lwinmm -ldxguid"
-	LDFLAGS="$LDFLAGS -static"
+        LDFLAGS="$LDFLAGS -static"
         ;;
     *)
         # sdl-config --static-libs is far from complete :/ Plus I
@@ -90,23 +90,24 @@ if test x"$static" = x"1"; then
         # be static and which ones must be dynamic, so let's overwrite
         # LIBS for now..
 
-	# There can be different configurations, for example with or
-	# without including X11. I suggest using a generic
-	# configuration here, that could be used for the
-	# autopackage. Users will have to modify this directly if they
-	# need something different. This is meant to work with Debian
-	# Etch SDL packages.
+        # There can be different configurations, for example with or
+        # without including X11. I suggest using a generic
+        # configuration here, that could be used for the
+        # autopackage. Users will have to modify this directly if they
+        # need something different. This is meant to work with Debian
+        # Etch SDL packages.
         LIBS="-Wl,-Bstatic \
-	  -lSDL_gfx \
-	  -lSDL_image -ljpeg -lpng -ltiff -lz \
+          -lSDL_gfx \
+          -lSDL_image -ljpeg -lpng -ltiff -lz \
           -lSDL_ttf -lfreetype -lz \
           -lSDL_mixer -lvorbisfile -lvorbis -logg -lsmpeg \
-	  -lSDL \
-	  -lvga -ldirectfb -ldirect -lfusion \
+          -lSDL \
+          -lvga -ldirectfb -ldirect -lfusion \
           -lcaca -lcucul -laa -lslang -lcurses \
           -laudio -lesd -lartsc -lasound -lgpm \
+          -lzzip \
           -lm \
-	  -Wl,-Bdynamic -lX11 -ldl -lpthread -lstdc++"
+          -Wl,-Bdynamic -lX11 -ldl -lpthread -lstdc++"
         ;;
     esac
 fi
