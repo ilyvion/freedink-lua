@@ -1,5 +1,4 @@
 Makefile.am
-dummy.c
 alloca.in.h
 areadlink.c
 areadlink.h

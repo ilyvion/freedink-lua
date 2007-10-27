@@ -1,7 +1,11 @@
 #!/bin/sh
 #Generates ./configure, Makefile.in's and tools
 
-set -ex
+# Stop at first error:
+set -e
+# Print commands:
+set -x
+
 if [ "x$1" = xclean ]; then
     test ! -f Makefile || make maintainer-clean
 
@@ -19,11 +23,16 @@ if [ "x$1" = xclean ]; then
 fi
 
 # Gnulib
-# git clone git://git.savannah.gnu.org/gnulib.git
 if [ ! -f gnulib/lib/Makefile.am ]; then
-    /usr/src/gnulib/gnulib-tool \
-      --source-base=gnulib/lib --m4-base=gnulib/m4 \
-      --import
+    # Look for gnulib-tool. Use '|| true' because of 'set -e' above
+    GNULIB_TOOL=`PATH=gnulib-git:$PATH:/usr/src/gnulib which gnulib-tool \
+	|| true`
+    if [ -z "$GNULIB_TOOL" ]; then
+	git clone git://git.savannah.gnu.org/gnulib.git gnulib-git
+	GNULIB_TOOL=./gnulib-git/gnulib-tool
+    fi
+    $GNULIB_TOOL --source-base=gnulib/lib --m4-base=gnulib/m4 \
+	--import
 fi
 
 # Enable no-portability to disable GNU make extensions warnings, such as $(shell)
