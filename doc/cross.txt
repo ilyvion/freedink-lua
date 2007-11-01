@@ -1,6 +1,10 @@
 Cross-compilation
 =================
 
+TODO: put all source tarballs in a directory that will be distributed
+along with static binaries, to comply with the GNU GPL and LGPL
+
+
 # Install a cross-compiler version of GCC
 aptitude install mingw32
 
@@ -119,6 +123,11 @@ cd /usr/src/
 wget http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
 tar xjf freetype-$VERSION.tar.bz2
 cd freetype-$VERSION
+# TODO: maybe enable bytecode interpreter, since that what distros use
+# most. It's disabled by default for fear of patent attacks.
+# Check:
+# - http://freetype.org/patents.html
+# - http://bugs.debian.org/447801
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
 make install

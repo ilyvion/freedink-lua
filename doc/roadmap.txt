@@ -47,7 +47,8 @@ Port the game from DirectX to SDL
     SDL_Image to support compressed BMPs)
   - Scaling (Done: SDL_gfx/rotozoom)
   - Fonts (In progress: SDL_ttf installed, but the font doesn't render
-    the same; fonts should not use the current screen's palette)
+    exactly the same (size and weight); color from the final screen
+    palette (bypass palette effects))
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting (Done: SDL_gfx / SDL_framerate.h)
 - Embedded resources - Dinkedit sounds, newly introduced dependencies
