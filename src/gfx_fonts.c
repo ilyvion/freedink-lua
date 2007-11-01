@@ -191,7 +191,32 @@ print_text (TTF_Font * font, char *str, int x, int y, SDL_Color /*&*/color,
     return;
   
   /* Msg (("printing \"%s\"", str)); */
-  
+
+
+  /* Rationale: text color is not affected by palette shifts (yellow
+     stays yellow even if we're using the negative palette from Lyna's
+     story) _but_ text color is the closest one in the final palette
+     color (so when after a fade_down(), the available colors are only
+     black and white, yellow becomes white, as yellow is just not
+     available, and white is closest than black). */
+  /* So we get the color index from cur_screen_palette (final color
+     even after palette effects), and use the color value from
+     GFX_real_pal (reference palette used for all graphics before
+     palette effects). */
+  /* Previously this was implemented using BlitSurface palette
+     conversion (commit 2007-11-01) but this was terribly slow (full
+     palette conversion done 5 times per text (for the border effect)
+     and per frame). */
+  {
+    SDL_PixelFormat fmt;
+    SDL_Palette pal = {256, cur_screen_palette};
+    Uint32 screen_index;
+    fmt.palette = &pal;
+    screen_index = SDL_MapRGB(&fmt, color.r, color.g, color.b);
+    fmt.palette->colors = GFX_real_pal;
+    SDL_GetRGB(screen_index, &fmt, &(color.r), &(color.g), &(color.b));
+  }
+
   /* Transparent, low quality - closest to the original engine. */
   tmp = TTF_RenderText_Solid(font, str, color);
 
@@ -227,47 +252,6 @@ print_text (TTF_Font * font, char *str, int x, int y, SDL_Color /*&*/color,
   new_x = x;
   if (hcenter)
     new_x -= w / 2;
-
-
-  /* Rationale: text color is not affected by palette shifts (yellow
-     stays yellow even if we're using the negative palette from Lyna's
-     story) _but_ text color is the closest one in the final palette
-     color (so when after a fade_down(), the available colors are only
-     black and white, yellow becomes white, as yellow is just not
-     available, and white is closest than black). */
-
-  /* So as in load_bmp_internal(), we perform color conversion -
-     except this time we use the current palette instead of the
-     reference palette. We may also need avoid using the transparent
-     color. */
-  /* TODO: this is terribly slow! */
-  {
-    /* Copy the surface */
-    SDL_Surface *copy = NULL;
-    /* Use SDL_ConvertSurface(); SDL_DisplayFormat() would be simpler
-       but seems to set a different palette */
-    copy = SDL_ConvertSurface(tmp, tmp->format, tmp->flags);
-    
-    /* Prepare a color conversion to the actual screen palette */
-    SDL_SetPalette(tmp, SDL_LOGPAL, cur_screen_palette, 0, 256);
-    /* Avoid using the transparent color during color
-       conversion. Since fonts are monochrome, just take the negative
-       color. */
-    SDL_Palette *palette = tmp->format->palette;
-    Uint32 ck = tmp->format->colorkey;
-    palette->colors[ck].r = 255-color.r;
-    palette->colors[ck].g = 255-color.g;
-    palette->colors[ck].b = 255-color.b;
-
-    /* Blit the copy back to the original, with the different palette,
-       which triggers color conversion to tmp's palette. */
-    SDL_BlitSurface(copy, NULL, tmp, NULL);
-    SDL_FreeSurface(copy);
-
-    /* Set the reference palette now, so that no other color
-       conversion will happen. */
-    SDL_SetPalette(tmp, SDL_LOGPAL, GFX_real_pal, 0, 256);
-  }
 
   dst.x = new_x; dst.y = y;
   SDL_BlitSurface(tmp, NULL, GFX_lpDDSBack, &dst);
