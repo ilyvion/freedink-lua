@@ -148,7 +148,8 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
     }
 
   /* Copy the surface */
-  /* TODO: how about using SDL_DisplayFormat()? */
+  /* Use SDL_ConvertSurface(); SDL_DisplayFormat() would be simpler
+     but seems to set a different palette */
   copy = SDL_ConvertSurface(image, image->format, image->flags);
 
   if (set_pal == 1)
