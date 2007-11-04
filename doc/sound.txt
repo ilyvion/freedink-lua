@@ -96,12 +96,15 @@ configuration file, usually provided separately.
 
 Apparently there are 2 patches set worthy to mention:
 
-- freepats: free-as-in-freedom, included in Debian (so compatible with
-  the DFSG, the Debian Free Software Guidelines).
+- freepats: free-as-in-freedom, included in Debian main (so compatible
+  with the DFSG, the Debian Free Software Guidelines).
 
 - eawpatches: best quality but apparently non-free, and pretty hard to
   find (TiMidity++ is surrounded by 404 pages :/). The free parts of
-  eawpatches are included in freepats.
+  eawpatches are included in freepats (on freepats.opensrc.org, you
+  see in the news items that Eric A Welsh, who compiled the
+  eawpatches, worked himself on sorting out the legally distributable
+  files for freepats).
 
   There is a copy in the NetBSD package:
   ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
@@ -109,6 +112,24 @@ Apparently there are 2 patches set worthy to mention:
 
   SDL_Mixer also has a copy: http://www.libsdl.org/projects/SDL_mixer/
   http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
+
+  Gentoo also has a copy:
+  http://distfiles.gentoo.org/distfiles/eawpats12_full.tar.gz
+  Install using 'emerge media-sound/timidity-eawpatches', and define
+  the current patchset using:
+    eselect timidity list
+    eselect timidity set freepats
+    eselect timidity set eawpatches
+
+  Apparently some of eawpats is used in the Fedora timidity++ package
+  (britepno.pat.bz2, pistol.pat.bz2 - added from now-defunct
+  http://www.stardate.bc.ca/eawpatches/eawpats/ following
+  http://bugzilla.redhat.com/50982 without much explanation), but the
+  other source tarball
+  (http://archive.cs.umbc.edu/pub/midia/instruments.tar.bz2) lack
+  legal notices, and the documented origins are dead links, so I don't
+  know what it's based on really. dance.mid plays fine so it's not
+  just plain freepats.
 
 Here is what I did to install the eawpatches from the NetBSD port to
 Debian GNU/Linux Etch. First I installed the patch in the

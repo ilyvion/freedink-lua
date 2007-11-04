@@ -7,6 +7,10 @@ These instructions may sound redundant with the packaging specs (.deb,
 .rpm, .ebuild, etc.) but they are necessary to maintain for people who
 want to compile the latest, not-yet-packaged sources :)
 
+If you get an error about AC_LIB_PROG_LD, that's something that will
+be fixed in a bit (today is 3 nov 2007) in Gnulib. As a workaround you
+can install gettext which also defines this macro.
+
 
 On a minimal Debian system
 ==========================
@@ -22,8 +26,8 @@ cd freedink
 # or:
 #aptitude install gnulib
 
-# autotools - libtool is required by relocatable.m4
-aptitude install autoconf automake libtool
+# autotools
+aptitude install autoconf automake
 
 aptitude install libsdl1.2-dev # for sdl.m4
 sh bootstrap
@@ -49,6 +53,10 @@ make install
 make dist
 make distcheck
 
+## Optional: software MIDI support, used by SDL_mixer
+# Check doc/sound.txt for details
+aptitude install timidity freepats
+
 # :)
 
 
@@ -65,8 +73,8 @@ cd freedink
 (cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
 # No Fedora package, but there's no need for one.
 
-# autotools - libtool is required by relocatable.m4
-yum install automake libtool autoconf
+# autotools
+yum install autoconf automake
 
 yum install SDL_devel # for sdl.m4
 sh bootstrap
@@ -92,6 +100,11 @@ make install
 ## Release tests
 make dist
 make distcheck
+
+## Optional: software MIDI support, used by SDL_mixer
+# Check doc/sound.txt for details
+# timidity++ and timidity++-patches already installed as dependencies
+#   of SDL_mixer
 
 # :)
 
@@ -138,6 +151,13 @@ make install
 ## Release tests
 make dist
 make distcheck
+
+## Optional: software MIDI support, used by SDL_mixer
+# Check doc/sound.txt for details
+emerge media-sound/timidity++
+echo "media-sound/timidity-freepats **" >> /etc/portage/package.keywords
+emerge media-sound/timidity-freepats # GPLv>=2 + lax exception
+emerge media-sound/timidity-eawpatches # non-free
 
 # :)
 
