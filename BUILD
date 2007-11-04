@@ -7,10 +7,6 @@ These instructions may sound redundant with the packaging specs (.deb,
 .rpm, .ebuild, etc.) but they are necessary to maintain for people who
 want to compile the latest, not-yet-packaged sources :)
 
-If you get an error about AC_LIB_PROG_LD, that's something that will
-be fixed in a bit (today is 3 nov 2007) in Gnulib. As a workaround you
-can install gettext which also defines this macro.
-
 
 On a minimal Debian system
 ==========================
