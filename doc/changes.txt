@@ -61,3 +61,20 @@ before.
 Gamepad: I didn't test much with the original game, but I set a
 greater threshold for joystick axis - with the same threshold than the
 original game (~10%) Dink is going diags too easily.
+
+
+Compressed BMP support: afaics in some situations, the original Dink
+engines does not support compressed (RLE?) BMPs. Such BMPs are notably
+used in "Prophecy of the Ancients" (like the 3 alternate colored orbs)
+- when support is lacking, graphics are simply not displayed which
+much complaining in DEBUG.TXT. I believe this support depends on which
+DX version is used. More surprisingly: there's a screen, still in
+PotA, where you can pass above and under and bridge (you need to pass
+under the bridge to blow up a rock in the above screen and thus reach
+the secret island). There's no way to pass under the bridge when
+there's no compressed BMP support - I haven't investigated much, but I
+guess either a missing sprite does not clear the hardness for Dink to
+pass, either the missing sprite is causing a DinkC script to stop.
+So, vanilla SDL does not support compressed BMPs, so I used SDL_image
+everywhere to do so. This means that FreeDink always support
+compressed BMPs.
