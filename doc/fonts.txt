@@ -1,0 +1,133 @@
+To be able to use .ttf files as the original game does, we almost
+certainly need FreeType. That's the portable solution used by OpenJDK
+and Wine.
+
+FreeType can be compiled with or without the "bytecode interpreter"
+due to patents issues, which change the metrics of the fonts, and all
+distros do not compile it the same (check
+http://freetype.org/patents.html and
+http://bugs.debian.org/447801). Passing FT_LOAD_FORCE_AUTOHINT to
+FT_Load_Glyph in SDL_ttf.c is a way to avoid using the font bytecode,
+resulting in consistent metrics.
+
+The Dink engine uses of 2 fonts:
+
+- For game text and most editor texts: arial.ttf
+
+  The size 18 and the weight is 600.
+
+
+  The size is not the same as SDL_ttf's. The matching size for this
+  particular font is 16, without antialiasing ("mono" render style),
+  and you need to enable the bytecode interpreter in FreeType (without
+  it, the font will be larger because of the different hinting
+  (i.e. the glyph scaling interpolation)).
+
+  This means we can't get consistent metrics across platforms. It
+  would be good to find a workaround for distros such as Fedora who do
+  not enable the bytecode interpreter in their packages. The most
+  consistent workaround is to abolish software patents in the US, like
+  in EU.
+
+  Wine has some documentation about the size conversion in
+  calc_ppem_for_height (dlls/gdi32/freetype.c):
+
+    /* Calc. height of EM square:
+     *
+     * For +ve lfHeight we have
+     * lfHeight = (winAscent + winDescent) * ppem / units_per_em
+     * Re-arranging gives:
+     * ppem = units_per_em * lfheight / (winAscent + winDescent)
+     *
+     * For -ve lfHeight we have
+     * |lfHeight| = ppem
+     * [i.e. |lfHeight| = (winAscent + winDescent - il) * ppem / units_per_em
+     * with il = winAscent + winDescent - units_per_em]
+     *
+     */
+
+  (We're in the positive case.)
+
+  In theory we should load the font with FreeType manually, get the
+  values for winAscent and winDescent through FT_Get_Sfnt_Table(), and
+  compute the appropriate value to give to SDL_ttf. For now we'll just
+  use 16 - it may not be correct for other fonts than Arial though.
+
+  You cannot specify weight precisely with SDL_ttf, but using
+  TTF_STYLE_BOLD produces exactly the right weight. If you look at the
+  results, each font glyph is actually stamped twice, with a 1 pixel
+  difference. We almost could do that ourselves, except that there is
+  also more space ("kerning") between letters.
+
+  Since Arial is not free, we need to find a replacement. The "Sans"
+  font from the Liberation Fonts pack is *metric*-compatible with
+  Arial - that is, it does _not_ look the same, but will use exactly
+  the same space than Arial, and line breaks will appear at the same
+  position. Since we also have to reimplement the line-break
+  algorithm, this may not worth it. Instead, we might use another
+  font, that is not perfectly metric-compatible, but that would
+  actually look like Arial. Beware, though, that if a text in dialog
+  choices (in the game) needs more lines than in the original game, it
+  may appear behind the other text choices. Wait&see.
+
+- Help text, 'I' sprite info boxes in Dinkedit: while this doesn't
+  show clearly in the code, it uses another font than the rest of the
+  engine: the default one. Apparently when you do not explicitely call
+  SelectObject() each time you get the DX context to the Dinkedit
+  window, you get the default font, even if you already changed it
+  before. That default font is vgasys.fon. It is not scalable, so no
+  worry about size of weight.
+
+  Wine has a close replacement for that font (fonts/system.sfd, source
+  for vgasys.fon). It can be used by SDL_ttf directly.
+
+  Note that the font line skip is not correct with those .fon: I get
+  1, while it should be something like 16. There's a work-around in
+  gfx_fonts.c.
+
+
+Tools for testing:
+- test/woefont.c: Woe source code to display text like Dink does
+- ftstring from the FreeType 2 demos package
+- showfont, the SDL_ttf sample program
+
+Must-read introduction to font vocabulary and concepts:
+http://freetype.org/freetype2/docs/glyphs/
+
+
+Stats:
+vgasys.fon/wine:
+The font max height is: 16
+The font ascent is: 16
+The font descent is: 0
+The font line skip is: 1
+The font is not fixed width.
+The family name of the face in the font is: System
+The name of the face in the font is: Regular
+
+vgasys.fon/MS:
+The font max height is: 16
+The font ascent is: 16
+The font descent is: 0
+The font line skip is: 1
+The font is not fixed width.
+The family name of the face in the font is: System
+The name of the face in the font is: Regular
+
+arial.ttf:
+The font max height is: 19
+The font ascent is: 15
+The font descent is: -3
+The font line skip is: 19
+The font is not fixed width.
+The family name of the face in the font is: Arial
+The name of the face in the font is: Regular
+
+LiberationSans-Regular.ttf:
+The font max height is: 19
+The font ascent is: 15
+The font descent is: -3
+The font line skip is: 19
+The font is not fixed width.
+The family name of the face in the font is: Liberation Sans
+The name of the face in the font is: Regular

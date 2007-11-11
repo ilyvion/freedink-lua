@@ -89,14 +89,6 @@ sum of all their features do.
 
 - Fonts (TTF):
 
-  Generally: to be able to use .ttf files as the original game does,
-  we also certainly need FreeType. That's the portable solution used
-  by OpenJDK. Maybe check what Wine does though. FreeType can be
-  compiled with or without the "bytecode interpreter" due to patents
-  issues, which change the metrics of the fonts, and all distros do
-  not compile it the same (check http://freetype.org/patents.html and
-  http://bugs.debian.org/447801).
-
   [/] SDL_ttf does but lacks weight support. The height metrics aren't
   the same either. Maybe use FreeType directly.
 

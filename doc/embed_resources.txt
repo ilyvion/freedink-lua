@@ -14,17 +14,18 @@ of pixels. It's compiled as a .o and is linked with the application.
 
 For the font, and possibly for the editor sounds as well, we are
 dealing with data that are not compatible with the GNU GPL. I tried to
-find an Arial-lookalike font, but alas, the only decent fonts I found
-are the Liberation fonts which are GPL + exceptions/restrictions, and
-the Bitstream Vera-based fonts such as Arkpandora which uses a custom
-weird license. Both are incompatible with the GNU GPL. After asking
-licensing@gnu.org [gnu.org #344795] it appears that linking such data
-as .o makes them a combined work with FreeDink, so the data needs to
-be compatible with the GNU GPL, even if it is generic data. I also
-tried to find non-Arial GPL'd fonts; I used FreeSans from "Free UCS
-Outline Fonts" (http://savannah.nongnu.org/projects/freefont) but that
-didn't look very good in the engine (ugly antialiasing); maybe this
-works fine with something else than FreeType though.
+find an Arial-metric-compatible font, but alas, the only decent fonts
+I found are the Liberation fonts which are GPL +
+exceptions/restrictions, and the Bitstream Vera-based fonts such as
+Arkpandora's Aerial.ttf which uses a custom weird license. Both are
+incompatible with the GNU GPL. After asking licensing@gnu.org [gnu.org
+#344795] it appears that linking such data as .o makes them a combined
+work with FreeDink, so the data needs to be compatible with the GNU
+GPL, even if it is generic data. I also tried to find non-Arial GPL'd
+fonts; I used FreeSans from "Free UCS Outline Fonts"
+(http://savannah.nongnu.org/projects/freefont) but that didn't look
+very good in the engine (ugly antialiasing); maybe this works fine
+with something else than FreeType though.
 
 We're definitely in need of others ways to embed data.
 

@@ -39,7 +39,7 @@ extern int FONTS_initfonts(char* fontname);
 /* extern int print_text_wrap (TTF_Font * font, char *str, struct rect * box, SDL_Color color, */
 /* 			    /\*bool*\/int hcenter, /\*bool*\/int vcenter); */
 extern int print_text_wrap (char *str, rect * box,
-			    /*bool*/int hcenter, /*bool*/int vcenter);
+			    /*bool*/int hcenter, /*bool*/int vcenter, int calc_only);
 /* extern void initfonts(char fontname[255]); */
 extern void kill_fonts(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);

@@ -41,9 +41,9 @@ TTF_Font *FONTS_hfont_small = NULL;
 static TTF_Font *cur_font = NULL;
 
 /* TODO: lf.lfHeight = 18; */
-/* SDL_ttf makes the font bigger than Woe, let's try 17 instead of
+/* SDL_ttf makes the font bigger than Woe, let's try 16 instead of
      18 */
-#define FONT_SIZE 17
+#define FONT_SIZE 16
 
 /* HFONT hfont_small = NULL; */
 
@@ -121,6 +121,24 @@ static int FONTS_load_default_font() {
 
   if (FONTS_hfont_small == NULL)
     return -1;
+
+  TTF_SetFontStyle(FONTS_hfont_small, TTF_STYLE_BOLD);
+
+  printf("The font max height is: %d\n", TTF_FontHeight(FONTS_hfont_small));
+  printf("The font ascent is: %d\n", TTF_FontAscent(FONTS_hfont_small));
+  printf("The font descent is: %d\n", TTF_FontDescent(FONTS_hfont_small));
+  printf("The font line skip is: %d\n", TTF_FontLineSkip(FONTS_hfont_small));
+  if(TTF_FontFaceIsFixedWidth(FONTS_hfont_small))
+    printf("The font is fixed width.\n");
+  else
+    printf("The font is not fixed width.\n");
+  char *familyname=TTF_FontFaceFamilyName(FONTS_hfont_small);
+  if(familyname)
+    printf("The family name of the face in the font is: %s\n", familyname);
+  char *stylename=TTF_FontFaceStyleName(FONTS_hfont_small);
+  if(stylename)
+    printf("The name of the face in the font is: %s\n", stylename);
+
   return 0;
 }
 
@@ -180,10 +198,10 @@ void FONTS_SetFont(TTF_Font *font)
 }
 
 void
-print_text (TTF_Font * font, char *str, int x, int y, SDL_Color /*&*/color,
+print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/color,
 	    /*bool*/int hcenter)
 {
-  int new_x, w, h;
+  int new_x, text_w, text_h;
   SDL_Surface *tmp;
   SDL_Rect dst;
 
@@ -248,13 +266,20 @@ print_text (TTF_Font * font, char *str, int x, int y, SDL_Color /*&*/color,
       printf("Error rendering text: %s; font is %p\n", TTF_GetError(), font);
     }
 
-  TTF_SizeText (font, str, &w, &h);
+  TTF_SizeText (font, str, &text_w, &text_h);
   new_x = x;
   if (hcenter)
-    new_x -= w / 2;
-
+    {
+      new_x += w / 2;
+      new_x -= text_w / 2;
+    }
   dst.x = new_x; dst.y = y;
-  SDL_BlitSurface(tmp, NULL, GFX_lpDDSBack, &dst);
+  
+  SDL_Rect src;
+  src.x = src.y = 0;
+  src.w = w; // truncate text if outside the box
+  src.h = tmp->h;
+  SDL_BlitSurface(tmp, &src, GFX_lpDDSBack, &dst);
 
   SDL_FreeSurface (tmp);
 }
@@ -279,12 +304,14 @@ font_len (TTF_Font * font, char *str, int len)
 int
 process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 {
-  int i, start, line;
+  //printf("process_text_for_wrapping: %s on %dx%d\n", str, box->right - box->left, box->bottom - box->top);
+  int i, start, line, last_fit;
 
   start = 0;
   i = 0;
+  last_fit = -1;
   line = 0;
-  while (str[i])
+  while (str[i] != '\0')
     {
       int len;
 
@@ -293,20 +320,51 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 	{
 	  i++;
 	}
-      while (str[i] && str[i] != ' ');
+      while (str[i] != '\0' && str[i] != ' ' && str[i] != '\n');
 
-      /* If the length of the text from start to i is bigger than the */
-      /* box, then draw the text between start and i. */
-      len = font_len (font, &str[start], i - start + 1);
-      if (len > box->right - box->left || str[i] == 0)
+      /* If the length of the text from start to i is bigger than the
+	 box, then draw the text up to the last fitting portion -
+	 unless that was the beginning of the string. */
+      len = font_len (font, &str[start], i - start);
+
+      if (len > (box->right - box->left))
 	{
-	  if (str[i])
-	    str[i] = '\n';
-	  /* continue on a new line */
+	  if (last_fit == -1)
+	    {
+	      /* Current word is too long by itself already, let's
+		 keep it on a single line */
+	      if (str[i] != '\0')
+		str[i] = '\n';
+	      /* continue on a new line */
+	      line++;
+	      start = i + 1;
+	    }
+	  else
+	    {
+	      /* Text is bigger than the textbox, linebreak at
+		 previous space */
+	      str[last_fit] = '\n';
+	      /* continue on a new line */
+	      line++;
+	      start = last_fit + 1;
+	      i = last_fit;
+	    }
+	  last_fit = -1;
+	}
+      else if (str[i] == '\0')
+	{
+	  line++;
+	}
+      else if (str[i] == '\n')
+	{
 	  line++;
 	  start = i + 1;
+	  last_fit = -1;
 	}
-
+      else
+	{
+	  last_fit = i;
+	}
     }
 
   return line;
@@ -314,16 +372,22 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 
 int
 print_text_wrap (char *str, rect * box,
-		 /*bool*/int hcenter, /*bool*/int vcenter)
+		 /*bool*/int hcenter, /*bool*/int vcenter, int calc_only)
 {
   int x, y, lines, line;
   char *tmp, *token;
   //  SDL_Color color = {0, 0, 0};
   SDL_Color color = text_color;
   TTF_Font *font;
-  /* TODO: check whether all those calls to SelectObject(hdc, font)
-     are needed - or if they could be done in initfonts directly */
+  int lineskip = 0;
+
   font = cur_font;
+  /* Workaround: with vgasys.fon, lineskip is always 1. We'll use it's
+     height instead. */
+  lineskip = TTF_FontLineSkip(font);
+  if (lineskip == 1)
+    lineskip = TTF_FontHeight(font);
+
   tmp = (char*) malloc(strlen(str) + 1);
   strcpy(tmp, str);
   /*   tmp = strdup (str); */
@@ -332,16 +396,15 @@ print_text_wrap (char *str, rect * box,
   token = strtok (tmp, "\n");
 
   x = box->left;
-  if (hcenter)
-    x += (box->right - box->left) / 2;
   y = box->top;
   if (vcenter)
-    y += ((box->bottom - box->top) - lines * TTF_FontLineSkip (font)) / 2;
+    y += ((box->bottom - box->top) - lines * lineskip) / 2;
   line = 0;
   while (token)
     {
-      print_text (font, token, x, y + line, color, hcenter);
-      line += TTF_FontLineSkip (font);
+      if (!calc_only)
+	print_text(font, token, x, y + line, (box->right - box->left), color, hcenter);
+      line += lineskip;
       token = strtok (NULL, "\n");
     }
   free(tmp);
@@ -366,7 +429,7 @@ void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(r, g, b);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, 0);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
@@ -388,19 +451,19 @@ void Say(char thing[500], int px, int py)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(8, 14, 21);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, 0);
 
       rect_offset(&rcRect,-2,-2);
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, 0);
 
       rect_offset(&rcRect,1,1);
 /*       SetTextColor(hdc,RGB(255,255,0)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(255, 255, 0);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, 0);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */

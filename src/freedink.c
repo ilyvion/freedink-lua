@@ -369,44 +369,44 @@ void text_draw(int h)
 		   //this text has no sprite, and doesn't want to be centered.
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0);
+	     print_text_wrap(cr, &rcRect, 0, 0, 0);
 		   
 		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0);
+		   print_text_wrap(cr, &rcRect, 0, 0, 0);
 		   
 		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0);
+		   print_text_wrap(cr, &rcRect, 0, 0, 0);
 
 		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0);
+		   print_text_wrap(cr, &rcRect, 0, 0, 0);
 	   }
 	   else
 	   {
 		   
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0);
+	     print_text_wrap(cr, &rcRect, 1, 0, 0);
 
 		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0);
+		   print_text_wrap(cr, &rcRect, 1, 0, 0);
 		   
 		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0);
+		   print_text_wrap(cr, &rcRect, 1, 0, 0);
 
 		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0);
+		   print_text_wrap(cr, &rcRect, 1, 0, 0);
 	   }
 	   
 	   rect_offset(&rcRect,0,1);
@@ -435,13 +435,13 @@ void text_draw(int h)
 	     {
 /* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 	       // FONTS
-	       print_text_wrap(cr, &rcRect, 0, 0);
+	       print_text_wrap(cr, &rcRect, 0, 0, 0);
 	     }
 	   else
 	     {
 /* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	       // FONTS
-	       print_text_wrap(cr, &rcRect, 1, 0);
+	       print_text_wrap(cr, &rcRect, 1, 0, 0);
 	     }
 }
 
@@ -4552,8 +4552,9 @@ void process_talk()
   
   if (talk_hold != talk.cur)
     {
-      if (talk.cur >= talk.cur_view) if (talk.cur <= talk.cur_view_end) 
-				       SoundPlayEffect(11, 22050,0,0,0);
+      if (talk.cur >= talk.cur_view)
+	if (talk.cur <= talk.cur_view_end) 
+	  SoundPlayEffect(11, 22050,0,0,0);
     }
   
 /*   if (lpDDSBack->GetDC(&hdc) == DD_OK) */
@@ -4570,14 +4571,15 @@ void process_talk()
 	{
 	  
 	  rect_set(&rcRect,sx,94,463,400);
-	  if (talk.newy != -5000) rcRect.bottom = talk.newy+15;
+	  if (talk.newy != -5000)
+	    rcRect.bottom = talk.newy + 15;
 	  
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.buffer, &rcRect, 1, 1);
+	  print_text_wrap(talk.buffer, &rcRect, 1, 1, 0);
 
 
 	   /* Same of in text_draw, except for #1 and default */
@@ -4606,7 +4608,7 @@ void process_talk()
 	  rect_offset(&rcRect, 1, 1);
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	 */
 	  // FONTS
-	  print_text_wrap(talk.buffer, &rcRect, 1, 1);	  
+	  print_text_wrap(talk.buffer, &rcRect, 1, 1, 0);
 
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
@@ -4623,13 +4625,8 @@ void process_talk()
 	  rect_set(&rcRect,sx,y_hold,463,x_depth+100);
 /* 	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  /* TODO; I doubt using TTF_FontLineSkip(FONTS_hfont_small)
-	     will be enough - what if there are multiple lines? For
-	     testing, check in UltimateCheat: Warp/<2nd choice> (2
-	     lines), Kill enemies (title placement), Show Info (huge
-	     title). */
-	  /* BIG TODO */
-	  y_hold = 3;
+	  /* Don't print, only check the height in pixel: */
+	  y_hold = print_text_wrap(talk.line[i], &rcRect, 1, 0, 1);
 	  sy_hold += y_hold;
 	  
 	  //Msg("Sy_hold = %d (%d)", sy_hold,i);
@@ -4699,10 +4696,9 @@ void process_talk()
 		rect_set(&rcRect,sx,sy_ho,463,x_depth);
 		
 /* 		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
-
-		// FONT: BIG TODO!
-		y_ho = 3;
-
+		// FONTS
+		/* Don't print, only check the height in pixel: */
+		y_ho = print_text_wrap(talk.line[i], &rcRect, 1, 0, 1);
 		sy_ho += y_ho;	 
 		//Msg("adding y_yo %d.. (on %d)", y_ho,i);
 		if (sy_ho > x_depth) 
@@ -4739,19 +4735,19 @@ void process_talk()
 	{
 	  //lets figure out where to draw this line
 	  
-	  rect_set(&rcRect,sx,sy,463,x_depth+100);
+	  rect_set(&rcRect, sx, sy, 463, x_depth + 100);
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
 	  FONTS_SetTextColor(8, 14, 21);
 /* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
-/* 	  OffsetRect(&rcRect,-2,-2); */
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0, 0);
+	  rect_offset(&rcRect, -2, -2);
 /* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.line[i], &rcRect, 1, 0);
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0, 0);
 
-	  rect_offset(&rcRect,1,1);
+	  rect_offset(&rcRect, 1, 1);
 	  if (i == talk.cur)
 	    {
 	      curyl = sy-4;
@@ -4769,7 +4765,7 @@ void process_talk()
 	    }
 /* 	  y_last = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  y_last = print_text_wrap(talk.line[i], &rcRect, 1, 0);
+	  y_last = print_text_wrap(talk.line[i], &rcRect, 1, 0, 0);
 	  sy += y_last;
 	}
       

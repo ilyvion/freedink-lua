@@ -4957,8 +4957,8 @@ void updateFrame(void)
 	  /* Display help message at the bottom of the screen */
 /* 	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 	  // FONTS
-	  /* TODO: use Say() or Saysmall()? */
-	  print_text_wrap(msg, &rcRect, 0, 0);
+	  /* TODO: use vgasys.fon instead of the default font */
+	  print_text_wrap(msg, &rcRect, 0, 0, 0);
 	}
 
 /*       lpDDSBack->ReleaseDC(hdc); */
