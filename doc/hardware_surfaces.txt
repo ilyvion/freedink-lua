@@ -1,0 +1,39 @@
+The SDL documentation wiki refers people to this article for hardware
+surfaces:
+http://www.linuxdevcenter.com/pub/a/linux/2003/08/07/sdl_anim.html
+
+It doesn't give this much information though.
+
+
+The only way I could get SDL_SetVideoMode to return a hardware surface
+is:
+
+- Become root (!)
+
+- Set the SDL_VIDEODRIVER=dga environment variable
+
+I tried this with test/sdl/mousetest.c modified to run full-screen,
+and I noticed the (non-system) mouse didn't show up. Actually I'm not
+sure it really worked, since without the mouse, the test doesn't do
+anything but set the video mode and paint the screen in blue. Pretty
+strange.
+
+
+I have yet to try the framebuffer though, my system currently doesn't
+have /dev/fb0, I gotta investigate.
+
+According to http://tldp.org/HOWTO/Linux-Gamers-HOWTO/x130.html ,
+SVGAlib also requires root privileges to initiate the video mode.
+
+DRI appears to be aimed at 3D graphics, not 2D. We could imagine
+getting a 2D hardware surface from the 3D card (when the user has one)
+and perform 2D direct video memory buffer access from it.
+
+
+Trying under Woe with the default driver didn't trigger an hardware
+surface either. I don't know what you need to do under that platform.
+
+
+Anyway, Dink itself does not especially require direct video memory
+buffer access, since all the screen refresh logic is based on flipping
+the whole screen.
