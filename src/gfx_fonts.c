@@ -316,11 +316,8 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
       int len;
 
       /* Skip forward to the end of the word */
-      do
-	{
-	  i++;
-	}
-      while (str[i] != '\0' && str[i] != ' ' && str[i] != '\n');
+      while (str[i] != '\0' && str[i] != ' ' && str[i] != '\n')
+	i++;
 
       /* If the length of the text from start to i is bigger than the
 	 box, then draw the text up to the last fitting portion -
@@ -329,6 +326,8 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 
       if (len > (box->right - box->left))
 	{
+	  /* String is bigger than the textbox */
+
 	  if (last_fit == -1)
 	    {
 	      /* Current word is too long by itself already, let's
@@ -338,32 +337,36 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 	      /* continue on a new line */
 	      line++;
 	      start = i + 1;
+	      i++;
 	    }
 	  else
 	    {
-	      /* Text is bigger than the textbox, linebreak at
-		 previous space */
+	      /* All those words is bigger than the textbox, linebreak
+		 at previous space */
 	      str[last_fit] = '\n';
 	      /* continue on a new line */
 	      line++;
 	      start = last_fit + 1;
-	      i = last_fit;
+	      i = last_fit + 1;
 	    }
 	  last_fit = -1;
 	}
       else if (str[i] == '\0')
 	{
 	  line++;
+	  i++;
 	}
       else if (str[i] == '\n')
 	{
 	  line++;
-	  start = i + 1;
+	  i++;
+	  start = i;
 	  last_fit = -1;
 	}
       else
 	{
 	  last_fit = i;
+	  i++;
 	}
     }
 
@@ -372,10 +375,11 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
 
 int
 print_text_wrap (char *str, rect * box,
-		 /*bool*/int hcenter, /*bool*/int vcenter, int calc_only)
+		 /*bool*/int hcenter, int calc_only)
 {
-  int x, y, lines, line;
-  char *tmp, *token;
+  int x, y, res_height;
+  char *tmp, *pline, *pc;
+  int this_is_last_line = 0;
   //  SDL_Color color = {0, 0, 0};
   SDL_Color color = text_color;
   TTF_Font *font;
@@ -391,24 +395,36 @@ print_text_wrap (char *str, rect * box,
   tmp = (char*) malloc(strlen(str) + 1);
   strcpy(tmp, str);
   /*   tmp = strdup (str); */
-  lines = process_text_for_wrapping (font, tmp, box);
-
-  token = strtok (tmp, "\n");
+  process_text_for_wrapping (font, tmp, box);
 
   x = box->left;
   y = box->top;
-  if (vcenter)
-    y += ((box->bottom - box->top) - lines * lineskip) / 2;
-  line = 0;
-  while (token)
+
+  res_height = 0;
+  pline = pc = tmp;
+  this_is_last_line = 0;
+  while (!this_is_last_line)
     {
+      while (*pc != '\n' && *pc != '\0')
+	pc++;
+
+      if (*pc == '\0')
+	this_is_last_line = 1;
+      else
+	/* Terminate the current line to feed it to print_text */
+	*pc= '\0';
+
       if (!calc_only)
-	print_text(font, token, x, y + line, (box->right - box->left), color, hcenter);
-      line += lineskip;
-      token = strtok (NULL, "\n");
+	print_text(font, pline, x, y + res_height, (box->right - box->left), color, hcenter);
+
+      res_height += lineskip;
+
+      /* advance to next line*/
+      pc++;
+      pline = pc;
     }
   free(tmp);
-  return line;
+  return res_height;
 }
 
 
@@ -429,7 +445,7 @@ void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(r, g, b);
-      print_text_wrap(thing, &rcRect, 0, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
@@ -451,19 +467,19 @@ void Say(char thing[500], int px, int py)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(8, 14, 21);
-      print_text_wrap(thing, &rcRect, 0, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0);
 
       rect_offset(&rcRect,-2,-2);
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
-      print_text_wrap(thing, &rcRect, 0, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0);
 
       rect_offset(&rcRect,1,1);
 /*       SetTextColor(hdc,RGB(255,255,0)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(255, 255, 0);
-      print_text_wrap(thing, &rcRect, 0, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */

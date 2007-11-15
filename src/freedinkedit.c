@@ -4958,7 +4958,7 @@ void updateFrame(void)
 /* 	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 	  // FONTS
 	  /* TODO: use vgasys.fon instead of the default font */
-	  print_text_wrap(msg, &rcRect, 0, 0, 0);
+	  print_text_wrap(msg, &rcRect, 0, 0);
 	}
 
 /*       lpDDSBack->ReleaseDC(hdc); */

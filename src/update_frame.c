@@ -57,9 +57,9 @@ void updateFrame( void )
 	
 /* 	HDC         hdc; */
 /*     HRESULT             ddrval; */
-	int sz = 0;
+
     int move_result ;
-	int sy = 0;
+
 	/*bool*/int get_frame = /*false*/0;
 	int h,max_s,j;
 	//HBRUSH brush;
@@ -121,7 +121,7 @@ trigger_start:
 		
 	}
 	
-demon:
+/* demon: */
 	
 /*	while(GetTickCount() < (lastTickCount+ 20))
 {
@@ -994,7 +994,7 @@ past:
 /* 			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 			// FONTS
 			/* TODO: write with OPAQUE / Shaded mode */
-			print_text_wrap(msg, &rcRect, 0, 0, 0);
+			print_text_wrap(msg, &rcRect, 0, 0);
 
 			            if (strlen(last_debug) > 0)
 							
@@ -1010,7 +1010,7 @@ past:
 							FONTS_SetTextColor(200, 200, 200);
 /* 							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 							// FONTS
-							print_text_wrap(msg, &rcRect, 0, 0, 0);
+							print_text_wrap(msg, &rcRect, 0, 0);
 								}
 
 
