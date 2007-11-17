@@ -30,9 +30,10 @@ in combination with OpenAL (or Allegro (or...)).
    them.
 
 
-- Function to convert volume and panning from dB to the unit we'll use
+- Function to convert volume and panning from DX's hundreds of dB to
+  the unit we'll use:
 
-(DinkC's sound_set_vol(), SetVolume() and SetPan() in the code)
+(DinkC's sound_set_vol(), update_sound() in the code)
 
 sound_set_vol(): "The volume should be negative or zero. 0 is no
 change, -1000 is about half-volume, and -10000 is extremely quiet."
@@ -51,11 +52,15 @@ In SDL, the volume is just a linear scaling (80 means something like
 So we need the opposite formula to get 80 from -4dB:
  x = max_vol.10^(y/20)
 
-Ex: -1000 (hundreds of dB) => x = 128.10(^-10/20) =~ 40.
+Ex: -1000 (hundredths of dB) => x = 128.10^(-10/20) =~ 40.
 
 Note: -10dB should be half volume, so why isn't it 128/2 + 64? It's
 because the human-ear-perceived volume is the _square_ of the sound
 value.
+
+A good place to test volume is the initial screen from the original
+game (Dink's mother's house): try moving around the fireplace - volume
+is somewhat proportional to the distance.
 
 
 Panning: according to the DX documentation, SetPan(x) uses a dB
@@ -63,9 +68,14 @@ attenuation; left channel attenuation when positive, right channel
 attenuation when negative. x ranges from -10000 to 10000.
 
 So at first glance:
-SetPan(-1000) => Mix_SetPanning(n, 255, 255.10(^-10/20))
-SetPan(3000) => Mix_SetPanning(n, 255.10(^-30/20), 255)
+SetPan(-1000) => Mix_SetPanning(n, 255, 255.10^(-10/20))
+SetPan(3000) => Mix_SetPanning(n, 255.10^(-30/20), 255)
 
+A good place to test panning is the savegame east of the pigs in
+StoneBrooks: the savegame is located left in the screen, to it should
+sound louder in the left speaker (or technically, less loud in the
+right speaker). Note that panning is not updated when Dink moves, it
+is based on the initial location of the sprite in the screen.
 
 - separate initsound from sfx - it's sfx+bgm
 

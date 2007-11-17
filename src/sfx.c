@@ -28,6 +28,7 @@
 #include "dinkvar.h"
 #include "sfx.h"
 #include "io_util.h"
+#include "math.h"
 
 struct soundstruct soundinfo[NUM_SOUNDBANKS+1];
 
@@ -146,62 +147,7 @@ void kill_repeat_sounds_all(void)
  */
 void update_sound(void)
 {
-  /* Note about volume in DirectSound:
-setVolume
-public void setVolume(int volume);
-
-
-Changes the volume of a sound buffer. 
-
-Return Value: 
-
-No return value. 
-
-Parameter Description 
-volume  New volume requested for this sound buffer. Values range from 0 (0 dB, no volume adjustment) to -10,000 (-100 dB, essentially silent). DirectSound does not currently support amplification.  
-
-
-Remarks: 
-
-Volume units of are in hundredths of decibels, where 0 is the original volume of the stream. 
-
-Positive decibels correspond to amplification and negative decibels correspond to attenuation. The decibel scale corresponds to the logarithmic hearing characteristics of the ear. An attenuation of 10 dB makes a buffer sound half as loud; an attenuation of 20 dB makes a buffer sound one quarter as loud. DirectSound does not currently support amplification. 
-
-The pan control is cumulative with the volume control. 
-
-See Also: getPan, getVolume, setPan
-
-CONCLUSION: we need some conversion [0-128] -> [-10000, 0](log)
-
-=====
-
-Same for PAN:
-setPan
-public void setPan(int pan);
-
-
-Specifies the relative volume between the left and right channels. 
-
-Return Value: 
-
-No return value. 
-
-Parameter Description 
-pan  Relative volume between the left and right channels. This value has a range of -10,000 to 10,000 and is measured in hundredths of a decibel.  
-
-
-Remarks: 
-
-0 is the neutral value for pan and indicates that both channels are at full volume (attenuated by 0 decibels). At any other setting, one of the channels is at full volume and the other is attenuated. For example, a pan of -2173 means that the left channel is at full volume and the right channel is attenuated by 21.73 dB. Similarly, a pan of 870 means that the left channel is attenuated by 8.7 dB and the right channel is at full volume. 
-
-A pan of -10,000 means that the right channel is silent and the sound is "all the way to the left," while a pan of 10,000 means that the left channel is silent and the sound is "all the way to the right." 
-
-The pan control is cumulative with the volume control. 
-
-See Also: getPan, getVolume, setVolume 
-
-=====
-
+  /*
 Just in case, here's setFrequency:
 setFrequency
 public void setFrequency(int frequency);
@@ -222,8 +168,6 @@ Remarks:
 Increasing or decreasing the frequency changes the perceived pitch of the audio data. This method does not affect the format of the buffer. 
 
 See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
-
-
   */
   int i;
 
@@ -243,9 +187,8 @@ See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
 	    }
 	  else
 	    {
-	      /* TODO */
-	      // soundbank[i]->SetPan(get_pan(soundinfo[i].owner));
-	      // soundbank[i]->SetVolume(get_vol(soundinfo[i].owner));
+	      SetPan(i-1, get_pan(soundinfo[i].owner));
+	      SetVolume(i-1, get_vol(soundinfo[i].owner));
 	    }
 	}
       
@@ -259,9 +202,8 @@ See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
 		}
 	      else
 		{
-		  /* TODO */
-		  // soundbank[i]->SetPan(get_pan(soundinfo[i].owner));
-		  // soundbank[i]->SetVolume(get_vol(soundinfo[i].owner));
+		  SetPan(i-1, get_pan(soundinfo[i].owner));
+		  SetVolume(i-1, get_vol(soundinfo[i].owner));
 		}
 	    }
 	}
@@ -288,8 +230,6 @@ int EditorSoundPlayEffect(int sound)
 
 /* SoundPlayEffect */
 /* TODO:
- * - sound3d: use get_pan(sound3d) and get_vol(sound3d);
- *   seems to be the sprite the sound is attached to.
  * - min: frequency (Hz)
  * - plus: max random frequency, to add to min
  * (Check playbank in the original source code)
@@ -300,8 +240,6 @@ int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repea
   int channel;
   int channel_index;
 
-  /* TODO: adjust channel params (min, plus, sound3d) before to play */
-
   channel = Mix_PlayChannel(-1, registered_sounds[sound].sound, repeat ? -1 : 0);
 
   if (channel < 0)
@@ -310,6 +248,21 @@ int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repea
 	      sound, Mix_GetError());
       return 0;
     }
+
+
+/*   int bank = playbank (sound, min, plus, sound3d, repeat); */
+
+  if (sound3d > 0)
+    {
+      SetPan(channel, get_pan(sound3d));
+      SetVolume(channel, get_vol(sound3d));
+    }
+
+  /* TODO */
+/*   if (plus == 0) */
+/*     soundbank[i]->SetFrequency (min); */
+/*   else */
+/*     soundbank[i]->SetFrequency ((rand () % plus) + min); */
 
   channel_index = channel + 1;
   soundinfo[channel_index].owner = sound3d;
@@ -389,9 +342,14 @@ int InitSound()
        CD functions are passed a NULL CD-ROM handle. */
   }
   
-  // TODO: parameters values are random / not really justified
-  /* sabetts: Mix_OpenAudio (MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 1024) */
-  if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 1024) == -1)
+  /* MIX_DEFAULT_FREQUENCY is ~22kHz are considered a good default,
+     44kHz is considered too CPU-intensive on older computers */
+  /* MIX_DEFAULT_FORMAT is 16bit adapted to current architecture
+     (little/big endian) */
+  /* MIX_DEFAULT_CHANNELS is 2 => stereo, allowing panning effects */
+  /* 1024 (chunk on which effects are applied) seems a good default,
+     4096 is considered too big for SFX */
+  if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
     {
       Msg("Mix_OpenAudio: %s", Mix_GetError());
       return 0;
@@ -400,9 +358,40 @@ int InitSound()
   /* Allocate channels to play effects to */
   Mix_AllocateChannels(NUM_SOUNDBANKS);
 
-  return 1;
-  }
+  /* Done with initialization */
+  /* Avoid calling SDL_PauseAudio when using SDL_Mixer */
+  /* SDL_PauseAudio(0); */
   
+  
+  /* Dump audio info */
+  {
+    int numtimesopened, frequency, channels;
+    Uint16 format;
+    numtimesopened = Mix_QuerySpec(&frequency, &format, &channels);
+    if (!numtimesopened)
+      {
+	printf("Mix_QuerySpec: %s\n", Mix_GetError());
+      }
+    else
+      {
+	char *format_str = "Unknown";
+	switch (format)
+	  {
+	  case AUDIO_U8: format_str = "U8"; break;
+	  case AUDIO_S8: format_str = "S8"; break;
+	  case AUDIO_U16LSB: format_str = "U16LSB"; break;
+	  case AUDIO_S16LSB: format_str = "S16LSB"; break;
+	  case AUDIO_U16MSB: format_str = "U16MSB"; break;
+	  case AUDIO_S16MSB: format_str = "S16MSB"; break;
+	  }
+	printf("Audio info: opened=%d times  frequency=%dHz  format=%s  channels=%d\n",
+	       numtimesopened, frequency, format_str, channels);
+      }
+  }
+
+  return 1;
+}
+
 /**
  * Undoes everything that was done in a InitSound call
  */
@@ -427,4 +416,28 @@ void DestroySound(void)
 
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO | SDL_INIT_CDROM);
+}
+
+
+/* Set volume; dx_volume is [-10000;10000] in hundredth of dB */
+int SetVolume(int channel, int dx_volume)
+{
+/*   soundbank[i]->SetVolume(get_vol(soundinfo[i].owner)); */
+  // SFX
+  /* See doc/sound.txt for details */
+  return Mix_Volume(channel, MIX_MAX_VOLUME * pow(10, ((double)dx_volume / 100) / 20));
+}
+
+/* Set left/right balance; dx_panning is [-10000;10000] in hundredth
+   of dB, -ive is right channel attenuation, +ive is left channel
+   attenuation */
+int SetPan(int channel, int dx_panning)
+{
+/*   soundbank[i]->SetPan(get_pan(soundinfo[i].owner)); */
+  // SFX
+  /* See doc/sound.txt for details */
+  if (dx_panning > 0)
+    return Mix_SetPanning(channel, 255 * pow(10, ((double)-dx_panning / 100) / 20), 255);
+  else
+    return Mix_SetPanning(channel, 255, 255 * pow(10, ((double)dx_panning / 100) / 20));
 }
