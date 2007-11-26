@@ -38,6 +38,10 @@ static struct
   Mix_Chunk *sound;
 } registered_sounds[MAX_SOUNDS];
 
+int SetVolume(int channel, int dx_volume);
+int SetPan(int channel, int dx_panning);
+
+
 /**
  * Load sounds in the standard paths
  */
@@ -420,7 +424,7 @@ void DestroySound(void)
 
 
 /* Set volume; dx_volume is [-10000;10000] in hundredth of dB */
-int SetVolume(int channel, int dx_volume)
+static int SetVolume(int channel, int dx_volume)
 {
 /*   soundbank[i]->SetVolume(get_vol(soundinfo[i].owner)); */
   // SFX
@@ -431,7 +435,7 @@ int SetVolume(int channel, int dx_volume)
 /* Set left/right balance; dx_panning is [-10000;10000] in hundredth
    of dB, -ive is right channel attenuation, +ive is left channel
    attenuation */
-int SetPan(int channel, int dx_panning)
+static int SetPan(int channel, int dx_panning)
 {
 /*   soundbank[i]->SetPan(get_pan(soundinfo[i].owner)); */
   // SFX
