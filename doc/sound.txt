@@ -21,13 +21,15 @@ However, SDL_Mixer is good for background (MIDIs and audio CDs - it's
 rare to find something to read audio CDs). So we should try to use it
 in combination with OpenAL (or Allegro (or...)).
 
- * Or switch to Allegro and keep SDL for audio CDs only (or disable
-   audio CDs support)
+ * Or switch to Allegro and keep SDL for MIDIs + optionaly audio CDs
+   (i.e. for background music only), if it's possible to use both
+   libraries at once.
 
- * Or switch to OpenAL and keep SDL_Mixer (Allegro?) only for MIDIs.
+ * Idem with OpenAL instead of Allegro
 
  * Or use SDL_sound to convert MIDIs to WAVs and always software-play
-   them.
+   them. SDL_sound v2 might be used as a replacement for SDL_mixer -
+   when it comes out.
 
 
 - Function to convert volume and panning from DX's hundreds of dB to
