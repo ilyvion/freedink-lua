@@ -73,58 +73,63 @@ It would be good to make a spreadsheet and show the possible combinations.
 The conclusion is that no library does _everything_ we need, but the
 sum of all their features do.
 
-([TODO] means I need to actually test the libraries.)
+([TODO] means we need to actually test the libraries.)
 
 - Stretching:
 
   [/] SDL_gfx does. Maybe the scaling algorithm is not exactly the
-  same, I've seen some ugly tree shades in POTA, I'm not sure it was
-  intentional.
+  same, I've seen some ugly resized tree shades in POTA, I'm not sure
+  it was intentional.
 
-  [V] [TODO] SDL_strech should do.
+  [?] [TODO] SDL_strech should do.
 
-  [V] [TODO] Allegro does.
+  [?] [TODO] Allegro does.
 
-  [V] [TODO] Mesa does.
+  [?] [TODO] Mesa does.
 
 - Fonts (TTF):
 
-  [/] SDL_ttf does but lacks weight support. The height metrics aren't
-  the same either. Maybe use FreeType directly.
+  [X] SDL_ttf does but lacks weight support but TTF_STYLE_BOLD does
+  the right thing for us (see fonts.txt).
 
-  [V] [TODO] Allegro plug-in such as AllegTTF, AllegroFont or Glyph
+  [?] [TODO] Allegro plug-in such as AllegTTF, AllegroFont or Glyph
   Keeper; or pre-convert the TTF in a bitmapped format directly usable
-  by Allegro (possibly at run time, the tool is TTF2PCX).
+  by Allegro (possibly at run time, the tool is TTF2PCX) - but bitmap
+  fonts are unlikely to do proper spacing.
 
-  [V] [TODO] OpenGL+SDL_ttf+an SDL surface rendered as a texture. Or
+  [?] [TODO] OpenGL+SDL_ttf+an SDL surface rendered as a texture. Or
   use FreeType2 directly.
 
 
 - Input (keyboard, joystick):
 
-  [V] [TODO] SDL should do.
+  [/] SDL does good keyboard and joystick support, except that there's
+  no cross-platform consistent key identifiers. The work-around is to
+  run FreeDinkedit with a US keyboard layout (see keycodes.txt).
 
-  [V] [TODO] Allegro should do.
+  [?] [TODO] Allegro should do.
 
-  [V] [TODO] GLUT (Mesa, freeglut, OpenGlut) should do.
+  [?] [TODO] GLUT (Mesa, freeglut, OpenGlut) should do.
 
 
 - Sound Frequency:
 
-  [ ] SDL_mixer does not provide an equivalent to DX'
-  DirectSoundBuffer::setFrequency, and [TODO] I don't think it can be
-  implement on top of it (check sound.txt)
+  [X] SDL_mixer does not provide an equivalent to DX'
+  DirectSoundBuffer::setFrequency(), but that can be worked around
+  (check sound.txt).
  
-  [V] Allegro does. play_sample() and adjust_sample have a frequency
+  [X] Allegro does. play_sample() and adjust_sample have a frequency
   argument. The sample is computed on the fly, i.e. it is not a
   precomputed new sample with a different frequency which is then
   played. The frequency is expressed in o/oo (eg 2000 = 2x as fast,
   500 = 2x as slow), instead of DX's explicit final Hz frequency (eg
-  44100) :/
+  44100).
 
-  [V] [TODO] OpenAL does.
+  [?] [TODO] SDL_sound should do.
 
-  [V] [TODO] Audiere does.
+  [?] [TODO] OpenAL does.
+
+  [?] [TODO] Audiere does.
 
 - MIDIs:
 
@@ -142,31 +147,35 @@ sum of all their features do.
   What we really need to test now is whether it is possible to use
   multiple audio libraries at once.
 
-  [V] SDL_mixer does that perfectly, independently from SFX.
+  [X] SDL_mixer does that perfectly, independently from SFX.
 
-  [ ] Allegro's DIGMID driver seems suboptimal: under Debian, I can't
+  [/] Allegro's DIGMID driver seems suboptimal: under Debian, I can't
   get it to output any sound, with the digmid.dat from
   http://alleg.sourceforge.net/digmid.html or from TiMidity++
   configs); under Fedora, I get no sound using digmid.dat and a
   low-quality output using the TiMidity++ config.
 
+  [?] SDL_sound does through a stripped-down version of TiMidity++
+  only.
+
   [ ] OpenAL doesn't.
 
-  [ ] [TODO] Check/test the Woe/mci lag issue.
+  [ ] [TODO] Check/test the Woe/mci lag issue (addressed in "Dink
+  Aural+" version for Woe).
   
 - Audio CD:
 
-  [V] SDL does that perfectly, independently.
+  [X] SDL does that perfectly, independently.
 
   [ ] Allegro doesnt.
 
   [ ] OpenAL doesn't.
 
-  [V] [TODO] Audiere does.
+  [?] [TODO] Audiere does.
 
 - Quick audio repetition (eg when you get gold)
 
-  [V] What SDL_mixer does is OK - just remember to compile with DX
+  [X] What SDL_mixer does is OK - just remember to compile with DX
   support under Woe.
 
 
@@ -177,22 +186,22 @@ Features we plan to add afterwhile...
 
 - Fixed rate
 
-  [V] SDL_gfx does, with interpolation.
+  [X] SDL_gfx does, with interpolation.
 
 - Additional sounds formats (at least Ogg Vorbis, Flac, MP3, possibly MOD)
 
 - 16/24/32 bits support
 
-  [V] SDL does.
+  [X] SDL does.
 
-  [V] Allegro does.
+  [X] Allegro does.
 
   [?] Mesa
 
 - Graphics rotation:
 
-  [V] [TODO] SDL_gfx does.
+  [?] [TODO] SDL_gfx does.
 
-  [V] [TODO] Allegro does.
+  [?] [TODO] Allegro does.
 
-  [V] [TODO] Mesa does.
+  [?] [TODO] Mesa does.

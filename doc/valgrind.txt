@@ -1,3 +1,7 @@
+Valgrind is a suite of tools for debugging and profiling GNU/Linux
+programs. Here are various tips to use its memory debugger:
+
+
 Strip errors from SDL
 =====================
 

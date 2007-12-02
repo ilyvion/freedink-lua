@@ -1,11 +1,14 @@
 You can compile FreeDink using a completely free compilation
 environment, even under MS Woe using MinGW.
 
-MinGW can be used from an IDE (Code::Blocks, Dev-C++), or from a
+MinGW can be used from an IDE (such as Code::Blocks), or from a
 pseudo-Unix environment (MSys, Cygwin).
 
 Note: compilation from Cygwin is not supported in the Makefile right
 now, but should be in the future.
+
+Note: FreeDink now supports cross-compilation, which is faster than
+using GCC ports. Check cross.txt.
 
 
 Extract the MSys tarball (there used to be an installed, but no I just
@@ -19,8 +22,8 @@ choose at least g++, g77 (apparently and optionaly used by libSDL) and
 mingw-make.
 
 If you want to install it somewhere else (for example, if you use the
-one that comes with Dev-C++ so as to benefit of DevPaks), then run
-/postinstall/pi.sh so that msys will tweak /etc/fstab accordingly.
+one that comes with Code::Blocks so as to benefit of DevPaks), then
+run /postinstall/pi.sh so that msys will tweak /etc/fstab accordingly.
 
 
 TODO: describe Code::Blocks configuration. This is a cross-platform,
@@ -52,12 +55,7 @@ You can also compile or grab a binary of nasm
 assembly support in libSDL. Install it in /mingw/bin/.
 
 
-Get ddutil.c and ddutil.h from the original source code release. Those
-are non-free, and there's no reason to believe they can be legally
-redistributed.
-
-
-Dependencies (SDL*...):
+Dependencies (SDL_*, zzip...):
 You can either:
 
 - use DevPaks (binary packages). They are original meant for Dev C++
@@ -80,10 +78,6 @@ You can either:
 
 - http://wiki.codeblocks.org/index.php?title=Using_SDL_with_Code::Blocks
 
-
-From MSys you can use the Makefile. From Dev-C++, check the project
-files in dev-cpp/. The vc6/.dsw is a workspace, use that to edit it
-with VC++.
 
 
 GDB: I generally install Cygwin and use their GDB package. There's

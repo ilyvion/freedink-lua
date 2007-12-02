@@ -8,7 +8,8 @@ distros do not compile it the same (check
 http://freetype.org/patents.html and
 http://bugs.debian.org/447801). Passing FT_LOAD_FORCE_AUTOHINT to
 FT_Load_Glyph in SDL_ttf.c is a way to avoid using the font bytecode,
-resulting in consistent metrics.
+resulting in consistent metrics (but decreased quality and
+compatibility with Woe).
 
 The Dink engine uses of 2 fonts:
 

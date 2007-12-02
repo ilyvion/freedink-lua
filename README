@@ -1,50 +1,56 @@
 This is GNU FreeDink, a portable and enhanced version of the Dink
 Smallwood game engine.
 
-This is not a new, revolutionary game engine. Instead, it tries to do
-all the marvelous things the original Dink engine does but in an
-improved way, with an emphasis on portability and perfect (hopefully)
-backward compatibility.
-
-FreeDink is free software, and you are welcome to redistribute it
-under certain conditions; see COPYING for details.
+FreeDink is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 
 
-Planned new features, besides running on new platforms, include new
-scripting language(s), internationalization capabilities, support for
-more graphical and sound formats, new graphical primitives such as
-rotation (mainly to avoid the need to precalculate such special
-effects), more screen color modes and a more advanced game editor.
+GNU FreeDink v1.07
+------------------
 
-It should also fix bugs (unless they were used as 'features' by DMod
-authors - a DMod is a Dink MODule, or add-on).
+This version aims at running the original game as well as its D-Mods
+(Dink MODules, or add-ons), with close compatibility, under new
+platforms. For example: play existing D-Mods under GNU/Linux.
 
-
-When we say it is not revolutionary, this means that we won't
-complexify the engine with features that were never meant for the
-game. For example, free scrolling (by contrast to screen-based
-scrolling) would be quite complex to add without breaking
-compatibility.
-
-If you want to make something completely new, I suggest you simply use
-another game engine, such as Windemere
-(http://windemere.dinkworld.com/), which is built in the spirit of the
-Dink engine.
-
-If however you just like the current engine and just want to:
-- play it on your favorite operating system
-- program it with a more powerful language
-- get handy enhancements that do not change the engine foundations
-then GNU FreeDink is for you :)
-
-Check the doc/ directory for more technical considerations.
+On the technical level, GNU FreeDink v1.07 is also where the internals
+of the engines experience a clean-up to allow for portability and
+later improvements.
 
 
-Last but not least, FreeDink is part of the GNU project, whose aim is
-to create "GNU", a completely free (as in freedom) operating system -
-whose most famous variant is GNU/Linux. A engine to play the Dink
-Smallwood game and DMods is definitely a must for the GNU OS ;) Check
+GNU FreeDink v1.08
+------------------
+
+This version, not started yet, is the next step. The plan is to start
+improving the game engine, possibly breaking backward compatibility
+(such as fixing bugs in the script engine or palette manager). It will
+not be meant to play every old D-Mods perfectly, it will be meant to
+create new D-Mods with a refined engine.
+
+
+
+GNU
+---
+
+FreeDink is part of the GNU project, whose aim is to create "GNU", a
+completely free (as in freedom) operating system. Its most famous
+variant these days is GNU/Linux. A engine to play the Dink Smallwood
+game and D-Mods is definitely a must for the GNU OS ;) Check
 www.gnu.org for more information.
+
+
+Building
+--------
+
+If you are compiling GNU FreeDink from sources, check BUILD for
+instructions.
+
+
+Technical information
+---------------------
+
+Check the 'doc' directory for technical/developer considerations.
+
 
 ---
 Copying and distribution of this file, with or without modification,

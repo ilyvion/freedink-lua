@@ -6,8 +6,7 @@ suspect a MinGW-specific issue and need another compiler.
 
 [X] Port the build system to make
 
-Both make and the Dev-Cpp semi-free IDE can be used to compile GNU
-FreeDink.
+FreeDink uses the GNU autotools now.
 
 [O] Clean-up the code
 
@@ -18,27 +17,29 @@ to a library that could be reused by other tools (WDE).
 
 Status: currently the code is being split and compiles without warning
 under vanilla g++ (no -Wall option or anything). Most VC++ warnings
-have been fixed. The code was then converted to C (not ANSI yet).
+have been fixed. The code was then converted to C (not ANSI yet, if
+ever).
 
 - Encapsulate sound/video/input data, so that the engine can easily
 switch from a library to another.
 
-Cleaning the code is necessary to easily port it to another libraries.
+Cleaning the code, at least partially, is necessary to easily port it
+to other libraries.
 
 [O] Get rid of Windows-specific dependencies (ongoing)
 
-Port the game from DirectX to SDL
-(check sdl.txt for consideration on the library choice)
+Port the game from DirectX to SDL (check game_libraries.txt for
+consideration on the library choice)
 
 - Audio
   - Midi (Done)
   - Audio CD (Done: SDL_CD*)
-  - WAV (Half-done: SDL_Mixer, but we lack pitch shift and volume unit
-    conversion)
+  - WAV (Half-done: SDL_Mixer, speed shift needs to integrated in the
+    engine)
 - Input
-  - Keyboard (Neary done: a few Dinkedit glitches; decide whether to
+  - Keyboard (Nearly done: a few Dinkedit glitches; decide whether to
     use unicode instead of keycodes for letters in the game)
-  - Mouse (Nearly done: Ctrl+Mouse not supported in the editor)
+  - Mouse (Done)
 - Graphics
   - FastFile (Done: drop-in replacement)
   - Palette (Done: SDL + custom palette functions + reproduction of DX
@@ -46,9 +47,7 @@ Port the game from DirectX to SDL
   - Bitmaps (Done: backgrounds OK, sprites Game=OK Editor=OK; using
     SDL_Image to support compressed BMPs)
   - Scaling (Done: SDL_gfx/rotozoom)
-  - Fonts (In progress: SDL_ttf installed, but the font doesn't render
-    exactly the same (size and weight); color from the final screen
-    palette (bypass palette effects))
+  - Fonts (Nearly done: use 2 different fonts in the editor)
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting (Done: SDL_gfx / SDL_framerate.h)
 - Embedded resources - Dinkedit sounds, newly introduced dependencies
@@ -57,6 +56,11 @@ Port the game from DirectX to SDL
 [X] Handle remaining portability issues: use autoconf for this
     ("autoconfiscate"), and switch to automake along the way. Use
     Gnulib to get portable replacements.
+
+
+The following are initial plans from some years ago, but the world
+changed since then :) so let's consider those as ideas rather than
+definite plans.
 
 [Milestone 1]: we have a portable game engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

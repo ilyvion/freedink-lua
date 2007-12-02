@@ -1,6 +1,7 @@
-Current we need to:
+Here is what was needed to implement something close to DX sound
+functions using SDL.
 
-- implement setFrequency
+- Implement setFrequency
 
 keywords:
 "PCM", "DSP" and "pitch-shift" (possibly in combination with "C++")
@@ -11,25 +12,32 @@ suggests that "pitch shift" actually means something different, and
 that what we're trying to achieve is just "sample rate conversion".
 
 
-I don't think that actually can be done in SDL_Mixer. Rationale (may
-be wrong): I want to play a sound a looooow speed. I then need more
-time, so a longer sample. The sample I'm given when developping a mix
-effect has a fixed length, or at least I can't modify it. So my sound
-will most likely be truncated. So much for SDL_Mixer.
+SDL_mixer is not especially meant for this, but this can be
+worked-around. The problem is that SDL_mixer assumes the sound length
+doesn't change, even when there are effects callbacks. When you change
+the sound rate, the sound length does change.
 
-However, SDL_Mixer is good for background (MIDIs and audio CDs - it's
-rare to find something to read audio CDs). So we should try to use it
-in combination with OpenAL (or Allegro (or...)).
+Combining audio libraries is generally not a good thing, especially if
+you intend to make your game portable, so I implemented setFrequency
+by feeding SDL_mixer with an empty sound of the right length, and
+actually generating the sound output in a channel filter.
 
- * Or switch to Allegro and keep SDL for MIDIs + optionaly audio CDs
-   (i.e. for background music only), if it's possible to use both
-   libraries at once.
+More precisely: the sound is loaded and converted to the hardware
+format (so that conversion is done only once: at load time). Sample
+rate is left unchanged though, because SDL_ConvertAudio() only
+supports rate*(2*n) or rate/(2*n). The callback filter supports
+several hardware format (8/16bit, mono/stereo), and uses
+endian-independent coding to support LSB and MSB endianness. The
+filter does the sample rate conversion each time the sound is
+played. This requires creating a new SDL_mixer chunk each time.
 
- * Idem with OpenAL instead of Allegro
-
- * Or use SDL_sound to convert MIDIs to WAVs and always software-play
-   them. SDL_sound v2 might be used as a replacement for SDL_mixer -
-   when it comes out.
+The naive implementation gives a special tone to the sound. I
+implemented linear interpolation (as Allegro and probably DX does)
+which attempt to get a more faithful result while using a fast
+algorithm. Secret Rabbit Code (a.k.a. libsamplerate) provides finer
+and more CPU-intensive algorithms, in addition to linear
+interpolation, but I didn't find it easy to easy in a game engine with
+real-time conversion, and I wanted to avoid extra dependencies.
 
 
 - Function to convert volume and panning from DX's hundreds of dB to
@@ -40,7 +48,7 @@ in combination with OpenAL (or Allegro (or...)).
 sound_set_vol(): "The volume should be negative or zero. 0 is no
 change, -1000 is about half-volume, and -10000 is extremely quiet."
 
-Formula (keywords: dsp decibel dB volume):
+Base formula (keywords: dsp decibel dB volume):
 
  20*log10 (x/max_vol) ~> y (dB)
  ex: 20*log10 (80/128) ~> -4dB
@@ -79,6 +87,9 @@ sound louder in the left speaker (or technically, less loud in the
 right speaker). Note that panning is not updated when Dink moves, it
 is based on the initial location of the sprite in the screen.
 
+
+TODO:
+
 - separate initsound from sfx - it's sfx+bgm
 
 - If 100X is played, and if there's no CD, and if 100X.mid doesn't
@@ -89,85 +100,3 @@ Note:
 
 - soundplayeffect returns a non-0 bank number; it's used by DinkC's
   playsound(). Beware!
-
-
-
-TiMidity++
-==========
-
-I never managed to use my sound card in MIDI mode with GNU/Linux -
-however there is a program called TiMidity++ that is a MIDI->WAV
-translator (software-based MIDI playing, rather than hardware-based).
-
-SDL uses TiMidity++ automatically.
-
-TiMidity++ by itself cannot play MIDIs, he needs a set of "patches",
-which are data files defining how to reproduce the instrument
-specified by the MIDI file. Once you get the patches, you also need a
-configuration file, usually provided separately.
-
-Apparently there are 2 patches set worthy to mention:
-
-- freepats: free-as-in-freedom, included in Debian main (so compatible
-  with the DFSG, the Debian Free Software Guidelines).
-
-- eawpatches: best quality but apparently non-free, and pretty hard to
-  find (TiMidity++ is surrounded by 404 pages :/). The free parts of
-  eawpatches are included in freepats (on freepats.opensrc.org, you
-  see in the news items that Eric A Welsh, who compiled the
-  eawpatches, worked himself on sorting out the legally distributable
-  files for freepats).
-
-  There is a copy in the NetBSD package:
-  ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
-  ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/alpha/2.1_2006Q3/All/eawpatches-12nb1.tgz
-
-  SDL_Mixer also has a copy: http://www.libsdl.org/projects/SDL_mixer/
-  http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
-
-  Gentoo also has a copy:
-  http://distfiles.gentoo.org/distfiles/eawpats12_full.tar.gz
-  Install using 'emerge media-sound/timidity-eawpatches', and define
-  the current patchset using:
-    eselect timidity list
-    eselect timidity set freepats
-    eselect timidity set eawpatches
-
-  Apparently some of eawpats is used in the Fedora timidity++ package
-  (britepno.pat.bz2, pistol.pat.bz2 - added from now-defunct
-  http://www.stardate.bc.ca/eawpatches/eawpats/ following
-  http://bugzilla.redhat.com/50982 without much explanation), but the
-  other source tarball
-  (http://archive.cs.umbc.edu/pub/midia/instruments.tar.bz2) lack
-  legal notices, and the documented origins are dead links, so I don't
-  know what it's based on really. dance.mid plays fine so it's not
-  just plain freepats.
-
-Here is what I did to install the eawpatches from the NetBSD port to
-Debian GNU/Linux Etch. First I installed the patch in the
-FHS-compliant location (I checked where freepats was installed using
-dpkg -L freepats):
-
-  tar xzf eawpatches-12nb1.tgz
-  mv share/eawpatches/ /usr/share/midi/
-
-I then edited /etc/timidity/timidity.cfg:
-  source /usr/share/midi/eawpatches/timidity.cfg
-and /usr/share/midi/eawpatches/timidity.cfg:
-  dir /usr/share/midi/eawpatches
-
-Now you can play your favorite MIDIs decently :)
-  timidity dink/Sound/dance.mid
-
-
-The NetBSD documentation (in file '+DISPLAY') mentions you can test
-patch files with command line options instead of messing with the
-site-wide default configuration file:
-
-  timidity -L /usr/pkg/share/eawpatches -c timidity.cfg file.mid
-
-
-Another sum-up page: http://alleg.sourceforge.net/digmid.html
-
-I tried to install the Gravis Pro patches along with the provided
-configuration file, but I didn't manage to get something playing.
