@@ -38,8 +38,8 @@ static struct
   Mix_Chunk *sound;
 } registered_sounds[MAX_SOUNDS];
 
-int SetVolume(int channel, int dx_volume);
-int SetPan(int channel, int dx_panning);
+static int SetVolume(int channel, int dx_volume);
+static int SetPan(int channel, int dx_panning);
 
 
 /**
