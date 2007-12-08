@@ -43,6 +43,9 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_ALLOCA
   gl_CANONICALIZE_LGPL
   gl_ERROR
+  m4_ifdef([AM_XGETTEXT_OPTION],
+    [AM_XGETTEXT_OPTION([--flag=error:3:c-format])
+     AM_XGETTEXT_OPTION([--flag=error_at_line:5:c-format])])
   gl_EXITFAIL
   gl_GETOPT
   AC_SUBST([LIBINTL])
@@ -180,6 +183,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gnulib-common.m4
   m4/include_next.m4
   m4/inline.m4
+  m4/lib-ld.m4
   m4/longlong.m4
   m4/malloc.m4
   m4/malloca.m4
