@@ -19,3 +19,10 @@ scattered among the autotools build system files).
 
 We use the getopt module (for getopt_long()) and the relocatable-prog
 (get_full_program_name() and relocate()).
+
+
+To refresh Gnulib, just:
+/usr/src/gnulib/gnulib-tool --import
+
+Gnulib will use 'gnulib/m4/gnulib-cache.m4' to detect which modules
+need to be updated.
