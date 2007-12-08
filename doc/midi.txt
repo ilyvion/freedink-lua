@@ -1,0 +1,79 @@
+TiMidity++
+==========
+
+I never managed to use my sound card in MIDI mode with GNU/Linux -
+however there is a program called TiMidity++ that is a MIDI->WAV
+translator (software-based MIDI playing, rather than hardware-based).
+
+SDL uses TiMidity++ automatically.
+
+TiMidity++ by itself cannot play MIDIs, he needs a set of "patches",
+which are data files defining how to reproduce the instrument
+specified by the MIDI file. Once you get the patches, you also need a
+configuration file, usually provided separately.
+
+Apparently there are 2 patches set worthy to mention:
+
+- freepats: free-as-in-freedom, included in Debian main (so compatible
+  with the DFSG, the Debian Free Software Guidelines).
+
+- eawpatches: best quality but apparently non-free, and pretty hard to
+  find (TiMidity++ is surrounded by 404 pages :/). The free parts of
+  eawpatches are included in freepats (on freepats.opensrc.org, you
+  see in the news items that Eric A Welsh, who compiled the
+  eawpatches, worked himself on sorting out the legally distributable
+  files for freepats).
+
+  There is a copy in the NetBSD package:
+  ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
+  ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/alpha/2.1_2006Q3/All/eawpatches-12nb1.tgz
+
+  SDL_Mixer also has a copy: http://www.libsdl.org/projects/SDL_mixer/
+  http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
+
+  Gentoo also has a copy:
+  http://distfiles.gentoo.org/distfiles/eawpats12_full.tar.gz
+  Install using 'emerge media-sound/timidity-eawpatches', and define
+  the current patchset using:
+    eselect timidity list
+    eselect timidity set freepats
+    eselect timidity set eawpatches
+
+  Apparently some of eawpats is used in the Fedora timidity++ package
+  (britepno.pat.bz2, pistol.pat.bz2 - added from now-defunct
+  http://www.stardate.bc.ca/eawpatches/eawpats/ following
+  http://bugzilla.redhat.com/50982 without much explanation), but the
+  other source tarball
+  (http://archive.cs.umbc.edu/pub/midia/instruments.tar.bz2) lack
+  legal notices, and the documented origins are dead links, so I don't
+  know what it's based on really. dance.mid plays fine so it's not
+  just plain freepats.
+
+Here is what I did to install the eawpatches from the NetBSD port to
+Debian GNU/Linux Etch. First I installed the patch in the
+FHS-compliant location (I checked where freepats was installed using
+dpkg -L freepats):
+
+  tar xzf eawpatches-12nb1.tgz
+  mv share/eawpatches/ /usr/share/midi/
+
+I then edited /etc/timidity/timidity.cfg:
+  source /usr/share/midi/eawpatches/timidity.cfg
+and /usr/share/midi/eawpatches/timidity.cfg:
+  dir /usr/share/midi/eawpatches
+
+Now you can play your favorite MIDIs decently :)
+  timidity dink/Sound/dance.mid
+
+
+The NetBSD documentation (in file '+DISPLAY') mentions you can test
+patch files with command line options instead of messing with the
+site-wide default configuration file:
+
+  timidity -L /usr/pkg/share/eawpatches -c timidity.cfg file.mid
+
+
+Another sum-up page: http://alleg.sourceforge.net/digmid.html
+
+I tried to install the Gravis Pro patches along with the provided
+configuration file, but I didn't manage to get something playing.
