@@ -7,18 +7,17 @@
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
@@ -30,50 +29,73 @@
 #include "gfx.h"
 #include "io_util.h"
 #include "gfx_fonts.h"
-static int FONTS_load_default_font(void);
 
-/* HFONT */
-/* #include <windows.h> */
 
-/* Global, shared by other modules */
-TTF_Font *FONTS_hfont_small = NULL;
-/* The current font, when activated through FONTS_SetFont() */
-static TTF_Font *cur_font = NULL;
-
-/* TODO: lf.lfHeight = 18; */
-/* SDL_ttf makes the font bigger than Woe, let's try 16 instead of
-     18 */
+/* Default size was 18 in the original game, but it refers to a
+   different part of the font glyph (see doc/fonts.txt for
+   details). 16 matches that size with SDL_ttf. */
 #define FONT_SIZE 16
 
-/* HFONT hfont_small = NULL; */
+/* Default fonts: dialog and system */
+static TTF_Font *dialog_font = NULL;
+static TTF_Font *system_font = NULL;
 
+/* Current font parameters */
 static SDL_Color text_color;
+
+static TTF_Font *load_default_font(char *filename);
+static void setup_font(TTF_Font *font);
 
 
 /**
- * Init font subsystem
+ * Init font subsystem and load the default fonts
  */
 void FONTS_init()
 {
-  TTF_Init();
-  FONTS_load_default_font();
-  FONTS_SetFont(FONTS_hfont_small);
+  if(TTF_Init()==-1) {
+    fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
+    exit(1);
+  }
+
+  dialog_font = load_default_font("LiberationSans-Regular.ttf");
+  system_font = load_default_font("vgasys.fon");
+  if (dialog_font == NULL || system_font == NULL)
+    {
+      fprintf(stderr, "Failed to load the default fonts\n");
+      exit(1);
+    }
 }
+
+/**
+ * Quit the font subsystem (and free loaded fonts from memory)
+ */
+void kill_fonts(void)
+{
+  if (dialog_font)
+    {
+      TTF_CloseFont(dialog_font);
+      dialog_font = NULL;
+    }
+  if (system_font)
+    {
+      TTF_CloseFont(system_font);
+      system_font = NULL;
+    }
+
+  TTF_Quit();
+}
+
 
 /**
  * Default font from resources and pkgdatadir
  */
-static int FONTS_load_default_font() {
+static TTF_Font *load_default_font(char *filename) {
+  TTF_Font *font_object = NULL;
   char *first_error = NULL;
-
-  if (FONTS_hfont_small != NULL) {
-    printf("load_default_font: font already loaded\n");
-    return -1;
-  }
 
   /* Try from resources */
   SDL_RWops* rwops;
-  rwops = find_resource_as_rwops("LiberationSans-Regular.ttf");
+  rwops = find_resource_as_rwops(filename);
   if (rwops == NULL)
     {
       /* Error comes from ZZIP, keep it for later if everything
@@ -84,8 +106,8 @@ static int FONTS_load_default_font() {
     }
   else
     {
-      FONTS_hfont_small = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
-      if (FONTS_hfont_small == NULL)
+      font_object = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
+      if (font_object == NULL)
 	{
 	  char *error = TTF_GetError();
 	  first_error = malloc(strlen(error) + 1);
@@ -94,22 +116,22 @@ static int FONTS_load_default_font() {
     }
   
   /* Fallback to package data directory */
-  if (FONTS_hfont_small == NULL)
+  if (font_object == NULL)
     {
-      char *path = find_data_file("LiberationSans-Regular.ttf");
+      char *path = find_data_file(filename);
       if (path != NULL)
-	FONTS_hfont_small = TTF_OpenFont(path, FONT_SIZE);
+	font_object = TTF_OpenFont(path, FONT_SIZE);
   
-      if (FONTS_hfont_small == NULL)
+      if (font_object == NULL)
 	{
-	  fprintf(stderr, "Could not find LiberationSans-Regular.ttf\n");
+	  fprintf(stderr, "Could not find %s\n", filename);
 	  fprintf(stderr, "- loading from myself failed with: %s\n", first_error);
 	  if (path != NULL)
 	    fprintf(stderr, "- loading from %s failed with %s\n", path, TTF_GetError());
 	  else
 	    fprintf(stderr, "- file was not found in the data dir\n");
 	  /* TODO: clean-up before exiting */
-	  exit(1);
+	  return NULL;
 	}
 
       if (path != NULL)
@@ -119,72 +141,84 @@ static int FONTS_load_default_font() {
   if (first_error != NULL)
     free(first_error);
 
-  if (FONTS_hfont_small == NULL)
-    return -1;
+  if (font_object == NULL)
+    return NULL;
 
-  TTF_SetFontStyle(FONTS_hfont_small, TTF_STYLE_BOLD);
+  setup_font(font_object);
 
-  printf("The font max height is: %d\n", TTF_FontHeight(FONTS_hfont_small));
-  printf("The font ascent is: %d\n", TTF_FontAscent(FONTS_hfont_small));
-  printf("The font descent is: %d\n", TTF_FontDescent(FONTS_hfont_small));
-  printf("The font line skip is: %d\n", TTF_FontLineSkip(FONTS_hfont_small));
-  if(TTF_FontFaceIsFixedWidth(FONTS_hfont_small))
-    printf("The font is fixed width.\n");
-  else
-    printf("The font is not fixed width.\n");
-  char *familyname=TTF_FontFaceFamilyName(FONTS_hfont_small);
-  if(familyname)
-    printf("The family name of the face in the font is: %s\n", familyname);
-  char *stylename=TTF_FontFaceStyleName(FONTS_hfont_small);
-  if(stylename)
-    printf("The name of the face in the font is: %s\n", stylename);
-
-  return 0;
+  return font_object;
 }
 
-
-
 /**
- * Change the current font (DinkC initfont() command)
+ * Change the current dialog font (DinkC initfont() command)
  */
-int FONTS_initfonts(char* fontname) {
+int initfont(char* fontname) {
   /* TODO: lf.lfWeight = 600; */
-  /* TODO: lf.lfHeight = 18; */
   /* TODO: Load from Woe's system font dir if not found in the current
      directory */
 
-  if (FONTS_hfont_small != NULL) {
-    TTF_CloseFont(FONTS_hfont_small);
-    FONTS_hfont_small = NULL;
+  if (dialog_font != NULL) {
+    TTF_CloseFont(dialog_font);
+    dialog_font = NULL;
   }
 
   /* Font from DMod directory */
-  if (FONTS_hfont_small == NULL)
+  if (dialog_font == NULL)
     {
-      FONTS_hfont_small = TTF_OpenFont(fontname, FONT_SIZE);
+      dialog_font = TTF_OpenFont(fontname, FONT_SIZE);
     }
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-  if (FONTS_hfont_small == NULL)
+  if (dialog_font == NULL)
     {
       /* Look in %WINDIR%\Fonts */
       char *path = malloc(MAX_PATH + 7 + strlen(fontname) + 1);
       GetWindowsDirectory(path, MAX_PATH);
       strcat(path, "\\Fonts\\");
       strcat(path, fontname);
-      FONTS_hfont_small = TTF_OpenFont(path, FONT_SIZE);
+      dialog_font = TTF_OpenFont(path, FONT_SIZE);
     }
 #endif
 
-  if (FONTS_hfont_small == NULL) {
+  if (dialog_font == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());
     return -1;
   }
 
-  FONTS_SetFont(FONTS_hfont_small);
+  setup_font(dialog_font);
 
   return 0;
 }
+
+/**
+ * Apply default style to the font
+ * Plus some informative output
+ */
+static void
+setup_font(TTF_Font *font)
+{
+  printf("font=%p\n", font);
+
+  char *familyname = TTF_FontFaceFamilyName(font);
+  if(familyname)
+    printf("The family name of the face in the font is: %s\n", familyname);
+  char *stylename = TTF_FontFaceStyleName(font);
+  if(stylename)
+    printf("The name of the face in the font is: %s\n", stylename);
+  printf("The font max height is: %d\n", TTF_FontHeight(font));
+  printf("The font ascent is: %d\n", TTF_FontAscent(font));
+  printf("The font descent is: %d\n", TTF_FontDescent(font));
+  printf("The font line skip is: %d\n", TTF_FontLineSkip(font));
+  if(TTF_FontFaceIsFixedWidth(font))
+    printf("The font is fixed width.\n");
+  else
+    printf("The font is not fixed width.\n");
+
+  TTF_SetFontStyle(font, TTF_STYLE_BOLD);
+}
+
+
+
 
 void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b) {
   text_color.r = r;
@@ -192,12 +226,8 @@ void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b) {
   text_color.b = b;
 }
 
-void FONTS_SetFont(TTF_Font *font)
-{
-  cur_font = font;
-}
 
-void
+static void
 print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/color,
 	    /*bool*/int hcenter)
 {
@@ -236,6 +266,8 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
   }
 
   /* Transparent, low quality - closest to the original engine. */
+  /* Besides, we do need a monochrome render, since we're doing nasty
+     tricks to set the color appropriately */
   tmp = TTF_RenderText_Solid(font, str, color);
 
   /* Bigger, with a box background */
@@ -284,8 +316,11 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
   SDL_FreeSurface (tmp);
 }
 
-int
-font_len (TTF_Font * font, char *str, int len)
+/**
+ * Get the size in pixel of 'len' chars starting at 'str'
+ */
+static int
+font_len (TTF_Font *font, char *str, int len)
 {
   int text_w;
   char *tmp;
@@ -301,8 +336,12 @@ font_len (TTF_Font * font, char *str, int len)
   return text_w;
 }
 
-int
-process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
+/**
+ * Add newlines in the text so that it fit in 'box'
+ * (a.k.a. word-wrapping)
+ */
+static int
+process_text_for_wrapping (TTF_Font *font, char *str, rect *box)
 {
   //printf("process_text_for_wrapping: %s on %dx%d\n", str, box->right - box->left, box->bottom - box->top);
   int i, start, line, last_fit;
@@ -373,9 +412,16 @@ process_text_for_wrapping (TTF_Font * font, char *str, rect * box)
   return line;
 }
 
+/**
+ * Print text 'str' in 'box', adding newlines if necessary
+ * (word-wrapping). Return the text height in pixels.
+ * 
+ * calc_only: don't actually draw text on screen, but still compute
+ * the text height
+ */
 int
-print_text_wrap (char *str, rect * box,
-		 /*bool*/int hcenter, int calc_only)
+print_text_wrap (char *str, rect* box,
+		 /*bool*/int hcenter, int calc_only, FONT_TYPE font_type)
 {
   int x, y, res_height;
   char *tmp, *pline, *pc;
@@ -385,7 +431,16 @@ print_text_wrap (char *str, rect * box,
   TTF_Font *font;
   int lineskip = 0;
 
-  font = cur_font;
+  if (font_type == DIALOG_FONT)
+    font = dialog_font;
+  else if (font_type == SYSTEM_FONT)
+    font = system_font;
+  else
+    {
+      fprintf(stderr, "Error: unknown font type %d\n", font_type);
+      exit(1);
+    }
+
   /* Workaround: with vgasys.fon, lineskip is always 1. We'll use it's
      height instead. */
   lineskip = TTF_FontLineSkip(font);
@@ -430,10 +485,13 @@ print_text_wrap (char *str, rect * box,
 
 
 
-/* Say, SaySmall: only used by freedinkedit.cpp */
-/* SaySmall: print text in a 40x40 small square; without font
-   border */
-void SaySmall(char thing[500], int px, int py, int r,int g,int b)
+/* Say, SaySmall: only used by freedinkedit.c */
+/**
+ * SaySmall: print text in a 40x40 small square; without font border
+ * (sprite info boxes when typing 'I', plus something in tile
+ * hardness)
+ */
+void SaySmall(char thing[500], int px, int py, int r, int g, int b)
 {
   rect rcRect;
 /*   HDC hdc; */
@@ -445,13 +503,15 @@ void SaySmall(char thing[500], int px, int py, int r,int g,int b)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(r, g, b);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, SYSTEM_FONT);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
 }
-/* Say: print text until it reaches the border of the screen, with a
-   font border */
+/**
+ * Say: print text until it reaches the border of the screen, with a
+ * font border (input dialog boxes)
+ */
 void Say(char thing[500], int px, int py)
 {
   rect rcRect;
@@ -467,35 +527,20 @@ void Say(char thing[500], int px, int py)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(8, 14, 21);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
 
       rect_offset(&rcRect,-2,-2);
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
 
       rect_offset(&rcRect,1,1);
 /*       SetTextColor(hdc,RGB(255,255,0)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(255, 255, 0);
-      print_text_wrap(thing, &rcRect, 0, 0);
+      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
-}
-
-void kill_fonts(void)
-{
-/*   if (hfont_small) */
-/*     { */
-/*       DeleteObject(hfont_small); */
-/*       hfont_small = NULL; */
-/*     } */
-  
-  if (FONTS_hfont_small)
-    {
-      TTF_CloseFont(FONTS_hfont_small);
-      FONTS_hfont_small = NULL;
-    }
 }

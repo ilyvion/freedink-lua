@@ -489,9 +489,6 @@ extern /*bool*/int midi_active;
 extern /*bool*/int sound_on;
 extern /*bool*/int cd_inserted;
 
-/* Drawing */
-extern void initfonts(char fontname[255]);
-
 /* extern HRESULT ddrval; */
 /* extern LPDIRECTDRAWPALETTE lpDDPal; /\* The primary surface palette *\/ */
 /* extern PALETTEENTRY    pe[256]; */
@@ -603,7 +600,6 @@ extern void save_map(const int num);
 extern void add_text(char *tex ,char *filename);
 extern void save_info(void);
 extern int realhard(int tile);
-extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void save_hard(void);
 
 extern int draw_map_tiny;

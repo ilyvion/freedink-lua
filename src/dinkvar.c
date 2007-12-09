@@ -8129,9 +8129,7 @@ pass:
                         int p[20] = {2,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-
-/*                                 initfonts(slist[0]); */
-                                FONTS_initfonts(slist[0]);
+                                initfont(slist[0]);
                                 Msg("Initted font %s",slist[0]);
                         }  else Msg("Failed getting parms for Initfont()");
 

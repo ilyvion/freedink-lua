@@ -31,20 +31,23 @@
 #include "SDL_ttf.h"
 #include "rect.h"
 
-/* extern HFONT hfont_small; */
-extern TTF_Font *FONTS_hfont_small;
+
+typedef enum enum_font
+{
+    DIALOG_FONT = 0,
+    SYSTEM_FONT,
+} FONT_TYPE;
+
 
 extern void FONTS_init(void);
-extern int FONTS_initfonts(char* fontname);
-/* extern int print_text_wrap (TTF_Font * font, char *str, struct rect * box, SDL_Color color, */
-/* 			    /\*bool*\/int hcenter, /\*bool*\/int vcenter); */
-extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only);
-/* extern void initfonts(char fontname[255]); */
 extern void kill_fonts(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
-extern void FONTS_SetFont(TTF_Font *font);
+extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
 
 extern void SaySmall(char thing[500], int px, int py, int r,int g,int b);
 extern void Say(char thing[500], int px, int py);
+
+/* DinkC binding */
+extern int initfont(char* fontname);
 
 #endif

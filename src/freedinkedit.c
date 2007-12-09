@@ -4957,8 +4957,7 @@ void updateFrame(void)
 	  /* Display help message at the bottom of the screen */
 /* 	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 	  // FONTS
-	  /* TODO: use vgasys.fon instead of the default font */
-	  print_text_wrap(msg, &rcRect, 0, 0);
+	  print_text_wrap(msg, &rcRect, 0, 0, SYSTEM_FONT);
 	}
 
 /*       lpDDSBack->ReleaseDC(hdc); */
@@ -5479,7 +5478,6 @@ if (sound_on)
   QuitSound();
 
 	FastFileFini();
-	void kill_fonts();
 	kill_fonts();
 
 
