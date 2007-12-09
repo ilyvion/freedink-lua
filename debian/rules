@@ -57,7 +57,7 @@ clean:
 	rm -f debian/build-stamp 
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) -C $(BUILD) distclean
+	[ ! -e $(BUILD) ] || $(MAKE) -C $(BUILD) distclean
 #	Install autotools-dev's config.sub and config.guess, if newer:
 	chmod 755 debian/update-autotools-config.sh
 	debian/update-autotools-config.sh autotools/
