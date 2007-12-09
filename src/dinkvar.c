@@ -56,7 +56,6 @@
 /* #include <ddraw.h> */
 
 #include "SDL.h"
-#include "SDL_mixer.h"
 #include "SDL_framerate.h"
 #include "SDL_rotozoom.h"
 
@@ -7782,7 +7781,7 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 if (sound_on)
-                                        returnint = SoundPlayEffect(nlist[0], nlist[1], nlist[2], nlist[3],nlist[4]);
+                                        returnint = playsound(nlist[0], nlist[1], nlist[2], nlist[3],nlist[4]);
                                 else returnint = 0;
 
                         } else
@@ -7804,7 +7803,7 @@ pass:
                                 {
                                         //let's set one sound to survive
                                         if (nlist[0] > 0)
-                                                soundinfo[nlist[0]].survive = nlist[1];
+					  sound_set_survive(nlist[0], nlist[1]);
                                 }
                         }
 
@@ -7825,11 +7824,7 @@ pass:
                           //let's set one sound to survive
                           if (nlist[0] > 0)
                             {
-                              // TODO
-                              soundinfo[nlist[0]].vol = nlist[1];
-
-                              // soundbank[nlist[0]]->SetVolume(nlist[1]);
-                              // Mix_Volume(nlist[0]-1, conversion(nlist[1]));
+                              sound_set_vol(nlist[0], nlist[1]);
                             }
                         }
                     }
@@ -7850,7 +7845,7 @@ pass:
                         {
                           //let's set one sound to survive
                           if (nlist[0] > 0)
-                            Mix_HaltChannel(nlist[0] - 1);
+                            sound_set_kill(nlist[0] - 1);
                         }
                     }
 

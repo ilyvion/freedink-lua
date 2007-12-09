@@ -28,26 +28,20 @@
 
 #include "SDL_mixer.h"
 
-#define NUM_SOUNDBANKS 20
-/* Channel metadata */
-struct soundstruct
-{
-  /*bool*/int repeat;
-  int owner;
-  int survive;
-  int vol;
-};
-
-extern struct soundstruct soundinfo[NUM_SOUNDBANKS+1];
-
 extern int InitSound();
 extern int CreateBufferFromWaveFile(char* filename, int dwBuf);
-extern int EditorSoundPlayEffect(int sound);
+extern void EditorSoundPlayEffect(int sound);
 extern int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat);
 extern int playing(int sound);
 extern int SoundStopEffect(int sound);
 extern void kill_repeat_sounds(void);
 extern void kill_repeat_sounds_all(void);
-extern void DestroySound( void );
+extern void QuitSound(void);
+
+/* DinkC procedures */
+extern int playsound(int sound, int min, int plus, int sound3d, int repeat);
+extern void sound_set_kill(int soundbank);
+extern void sound_set_survive(int soundbank, int survive);
+extern void sound_set_vol(int soundbank, int volume);
 
 #endif

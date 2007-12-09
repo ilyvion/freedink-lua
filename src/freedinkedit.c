@@ -5476,7 +5476,7 @@ void finiObjects( void )
 
 
 if (sound_on)
-	  DestroySound();
+  QuitSound();
 
 	FastFileFini();
 	void kill_fonts();
@@ -5732,8 +5732,8 @@ int SInitSound()
 {
   int i;
 
-  if (!InitSound())
-    return 0;
+  if (InitSound() < 0)
+    return -1;
 
   /*
    * Load all sounds

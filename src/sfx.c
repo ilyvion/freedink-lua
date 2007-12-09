@@ -3,24 +3,23 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2005  Sylvain Beucler
+ * Copyright (C) 2005, 2007  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
  * GNU FreeDink is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
 
  * GNU FreeDink is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with program; see the file COPYING. If not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301, USA.
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "SDL.h"
@@ -30,39 +29,326 @@
 #include "io_util.h"
 #include "math.h"
 
-struct soundstruct soundinfo[NUM_SOUNDBANKS+1];
+#define NUM_SOUNDBANKS 20
+/* Channel metadata */
+struct soundstruct
+{
+  /*bool*/int repeat;
+  int owner;
+  int survive;
+  int cur_sound; /* Sound currently played in that channel */
+};
+static struct soundstruct soundinfo[NUM_SOUNDBANKS];
+
 
 #define MAX_SOUNDS 100
 static struct
 {
-  Mix_Chunk *sound;
+  SDL_AudioSpec orig_spec;
+  Uint32 orig_len;
+  SDL_AudioCVT cvt;
 } registered_sounds[MAX_SOUNDS];
+
+
+static int hw_freq, hw_channels;
+static Uint16 hw_format;
+/* Fake buffer: we give an empty buffer to SDL_mixer and a size
+   information that matches the sound with the target sample rate. We
+   won't play from that buffer, the audio buffer will be generated in
+   callback_samplerate(). To avoid wasting more memory, we share this
+   fake audio buffer among all Chunks. */
+Uint8* fake_buf = NULL;
+int fake_buf_len = 0;
+
+
 
 static int SetVolume(int channel, int dx_volume);
 static int SetPan(int channel, int dx_panning);
+static void CleanupChannel(int channel);
+static void FreeRegisteredSound(int index);
 
 
 /**
- * Load sounds in the standard paths
- */
-int CreateBufferFromWaveFile(char* filename, int dwBuf)
+ * Display a SDL audio-format in human-readable form
+ **/
+static const char *format2string(Uint16 format) {
+  char *format_str = "Unknown";
+  switch (format)
+    {
+    case AUDIO_U8: format_str = "U8"; break;
+    case AUDIO_S8: format_str = "S8"; break;
+    case AUDIO_U16LSB: format_str = "U16LSB"; break;
+    case AUDIO_S16LSB: format_str = "S16LSB"; break;
+    case AUDIO_U16MSB: format_str = "U16MSB"; break;
+    case AUDIO_S16MSB: format_str = "S16MSB"; break;
+    }
+  return format_str;
+}
+
+
+
+struct data
 {
-    // Open the wave file       
-    char path[150];
-    
-    sprintf(path, "sound/%s", filename);
-    if (!exist(ciconvert(path)))
-      sprintf(path, "../dink/sound/%s", filename);
-    
-    registered_sounds[dwBuf].sound = Mix_LoadWAV(ciconvert(path));
-    
-    if (registered_sounds[dwBuf].sound == NULL)
-      {
-        fprintf(stderr, "Error loading %s - %s\n", filename, Mix_GetError());
-        return 0;
-      }
-    
-    return 1;
+  int pos; /* which sample (not frame) we're playing now, in 1/256th */
+  int shift; /* position advance for 1 frame, in 1/256th */
+  int pos_lastframe; /* index for the last frame */
+  int pos_end; /* upper bound (pre-calculated for efficiency&simplicity) */
+  SDL_AudioSpec orig_spec;
+  SDL_AudioCVT cvt;
+  int play_freq;
+};
+
+/**
+ * Frequency shift with linear interpolation
+ * 
+ * Techniques from Allegro's mixer.c
+ * 
+ * We'll assume 8bit is unsigned and 16bit is signed for simplicity
+ * (common case)
+ *
+ * We'll also assume that the converted buffer is in the system's
+ * endianness (there's no reason it shouldn't be) - still the code
+ * portably handles LSB and MSB endianness alike.
+ */
+static void callback_samplerate(int chan, void *stream, int len, void *udata)
+{
+  struct data* data = (struct data*)udata;
+
+  /* printf("%d - %d/%d\n", len, data->pos>>8, data->pos_end>>8); */
+
+  switch (data->cvt.dst_format)
+    {
+    case AUDIO_U8:
+      if (hw_channels == 1)
+	{
+	  /* Unsigned 8bit mono */
+	  Uint8 *buf = (Uint8*) data->cvt.buf;
+	  Uint8 *pstream = (Uint8*)stream;
+	  short silence = 128;
+	  int bytesPerFrame = 1;
+	  int i;
+	  for (i = 0; i < len; i += bytesPerFrame)
+	    {
+	      int cur_index = data->pos >> 8;
+	      Uint8 *pbuf = &buf[cur_index];
+	      /* This frame (left and right channels)... */
+	      Uint8 v1 = *(pbuf++);
+	      /* and the next frame */
+	      Uint8 v2;
+	      if (data->pos < data->pos_lastframe)
+		  v2 = *(pbuf++);
+	      else
+		  v2 = silence;
+	      
+	      /* Compute interpolation based on progress (subpos) between v1
+		 and v2 (measured between 0 and (1<<8)-1) */
+	      int subpos = data->pos & ((1<<8) - 1); /* or: data->pos % 256 */
+	      Uint8 v = (v1 * ((1<<8) - subpos) + v2 * subpos) >> 8;
+	      *(pstream++) = v;
+	      
+	      data->pos += data->shift;
+	      if (data->pos >= data->pos_end)
+		data->pos = 0;
+	    }
+ 	}
+      else if (hw_channels == 2)
+	{
+	  /* Unsigned 8bit stereo */
+	  Uint8 *buf = (Uint8*) data->cvt.buf;
+	  Uint8 *pstream = (Uint8*)stream;
+	  short silence = 128;
+	  int bytesPerFrame = 2;
+	  int i;
+	  for (i = 0; i < len; i += bytesPerFrame)
+	    {
+	      int cur_index = data->pos >> 8 << 1; /* x2 because stereo */
+	      Uint8 *pbuf = &buf[cur_index];
+	      /* This frame (left and right channels)... */
+	      Uint8 v1l = *(pbuf++);
+	      Uint8 v1r = *(pbuf++);
+	      /* and the next frame */
+	      Uint8 v2l, v2r;
+	      if (data->pos < data->pos_lastframe)
+		{
+		  v2l = *(pbuf++);
+		  v2r = *(pbuf++);
+		}
+	      else
+		{
+		  v2l = v2r = silence;
+		}
+	      
+	      /* Compute interpolation based on progress (subpos) between v1
+		 and v2 (measured between 0 and (1<<8)-1) */
+	      int subpos = data->pos & ((1<<8) - 1); /* or: data->pos % 256 */
+	      Uint8 vl = (v1l * ((1<<8) - subpos) + v2l * subpos) >> 8;
+	      Uint8 vr = (v1r * ((1<<8) - subpos) + v2r * subpos) >> 8;
+	      *(pstream++) = vl;
+	      *(pstream++) = vr;
+	      
+	      data->pos += data->shift;
+	      if (data->pos >= data->pos_end)
+		data->pos = 0;
+	    }
+	}
+      break;
+    case AUDIO_S16SYS:
+      if (hw_channels == 1)
+	{
+	  /* Signed 16bit mono */
+	  Sint16 *buf = (Sint16*) data->cvt.buf;
+	  Sint16 *pstream = (Sint16*)stream;
+	  short silence = 0;
+	  int bytesPerFrame = 2;
+	  int i;
+	  for (i = 0; i < len; i += bytesPerFrame)
+	    {
+	      int cur_index = data->pos >> 8;
+	      Sint16 *pbuf = &buf[cur_index];
+	      /* This frame (left and right channels)... */
+	      Sint16 v1 = *(pbuf++);
+	      /* and the next frame */
+	      Sint16 v2;
+	      if (data->pos < data->pos_lastframe)
+		  v2 = *(pbuf++);
+	      else
+		  v2 = silence;
+	      
+	      /* Compute interpolation based on progress (subpos) between v1
+		 and v2 (measured between 0 and (1<<8)-1) */
+	      int subpos = data->pos & ((1<<8) - 1); /* or: data->pos % 256 */
+	      Sint16 v = (v1 * ((1<<8) - subpos) + v2 * subpos) >> 8;
+	      *(pstream++) = v;
+	      
+	      data->pos += data->shift;
+	      if (data->pos >= data->pos_end)
+		data->pos = 0;
+	    }
+	}
+      else if (hw_channels == 2)
+	{
+	  /* Signed 16bit stereo */
+	  Sint16 *buf = (Sint16*) data->cvt.buf;
+	  Sint16 *pstream = (Sint16*)stream;
+	  short silence = 0;
+	  int bytesPerFrame = 4;
+	  int i;
+	  for (i = 0; i < len; i += bytesPerFrame)
+	    {
+	      int cur_index = (data->pos >> 8) << 1; /* x2 because stereo */
+	      Sint16 *pbuf = &buf[cur_index];
+	      /* This frame (left and right channels)... */
+	      Sint16 v1l = *(pbuf++);
+	      Sint16 v1r = *(pbuf++);
+	      /* and the next frame */
+	      Sint16 v2l, v2r;
+	      if (data->pos < data->pos_lastframe)
+		{
+		  v2l = *(pbuf++);
+		  v2r = *(pbuf++);
+		}
+	      else
+		{
+		  v2l = v2r = silence;
+		}
+	      
+	      /* Compute interpolation based on progress (subpos) between v1
+		 and v2 (measured between 0 and (1<<8)-1) */
+	      int subpos = data->pos & ((1<<8) - 1); /* or: data->pos % 256 */
+	      Sint16 vl = (v1l * ((1<<8) - subpos) + v2l * subpos) >> 8;
+	      Sint16 vr = (v1r * ((1<<8) - subpos) + v2r * subpos) >> 8;
+	      *(pstream++) = vl;
+	      *(pstream++) = vr;
+	      
+	      data->pos += data->shift;
+	      if (data->pos >= data->pos_end)
+		data->pos = 0;
+	    }
+	}
+      break;
+    }
+}
+
+
+
+
+/**
+ * Load sounds from the standard paths. Sound is converted to the
+ * current hardware (soundcard) format so that sound rate can be
+ * altered with minimal overhead when playing the sound.
+ */
+int CreateBufferFromWaveFile(char* filename, int index)
+{
+  // Open the wave file       
+  char path[150];
+  
+  sprintf(path, "sound/%s", filename);
+  if (!exist(ciconvert(path)))
+    sprintf(path, "../dink/sound/%s", filename);
+
+  SDL_AudioSpec wav_spec;
+  Uint8 *wav_buf;
+  Uint32 wav_len;
+  if (SDL_LoadWAV(ciconvert(path), &wav_spec, &wav_buf, &wav_len) == NULL)
+    {
+      fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+      return 0;
+    }
+  printf("%s\tinfo: frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes\n",
+	 filename,
+	 wav_spec.freq, format2string(wav_spec.format),
+	 wav_spec.channels, wav_len);
+
+
+  /* Converting some WAV data to hardware format - except for sample
+     rate, which we will do better after that. */
+  /* TODO: testing with a sine.wav, I saw that stereo->mono (2->1
+     channels) conversion works quite bad - maybe we should it
+     ourselves too. AFAICS this case is not handled by
+     SDL_audiocvt.c. */
+  SDL_AudioCVT cvt;
+  int ret;
+  
+  /* Build AudioCVT */
+  ret = SDL_BuildAudioCVT(&cvt,
+			  wav_spec.format, wav_spec.channels, wav_spec.freq,
+			  hw_format, hw_channels, wav_spec.freq);
+  
+  /* Check that the convert was built */
+  if (ret == -1) {
+    fprintf(stderr, "Couldn't build converter: %s\n", SDL_GetError());
+    SDL_FreeWAV(wav_buf);
+  }
+
+  /* Setup for conversion */
+  cvt.buf = (Uint8 *)malloc(wav_len*cvt.len_mult);
+  cvt.len = wav_len;
+  memcpy(cvt.buf, wav_buf, wav_len);
+  
+  /* We can delete to original WAV data now */
+  SDL_FreeWAV(wav_buf);
+
+  
+  /* And now we're ready to convert */
+  ret = SDL_ConvertAudio(&cvt);
+  if (ret == -1) {
+    fprintf(stderr, "Couldn't convert audiox: %s\n", SDL_GetError());
+    SDL_FreeWAV(wav_buf);
+  }
+  
+  /* Work-around: if no conversion is needed, format is not specified: */
+  if (cvt.needed == 0)
+    cvt.dst_format = wav_spec.format;
+
+  /* Converted audio is now in cvt.buf */
+  /*printf("CVT\t\tinfo: frequency=?Hz\tformat=%s\tchannels=??\tlength=%d bytes\n",
+      format2string(cvt.dst_format), cvt.len_cvt);*/
+
+  registered_sounds[index].orig_spec = wav_spec;
+  registered_sounds[index].orig_len = wav_len;
+  registered_sounds[index].cvt = cvt;
+  
+  return 1;
 }
 
 /**
@@ -74,7 +360,7 @@ int get_channel(int sound) {
   /* Check all channels to see if it is playing the sound */
   for (i = 0; i < NUM_SOUNDBANKS; i++)
     {
-      if (Mix_GetChunk(i) == registered_sounds[sound].sound)
+      if (soundinfo[i].cur_sound == sound)
         return i;
     }
   return -1;
@@ -82,6 +368,8 @@ int get_channel(int sound) {
 
 /**
  * Is the specified sound currently playing?
+ * 
+ * Only used in pig_brain(), could be removed maybe.
  */
 int playing(int sound)
 {
@@ -107,15 +395,15 @@ void kill_repeat_sounds(void)
   
   Msg("Killing repeating sound");
 
-  for (i = 1; i <= NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_SOUNDBANKS; i++)
     {
       // Msg("Bank #%d: repeat=%d, owner=%d, survive=%d", i,
       //   soundinfo[i].repeat, soundinfo[i].owner, soundinfo[i].survive);
       if (soundinfo[i].repeat && (soundinfo[i].owner == 0)
           && (soundinfo[i].survive == 0))
         {
-          Mix_HaltChannel(i-1);
-	  Msg("Killed repeating sound %d", i-1);
+          Mix_HaltChannel(i);
+	  Msg("Killed repeating sound %d", i);
           soundinfo[i].repeat = 0;
         }
     }
@@ -130,16 +418,23 @@ void kill_repeat_sounds_all(void)
   if (!sound_on)
     return;
   
-  for (i = 1; i <= NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_SOUNDBANKS; i++)
     {
       if (soundinfo[i].repeat && (soundinfo[i].owner == 0))
         {
-          Mix_HaltChannel(i-1);
+          Mix_HaltChannel(i);
           soundinfo[i].repeat = 0;
         }
     }
 }
 
+/**
+ * Kill one sound
+ */
+void kill_this_sound(int channel)
+{
+  Mix_HaltChannel(channel);
+}
 
 /**
  * Called by update_frame()
@@ -151,63 +446,41 @@ void kill_repeat_sounds_all(void)
  */
 void update_sound(void)
 {
-  /*
-Just in case, here's setFrequency:
-setFrequency
-public void setFrequency(int frequency);
-
-
-Sets the frequency at which the audio samples are played. 
-
-Return Value: 
-
-No return value. 
-
-Parameter Description 
-frequency  New frequency, in Hz, at which to play the audio samples. The value must be between 100 and 100,000. If the value is 0, the frequency is reset to the current buffer format. This format is specified in the createSoundBuffer method.  
-
-
-Remarks: 
-
-Increasing or decreasing the frequency changes the perceived pitch of the audio data. This method does not affect the format of the buffer. 
-
-See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
-  */
   int i;
 
   if (!sound_on)
     return;
   
-  for (i = 1; i <= NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_SOUNDBANKS; i++)
     {
       if (soundinfo[i].repeat && (soundinfo[i].owner != 0))
 	{
 	  if ((spr[soundinfo[i].owner].sound == 0)
 	      || (spr[soundinfo[i].owner].active == /*false*/0) )
 	    {
-	      Mix_HaltChannel(i-1);
+	      Mix_HaltChannel(i);
 	      soundinfo[i].owner = 0;
 	      soundinfo[i].repeat = 0;
 	    }
 	  else
 	    {
-	      SetPan(i-1, get_pan(soundinfo[i].owner));
-	      SetVolume(i-1, get_vol(soundinfo[i].owner));
+	      SetPan(i, get_pan(soundinfo[i].owner));
+	      SetVolume(i, get_vol(soundinfo[i].owner));
 	    }
 	}
       
-      if (Mix_Playing(i-1))
+      if (Mix_Playing(i))
 	{
 	  if (soundinfo[i].owner != 0)
 	    {
 	      if (spr[soundinfo[i].owner].active == /*false*/0)
 		{
-		  Mix_HaltChannel(i-1);
+		  Mix_HaltChannel(i);
 		}
 	      else
 		{
-		  SetPan(i-1, get_pan(soundinfo[i].owner));
-		  SetVolume(i-1, get_vol(soundinfo[i].owner));
+		  SetPan(i, get_pan(soundinfo[i].owner));
+		  SetVolume(i, get_vol(soundinfo[i].owner));
 		}
 	    }
 	}
@@ -215,36 +488,98 @@ See Also: getFrequency, play, setFormat, com.ms.directX.DirectSound
 }
 
 
+static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*bool*/int repeat, int explicit_channel);
 
 /**
  * Just play a sound, do not try to update sprites info or apply
  * effects
  */
-int EditorSoundPlayEffect(int sound)
+inline void EditorSoundPlayEffect(int sound)
 {
-  if (Mix_PlayChannel(0, registered_sounds[sound].sound, 0) < 0)
-    {
-      fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
-	      sound, Mix_GetError());
-      return 0;
-    }
-  return 1;
+  SoundPlayEffectChannel(sound, registered_sounds[sound].orig_spec.freq, 0, 0, 0, 0);
 }
 
-
-/* SoundPlayEffect */
-/* TODO:
+/**
+ * Play a sound previously loaded to memory (in registered_sounds)
+ * - sound: sound index
  * - min: frequency (Hz)
  * - plus: max random frequency, to add to min
- * (Check playbank in the original source code)
+ * - sound3d: if != 0, sprite number whose location will be used for
+ *   pseudo-3d effects (volume, panning)
+ * - repeat: is sound looping?
  **/
-
-int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat)
+inline int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat)
+{
+  return SoundPlayEffectChannel(sound, min, plus, sound3d, repeat, -1);
+}
+/**
+ * SoundPlayEffect_Channel_ allows to specify an explicit audio
+ * channel, which in turns allows the editor to only use one channel
+ * for everything (when you move the mouse with the keyboard, you'll
+ * hear a series of close 'ticks', but they won't overlap each
+ * others). The rest of the time, the game will just pass '-1' for the
+ * channel, so the first available channel (among MIX_CHANNELS useable
+ * simultaneously) will be selected.
+ */
+static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*bool*/int repeat, int explicit_channel)
 {
   int channel;
-  int channel_index;
 
-  channel = Mix_PlayChannel(-1, registered_sounds[sound].sound, repeat ? -1 : 0);
+  /* Sample rate / frequency */
+  {
+    /** Shift:
+	hw_adjust = wave_freq / hw_freq;
+	sample_rate_adjust = play_freq / wave_freq
+	shift = hw_adjust * sample_rate_adjust = wave_freq/hw_freq * play_freq/wave_freq
+	<<8 because we're using 1/256th units (poor man's double)
+  */
+    int play_freq;
+    if (plus == 0)
+      play_freq = min;
+    else
+      play_freq = (rand () % plus) + min;
+    
+    SDL_AudioSpec wav_spec = registered_sounds[sound].orig_spec;
+    Uint32 wav_len = registered_sounds[sound].orig_len;
+    SDL_AudioCVT cvt = registered_sounds[sound].cvt;
+    /* Compute how much we should advance in the original sound when we
+       play one frame with hw_freq */
+    int shift = ((int)round((double)play_freq / hw_freq * (1<<8)));
+    /* printf("shift=%d (%d*64)\n", shift, shift>>8); */
+    
+    /* Last byte in hw_format is the number of bits per sample: */
+    int wav_bytesPerSample = (wav_spec.format & 0xFF) / 8;
+    int pos_end = ((wav_len / wav_bytesPerSample) / wav_spec.channels) << 8; /* number of frames */
+    int pos_lastframe = (((wav_len / wav_bytesPerSample) / wav_spec.channels) - 1) << 8;
+    
+    /** Create a junk wav of the right size **/
+    int resized_len = cvt.len_cvt * ((double)hw_freq / play_freq);
+
+    /* Give a bigger buffer to Mix_PlayChannel if needed */
+    if (resized_len > fake_buf_len)
+      {
+	fake_buf_len = resized_len;
+	fake_buf = realloc(fake_buf, fake_buf_len);
+      }
+    Mix_Chunk *chunk = Mix_QuickLoad_RAW(fake_buf, resized_len);
+    /* printf("resized_len=%d bytes, pos_end=%d\n", resized_len, pos_end); */
+    
+    channel = Mix_PlayChannel(explicit_channel, chunk, repeat ? -1 : 0);
+    struct data *data = calloc(1, sizeof(struct data));
+    data->pos = 0;
+    data->shift = shift;
+    data->pos_lastframe = pos_lastframe;
+    data->pos_end = pos_end;
+    data->orig_spec = wav_spec;
+    data->cvt = cvt;
+    data->play_freq = play_freq;
+
+    Mix_RegisterEffect(channel, callback_samplerate, NULL, data);
+    Mix_ChannelFinished(CleanupChannel);
+  }
+
+
+  /* channel = Mix_PlayChannel(-1, registered_sounds[sound].sound, repeat ? -1 : 0); */
 
   if (channel < 0)
     {
@@ -262,29 +597,23 @@ int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repea
       SetVolume(channel, get_vol(sound3d));
     }
 
-  /* TODO */
-/*   if (plus == 0) */
-/*     soundbank[i]->SetFrequency (min); */
-/*   else */
-/*     soundbank[i]->SetFrequency ((rand () % plus) + min); */
 
-  channel_index = channel + 1;
-  soundinfo[channel_index].owner = sound3d;
-  soundinfo[channel_index].repeat = repeat;
-  soundinfo[channel_index].survive = 0;
-  soundinfo[channel_index].vol = 0;
+  soundinfo[channel].owner = sound3d;
+  soundinfo[channel].repeat = repeat;
+  soundinfo[channel].survive = 0;
+  soundinfo[channel].cur_sound = sound;
 
   /* Return a non-zero channel */
-  return channel_index;
+  return channel+1;
 }
         
-/*
+/**
  * SoundStopEffect
  *
  * Stops the sound effect specified.
  * Returns TRUE if succeeded.
  */
-int SoundStopEffect( int sound )
+int SoundStopEffect(int sound)
 {
   int channel;
 
@@ -303,11 +632,11 @@ int SoundStopEffect( int sound )
 }
 
 
-/*
+/**
  * InitSound
  *
  * Sets up the DirectSound object and loads all sounds into secondary
- * DirectSound buffers.  Returns FALSE on error, or TRUE if successful
+ * DirectSound buffers.  Returns -1 on error, or 0 if successful
  */
 int InitSound()
 {
@@ -316,7 +645,7 @@ int InitSound()
   if (SDL_Init(SDL_INIT_CDROM | SDL_INIT_AUDIO) == -1)
     {
       Msg("SDL_Init: %s\n", SDL_GetError());
-      return 0;
+      return -1;
     }
   
   // Initialize CD-ROM
@@ -356,7 +685,7 @@ int InitSound()
   if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
     {
       Msg("Mix_OpenAudio: %s", Mix_GetError());
-      return 0;
+      return -1;
     }
 
   /* Allocate channels to play effects to */
@@ -366,40 +695,35 @@ int InitSound()
   /* Avoid calling SDL_PauseAudio when using SDL_Mixer */
   /* SDL_PauseAudio(0); */
   
+
+  /* Allocate fake buffer */
+  fake_buf = malloc(1);
+  fake_buf_len = 1;
   
+
   /* Dump audio info */
   {
-    int numtimesopened, frequency, channels;
-    Uint16 format;
-    numtimesopened = Mix_QuerySpec(&frequency, &format, &channels);
+    int numtimesopened;
+    numtimesopened = Mix_QuerySpec(&hw_freq, &hw_format, &hw_channels);
     if (!numtimesopened)
-      {
-	printf("Mix_QuerySpec: %s\n", Mix_GetError());
-      }
+      printf("Mix_QuerySpec: %s\n", Mix_GetError());
     else
-      {
-	char *format_str = "Unknown";
-	switch (format)
-	  {
-	  case AUDIO_U8: format_str = "U8"; break;
-	  case AUDIO_S8: format_str = "S8"; break;
-	  case AUDIO_U16LSB: format_str = "U16LSB"; break;
-	  case AUDIO_S16LSB: format_str = "S16LSB"; break;
-	  case AUDIO_U16MSB: format_str = "U16MSB"; break;
-	  case AUDIO_S16MSB: format_str = "S16MSB"; break;
-	  }
-	printf("Audio info: opened=%d times  frequency=%dHz  format=%s  channels=%d\n",
-	       numtimesopened, frequency, format_str, channels);
-      }
+      printf("Audio info: frequency=%dHz\tformat=%s\tchannels=%d\topened=%d times\n",
+	     hw_freq, format2string(hw_format), hw_channels, numtimesopened);
   }
 
-  return 1;
+  /* No sound playing yet - initialize the lookup table: */
+  int i;
+  for (i = 0; i < NUM_SOUNDBANKS; i++)
+    soundinfo[i].cur_sound = -1;
+
+  return 0;
 }
 
 /**
  * Undoes everything that was done in a InitSound call
  */
-void DestroySound(void)
+void QuitSound(void)
 {
   int idxKill;
   
@@ -410,20 +734,55 @@ void DestroySound(void)
    * Frees up resources associated with a sound effect
    */
   for (idxKill = 0; idxKill < MAX_SOUNDS; idxKill++)
-    {
-      if (registered_sounds[idxKill].sound != NULL)
-        {
-          Mix_FreeChunk(registered_sounds[idxKill].sound);
-          registered_sounds[idxKill].sound = NULL;
-        }
-    }
+    FreeRegisteredSound(idxKill);
+
+  free(fake_buf); fake_buf = NULL;
+  fake_buf_len = 0;
 
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO | SDL_INIT_CDROM);
 }
 
+/**
+ * Free memory used by sound #'index'
+ */
+static void FreeRegisteredSound(int index)
+{
+  if (registered_sounds[index].cvt.buf != NULL)
+    {
+      free(registered_sounds[index].cvt.buf);
+      registered_sounds[index].cvt.buf = NULL;
+    }
+}
 
-/* Set volume; dx_volume is [-10000;10000] in hundredth of dB */
+/**
+ * Free chunk once it's played (through Mix_ChannelFinished()
+ * callback)
+ */
+static void CleanupChannel(int channel)
+{
+  /* SDL_mixer won't try to free the actual audio buffer (fake_buf) if
+     the Chunk was loaded via Mix_QuickLoad_RAW() - which is a good
+     thing since fake_buf is shared by all Chunks. We still need to
+     free the Chunk when it's done playing. */
+  Mix_Chunk *chunk = Mix_GetChunk(channel);
+  if (chunk == NULL)
+    {
+      printf("Internal error: cannot free channel %d's chunk (where did it disappear?)\n", channel);
+      exit(1);
+    }
+  Mix_FreeChunk(chunk);
+  soundinfo[channel].cur_sound = -1;
+
+  /* Revert SetVolume and SetPan effects */
+  Mix_UnregisterAllEffects(channel);
+  Mix_Volume(channel, MIX_MAX_VOLUME);
+}
+
+
+/**
+ * Set volume; dx_volume is [-10000;10000] in hundredth of dB
+ */
 static int SetVolume(int channel, int dx_volume)
 {
 /*   soundbank[i]->SetVolume(get_vol(soundinfo[i].owner)); */
@@ -432,9 +791,12 @@ static int SetVolume(int channel, int dx_volume)
   return Mix_Volume(channel, MIX_MAX_VOLUME * pow(10, ((double)dx_volume / 100) / 20));
 }
 
-/* Set left/right balance; dx_panning is [-10000;10000] in hundredth
-   of dB, -ive is right channel attenuation, +ive is left channel
-   attenuation */
+
+/**
+ * Set left/right balance; dx_panning is [-10000;10000] in hundredth
+ * of dB, -ive is right channel attenuation, +ive is left channel
+ * attenuation
+ */
 static int SetPan(int channel, int dx_panning)
 {
 /*   soundbank[i]->SetPan(get_pan(soundinfo[i].owner)); */
@@ -444,4 +806,30 @@ static int SetPan(int channel, int dx_panning)
     return Mix_SetPanning(channel, 255 * pow(10, ((double)-dx_panning / 100) / 20), 255);
   else
     return Mix_SetPanning(channel, 255, 255 * pow(10, ((double)dx_panning / 100) / 20));
+}
+
+
+/** DinkC procedures **/
+/* BIG FAT WARNING: in DinkC, soundbank is channel+1
+   (a.k.a. non-zero), and 0 means failure. */
+int playsound(int sound, int min, int plus, int sound3d, int repeat)
+{
+  int channel = SoundPlayEffect(sound, min, plus, sound3d, repeat);
+  int soundbank = channel + 1;
+  return soundbank;
+}
+void sound_set_kill(int soundbank)
+{
+  int channel = soundbank - 1;
+  Mix_HaltChannel(channel);
+}
+void sound_set_survive(int soundbank, int survive)
+{
+  int channel = soundbank - 1;
+  soundinfo[channel].survive = survive;
+}
+void sound_set_vol(int soundbank, int volume)
+{
+  int channel = soundbank - 1;
+  SetVolume(channel, volume);
 }

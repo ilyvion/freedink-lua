@@ -5548,7 +5548,7 @@ void finiObjects()
 	
 	
 	if (sound_on)
-		DestroySound();
+	  QuitSound();
 	
 	
 	if (sound_on)
@@ -6107,10 +6107,13 @@ static int doInit(int argc, char *argv[])
   if (sound_on) 
     {
       Msg("Initting sound");
-      sound_on = InitSound();
+      if (InitSound() < 0)
+	sound_on = 0;
+      else
+	sound_on = 1;
     }
   
-	
+  
   srand((unsigned)time(NULL));
 	
 
