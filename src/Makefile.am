@@ -55,7 +55,8 @@ if HAVE_UPX
 endif
 if HAVE_ZIP
 # Bundle resources
-	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf
+	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf	\
+		$(resdir)/vgasys.fon
 	cat res.zip >> "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 	rm -f res.zip
 	zip -A "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"

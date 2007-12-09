@@ -19,7 +19,10 @@ http://autopackage.org/docs/tutorials/glb-binport.html).
 Technical note: maybe use -Wl,--as-needed, it's supposed to reduce the
 number of NEEDED symbols (objdump -x src/freedink | grep NEEDED). The
 SDL list says it "makes the target only depend on first-level
-dependencies".
+dependencies". It's also used by apgcc now (previously they used their
+own code for that task). Apparently it avoids, say, FreeDink from
+having a direct dependency (as seen with ldd) to FreeType, which
+FreeDink only uses indirectly through SDL_ttf.
 
 
 Compiling with the distro's SDL
@@ -100,7 +103,10 @@ me@dmc:~/freedink/test/sdl$ ldd joytest
         libXdmcp.so.6 => /usr/lib/libXdmcp.so.6 (0xb7d92000)
 
 Here we still have a dynamic executable, with the usual glibc
-issues. Compiling with apgcc from Apbuild (Autopackage) may help.
+issues. Compiling with apgcc from Apbuild (Autopackage) will only help
+if all dependencies are also compiled with apgcc, so it's pretty much
+a dead end. Compiling from Debian stable (a.k.a. an "old" distro) may
+work (with a freetype backport, as Etch's version is buggy).
 
 SDL_ttf
   aptitude install libsdl-ttf2.0-dev libfreetype6-dev zlib1g-dev
@@ -109,6 +115,7 @@ SDL_ttf
 SDL_mixer
   aptitude install libsdl-mixer1.2-dev libsmpeg-dev
   -lSDL-mixer -lvorbisfile -lvorbis -logg -lsmpeg -lstdc++
+
 
 Compiling with a custom simpler SDL
 ===================================
@@ -170,6 +177,8 @@ $ ldd joytest
         libpthread.so.0 => /lib/tls/i686/cmov/libpthread.so.0 (0xb7f48000)
         libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7e17000)
         /lib/ld-linux.so.2 (0xb7f78000)
+
+Same remarks about using apgcc.
 
 
 Try switching from dlopen to relaytool

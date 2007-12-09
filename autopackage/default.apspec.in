@@ -34,7 +34,15 @@ AutopackageTarget: 1.2
 [BuildPrepare]
 # For ./configure based systems this is a good default
 #prepareBuild --with-some-feature
-prepareBuild --with-upx --enable-static
+
+# --with-upx => incompatible with autopackage
+# ("WARNING: ELF binary ./bin/freedinkedit was compiled without apbuild.")
+# + truncated executables
+
+# --enable-static: caution: dependencies also need to be compiled with
+# apbuild. See: http://autopackage.org/apbuild-apgcc.php
+
+prepareBuild
 
 [BuildUnprepare]
 unprepareBuild

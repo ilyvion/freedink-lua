@@ -24,6 +24,12 @@ The package can be generated through:
 $ cd ~/freedink/ # not ~/freedink/autopackage/
 $ makepackage
 
+Note: makepackage will attempt to manually strip executables:
+  Scanning and stripping ELF binaries ... done
+This will also strip bundled resources (appened zip file). If you want
+to avoid that, give makepackage the '-s' option.
+
+
 If that's the first time you install an autopackage:
 http://autopackage.org/docs/howto-install/
 
@@ -33,5 +39,5 @@ $ package install "GNU FreeDink 1.07.20070916.package"
 $ package remove freedink
 
 
-Currently we do not deal with SDL dependencies, this will be fixed
-later on.
+Currently we do not deal with SDL dependencies, but I wonder whether
+they can be statically built...

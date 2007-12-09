@@ -38,7 +38,7 @@ AC_ARG_WITH([upx], [compress executables [[default=no]]],
 #   "yes" (--with-upx),
 #   "upx-ucl", "/non/standard/path/to/upx" (--with-upx=...),
 #   "no" (default, --without-upx)
-if test x"$with_upx" = yes; then
+if test x"$with_upx" = x"yes"; then
   with_upx="upx"
 fi
 case "$with_upx" in
@@ -198,3 +198,5 @@ echo
 echo "Options summary:"
 echo "* --with-upx=$with_upx"
 echo "* --enable-static=$static"
+echo
+echo "Now you can type 'make' to compile $PACKAGE_STRING"
