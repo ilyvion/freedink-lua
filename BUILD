@@ -1,11 +1,11 @@
 Instructions to build from scratch (from the repository sources).
 
-If you're using a release (TODO: release a release ;)) you won't need
-bootstrap instructions.
+If you downloaded a release you can skip the "Bootstrap" instructions
+and go to "Dependencies" directly.
 
 These instructions may sound redundant with the packaging specs (.deb,
-.rpm, .ebuild, etc.) but they are necessary to maintain for people who
-want to compile the latest, not-yet-packaged sources :)
+.rpm, .ebuild, etc.) but they are necessary for people who want to
+compile the latest, not-yet-packaged sources :)
 
 
 On a minimal Debian system
@@ -100,7 +100,7 @@ make distcheck
 ## Optional: software MIDI support, used by SDL_mixer
 # Check doc/sound.txt for details
 # timidity++ and timidity++-patches already installed as dependencies
-#   of SDL_mixer
+#   from SDL_mixer
 
 # :)
 

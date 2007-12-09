@@ -34,7 +34,7 @@ AutopackageTarget: 1.2
 [BuildPrepare]
 # For ./configure based systems this is a good default
 #prepareBuild --with-some-feature
-prepareBuild
+prepareBuild --with-upx --enable-static
 
 [BuildUnprepare]
 unprepareBuild

@@ -44,44 +44,33 @@ freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c
 
 # TODO: move to post-install hook (after install-strip)
 
+
+resdir=$(top_srcdir)/share/freedink
+install-exec-hook:
+if HAVE_UPX
 # UPX compression
 # Needs to be done before bundling resources
-if HAVE_UPX
-all-local: freedink_upx_stamp freedinkedit_upx_stamp
-freedink_upx_stamp: freedink
-	-$(UPX) --best freedink
-	touch freedink_upx_stamp
-freedinkedit_upx_stamp: freedinkedit
-	-$(UPX) --best freedinkedit
-	touch freedinkedit_upx_stamp
-else
-freedink_upx_stamp:
-freedinkedit_upx_stamp:
+	-$(UPX) --best "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
+	-$(UPX) --best "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 endif
-
-# Bundle resources
 if HAVE_ZIP
-resdir=$(top_srcdir)/share/freedink
-all-local: freedink_res_stamp freedinkedit_res_stamp
-freedink_res_stamp: freedink freedink_upx_stamp
+# Bundle resources
 	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf
-	cat res.zip >> freedink$(EXEEXT)
+	cat res.zip >> "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 	rm -f res.zip
-	zip -A freedink$(EXEEXT)
-	touch freedink_res_stamp
+	zip -A "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 
-freedinkedit_res_stamp: freedinkedit freedinkedit_upx_stamp
 	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf	\
-		$(resdir)/stop.wav $(resdir)/jump.wav
-	cat res.zip >> freedinkedit$(EXEEXT)
+		$(resdir)/vgasys.fon $(resdir)/stop.wav		\
+		$(resdir)/jump.wav
+	cat res.zip >> "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 	rm -f res.zip
-	zip -A freedinkedit$(EXEEXT)
-	touch freedinkedit_res_stamp
+	zip -A "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 endif
 
 clean-local:
 	-rm -f *stamp
 
-# Other projects that use Autotools while supporting MinGW
+# Other projects that use Autotools and support MinGW
 # http://sourceforge.net/projects/chocolate-doom (Doom port)
 # http://savannah.nongnu.org/projects/akfavatar (text display)

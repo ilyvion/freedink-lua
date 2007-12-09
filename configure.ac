@@ -24,17 +24,35 @@ gl_INIT
 if test x"$host" = x"$build"; then
 AM_BINRELOC
 fi
+
 AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
+
 AC_CHECK_PROG(ZIP, zip, zip)
 AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
 
-AC_ARG_ENABLE([upx],
-  AS_HELP_STRING([--enable-upx],[compress executables [[default=no]]]),
-  [upx=1], [upx=0])
-if test x"$upx" = x"1"; then
-   AC_CHECK_PROG(UPX, upx, upx)
+AC_ARG_WITH([upx], [compress executables [[default=no]]],
+            [], [with_upx=no])
+
+# Possible values for $with_upx:
+#   "yes" (--with-upx),
+#   "upx-ucl", "/non/standard/path/to/upx" (--with-upx=...),
+#   "no" (default, --without-upx)
+if test x"$with_upx" = yes; then
+  with_upx="upx"
 fi
+case "$with_upx" in
+  no)
+    ;;
+  */*)
+    # look if full path to executable exists
+    AC_PATH_PROG(UPX, [`basename $with_upx`], [], [`dirname $with_upx`])
+    ;;
+  *)
+    # look in PATH
+    AC_CHECK_PROG(UPX, $with_upx, $with_upx)
+    ;;
+esac
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 dnl Check for SDL
@@ -43,7 +61,7 @@ AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
   be redefined (and saved by autoconf) for cross-compilation.])
 AM_PATH_SDL($SDL_VERSION,
   :,
-  AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+  AC_MSG_WARN([*** SDL version $SDL_VERSION not found!]); LACK_LIBSDL=1
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
@@ -53,11 +71,12 @@ LIBS="$LIBS $SDL_LIBS"
 ## We build SDL on cygwin without the UNIX emulation layer
 ##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
 
-AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_ERROR([You need to install SDL_gfx]))
-AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_ERROR(You need to install SDL_ttf))
-AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_ERROR([You need to install SDL_image]))
-AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_ERROR([You need to install SDL_mixer]))
-AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_ERROR([You need to install zzip]))
+AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
+AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
+AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
+AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
+AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
+
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
@@ -67,7 +86,7 @@ AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_ERROR([You need to install zzip]))
 old_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
 AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
-  [], AC_MSG_ERROR([Could not find necessary SDL libs headers]))
+  [], AC_MSG_WARN([Could not find necessary SDL libs headers]); LACK_HEADERS=1)
 CPPFLAGS="$old_CPPFLAGS"
 
 
@@ -113,8 +132,69 @@ if test x"$static" = x"1"; then
 fi
 
 
+
+echo
+echo "Errors recap:"
+error=0
+
+if test "$LACK_LIBSDL" = 1; then
+   echo "* You need to install the libSDL";
+   error=1
+fi
+if test "$LACK_LIBSDL_GFX" = 1; then
+   echo "* You need to install the SDL_gfx library";
+   error=1
+fi
+if test "$LACK_LIBSDL_TTF" = 1; then
+   echo "* You need to install the SDL_ttf library";
+   error=1
+fi
+if test "$LACK_LIBSDL_IMAGE" = 1; then
+   echo "* You need to install the SDL_image library";
+   error=1
+fi
+if test "$LACK_LIBSDL_MIXER" = 1; then
+   echo "* You need to install the SDL_mixer library";
+   error=1
+fi
+if test "$LACK_LIBZZIP" = 1; then
+   echo "* You need to install the zziplib library"
+   error=1
+fi
+
+if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
+   echo "* You lack some library headers (.h) - see warnings above."
+   error=1
+fi
+
+if test -z "$ZIP"; then
+  echo "* The 'zip' utility cannot be found. Please install it."
+fi
+
+if test "$with_upx" != "no" -a -z "$UPX"; then
+  echo "* Error: UPX is explicitely activated (--with-upx=$with_upx) but cannot be found"
+  error=1
+fi
+
+if test "$error" = 1; then
+  echo
+  echo "There are errors - stopping. Please check the reports above."
+  echo "If dependencies (such as SDL_gfx) are missing, please check BUILD for distro package names."
+  exit 1
+else
+  echo "* No errors"
+fi
+echo
+
+
 AC_CONFIG_FILES([Makefile gnulib/lib/Makefile src/Makefile \
   src/woeres.rc share/Makefile share/freedink/Makefile \
   autopackage/Makefile autopackage/default.apspec])
 
 AC_OUTPUT
+
+
+echo
+echo "Options summary:"
+echo "* --with-upx=$with_upx"
+echo "* --enable-static=$static"
