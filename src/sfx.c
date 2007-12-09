@@ -29,34 +29,40 @@
 #include "io_util.h"
 #include "math.h"
 
-#define NUM_SOUNDBANKS 20
+
 /* Channel metadata */
-struct soundstruct
+#define NUM_CHANNELS 20
+struct
 {
   /*bool*/int repeat;
   int owner;
   int survive;
   int cur_sound; /* Sound currently played in that channel */
-};
-static struct soundstruct soundinfo[NUM_SOUNDBANKS];
+} channelinfo[NUM_CHANNELS];
 
 
+/* Sound metadata */
 #define MAX_SOUNDS 100
 static struct
 {
   SDL_AudioSpec orig_spec;
-  Uint32 orig_len; /* TODO: maybe not necessary, see cvt */
+  Uint32 orig_len;
+  int pos_lastframe; /* index for the last frame */
+  int pos_end; /* upper bound (pre-calculated for efficiency&simplicity) */
   SDL_AudioCVT cvt;
 } registered_sounds[MAX_SOUNDS];
 
 
+/* Hardware soundcard information */
 static int hw_freq, hw_channels;
 static Uint16 hw_format;
+
 /* Fake buffer: we give an empty buffer to SDL_mixer and a size
-   information that matches the sound with the target sample rate. We
-   won't play from that buffer, the audio buffer will be generated in
-   callback_samplerate(). To avoid wasting more memory, we share this
-   fake audio buffer among all Chunks. */
+   information that matches the sound sample with the target sample
+   rate, so the mixer will play and stop the sound appropriately. We
+   won't actually play from that buffer though, as the audio buffer
+   will be generated in callback_samplerate(). To avoid wasting more
+   memory, we share this fake audio buffer among all Chunks. */
 Uint8* fake_buf = NULL;
 int fake_buf_len = 0;
 
@@ -87,17 +93,6 @@ static const char *format2string(Uint16 format) {
 
 
 
-struct data
-{
-  int pos; /* which sample (not frame) we're playing now, in 1/256th */
-  int shift; /* position advance for 1 frame, in 1/256th */
-  int pos_lastframe; /* index for the last frame */
-  int pos_end; /* upper bound (pre-calculated for efficiency&simplicity) */
-  SDL_AudioSpec orig_spec;
-  SDL_AudioCVT cvt;
-  int play_freq;
-};
-
 /**
  * Frequency shift with linear interpolation
  * 
@@ -110,19 +105,27 @@ struct data
  * endianness (there's no reason it shouldn't be) - still the code
  * portably handles LSB and MSB endianness alike.
  */
+struct callback_data
+{
+  int pos; /* which sample (not frame) we're playing now, in 1/256th */
+  int shift; /* position advance for 1 frame, in 1/256th */
+  int sound; /* sound index */
+};
 static void callback_samplerate(int chan, void *stream, int len, void *udata)
 {
-  struct data* data = (struct data*)udata;
+  struct callback_data* data = (struct callback_data*)udata;
 
-  /* printf("%d - %d/%d\n", len, data->pos>>8, data->pos_end>>8); */
+  /* printf("%d - %d/%d\n", len, data->pos>>8, registered_sounds[data->sound].pos_end>>8); */
+  int pos_end = registered_sounds[data->sound].pos_end;
+  int pos_lastframe = registered_sounds[data->sound].pos_lastframe;
 
-  switch (data->cvt.dst_format)
+  switch (registered_sounds[data->sound].cvt.dst_format)
     {
     case AUDIO_U8:
       if (hw_channels == 1)
 	{
 	  /* Unsigned 8bit mono */
-	  Uint8 *buf = (Uint8*) data->cvt.buf;
+	  Uint8 *buf = (Uint8*) registered_sounds[data->sound].cvt.buf;
 	  Uint8 *pstream = (Uint8*)stream;
 	  short silence = 128;
 	  int bytesPerFrame = 1;
@@ -135,7 +138,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      Uint8 v1 = *(pbuf++);
 	      /* and the next frame */
 	      Uint8 v2;
-	      if (data->pos < data->pos_lastframe)
+	      if (data->pos < pos_lastframe)
 		  v2 = *(pbuf++);
 	      else
 		  v2 = silence;
@@ -147,14 +150,14 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      *(pstream++) = v;
 	      
 	      data->pos += data->shift;
-	      if (data->pos >= data->pos_end)
+	      if (data->pos >= pos_end)
 		data->pos = 0;
 	    }
  	}
       else if (hw_channels == 2)
 	{
 	  /* Unsigned 8bit stereo */
-	  Uint8 *buf = (Uint8*) data->cvt.buf;
+	  Uint8 *buf = (Uint8*) registered_sounds[data->sound].cvt.buf;
 	  Uint8 *pstream = (Uint8*)stream;
 	  short silence = 128;
 	  int bytesPerFrame = 2;
@@ -168,7 +171,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      Uint8 v1r = *(pbuf++);
 	      /* and the next frame */
 	      Uint8 v2l, v2r;
-	      if (data->pos < data->pos_lastframe)
+	      if (data->pos < pos_lastframe)
 		{
 		  v2l = *(pbuf++);
 		  v2r = *(pbuf++);
@@ -187,7 +190,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      *(pstream++) = vr;
 	      
 	      data->pos += data->shift;
-	      if (data->pos >= data->pos_end)
+	      if (data->pos >= pos_end)
 		data->pos = 0;
 	    }
 	}
@@ -196,7 +199,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
       if (hw_channels == 1)
 	{
 	  /* Signed 16bit mono */
-	  Sint16 *buf = (Sint16*) data->cvt.buf;
+	  Sint16 *buf = (Sint16*) registered_sounds[data->sound].cvt.buf;
 	  Sint16 *pstream = (Sint16*)stream;
 	  short silence = 0;
 	  int bytesPerFrame = 2;
@@ -209,7 +212,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      Sint16 v1 = *(pbuf++);
 	      /* and the next frame */
 	      Sint16 v2;
-	      if (data->pos < data->pos_lastframe)
+	      if (data->pos < pos_lastframe)
 		  v2 = *(pbuf++);
 	      else
 		  v2 = silence;
@@ -221,14 +224,14 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      *(pstream++) = v;
 	      
 	      data->pos += data->shift;
-	      if (data->pos >= data->pos_end)
+	      if (data->pos >= pos_end)
 		data->pos = 0;
 	    }
 	}
       else if (hw_channels == 2)
 	{
 	  /* Signed 16bit stereo */
-	  Sint16 *buf = (Sint16*) data->cvt.buf;
+	  Sint16 *buf = (Sint16*) registered_sounds[data->sound].cvt.buf;
 	  Sint16 *pstream = (Sint16*)stream;
 	  short silence = 0;
 	  int bytesPerFrame = 4;
@@ -242,7 +245,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      Sint16 v1r = *(pbuf++);
 	      /* and the next frame */
 	      Sint16 v2l, v2r;
-	      if (data->pos < data->pos_lastframe)
+	      if (data->pos < pos_lastframe)
 		{
 		  v2l = *(pbuf++);
 		  v2r = *(pbuf++);
@@ -261,7 +264,7 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      *(pstream++) = vr;
 	      
 	      data->pos += data->shift;
-	      if (data->pos >= data->pos_end)
+	      if (data->pos >= pos_end)
 		data->pos = 0;
 	    }
 	}
@@ -344,9 +347,17 @@ int CreateBufferFromWaveFile(char* filename, int index)
   /*printf("CVT\t\tinfo: frequency=?Hz\tformat=%s\tchannels=??\tlength=%d bytes\n",
       format2string(cvt.dst_format), cvt.len_cvt);*/
 
+  /* Precompute the sound bounds */
+  /* Last byte in hw_format is the number of bits per sample: */
+  int wav_bytesPerSample = (wav_spec.format & 0xFF) / 8;
+  int pos_end = ((wav_len / wav_bytesPerSample) / wav_spec.channels) << 8; /* number of frames */
+  int pos_lastframe = (((wav_len / wav_bytesPerSample) / wav_spec.channels) - 1) << 8;
+
   registered_sounds[index].orig_spec = wav_spec;
   registered_sounds[index].orig_len = wav_len;
   registered_sounds[index].cvt = cvt;
+  registered_sounds[index].pos_end = pos_end;
+  registered_sounds[index].pos_lastframe = pos_lastframe;
   
   return 1;
 }
@@ -358,9 +369,9 @@ int CreateBufferFromWaveFile(char* filename, int index)
 int get_channel(int sound) {
   int i;
   /* Check all channels to see if it is playing the sound */
-  for (i = 0; i < NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_CHANNELS; i++)
     {
-      if (soundinfo[i].cur_sound == sound)
+      if (channelinfo[i].cur_sound == sound)
         return i;
     }
   return -1;
@@ -395,16 +406,16 @@ void kill_repeat_sounds(void)
   
   Msg("Killing repeating sound");
 
-  for (i = 0; i < NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_CHANNELS; i++)
     {
       // Msg("Bank #%d: repeat=%d, owner=%d, survive=%d", i,
       //   soundinfo[i].repeat, soundinfo[i].owner, soundinfo[i].survive);
-      if (soundinfo[i].repeat && (soundinfo[i].owner == 0)
-          && (soundinfo[i].survive == 0))
+      if (channelinfo[i].repeat && (channelinfo[i].owner == 0)
+          && (channelinfo[i].survive == 0))
         {
           Mix_HaltChannel(i);
 	  Msg("Killed repeating sound %d", i);
-          soundinfo[i].repeat = 0;
+          channelinfo[i].repeat = 0;
         }
     }
 }
@@ -418,12 +429,12 @@ void kill_repeat_sounds_all(void)
   if (!sound_on)
     return;
   
-  for (i = 0; i < NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_CHANNELS; i++)
     {
-      if (soundinfo[i].repeat && (soundinfo[i].owner == 0))
+      if (channelinfo[i].repeat && (channelinfo[i].owner == 0))
         {
           Mix_HaltChannel(i);
-          soundinfo[i].repeat = 0;
+          channelinfo[i].repeat = 0;
         }
     }
 }
@@ -451,36 +462,36 @@ void update_sound(void)
   if (!sound_on)
     return;
   
-  for (i = 0; i < NUM_SOUNDBANKS; i++)
+  for (i = 0; i < NUM_CHANNELS; i++)
     {
-      if (soundinfo[i].repeat && (soundinfo[i].owner != 0))
+      if (channelinfo[i].repeat && (channelinfo[i].owner != 0))
 	{
-	  if ((spr[soundinfo[i].owner].sound == 0)
-	      || (spr[soundinfo[i].owner].active == /*false*/0) )
+	  if ((spr[channelinfo[i].owner].sound == 0)
+	      || (spr[channelinfo[i].owner].active == /*false*/0) )
 	    {
 	      Mix_HaltChannel(i);
-	      soundinfo[i].owner = 0;
-	      soundinfo[i].repeat = 0;
+	      channelinfo[i].owner = 0;
+	      channelinfo[i].repeat = 0;
 	    }
 	  else
 	    {
-	      SetPan(i, get_pan(soundinfo[i].owner));
-	      SetVolume(i, get_vol(soundinfo[i].owner));
+	      SetPan(i, get_pan(channelinfo[i].owner));
+	      SetVolume(i, get_vol(channelinfo[i].owner));
 	    }
 	}
       
       if (Mix_Playing(i))
 	{
-	  if (soundinfo[i].owner != 0)
+	  if (channelinfo[i].owner != 0)
 	    {
-	      if (spr[soundinfo[i].owner].active == /*false*/0)
+	      if (spr[channelinfo[i].owner].active == /*false*/0)
 		{
 		  Mix_HaltChannel(i);
 		}
 	      else
 		{
-		  SetPan(i, get_pan(soundinfo[i].owner));
-		  SetVolume(i, get_vol(soundinfo[i].owner));
+		  SetPan(i, get_pan(channelinfo[i].owner));
+		  SetVolume(i, get_vol(channelinfo[i].owner));
 		}
 	    }
 	}
@@ -494,7 +505,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
  * Just play a sound, do not try to update sprites info or apply
  * effects
  */
-inline void EditorSoundPlayEffect(int sound)
+void EditorSoundPlayEffect(int sound)
 {
   SoundPlayEffectChannel(sound, registered_sounds[sound].orig_spec.freq, 0, 0, 0, 0);
 }
@@ -508,7 +519,7 @@ inline void EditorSoundPlayEffect(int sound)
  *   pseudo-3d effects (volume, panning)
  * - repeat: is sound looping?
  **/
-inline int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat)
+int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat)
 {
   return SoundPlayEffectChannel(sound, min, plus, sound3d, repeat, -1);
 }
@@ -518,7 +529,7 @@ inline int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/in
  * for everything (when you move the mouse with the keyboard, you'll
  * hear a series of close 'ticks', but they won't overlap each
  * others). The rest of the time, the game will just pass '-1' for the
- * channel, so the first available channel (among MIX_CHANNELS useable
+ * channel, so the first available channel (among NUM_CHANNELS useable
  * simultaneously) will be selected.
  */
 static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*bool*/int repeat, int explicit_channel)
@@ -539,21 +550,13 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     else
       play_freq = (rand () % plus) + min;
     
-    SDL_AudioSpec wav_spec = registered_sounds[sound].orig_spec;
-    Uint32 wav_len = registered_sounds[sound].orig_len;
-    SDL_AudioCVT cvt = registered_sounds[sound].cvt;
     /* Compute how much we should advance in the original sound when we
        play one frame with hw_freq */
     int shift = ((int)round((double)play_freq / hw_freq * (1<<8)));
     /* printf("shift=%d (%d*64)\n", shift, shift>>8); */
     
-    /* Last byte in hw_format is the number of bits per sample: */
-    int wav_bytesPerSample = (wav_spec.format & 0xFF) / 8;
-    int pos_end = ((wav_len / wav_bytesPerSample) / wav_spec.channels) << 8; /* number of frames */
-    int pos_lastframe = (((wav_len / wav_bytesPerSample) / wav_spec.channels) - 1) << 8;
-    
     /** Create a junk wav of the right size **/
-    int resized_len = cvt.len_cvt * ((double)hw_freq / play_freq);
+    int resized_len = registered_sounds[sound].cvt.len_cvt * ((double)hw_freq / play_freq);
 
     /* Give a bigger buffer to Mix_PlayChannel if needed */
     if (resized_len > fake_buf_len)
@@ -565,31 +568,22 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     /* printf("resized_len=%d bytes, pos_end=%d\n", resized_len, pos_end); */
     
     channel = Mix_PlayChannel(explicit_channel, chunk, repeat ? -1 : 0);
-    struct data *data = calloc(1, sizeof(struct data));
+    if (channel < 0)
+      {
+	fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
+		sound, Mix_GetError());
+	return 0;
+      }
+
+    struct callback_data *data = calloc(1, sizeof(struct callback_data));
     data->pos = 0;
     data->shift = shift;
-    data->pos_lastframe = pos_lastframe;
-    data->pos_end = pos_end;
-    data->orig_spec = wav_spec;
-    data->cvt = cvt;
-    data->play_freq = play_freq;
+    data->sound = sound;
 
     Mix_RegisterEffect(channel, callback_samplerate, NULL, data);
     Mix_ChannelFinished(CleanupChannel);
   }
 
-
-  /* channel = Mix_PlayChannel(-1, registered_sounds[sound].sound, repeat ? -1 : 0); */
-
-  if (channel < 0)
-    {
-      fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
-	      sound, Mix_GetError());
-      return 0;
-    }
-
-
-/*   int bank = playbank (sound, min, plus, sound3d, repeat); */
 
   if (sound3d > 0)
     {
@@ -598,10 +592,10 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     }
 
 
-  soundinfo[channel].owner = sound3d;
-  soundinfo[channel].repeat = repeat;
-  soundinfo[channel].survive = 0;
-  soundinfo[channel].cur_sound = sound;
+  channelinfo[channel].owner = sound3d;
+  channelinfo[channel].repeat = repeat;
+  channelinfo[channel].survive = 0;
+  channelinfo[channel].cur_sound = sound;
 
   /* Return a non-zero channel */
   return channel+1;
@@ -688,8 +682,9 @@ int InitSound()
       return -1;
     }
 
-  /* Allocate channels to play effects to */
-  Mix_AllocateChannels(NUM_SOUNDBANKS);
+  /* Allocate channels (not mono/stereo, but the simultaneous sounds
+     to be mixed, possibly with effects) */
+  Mix_AllocateChannels(NUM_CHANNELS);
 
   /* Done with initialization */
   /* Avoid calling SDL_PauseAudio when using SDL_Mixer */
@@ -713,9 +708,10 @@ int InitSound()
   }
 
   /* No sound playing yet - initialize the lookup table: */
+  memset(channelinfo, 0, sizeof(channelinfo));
   int i;
-  for (i = 0; i < NUM_SOUNDBANKS; i++)
-    soundinfo[i].cur_sound = -1;
+  for (i = 0; i < NUM_CHANNELS; i++)
+    channelinfo[i].cur_sound = -1;
 
   /* No sound loaded yet - initialise the registered sounds: */
   memset(registered_sounds, 0, sizeof(registered_sounds));
@@ -775,7 +771,7 @@ static void CleanupChannel(int channel)
       exit(1);
     }
   Mix_FreeChunk(chunk);
-  soundinfo[channel].cur_sound = -1;
+  channelinfo[channel].cur_sound = -1;
 
   /* Revert SetVolume and SetPan effects */
   Mix_UnregisterAllEffects(channel);
@@ -788,7 +784,6 @@ static void CleanupChannel(int channel)
  */
 static int SetVolume(int channel, int dx_volume)
 {
-/*   soundbank[i]->SetVolume(get_vol(soundinfo[i].owner)); */
   // SFX
   /* See doc/sound.txt for details */
   return Mix_Volume(channel, MIX_MAX_VOLUME * pow(10, ((double)dx_volume / 100) / 20));
@@ -802,7 +797,6 @@ static int SetVolume(int channel, int dx_volume)
  */
 static int SetPan(int channel, int dx_panning)
 {
-/*   soundbank[i]->SetPan(get_pan(soundinfo[i].owner)); */
   // SFX
   /* See doc/sound.txt for details */
   if (dx_panning > 0)
@@ -829,7 +823,7 @@ void sound_set_kill(int soundbank)
 void sound_set_survive(int soundbank, int survive)
 {
   int channel = soundbank - 1;
-  soundinfo[channel].survive = survive;
+  channelinfo[channel].survive = survive;
 }
 void sound_set_vol(int soundbank, int volume)
 {
