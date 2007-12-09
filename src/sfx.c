@@ -45,7 +45,7 @@ static struct soundstruct soundinfo[NUM_SOUNDBANKS];
 static struct
 {
   SDL_AudioSpec orig_spec;
-  Uint32 orig_len;
+  Uint32 orig_len; /* TODO: maybe not necessary, see cvt */
   SDL_AudioCVT cvt;
 } registered_sounds[MAX_SOUNDS];
 
@@ -717,6 +717,9 @@ int InitSound()
   for (i = 0; i < NUM_SOUNDBANKS; i++)
     soundinfo[i].cur_sound = -1;
 
+  /* No sound loaded yet - initialise the registered sounds: */
+  memset(registered_sounds, 0, sizeof(registered_sounds));
+  
   return 0;
 }
 
@@ -744,14 +747,14 @@ void QuitSound(void)
 }
 
 /**
- * Free memory used by sound #'index'
+ * Free memory used by sound #'sound'
  */
-static void FreeRegisteredSound(int index)
+static void FreeRegisteredSound(int sound)
 {
-  if (registered_sounds[index].cvt.buf != NULL)
+  if (registered_sounds[sound].cvt.buf != NULL)
     {
-      free(registered_sounds[index].cvt.buf);
-      registered_sounds[index].cvt.buf = NULL;
+      free(registered_sounds[sound].cvt.buf);
+      registered_sounds[sound].cvt.buf = NULL;
     }
 }
 
