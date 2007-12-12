@@ -90,9 +90,10 @@ int main (int argc, char *argv[])
     SDL_Color grey = {127, 127, 127};
     SDL_Rect dst = {280, 220, -1, -1};
     SDL_Event ev;
-    font = TTF_OpenFontRW(rwops, 1, 17);
+    font = TTF_OpenFontRW(rwops, 1, 16);
     if (font == NULL)
       fprintf(stderr, "TTF_OpenFontRW: %s\n", TTF_GetError());
+    TTF_SetFontStyle(font, TTF_STYLE_BOLD);
     tmp = TTF_RenderText_Solid(font, "Hello, world!", grey);
     if (tmp == NULL)
       fprintf(stderr, "TTF_RenderText_Solid: %s\n", TTF_GetError());
