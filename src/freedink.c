@@ -6240,7 +6240,6 @@ void getdir(char final[])
 int main(int argc, char* argv[])
 {
   set_program_name(argv[0]);
-  printf("Hi, I'm '%s'\n", get_full_program_name());
 
   /* Where am I installed? */
 #ifdef _WIN32

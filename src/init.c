@@ -48,6 +48,10 @@
    subsystem as needed (eg InitSound) */
 int init(void)
 {
+  /** [Default paths] **/
+  /* relocatable_prog */
+  printf("Hi, I'm '%s'\n", get_full_program_name());
+
   /* BinReloc */
   BrInitError error;
   if (br_init (&error) == 0 && error != BR_INIT_ERROR_DISABLED)
@@ -55,6 +59,24 @@ int init(void)
       printf ("Warning: BinReloc failed to initialize (error code %d)\n", error);
       printf ("Will fallback to hardcoded default path.\n");
     }
+
+  /**
+Determined once on startup:
+pkgdatadir = $exedir/../share/freedink/ # binreloc
+	   (test: -d)
+	   FALLBACK $default_data_dir/freedink/
+dinkdir = -dinkdir # error if !-d
+	|| ./
+	|| $exedir
+	|| $pkgdatadir
+	(test: -d $dinkdir/dink/Graphics -a -d $dinkdir/dink/Tiles)
+DMod = -game
+     || $dinkdir/dmod/
+     || ERROR
+Dink = $dinkdir/dink/
+     (? DMod/../dink/) (beware of symlinks)
+  **/
+  
   
   /* SDL */
   /* Init timer subsystem */

@@ -282,23 +282,28 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
  */
 int CreateBufferFromWaveFile(char* filename, int index)
 {
-  // Open the wave file       
+  /* Open the wave file */
   char path[150];
-  
+
   sprintf(path, "sound/%s", filename);
+
   if (!exist(ciconvert(path)))
     sprintf(path, "../dink/sound/%s", filename);
 
+  SDL_RWops* rwops = SDL_RWFromFile(ciconvert(path), "rb");
+  return CreateBufferFromWaveFile_RW(rwops, 1, index);
+}
+int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
+{
   SDL_AudioSpec wav_spec;
   Uint8 *wav_buf;
   Uint32 wav_len;
-  if (SDL_LoadWAV(ciconvert(path), &wav_spec, &wav_buf, &wav_len) == NULL)
+  if (SDL_LoadWAV_RW(rwops, rwfreesrc, &wav_spec, &wav_buf, &wav_len) == NULL)
     {
       fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
       return 0;
     }
-  printf("%s\tinfo: frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes\n",
-	 filename,
+  printf("info: frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes\n",
 	 wav_spec.freq, format2string(wav_spec.format),
 	 wav_spec.channels, wav_len);
 

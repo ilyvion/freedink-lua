@@ -81,7 +81,6 @@ Dink = $dinkdir/dink/
 Checked each time (search path):
 Resources (LiberationSans-Regular.ttf, vgasys.fon, stop.wav, jump.wav)
   =  embedded resource
-  || $dinkdir
   || $pkgdatadir
 Font = DMod
      || C:\Windows\Fonts\ || (? /usr/share/fonts/truetype/**/*.ttf)

@@ -5738,9 +5738,31 @@ int SInitSound()
    */
   for(i = 0; i < NUM_SOUND_EFFECTS; i++)
     {
-      Msg("Loading sound %s [%d]", szSoundEffects[i], i);
-      if (!CreateBufferFromWaveFile(szSoundEffects[i], i))
-	Msg("cant load sound effect %s", szSoundEffects[i]);
+      int result = 0;
+      char *filename = szSoundEffects[i];
+      Msg("Loading sound %s [%d]", filename, i);
+      
+      /* Try from resources */
+      SDL_RWops* rwops;
+      rwops = find_resource_as_rwops(filename);
+      if (rwops != NULL)
+	{
+	  result = CreateBufferFromWaveFile_RW(rwops, 1, i);
+	}
+  
+      /* Fallback to package data directory */
+      if (result == 0)
+	{
+	  char *path = find_data_file(filename);
+	  if (path != NULL)
+	    result = CreateBufferFromWaveFile(path, i);
+	  
+	  if (result == 0)
+	    fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n", filename, path);
+
+	  if (path != NULL)
+	    free(path);
+	}
     }
   return 1;
 }
