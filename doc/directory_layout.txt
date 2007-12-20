@@ -67,15 +67,15 @@ Determined once on startup:
 pkgdatadir = $exedir/../share/freedink/ # binreloc
 	   (test: -d)
 	   FALLBACK $default_data_dir/freedink/
-dinkdir = -dinkdir # error if !-d
+distdir = -distdir # error if !-d
 	|| ./
 	|| $exedir
 	|| $pkgdatadir
-	(test: -d $dinkdir/dink/Graphics -a -d $dinkdir/dink/Tiles)
+	(test: -d $distdir/dink/Graphics -a -d $distdir/dink/Tiles)
 DMod = -game
-     || $dinkdir/dmod/
+     || $distdir/$game/
      || ERROR
-Dink = $dinkdir/dink/
+Dink = $distdir/dink/
      (? DMod/../dink/) (beware of symlinks)
 
 Checked each time (search path):
@@ -102,14 +102,14 @@ Dink => /usr/share/freedink/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -dinkdir dmods/ -game dmods/island
-# or freedink -dinkdir dmods/ -game island
+~$ freedink -distdir dmods/ -game dmods/island
+# or freedink -distdir dmods/ -game island
 DMod => ~/dmods/island/
 Dink => ~/dmods/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -dinkdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
+~$ freedink -distdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
 DMod => ~/island/
 DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # no fallback
@@ -132,7 +132,7 @@ Dink => /usr/share/freedink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -dinkdir ~/myshare/freedink/ -game island
+~$ freedink -distdir ~/myshare/freedink/ -game island
 DMod => ~/island/
 DMod => ~/myshare/freedink/island/
 Dink => ~/myshare/freedink/dink/

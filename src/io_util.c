@@ -30,12 +30,18 @@
 #include <dirent.h>
 #include <errno.h>
 
+/* stat(2) */
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 #include "binreloc.h"
 #include "progname.h"
+#include "relocatable.h"
 #include "SDL.h"
 #include "SDL_rwops_zzip.h"
 
@@ -43,6 +49,10 @@
 #ifndef PATH_MAX
 #  define PATH_MAX 255
 #endif
+
+static char* pkgdatadir = NULL;
+static char* datafallbackdir = NULL; /* default = pkgdatadir + '/dink' */
+static char* dmoddir = NULL; /* pkgdatadir + '/dink' */
 
 /* Returns a pointer to the end of the current path element (file or
    directory) */
@@ -183,6 +193,16 @@ int exist(char name[255])
   return 1;
 }
 
+/* Is it a directory that exists? */
+int is_directory(char *name)
+{
+  char tmp_filename[PATH_MAX];
+
+  struct stat buf;
+  stat(ciconvertbuf(name, tmp_filename), &buf);
+  return S_ISDIR(buf.st_mode);
+}
+
 
 SDL_RWops *find_resource_as_rwops(char *name)
 {
@@ -201,6 +221,130 @@ SDL_RWops *find_resource_as_rwops(char *name)
   return rwops;
   /* Retrieve error (if any) with :
      printf("%s\n", strerror(errno)); */
+}
+
+void init_paths(char *distdir_opt, char *dmoddir_opt)
+{
+  /** pkgdatadir (e.g. "/usr/share/freedink") **/
+  {
+    /** datadir (e.g. "/usr/share") **/
+    char *datadir;
+    {
+      const char *datadir_relocatable;
+      char *datadir_binreloc, *default_data_dir;
+      
+      /* First, ask relocable-prog */
+      /* copy to avoid "comparison with string literal" */
+      default_data_dir = strdup(DEFAULT_DATA_DIR);
+      datadir_relocatable = relocate(default_data_dir);
+      
+      /* Then ask binreloc - it handles ../share even if CWD != "bin"
+	 (e.g. "src"). However it's not as precise and portable ($PATH
+	 lookup, etc.). */
+      datadir_binreloc = br_find_data_dir(datadir_relocatable);
+      
+      /* Free relocable-prog's path, if necessary */
+      if (datadir_relocatable != default_data_dir)
+	free((char *)datadir_relocatable);
+      free(default_data_dir);
+      
+      /* Binreloc always return a newly allocated string, with either the
+	 built directory, or a copy of its argument */
+      datadir = datadir_binreloc;
+    }
+    
+    /** => pkgdatadir **/
+    char *retpath = (char*) realloc(retpath, strlen(datadir) + 1 + strlen(PACKAGE) + 1);
+    sprintf(retpath, "%s/%s", datadir, PACKAGE);
+    if (is_directory(retpath))
+      {
+	/* Relocated $datadir/freedink exists */
+	pkgdatadir = retpath;
+      }
+    else
+      {
+	/* Fallback to compile-time datadir */
+	retpath = (char*) realloc(retpath, strlen(DEFAULT_DATA_DIR) + 1 + strlen(PACKAGE) + 1);
+	sprintf(retpath, "%s/%s", DEFAULT_DATA_DIR, PACKAGE);
+	pkgdatadir = retpath;
+      }
+  }
+
+  /** distdir **/
+  char *distdir;
+  {
+    /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
+    char *exedir;
+    {
+      char *myself = strdup(get_full_program_name());
+      int len = strlen(myself);
+      char *pc = myself + len;
+      while (--pc >= myself && *pc != '/');
+      if (*pc == '/')
+	*pc = '\0';
+      exedir = myself;
+    }
+
+    /** => distdir **/
+    char* match;
+    char* lookup[4];
+    // TODO:
+    lookup[0] = distdir_opt;
+    lookup[1] = ".";
+    lookup[2] = exedir;
+    lookup[3] = pkgdatadir;
+    if (lookup[0] == NULL)
+      lookup[0] = lookup[1];
+    for (int i = 0; i < 4; i++)
+      {
+	char *dir_story_ci, *
+dir_tiles_ci;
+	dir_story_ci = br_strcat(lookup[i], "/dink/graphics");
+	dir_tiles_ci = br_strcat(lookup[i], "/dink/tiles");
+	if (is_directory(dir_story_ci) && is_directory(dir_tiles_ci))
+	  {
+	    match = lookup[i];
+	  }
+	free(dir_story_ci);
+	free(dir_tiles_ci);
+	if (match != NULL)
+	  break;
+      }
+    distdir = match;
+
+    if (distdir == NULL)
+      {
+	fprintf(stderr, "Error: distdir doesn't exist (looked in...)\n");
+	exit(1);
+      }
+  }
+
+  /** datafallbackdir (e.g. "/usr/share/freedink/dink") **/
+  {
+    datafallbackdir = br_strcat(distdir, "/dink");
+  }
+
+  /** dmoddir (e.g. "/usr/share/freedink/island") **/
+  {
+    if (dmoddir_opt == NULL)
+      dmoddir_opt = "dink";
+    if (is_directory(dmoddir_opt))
+      {
+	dmoddir = dmoddir_opt;
+      }
+    else
+      {
+	dmoddir = malloc(strlen(distdir) + 1 + strlen(dmoddir_opt) + 1);
+	strcpy(dmoddir, distdir);
+	strcat(dmoddir, "/");
+	strcat(dmoddir, dmoddir_opt);
+	if (!is_directory(dmoddir_opt))
+	  {
+	    fprintf(stderr, "Error: dmoddir doesn't exist (looked in...)\n");
+	    exit(1);
+	  }
+      }
+  }
 }
 
 /* Try different options to get a data file, such as the default font,
