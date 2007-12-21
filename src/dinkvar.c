@@ -37,7 +37,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <stdarg.h>
 
 #ifdef _WIN32
 /* GetWindowsDirectory */
@@ -75,6 +74,7 @@
 #include "sfx.h"
 
 #include "str_util.h"
+#include "log.h"
 
 int g_b_no_write_ini = 0;
 /*bool*/int no_cheat =  /*true*/1;
@@ -102,7 +102,6 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 
 void add_exp(int num, int h);
 /*bool*/int locate(int script, char proc[20]);
-/*bool*/int exist(char name[255]);
 void draw_status_all(void);
 void check_seq_status(int h);
 
@@ -116,7 +115,6 @@ int flub_mode = -500;
 unsigned short decipher_savegame = 0;
 int draw_map_tiny = -1;
 
-char last_debug[200];
 int walk_off_screen = /*false*/0;
 char cbuf[64000];
 /*bool*/int cd_inserted;
@@ -345,7 +343,6 @@ struct small_map pam;
 
 /*bool*/int trig_man = /*false*/0;
 /*bool*/int total_trigger = /*false*/0;
-/*bool*/int debug_mode = /*false*/0;
 
 struct pic_info     k[MAX_SPRITES];       // Sprite data
 struct GFX_pic_info GFX_k[MAX_SPRITES];   // Sprite data (SDL)
@@ -825,66 +822,6 @@ void log_path(/*bool*/int playing)
 }
 
 
-
-void Msg(char *fmt, ...)
-{
-    char    buff[350];
-    va_list  va;
-
-    va_start(va, fmt);
-
-    //
-    // format message with header
-    //
-
-    strcpy( buff, "Dink:" );
-    vsprintf( &buff[strlen(buff)], fmt, va );
-    strcat( buff, "\r\n" );
-
-    vfprintf(stderr, fmt, va);
-    fprintf(stderr, "\n");
-    //
-    // To the debugger unless we need to be quiet
-    //
-
-
-
-/*         OutputDebugString( buff ); */
-        strcpy(last_debug, buff);
-        if (debug_mode) add_text(buff, "DEBUG.TXT");
-
-
-} /* Msg */
-
-void TRACE(char *fmt, ...)
-{
-    char    buff[350];
-    va_list  va;
-
-    va_start(va, fmt);
-
-    //
-    // format message with header
-    //
-
-    strcpy( buff, "Dink:" );
-    vsprintf( &buff[strlen(buff)], fmt, va );
-    strcat( buff, "\r\n" );
-
-    //
-    // To the debugger unless we need to be quiet
-    //
-
-
-
-/*         OutputDebugString( buff ); */
-        strcpy(last_debug, buff);
-        if (debug_mode) add_text(buff, "DEBUG.TXT");
-
-
-} /* Msg */
-
-
 /* Like DDLoadBitmap, except that we don't check the existence of
    szBitmap, and we define the .box sprite attribute with the
    dimentions of the picture */
@@ -941,30 +878,6 @@ void TRACE(char *fmt, ...)
 
 /*         return pdds; */
 /* } */
-
-
-void add_text(char *tex ,char *filename)
-{
-  char tmp_filename[PATH_MAX];
-
-  /* TODO: if DEBUG.TXT cannot be opened, Dink crashes */
-        FILE *          fp;
-        if (strlen(tex) < 1) return;
-
-        if (exist(filename) == /*FALSE*/0)
-        {
-
-                fp = fopen(ciconvertbuf(filename, tmp_filename), "wb");
-                fwrite( tex, strlen(tex), 1, fp);       /* current player */
-                fclose(fp);
-                return;
-        } else
-        {
-                fp = fopen(ciconvertbuf(filename, tmp_filename), "ab");
-                fwrite( tex, strlen(tex), 1, fp);       /* current player */
-                fclose(fp);
-        }
-}
 
 
 //add hardness from a sprite

@@ -38,6 +38,7 @@
 /* For printing strings in debug mode */
 #include "gfx_fonts.h"
 #include "bgm.h"
+#include "log.h"
 #include "rect.h"
 
 #include "update_frame.h"

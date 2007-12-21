@@ -30,6 +30,7 @@
 #include "dinkvar.h"
 #include "bgm.h"
 #include "io_util.h"
+#include "log.h"
 
 /* Current background music (not cd) */
 static Mix_Music *music_data = NULL;

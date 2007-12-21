@@ -25,9 +25,10 @@
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include "dinkvar.h"
-#include "sfx.h"
 #include "io_util.h"
+#include "log.h"
 #include "math.h"
+#include "sfx.h"
 
 
 /* Channel metadata */
@@ -708,7 +709,7 @@ int InitSound()
     if (!numtimesopened)
       printf("Mix_QuerySpec: %s\n", Mix_GetError());
     else
-      printf("Audio info: frequency=%dHz\tformat=%s\tchannels=%d\topened=%d times\n",
+      printf("Audio hardware info: frequency=%dHz\tformat=%s\tchannels=%d\topened=%d times\n",
 	     hw_freq, format2string(hw_format), hw_channels, numtimesopened);
   }
 

@@ -30,7 +30,6 @@
 #endif
 #include "progname.h"
 
-#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,7 +71,9 @@
 #include "update_frame.h"
 #include "init.h"
 #include "io_util.h"
+#include "paths.h"
 #include "input.h"
+#include "log.h"
 #include "freedink.h"
 
 /* const int WM_IMDONE = WM_USER+110; */
@@ -5436,159 +5437,6 @@ void drawscreenlock( void )
 }
 
 
-/*
-* finiObjects
-*
-* finished with all objects we use; release them
-*/
-void finiObjects()
-{
-	//wDeviceID = mciGetDeviceID("MCI_ALL_DEVICE_ID"); 
-	
-	if (last_saved_game > 0)
-	{
-		Msg("Modifying saved game.");
-		
-		if (!add_time_to_saved_game(last_saved_game))
-			Msg("Error modifying saved game.");
-	}
-	
-	if (sound_on)
-	{
-	  /* mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL); */
-	
-	Msg("Shutting down CD stuff.");
-	killcd();
-	}
-	log_path(/*false*/0);
-
-	
-
-/* 	if( lpDD != NULL ) */
-/* 	{ */
-	  
-		//change coop mode back
-		
-	   /*
-		if( lpDDSBack != NULL )
-		  {
-		  lpDDSBack->Release();
-		  lpDDSBack = NULL;
-		  }
-		 */ 
-	  //GFX
-	  SDL_FreeSurface(GFX_lpDDSBack);
-	  SDL_FreeSurface(GFX_lpDDSTwo);
-	  SDL_FreeSurface(GFX_lpDDSTrick);
-	  SDL_FreeSurface(GFX_lpDDSTrick2);
-
-/* 			if( lpDDPal != NULL ) */
-/* 			{ */
-/* 			lpDDPal->Release(); */
-/* 			lpDDPal = NULL; */
-/* 			} */
-	
-/* 		if( lpDDSPrimary != NULL ) */
-/* 		{ */
-/* 			lpDDSPrimary->Release(); */
-/* 			lpDDSPrimary = NULL; */
-/* 		} */
-/* 		if (lpDD->RestoreDisplayMode() != DD_OK) */
-/* 			Msg("Error restoring display mode."); */
-	
-		/*
-		HRESULT ddrval = lpDD->SetCooperativeLevel( hWndMain, DDSCL_NORMAL);
-		
-		if( ddrval != DD_OK )  
-	{        
-		 Msg("Unable to set cooperative level on exit.");
-	}
-
-		 */
-/* 		lpDD->Release(); */
-/* 		lpDD = NULL; */
-		
-		/*for (int oo = 1; oo <= max_sprites; oo++)   
-		{
-		
-		  if( k[oo].k != NULL )
-		  {
-		  
-			k[oo].k->Release();
-			k[oo].k = NULL;
-			}
-			
-			  
-				}
-				
-		*/
-/* 	}  */
-	
-	//destroy direct input mouse stuff
-	
-/* 	if (g_pMouse) */
-/* 	{ */
-/* 		g_pMouse->Unacquire(); */
-/* 		g_pMouse->Release(); */
-/* 		g_pMouse = NULL; */
-/* 	} */
-	
-/* 	if (g_hevtMouse) */
-/* 	{ */
-/* 		CloseHandle(g_hevtMouse); */
-/* 		g_hevtMouse = NULL; */
-/* 	} */
-	
-/* 	if (g_pdi)      */
-/* 	{ */
-/* 		g_pdi->Release(); */
-/* 		g_pdi    = NULL; */
-/* 	} */
-	
-	
-	
-	if (sound_on)
-	  QuitSound();
-	
-	
-	if (sound_on)
-	{
-	//lets kill the cdaudio too
-/* 	if (mciSendString("close all", NULL, 0, NULL) != 0) */
-/* 	{ */
-/* 		Msg("Couldn't close all MCI events.."); */
-/* 		//	return(FALSE); */
-/* 	} */
-	  SDL_QuitSubSystem(SDL_INIT_CDROM | SDL_INIT_AUDIO);
-	}
-	
-	kill_all_scripts_for_real();
-	FastFileFini();
-	kill_fonts();
-	g_b_kill_app = 1;
-/* 	ShowWindow(hWndMain, SW_HIDE); */
-/* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
-	//PostQuitMessage(0);
-
-	if (joystick)
-	  SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-
-	SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
-} /* finiObjects */
-
-
-int initFail(char mess[200])
-{
-  /* MessageBox( hwnd, mess, TITLE, MB_OK); */
-  fprintf(stderr, "%s\n", mess);
-  finiObjects();
-  return 0; /* used when "return initFail(...);" */
-}
-
-
 /* long */
 /* FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
 /* 		      WPARAM wParam, LPARAM lParam) */
@@ -5631,183 +5479,6 @@ int initFail(char mess[200])
 /* } */
  
 
-/* Parse dink.ini */
-void load_batch(void)
-{
-  FILE *stream;  
-  char line[255];
-  char tmp_filename[PATH_MAX];
-
-  spr[1].x = 200;
-  spr[1].y = 300;
-	
-  Msg("Loading .ini");	  
-  if (!exist("dink.ini"))
-    {
-      Msg("load_batch: dink.ini not found.");	  
-      sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
-      TRACE(line);
-    }
-	
-  /* Open the text file in binary mode, so it's read the same way
-     under different OSes (Unix has no text mode) */
-  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb")) == NULL)
-    TRACE("Error opening Dink.ini for reading.");
-  else
-    {
-      while(fgets(line, 255, stream) != NULL) 
-	pre_figure_out(line, 0);
-      fclose( stream );
-    }
-
-  program_idata();
-}
-
-/**
- * Prints the version on the standard ouput. Based on the homonymous
- * function from ratpoison
- */
-void
-print_version ()
-{
-  printf ("%s %s\n", PACKAGE_NAME, VERSION);
-  printf ("Copyright (C) 2007 by contributors\n");
-  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
-  printf ("This is free software: you are free to change and redistribute it.\n");
-  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
-  exit (EXIT_SUCCESS);
-}
-
-/**
- * Prints the version on the standard ouput. Based on the homonymous
- * function from ratpoison
- */
-void
-print_help (int argc, char *argv[])
-{
-  printf ("Usage: %s [OPTIONS]...\n", argv[0]);
-  printf ("\n");
-  printf ("TODO                  Display the default configuration here\n");
-  printf ("-h, --help            Display this help screen\n");
-  printf ("-v, --version         Display the version\n");
-  printf ("\n");
-  printf ("-g, --game <dir>      Specify a DMod directory\n");
-  /* printf ("-f, --fontdir <dir>   Specify an alternative font directory\n"); */
-  printf ("\n");
-  printf ("-d, --debug           Explain what is being done\n");
-  printf ("-i, --noini           Do not attempt to write dinksmallwood.ini\n");
-  printf ("-j, --nojoy           Do not attempt to use joystick\n");
-  printf ("-s, --nosound         Do not play sound\n");
-  printf ("-w, --window          Use windowed mode instead of screen mode\n");
-  printf ("\n");
-
-  /* printf ("Type 'info freedink' for more information\n"); */
-  printf ("Report bugs to %s.\n", PACKAGE_BUGREPORT);
-
-  exit (EXIT_SUCCESS);
-}
-
-/**
- * Check the command line arguments and initialize the required global
- * variables
- */
-int check_arg(int argc, char *argv[])
-{
-  int c;
-  char *refdir_opt = NULL;
-  char *dmoddir_opt = NULL;
-
-  /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
-     '-window' (with one dash '-' only) are required to maintain
-     backward compatibility with the original game */
-  struct option long_options[] = 
-    {
-      {"debug",   no_argument,       NULL, 'd'},
-      {"refdir",  required_argument, NULL, 'r'},
-      {"game",    required_argument, NULL, 'g'},
-      {"help",    no_argument,       NULL, 'h'},
-      {"noini",   no_argument,       NULL, 'i'},
-      {"nojoy",   no_argument,       NULL, 'j'},
-      {"nosound", no_argument,       NULL, 's'},
-      {"version", no_argument,       NULL, 'v'},
-      {"window",  no_argument,       NULL, 'w'},
-      {0, 0, 0, 0}
-    };
-  
-  /* char short_options[] = "df:g:hijsvw"; */
-  /* char *default_fontdir = "../fonts/"; */
-  char short_options[] = "dr:g:hijsvw";
-
-  // TODO: perform this in the initialization
-  strcpy(dir, "dink");
-
-  /* g_fontdir = malloc(strlen(default_fontdir) + 1); */
-  /* strcpy(g_fontdir, default_fontdir); */
-
-  /* Loop through each argument */
-  while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
-    {
-      switch (c) {
-      case 'd':
-	  debug_mode = 1;
-	  /* TODO: use global path */
-	  remove("dink/debug.txt");
-	  break;
-      case 'r':
-	refdir_opt = strdup(optarg);
-	break;
-      case 'g':
-	{
-/* 	/\* The next argument is the game directory, make sure this *\/ */
-/* 	/\* isn't the last argument. *\/ */
-/* 	strcpy (dir, optarg); */
-/* 	Msg (("Working directory %s requested.", dir)); */
-	  strcpy(dir, optarg);
-	  Msg("Working directory %s requested.", dir);
-	  dmoddir_opt = strdup(optarg);
-	}
-	break;
-      case 'h':
-	print_help(argc, argv);
-	break;
-      case 'j':
-	joystick = 0;
-	break;
-      case 'i':
-	g_b_no_write_ini = 1;
-	break;
-      case 's':
-	sound_on = 0;
-	break;
-      case 'v':
-	print_version();
-	break;
-      case 'w':
-	  windowed = 1;
-	  // Beuc: enabling transition is more fun :)
-	  //no_transition = true;
-	  break;	
-      default:
-	exit(EXIT_FAILURE);
-      }
-    }
-  
-  paths_init(refdir_opt, dmoddir_opt);
-
-  /* TODO: don't chdir, and use $refdir/dink instead of ../dink */
-  if (chdir(paths_dmoddir()) == -1)
-    {
-      char message[200];
-      sprintf(message, "Game dir \"%s\" not found!", dir);
-      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
-      
-      initFail(message);
-      return 0;
-    }	  
-  
-  Msg("Dir is now %s.", dir);
-  return 1;
-}
 
 /**
  * doInit - do work required for every instance of the application:
@@ -5854,9 +5525,6 @@ static int doInit(int argc, char *argv[])
   windowed = /*false*/0;
   //	hWndMain = hwnd;   
   
-  if (!check_arg(argc, argv))
-    return 0;
-
   if (windowed)
     {
 /*       hwnd = CreateWindowEx(0, */
@@ -6031,7 +5699,7 @@ static int doInit(int argc, char *argv[])
 
 
   /* New initialization */
-  if (init() == 0)
+  if (init(argc, argv) == 0)
     {
       exit(1);
     }
@@ -6215,8 +5883,6 @@ void getdir(char final[])
  */
 int main(int argc, char* argv[])
 {
-  set_program_name(argv[0]);
-
   /* Where am I installed? */
 #ifdef _WIN32
   getdir(dinkpath);

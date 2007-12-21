@@ -30,8 +30,9 @@
 
 #include "SDL.h"
 
-int load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette);
-int load_palette_from_bmp (char *file, SDL_Color * palette);
-void setup_palette(SDL_Color *palette);
+extern void load_batch(void);
+extern int load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette);
+extern int load_palette_from_bmp (char *file, SDL_Color * palette);
+extern void setup_palette(SDL_Color *palette);
 
 #endif

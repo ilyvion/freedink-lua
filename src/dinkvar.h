@@ -356,7 +356,6 @@ struct hardness
 };
 
 extern int GetKeyboard(int key);
-extern void Msg(char *fmt, ...);
 extern int add_sprite(int x1, int y, int brain,int pseq, int pframe );
 extern void check_seq_status(int h);
 /* extern void dderror(HRESULT hErr); */
@@ -381,7 +380,6 @@ extern /*bool*/int compare(char *orig, char *comp);
 extern /*bool*/int abort_this_flip;
 extern int base_timing;
 extern struct attackinfo_struct bow;
-extern /*bool*/int debug_mode;
 extern int dinkspeed;
 extern char dversion_string[7];
 extern int flife;
@@ -446,7 +444,6 @@ extern struct show_bmp showb;
 
 
 extern int keep_mouse;
-extern char last_debug[200];
 extern int last_sprite_created;
 extern struct map_info map;
 extern int mbase_count;
@@ -543,6 +540,7 @@ extern void kill_sprite_all (int sprite);
 /* Scripts */
 extern int say_text_xy(char text[200], int mx, int my, int script);
 extern void kill_all_scripts_for_real(void);
+extern void kill_returning_stuff(int script);
 extern int say_text(char text[200], int h, int script);
 
 /* Map */
@@ -554,18 +552,14 @@ extern void load_info(void);
 extern struct hit_map hm;
 
 /* Dunno */
-extern void kill_returning_stuff( int script);
 extern void program_idata(void);
 extern /*bool*/int mouse1;
-extern char dir[80];
 
 /* Screen */
 extern void update_screen_time(void);
 
 /* OS */
 extern void log_path(/*bool*/int playing);
-extern void TRACE(char* fmt, ...);
-extern /*bool*/int exist(char name[255]);
 extern int bActive; // is application active?
 extern int g_b_no_write_ini; // -noini passed to command line?
 extern char *command_line; // command line params, used by doInit
@@ -597,7 +591,6 @@ extern void check_frame_status(int h, int frame);
 extern void Say(char thing[500], int px, int py);
 extern void flip_it_second(void);
 extern void save_map(const int num);
-extern void add_text(char *tex ,char *filename);
 extern void save_info(void);
 extern int realhard(int tile);
 extern void save_hard(void);

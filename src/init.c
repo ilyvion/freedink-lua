@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <getopt.h>
+#include <unistd.h> /* chdir */
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
@@ -38,19 +40,321 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
+#include "fastfile.h"
+#include "sfx.h"
+#include "bgm.h"
 #include "input.h"
 #include "io_util.h"
+#include "paths.h"
+#include "log.h"
 #include "init.h"
 #include "freedink_xpm.h"
+
+
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_version ()
+{
+  printf ("%s %s\n", PACKAGE_NAME, VERSION);
+  printf ("Copyright (C) 2007 by contributors\n");
+  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
+  printf ("This is free software: you are free to change and redistribute it.\n");
+  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
+  exit (EXIT_SUCCESS);
+}
+
+
+/**
+ * Prints the version on the standard ouput. Based on the homonymous
+ * function from ratpoison
+ */
+void
+print_help (int argc, char *argv[])
+{
+  printf("Usage: %s [OPTIONS]...\n", argv[0]);
+  printf("\n");
+  printf("TODO                  Display the default configuration here\n");
+  printf("-h, --help            Display this help screen\n");
+  printf("-v, --version         Display the version\n");
+  printf("\n");
+  printf("-g, --game <dir>      Specify a DMod directory\n");
+  printf("-r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n");
+  printf("\n");
+  printf("-d, --debug           Explain what is being done\n");
+  printf("-i, --noini           Do not attempt to write dinksmallwood.ini\n");
+  printf("-j, --nojoy           Do not attempt to use joystick\n");
+  printf("-s, --nosound         Do not play sound\n");
+  printf("-w, --window          Use windowed mode instead of screen mode\n");
+  printf("\n");
+
+  /* printf ("Type 'info freedink' for more information\n"); */
+  printf("Report bugs to %s.\n", PACKAGE_BUGREPORT);
+
+  exit(EXIT_SUCCESS);
+}
+
+
+
+/*
+* finiObjects
+*
+* finished with all objects we use; release them
+*/
+void finiObjects()
+{
+	//wDeviceID = mciGetDeviceID("MCI_ALL_DEVICE_ID"); 
+	
+	if (last_saved_game > 0)
+	{
+		Msg("Modifying saved game.");
+		
+		if (!add_time_to_saved_game(last_saved_game))
+			Msg("Error modifying saved game.");
+	}
+	
+	if (sound_on)
+	{
+	  /* mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL); */
+	
+	Msg("Shutting down CD stuff.");
+	killcd();
+	}
+	log_path(/*false*/0);
+
+	
+
+/* 	if( lpDD != NULL ) */
+/* 	{ */
+	  
+		//change coop mode back
+		
+	   /*
+		if( lpDDSBack != NULL )
+		  {
+		  lpDDSBack->Release();
+		  lpDDSBack = NULL;
+		  }
+		 */ 
+	  //GFX
+	if (GFX_lpDDSBack   != NULL) SDL_FreeSurface(GFX_lpDDSBack);
+	if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
+	if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
+	if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
+
+/* 			if( lpDDPal != NULL ) */
+/* 			{ */
+/* 			lpDDPal->Release(); */
+/* 			lpDDPal = NULL; */
+/* 			} */
+	
+/* 		if( lpDDSPrimary != NULL ) */
+/* 		{ */
+/* 			lpDDSPrimary->Release(); */
+/* 			lpDDSPrimary = NULL; */
+/* 		} */
+/* 		if (lpDD->RestoreDisplayMode() != DD_OK) */
+/* 			Msg("Error restoring display mode."); */
+	
+		/*
+		HRESULT ddrval = lpDD->SetCooperativeLevel( hWndMain, DDSCL_NORMAL);
+		
+		if( ddrval != DD_OK )  
+	{        
+		 Msg("Unable to set cooperative level on exit.");
+	}
+
+		 */
+/* 		lpDD->Release(); */
+/* 		lpDD = NULL; */
+		
+		/*for (int oo = 1; oo <= max_sprites; oo++)   
+		{
+		
+		  if( k[oo].k != NULL )
+		  {
+		  
+			k[oo].k->Release();
+			k[oo].k = NULL;
+			}
+			
+			  
+				}
+				
+		*/
+/* 	}  */
+	
+	//destroy direct input mouse stuff
+	
+/* 	if (g_pMouse) */
+/* 	{ */
+/* 		g_pMouse->Unacquire(); */
+/* 		g_pMouse->Release(); */
+/* 		g_pMouse = NULL; */
+/* 	} */
+	
+/* 	if (g_hevtMouse) */
+/* 	{ */
+/* 		CloseHandle(g_hevtMouse); */
+/* 		g_hevtMouse = NULL; */
+/* 	} */
+	
+/* 	if (g_pdi)      */
+/* 	{ */
+/* 		g_pdi->Release(); */
+/* 		g_pdi    = NULL; */
+/* 	} */
+	
+	
+	
+	if (sound_on)
+	  QuitSound();
+	
+	
+	if (sound_on)
+	{
+	//lets kill the cdaudio too
+/* 	if (mciSendString("close all", NULL, 0, NULL) != 0) */
+/* 	{ */
+/* 		Msg("Couldn't close all MCI events.."); */
+/* 		//	return(FALSE); */
+/* 	} */
+	  SDL_QuitSubSystem(SDL_INIT_CDROM | SDL_INIT_AUDIO);
+	}
+	
+	kill_all_scripts_for_real();
+	FastFileFini();
+	kill_fonts();
+	g_b_kill_app = 1;
+/* 	ShowWindow(hWndMain, SW_HIDE); */
+/* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
+	//PostQuitMessage(0);
+
+	if (joystick)
+	  SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+
+	SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+	SDL_QuitSubSystem(SDL_INIT_TIMER);
+} /* finiObjects */
+
+/*
+ * This function is called if the initialization function fails
+ */
+int initFail(char mess[200])
+{
+  /* MessageBox( hwnd, mess, TITLE, MB_OK); */
+  fprintf(stderr, "%s\n", mess);
+  finiObjects();
+  return 0; /* used when "return initFail(...);" */
+}
+
+
+/**
+ * Check the command line arguments and initialize the required global
+ * variables
+ */
+static int check_arg(int argc, char *argv[])
+{
+  int c;
+  char *refdir_opt = NULL;
+  char *dmoddir_opt = NULL;
+
+  /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
+     '-window' (with one dash '-' only) are required to maintain
+     backward compatibility with the original game */
+  struct option long_options[] = 
+    {
+      {"debug",   no_argument,       NULL, 'd'},
+      {"refdir",  required_argument, NULL, 'r'},
+      {"game",    required_argument, NULL, 'g'},
+      {"help",    no_argument,       NULL, 'h'},
+      {"noini",   no_argument,       NULL, 'i'},
+      {"nojoy",   no_argument,       NULL, 'j'},
+      {"nosound", no_argument,       NULL, 's'},
+      {"version", no_argument,       NULL, 'v'},
+      {"window",  no_argument,       NULL, 'w'},
+      {0, 0, 0, 0}
+    };
+  
+  char short_options[] = "dr:g:hijsvw";
+
+  /* Loop through each argument */
+  while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
+    {
+      switch (c) {
+      case 'd':
+	  debug_mode = 1;
+	  /* TODO: use global path */
+	  remove("dink/debug.txt");
+	  break;
+      case 'r':
+	refdir_opt = strdup(optarg);
+	break;
+      case 'g':
+	{
+	  dmoddir_opt = strdup(optarg);
+	  Msg("Working directory %s requested.", dmoddir_opt);
+	}
+	break;
+      case 'h':
+	print_help(argc, argv);
+	break;
+      case 'j':
+	joystick = 0;
+	break;
+      case 'i':
+	g_b_no_write_ini = 1;
+	break;
+      case 's':
+	sound_on = 0;
+	break;
+      case 'v':
+	print_version();
+	break;
+      case 'w':
+	  windowed = 1;
+	  // Beuc: enabling transition is more fun :)
+	  //no_transition = true;
+	  break;	
+      default:
+	exit(EXIT_FAILURE);
+      }
+    }
+  
+  paths_init(refdir_opt, dmoddir_opt);
+
+  /* TODO: don't chdir, and use $refdir/dink instead of ../dink */
+  if (chdir(paths_dmoddir()) == -1)
+    {
+      char message[200];
+      sprintf(message, "Game dir \"%s\" not found!", paths_dmoddir());
+      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
+      
+      initFail(message);
+      return 0;
+    }	  
+  
+  free(refdir_opt);
+  free(dmoddir_opt);
+
+  Msg("Game directory is %s.", paths_dmoddir());
+  return 1;
+}
+
 
 
 /* The goal is to replace freedink and freedinkedit's doInit() by a
    common init procedure. This procedure will also initialize each
    subsystem as needed (eg InitSound) */
-int init(void)
+int init(int argc, char *argv[])
 {
   /** [Default paths] **/
   /* relocatable_prog */
+  set_program_name(argv[0]);
   printf("Hi, I'm '%s'\n", get_full_program_name());
 
   /* BinReloc */
@@ -61,23 +365,13 @@ int init(void)
       printf ("Will fallback to hardcoded default path.\n");
     }
 
-  /**
-Determined once on startup:
-pkgdatadir = $exedir/../share/freedink/ # binreloc
-	   (test: -d)
-	   FALLBACK $default_data_dir/freedink/
-dinkdir = -dinkdir # error if !-d
-	|| ./
-	|| $exedir
-	|| $pkgdatadir
-	(test: -d $dinkdir/dink/Graphics -a -d $dinkdir/dink/Tiles)
-DMod = -game
-     || $dinkdir/dmod/
-     || ERROR
-Dink = $dinkdir/dink/
-     (? DMod/../dink/) (beware of symlinks)
-  **/
-  
+  if (!check_arg(argc, argv))
+    return 0;
+
+
+  /* Fonts system, default fonts */
+  FONTS_init();
+
   
   /* SDL */
   /* Init timer subsystem */
@@ -152,9 +446,6 @@ Dink = $dinkdir/dink/
   /* Disable Alt-Tab and any other window-manager shortcuts */
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
-
-  /* Fonts system */
-  FONTS_init();
 
 
   /* Mouse */

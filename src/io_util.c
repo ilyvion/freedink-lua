@@ -45,14 +45,12 @@
 #include "SDL.h"
 #include "SDL_rwops_zzip.h"
 
+#include "paths.h"
+
 /* TODO: use Gnulib */
 #ifndef PATH_MAX
 #  define PATH_MAX 255
 #endif
-
-static char* pkgdatadir = NULL;
-static char* datafallbackdir = NULL; /* default = pkgdatadir + '/dink' */
-static char* dmoddir = NULL; /* pkgdatadir + '/dink' */
 
 /* Returns a pointer to the end of the current path element (file or
    directory) */
@@ -180,7 +178,7 @@ ciconvertbuf (const char *filename, char* buf)
 }
 
 /* Does this file exist and can be opened? */
-int exist(char name[255])
+int exist(char *name)
 {
   char tmp_filename[PATH_MAX];
 
@@ -211,231 +209,27 @@ SDL_RWops *find_resource_as_rwops(char *name)
 {
   /* Look in appended ZIP archive */
   SDL_RWops* rwops = NULL;
+
   /* get_full_program_name() checks /proc (Linux), then argv[0] +
      PATH. Under Woe it uses GetModuleFileName(). The only way to make
      it fail is to execl("./freedink", "idontexist", 0); */
   char *myself = get_full_program_name();
   char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
-  strcpy(zippath, myself);
-  strcat(zippath, "/");
-  strcat(zippath, name);
+  sprintf(zippath, "%s/%s", myself, name);
   /* sample zippath: "/usr/bin/freedink/LiberationSans-Regular.ttf" */
   rwops = SDL_RWFromZZIP(zippath, "rb");
+  /* Retrieve error (if any) with: printf("%s\n", strerror(errno)); */
+  if (rwops != NULL)
+     return rwops;
+
+  /* Fallback to pkgdatadir */
+  char *path = malloc(strlen(paths_pkgdatadir()) + 1 + strlen(name) + 1);
+  sprintf(path, "%s/%s", paths_pkgdatadir(), name);
+  rwops = SDL_RWFromFile(ciconvert(path), "rb");
+  free(path);
   return rwops;
-  /* Retrieve error (if any) with :
-     printf("%s\n", strerror(errno)); */
 }
 
-void paths_init(char *refdir_opt, char *dmoddir_opt)
-{
-  /** pkgdatadir (e.g. "/usr/share/freedink") **/
-  {
-    /** datadir (e.g. "/usr/share") **/
-    char *datadir;
-    {
-      const char *datadir_relocatable;
-      char *datadir_binreloc, *default_data_dir;
-      
-      /* First, ask relocable-prog */
-      /* copy to avoid "comparison with string literal" */
-      default_data_dir = strdup(DEFAULT_DATA_DIR);
-      datadir_relocatable = relocate(default_data_dir);
-      
-      /* Then ask binreloc - it handles ../share even if CWD != "bin"
-	 (e.g. "src"). However it's not as precise and portable ($PATH
-	 lookup, etc.). */
-      datadir_binreloc = br_find_data_dir(datadir_relocatable);
-      
-      /* Free relocable-prog's path, if necessary */
-      if (datadir_relocatable != default_data_dir)
-	free((char *)datadir_relocatable);
-      free(default_data_dir);
-      
-      /* Binreloc always return a newly allocated string, with either the
-	 built directory, or a copy of its argument */
-      datadir = datadir_binreloc;
-    }
-    
-    /** => pkgdatadir **/
-    char *retpath = (char*) malloc(strlen(datadir) + 1 + strlen(PACKAGE) + 1);
-    sprintf(retpath, "%s/%s", datadir, PACKAGE);
-    if (is_directory(retpath))
-      {
-	/* Relocated $datadir/freedink exists */
-	pkgdatadir = retpath;
-      }
-    else
-      {
-	/* Fallback to compile-time datadir */
-	retpath = (char*) realloc(retpath, strlen(DEFAULT_DATA_DIR) + 1 + strlen(PACKAGE) + 1);
-	sprintf(retpath, "%s/%s", DEFAULT_DATA_DIR, PACKAGE);
-	pkgdatadir = retpath;
-      }
-  }
-
-  /** refdir **/
-  char *refdir;
-  {
-    /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
-    char *exedir;
-    {
-      char *myself = strdup(get_full_program_name());
-      int len = strlen(myself);
-      char *pc = myself + len;
-      while (--pc >= myself && *pc != '/');
-      if (*pc == '/')
-	*pc = '\0';
-      exedir = myself;
-    }
-
-    /** => refdir **/
-    char* match = NULL;
-    char* lookup[4];
-    // TODO:
-    lookup[0] = refdir_opt;
-    lookup[1] = ".";
-    lookup[2] = exedir;
-    lookup[3] = pkgdatadir;
-    int i = 0;
-    if (lookup[0] == NULL)
-      i++;
-    for (; i < 4; i++)
-      {
-	char *dir_graphics_ci, *dir_tiles_ci;
-	dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
-	dir_tiles_ci = br_strcat(lookup[i], "/dink/tiles");
-	if (is_directory(dir_graphics_ci) && is_directory(dir_tiles_ci))
-	  {
-	    match = lookup[i];
-	  }
-
-	if (match == NULL && i == 0)
-	  {
-	    fprintf(stderr, "Invalid refdir: %s and/or %s are not accessible.\n",
-		    dir_graphics_ci, dir_tiles_ci);
-	    exit(1);
-	  }
-
-	free(dir_graphics_ci);
-	free(dir_tiles_ci);
-	if (match != NULL)
-	    break;
-      }
-    refdir = match;
-
-    if (refdir == NULL)
-      {
-	fprintf(stderr, "Error: refdir doesn't exist. I looked in:\n");
-	int i = 0;
-	if (lookup[0] == NULL)
-	  i++;
-	for (; i < 4; i++)
-	  {
-	    char *dir_graphics_ci;
-	    dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
-	    fprintf(stderr, "- %s\n", dir_graphics_ci);
-	  }
-	exit(1);
-      }
-  }
-
-  /** datafallbackdir (e.g. "/usr/share/freedink/dink") **/
-  {
-    datafallbackdir = br_strcat(refdir, "/dink");
-  }
-
-  /** dmoddir (e.g. "/usr/share/freedink/island") **/
-  {
-    if (dmoddir_opt == NULL)
-      dmoddir_opt = "dink";
-    if (is_directory(dmoddir_opt))
-      {
-	dmoddir = dmoddir_opt;
-      }
-    else
-      {
-	dmoddir = malloc(strlen(refdir) + 1 + strlen(dmoddir_opt) + 1);
-	strcpy(dmoddir, refdir);
-	strcat(dmoddir, "/");
-	strcat(dmoddir, dmoddir_opt);
-	if (!is_directory(dmoddir))
-	  {
-	    fprintf(stderr, "Error: dmoddir doesn't exist. I looked in:\n");
-	    fprintf(stderr, "- ./%s\n", dmoddir_opt);
-	    fprintf(stderr, "- ./%s\n", dmoddir);
-	    exit(1);
-	  }
-      }
-  }
-
-/*   char *tmp[2000]; */
-/*   printf("pwd = %s\n", getcwd(tmp, 2000)); */
-  printf("refdir = %s\n", refdir);
-  printf("pkgdatadir = %s\n", pkgdatadir);
-  printf("dmoddir = %s\n", dmoddir);
-}
-
-char *paths_dmoddir(void)
-{
-  return dmoddir;
-}
-
-/* Try different options to get a data file, such as the default font,
-   the application icon, etc. */
-/* datadir + "/" + PACKAGE + "/" + filename */
-char *
-find_data_file(const char *filename)
-{
-  char *dir = NULL;
-  char *retpath = malloc(1);
-
-  /* Try dirname(executable)/../share or dirname(executable)/share */
-#ifdef _WIN32
-  {
-    /* Get executable's directory */
-    char myself[MAX_PATH];
-    int success = GetModuleFileName(NULL, myself, MAX_PATH);
-    if (success)
-      {
-	int len = strlen(myself);
-	char *pc = myself + len;
-	while (--pc >= myself && *pc != '/');
-	if (*pc == '/')
-	  {
-	    *pc = '\0';
-	    dir = myself;
-	  }
-      }
-  }
-#else
-  dir = br_find_data_dir(DEFAULT_DATA_DIR);
-#endif
-  if (dir != NULL)
-    {
-      retpath = (char*) realloc(retpath, strlen(dir) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
-      sprintf(retpath, "%s/%s/%s", dir, PACKAGE, filename);
-      if (exist(retpath))
-	{
-	  free(dir);
-	  return retpath;
-	}
-    }
-
-  /* Try compile-time datadir */
-  retpath = (char*) realloc(retpath, strlen(DEFAULT_DATA_DIR) + 1 + strlen(PACKAGE) + 1 + strlen(filename) + 1);
-  sprintf(retpath, "%s/%s/%s", DEFAULT_DATA_DIR, PACKAGE, filename);
-  if (exist(retpath))
-    return retpath;
-
-  /* Try . */
-  retpath = (char*) realloc(retpath, strlen(".") + 1 + strlen(filename) + 1);
-  sprintf(retpath, "./%s", filename);
-  if (exist(retpath))
-    return retpath;
-  
-  free(retpath);
-  return NULL;
-}
 
 #ifdef TEST
 /* find ../.. -print0 | tr a-z A-Z | xargs -0 ./a.out */

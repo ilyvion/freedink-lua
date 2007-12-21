@@ -1,4 +1,4 @@
 #ifndef _INIT_H
 #define _INIT_H
-int init(void);
+int init(int argc, char *argv[]);
 #endif

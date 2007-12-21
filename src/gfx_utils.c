@@ -25,6 +25,39 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "io_util.h"
+#include "paths.h"
+#include "log.h"
+#include "dinkvar.h"
+
+/* Parse dink.ini */
+void load_batch(void)
+{
+  FILE *stream;  
+  char line[255];
+  char tmp_filename[PATH_MAX];
+	
+  printf("Loading .ini");
+  // TODO: use dmoddir
+  if (!exist("dink.ini"))
+    {
+      Msg("load_batch: dink.ini not found.");	  
+      sprintf(line,"Error finding the dink.ini file in the %s dir.", paths_dmoddir());
+      TRACE(line);
+    }
+	
+  /* Open the text file in binary mode, so it's read the same way
+     under different OSes (Unix has no text mode) */
+  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb")) == NULL)
+    TRACE("Error opening Dink.ini for reading.");
+  else
+    {
+      while(fgets(line, 255, stream) != NULL) 
+	pre_figure_out(line, 0);
+      fclose( stream );
+    }
+
+  program_idata();
+}
 
 /* Get a colors palette from the specified image */
 int

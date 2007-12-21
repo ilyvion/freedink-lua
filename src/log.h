@@ -20,30 +20,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _IO_UTIL_H
-#define _IO_UTIL_H
+#ifndef _LOG_H
+#define _LOG_H
 
-#include <limits.h>
-#include "SDL.h"
-#ifndef PATH_MAX
-/* Woe */
-#define PATH_MAX MAX_PATH
-#endif
-
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-  extern char* ciconvert (char *filename);
-  extern char* ciconvertbuf (const char *filename, char *buf);
-  extern SDL_RWops *find_resource_as_rwops(const char *filename);
-  extern /*bool*/int exist(char *name);
-  extern int is_directory(char *name);
-
-#ifdef __cplusplus
-}
-#endif
+extern char last_debug[200];
+extern /*bool*/int debug_mode;
+extern void add_text(char *tex ,char *filename);
+extern void Msg(char *fmt, ...);
+extern void TRACE(char *fmt, ...);
 
 #endif

@@ -86,6 +86,8 @@
 #include "gfx_fonts.h"
 #include "sfx.h"
 #include "io_util.h"
+#include "paths.h"
+#include "log.h"
 
 //Dinkedit-only vars
 
@@ -5429,302 +5431,6 @@ void updateFrame(void)
 /*     } */
 } /* updateFrame */
 
-/*
- * finiObjects
- *
- * finished with all objects we use; release them
- */
-/* TODO: merge with freedink.cpp */
-void finiObjects( void )
-{
-  printf("Running cleanup (finiObjects)\n");
-
-/* 	  if( lpDD != NULL ) */
-/* 	  { */
-/* 		  if( lpDDSPrimary != NULL ) */
-/* 		  { */
-/* 			  lpDDSPrimary->Release(); */
-/* 			  lpDDSPrimary = NULL; */
-/* 		  } */
-
-/* 		  if( lpDDSTwo != NULL ) */
-/* 		  { */
-/* 			  lpDDSTwo->Release(); */
-/* 			  lpDDSTwo = NULL; */
-/* 		  } */
-
-
-/* 		  if( lpDDPal != NULL ) */
-/* 		  { */
-/* 			  lpDDPal->Release(); */
-/* 			  lpDDPal = NULL; */
-/* 		  } */
-/* 		  lpDD->Release(); */
-/* 		  lpDD = NULL; */
-/* 	  } */
-
-
-/* 	  //destroy direct input mouse stuff */
-/* 	  if (g_pdi)      g_pdi   ->Release(), g_pdi    = NULL; */
-
-
-/*     if (g_pMouse)   g_pMouse->Release(), g_pMouse = NULL; */
-
-/*     if (g_hevtMouse) CloseHandle(g_hevtMouse), g_hevtMouse = NULL; */
-
-
-
-if (sound_on)
-  QuitSound();
-
-	FastFileFini();
-	kill_fonts();
-
-
-  } /* finiObjects */
-
-/* long FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
-/* 			   WPARAM wParam, LPARAM lParam) */
-/* { */
-/* 	  switch( message ) */
-/* 	  { */
-/* 	  case WM_ACTIVATEAPP: */
-/* 		  bActive = wParam; */
-/* 		  break; */
-
-/* 	  case WM_SETCURSOR: */
-/* 		  SetCursor(NULL); */
-/* 		  return /\*TRUE*\/1; */
-
-/* 	  case WM_CREATE: */
-/* 		  break; */
-
-/* 	  case WM_KEYDOWN: */
-/* 		  switch( wParam ) */
-/* 		  { */
-/* 		  case 'Q' /\* 81 *\/: */
-
-
-/* 			  if (mode == MODE_MAP_PICKER) */
-/* 			  { */
-
-/* 				  save_hard(); */
-/* 				  Msg("Info saved."); */
-/* 				  PostMessage(hWnd, WM_CLOSE, 0, 0); */
-/* 			  } */
-/* 			  break; */
-
-/*         		case VK_F1: */
-/* 					{ */
-/* 					Msg("F1 pressed"); */
-/* 					} */
-/* 					break; */
-
-
-/* 		  } */
-/* 		  break; */
-
-/* 		  case WM_DESTROY: */
-/* 			  finiObjects(); */
-/* 			  PostQuitMessage( 0 ); */
-/* 			  break; */
-/* 	  } */
-
-/* 	  return DefWindowProc(hWnd, message, wParam, lParam); */
-
-/*   } /\* WindowProc *\/ */
-
-
-
-/*
- * This function is called if the initialization function fails
- */
-/* TODO: merge with freedink.cpp */
-/*BOOL*/int initFail(char mess[200])
-{
-/* 	  MessageBox( hwnd, mess, TITLE, MB_OK ); */
-    printf("%s\n", mess);
-    finiObjects();
-/* 	  DestroyWindow( hwnd ); */
-    return /*FALSE*/0;
-} /* initFail */
-
-
-/**
- * Prints the version on the standard ouput. Based on the homonymous
- * function from ratpoison
- */
-void
-print_version ()
-{
-  printf ("freedinkedit (%s) %s\n", PACKAGE_NAME, VERSION);
-  printf ("Copyright (C) 2007 by contributors\n");
-  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
-  printf ("This is free software: you are free to change and redistribute it.\n");
-  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
-  exit (EXIT_SUCCESS);
-}
-
-/**
- * Prints the version on the standard ouput. Based on the homonymous
- * function from ratpoison
- */
-void
-print_help (int argc, char *argv[])
-{
-  printf ("Usage: %s [OPTIONS]...\n", argv[0]);
-  printf ("\n");
-  printf ("TODO                  Display the default configuration here\n");
-  printf ("-h, --help            Display this help screen\n");
-  printf ("-v, --version         Display the version\n");
-  printf ("\n");
-  printf ("-g, --game <dir>      Specify a DMod directory\n");
-  /* printf ("-f, --fontdir <dir>   Specify an alternative font directory\n"); */
-  printf ("\n");
-  printf ("-d, --debug           Explain what is being done\n");
-  printf ("-s, --nosound         Do not play sound\n");
-  printf ("-w, --window          Use windowed mode instead of screen mode\n");
-  printf ("\n");
-
-  /* printf ("Type 'info freedink' for more information\n"); */
-  printf ("Report bugs to %s.\n", PACKAGE_BUGREPORT);
-
-  exit (EXIT_SUCCESS);
-}
-
-/*bool*/int check_arg(int argc, char *argv[])
-{
-  int c;
-
-  /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
-     '-window' (with one dash '-' only) are required to maintain
-     backward compatibility with the original game */
-  struct option long_options[] =
-    {
-      {"debug",   no_argument,       NULL, 'd'},
-      /* {"fontdir", required_argument, NULL, 'f'}, */
-      {"game",    required_argument, NULL, 'g'},
-      {"help",    no_argument,       NULL, 'h'},
-      {"noini",   no_argument,       NULL, 'i'},
-      {"nojoy",   no_argument,       NULL, 'j'},
-      {"nosound", no_argument,       NULL, 's'},
-      {"version", no_argument,       NULL, 'v'},
-      {"window",  no_argument,       NULL, 'w'},
-      {0, 0, 0, 0}
-    };
-
-  /* char short_options[] = "df:g:hijsvw"; */
-  /* char *default_fontdir = "../fonts/"; */
-  char short_options[] = "dg:hijsvw";
-
-  // TODO: perform this in the initialization
-  strcpy(dir, "dink");
-
-  /* g_fontdir = malloc(strlen(default_fontdir) + 1); */
-  /* strcpy(g_fontdir, default_fontdir); */
-
-  /* Loop through each argument */
-  while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
-    {
-      switch (c) {
-      case 'd':
-	  debug_mode = 1;
-	  remove("dink/debug.txt");
-	  break;
-      case 'g':
-	{
-/* 	/\* The next argument is the game directory, make sure this *\/ */
-/* 	/\* isn't the last argument. *\/ */
-/* 	strcpy (dir, optarg); */
-/* 	Msg (("Working directory %s requested.", dir)); */
-	  strcpy(dir, optarg);
-	  Msg("Working directory %s requested.",dir);
-	}
-	break;
-      case 'h':
-	print_help(argc, argv);
-	break;
-      case 's':
-	sound_on = 0;
-	break;
-      case 'v':
-	print_version();
-	break;
-      case 'w':
-	  windowed = 1;
-	  // Beuc: enabling transition is more fun :)
-	  //no_transition = true;
-	  break;
-      default:
-	exit (EXIT_FAILURE);
-      }
-    }
-
-  if (chdir(dir) == -1)
-    {
-      char message[200];
-      sprintf(message, "Game dir \"%s\" not found!", dir);
-      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
-
-      initFail(message);
-      return 0;
-    }
-
-  Msg("Dir is now %s.", dir);
-  return 1;
-}
-
-void load_batch(void)
-{
-  char tmp_filename[PATH_MAX];
-	  FILE *stream;
-	  char line[255];
-
-	  Msg("Loading .ini");
-	  if (!exist("dink.ini"))
-		  	  {
-	Msg("File not found.");
-
-		  sprintf(line,"Error finding the dink.ini file in the %s dir.",dir);
-		 TRACE(line);
-
-	  }
-
-	  /* Open the text file in binary mode, so it's read the same
-	     way under different OSes (Unix has no text mode) */
-	  if( (stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb" )) != NULL )
-	  {
-
-		  while(1)
-		  {
-			  if( fgets( line, 255, stream ) == NULL)
-				  goto done;
-			  else
-			  {
-
-				  pre_figure_out(line, 0);
-			  }
-
-		  }
-
-done:
-
-		      program_idata();
-
-
-		  fclose( stream );
-	  } else
-	  {
-		  TRACE("Dink.ini missing.");
-	  }
-
-  }
-
-
-
-
-
-
 
 int SInitSound()
 {
@@ -5746,23 +5452,9 @@ int SInitSound()
       SDL_RWops* rwops;
       rwops = find_resource_as_rwops(filename);
       if (rwops != NULL)
-	{
-	  result = CreateBufferFromWaveFile_RW(rwops, 1, i);
-	}
-  
-      /* Fallback to package data directory */
-      if (result == 0)
-	{
-	  char *path = find_data_file(filename);
-	  if (path != NULL)
-	    result = CreateBufferFromWaveFile(path, i);
-	  
-	  if (result == 0)
-	    fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n", filename, path);
-
-	  if (path != NULL)
-	    free(path);
-	}
+	result = CreateBufferFromWaveFile_RW(rwops, 1, i);
+      else
+	fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n", filename, paths_pkgdatadir());
     }
   return 1;
 }
@@ -5812,7 +5504,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	  */
 
 	  windowed = /*false*/0;
-	  check_arg(argc, argv);
 
 /* 	  if (windowed) */
 /* 	  { */
@@ -6038,7 +5729,7 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 
 
   /* New initialization */
-  if (init() == 0)
+    if (init(argc, argv) == 0)
     {
       exit(1);
     }

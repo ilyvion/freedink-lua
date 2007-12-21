@@ -29,6 +29,7 @@
 #include "io_util.h"
 // #include "ddutil.h"
 #include "sfx.h"
+#include "log.h"
 
 /* Tiles */
 #define NB_TILE_SCREENS 41+1 /* +1 to avoid the -1 in arrays.. */

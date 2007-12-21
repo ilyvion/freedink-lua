@@ -1,5 +1,5 @@
 /**
- * Filesystem helpers
+ * Compute and store the search paths
 
  * Copyright (C) 2007  Sylvain Beucler
 
@@ -20,27 +20,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _IO_UTIL_H
-#define _IO_UTIL_H
-
-#include <limits.h>
-#include "SDL.h"
-#ifndef PATH_MAX
-/* Woe */
-#define PATH_MAX MAX_PATH
-#endif
-
+#ifndef _PATH_H
+#define _PATH_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  extern char* ciconvert (char *filename);
-  extern char* ciconvertbuf (const char *filename, char *buf);
-  extern SDL_RWops *find_resource_as_rwops(const char *filename);
-  extern /*bool*/int exist(char *name);
-  extern int is_directory(char *name);
+  extern void paths_init(char *refdir_opt, char *dmoddir_opt);
+  extern const char *paths_dmoddir(void);
+  extern const char *paths_pkgdatadir(void);
 
 #ifdef __cplusplus
 }

@@ -28,6 +28,7 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "io_util.h"
+#include "paths.h"
 #include "gfx_fonts.h"
 
 
@@ -58,10 +59,12 @@ void FONTS_init()
   }
 
   dialog_font = load_default_font("LiberationSans-Regular.ttf");
-  system_font = load_default_font("vgasys.fon");
+  if (dialog_font != NULL)
+    system_font = load_default_font("vgasys.fon");
+
   if (dialog_font == NULL || system_font == NULL)
     {
-      fprintf(stderr, "Failed to load the default fonts\n");
+      fprintf(stderr, "Failed to load default fonts.\n");
       exit(1);
     }
 }
@@ -91,58 +94,24 @@ void kill_fonts(void)
  */
 static TTF_Font *load_default_font(char *filename) {
   TTF_Font *font_object = NULL;
-  char *first_error = NULL;
 
   /* Try from resources */
-  SDL_RWops* rwops;
+  SDL_RWops* rwops = NULL;
   rwops = find_resource_as_rwops(filename);
   if (rwops == NULL)
     {
-      /* Error comes from ZZIP, keep it for later if everything
-	 fails */
-      char *error = strerror(errno);
-      first_error = malloc(strlen(error) + 1);
-      strcpy(first_error, error);
+      fprintf(stderr, "Could not open font '%s'. I tried:\n", filename);
+      fprintf(stderr, "- loading from executable's resources\n");
+      fprintf(stderr, "- loading from '%s'\n", paths_pkgdatadir());
+      return NULL;
     }
-  else
-    {
-      font_object = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
-      if (font_object == NULL)
-	{
-	  char *error = TTF_GetError();
-	  first_error = malloc(strlen(error) + 1);
-	  strcpy(first_error, error);
-	}
-    }
-  
-  /* Fallback to package data directory */
+
+  font_object = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
   if (font_object == NULL)
     {
-      char *path = find_data_file(filename);
-      if (path != NULL)
-	font_object = TTF_OpenFont(path, FONT_SIZE);
-  
-      if (font_object == NULL)
-	{
-	  fprintf(stderr, "Could not find %s\n", filename);
-	  fprintf(stderr, "- loading from myself failed with: %s\n", first_error);
-	  if (path != NULL)
-	    fprintf(stderr, "- loading from %s failed with %s\n", path, TTF_GetError());
-	  else
-	    fprintf(stderr, "- file was not found in the data dir\n");
-	  /* TODO: clean-up before exiting */
-	  return NULL;
-	}
-
-      if (path != NULL)
-	free(path);
+      fprintf(stderr, "Could not open font '%s': %s\n", filename, TTF_GetError());
+      return NULL;
     }
-
-  if (first_error != NULL)
-    free(first_error);
-
-  if (font_object == NULL)
-    return NULL;
 
   setup_font(font_object);
 
@@ -197,8 +166,6 @@ int initfont(char* fontname) {
 static void
 setup_font(TTF_Font *font)
 {
-  printf("font=%p\n", font);
-
   char *familyname = TTF_FontFaceFamilyName(font);
   if(familyname)
     printf("The family name of the face in the font is: %s\n", familyname);

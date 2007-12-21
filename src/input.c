@@ -23,6 +23,7 @@
 
 #include "SDL.h"
 #include "dinkvar.h"
+#include "log.h"
 #include "input.h"
 
 int GetKeyboard(int key)
