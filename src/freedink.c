@@ -5714,6 +5714,8 @@ print_help (int argc, char *argv[])
 int check_arg(int argc, char *argv[])
 {
   int c;
+  char *refdir_opt = NULL;
+  char *dmoddir_opt = NULL;
 
   /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
      '-window' (with one dash '-' only) are required to maintain
@@ -5721,7 +5723,7 @@ int check_arg(int argc, char *argv[])
   struct option long_options[] = 
     {
       {"debug",   no_argument,       NULL, 'd'},
-      /* {"fontdir", required_argument, NULL, 'f'}, */
+      {"refdir",  required_argument, NULL, 'r'},
       {"game",    required_argument, NULL, 'g'},
       {"help",    no_argument,       NULL, 'h'},
       {"noini",   no_argument,       NULL, 'i'},
@@ -5734,7 +5736,7 @@ int check_arg(int argc, char *argv[])
   
   /* char short_options[] = "df:g:hijsvw"; */
   /* char *default_fontdir = "../fonts/"; */
-  char short_options[] = "dg:hijsvw";
+  char short_options[] = "dr:g:hijsvw";
 
   // TODO: perform this in the initialization
   strcpy(dir, "dink");
@@ -5748,42 +5750,12 @@ int check_arg(int argc, char *argv[])
       switch (c) {
       case 'd':
 	  debug_mode = 1;
+	  /* TODO: use global path */
 	  remove("dink/debug.txt");
 	  break;
-/*       case 'f': */
-/* 	{ */
-/* 	  char *tmp = malloc(256); */
-/* 	  char *olddir = malloc(256); */
-/* 	  free (g_fontdir); */
-	  
-/* 	  g_fontdir = optarg; */
-	  
-/* 	  /\* Get the absolute path of the font directory. This *\/ */
-/* 	  /\* must be done because dink changes the cwd to the game *\/ */
-/* 	  /\* dir and a relative path the fonts may no longer work. *\/ */
-/* 	  dink_getcwd (olddir, 255); */
-/* 	  if (dink_chdir (g_fontdir) == -1) */
-/* 	    { */
-/* 	      Msg (("Unable to find font dir, %s.", g_fontdir)); */
-/* 	      exit(EXIT_FAILURE); */
-/* 	    } */
-/* 	  dink_getcwd (tmp, 254); */
-/* 	  /\* Add a frontslash if there isn't one *\/ */
-/* 	  if (tmp[strlen (tmp) - 1] != '/') */
-/* 	    { */
-/* 	      int len = strlen (tmp); */
-	      
-/* 	      tmp[len] = '/'; */
-/* 	      tmp[len + 1] = '\0'; */
-/* 	    } */
-	  
-/* 	  /\* free (g_fontdir); *\/ */
-/* 	  g_fontdir = tmp; */
-/* 	  dink_chdir (olddir); */
-	  
-/* 	  Msg (("Fontdir is now %s.", g_fontdir)); */
-/* 	} */
-/* 	break; */
+      case 'r':
+	refdir_opt = strdup(optarg);
+	break;
       case 'g':
 	{
 /* 	/\* The next argument is the game directory, make sure this *\/ */
@@ -5791,7 +5763,8 @@ int check_arg(int argc, char *argv[])
 /* 	strcpy (dir, optarg); */
 /* 	Msg (("Working directory %s requested.", dir)); */
 	  strcpy(dir, optarg);
-	  Msg("Working directory %s requested.",dir);
+	  Msg("Working directory %s requested.", dir);
+	  dmoddir_opt = strdup(optarg);
 	}
 	break;
       case 'h':
@@ -5815,11 +5788,14 @@ int check_arg(int argc, char *argv[])
 	  //no_transition = true;
 	  break;	
       default:
-	exit (EXIT_FAILURE);
+	exit(EXIT_FAILURE);
       }
     }
-	
-  if (chdir(dir) == -1) 
+  
+  paths_init(refdir_opt, dmoddir_opt);
+
+  /* TODO: don't chdir, and use $refdir/dink instead of ../dink */
+  if (chdir(paths_dmoddir()) == -1)
     {
       char message[200];
       sprintf(message, "Game dir \"%s\" not found!", dir);

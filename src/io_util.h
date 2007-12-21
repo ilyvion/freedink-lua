@@ -36,6 +36,9 @@ extern "C"
 {
 #endif
 
+  char *paths_init(char *refdir_opt, char *dmoddir_opt);
+  char *paths_dmoddir(void);
+
   char* ciconvert (char *filename);
   char* ciconvertbuf (const char *filename, char *buf);
   SDL_RWops *find_resource_as_rwops(const char *filename);

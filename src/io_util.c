@@ -197,9 +197,12 @@ int exist(char name[255])
 int is_directory(char *name)
 {
   char tmp_filename[PATH_MAX];
+  int retval;
 
   struct stat buf;
-  stat(ciconvertbuf(name, tmp_filename), &buf);
+  retval = stat(ciconvertbuf(name, tmp_filename), &buf);
+  if (retval < 0)
+    return 0;
   return S_ISDIR(buf.st_mode);
 }
 
@@ -223,7 +226,7 @@ SDL_RWops *find_resource_as_rwops(char *name)
      printf("%s\n", strerror(errno)); */
 }
 
-void init_paths(char *distdir_opt, char *dmoddir_opt)
+void paths_init(char *refdir_opt, char *dmoddir_opt)
 {
   /** pkgdatadir (e.g. "/usr/share/freedink") **/
   {
@@ -254,7 +257,7 @@ void init_paths(char *distdir_opt, char *dmoddir_opt)
     }
     
     /** => pkgdatadir **/
-    char *retpath = (char*) realloc(retpath, strlen(datadir) + 1 + strlen(PACKAGE) + 1);
+    char *retpath = (char*) malloc(strlen(datadir) + 1 + strlen(PACKAGE) + 1);
     sprintf(retpath, "%s/%s", datadir, PACKAGE);
     if (is_directory(retpath))
       {
@@ -270,8 +273,8 @@ void init_paths(char *distdir_opt, char *dmoddir_opt)
       }
   }
 
-  /** distdir **/
-  char *distdir;
+  /** refdir **/
+  char *refdir;
   {
     /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
     char *exedir;
@@ -285,43 +288,60 @@ void init_paths(char *distdir_opt, char *dmoddir_opt)
       exedir = myself;
     }
 
-    /** => distdir **/
-    char* match;
+    /** => refdir **/
+    char* match = NULL;
     char* lookup[4];
     // TODO:
-    lookup[0] = distdir_opt;
+    lookup[0] = refdir_opt;
     lookup[1] = ".";
     lookup[2] = exedir;
     lookup[3] = pkgdatadir;
+    int i = 0;
     if (lookup[0] == NULL)
-      lookup[0] = lookup[1];
-    for (int i = 0; i < 4; i++)
+      i++;
+    for (; i < 4; i++)
       {
-	char *dir_story_ci, *
-dir_tiles_ci;
-	dir_story_ci = br_strcat(lookup[i], "/dink/graphics");
+	char *dir_graphics_ci, *dir_tiles_ci;
+	dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
 	dir_tiles_ci = br_strcat(lookup[i], "/dink/tiles");
-	if (is_directory(dir_story_ci) && is_directory(dir_tiles_ci))
+	if (is_directory(dir_graphics_ci) && is_directory(dir_tiles_ci))
 	  {
 	    match = lookup[i];
 	  }
-	free(dir_story_ci);
+
+	if (match == NULL && i == 0)
+	  {
+	    fprintf(stderr, "Invalid refdir: %s and/or %s are not accessible.\n",
+		    dir_graphics_ci, dir_tiles_ci);
+	    exit(1);
+	  }
+
+	free(dir_graphics_ci);
 	free(dir_tiles_ci);
 	if (match != NULL)
-	  break;
+	    break;
       }
-    distdir = match;
+    refdir = match;
 
-    if (distdir == NULL)
+    if (refdir == NULL)
       {
-	fprintf(stderr, "Error: distdir doesn't exist (looked in...)\n");
+	fprintf(stderr, "Error: refdir doesn't exist. I looked in:\n");
+	int i = 0;
+	if (lookup[0] == NULL)
+	  i++;
+	for (; i < 4; i++)
+	  {
+	    char *dir_graphics_ci;
+	    dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
+	    fprintf(stderr, "- %s\n", dir_graphics_ci);
+	  }
 	exit(1);
       }
   }
 
   /** datafallbackdir (e.g. "/usr/share/freedink/dink") **/
   {
-    datafallbackdir = br_strcat(distdir, "/dink");
+    datafallbackdir = br_strcat(refdir, "/dink");
   }
 
   /** dmoddir (e.g. "/usr/share/freedink/island") **/
@@ -334,17 +354,30 @@ dir_tiles_ci;
       }
     else
       {
-	dmoddir = malloc(strlen(distdir) + 1 + strlen(dmoddir_opt) + 1);
-	strcpy(dmoddir, distdir);
+	dmoddir = malloc(strlen(refdir) + 1 + strlen(dmoddir_opt) + 1);
+	strcpy(dmoddir, refdir);
 	strcat(dmoddir, "/");
 	strcat(dmoddir, dmoddir_opt);
-	if (!is_directory(dmoddir_opt))
+	if (!is_directory(dmoddir))
 	  {
-	    fprintf(stderr, "Error: dmoddir doesn't exist (looked in...)\n");
+	    fprintf(stderr, "Error: dmoddir doesn't exist. I looked in:\n");
+	    fprintf(stderr, "- ./%s\n", dmoddir_opt);
+	    fprintf(stderr, "- ./%s\n", dmoddir);
 	    exit(1);
 	  }
       }
   }
+
+/*   char *tmp[2000]; */
+/*   printf("pwd = %s\n", getcwd(tmp, 2000)); */
+  printf("refdir = %s\n", refdir);
+  printf("pkgdatadir = %s\n", pkgdatadir);
+  printf("dmoddir = %s\n", dmoddir);
+}
+
+char *paths_dmoddir(void)
+{
+  return dmoddir;
 }
 
 /* Try different options to get a data file, such as the default font,

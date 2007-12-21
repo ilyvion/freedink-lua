@@ -33,6 +33,7 @@
 #include "SDL_ttf.h"
 #include "SDL_framerate.h"
 #include "binreloc.h"
+#include "progname.h"
 /* Msg */
 #include "dinkvar.h"
 #include "gfx.h"
