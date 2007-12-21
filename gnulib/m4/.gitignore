@@ -1,6 +1,3 @@
-gnulib-common.m4
-gnulib-tool.m4
-onceonly_2_57.m4
 absolute-header.m4
 alloca.m4
 canonicalize-lgpl.m4
@@ -9,11 +6,15 @@ error.m4
 exitfail.m4
 extensions.m4
 getopt.m4
+gnulib-common.m4
+gnulib-tool.m4
 include_next.m4
 inline.m4
+lib-ld.m4
 longlong.m4
 malloc.m4
 malloca.m4
+onceonly_2_57.m4
 pathmax.m4
 readlink.m4
 relocatable-lib.m4
@@ -26,4 +27,3 @@ strerror.m4
 string_h.m4
 unistd_h.m4
 xalloc.m4
-lib-ld.m4
