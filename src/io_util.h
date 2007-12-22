@@ -41,6 +41,7 @@ extern "C"
   extern SDL_RWops *find_resource_as_rwops(const char *filename);
   extern /*bool*/int exist(char *name);
   extern int is_directory(char *name);
+  extern char* pdirname(char *filename);
 
 #ifdef __cplusplus
 }

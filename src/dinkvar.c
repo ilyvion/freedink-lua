@@ -31,6 +31,10 @@
 #define __ENGLISH
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 #include <stdlib.h>
@@ -1911,18 +1915,12 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
   if (no_running_main) draw_wait();
 
-  char crap2[200];
-  strcpy(crap2, org);
-  while(crap2[strlen(crap2)-1] != '\\')
-    {
-      crap2[strlen(crap2)-1] = 0;
-    }
-  crap2[strlen(crap2)-1] = 0;
+  char *org_dirname = pdirname(org);
 
-  int num = strlen(org) - strlen(crap2)-1;
+  int num = strlen(org) - strlen(org_dirname)-1;
   char *fullpath = NULL;
   strcpy(fname, &org[strlen(org)-num]);
-  sprintf(crap, "%s/dir.ff", crap2);
+  sprintf(crap, "%s/dir.ff", org_dirname);
   if (samedir)
     fullpath = paths_dmodfile(crap);
   else
@@ -1933,9 +1931,11 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
       Msg("Could not load dir.ff art file %s", crap);
       cur_sprite = save_cur;
       free(fullpath);
+      free(org_dirname);
       return;
     }
   free(fullpath);
+  free(org_dirname);
 
   // No color conversion for sprite paks - they need to use the Dink
   // Palette, otherwise weird colors will appear!
@@ -1948,11 +1948,15 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
   for (oo = 1; oo <= 51; oo++)
     {
+      char leading_zero[1+1];
       //load sprite
       sprite = cur_sprite;
       //if (reload) Msg("Ok, programming sprite %d", sprite);
-      if (oo < 10) strcpy(crap2, "0"); else strcpy(crap2, "");
-      sprintf(crap, "%s%s%d.bmp", fname, crap2, oo);
+      if (oo < 10)
+	strcpy(leading_zero, "0");
+      else
+	strcpy(leading_zero, "");
+      sprintf(crap, "%s%s%d.bmp", fname, leading_zero, oo);
 
       pfile = FastFileOpen(crap);
 
@@ -2241,31 +2245,24 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   char *fullpath;
   int oo;
   int exists = 0;
+  int use_fallback = 0;
 
   if (no_running_main) draw_wait();
 
-  /* dirname(): */
-  // TODO: either use dirname(), or allow '/' as an alternative to
-  // '\\'
-  char crap2[200];
-  strcpy(crap2, org);
-  while(crap2[strlen(crap2)-1] != '\\')
-    {
-      crap2[strlen(crap2)-1] = 0;
-    }
-  crap2[strlen(crap2)-1] = 0;
+  char *org_dirname = pdirname(org);
 
   /* Order: */
   /* - dmod/.../dir.ff */
   /* - dmod/.../...01.BMP */
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
-  sprintf(crap, "%s/dir.ff",crap2);
+  sprintf(crap, "%s/dir.ff", org_dirname);
   fullpath = paths_dmodfile(crap);
   //Msg("Checking for %s..", crap);
   if (exist(ciconvert(fullpath)))
     {
       free(fullpath);
+      free(org_dirname);
       load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
@@ -2277,19 +2274,18 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   free(fullpath);
   if (!exists)
     {
-      sprintf(crap, "%s/dir.ff",crap2);
+      sprintf(crap, "%s/dir.ff",  org_dirname);
       fullpath = paths_fallbackfile(crap);
       //Msg("Checking for %s..", crap);
       exists = exist(ciconvert(fullpath));
       free(fullpath);
+      free(org_dirname);
       if (exists)
 	{
 	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
 	  return;
 	}
-      //    Msg("Dir bad for sprite, changing");
-      sprintf(crap, "..\\dink\\%s",org);
-      strcpy(org,crap);
+      use_fallback = 1;
     }
   s_index[nummy].s = cur_sprite -1;
 
@@ -2310,7 +2306,11 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       /* Set the pixel data */
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
-      fullpath = paths_dmodfile(crap);
+      if (use_fallback)
+	fullpath = paths_fallbackfile(crap);
+      else
+	fullpath = paths_dmodfile(crap);
+
       GFX_k[cur_sprite].k = load_bmp(fullpath);
       free(fullpath);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)

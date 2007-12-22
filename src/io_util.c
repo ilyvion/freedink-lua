@@ -204,6 +204,17 @@ int is_directory(char *name)
   return S_ISDIR(buf.st_mode);
 }
 
+char*
+pdirname (const char* filename)
+{
+  char *retval = strdup(filename);
+  char *pc = retval + strlen(retval);
+  while (pc >= retval && *pc != '/' && *pc != '\\')
+    pc--;
+  if (pc >= retval)
+    *pc = '\0';
+  return retval;
+}
 
 SDL_RWops *find_resource_as_rwops(char *name)
 {
