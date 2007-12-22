@@ -563,8 +563,6 @@ extern void log_path(/*bool*/int playing);
 extern int bActive; // is application active?
 extern int g_b_no_write_ini; // -noini passed to command line?
 extern char *command_line; // command line params, used by doInit
-/* extern HINSTANCE MyhInstance; // app instance, used by DX init */
-extern char dinkpath[PATH_MAX]; // Dink installation directory
 
 //if true, will close app as soon as the message pump is empty
 extern int g_b_kill_app;

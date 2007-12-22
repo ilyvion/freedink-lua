@@ -98,9 +98,6 @@ char dversion_string[7] = "v1.07";
 
 int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 void strchar(char *string, char ch);
-/* Path where Dink is installed. Used to write dinksmallwood.ini in
-   log_path(), and in the editor (?) */
-char dinkpath[PATH_MAX];
 
 void update_status_all(void);
 int add_sprite(int x1, int y, int brain,int pseq, int pframe );
@@ -817,7 +814,7 @@ void log_path(/*bool*/int playing)
   unlink(inifile);
 
   add_text("[Dink Smallwood Directory Information for the CD to read]\r\n", inifile);
-  add_text(dinkpath, inifile);
+  add_text(paths_exedir(), inifile);
   add_text("\r\n", inifile);
   if (playing)
     add_text("TRUE\r\n", inifile);
@@ -1316,14 +1313,21 @@ void save_map(const int num)
 
 void save_info(void)
 {
-  FILE *          fp;
+  FILE *fp;
   char *fullpath = NULL;
 
   fullpath = paths_dmodfile("dink.dat");
   fp = fopen(ciconvert(fullpath), "wb");
   free(fullpath);
-  fwrite(&map, sizeof(struct map_info), 1, fp);
-  fclose(fp);
+  if (fp != NULL)
+    {
+      fwrite(&map, sizeof(struct map_info), 1, fp);
+      fclose(fp);
+    }
+  else
+    {
+      perror("Cannot save dink.dat");
+    }
 }
 
 
@@ -1335,14 +1339,9 @@ void save_info(void)
 /*bool*/int load_game_small(int num, char *line, int *mytime)
 {
   FILE *fp;
-  char crap[80];
-  char *fullpath = NULL;
 
-  sprintf(crap, "SAVE%d.DAT", num);
-  fullpath = paths_dmodfile(crap);
-  
-  fp = fopen(ciconvert(fullpath), "rb");
-  if (!fp)
+  fp = paths_savegame_fopen(num, "rb");
+  if (fp == NULL)
     {
       Msg("Couldn't quickload save game %d", num);
       return(/*false*/0);
@@ -1360,8 +1359,6 @@ void save_info(void)
 /*bool*/int load_game(int num)
 {
   FILE *fp;
-  char crap[80];
-  char *fullpath = NULL;
   
   //lets get rid of our magic and weapon scripts
   if (weapon_script != 0)
@@ -1388,11 +1385,7 @@ void save_info(void)
     }
   StopMidi();
   
-  sprintf(crap, "SAVE%d.DAT", num);
-  
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "rb");
-  free(fullpath);
+  fp = paths_savegame_fopen(num, "rb");
   if (!fp)
     {
       Msg("Couldn't load save game %d", num);
@@ -1486,13 +1479,8 @@ void save_info(void)
 /*bool*/int add_time_to_saved_game(int num)
 {
   FILE *fp;
-  char crap[80];
-  char *fullpath = NULL;
 
-  sprintf(crap, "SAVE%d.DAT", num);
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "rb");
-  free(fullpath);
+  fp = paths_savegame_fopen(num, "rb");
   if (!fp)
     {
       Msg("Couldn't load save game %d", num);
@@ -1511,9 +1499,7 @@ void save_info(void)
   time(&ct);
   play.minutes += (int) (difftime(ct,time_start) / 60);
   
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "wb");
-  free(fullpath);
+  fp = paths_savegame_fopen(num, "wb");
   if (fp)
     {
       fwrite(&play,sizeof(play),1,fp);
@@ -1527,8 +1513,6 @@ void save_info(void)
 void save_game(int num)
 {
   FILE *fp;
-  char crap[80];
-  char *fullpath = NULL;
 
   //lets set some vars first
   play.x = spr[1].x;
@@ -1558,12 +1542,16 @@ void save_game(int num)
   
   
   last_saved_game = num;
-  sprintf(crap, "SAVE%d.DAT", num);
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "wb");
-  free(fullpath);
-  fwrite(&play,sizeof(play),1,fp);
-  fclose(fp);
+  fp = paths_savegame_fopen(num, "wb");
+  if (fp != NULL)
+    {
+      fwrite(&play,sizeof(play),1,fp);
+      fclose(fp);
+    }
+  else
+    {
+      perror("Cannot save game");
+    }
 }
 
 
@@ -6036,10 +6024,13 @@ void place_sprites_game(void)
 void show_bmp( char name[80], int showdot, int reserved, int script)
 {
   SDL_Surface *image = NULL;
+  char *fullpath = NULL;
 
-  if (!exist(name))
+  fullpath = paths_dmodfile(name);
+  if (!exist(fullpath))
     {
-      Msg("Error: Can't find bitmap at %s.",name);
+      Msg("Error: Can't find bitmap at %s.", fullpath);
+      free(fullpath);
       return;
     }
 
@@ -6051,12 +6042,14 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 /*   if (lpDDPal) */
 /*     lpDDSPrimary->SetPalette(lpDDPal); */
 
-  image = load_bmp_setpal(name);
+  image = load_bmp_setpal(fullpath);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load %s\n", name);
+      fprintf(stderr, "Couldn't load %s\n", fullpath);
+      free(fullpath);
       return;
     }
+  free(fullpath);
 
   showb.active = /*true*/1;
   showb.showdot = showdot;
@@ -6094,10 +6087,13 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 void copy_bmp( char name[80])
 {
   SDL_Surface *image = NULL;
+  char *fullpath = NULL;
 
-  if (!exist(name))
+  fullpath = paths_dmodfile(name);
+  if (!exist(fullpath))
     {
       Msg("Error: Can't find bitmap at %s.",name);
+      free(fullpath);
       return;
     }
 
@@ -6109,13 +6105,14 @@ void copy_bmp( char name[80])
 /*   if (lpDDPal) */
 /*     lpDDSPrimary->SetPalette(lpDDPal); */
 
-  image = load_bmp_setpal(name);
+  image = load_bmp_setpal(fullpath);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load %s\n", name);
+      fprintf(stderr, "Couldn't load %s\n", fullpath);
+      free(fullpath);
       return;
     }
-
+  free(fullpath);
 
   abort_this_flip = /*true*/1;
 
@@ -7869,11 +7866,16 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-			  char *fullpath = NULL;
-			  sprintf(temp, "save%ld.dat",nlist[0]);
-			  fullpath = paths_dmodfile(temp);
-			  returnint = exist(fullpath);
-			  free(fullpath);
+			  FILE *fp;
+			  if ((fp = paths_savegame_fopen(nlist[0], "rb")) != NULL)
+			    {
+			      fclose(fp);
+			      returnint = 1;
+			    }
+			  else
+			    {
+			      returnint = 0;
+			    }
                         }
 
                         strcpy(s, h);

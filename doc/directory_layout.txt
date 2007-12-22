@@ -34,9 +34,9 @@ Dink Smallwood/island/Tiles/
 Determined on startup:
 DMod => C:\Dink Smallwood\dmod\
 Dink => DMod\..\dink\
-.ini => C:\GetWindowsDirectory()\dinksmallwood.ini
 Resources (window icon, Dinkedit sounds)
   => embedded resource
+.ini => C:\GetWindowsDirectory()\dinksmallwood.ini
 Saved games => DMod/bin/freedink
 
 Determined at runtime (search path):
@@ -67,16 +67,15 @@ Determined once on startup:
 pkgdatadir = $exedir/../share/freedink/ # binreloc
 	   (test: -d)
 	   FALLBACK $default_data_dir/freedink/
-distdir = -distdir # error if !-d
+refdir = -refdir # error if !-d
 	|| ./
 	|| $exedir
 	|| $pkgdatadir
-	(test: -d $distdir/dink/Graphics -a -d $distdir/dink/Tiles)
+	(test: -d $refdir/dink/Graphics -a -d $refdir/dink/Tiles)
 DMod = -game
-     || $distdir/$game/
+     || $refdir/$game/
      || ERROR
-Dink = $distdir/dink/
-     (? DMod/../dink/) (beware of symlinks)
+Dink = $refdir/dink/
 
 Checked each time (search path):
 Resources (LiberationSans-Regular.ttf, vgasys.fon, stop.wav, jump.wav)
@@ -87,10 +86,10 @@ Font = DMod
 .ini = $binreloc/etc/dinksmallwood.ini || C:\GetWindowsDirectory()\dinksmallwood.ini
      || /etc/dinksmallwood.ini .ini
      || ~/.freedink/dinksmallwood.ini
-Write saved games => DMod
-      	    	  FALLBACK ~/.freedink/dmod/*.dat
-		  FALLBACK /tmp/ ? (security?)
-Read saved games => ~/.freedink/dmod/*.dat
+Write saved games => ~/.freedink/basename($game)/savegame%d.dat # if -e
+      	    	  || DMod/savegame%d.dat
+      	    	  FALLBACK ~/.freedink/basename($game)/save%d.dat
+Read saved games => ~/.freedink/basename($game)/save%d.dat
      	   	 => DMod
 
 
@@ -102,14 +101,14 @@ Dink => /usr/share/freedink/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -distdir dmods/ -game dmods/island
-# or freedink -distdir dmods/ -game island
+~$ freedink -refdir dmods/ -game dmods/island
+# or freedink -refdir dmods/ -game island
 DMod => ~/dmods/island/
 Dink => ~/dmods/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -distdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
+~$ freedink -refdir /mnt/woe/Program\ Files/Dink\ Smallwood/ -game island
 DMod => ~/island/
 DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # no fallback
@@ -132,7 +131,7 @@ Dink => /usr/share/freedink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
-~$ freedink -distdir ~/myshare/freedink/ -game island
+~$ freedink -refdir ~/myshare/freedink/ -game island
 DMod => ~/island/
 DMod => ~/myshare/freedink/island/
 Dink => ~/myshare/freedink/dink/

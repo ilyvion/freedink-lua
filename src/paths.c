@@ -28,13 +28,26 @@
 #include "progname.h"
 #include "binreloc.h"
 
-#include "io_util.h"
+/* canonicalize_file_name */
+#include "canonicalize.h"
 
+/* basename */
+#include <libgen.h>
+#include "dirname.h"
+
+/* mkdir */
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include "io_util.h"
 #include "paths.h"
 
 static char* pkgdatadir = NULL;
-static char* fallbackdir = NULL; /* default = pkgdatadir + '/dink' */
-static char* dmoddir = NULL; /* pkgdatadir + '/dink' */
+static char* exedir = NULL;
+static char* fallbackdir = NULL;
+static char* dmoddir = NULL;
+static char* dmodname = NULL;
+static char* userappdir = NULL;
 
 void paths_init(char *refdir_opt, char *dmoddir_opt)
 {
@@ -83,33 +96,25 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       }
   }
 
+  /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
+  {
+    exedir = dirname(get_full_program_name());
+  }
+
   /** refdir **/
   char *refdir;
   {
-    /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
-    char *exedir;
-    {
-      char *myself = strdup(get_full_program_name());
-      int len = strlen(myself);
-      char *pc = myself + len;
-      while (--pc >= myself && *pc != '/');
-      if (*pc == '/')
-	*pc = '\0';
-      exedir = myself;
-    }
-
     /** => refdir **/
     char* match = NULL;
     char* lookup[4];
     int i = 0;
-    /* All entries may be free()'d later on,use strdup */
     if (refdir_opt == NULL)
       lookup[0] = NULL;
     else
-      lookup[0] = strdup(refdir_opt);
-    lookup[1] = strdup(".");
+      lookup[0] = refdir_opt;
+    lookup[1] = ".";
     lookup[2] = exedir;
-    lookup[3] = strdup(pkgdatadir);
+    lookup[3] = pkgdatadir;
 
     for (; i < 4; i++)
       {
@@ -118,6 +123,8 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 	  continue;
 	dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
 	dir_tiles_ci = br_strcat(lookup[i], "/dink/tiles");
+	ciconvert(dir_graphics_ci);
+	ciconvert(dir_tiles_ci);
 	if (is_directory(dir_graphics_ci) && is_directory(dir_tiles_ci))
 	  {
 	    match = lookup[i];
@@ -153,10 +160,6 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 	fprintf(stderr, "It should contain 'dink/graphics/' and 'dink/tiles/' directories (as well as D-Mods).\n");
 	exit(1);
       }
-
-    for (i = 0; i < 4; i++)
-      if (lookup[i] != NULL && lookup[i] != refdir)
-	free(lookup[i]);
   }
 
   /** fallbackdir (e.g. "/usr/share/freedink/dink") **/
@@ -188,16 +191,76 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       }
   }
 
-/*   char *tmp[2000]; */
-/*   printf("pwd = %s\n", getcwd(tmp, 2000)); */
+  /** dmodname (e.g. "island") **/
+  /* Used to save games in ~/.freedink/<dmod>/... */
+  {
+    dmodname = base_name(dmoddir);
+    if (strcmp(dmodname, ".") == 0)
+      {
+	free(dmodname);
+	char *canonical_dmoddir = canonicalize_file_name(dmoddir);
+	dmodname = basename(canonical_dmoddir);
+	free(canonical_dmoddir);
+      }
+  }
+
+  /** userappdir (e.g. "~/.freedink") **/
+  {
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_IE 0x0401
+#include <windows.h>
+#include <shlobj.h>
+    userappdir = malloc(MAX_PATH);
+    /* C:\Documents and Settings\name\Application Data */
+    SHGetSpecialFolderPath(NULL, userappdir, CSIDL_APPDATA, 1);
+#else
+    userappdir = strdup(getenv("HOME"));
+#endif
+    userappdir = realloc(userappdir, strlen(userappdir) + 1 + 1 + strlen(PACKAGE) + 1);
+    strcat(userappdir, "/");
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#else
+    strcat(userappdir, ".");
+#endif
+    strcat(userappdir, PACKAGE);
+  }
+
   printf("refdir = %s\n", refdir);
+  printf("exedir = %s\n", exedir);
   printf("pkgdatadir = %s\n", pkgdatadir);
   printf("dmoddir = %s\n", dmoddir);
+  printf("dmodname = %s\n", dmodname);
+  printf("userappdir = %s\n", userappdir);
+}
+
+
+const char *paths_pkgdatadir(void)
+{
+  return pkgdatadir;
 }
 
 const char *paths_dmoddir(void)
 {
   return dmoddir;
+}
+
+const char *paths_fallbackdir(void)
+{
+  return fallbackdir;
+}
+
+const char *paths_exedir(void)
+{
+  return exedir;
+}
+
+
+char *paths_pkgdatafile(char *file)
+{
+  char *path = malloc(strlen(pkgdatadir) + 1 + strlen(file) + 1);
+  sprintf(path, "%s/%s", pkgdatadir, file);
+  return path;
 }
 
 char *paths_dmodfile(char *file)
@@ -207,11 +270,6 @@ char *paths_dmodfile(char *file)
   return path;
 }
 
-const char *paths_fallbackdir(void)
-{
-  return fallbackdir;
-}
-
 char *paths_fallbackfile(char *file)
 {
   char *path = malloc(strlen(fallbackdir) + 1 + strlen(file) + 1);
@@ -219,14 +277,57 @@ char *paths_fallbackfile(char *file)
   return path;
 }
 
-const char *paths_pkgdatadir(void)
-{
-  return pkgdatadir;
-}
 
-char *paths_pkgdatafile(char *file)
+FILE *paths_savegame_fopen(int num, char *mode)
 {
-  char *path = malloc(strlen(pkgdatadir) + 1 + strlen(file) + 1);
-  sprintf(path, "%s/%s", pkgdatadir, file);
-  return path;
+  char *fullpath_in_dmoddir = NULL;
+  char *fullpath_in_userappdir = NULL;
+  FILE *fp = NULL;
+
+  /* 20 decimal digits max for 64bit integer - should be enough :) */
+  char file[4 + 20 + 4 + 1];
+  sprintf(file, "save%d.dat", num);
+
+
+  /** fullpath_in_userappdir **/
+  char *savedir = strdup(userappdir);
+  savedir = realloc(savedir, strlen(userappdir) + 1 + strlen(dmodname) + 1);
+  strcat(savedir, "/");
+  strcat(savedir, dmodname);
+  /* Create directories if needed */
+  if (strchr(mode, 'w') != NULL || strchr(mode, 'a') != NULL)
+      /* Note: 0777 & umask => 0755 in common case */
+      if ((!is_directory(userappdir) && (mkdir(userappdir, 0777) < 0))
+	  || (!is_directory(savedir) && (mkdir(savedir, 0777) < 0)))
+	{
+	  free(savedir);
+	  return NULL;
+	}
+  fullpath_in_userappdir = malloc(strlen(savedir) + 1 + strlen(file) + 1);
+  sprintf(fullpath_in_userappdir, "%s/%s", savedir, file);
+  free(savedir);
+
+
+  /** fullpath_in_dmoddir **/
+  fullpath_in_dmoddir = paths_dmodfile(file);
+  ciconvert(fullpath_in_dmoddir);
+  
+
+  /* Try ~/.freedink (if present) when reading - but don't try that
+     first when writing */
+  if (strchr(mode, 'r') != NULL)
+    fp = fopen(fullpath_in_userappdir, mode);
+
+  /* Try in the D-Mod dir */
+  if (fp == NULL)
+    fp = fopen(fullpath_in_dmoddir, mode);
+
+  /* Then try in ~/.freedink */
+  if (fp == NULL)
+    fp = fopen(fullpath_in_userappdir, mode);
+
+  free(fullpath_in_dmoddir);
+  free(fullpath_in_userappdir);
+
+  return fp;
 }

@@ -5973,65 +5973,13 @@ sp_seq = 0;
 
 } /* doInit */
 
-/* TODO: maybe use BinReloc, or something more portable (for *BSD?) */
-#ifdef _WIN32
-void getdir(char *dir, char *final)
-{
-	//converted to non CString version that spits back path + filename seperately.
-	//Using	GetModuleFileName instead of ParamStr, works with Win2000/nt.
-	char path[255];
-	GetModuleFileName(NULL, path, 255);
-	char c_cur = 0;
-	int k;
-
-	for (k = strlen(path); path[k] != '\\'; k--)
-	{
-	  c_cur = k;
-	}
-	strcpy(dir, "");
-	//copy file name
-	strncat(dir, &path[c_cur], strlen(path)-c_cur);
-    path[c_cur] = 0; //truncate
-	strcpy(final, path);
-}
-#endif
-
-
 
 /* int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, */
 /* 		   LPSTR lpCmdLine, int nCmdShow) */
 int main(int argc, char *argv[])
 {
-/*   MSG msg; */
-
-/*   char dir_temp[256]; */
-  char dir_final[256];
-  set_program_name(argv[0]);
-
-#ifdef _WIN32
-  getdir(dir_temp, dir_final);
-#else
-  strcpy(dir_final, ".");
-#endif
-
-  strcpy(dinkpath, dir_final);
-/*   printf("Switching to dir %s.",dinkpath); */
-  if (chdir(dinkpath))
-    {
-      char crap[255];
-      sprintf(crap, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
-      initFail(crap);
-      return(0);
-    }
-
-/*   lpCmdLine = lpCmdLine; */
-/*   command_line = lpCmdLine;  */
-/*   MyhInstance = hInstance; */
-/*   hPrevInstance = hPrevInstance; */
-
   if(!doInit(argc, argv))
     return /*FALSE*/0;
-
 
   while(1)
     {

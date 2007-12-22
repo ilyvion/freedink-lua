@@ -43,7 +43,7 @@ void load_batch(void)
   /* Open the text file in binary mode, so it's read the same way
      under different OSes (Unix has no text mode) */
   if ((stream = fopen(ciconvertbuf(fullpath, tmp_filename), "rb")) == NULL)
-    fprintf(stderr, "Error opening dink.ini for reading.");
+    fprintf(stderr, "Error opening dink.ini for reading.\n");
   else
     {
       while(fgets(line, 255, stream) != NULL) 

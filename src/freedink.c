@@ -43,10 +43,6 @@
 /* for time(): */
 #include <time.h>
 
-/* for chdir() */
-/* #include <direct.h> */
-#include <unistd.h>
-
 /* TODO: if we follow the autoconf way, I guess we'd need some
    HAVE_GETMODULEFILENAME or something */
 #ifdef _WIN32
@@ -5850,55 +5846,11 @@ static int doInit(int argc, char *argv[])
 } /* doInit */
 
 
-/* TODO: maybe use BinReloc, or something more portable (for *BSD?) */
-#ifdef _WIN32
-void getdir(char final[])
-{
-  //converted to non CString version that spits back path + filename seperately.
-  //Using GetModuleFileName instead of ParamStr, works with Win2000/nt.
-  char dir[255];
-  char path[255];
-  GetModuleFileName(NULL, path, 255);
-  char c_cur = 0;
-  int k;
-
-  for (k = strlen(path); path[k] != '\\'; k--)
-    {
-      c_cur = k;
-    }
-  strcpy(dir, "");
-  //copy file name
-  strncat((char*)&dir, &path[c_cur], strlen(path)-c_cur);
-  path[c_cur] = 0; //truncate
-  strcpy(final, path);
-}
-#endif
-
 /**
  * Initialization, message loop
  */
 int main(int argc, char* argv[])
 {
-  /* Where am I installed? */
-#ifdef _WIN32
-  getdir(dinkpath);
-#else
-  strcpy(dinkpath, ".");
-#endif
-
-  if (chdir(dinkpath) < 0)
-    {
-      char message[256];
-      sprintf(message, "Dink Error: Couldn't change to dir %s.  Why?", dinkpath);
-      initFail(message);
-      return 0;
-    }
-  
-/*   /\* For DX initialization *\/ */
-/*   MyhInstance = hInstance; */
-/*   /\* For doInit() *\/ */
-/*   command_line = lpCmdLine; */
-
   doInit(argc, argv);
   
   /* Notify other apps that FreeDink is playing */

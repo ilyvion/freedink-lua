@@ -25,31 +25,36 @@
 #include <stdarg.h>
 #include <string.h>
 #include "io_util.h"
+#include "paths.h"
 
 char last_debug[200];
 /*bool*/int debug_mode = /*false*/0;
 
 void add_text(char *tex ,char *filename)
 {
-  char tmp_filename[PATH_MAX];
+  FILE *fp;
+  char *mode = NULL;
+  char *fullpath = paths_dmodfile(filename);
+  ciconvert(fullpath);
+  
+  if (strlen(tex) < 1)
+    return;
+  
+  if (exist(fullpath) == /*FALSE*/0)
+    mode = "wb";
+  else
+    mode = "ab";
 
-  /* TODO: if DEBUG.TXT cannot be opened, Dink crashes */
-        FILE *          fp;
-        if (strlen(tex) < 1) return;
-
-        if (exist(filename) == /*FALSE*/0)
-        {
-
-                fp = fopen(ciconvertbuf(filename, tmp_filename), "wb");
-                fwrite( tex, strlen(tex), 1, fp);       /* current player */
-                fclose(fp);
-                return;
-        } else
-        {
-                fp = fopen(ciconvertbuf(filename, tmp_filename), "ab");
-                fwrite( tex, strlen(tex), 1, fp);       /* current player */
-                fclose(fp);
-        }
+  if ((fp = fopen(fullpath, mode)) != NULL)
+    {
+      fwrite( tex, strlen(tex), 1, fp);       /* current player */
+      fclose(fp);
+    }
+  else
+    {
+      fprintf(stderr, "add_text: cannot write to %s\n", fullpath);
+    }
+  free(fullpath);
 }
 
 void Msg(char *fmt, ...)

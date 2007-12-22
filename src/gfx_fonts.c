@@ -140,10 +140,15 @@ int initfont(char* fontname) {
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
   if (dialog_font == NULL)
     {
-      /* Look in %WINDIR%\Fonts */
-      char *path = malloc(MAX_PATH + 7 + strlen(fontname) + 1);
-      GetWindowsDirectory(path, MAX_PATH);
-      strcat(path, "\\Fonts\\");
+      /* Look in system fonts dir */
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_IE 0x0401
+#include <windows.h>
+#include <shlobj.h>
+      char *path = malloc(MAX_PATH + 1 + strlen(fontname) + 1);
+      /* C:\WINNT\Fonts */
+      SHGetSpecialFolderPath(NULL, path, CSIDL_FONTS, 0);
+      strcat(path, "\\");
       strcat(path, fontname);
       dialog_font = TTF_OpenFont(path, FONT_SIZE);
     }

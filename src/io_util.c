@@ -71,7 +71,9 @@ end_of_elt(char *str)
 char*
 ciconvert (char *filename)
 {
-#ifndef _WIN32
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+  return filename;
+#else
   /* Parse all the directories that composes filename */
   char cur_dir[PATH_MAX];
   char *pcur_elt, *pend_of_elt, *pend_of_cur_dir;
@@ -160,8 +162,8 @@ ciconvert (char *filename)
      file didn't exist yet, but leading directories still needed to be
      converted); otherwise, filename contains the fully-converted
      path, ready to be opened on a case-sensitive filesystem. */
-#endif /* !_WIN32 */
   return filename;
+#endif /* !_WIN32 */
 }
 
 /* Variant to make it easier to use constant strings: */
@@ -194,16 +196,28 @@ int exist(char *name)
 /* Is it a directory that exists? */
 int is_directory(char *name)
 {
-  char tmp_filename[PATH_MAX];
-  int retval;
+  char *tmp_filename = strdup(name);
+  int accessible = 0;
+  int retval = 0;
 
   struct stat buf;
-  retval = stat(ciconvertbuf(name, tmp_filename), &buf);
-  if (retval < 0)
-    return 0;
-  return S_ISDIR(buf.st_mode);
+  /* ciconvert(tmp_filename); */
+  accessible = stat(tmp_filename, &buf);
+  free(tmp_filename);
+
+  if (accessible < 0)
+    retval = 0;
+  else
+    retval = S_ISDIR(buf.st_mode);
+
+  return retval;
 }
 
+/**
+ * So-called "portable" dirname - that is, it supports backslash and
+ * forward-slash. That way, it can process filenames from dink.ini, in
+ * particular. Return a newly allocated string.
+ */
 char*
 pdirname (const char* filename)
 {
