@@ -33,7 +33,7 @@
 #include "paths.h"
 
 static char* pkgdatadir = NULL;
-static char* datafallbackdir = NULL; /* default = pkgdatadir + '/dink' */
+static char* fallbackdir = NULL; /* default = pkgdatadir + '/dink' */
 static char* dmoddir = NULL; /* pkgdatadir + '/dink' */
 
 void paths_init(char *refdir_opt, char *dmoddir_opt)
@@ -159,9 +159,9 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 	free(lookup[i]);
   }
 
-  /** datafallbackdir (e.g. "/usr/share/freedink/dink") **/
+  /** fallbackdir (e.g. "/usr/share/freedink/dink") **/
   {
-    datafallbackdir = br_strcat(refdir, "/dink");
+    fallbackdir = br_strcat(refdir, "/dink");
   }
 
   /** dmoddir (e.g. "/usr/share/freedink/island") **/
@@ -200,7 +200,33 @@ const char *paths_dmoddir(void)
   return dmoddir;
 }
 
+char *paths_dmodfile(char *file)
+{
+  char *path = malloc(strlen(dmoddir) + 1 + strlen(file) + 1);
+  sprintf(path, "%s/%s", dmoddir, file);
+  return path;
+}
+
+const char *paths_fallbackdir(void)
+{
+  return fallbackdir;
+}
+
+char *paths_fallbackfile(char *file)
+{
+  char *path = malloc(strlen(fallbackdir) + 1 + strlen(file) + 1);
+  sprintf(path, "%s/%s", fallbackdir, file);
+  return path;
+}
+
 const char *paths_pkgdatadir(void)
 {
   return pkgdatadir;
+}
+
+char *paths_pkgdatafile(char *file)
+{
+  char *path = malloc(strlen(pkgdatadir) + 1 + strlen(file) + 1);
+  sprintf(path, "%s/%s", pkgdatadir, file);
+  return path;
 }

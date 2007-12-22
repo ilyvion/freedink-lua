@@ -786,50 +786,58 @@ void draw_used(void)
 
 /*bool*/int load_map_buf(const int num)
 {
-FILE *          fp;
-long holdme,lsize;
-char crap[120];
-//RECT box;
-// play.map = num;
-//Msg("Loading map %d...",num);
-sprintf(crap, "%sMAP.DAT", buf_path);
- fp = fopen(ciconvert(crap), "rb");
-			 if (!fp)
-			 {
-              Msg("Cannot find MAP.DAT file!!!");
-			 return(/*false*/0);
-			 }
-			 lsize = sizeof(struct small_map);
-			 holdme = (lsize * (num-1));
-			 fseek( fp, holdme, SEEK_SET);
-			 //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
-			 fread( &pam, lsize, 1, fp);       /* current player */
-			 //Msg("Read %d bytes.",shit);
-			 fclose(fp);
-
-return(/*true*/1);
-	}
+  FILE *fp;
+  long holdme,lsize;
+  char crap[120];
+  char *fullpath = NULL;
+  //RECT box;
+  // play.map = num;
+  //Msg("Loading map %d...",num);
+  sprintf(crap, "%sMAP.DAT", buf_path);
+  /* TODO: Dinkedit historically loads map with a filename relative to
+     the current D-Mod directory. Maybe change that to handle absolute
+     paths and paths relative to the refdir. */
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "rb");
+  free(fullpath);
+  if (!fp)
+    {
+      Msg("Cannot find MAP.DAT file!!!");
+      return(/*false*/0);
+    }
+  lsize = sizeof(struct small_map);
+  holdme = (lsize * (num-1));
+  fseek( fp, holdme, SEEK_SET);
+  //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
+  fread( &pam, lsize, 1, fp);       /* current player */
+  //Msg("Read %d bytes.",shit);
+  fclose(fp);
+  
+  return(/*true*/1);
+}
 
 void load_info_buff(void)
 {
-FILE *          fp;
-char crap[120];
- sprintf(crap, "%sDINK.DAT", buf_path);
+  FILE *fp;
+  char crap[120];
+  char *fullpath = NULL;
 
-
- fp = fopen(ciconvert(crap), "rb");
-            if (fp)
-				{
-	       Msg("World data loaded.");
-      	fread(&buffmap,sizeof(struct map_info),1,fp);
-   	 fclose(fp);
-				buf_mode = /*true*/1;
-				} else
-				{
-        Msg("World not found in %s.", buf_path);
-		buf_mode = /*false*/0;
-				}
-
+  sprintf(crap, "%sDINK.DAT", buf_path);
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "rb");
+  free(fullpath);
+  if (fp)
+    {
+      Msg("World data loaded.");
+      fread(&buffmap,sizeof(struct map_info),1,fp);
+      fclose(fp);
+      buf_mode = /*true*/1;
+    }
+  else
+    {
+      Msg("World not found in %s.", buf_path);
+      buf_mode = /*false*/0;
+    }
 }
 
 /* draw_used() but on a different map ('L' in map picker mode) */
@@ -851,34 +859,40 @@ void draw_used_buff(void)
 
 int add_new_map(void)
 {
+  FILE *fp;
+  long now;
+  char crap[80];
+  char *fullpath = NULL;
 
-FILE *          fp;
-long now;
-char crap[80];
- sprintf(crap, "MAP.DAT");
+  sprintf(crap, "MAP.DAT");
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "a+b");
+  free(fullpath);
+  
+  fwrite(&pam,sizeof(struct small_map),1,fp);
+  now = (ftell(fp) / (sizeof(struct small_map)));
+  fclose(fp);
 
-
- fp = fopen(ciconvert(crap), "a+b");
-				fwrite(&pam,sizeof(struct small_map),1,fp);
-				now = (ftell(fp) / (sizeof(struct small_map)));
-				fclose(fp);
-return(now);
+  return(now);
 }
 
 int add_new_map_buff(void)
 {
+  FILE *fp;
+  long now;
+  char *fullpath = NULL;
 
-FILE *          fp;
-long now;
+  char crap[120];
+  sprintf(crap, "%sMAP.DAT", buf_path);
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "a+b");
+  free(fullpath);
 
-char crap[120];
- sprintf(crap, "%sMAP.DAT", buf_path);
+  fwrite(&pam,sizeof(struct small_map),1,fp);
+  now = (ftell(fp) / (sizeof(struct small_map)));
+  fclose(fp);
 
- fp = fopen(ciconvert(crap), "a+b");
-				fwrite(&pam,sizeof(struct small_map),1,fp);
-				now = (ftell(fp) / (sizeof(struct small_map)));
-				fclose(fp);
-return(now);
+  return(now);
 }
 
 
@@ -5479,6 +5493,7 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  rect rcRectSrc;    rect rcRectDest; */
 /* 	  POINT p; */
        char tdir[100];
+       char *fullpath = NULL;
 /*        char tmp_filename[PATH_MAX]; */
 	  /*
 	  * set up and register window class
@@ -5742,23 +5757,12 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 
 	  // create and set the palette
 
-	  sprintf(tdir, "TILES/ESPLASH.BMP");
-     if (!exist(tdir))
-	{
-        sprintf(tdir, "../DINK/TILES/ESPLASH.BMP");
-
-
-	}
-	Msg("Checking %s", tdir);
-
-if (!exist(tdir))
-	{
-		return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
-    }
+  sprintf(tdir, "TILES/ESPLASH.BMP");
 
 /* 	  lpDDPal = DDLoadPalette(lpDD, tdir); */
 	  // GFX
-	  load_palette_from_bmp(tdir, GFX_real_pal);
+  if (load_palette_from_bmp(tdir, GFX_real_pal) < 0)
+    return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
 
 /* 	  if (lpDDPal) */
 /* 	    { */
@@ -5774,12 +5778,19 @@ if (!exist(tdir))
 
 /* 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0); */
 	  // GFX
-	  GFX_lpDDSTwo = load_bmp(tdir);
+	  char *base_bmp = "tiles/esplash.bmp";
+	  fullpath = paths_dmodfile(base_bmp);
+	  if (!exist(fullpath))
+	    {
+	      free(fullpath);
+	      fullpath = paths_fallbackfile(base_bmp);
+	    }
+      
+	  GFX_lpDDSTwo = load_bmp(fullpath);
+	  free(fullpath);
 	  if (!GFX_lpDDSTwo)
-	  {
-	   return initFail("Couldn't load esplash.bmp.");
+	    return initFail("Couldn't load esplash.bmp.");
 
-	  }
 /* 	  DDSetColorKey(lpDDSTwo, RGB(0,0,0)); */
 	  // GFX
 	  // needed?

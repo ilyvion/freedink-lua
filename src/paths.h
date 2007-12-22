@@ -30,7 +30,11 @@ extern "C"
 
   extern void paths_init(char *refdir_opt, char *dmoddir_opt);
   extern const char *paths_dmoddir(void);
+  extern const char *paths_fallbackdir(void);
   extern const char *paths_pkgdatadir(void);
+  extern char *paths_dmodfile(char *file);
+  extern char *paths_fallbackfile(char *file);
+  extern char *paths_pkgdatafile(char *file);
 
 #ifdef __cplusplus
 }

@@ -5498,7 +5498,7 @@ static int doInit(int argc, char *argv[])
   
 /*   char crap[30]; */
 /*   char crap1[10]; */
-  char tmp_filename[PATH_MAX];
+  char *fullpath = NULL;
 	
 /*   RECT rcRectSrc;    RECT rcRectDest; */
 /*   POINT p; */
@@ -5706,20 +5706,6 @@ static int doInit(int argc, char *argv[])
 	
   //init is finished, now lets load some more junk
 
-  // Create and set the reference palette
-  if (exist("tiles/TS01.bmp"))
-    {
-/*       lpDDPal = DDLoadPalette(lpDD, "tiles/TS01.BMP"); */
-      // GFX
-      load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal);
-    }
-  else
-    {
-/*       lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/TS01.BMP"); */
-      // GFX
-      load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
-    }
-
 /*   if (lpDDPal) */
 /*     { */
 /*       lpDDSPrimary->SetPalette(lpDDPal); */
@@ -5741,6 +5727,12 @@ static int doInit(int argc, char *argv[])
     lpDDSPrimary->SetPalette(lpDDPal);
   */
 
+
+  /* Create and set the reference palette */
+  if (load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal) < 0)
+    return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
+
+
   // Load the tiles from the BMPs
   load_tiles();
 
@@ -5756,12 +5748,6 @@ static int doInit(int argc, char *argv[])
   
   srand((unsigned)time(NULL));
 	
-
-  if (exist("tiles/TS01.bmp"))
-    load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal);
-  else
-    load_palette_from_bmp("../dink/tiles/TS01.BMP", GFX_real_pal);
-
   // Sets the default palette for the screen
 /*   if (lpDDPal) */
 /*     { */
@@ -5778,13 +5764,23 @@ static int doInit(int argc, char *argv[])
 	 palette: */
       SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
 
-      ciconvertbuf("tiles/splash.bmp", tmp_filename);
-      if (!exist(tmp_filename))
-	ciconvertbuf("../dink/tiles/splash.BMP", tmp_filename);
+      char *base_bmp = "tiles/splash.bmp";
+      fullpath = paths_dmodfile(base_bmp);
+      if (!exist(fullpath))
+	{
+	  free(fullpath);
+	  fullpath = paths_fallbackfile(base_bmp);
+	}
+      
+      GFX_lpDDSTwo = load_bmp(fullpath);
+      GFX_lpDDSTrick = load_bmp(fullpath);
+      GFX_lpDDSTrick2 = load_bmp(fullpath);
+      free(fullpath);
 
-      GFX_lpDDSTwo = load_bmp(tmp_filename);
-      GFX_lpDDSTrick = load_bmp(tmp_filename);
-      GFX_lpDDSTrick2 = load_bmp(tmp_filename);
+      if (GFX_lpDDSTwo == NULL)
+	{
+	  return initFail("Cannot load base graphics splash.bmp\n");
+	}
 
       /* Copy splash screen to the screen during loading time */
       SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);

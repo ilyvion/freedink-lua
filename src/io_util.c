@@ -223,8 +223,7 @@ SDL_RWops *find_resource_as_rwops(char *name)
      return rwops;
 
   /* Fallback to pkgdatadir */
-  char *path = malloc(strlen(paths_pkgdatadir()) + 1 + strlen(name) + 1);
-  sprintf(path, "%s/%s", paths_pkgdatadir(), name);
+  char *path = paths_pkgdatafile(name);
   rwops = SDL_RWFromFile(ciconvert(path), "rb");
   free(path);
   return rwops;

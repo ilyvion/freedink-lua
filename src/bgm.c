@@ -30,11 +30,12 @@
 #include "dinkvar.h"
 #include "bgm.h"
 #include "io_util.h"
+#include "paths.h"
 #include "log.h"
 
 /* Current background music (not cd) */
 static Mix_Music *music_data = NULL;
-static char last_midi[20];
+static char* last_midi = NULL;
 int last_cd_track = 0;
 
 /*
@@ -119,7 +120,8 @@ playMIDIFile(char *midi_filename)
 int PlayMidi(char *sFileName)
 {
   char midi_filename[256];
-
+  char *fullpath = NULL;
+  
   /* no midi stuff right now */
   if (sound_on == /*false*/0)
     return 1;
@@ -127,36 +129,40 @@ int PlayMidi(char *sFileName)
   /* Do nothing if the same midi is already playing */
   /* TODO: Does not differentiate midi and ./midi, qsf\\midi and
      qsf/midi... Ok, midi is supposed to be just a number, but..*/
-  if (compare(last_midi, sFileName)) 
+  if (last_midi != NULL && compare(last_midi, sFileName)
+      && something_playing())
     {
-      if (something_playing())
-	{
-	  Msg("I think %s is already playing, I should skip it it...",
-	      sFileName);
-	  return 0;
-	}  
+      Msg("I think %s is already playing, I should skip it it...",
+	  sFileName);
+      return 0;
     }
 
   /* Try to load the midi in the DMod or the main game */
   sprintf(midi_filename, "sound/%s", sFileName);
-  if (!exist(midi_filename))
+  fullpath = paths_dmodfile(midi_filename);
+  if (!exist(fullpath))
     {
-      sprintf(midi_filename, "../dink/sound/%s",sFileName);
-      if (!exist(midi_filename))
+      free(fullpath);
+      fullpath = paths_fallbackfile(midi_filename);
+      if (!exist(fullpath))
 	{
-	  Msg("Error playing midi %s, doesn't exist in any dir.", sFileName);
+	  free(fullpath);
+  	  Msg("Error playing midi %s, doesn't exist in any dir.", sFileName);
 	  return 0;
 	}  
     }
 
   /* Save the midi currently playing */
-  strcpy(last_midi, sFileName);
+  if (last_midi != NULL)
+    free(last_midi);
+  last_midi = strdup(sFileName);
 
   /* Stop CD track */
   Msg("Killing cd...");
   killcd();
 
-  playMIDIFile(midi_filename);
+  playMIDIFile(fullpath);
+  free(fullpath);
   return 1;
 }
 

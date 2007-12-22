@@ -26,6 +26,7 @@
 #include "SDL_mixer.h"
 #include "dinkvar.h"
 #include "io_util.h"
+#include "paths.h"
 #include "log.h"
 #include "math.h"
 #include "sfx.h"
@@ -285,13 +286,19 @@ int CreateBufferFromWaveFile(char* filename, int index)
 {
   /* Open the wave file */
   char path[150];
+  char *fullpath = NULL;
 
   sprintf(path, "sound/%s", filename);
+  fullpath = paths_dmodfile(path);
 
-  if (!exist(ciconvert(path)))
-    sprintf(path, "../dink/sound/%s", filename);
+  if (!exist(ciconvert(fullpath)))
+    {
+      free(fullpath);
+      fullpath = paths_fallbackfile(path);
+    }
 
-  SDL_RWops* rwops = SDL_RWFromFile(ciconvert(path), "rb");
+  SDL_RWops* rwops = SDL_RWFromFile(ciconvert(fullpath), "rb");
+  free(fullpath);
   return CreateBufferFromWaveFile_RW(rwops, 1, index);
 }
 int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)

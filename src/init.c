@@ -327,21 +327,10 @@ static int check_arg(int argc, char *argv[])
   
   paths_init(refdir_opt, dmoddir_opt);
 
-  /* TODO: don't chdir, and use $refdir/dink instead of ../dink */
-  if (chdir(paths_dmoddir()) == -1)
-    {
-      char message[200];
-      sprintf(message, "Game dir \"%s\" not found!", paths_dmoddir());
-      // sprintf(shit,"Spiele-direktory \"%s\" nicht gefunden!",dir);
-      
-      initFail(message);
-      return 0;
-    }	  
-  
   free(refdir_opt);
   free(dmoddir_opt);
 
-  Msg("Game directory is %s.", paths_dmoddir());
+  Msg("Game directory is '%s'.", paths_dmoddir());
   return 1;
 }
 

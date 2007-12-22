@@ -74,6 +74,7 @@
 #include "sfx.h"
 
 #include "str_util.h"
+#include "paths.h"
 #include "log.h"
 
 int g_b_no_write_ini = 0;
@@ -1240,43 +1241,46 @@ void fix_dead_sprites( void )
 }
 
 
+/**
+ * Load map.dat that contains all 768 game screens
+ */
 void load_map(const int num)
 {
-        FILE *          fp;
-        long holdme,lsize;
-        //RECT box;
-        // play.map = num;
-        //Msg("Loading map %d...",num);
-
-	fp = fopen(ciconvert(current_map), "rb");
-                         if (!fp)
-                         {
-                                 Msg("Cannot find %s file!!!",current_map);
-                                 return;
-                         }
-                         lsize = sizeof(struct small_map);
-                         holdme = (lsize * (num-1));
-                         fseek( fp, holdme, SEEK_SET);
-                         //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
-                         int shit = fread( &pam, lsize, 1, fp);       /* current player */
-                         //              Msg("Read %d bytes.",shit);
-                         if (shit == 0) Msg("ERROR:  Couldn't read map %d?!?", num);
-                         fclose(fp);
-
-                         spr[1].move_active = /*false*/0;
-                         spr[1].freeze = /*false*/0;
-                         screenlock = 0;
-                         fill_whole_hard();
-             fix_dead_sprites();
-
-
-                         if (!dinkedit)
-                                 check_midi();
-
-                         //   draw_map_game();
-
-
-
+  FILE *fp;
+  long holdme,lsize;
+  //RECT box;
+  // play.map = num;
+  //Msg("Loading map %d...",num);
+  char *fullpath;
+  
+  fullpath = paths_dmodfile(current_map);
+  fp = fopen(ciconvert(fullpath), "rb");
+  free(fullpath);
+  if (!fp)
+    {
+      Msg("Cannot find %s file!!!",current_map);
+      return;
+    }
+  lsize = sizeof(struct small_map);
+  holdme = (lsize * (num-1));
+  fseek(fp, holdme, SEEK_SET);
+  //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
+  int shit = fread(&pam, lsize, 1, fp);       /* current player */
+  //              Msg("Read %d bytes.",shit);
+  if (shit == 0)
+    Msg("ERROR:  Couldn't read map %d?!?", num);
+  fclose(fp);
+  
+  spr[1].move_active = /*false*/0;
+  spr[1].freeze = /*false*/0;
+  screenlock = 0;
+  fill_whole_hard();
+  fix_dead_sprites();
+  
+  if (!dinkedit)
+    check_midi();
+  
+  //   draw_map_game();
 }
 
 void save_map(const int num)
@@ -1284,13 +1288,15 @@ void save_map(const int num)
   FILE *          fp;
   long holdme,lsize;
   char crap[80];
-
+  char *fullpath = NULL;
 
   Msg("Saving map data..");
   strcpy(crap, current_map);
+  fullpath = paths_dmodfile(crap);
   if (num > 0)
     {
-      fp = fopen(ciconvert(crap), "r+b");
+      fp = fopen(ciconvert(fullpath), "r+b");
+      free(fullpath);
       lsize = sizeof(struct small_map);
       holdme = (lsize * (num-1));
       fseek( fp, holdme, SEEK_SET);
@@ -1307,54 +1313,255 @@ void save_map(const int num)
 void save_info(void)
 {
   FILE *          fp;
-  char crap[80];
-  sprintf(crap, "DINK.DAT");
-  fp = fopen(ciconvert(crap), "wb");
-  fwrite(&map,sizeof(struct map_info),1,fp);
+  char *fullpath = NULL;
+
+  fullpath = paths_dmodfile("dink.dat");
+  fp = fopen(ciconvert(fullpath), "wb");
+  free(fullpath);
+  fwrite(&map, sizeof(struct map_info), 1, fp);
   fclose(fp);
+}
+
+
+
+/**
+ * Only load game metadata (timetime). Used when displaying the list
+ * of saved games.
+ */
+/*bool*/int load_game_small(int num, char *line, int *mytime)
+{
+  FILE *fp;
+  char crap[80];
+  char *fullpath = NULL;
+
+  sprintf(crap, "SAVE%d.DAT", num);
+  fullpath = paths_dmodfile(crap);
+  
+  fp = fopen(ciconvert(fullpath), "rb");
+  if (!fp)
+    {
+      Msg("Couldn't quickload save game %d", num);
+      return(/*false*/0);
+    }
+  else
+    {
+      fread(&short_play, sizeof(struct player_short_info), 1, fp);
+      fclose(fp);
+      *mytime = short_play.minutes;
+      strcpy(line, short_play.gameinfo);
+      return(/*true*/1);
+    }
+}
+
+/*bool*/int load_game(int num)
+{
+  FILE *fp;
+  char crap[80];
+  char *fullpath = NULL;
+  
+  //lets get rid of our magic and weapon scripts
+  if (weapon_script != 0)
+    {
+      if (locate(weapon_script, "DISARM"))
+	{
+	  run_script(weapon_script);
+	}
+    }
+
+  if (magic_script != 0 && locate(magic_script, "DISARM"))
+    run_script(magic_script);
+
+  bow.active = /*false*/0;
+  weapon_script = 0;
+  magic_script = 0;
+  midi_active = /*true*/1;
+  
+  if (last_saved_game > 0)
+    {
+      Msg("Modifying saved game.");
+      if (!add_time_to_saved_game(last_saved_game))
+	Msg("Error modifying saved game.");
+    }
+  StopMidi();
+  
+  sprintf(crap, "SAVE%d.DAT", num);
+  
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "rb");
+  free(fullpath);
+  if (!fp)
+    {
+      Msg("Couldn't load save game %d", num);
+      return(/*false*/0);
+    }
+  else
+    {
+      fread(&play,sizeof(play),1,fp);
+      fclose(fp);
+      
+      spr[1].damage = 0;
+      spr[1].x = play.x;
+      spr[1].y = play.y;
+      walk_off_screen = 0;
+      spr[1].nodraw = 0;
+      push_active = 1;
+      spr[1].pseq = play.pseq;
+      spr[1].pframe = play.pframe;
+      spr[1].size = play.size;
+      spr[1].seq = play.seq;
+      spr[1].frame = play.frame;
+      spr[1].dir = play.dir;
+      spr[1].strength = play.strength;
+      spr[1].defense = play.defense;
+      spr[1].que = play.que;
+      
+      time(&time_start);
+      
+      spr[1].base_idle = play.base_idle;
+      spr[1].base_walk = play.base_walk;
+      spr[1].base_hit = play.base_hit;
+      
+      int script = load_script("main", 0, /*true*/1);
+      locate(script, "main");
+      run_script(script);
+      //lets attach our vars to the scripts
+      
+      attach();
+      Msg("Attached vars.");
+      
+      
+      if (*pcur_weapon != 0)
+	{
+	  if (play.item[*pcur_weapon].active == /*false*/0)
+	    {
+	      *pcur_weapon = 1;
+	      weapon_script = 0;
+	      Msg("Loadgame error: Player doesn't have armed weapon - changed to 1.");
+	    }
+	  else
+	    {
+	      weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	      if (locate(weapon_script, "DISARM"))
+		run_script(weapon_script);
+	      weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	      if (locate(weapon_script, "ARM"))
+		run_script(weapon_script);
+	    }
+	}
+      if (*pcur_magic != 0)
+	{
+	  if (play.item[*pcur_magic].active == /*false*/0)
+	    {
+	      *pcur_magic = 0;
+	      magic_script = 0;
+	      Msg("Loadgame error: Player doesn't have armed magic - changed to 0.");
+	    }
+	  else
+	    {
+	      
+	      magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	      if (locate(magic_script, "DISARM"))
+		run_script(magic_script);
+	      magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	      if (locate(magic_script, "ARM"))
+		run_script(magic_script);
+	    }
+	}
+      kill_repeat_sounds_all();
+      load_map(map.loc[*pmap]);
+      Msg("Loaded map.");
+      draw_map_game();
+      Msg("Map drawn.");
+      
+      last_saved_game = num;
+      
+      return(/*true*/1);
+    }
+}
+
+/*bool*/int add_time_to_saved_game(int num)
+{
+  FILE *fp;
+  char crap[80];
+  char *fullpath = NULL;
+
+  sprintf(crap, "SAVE%d.DAT", num);
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "rb");
+  free(fullpath);
+  if (!fp)
+    {
+      Msg("Couldn't load save game %d", num);
+      return(/*false*/0);
+    }
+  else
+    {
+      fread(&play,sizeof(play),1,fp);
+      fclose(fp);
+    }
+  
+  //great, now let's resave it with added time
+  Msg("Ok, adding time.");
+  time_t ct;
+  
+  time(&ct);
+  play.minutes += (int) (difftime(ct,time_start) / 60);
+  
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "wb");
+  free(fullpath);
+  if (fp)
+    {
+      fwrite(&play,sizeof(play),1,fp);
+      fclose(fp);
+    }
+  Msg("Wrote it.(%d of time)", play.minutes);
+  
+  return(/*true*/1);
 }
 
 void save_game(int num)
 {
-        FILE *          fp;
-        char crap[80];
+  FILE *fp;
+  char crap[80];
+  char *fullpath = NULL;
 
-        //lets set some vars first
-
-        play.x = spr[1].x;
-        play.y = spr[1].y;
-        play.version = dversion;
-        play.pseq =  spr[1].pseq;
-        play.pframe     =        spr[1].pframe;
-        play.seq        =        spr[1].seq;
-        play.frame      =        spr[1].frame;
-        play.size       =        spr[1].size;
-        play.dir        =        spr[1].dir;
-        play.strength = spr[1].strength;
-        play.defense  =  spr[1].defense;
-        play.que  =  spr[1].que;
-        time_t ct;
-
-        time(&ct);
-        play.minutes += (int) (difftime(ct,time_start) / 60);
+  //lets set some vars first
+  play.x = spr[1].x;
+  play.y = spr[1].y;
+  play.version = dversion;
+  play.pseq =  spr[1].pseq;
+  play.pframe     =        spr[1].pframe;
+  play.seq        =        spr[1].seq;
+  play.frame      =        spr[1].frame;
+  play.size       =        spr[1].size;
+  play.dir        =        spr[1].dir;
+  play.strength = spr[1].strength;
+  play.defense  =  spr[1].defense;
+  play.que  =  spr[1].que;
+  time_t ct;
+  
+  time(&ct);
+  play.minutes += (int) (difftime(ct,time_start) / 60);
         //reset timer
-        time(&time_start);
-
-        play.base_idle = spr[1].base_idle;
-        play.base_walk = spr[1].base_walk;
-        play.base_hit = spr[1].base_hit;
-
-                                sprintf(play.gameinfo, "Level %d",*plevel);
-
-
-                                last_saved_game = num;
-                                sprintf(crap, "SAVE%d.DAT", num);
-                                fp = fopen(ciconvert(crap), "wb");
-                                fwrite(&play,sizeof(play),1,fp);
-                                fclose(fp);
-
-
+  time(&time_start);
+  
+  play.base_idle = spr[1].base_idle;
+  play.base_walk = spr[1].base_walk;
+  play.base_hit = spr[1].base_hit;
+  
+  sprintf(play.gameinfo, "Level %d",*plevel);
+  
+  
+  last_saved_game = num;
+  sprintf(crap, "SAVE%d.DAT", num);
+  fullpath = paths_dmodfile(crap);
+  fp = fopen(ciconvert(fullpath), "wb");
+  free(fullpath);
+  fwrite(&play,sizeof(play),1,fp);
+  fclose(fp);
 }
+
 
 
 void kill_all_vars(void)
@@ -1406,192 +1613,6 @@ void attach(void)
       if (compare("&magic_cost", play.var[i].name)) pmagic_cost = &play.var[i].var;
       if (compare("&missle_source", play.var[i].name)) pmissle_source = &play.var[i].var;
     }
-}
-
-
-
-/*bool*/int add_time_to_saved_game(int num)
-{
-        FILE *          fp;
-        char crap[80];
-
-        sprintf(crap, "SAVE%d.DAT", num);
-
-	fp = fopen(ciconvert(crap), "rb");
-                                if (!fp)
-                                {
-                                        Msg("Couldn't load save game %d", num);
-                                        return(/*false*/0);
-                                }
-                                else
-                                {
-
-                                        fread(&play,sizeof(play),1,fp);
-                                        fclose(fp);
-
-
-                                }
-
-
-                                //great, now let's resave it with added time
-                                Msg("Ok, adding time.");
-                                time_t ct;
-
-                                time(&ct);
-                                play.minutes += (int) (difftime(ct,time_start) / 60);
-
-
-
-                                sprintf(crap, "SAVE%d.DAT", num);
-                                fp = fopen(ciconvert(crap), "wb");
-                                if (fp)
-                                {
-                                        fwrite(&play,sizeof(play),1,fp);
-                                        fclose(fp);
-                                }
-                                Msg("Wrote it.(%d of time)", play.minutes);
-
-                                return(/*true*/1);
-}
-
-
-
-
-/*bool*/int load_game(int num)
-{
-        FILE *          fp;
-        char crap[80];
-
-        //lets get rid of our magic and weapon scripts
-        if (weapon_script != 0)
-
-        {
-
-                if (locate(weapon_script, "DISARM"))
-                {
-                        run_script(weapon_script);
-                } else
-                {
-        }
-
-        }
-        if (magic_script != 0) if (locate(magic_script, "DISARM")) run_script(magic_script);
-
-
-
-
-
-        bow.active = /*false*/0;
-    weapon_script = 0;
-        magic_script = 0;
-        midi_active = /*true*/1;
-
-
-        if (last_saved_game > 0)
-        {
-                Msg("Modifying saved game.");
-
-                if (!add_time_to_saved_game(last_saved_game))
-                        Msg("Error modifying saved game.");
-        }
-        StopMidi();
-
-        sprintf(crap, "SAVE%d.DAT", num);
-
-
-
-	fp = fopen(ciconvert(crap), "rb");
-                                if (!fp)
-                                {
-                                        Msg("Couldn't load save game %d", num);
-                                        return(/*false*/0);
-                                }
-                                else
-                                {
-
-                                        fread(&play,sizeof(play),1,fp);
-                                        fclose(fp);
-
-                                        spr[1].damage = 0;
-                                        spr[1].x = play.x;
-                                        spr[1].y = play.y;
-                                        walk_off_screen = 0;
-                                        spr[1].nodraw = 0;
-                    push_active = 1;
-                                        spr[1].pseq = play.pseq;
-                                        spr[1].pframe = play.pframe;
-                                        spr[1].size = play.size;
-                                        spr[1].seq = play.seq;
-                                        spr[1].frame = play.frame;
-                                        spr[1].dir = play.dir;
-                                        spr[1].strength = play.strength;
-                                        spr[1].defense = play.defense;
-                                        spr[1].que = play.que;
-
-                                        time(&time_start);
-
-                                        spr[1].base_idle = play.base_idle;
-                                        spr[1].base_walk = play.base_walk;
-                                        spr[1].base_hit = play.base_hit;
-
-                                        int script = load_script("main", 0, /*true*/1);
-                                        locate(script, "main");
-                                        run_script(script);
-                                        //lets attach our vars to the scripts
-
-                                        attach();
-                                        Msg("Attached vars.");
-
-
-
-                                        if (*pcur_weapon != 0)
-                                        {
-                                                if (play.item[*pcur_weapon].active == /*false*/0)
-                                                {
-                                                        *pcur_weapon = 1;
-                                                        weapon_script = 0;
-                                                        Msg("Loadgame error: Player doesn't have armed weapon - changed to 1.");
-                                                } else
-                                                {
-
-                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-
-
-                                                        if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-
-                                                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-
-
-                                                        if (locate(weapon_script, "ARM")) run_script(weapon_script);
-                                                }
-                                        }
-                                        if (*pcur_magic != 0)
-                                        {
-                                                if (play.item[*pcur_magic].active == /*false*/0)
-                                                {
-                                                        *pcur_magic = 0;
-                                                        magic_script = 0;
-                                                        Msg("Loadgame error: Player doesn't have armed magic - changed to 0.");
-                                                } else
-                                                {
-
-                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-                                                        if (locate(magic_script, "DISARM")) run_script(magic_script);
-                                                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-                                                        if (locate(magic_script, "ARM")) run_script(magic_script);
-                                                }
-                                        }
-                                        kill_repeat_sounds_all();
-                                        load_map(map.loc[*pmap]);
-                                        Msg("Loaded map.");
-                                        draw_map_game();
-                                        Msg("Map drawn.");
-
-                                        last_saved_game = num;
-
-                                        return(/*true*/1);
-                                }
-
 }
 
 void kill_cur_item( void )
@@ -1734,103 +1755,80 @@ void update_screen_time(void )
         //Msg("Time was saved as %d", play.spmap[*pmap].last_time);
 }
 
-/*bool*/int load_game_small(int num, char * line, int *mytime)
-{
-        FILE *          fp;
-        char crap[80];
-        sprintf(crap, "SAVE%d.DAT", num);
-
-
-	fp = fopen(ciconvert(crap), "rb");
-                                if (!fp)
-                                {
-                                        Msg("Couldn't quickload save game %d", num);
-                                        return(/*false*/0);
-                                }
-                                else
-                                {
-
-                                        fread(&short_play,sizeof(struct player_short_info),1,fp);
-                                        fclose(fp);
-                                        *mytime = short_play.minutes;
-                                        strcpy(line, short_play.gameinfo);
-                                        return(/*true*/1);
-                                }
-
-}
-
 
 void load_info(void)
 {
-        FILE *          fp;
-        char crap[80];
-        sprintf(crap, "DINK.DAT");
+  FILE *fp;
+  char *fullpath = NULL;
 
-
-	fp = fopen(ciconvert(crap), "rb");
-                                if (!fp)
-                                {
-                                        //fclose(fp);
-				  fp = fopen(ciconvert(crap), "wb");
-                                        //make new data file
-                                        strcpy(map.name, "Smallwood");
-                                        fwrite(&map,sizeof(struct map_info),1,fp);
-                                        fclose(fp);
-                                }
-                                else
-                                {
-                                        Msg("World data loaded.");
-                                        fread(&map,sizeof(struct map_info),1,fp);
-                                        fclose(fp);
-
-                                }
-
+  fullpath = paths_dmodfile("dink.dat");
+  fp = fopen(ciconvert(fullpath), "rb");
+  if (!fp)
+    {
+      //fclose(fp);
+      fp = fopen(ciconvert(fullpath), "wb");
+      //make new data file
+      strcpy(map.name, "Smallwood");
+      fwrite(&map,sizeof(struct map_info),1,fp);
+      fclose(fp);
+    }
+  else
+    {
+      Msg("World data loaded.");
+      fread(&map,sizeof(struct map_info),1,fp);
+      fclose(fp);
+    }
 }
 
 void save_hard(void)
 {
-        FILE *          fp;
-        char crap[80];
-        sprintf(crap, "HARD.DAT");
-	fp = fopen(ciconvert(crap), "wb");
-
-                                if (!fp)
-                                {
-
-                                        Msg("Couldn't save hard.dat for some reason.  Out of disk space?");
-                                }
-                                fwrite(&hmap,sizeof(struct hardness),1,fp);
-                                fclose(fp);
+  FILE *fp;
+  char *fullpath = NULL;
+  fullpath = paths_dmodfile("hard.dat");
+  fp = fopen(ciconvert(fullpath), "wb");
+  
+  if (!fp)
+    Msg("Couldn't save hard.dat for some reason.  Out of disk space?");
+  fwrite(&hmap,sizeof(struct hardness),1,fp);
+  fclose(fp);
 }
 
 
+/**
+ * Load hard.dat which contains tile hardness information
+ */
 void load_hard(void)
 {
-        FILE *          fp;
-        char crap[80];
-        sprintf(crap, "HARD.DAT");
-        if (!dinkedit)
-        {
-                if (!exist(crap)) sprintf(crap, "..\\dink\\hard.dat");
-        }
+  FILE *fp;
+  char *harddat_filename = "hard.dat";
+  char *fullpath = NULL;
 
-	fp = fopen(ciconvert(crap), "rb");
-                                if (!fp)
-                                {
-                                        //fclose(fp);
-				  fp = fopen(ciconvert(crap), "wb");
-                                        //make new data file
-                                        memset(&hmap, 0, sizeof(struct hardness));
-                                        fwrite(&hmap,sizeof(struct hardness),1,fp);
-                                        fclose(fp);
-                                }
-                                else
-                                {
-                                        fread(&hmap,sizeof(struct hardness),1,fp);
-                                        fclose(fp);
+  fullpath = paths_dmodfile(harddat_filename);
+  if (!dinkedit)
+    {
+      if (!exist(fullpath))
+	{
+	  free(fullpath);
+	  fullpath = paths_fallbackfile(harddat_filename);
+	}
+    }
 
-                                }
-
+  fp = fopen(ciconvert(fullpath), "rb");
+  if (!fp)
+    {
+      //fclose(fp);
+      fp = fopen(ciconvert(fullpath), "wb");
+      //make new data file
+      memset(&hmap, 0, sizeof(struct hardness));
+      fwrite(&hmap,sizeof(struct hardness),1,fp);
+      fclose(fp);
+    }
+  else
+    {
+      fread(&hmap,sizeof(struct hardness),1,fp);
+      fclose(fp);
+    }
+  free(fullpath);
 }
 
 /* Display a flashing "Please Wait" anim directly on the screen, just
@@ -1922,20 +1920,22 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
   crap2[strlen(crap2)-1] = 0;
 
   int num = strlen(org) - strlen(crap2)-1;
+  char *fullpath = NULL;
   strcpy(fname, &org[strlen(org)-num]);
+  sprintf(crap, "%s/dir.ff", crap2);
   if (samedir)
-    sprintf(crap, "%s/dir.ff", crap2);
+    fullpath = paths_dmodfile(crap);
   else
-    sprintf(crap, "../dink/%s/dir.ff", crap2);
+    fullpath = paths_fallbackfile(crap);
 
-
-  if (!FastFileInit(ciconvert(crap), 5))
+  if (!FastFileInit(ciconvert(fullpath), 5))
     {
-      Msg( "Could not load dir.ff art file %s" , crap);
-
+      Msg("Could not load dir.ff art file %s", crap);
       cur_sprite = save_cur;
+      free(fullpath);
       return;
     }
+  free(fullpath);
 
   // No color conversion for sprite paks - they need to use the Dink
   // Palette, otherwise weird colors will appear!
@@ -2238,12 +2238,14 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   int work;
 /*   PALETTEENTRY holdpal[256]; */
   char crap[200],hold[5];
+  char *fullpath;
   int oo;
+  int exists = 0;
 
   if (no_running_main) draw_wait();
 
   /* dirname(): */
-  // PORT: either use dirname(), or allow '/' as an alternative to
+  // TODO: either use dirname(), or allow '/' as an alternative to
   // '\\'
   char crap2[200];
   strcpy(crap2, org);
@@ -2258,19 +2260,29 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   /* - dmod/.../...01.BMP */
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
-  sprintf(crap, "%s\\dir.ff",crap2);
+  sprintf(crap, "%s/dir.ff",crap2);
+  fullpath = paths_dmodfile(crap);
   //Msg("Checking for %s..", crap);
-  if (exist(ciconvert(crap)))
+  if (exist(ciconvert(fullpath)))
     {
+      free(fullpath);
       load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
+  free(fullpath);
+
   sprintf(crap, "%s01.BMP",org);
-  if (!exist(ciconvert(crap)))
+  fullpath = paths_dmodfile(crap);
+  exists = exist(ciconvert(fullpath));
+  free(fullpath);
+  if (!exists)
     {
-      sprintf(crap, "..\\dink\\%s\\dir.ff",crap2);
+      sprintf(crap, "%s/dir.ff",crap2);
+      fullpath = paths_fallbackfile(crap);
       //Msg("Checking for %s..", crap);
-      if (exist(ciconvert(crap)))
+      exists = exist(ciconvert(fullpath));
+      free(fullpath);
+      if (exists)
 	{
 	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
 	  return;
@@ -2298,7 +2310,9 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       /* Set the pixel data */
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
-      GFX_k[cur_sprite].k = load_bmp(crap);
+      fullpath = paths_dmodfile(crap);
+      GFX_k[cur_sprite].k = load_bmp(fullpath);
+      free(fullpath);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)
 	{
 	  /* First frame didn't load! */
@@ -3844,23 +3858,32 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   FILE *stream;
   /*bool*/int comp = /*false*/0;
   char tab[10];
+  char *fullpath;
   
   Msg("LOADING %s",filename);
   sprintf(tab, "%c",9);
   
-  sprintf(temp, "story\\%s.d", filename);
-  
-  if (!exist(ciconvert(temp)))
+  sprintf(temp, "story/%s.d", filename);
+  fullpath = paths_dmodfile(temp);
+
+  if (!exist(ciconvert(fullpath)))
     {
-      sprintf(temp, "story\\%s.c", filename);
-      if (!exist(ciconvert(temp)))
+      free(fullpath);
+      sprintf(temp, "story/%s.c", filename);
+      fullpath = paths_dmodfile(temp);
+      if (!exist(ciconvert(fullpath)))
 	{
-	  sprintf(temp, "..\\dink\\story\\%s.d", filename);
-	  if (!exist(ciconvert(temp)))
+	  free(fullpath);
+	  sprintf(temp, "story/%s.d", filename);
+	  fullpath = paths_fallbackfile(temp);
+	  if (!exist(ciconvert(fullpath)))
 	    {
-	      sprintf(temp, "..\\dink\\story\\%s.c", filename);
-	      if (!exist(ciconvert(temp)))
+	      free(fullpath);
+	      sprintf(temp, "story/%s.c", filename);
+	      fullpath = paths_fallbackfile(temp);
+	      if (!exist(ciconvert(fullpath)))
 		{
+		  free(fullpath);
 		  Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
 		  return 0;
 		}
@@ -3869,7 +3892,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
     }
   
   strtoupper(temp);
-  Msg("Temp thingie is %c",temp[strlen(temp)-1]);
+  Msg("Temp thingie is %c", temp[strlen(temp)-1]);
   if (temp[strlen(temp)-1] == 'D')
     comp = 1;
   else
@@ -3899,9 +3922,11 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   //if compiled
   {
     //load compiled script
-    if ((stream = fopen(ciconvert(temp), "rb")) == NULL)
+    stream = fopen(ciconvert(fullpath), "rb");
+    free(fullpath);
+    if (stream == NULL)
       {
-	Msg("Script %s not found. (checked for .C and .D) (requested by %d?)",temp, sprite);
+	Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
 	return(0);
       }
     
@@ -4174,30 +4199,25 @@ void decipher_string(char line[200], int script)
         if (decipher_savegame != 0)
                 if (compare(line, "&savegameinfo"))
                 {
-                        sprintf(crap, "save%d.dat",decipher_savegame);
-                        if (exist(crap))
-                        {
-                                load_game_small(decipher_savegame, crab, &mytime);
-                                sprintf(line, "Slot %d - %d:%d - %s",decipher_savegame, (mytime / 60),
-                                        mytime - ((mytime / 60) * 60) , crab);
-                                //sprintf(line, "In Use");
-                        } else
-                        {
-
+                        sprintf(crap, "save%d.dat", decipher_savegame);
+			if (load_game_small(decipher_savegame, crab, &mytime) == 1)
+			  {
+			    sprintf(line, "Slot %d - %d:%d - %s",decipher_savegame, (mytime / 60),
+				    mytime - ((mytime / 60) * 60) , crab);
+			    //sprintf(line, "In Use");
+			  }
+			else
+			  {
 #ifdef __GERMAN
-                                sprintf(line, "Slot %d - Ungebraucht",decipher_savegame);
+			    sprintf(line, "Slot %d - Ungebraucht",decipher_savegame);
 #endif
-
+			    
 #ifdef __ENGLISH
-                                sprintf(line, "Slot %d - Empty",decipher_savegame);
+			    sprintf(line, "Slot %d - Empty",decipher_savegame);
 #endif
-
-
-                        }
-
+			  }
+			
                 }
-
-
 }
 
 
@@ -7849,9 +7869,11 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                sprintf(temp, "save%ld.dat",nlist[0]);
-                                if (exist(temp)) returnint = 1; else returnint = 0;
-
+			  char *fullpath = NULL;
+			  sprintf(temp, "save%ld.dat",nlist[0]);
+			  fullpath = paths_dmodfile(temp);
+			  returnint = exist(fullpath);
+			  free(fullpath);
                         }
 
                         strcpy(s, h);

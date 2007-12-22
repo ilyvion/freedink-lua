@@ -27,7 +27,7 @@
 #include "gfx.h"
 #include "gfx_tiles.h"
 #include "io_util.h"
-// #include "ddutil.h"
+#include "paths.h"
 #include "sfx.h"
 #include "log.h"
 
@@ -64,20 +64,27 @@ void load_tiles(void) {
   Msg("loading tilescreens...");
   for (h=1; h < NB_TILE_SCREENS; h++)
     {
+      char *fullpath;
+
       if (h < 10)
 	strcpy(crap1,"0");
       else
 	strcpy(crap1, "");
       
-      sprintf(crap, "TILES/TS%s%d.BMP",crap1,h);
-      
-      if (!exist(crap))
-	sprintf(crap, "../DINK/TILES/TS%s%d.BMP", crap1, h);
+      sprintf(crap, "tiles/Ts%s%d.BMP", crap1, h);
+      fullpath = paths_dmodfile(crap);
+
+      if (!exist(fullpath))
+	{
+	  free(fullpath);
+	  fullpath = paths_fallbackfile(crap);
+	}
       
 /*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
       // GFX
-      GFX_tiles[h] = load_bmp(crap);
-      
+      GFX_tiles[h] = load_bmp(fullpath);
+      free(fullpath);
+
       if(GFX_tiles[h] == NULL) {
 	fprintf(stderr, "Couldn't find tilescreen %s: %s\n", crap, SDL_GetError());
 	exit(0);

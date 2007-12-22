@@ -35,26 +35,22 @@ void load_batch(void)
   FILE *stream;  
   char line[255];
   char tmp_filename[PATH_MAX];
-	
-  printf("Loading .ini");
-  // TODO: use dmoddir
-  if (!exist("dink.ini"))
-    {
-      Msg("load_batch: dink.ini not found.");	  
-      sprintf(line,"Error finding the dink.ini file in the %s dir.", paths_dmoddir());
-      TRACE(line);
-    }
-	
+  
+  char *dinkini_file = "dink.ini";
+  char *fullpath = paths_dmodfile(dinkini_file);
+  printf("Loading dink.ini");
+
   /* Open the text file in binary mode, so it's read the same way
      under different OSes (Unix has no text mode) */
-  if ((stream = fopen(ciconvertbuf("dink.ini", tmp_filename), "rb")) == NULL)
-    TRACE("Error opening Dink.ini for reading.");
+  if ((stream = fopen(ciconvertbuf(fullpath, tmp_filename), "rb")) == NULL)
+    fprintf(stderr, "Error opening dink.ini for reading.");
   else
     {
       while(fgets(line, 255, stream) != NULL) 
 	pre_figure_out(line, 0);
-      fclose( stream );
+      fclose(stream);
     }
+  free(fullpath);
 
   program_idata();
 }
@@ -66,7 +62,7 @@ load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette)
   int i;
 
   if (bmp == NULL)
-    return 0;
+    return -1;
 
   for (i = 0; i < bmp->format->palette->ncolors; i++)
     {
@@ -83,22 +79,30 @@ load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette)
   palette[255].g = 255;
   palette[255].b = 255;
 
-  return 1;
+  return 0;
 }
 
 /* Get a colors palette from the specified image */
 int
-load_palette_from_bmp (char *file, SDL_Color *palette)
+load_palette_from_bmp (char *filename, SDL_Color *palette)
 {
   SDL_Surface *bmp;
-  char tmp_filename[PATH_MAX];
-  int success = 0;
+  int success = -1;
+  char *fullpath = NULL;
 
-  bmp = IMG_Load(ciconvertbuf(file, tmp_filename));
+  fullpath = paths_dmodfile(filename);
+  bmp = IMG_Load(ciconvert(fullpath));
+  free(fullpath);
   if (bmp == NULL)
     {
-      fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", file);
-      return 0;
+      fullpath = paths_fallbackfile(filename);
+      bmp = IMG_Load(ciconvert(fullpath));
+      free(fullpath);
+      if (bmp == NULL)
+	{
+	  fprintf(stderr, "load_palette_from_bmp: couldn't open %s\n", filename);
+	  return -1;
+	}
     }
 
   success = load_palette_from_surface(bmp, palette);
