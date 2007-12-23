@@ -245,7 +245,7 @@ wget http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
 make
 make install
 ln -s /usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config \
-  /usr/local/cross-tools/i386-mingw32msvc/bin/i586-mingw32msvc-pkg-config
+  /usr/local/bin/i586-mingw32msvc-pkg-config
 
 # zziplib
 wget http://dfn.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.12.83.tar.bz2

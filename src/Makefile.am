@@ -1,4 +1,5 @@
-AM_CFLAGS = -Wall -std=c99
+# Done in configure.ac so that Gnulib better detect environment
+#AM_CFLAGS = -Wall -std=c99
 # Cf. (autoconf.info)Installation Directory Variables:
 # Don't use DATADIR, it conflicts with something in MinGW
 AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"

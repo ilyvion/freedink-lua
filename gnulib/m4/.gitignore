@@ -47,9 +47,11 @@ setenv.m4
 ssize_t.m4
 stdbool.m4
 stdlib_h.m4
+strcase.m4
 strdup.m4
 strerror.m4
 string_h.m4
+strings_h.m4
 strndup.m4
 strnlen.m4
 sys_stat_h.m4
@@ -58,5 +60,3 @@ unistd_h.m4
 xalloc.m4
 xgetcwd.m4
 xstrndup.m4
-strcase.m4
-strings_h.m4

@@ -16,6 +16,9 @@ AC_PROG_CC
 # Force binary relocatability by default
 enable_relocatable=1
 
+# We use std=c99 which enables some macros - do tests with it too.
+CFLAGS="$CFLAGS -Wall -std=c99"
+
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
 # gnulib-tool --source-base=gnulib/lib --m4-base=gnulib/m4 --import
 gl_EARLY

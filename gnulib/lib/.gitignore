@@ -85,10 +85,13 @@ setenv.c
 setenv.h
 stdbool.in.h
 stdlib.in.h
+strcasecmp.c
 strdup.c
 strerror.c
 string.in.h
+strings.in.h
 stripslash.c
+strncasecmp.c
 strndup.c
 strnlen.c
 sys_stat.in.h
@@ -104,6 +107,3 @@ xreadlink.c
 xreadlink.h
 xstrndup.c
 xstrndup.h
-strcasecmp.c
-strings.in.h
-strncasecmp.c

@@ -35,8 +35,8 @@
 #include "progname.h"
 #include "binreloc.h"
 
-/* canonicalize_file_name */
-#include "canonicalize.h"
+#include <string.h> /* strdup */
+#include "canonicalize.h" /* canonicalize_file_name */
 
 /* basename */
 #include <libgen.h>
