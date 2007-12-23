@@ -56,14 +56,15 @@ esac
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 
-# libzip
+# libzip - cross-compiles well but not widespread (distro packages) yet
 PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
   AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
   AC_MSG_WARN($LIBZIP_PKG_ERRORS); LACK_LIBZIP=1)
 CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
 LIBS="$LIBS $LIBZIP_LIBS"
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
-# ZZipLib
+# ZZipLib - doesn't cross-compile well and unstable under woe, but
+#   functional and more widespread under GNU/Linux
 #AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
 PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
   AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
@@ -119,6 +120,7 @@ AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LA
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
 AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
+# TODO: check that SDL_ttf is 2.0.9 minimum (TTF_BOLD_STYLE fix)
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include

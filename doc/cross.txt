@@ -123,11 +123,15 @@ cd /usr/src/
 wget http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
 tar xjf freetype-$VERSION.tar.bz2
 cd freetype-$VERSION
-# TODO: maybe enable bytecode interpreter, since that what distros use
-# most. It's disabled by default for fear of patent attacks.
+# Enable bytecode interpreter, that's what distros use most, and we
+# need it for compatibility in font metrics. It's disabled by default
+# for fear of patent attacks.
 # Check:
 # - http://freetype.org/patents.html
 # - http://bugs.debian.org/447801
+# - freetype-2.3.5/docs/TRUETYPE
+sed -i -e 's,/\* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER \*/,#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER,' \
+    include/freetype/config/ftoption.h
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
 make install
