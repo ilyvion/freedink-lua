@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h> /* strncasecmp */
 #include <ctype.h>
 #include <time.h>
 
@@ -814,7 +815,7 @@ void log_path(/*bool*/int playing)
   unlink(inifile);
 
   add_text("[Dink Smallwood Directory Information for the CD to read]\r\n", inifile);
-  add_text(paths_exedir(), inifile);
+  add_text((char *)paths_exedir(), inifile);
   add_text("\r\n", inifile);
   if (playing)
     add_text("TRUE\r\n", inifile);

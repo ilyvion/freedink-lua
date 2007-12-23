@@ -4973,7 +4973,7 @@ void updateFrame(void)
 	  /* Display help message at the bottom of the screen */
 /* 	  DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(msg, &rcRect, 0, 0, SYSTEM_FONT);
+	  print_text_wrap(msg, &rcRect, 0, 0, FONT_SYSTEM);
 	}
 
 /*       lpDDSBack->ReleaseDC(hdc); */

@@ -24,6 +24,13 @@
 #include <config.h>
 #endif
 
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_IE 0x0401
+#include <windows.h>
+#include <shlobj.h>
+#endif
+
 #include "relocatable.h"
 #include "progname.h"
 #include "binreloc.h"
@@ -207,10 +214,6 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
   /** userappdir (e.g. "~/.freedink") **/
   {
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-#define WIN32_LEAN_AND_MEAN
-#define _WIN32_IE 0x0401
-#include <windows.h>
-#include <shlobj.h>
     userappdir = malloc(MAX_PATH);
     /* C:\Documents and Settings\name\Application Data */
     SHGetSpecialFolderPath(NULL, userappdir, CSIDL_APPDATA, 1);

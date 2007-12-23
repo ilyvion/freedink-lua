@@ -238,6 +238,15 @@ make
 # need it for cross-compilation. Then they say we should try libtool -
 # how about using it directly then? ;)
 
+# pkgconfig (used to integrate zzip in the build system)
+VERSION=0.22
+wget http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
+./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install
+ln -s /usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config \
+  /usr/local/cross-tools/i386-mingw32msvc/bin/i586-mingw32msvc-pkg-config
+
 # zziplib
 wget http://dfn.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.12.83.tar.bz2
 CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \

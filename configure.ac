@@ -71,23 +71,6 @@ LIBS="$LIBS $SDL_LIBS"
 ## We build SDL on cygwin without the UNIX emulation layer
 ##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
 
-AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
-AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
-AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
-AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
-AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
-
-
-# Somewhat optional. Defines matching contants in config.h
-# (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
-# Gnulib's src and build directories ($top_srcdir and $top_builddir
-# not present here for some reason). Also sdl-config lacks a
-# --cppflags switch so we use SDL_CFLAGS.
-old_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
-AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
-  [], AC_MSG_WARN([Could not find necessary SDL libs headers]); LACK_HEADERS=1)
-CPPFLAGS="$old_CPPFLAGS"
 
 
 # Dynamic and static builds
@@ -95,13 +78,43 @@ AC_ARG_ENABLE([static],
   AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default=no]]]),
   [static=1], [static=0])
 
-
 if test x"$static" = x"1"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type)
     *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
-        LIBS="$LIBS -lfreetype -lwinmm -ldxguid"
+        LIBS="$LIBS -lfreetype -lwinmm -ldxguid -ljpeg -lz"
         LDFLAGS="$LDFLAGS -static"
+        ;;
+    esac
+fi
+
+AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
+AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
+AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
+AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
+
+#AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
+PKG_CHECK_MODULES([ZZIP],[zziplib >= 0.12.83])
+LIBS="$LIBS $ZZIP_LIBS"
+CFLAGS="$CFLAGS $ZZIP_CFLAGS"
+
+# Somewhat optional. Defines matching contants in config.h
+# (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
+# Gnulib's src and build directories ($top_srcdir and $top_builddir
+# not present here for some reason). Also sdl-config lacks a
+# --cppflags switch so we use SDL_CFLAGS.
+# http://lists.gnu.org/archive/html/bug-gnulib/2007-10/msg00157.html
+old_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
+AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
+  [], AC_MSG_WARN([Could not find necessary SDL libs headers]); LACK_HEADERS=1)
+CPPFLAGS="$old_CPPFLAGS"
+
+
+if test x"$static" = x"1"; then
+    case "${host}" in
+    *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
+        # See above
         ;;
     *)
         # sdl-config --static-libs is far from complete :/ Plus I
@@ -164,11 +177,12 @@ fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
    echo "* You lack some library headers (.h) - see warnings above."
-   error=1
+   #error=1
 fi
 
 if test -z "$ZIP"; then
   echo "* The 'zip' utility cannot be found. Please install it."
+  #error=1
 fi
 
 if test "$with_upx" != "no" -a -z "$UPX"; then

@@ -34,8 +34,8 @@
 
 typedef enum enum_font
 {
-    DIALOG_FONT = 0,
-    SYSTEM_FONT,
+    FONT_DIALOG = 0,
+    FONT_SYSTEM,
 } FONT_TYPE;
 
 

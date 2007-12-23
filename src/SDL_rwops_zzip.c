@@ -15,22 +15,22 @@
 #define SDL_RWOPS_ZZIP_FILE(_context)  (ZZIP_FILE*) \
              ((_context)->hidden.unknown.data1)
 
-static int _zzip_seek(SDL_RWops *context, int offset, int whence)
+static int rwops_zzip_seek(SDL_RWops *context, int offset, int whence)
 {
     return zzip_seek(SDL_RWOPS_ZZIP_FILE(context), offset, whence);
 }
 
-static int _zzip_read(SDL_RWops *context, void *ptr, int size, int maxnum)
+static int rwops_zzip_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
     return zzip_read(SDL_RWOPS_ZZIP_FILE(context), ptr, size*maxnum) / size;
 }
 
-static int _zzip_write(SDL_RWops *context, const void *ptr, int size, int num)
+static int rwops_zzip_write(SDL_RWops *context, const void *ptr, int size, int num)
 {
     return 0; /* ignored */
 }
 
-static int _zzip_close(SDL_RWops *context)
+static int rwops_zzip_close(SDL_RWops *context)
 {
     if (! context) return 0; /* may be SDL_RWclose is called by atexit */
 
@@ -58,9 +58,9 @@ SDL_RWops *SDL_RWFromZZIP(const char* file, const char* mode)
     if (! rwops) { errno=ENOMEM; zzip_close (zzip_file); return 0; }
 
     SDL_RWOPS_ZZIP_DATA(rwops) = zzip_file;
-    rwops->read = _zzip_read;
-    rwops->write = _zzip_write;
-    rwops->seek = _zzip_seek;
-    rwops->close = _zzip_close;
+    rwops->read = rwops_zzip_read;
+    rwops->write = rwops_zzip_write;
+    rwops->seek = rwops_zzip_seek;
+    rwops->close = rwops_zzip_close;
     return rwops;
 }

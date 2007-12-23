@@ -28,7 +28,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
-#include <fcntl.h>
 /* #define strcasecmp(a,b) stricmp(a,b) */
 #else
 #include <unistd.h>

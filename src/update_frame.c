@@ -995,7 +995,7 @@ past:
 /* 			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 			// FONTS
 			/* TODO: write with OPAQUE / Shaded mode */
-			print_text_wrap(msg, &rcRect, 0, 0, SYSTEM_FONT);
+			print_text_wrap(msg, &rcRect, 0, 0, FONT_SYSTEM);
 
 			            if (strlen(last_debug) > 0)
 							
@@ -1011,7 +1011,7 @@ past:
 							FONTS_SetTextColor(200, 200, 200);
 /* 							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
 							// FONTS
-							print_text_wrap(msg, &rcRect, 0, 0, SYSTEM_FONT);
+							print_text_wrap(msg, &rcRect, 0, 0, FONT_SYSTEM);
 								}
 
 

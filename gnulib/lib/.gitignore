@@ -104,3 +104,6 @@ xreadlink.c
 xreadlink.h
 xstrndup.c
 xstrndup.h
+strcasecmp.c
+strings.in.h
+strncasecmp.c

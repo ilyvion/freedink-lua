@@ -58,3 +58,5 @@ unistd_h.m4
 xalloc.m4
 xgetcwd.m4
 xstrndup.m4
+strcase.m4
+strings_h.m4

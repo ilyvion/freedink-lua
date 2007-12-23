@@ -20,6 +20,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#define WIN32_LEAN_AND_MEAN
+#define _WIN32_IE 0x0401
+#include <windows.h>
+#include <shlobj.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -141,10 +148,6 @@ int initfont(char* fontname) {
   if (dialog_font == NULL)
     {
       /* Look in system fonts dir */
-#define WIN32_LEAN_AND_MEAN
-#define _WIN32_IE 0x0401
-#include <windows.h>
-#include <shlobj.h>
       char *path = malloc(MAX_PATH + 1 + strlen(fontname) + 1);
       /* C:\WINNT\Fonts */
       SHGetSpecialFolderPath(NULL, path, CSIDL_FONTS, 0);
@@ -403,9 +406,9 @@ print_text_wrap (char *str, rect* box,
   TTF_Font *font;
   int lineskip = 0;
 
-  if (font_type == DIALOG_FONT)
+  if (font_type == FONT_DIALOG)
     font = dialog_font;
-  else if (font_type == SYSTEM_FONT)
+  else if (font_type == FONT_SYSTEM)
     font = system_font;
   else
     {
@@ -475,7 +478,7 @@ void SaySmall(char thing[500], int px, int py, int r, int g, int b)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(r, g, b);
-      print_text_wrap(thing, &rcRect, 0, 0, SYSTEM_FONT);
+      print_text_wrap(thing, &rcRect, 0, 0, FONT_SYSTEM);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
@@ -499,19 +502,19 @@ void Say(char thing[500], int px, int py)
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(8, 14, 21);
-      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
+      print_text_wrap(thing, &rcRect, 0, 0, FONT_DIALOG);
 
       rect_offset(&rcRect,-2,-2);
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
-      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
+      print_text_wrap(thing, &rcRect, 0, 0, FONT_DIALOG);
 
       rect_offset(&rcRect,1,1);
 /*       SetTextColor(hdc,RGB(255,255,0)); */
 /*       DrawText(hdc,thing,lstrlen(thing),&rcRect,DT_WORDBREAK); */
       // FONTS
       FONTS_SetTextColor(255, 255, 0);
-      print_text_wrap(thing, &rcRect, 0, 0, DIALOG_FONT);
+      print_text_wrap(thing, &rcRect, 0, 0, FONT_DIALOG);
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */

@@ -366,44 +366,44 @@ void text_draw(int h)
 		   //this text has no sprite, and doesn't want to be centered.
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-	     print_text_wrap(cr, &rcRect, 0, 0, DIALOG_FONT);
+	     print_text_wrap(cr, &rcRect, 0, 0, FONT_DIALOG);
 		   
 		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 0, 0, FONT_DIALOG);
 		   
 		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 0, 0, FONT_DIALOG);
 
 		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 0, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 0, 0, FONT_DIALOG);
 	   }
 	   else
 	   {
 		   
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-	     print_text_wrap(cr, &rcRect, 1, 0, DIALOG_FONT);
+	     print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 
 		   rect_offset(&rcRect,-2,0);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 		   
 		   rect_offset(&rcRect,1,1);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 
 		   rect_offset(&rcRect,0,-2);
 /* 		   DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 		   // FONTS
-		   print_text_wrap(cr, &rcRect, 1, 0, DIALOG_FONT);
+		   print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 	   }
 	   
 	   rect_offset(&rcRect,0,1);
@@ -432,13 +432,13 @@ void text_draw(int h)
 	     {
 /* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
 	       // FONTS
-	       print_text_wrap(cr, &rcRect, 0, 0, DIALOG_FONT);
+	       print_text_wrap(cr, &rcRect, 0, 0, FONT_DIALOG);
 	     }
 	   else
 	     {
 /* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	       // FONTS
-	       print_text_wrap(cr, &rcRect, 1, 0, DIALOG_FONT);
+	       print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 	     }
 }
 
@@ -4578,7 +4578,7 @@ void process_talk()
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  //printf("(%dx%d)x(%dx%d)\n", rcRect.left, rcRect.top, rcRect.right, rcRect.bottom);
-	  print_text_wrap(talk.buffer, &rcRect, 1, 0, DIALOG_FONT);
+	  print_text_wrap(talk.buffer, &rcRect, 1, 0, FONT_DIALOG);
 
 
 	   /* Same of in text_draw, except for #1 and default */
@@ -4607,7 +4607,7 @@ void process_talk()
 	  rect_offset(&rcRect, 1, 1);
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	 */
 	  // FONTS
-	  print_text_wrap(talk.buffer, &rcRect, 1, 0, DIALOG_FONT);
+	  print_text_wrap(talk.buffer, &rcRect, 1, 0, FONT_DIALOG);
 
 /* 	  SetTextColor(hdc,RGB(8,14,21)); */
 	  // FONTS
@@ -4625,7 +4625,7 @@ void process_talk()
 /* 	  y_hold = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
 	  /* Don't print, only check the height in pixel: */
-	  y_hold = print_text_wrap(talk.line[i], &rcRect, 1, 1, DIALOG_FONT);
+	  y_hold = print_text_wrap(talk.line[i], &rcRect, 1, 1, FONT_DIALOG);
 	  sy_hold += y_hold;
 	  
 	  //Msg("Sy_hold = %d (%d)", sy_hold,i);
@@ -4697,7 +4697,7 @@ void process_talk()
 /* 		y_ho = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CALCRECT | DT_CENTER | DT_WORDBREAK); */
 		// FONTS
 		/* Don't print, only check the height in pixel: */
-		y_ho = print_text_wrap(talk.line[i], &rcRect, 1, 1, DIALOG_FONT);
+		y_ho = print_text_wrap(talk.line[i], &rcRect, 1, 1, FONT_DIALOG);
 		sy_ho += y_ho;	 
 		//Msg("adding y_yo %d.. (on %d)", y_ho,i);
 		if (sy_ho > x_depth) 
@@ -4740,11 +4740,11 @@ void process_talk()
 	  FONTS_SetTextColor(8, 14, 21);
 /* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect, DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.line[i], &rcRect, 1, 0, DIALOG_FONT);
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0, FONT_DIALOG);
 	  rect_offset(&rcRect, -2, -2);
 /* 	  DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  print_text_wrap(talk.line[i], &rcRect, 1, 0, DIALOG_FONT);
+	  print_text_wrap(talk.line[i], &rcRect, 1, 0, FONT_DIALOG);
 
 	  rect_offset(&rcRect, 1, 1);
 	  if (i == talk.cur)
@@ -4764,7 +4764,7 @@ void process_talk()
 	    }
 /* 	  y_last = DrawText(hdc,talk.line[i],lstrlen(talk.line[i]),&rcRect,DT_CENTER | DT_WORDBREAK); */
 	  // FONTS
-	  y_last = print_text_wrap(talk.line[i], &rcRect, 1, 0, DIALOG_FONT);
+	  y_last = print_text_wrap(talk.line[i], &rcRect, 1, 0, FONT_DIALOG);
 	  sy += y_last;
 	}
       
@@ -5874,4 +5874,6 @@ int main(int argc, char* argv[])
       if (g_b_kill_app == /*false*/0)
 	updateFrame();
     }
+
+  return 0;
 }
