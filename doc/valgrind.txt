@@ -7,7 +7,7 @@ Strip errors from SDL
 
 Run::
 
- valgrind --leak-check=yes --gen-suppressions ./freedink -window -nosound
+ valgrind --leak-check=yes --gen-suppressions=yes ./freedink -window -nosound
 
 Copy paste the relevant output in::
 
@@ -21,8 +21,9 @@ Then give those exclusions to Valgrind::
 Use with Autotools
 ==================
 
-CFLAGS default to "-O2 -g", but Valgrind does not recommend using
--O2. The simplest way to avoid that is passing CFLAGS to ./configure
-(not to 'make', since it would also erase the SDL include path)::
+CFLAGS default to "-O2 -g", but Valgrind recommends avoiding using
+-O2. The simplest way to remove that option that is passing CFLAGS to
+./configure (not to 'make', since it would also erase other CFLAGS
+such as the SDL include path)::
 
  CFLAGS="-g" ./configure

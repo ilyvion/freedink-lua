@@ -32,6 +32,7 @@ extern "C"
   extern int GetKeyboard(int key);
   extern int keypressed(void);
   extern void input_init(void);
+  extern void input_quit(void);
 
 #ifdef __cplusplus
 }

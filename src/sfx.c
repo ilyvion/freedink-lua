@@ -113,6 +113,10 @@ struct callback_data
   int shift; /* position advance for 1 frame, in 1/256th */
   int sound; /* sound index */
 };
+static void callback_samplerate_cleanup(int chan, void *udata)
+{
+  free(udata);
+}
 static void callback_samplerate(int chan, void *stream, int len, void *udata)
 {
   struct callback_data* data = (struct callback_data*)udata;
@@ -593,7 +597,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     data->shift = shift;
     data->sound = sound;
 
-    Mix_RegisterEffect(channel, callback_samplerate, NULL, data);
+    Mix_RegisterEffect(channel, callback_samplerate, callback_samplerate_cleanup, data);
     Mix_ChannelFinished(CleanupChannel);
   }
 
@@ -649,38 +653,11 @@ int InitSound()
 {
   Msg("initting sound");
 
-  if (SDL_Init(SDL_INIT_CDROM | SDL_INIT_AUDIO) == -1)
+  if (SDL_Init(SDL_INIT_AUDIO) == -1)
     {
       Msg("SDL_Init: %s\n", SDL_GetError());
       return -1;
     }
-  
-  // Initialize CD-ROM
-  {
-    SDL_CD *cdrom;
-    
-    /* Check for CD drives */
-    if(!SDL_CDNumDrives()){
-      /* None found */
-      Msg (("No CDROM devices available\n"));
-    }
-    
-    /* Open the default drive */
-    cdrom = SDL_CDOpen(0);
-    
-    /* Did if open? Check if cdrom is NULL */
-    if (!cdrom)
-      Msg("Couldn't open drive: %s\n", SDL_GetError());
-    
-    if (CD_INDRIVE(SDL_CDStatus(cdrom))) {
-      /* TODO: do some test about the presence of audio tracks in the
-         CD - though fortunately SDL_Mixer does not read data track */
-      cd_inserted = /*true*/1;
-    } 
-    
-    /* This newly opened CD-ROM becomes the default CD used when other
-       CD functions are passed a NULL CD-ROM handle. */
-  }
   
   /* MIX_DEFAULT_FREQUENCY is ~22kHz are considered a good default,
      44kHz is considered too CPU-intensive on older computers */
@@ -752,7 +729,7 @@ void QuitSound(void)
   fake_buf_len = 0;
 
   Mix_CloseAudio();
-  SDL_QuitSubSystem(SDL_INIT_AUDIO | SDL_INIT_CDROM);
+  SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 /**

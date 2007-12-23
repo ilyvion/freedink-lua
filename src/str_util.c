@@ -22,6 +22,8 @@
  */
 
 #include <ctype.h>
+#include <string.h>
+#include <stdlib.h> /* free */
 #include "str_util.h"
 
 /**
@@ -48,4 +50,14 @@ strtoupper (char *s)
 {
   for (; *s; s++)
     *s = toupper (*s);
+}
+
+/**
+ * Copy string w/o memory overlap
+ */
+void strcpy_nooverlap(char *dst, char* src)
+{
+  char *tmp = strdup(src);
+  strcpy(dst, tmp);
+  free(tmp);
 }

@@ -447,16 +447,18 @@ doit:
 /**
  * Split 'str' in words separated by 'liney', and copy the #'num' one
  * to 'return1'. The function does not alter 'str'.
- **/
+ */
 /*bool*/int separate_string (char str[255], int num, char liney, char *return1)
 {
   int l;
   int k;
+  int len = 0;
 
+  len = strlen(str);
   l = 1;
   strcpy(return1, "");
 
-  for (k = 0; k <= strlen(str); k++)
+  for (k = 0; k <= len; k++)
     {
       if (str[k] == liney)
 	{
@@ -464,11 +466,16 @@ doit:
 	  if (l == num+1)
 	    goto done;
 
-	  if (k < strlen(str))
+	  if (k < len)
 	    strcpy(return1, "");
 	}
-      if (str[k] != liney)
-	sprintf(return1, "%s%c", return1, str[k]);
+      else /* (str[k] != liney) */
+	{
+	  char cur_char_as_string[2];
+	  cur_char_as_string[0] = str[k];
+	  cur_char_as_string[1] = '\0';
+	  strcat(return1, cur_char_as_string);
+	}
     }
 
   if (l < num)
@@ -2268,14 +2275,16 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       //Msg("Checking for %s..", crap);
       exists = exist(ciconvert(fullpath));
       free(fullpath);
-      free(org_dirname);
       if (exists)
 	{
 	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
+	  free(org_dirname);
 	  return;
 	}
       use_fallback = 1;
     }
+  free(org_dirname);
+
   s_index[nummy].s = cur_sprite -1;
 
   /* Possibly used to temporarily use the reference palette even if
@@ -3967,6 +3976,10 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
 }
 
 
+/**
+ * Remove leading spaces by shifting 'str' to the left, as much as
+ * there is leading spaces.
+ */
 void strip_beginning_spaces(char *str)
 {
   char *pc = str;
@@ -6559,40 +6572,42 @@ void copy_bmp( char name[80])
  * - 2: stop processing script (may come back later via callbacks)
  * - 3 & 4: have something to do with if/else ?
  **/
-        int process_line (int script, char *s, /*bool*/int doelse)
-        {
-                char * h, *p;
-                int i;
-                char line[200];
-                char ev[15][100];
-                char temp[100];
-                char first[2];
-                int sprite = 0;
-                int kk;
-
-                if (rinfo[script]->level < 1) rinfo[script]->level = 1;
-
-
-                for (kk = 1; kk < 15; kk++)
-		  ev[kk][0] = 0;
-                h = s;
-                if (h[0] == 0) return(0);
-                if (  (h[0] == '/') && (h[1] == '/'))
-
-                {
-                        //Msg("It was a comment!");
-                        goto bad;
-                }
+int process_line (int script, char *s, /*bool*/int doelse)
+{
+  char *h, *p;
+  int i;
+  char line[200];
+  char ev[15][100];
+  char temp[100];
+  char first[2];
+  int sprite = 0;
+  int kk;
+  
+  if (rinfo[script]->level < 1)
+    rinfo[script]->level = 1;
 
 
+  for (kk = 1; kk < 15; kk++)
+    ev[kk][0] = 0;
+  h = s;
+  if (h[0] == '\0')
+    return 0;
+  
+  if ((h[0] == '/') && (h[1] == '/'))
+    {
+      //Msg("It was a comment!");
+      goto bad;
+    }
 
-                for ( i=1; i <= 14; i++)
-                {
-                        if (separate_string(h, i,' ',ev[i]) == /*false*/0) goto pass;
-                }
 
+  for (i = 1; i <= 14; i++)
+    {
+      if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
+	goto pass;
+    }
+  
 pass:
-                //Msg("first line is %s (second is %s)", ev[1], ev[2]);
+  //Msg("first line is %s (second is %s)", ev[1], ev[2]);
                 if (compare(ev[1], "VOID"))
                 {
 
@@ -6735,7 +6750,7 @@ pass:
                                 h = &h[strlen(line)+1];
                                 returnint = var_figure(line, script);
 
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
 
                                 return(0);
                         }
@@ -6789,7 +6804,7 @@ pass:
                 {
                         strip_beginning_spaces(h);
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(4);
                 }
                 goto good;
@@ -6806,7 +6821,7 @@ pass:
         if (compare(ev[1], "void"))
         {
                 //     Msg("Next procedure starting, lets quit");
-                strcpy(s, h);
+                strcpy_nooverlap(s, h);
                 if (rinfo[script]->proc_return != 0)
                 {
                         run_script(rinfo[script]->proc_return);
@@ -6831,7 +6846,7 @@ pass:
                 {
                         //sorry, can't do it, you were told to skip the next thing
                         rinfo[script]->skipnext = /*false*/0;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(3);
         }
 
@@ -6841,7 +6856,7 @@ pass:
                 if (compare(ev[1], "void"))
                 {
                         Msg("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(2);
                 }
 
@@ -6864,7 +6879,7 @@ pass:
                                 //Msg("No to else...");
 
                         }
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(1);
 
                 }
@@ -6882,7 +6897,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6900,7 +6915,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6916,7 +6931,7 @@ pass:
                                 //got all parms, let do it
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6931,7 +6946,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6940,7 +6955,7 @@ pass:
                         h = &h[strlen(ev[1])];
                         time(&time_start);
                         play.minutes = 0;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6956,7 +6971,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6973,7 +6988,7 @@ pass:
                                 add_item(slist[0], nlist[1], nlist[2], /*false*/0);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -6987,7 +7002,7 @@ pass:
                                 add_exp(nlist[0], nlist[1]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7002,7 +7017,7 @@ pass:
                                 add_item(slist[0], nlist[1], nlist[2], /*true*/1);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7017,7 +7032,7 @@ pass:
                                 kill_cur_item_script(slist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7031,7 +7046,7 @@ pass:
                                 kill_cur_magic_script(slist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7048,7 +7063,7 @@ pass:
                                 show_bmp(slist[0], nlist[1], nlist[2], script);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(2);
                 }
 
@@ -7057,7 +7072,7 @@ pass:
                 {
                         Msg("waiting for button with script %d", script);
                         h = &h[strlen(ev[1])];
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         wait.script = script;
                         wait.active = /*true*/1;
                         wait.button = 0;
@@ -7083,7 +7098,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7111,7 +7126,7 @@ pass:
                                 //Msg("Just said %s.", slist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7257,13 +7272,13 @@ pass:
                                 play.last_talk = script;
                                 //Msg("Sprite %d marked callback true.", sprite);
 
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
 
                                 return(2);
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7289,13 +7304,13 @@ pass:
                                 sprite = say_text(slist[0], nlist[1], script);
                                 returnint = sprite;
                                 spr[sprite].callback = script;
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
 
                                 return(2);
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7315,13 +7330,13 @@ pass:
                                 spr[sprite].callback = script;
                                 spr[sprite].live = /*true*/1;
                                 play.last_talk = script;
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
 
                                 return(2);
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7337,12 +7352,12 @@ pass:
                                 decipher_string(slist[0], script);
                                 sprite = say_text_xy(slist[0], nlist[1], nlist[2], script);
                                 returnint = sprite;
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
                                 return(0);
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7375,14 +7390,14 @@ pass:
                         if (get_parms(ev[1], script, h, p))
                         {
                                 //               Msg("Wait called for %d.", nlist[0]);
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
                                 kill_returning_stuff(script);
                                 add_callback("",nlist[0],0,script);
 
                                 return(2);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7396,7 +7411,7 @@ pass:
                                 check_seq_status(nlist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7413,7 +7428,7 @@ pass:
 
                                 rinfo[script]->sprite = nlist[0];
                         }
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7436,7 +7451,7 @@ pass:
 
 
                         }
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7459,7 +7474,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7497,7 +7512,7 @@ pass:
                                 returnint = tempreturn;
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7521,7 +7536,7 @@ pass:
                                 returnint = tempreturn;
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7538,7 +7553,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7552,7 +7567,7 @@ pass:
                         fill_whole_hard();
                         fill_hard_sprites();
                         fill_back_sprites();
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7563,7 +7578,7 @@ pass:
                 {
                         // (sprite, direction, until, nohard);
                         draw_map_game_background();
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7583,7 +7598,7 @@ pass:
                         process_upcycle = /*true*/1;
                         cycle_script = script;
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(2);
                 }
 
@@ -7631,7 +7646,7 @@ pass:
                                 //SetFocus(hWndMain);
                         }
                         //InitSound(hWndMain);
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(2);
 
                 }
@@ -7660,7 +7675,7 @@ pass:
                                     Msg("Playing CD track %d.", cd_track);
                                     if (PlayCD(cd_track) >= 0)
                                       {
-                                        strcpy(s, h);
+                                        strcpy_nooverlap(s, h);
                                         return(0);
                                       }
                                   }
@@ -7668,7 +7683,7 @@ pass:
                             Msg("Playing midi %s.", slist[0]);
                             PlayMidi(slist[0]);
                           }
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
                 if (compare(ev[1], "stopmidi"))
@@ -7676,14 +7691,14 @@ pass:
                         // (sprite, direction, until, nohard);
                         h = &h[strlen(ev[1])];
                         StopMidi();
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
                 if (compare(ev[1], "kill_all_sounds"))
                 {
             kill_repeat_sounds_all();
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
 
                 }
@@ -7691,14 +7706,14 @@ pass:
                 if (compare(ev[1], "turn_midi_off"))
                 {
                         midi_active = /*false*/0;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
 
                 }
                 if (compare(ev[1], "turn_midi_on"))
                 {
                         midi_active = /*true*/1;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
 
                 }
@@ -7718,7 +7733,7 @@ pass:
                         } else
                                 returnint = 0;
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7738,7 +7753,7 @@ pass:
                                 }
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7760,7 +7775,7 @@ pass:
                         }
                     }
 
-                  strcpy(s, h);
+                  strcpy_nooverlap(s, h);
                   return(0);
                 }
 
@@ -7780,7 +7795,7 @@ pass:
                         }
                     }
 
-                  strcpy(s, h);
+                  strcpy_nooverlap(s, h);
                   return(0);
                 }
 
@@ -7797,7 +7812,7 @@ pass:
                                 save_game(nlist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7818,7 +7833,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7833,7 +7848,7 @@ pass:
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7856,7 +7871,7 @@ pass:
                                 return(2);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7879,7 +7894,7 @@ pass:
 			    }
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7898,13 +7913,13 @@ pass:
                                 spr[nlist[0]].move_num = nlist[2];
                                 spr[nlist[0]].move_nohard = nlist[3];
                                 spr[nlist[0]].move_script = script;
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
                                 if (debug_mode) Msg("Move_stop: Sprite %d, dir %d, num %d", nlist[0],nlist[1], nlist[2]);
                                 return(2);
 
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7925,7 +7940,7 @@ pass:
                                 }
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7944,7 +7959,7 @@ pass:
                                 Msg(slist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7970,7 +7985,7 @@ pass:
                                 //Msg(slist[0]);
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -7989,7 +8004,7 @@ pass:
                         {
                                 strip_beginning_spaces(h);
                                 //Msg("Found =...continuing equation");
-                                strcpy(s, h);
+                                strcpy_nooverlap(s, h);
                                 return(4);
                         }
 
@@ -8019,7 +8034,7 @@ pass:
 
                         }  else Msg("Failed getting parms for Busy()");
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8043,7 +8058,7 @@ pass:
 
                         }  else Msg("Failed getting parms for inside_box");
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8057,7 +8072,7 @@ pass:
                                 returnint = (rand() % nlist[0])+nlist[1];
                         }  else Msg("Failed getting parms for Random()");
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8071,7 +8086,7 @@ pass:
                                 Msg("Initted font %s",slist[0]);
                         }  else Msg("Failed getting parms for Initfont()");
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8080,7 +8095,7 @@ pass:
                 {
                         h = &h[strlen(ev[1])];
                         returnint = dversion;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8091,7 +8106,7 @@ pass:
                 {
                         h = &h[strlen(ev[1])];
                         returnint = 1;
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8107,7 +8122,7 @@ pass:
                                 returnint = mode;
                         }  else Msg("Failed to set mode");
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -8130,7 +8145,7 @@ pass:
                                 }
                         }
 
-                        strcpy(s, h);
+                        strcpy_nooverlap(s, h);
                         return(0);
                 }
 
@@ -9449,7 +9464,7 @@ pass:
                                                                         }
 
                                                                         //DO STUFF HERE!
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         //g("continuing to run line %s..", h);
 
 
@@ -9466,7 +9481,7 @@ pass:
                                                                         h = &h[1];
                                                                         strip_beginning_spaces(h);
                                                                         var_equals(ev[1], ev[3], '=', script, h);
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9477,7 +9492,7 @@ pass:
                                                                         h = &h[2];
                                                                         strip_beginning_spaces(h);
                                                                         var_equals(ev[1], ev[3], '+', script, h);
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9488,7 +9503,7 @@ pass:
                                                                         h = &h[2];
                                                                         strip_beginning_spaces(h);
                                                                         var_equals(ev[1], ev[3], '*', script, h);
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9503,7 +9518,7 @@ pass:
 
                                                                         var_equals(ev[1], ev[3], '-', script, h);
 
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9517,7 +9532,7 @@ pass:
 
                                                                         var_equals(ev[1], ev[3], '/', script, h);
 
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9530,7 +9545,7 @@ pass:
 
                                                                         var_equals(ev[1], ev[3], '*', script, h);
 
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
                                                                 if (compare(ev[1], "external"))
@@ -9558,7 +9573,7 @@ pass:
                                                                                         kill_script(myscript1);
                                                                                 }
                                                                         }
-                                                                        strcpy(s, h);
+                                                                        strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
 
@@ -9603,15 +9618,14 @@ pass:
         }
 
 bad:
-        strcpy(s, h);
-        return(0);
+	strcpy_nooverlap(s, h);
+        return 0;
 
 good:
-        strcpy(s, h);
+	strcpy_nooverlap(s, h);
         //s = h
         //Msg("ok, continuing with running %s..",s);
-        return(1);
-
+        return 1;
 }
 
 

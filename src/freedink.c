@@ -5732,16 +5732,7 @@ static int doInit(int argc, char *argv[])
   // Load the tiles from the BMPs
   load_tiles();
 
-  if (sound_on) 
-    {
-      Msg("Initting sound");
-      if (InitSound() < 0)
-	sound_on = 0;
-      else
-	sound_on = 1;
-    }
-  
-  
+ 
   srand((unsigned)time(NULL));
 	
   // Sets the default palette for the screen

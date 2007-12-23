@@ -28,10 +28,11 @@ extern "C"
 {
 #endif
 
-/* TODO: autoconf strncasecmp -> strnicmp/woe */
+  /* TODO: autoconf strncasecmp -> strnicmp/woe */
 
-extern int string_icompare (char *s1, char *s2);
-extern void strtoupper (char *s);
+  extern int string_icompare (char *s1, char *s2);
+  extern void strtoupper (char *s);
+  extern void strcpy_nooverlap(char *dst, char* src);
 
 #ifdef __cplusplus
 }

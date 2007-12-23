@@ -351,7 +351,8 @@ process_text_for_wrapping (TTF_Font *font, char *str, rect *box)
 	      /* continue on a new line */
 	      line++;
 	      start = i + 1;
-	      i++;
+	      if (str[i] != '\0')
+		i++;
 	    }
 	  else
 	    {
@@ -368,7 +369,6 @@ process_text_for_wrapping (TTF_Font *font, char *str, rect *box)
       else if (str[i] == '\0')
 	{
 	  line++;
-	  i++;
 	}
       else if (str[i] == '\n')
 	{

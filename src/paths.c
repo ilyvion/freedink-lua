@@ -334,3 +334,13 @@ FILE *paths_savegame_fopen(int num, char *mode)
 
   return fp;
 }
+
+void paths_quit(void)
+{
+  free(pkgdatadir);
+  free(exedir);
+  free(fallbackdir);
+  free(dmoddir);
+  free(dmodname);
+  free(userappdir);
+}

@@ -37,6 +37,7 @@ extern "C"
   extern char *paths_fallbackfile(char *file);
   extern char *paths_pkgdatafile(char *file);
   extern FILE *paths_savegame_fopen(int num, char *mode);
+  extern void paths_quit(void);
 
 #ifdef __cplusplus
 }

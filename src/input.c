@@ -77,7 +77,7 @@ void input_init(void)
 	      /* SDL_JoystickEventState(SDL_ENABLE); */
 	      
 	      if (jinfo) {
-		printf("Name: %s\n", SDL_JoystickName (0));
+		printf("Name: %s\n", SDL_JoystickName(0));
 		printf("Number of axes: %d\n", SDL_JoystickNumAxes(jinfo));
 		printf("Number of buttons: %d\n", SDL_JoystickNumButtons(jinfo));
 		printf("Number of balls: %d\n", SDL_JoystickNumBalls(jinfo));
@@ -96,5 +96,14 @@ void input_init(void)
 	      }
 	    }
 	}
+    }
+}
+
+void input_quit(void)
+{
+  if (joystick == 1)
+    {
+      SDL_JoystickClose(jinfo);
+      SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
 }

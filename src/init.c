@@ -115,13 +115,6 @@ void finiObjects()
 			Msg("Error modifying saved game.");
 	}
 	
-	if (sound_on)
-	{
-	  /* mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL); */
-	
-	Msg("Shutting down CD stuff.");
-	killcd();
-	}
 	log_path(/*false*/0);
 
 	
@@ -208,11 +201,6 @@ void finiObjects()
 /* 	} */
 	
 	
-	
-	if (sound_on)
-	  QuitSound();
-	
-	
 	if (sound_on)
 	{
 	//lets kill the cdaudio too
@@ -221,7 +209,8 @@ void finiObjects()
 /* 		Msg("Couldn't close all MCI events.."); */
 /* 		//	return(FALSE); */
 /* 	} */
-	  SDL_QuitSubSystem(SDL_INIT_CDROM | SDL_INIT_AUDIO);
+	  bgm_quit();
+	  QuitSound();
 	}
 	
 	kill_all_scripts_for_real();
@@ -232,13 +221,14 @@ void finiObjects()
 /* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
 	//PostQuitMessage(0);
 
-	if (joystick)
-	  SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+	input_quit();
 
 	SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
+
+	paths_quit();
 } /* finiObjects */
 
 /*
@@ -356,6 +346,19 @@ int init(int argc, char *argv[])
 
   if (!check_arg(argc, argv))
     return 0;
+
+
+  if (sound_on) 
+    {
+      Msg("Initting sound");
+      if (InitSound() < 0)
+	sound_on = 0;
+      else
+	sound_on = 1;
+
+      if (sound_on)
+	bgm_init();
+    }
 
 
   /* Fonts system, default fonts */

@@ -37,6 +37,10 @@
 #include "paths.h"
 #include "log.h"
 
+/* CD-ROM handle */
+static SDL_CD *cdrom = NULL;
+
+
 /* Current background music (not cd) */
 static Mix_Music *music_data = NULL;
 static char* last_midi = NULL;
@@ -53,14 +57,14 @@ int last_cd_track = 0;
 int
 cdplaying(void)
 {
-  return (SDL_CDStatus(NULL) == CD_PLAYING);
+  return (SDL_CDStatus(cdrom) == CD_PLAYING);
 }
 
 int
 killcd()
 {
   last_cd_track = 0;	
-  return SDL_CDStop(NULL);
+  return SDL_CDStop(cdrom);
 } 
 
 /**
@@ -75,8 +79,8 @@ PlayCD(int cd_track)
   playMIDIFile("");
 
   /* Play track #cd_track */
-  if(CD_INDRIVE(SDL_CDStatus(NULL)))
-    return SDL_CDPlayTracks(NULL, cd_track - 1, 0, 1, 0);
+  if(CD_INDRIVE(SDL_CDStatus(cdrom)))
+    return SDL_CDPlayTracks(cdrom, cd_track - 1, 0, 1, 0);
 
   return -1;
 } 
@@ -255,4 +259,56 @@ void check_midi(void)
   /* Just play the specified MIDI */
   sprintf(midi_filename, "%d.mid", map.music[*pmap]);
   PlayMidi(midi_filename);
+}
+
+/**
+ * Initialize BackGround Music (currently, only CD-ROM is concerned,
+ * MIDI init is done with SDL_INIT_AUDIO in sfx.c).
+ */
+void bgm_init(void)
+{
+  if (SDL_Init(SDL_INIT_CDROM) == -1)
+    {
+      Msg("SDL_Init: %s\n", SDL_GetError());
+      return;
+    }
+  
+  /* Check for CD drives */
+  if(!SDL_CDNumDrives()){
+    /* None found */
+    Msg (("No CDROM devices available\n"));
+  }
+  
+  /* Open the default drive */
+  cdrom = SDL_CDOpen(0);
+  
+  /* Did if open? Check if cdrom is NULL */
+  if (cdrom == NULL)
+    {
+      Msg("Couldn't open drive: %s\n", SDL_GetError());
+      return;
+    }
+  
+  if (CD_INDRIVE(SDL_CDStatus(cdrom))) {
+    /* TODO: do some test about the presence of audio tracks in the
+       CD - though fortunately SDL_Mixer does not read data track */
+    cd_inserted = /*true*/1;
+  } 
+  
+  /* This newly opened CD-ROM becomes the default CD used when other
+     CD functions are passed a NULL CD-ROM handle. */
+}
+
+void bgm_quit(void)
+{
+  Mix_HaltMusic ();
+  Msg("Shutting down CD stuff.");
+  killcd();
+  if (last_midi != NULL)
+    free(last_midi);
+  if (music_data != NULL)
+    Mix_FreeMusic (music_data);
+  if (cdrom != NULL)
+    SDL_CDClose(cdrom);
+  SDL_QuitSubSystem(SDL_INIT_CDROM);
 }

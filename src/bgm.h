@@ -3,16 +3,18 @@
 
 extern int last_cd_track;
 
-int cdplaying();
-int killcd();
-int PlayCD(int cd_track);
-int something_playing(void);
-int playMIDIFile(char *midi_filename);
-int PlayMidi(char *sFileName);
-int PauseMidi();
-int ResumeMidi();
-int StopMidi();
-int ReplayMidi();
-void check_midi();
+extern int cdplaying();
+extern int killcd();
+extern int PlayCD(int cd_track);
+extern int something_playing(void);
+extern int playMIDIFile(char *midi_filename);
+extern int PlayMidi(char *sFileName);
+extern int PauseMidi();
+extern int ResumeMidi();
+extern int StopMidi();
+extern int ReplayMidi();
+extern void check_midi();
+extern void bgm_init(void);
+extern void bgm_quit(void);
 
 #endif
