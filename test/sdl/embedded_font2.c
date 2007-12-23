@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include "SDL.h"
 #include "SDL_ttf.h"
-#include "SDL_rwops_zzip.h"
+#include "SDL_rwops_libzip.h"
 
 int main (int argc, char *argv[])
 {
@@ -75,8 +75,7 @@ int main (int argc, char *argv[])
   {
     char myself[1024]; /* bad! */
     strcpy(myself, argv[0]);
-    strcat(myself, "/LiberationSans-Regular.ttf");
-    rwops = SDL_RWFromZZIP(myself, "rb");
+    rwops = SDL_RWFromZIP(myself, "LiberationSans-Regular.ttf");
     /* rwops = SDL_RWFromZZIP("embedded_font/LiberationSans-Regular.ttf", "rb"); */
   }
 

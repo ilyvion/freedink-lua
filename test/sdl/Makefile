@@ -3,7 +3,7 @@ LDLIBS=$(shell sdl-config --libs)
 
 .PHONY: all
 
-PROGS = joytest mousetest msb ticks embedded_font
+PROGS = joytest mousetest msb ticks embedded_font embedded_font2
 all: $(PROGS)
 
 embedded_font: embedded_font.o SDL_rwops_zzip.o
@@ -25,10 +25,19 @@ embedded_font: embedded_font.o SDL_rwops_zzip.o
 # - can't use -A and add files at the same time,
 # - can't >> from 'zip',
 # => temporary file
-	zip -j font.zip ../../share/freedink/LiberationSans-Regular.ttf
-	cat font.zip >> embedded_font$(EXEEXT)
-	rm -f font.zip
+	zip -j res.zip ../../share/freedink/LiberationSans-Regular.ttf
+	cat res.zip >> embedded_font$(EXEEXT)
+	rm -f res.zip
 	zip -A embedded_font$(EXEEXT)
+
+embedded_font2: embedded_font2.o SDL_rwops_libzip.o
+	$(CC) embedded_font2.o SDL_rwops_libzip.o $(LDLIBS) -lSDL_ttf -Wl,-Bstatic -lzip -Wl,-Bdynamic -o $@
+	zip -j res.zip ../../share/freedink/LiberationSans-Regular.ttf
+	cat res.zip >> embedded_font2$(EXEEXT)
+	rm -f res.zip
+	zip -A embedded_font2$(EXEEXT)
+
+# woe: i586-mingw32msvc-gcc -Dmain=SDL_main -static -I /usr/local/cross-tools/i386-mingw32msvc/include -I/usr/local/cross-tools/i386-mingw32msvc/include/SDL -L/usr/local/cross-tools/i386-mingw32msvc/lib SDL_rwops_libzip.c embedded_font2.c -lmingw32 -lSDL_ttf -lfreetype  -lSDLmain -lSDL -mwindows -lzip -lz -lwinmm -ldxguid
 
 clean:
 	-rm -f $(PROGS) $(PROGS:%=%.exe) *.o *~

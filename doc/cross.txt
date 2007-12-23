@@ -238,6 +238,7 @@ make
 # need it for cross-compilation. Then they say we should try libtool -
 # how about using it directly then? ;)
 
+
 # pkgconfig (used to integrate zzip in the build system)
 VERSION=0.22
 wget http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
@@ -246,6 +247,9 @@ make
 make install
 ln -s /usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config \
   /usr/local/bin/i586-mingw32msvc-pkg-config
+# or set
+# PKG_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config
+
 
 # zziplib
 wget http://dfn.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.12.83.tar.bz2
@@ -268,6 +272,16 @@ make
 # => doesn't work, it tries to use ftello which is apparently missing from mingw
 
 
+# libzip
+VERSION=0.8
+http://www.nih.at/libzip/libzip-$VERSION.tar.gz
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+    --prefix=/usr/local/cross-tools/i386-mingw32msvc
+sed -i -e 's/@LIBOBJS@/@LTLIBOBJS@/' lib/Makefile.am
+make
+make install
 
 diff -ru SDL_gfx-2.0.16/SDL_framerate.h SDL_gfx-2.0.16.beuc/SDL_framerate.h
 --- SDL_gfx-2.0.16/SDL_framerate.h	2006-12-22 13:36:10.000000000 +0100
