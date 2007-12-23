@@ -105,7 +105,7 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 
   /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
   {
-    exedir = dirname(get_full_program_name());
+    exedir = dir_name(get_full_program_name());
   }
 
   /** refdir **/
