@@ -239,7 +239,7 @@ make
 # how about using it directly then? ;)
 
 
-# pkgconfig (used to integrate zzip in the build system)
+# pkgconfig (used to integrate ziplib and zzip in the build system)
 VERSION=0.22
 wget http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
 ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc

@@ -32,9 +32,10 @@ sh bootstrap
 ## Dependencies
 # Base: GCC, make & al.
 aptitude install build-essential
-# Required: SDL and zziplib
+# Required: SDL, libzip | zziplib
 aptitude install libsdl1.2-dev libsdl-gfx1.2-dev libsdl-ttf2.0-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libzzip-dev zip
+# | aptitude install libzip-dev
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
@@ -81,6 +82,8 @@ sh bootstrap
 yum groupinstall 'Development Tools'
 # or just:
 #yum install make gcc
+# Required: SDL, libzip | zziplib
+# No libzip package yet AFAIK
 yum install SDL_devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
   SDL_mixer-devel zziplib-devel zip
 # Optional:
@@ -133,7 +136,9 @@ sh bootstrap
 
 ## Dependencies
 # I also assume you already have GCC ;)
-# Required: SDL and zziplib
+# Required: SDL, libzip | zziplib
+# Note: as of 2007-12-23 libzip's ebuild is in progress:
+# http://bugs.gentoo.org/show_bug.cgi?id=120244
 emerge libsdl sdl-gfx sdl-ttf sdl-image sdl-mixer zziplib zip
 # Optional:
 # - upx compresses binary

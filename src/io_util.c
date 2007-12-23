@@ -43,7 +43,11 @@
 #include "progname.h"
 #include "relocatable.h"
 #include "SDL.h"
+#ifdef HAVE_LIBZIP
+#include "SDL_rwops_libzip.h"
+#else
 #include "SDL_rwops_zzip.h"
+#endif
 
 #include "paths.h"
 
@@ -238,12 +242,21 @@ SDL_RWops *find_resource_as_rwops(char *name)
   /* get_full_program_name() checks /proc (Linux), then argv[0] +
      PATH. Under Woe it uses GetModuleFileName(). The only way to make
      it fail is to execl("./freedink", "idontexist", 0); */
+
+#ifdef HAVE_LIBZIP
+  char *myself = strdup(get_full_program_name());
+  rwops = SDL_RWFromZIP(myself, name);
+  free(myself);
+#else
   char *myself = get_full_program_name();
   char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
   sprintf(zippath, "%s/%s", myself, name);
   /* sample zippath: "/usr/bin/freedink/LiberationSans-Regular.ttf" */
   rwops = SDL_RWFromZZIP(zippath, "rb");
   /* Retrieve error (if any) with: printf("%s\n", strerror(errno)); */
+  free(zippath);
+#endif
+
   if (rwops != NULL)
      return rwops;
 

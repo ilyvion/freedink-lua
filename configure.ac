@@ -19,14 +19,11 @@ enable_relocatable=1
 # We use std=c99 which enables some macros - do tests with it too.
 CFLAGS="$CFLAGS -Wall -std=c99"
 
+
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
 # gnulib-tool --source-base=gnulib/lib --m4-base=gnulib/m4 --import
 gl_EARLY
-gl_INIT
 
-if test x"$host" = x"$build"; then
-AM_BINRELOC
-fi
 
 AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
@@ -58,6 +55,24 @@ case "$with_upx" in
 esac
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
+
+# libzip
+PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
+  AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
+  AC_MSG_WARN($LIBZIP_PKG_ERRORS); LACK_LIBZIP=1)
+CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
+LIBS="$LIBS $LIBZIP_LIBS"
+AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
+# ZZipLib
+#AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
+PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
+  AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
+  AC_MSG_WARN($ZZIPLIB_PKG_ERRORS); LACK_ZZIPLIB=1)
+CFLAGS="$CFLAGS $ZZIPLIB_CFLAGS"
+LIBS="$LIBS $ZZIPLIB_LIBS"
+AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
+
+
 dnl Check for SDL
 SDL_VERSION=1.2.0
 AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
@@ -69,11 +84,15 @@ AM_PATH_SDL($SDL_VERSION,
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
-# TODO: check with Cygwin + -mno-cygwin
-# From SDL_mixer:
-## We build SDL on cygwin without the UNIX emulation layer
-##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
 
+# Lengthy Gnulib checks
+gl_INIT
+
+
+# BinReloc, if not cross-compiling (tests do not check for cross-compilation)
+if test x"$host" = x"$build"; then
+AM_BINRELOC
+fi
 
 
 # Dynamic and static builds
@@ -90,16 +109,16 @@ if test x"$static" = x"1"; then
         ;;
     esac
 fi
+# TODO: check with Cygwin + -mno-cygwin
+# From SDL_mixer:
+## We build SDL on cygwin without the UNIX emulation layer
+##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
+
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
 AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
 AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
-
-#AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
-PKG_CHECK_MODULES([ZZIP],[zziplib >= 0.12.83])
-LIBS="$LIBS $ZZIP_LIBS"
-CFLAGS="$CFLAGS $ZZIP_CFLAGS"
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
@@ -152,6 +171,7 @@ fi
 echo
 echo "Errors recap:"
 error=0
+warning=0
 
 if test "$LACK_LIBSDL" = 1; then
    echo "* You need to install the libSDL";
@@ -173,19 +193,21 @@ if test "$LACK_LIBSDL_MIXER" = 1; then
    echo "* You need to install the SDL_mixer library";
    error=1
 fi
-if test "$LACK_LIBZZIP" = 1; then
-   echo "* You need to install the zziplib library"
+if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
+   echo "* You need to install libzip or ZZipLib"
    error=1
 fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
    echo "* You lack some library headers (.h) - see warnings above."
    #error=1
+   warning=1
 fi
 
 if test -z "$ZIP"; then
   echo "* The 'zip' utility cannot be found. Please install it."
   #error=1
+  warning=1
 fi
 
 if test "$with_upx" != "no" -a -z "$UPX"; then
@@ -196,8 +218,13 @@ fi
 if test "$error" = 1; then
   echo
   echo "There are errors - stopping. Please check the reports above."
-  echo "If dependencies (such as SDL_gfx) are missing, please check BUILD for distro package names."
+  echo "If dependencies (such as SDL_gfx) are missing,"
+  echo "please check BUILD for distro package names."
   exit 1
+elif test "$warning" = 1; then
+  echo
+  echo "There are warnings - let's continue for now,"
+  echo "but please check make sure nothing is missing."
 else
   echo "* No errors"
 fi
