@@ -147,7 +147,10 @@ sum of all their features do.
   What we really need to test now is whether it is possible to use
   multiple audio libraries at once.
 
-  [X] SDL_mixer does that perfectly, independently from SFX.
+  [X] SDL_mixer does that perfectly, independently from SFX. If for
+  some reason MIDI playback is not satisfying, one could use an
+  external command to do it through Mix_SetMusicCMD
+  (http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-December/063639.html)
 
   [/] Allegro's DIGMID driver seems suboptimal: under Debian, I can't
   get it to output any sound, with the digmid.dat from

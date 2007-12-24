@@ -40,6 +40,7 @@ struct
   int owner;
   int survive;
   int cur_sound; /* Sound currently played in that channel */
+  Uint8 *fake_buf;
 } channelinfo[NUM_CHANNELS];
 
 
@@ -58,16 +59,6 @@ static struct
 /* Hardware soundcard information */
 static int hw_freq, hw_channels;
 static Uint16 hw_format;
-
-/* Fake buffer: we give an empty buffer to SDL_mixer and a size
-   information that matches the sound sample with the target sample
-   rate, so the mixer will play and stop the sound appropriately. We
-   won't actually play from that buffer though, as the audio buffer
-   will be generated in callback_samplerate(). To avoid wasting more
-   memory, we share this fake audio buffer among all Chunks. */
-Uint8* fake_buf = NULL;
-int fake_buf_len = 0;
-
 
 
 static int SetVolume(int channel, int dx_volume);
@@ -575,12 +566,19 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     /** Create a junk wav of the right size **/
     int resized_len = registered_sounds[sound].cvt.len_cvt * ((double)hw_freq / play_freq);
 
-    /* Give a bigger buffer to Mix_PlayChannel if needed */
-    if (resized_len > fake_buf_len)
-      {
-	fake_buf_len = resized_len;
-	fake_buf = realloc(fake_buf, fake_buf_len);
-      }
+    /* Fake buffer: we give an empty buffer to SDL_mixer and a size
+       information that matches the sound sample with the target
+       sample rate, so the mixer will play and stop the sound
+       appropriately. We won't actually play from that buffer though,
+       as the audio buffer will be generated in
+       callback_samplerate(). */
+    /* We used to share the buffer among channels, but it made the
+       engine crash if the buffer was realloc()'d to store a bigger
+       sound _and_ moved to a different memory address in the process
+       (while other existing sounds would still refer to the old,
+       freed memory location). */
+    Uint8* fake_buf = NULL;
+    fake_buf = malloc(resized_len);
     Mix_Chunk *chunk = Mix_QuickLoad_RAW(fake_buf, resized_len);
     /* printf("resized_len=%d bytes, pos_end=%d\n", resized_len, pos_end); */
     
@@ -591,6 +589,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
 		sound, Mix_GetError());
 	return 0;
       }
+    channelinfo[channel].fake_buf = fake_buf;
 
     struct callback_data *data = calloc(1, sizeof(struct callback_data));
     data->pos = 0;
@@ -680,12 +679,6 @@ int InitSound()
   /* Avoid calling SDL_PauseAudio when using SDL_Mixer */
   /* SDL_PauseAudio(0); */
   
-
-  /* Allocate fake buffer */
-  fake_buf = malloc(1);
-  fake_buf_len = 1;
-  
-
   /* Dump audio info */
   {
     int numtimesopened;
@@ -725,9 +718,6 @@ void QuitSound(void)
   for (idxKill = 0; idxKill < MAX_SOUNDS; idxKill++)
     FreeRegisteredSound(idxKill);
 
-  free(fake_buf); fake_buf = NULL;
-  fake_buf_len = 0;
-
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
@@ -761,6 +751,9 @@ static void CleanupChannel(int channel)
       exit(1);
     }
   Mix_FreeChunk(chunk);
+  /* WAV buffer is not freed when Chunk is created using
+     Mix_QuickLoad_RAW (cf. chunk->allocated), do it manually. */
+  free(channelinfo[channel].fake_buf);
   channelinfo[channel].cur_sound = -1;
 
   /* Revert SetVolume and SetPan effects */
