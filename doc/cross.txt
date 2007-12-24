@@ -232,7 +232,8 @@ Misc
 Those may be used later on.
 
 # zlib
-wget http://www.gzip.org/zlib/zlib-1.2.3.tar.gz
+VERSION=1.2.3
+wget http://www.gzip.org/zlib/zlib-$VERSION.tar.gz
 CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
   AR="i586-mingw32msvc-ar r" \
   RANLIB="i586-mingw32msvc-ranlib" \
@@ -278,7 +279,7 @@ make
 
 # libzip
 VERSION=0.8
-http://www.nih.at/libzip/libzip-$VERSION.tar.gz
+wget http://www.nih.at/libzip/libzip-$VERSION.tar.gz
 CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
