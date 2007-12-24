@@ -5730,7 +5730,7 @@ static int doInit(int argc, char *argv[])
 
 
   // Load the tiles from the BMPs
-  load_tiles();
+  tiles_load();
 
  
   srand((unsigned)time(NULL));

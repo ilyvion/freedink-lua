@@ -72,6 +72,7 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
+#include "gfx_sprites.h"
 #include "gfx_utils.h"
 /* for DinkC's initfonts(): */
 #include "gfx_fonts.h"
@@ -194,7 +195,6 @@ int push_active = 1;
 /*bool*/int turn_on_plane = /*FALSE*/0;
 const int text_timer = 77;
 const int text_min = 2700;
-#define MAX_SPRITES 4000
 int stop_entire_game;
 #define MAX_CALLBACKS 100
 #define MAX_SCRIPTS 200
@@ -347,6 +347,7 @@ struct small_map pam;
 /*bool*/int trig_man = /*false*/0;
 /*bool*/int total_trigger = /*false*/0;
 
+/* TODO: get rid of either k or GFX_k */
 struct pic_info     k[MAX_SPRITES];       // Sprite data
 struct GFX_pic_info GFX_k[MAX_SPRITES];   // Sprite data (SDL)
 

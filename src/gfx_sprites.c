@@ -1,5 +1,5 @@
 /**
- * Draw background from tiles
+ * Graphics - sprites management
 
  * Copyright (C) 2007  Sylvain Beucler
 
@@ -20,20 +20,20 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GFX_TILES_H
-#define _GFX_TILES_H
+#include "dinkvar.h"
+#include "gfx_sprites.h"
 
-/* #include <ddraw.h> */
-#include "SDL.h"
 
-/* extern LPDIRECTDRAWSURFACE tiles[]; */
-/* extern RECT tilerect[]; */
-extern SDL_Surface *GFX_tiles[];
-
-extern void tiles_load(void);
-extern void tiles_unload(void);
-extern void draw_map_game(void);
-extern void draw_map_game_background(void);
-extern void process_animated_tiles(void);
-
-#endif
+/**
+ * Free memory used by sprites. It's not much useful in itself, since
+ * it's only called when we're exiting the game, but it does avoid
+ * memory leak warnings when FreeDink is analyzed by Valgrind or other
+ * memory checkers.
+ */
+void sprites_unload(void)
+{
+  int i = 0;
+  for (i = 0; i < MAX_SPRITES; i++)
+    if (GFX_k[i].k != NULL)
+      SDL_FreeSurface(GFX_k[i].k);
+}

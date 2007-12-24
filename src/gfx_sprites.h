@@ -1,5 +1,5 @@
 /**
- * Draw background from tiles
+ * Graphics - sprites management
 
  * Copyright (C) 2007  Sylvain Beucler
 
@@ -20,20 +20,20 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GFX_TILES_H
-#define _GFX_TILES_H
+#ifndef _GFX_SPRITES_H
+#define _GFX_SPRITES_H
 
-/* #include <ddraw.h> */
-#include "SDL.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-/* extern LPDIRECTDRAWSURFACE tiles[]; */
-/* extern RECT tilerect[]; */
-extern SDL_Surface *GFX_tiles[];
+#define MAX_SPRITES 4000
 
-extern void tiles_load(void);
-extern void tiles_unload(void);
-extern void draw_map_game(void);
-extern void draw_map_game_background(void);
-extern void process_animated_tiles(void);
+  extern void sprites_unload(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

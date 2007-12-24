@@ -40,6 +40,8 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
+#include "gfx_tiles.h"
+#include "gfx_sprites.h"
 #include "fastfile.h"
 #include "sfx.h"
 #include "bgm.h"
@@ -132,6 +134,9 @@ void finiObjects()
 		  }
 		 */ 
 	  //GFX
+	tiles_unload();
+	sprites_unload();
+
 	if (GFX_lpDDSBack   != NULL) SDL_FreeSurface(GFX_lpDDSBack);
 	if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
 	if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);

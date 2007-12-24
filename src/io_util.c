@@ -35,10 +35,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include "binreloc.h"
 #include "progname.h"
 #include "relocatable.h"
@@ -75,7 +71,7 @@ end_of_elt(char *str)
 char*
 ciconvert (char *filename)
 {
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
   return filename;
 #else
   /* Parse all the directories that composes filename */

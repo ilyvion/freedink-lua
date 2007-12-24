@@ -56,7 +56,7 @@ int fire_flip;
 
 
 // Load the tiles from the BMPs
-void load_tiles(void) {
+void tiles_load(void) {
   char crap[30];
   char crap1[10];
   int h;
@@ -103,6 +103,14 @@ void load_tiles(void) {
   Msg("Done with tilescreens...");
 }
 
+/**
+ * Free memory used by tiles
+ */
+void tiles_unload(void) {
+  int h = 0;
+  for (h=1; h < NB_TILE_SCREENS; h++)
+    SDL_FreeSurface(GFX_tiles[h]);
+}
 
 /* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */
 /* { */
