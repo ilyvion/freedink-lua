@@ -87,19 +87,13 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
     }
     
     /** => pkgdatadir **/
-    char *retpath = (char*) malloc(strlen(datadir) + 1 + strlen(PACKAGE) + 1);
-    sprintf(retpath, "%s/%s", datadir, PACKAGE);
-    if (is_directory(retpath))
-      {
-	/* Relocated $datadir/freedink exists */
-	pkgdatadir = retpath;
-      }
-    else
+    pkgdatadir = br_build_path(datadir, PACKAGE);
+    free(datadir);
+    if (!is_directory(pkgdatadir))
       {
 	/* Fallback to compile-time datadir */
-	retpath = (char*) realloc(retpath, strlen(DEFAULT_DATA_DIR) + 1 + strlen(PACKAGE) + 1);
-	sprintf(retpath, "%s/%s", DEFAULT_DATA_DIR, PACKAGE);
-	pkgdatadir = retpath;
+	free(pkgdatadir);
+	pkgdatadir = br_build_path(DEFAULT_DATA_DIR, PACKAGE);
       }
   }
 
@@ -261,23 +255,17 @@ const char *paths_exedir(void)
 
 char *paths_pkgdatafile(char *file)
 {
-  char *path = malloc(strlen(pkgdatadir) + 1 + strlen(file) + 1);
-  sprintf(path, "%s/%s", pkgdatadir, file);
-  return path;
+  return br_build_path(pkgdatadir, file);
 }
 
 char *paths_dmodfile(char *file)
 {
-  char *path = malloc(strlen(dmoddir) + 1 + strlen(file) + 1);
-  sprintf(path, "%s/%s", dmoddir, file);
-  return path;
+  return br_build_path(dmoddir, file);
 }
 
 char *paths_fallbackfile(char *file)
 {
-  char *path = malloc(strlen(fallbackdir) + 1 + strlen(file) + 1);
-  sprintf(path, "%s/%s", fallbackdir, file);
-  return path;
+  return br_build_path(fallbackdir, file);
 }
 
 
@@ -306,8 +294,7 @@ FILE *paths_savegame_fopen(int num, char *mode)
 	  free(savedir);
 	  return NULL;
 	}
-  fullpath_in_userappdir = malloc(strlen(savedir) + 1 + strlen(file) + 1);
-  sprintf(fullpath_in_userappdir, "%s/%s", savedir, file);
+  fullpath_in_userappdir = br_build_path(savedir, file);
   free(savedir);
 
 

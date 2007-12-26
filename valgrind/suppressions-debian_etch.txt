@@ -487,6 +487,16 @@
    fun:SDL_QuitSubSystem
    fun:SDL_CloseAudio
 }
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   obj:/usr/lib/libSDL-1.2.so.0.11.0
+   obj:/usr/lib/libSDL-1.2.so.0.11.0
+   fun:SDL_PumpEvents
+   fun:GetKeyboard
+   fun:doInit
+   fun:main
+}
 
 {
    <insert a suppression name here>

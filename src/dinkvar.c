@@ -1767,6 +1767,7 @@ void load_info(void)
   if (!fp)
     {
       //fclose(fp);
+      free(fullpath);
       fp = fopen(ciconvert(fullpath), "wb");
       //make new data file
       strcpy(map.name, "Smallwood");
@@ -1779,6 +1780,7 @@ void load_info(void)
       fread(&map,sizeof(struct map_info),1,fp);
       fclose(fp);
     }
+  free(fullpath);
 }
 
 void save_hard(void)
