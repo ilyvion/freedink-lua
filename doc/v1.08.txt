@@ -1,3 +1,10 @@
+Official list of changes
+========================
+
+The v1.08 installer ships with a 'whatsnew.txt' file describing most
+if not all changes, described succinctly.
+
+
 Comprehensive links chronology in the Dink Network message board
 ================================================================
 
