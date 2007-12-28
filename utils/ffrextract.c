@@ -53,87 +53,100 @@
 
 
 /* size of read block */
-#define BLOCK_SIZE (512)
-
 /* fastfile name */
 #define FASTFILE_NAME "dir.ff"
 
-void ffrextract(void);
+#define DEBUG(...) printf(__VA_ARGS__)
+/* #define DEBUG(...) */
 
-int main(void)
+void ffrextract(void);
+void ffextract(char *filename);
+
+int main(int argc, char *argv[])
 {
   /* start from current directory */
-  printf("Starting ffrextract from ./\n");
-  ffrextract();
+  DEBUG("Starting ffrextract from ./\n");
+  if (argc > 1)
+    {
+      /* We're passed a list of files to extract */
+      int i = 1;
+      for (i = 1; i < argc; i++)
+	ffextract(argv[i]);
+    }
+  else
+    {
+      /* Recursive extraction starting with current directory */
+      ffrextract();
+    }
   return 0;
 }
 
 
 /* extract dir.ff */
-void ffextract(void)
+void ffextract(char *filename)
 {
   #define FILENAME_SIZE 12
-  #define FILECHAR_SIZE 1
-  /* that is a lame attempt to make the app runnable
-     in a Unicode(16bit/char) system.
-     it won't work, but maybe I'll remember to correct that a day... */
-  FILE *fin, *fout;
+  FILE *fin = NULL, *fout = NULL;
   struct subfile
   {
     long int offset;
     char filename[FILENAME_SIZE + 1];
-  } *cur_file, *beginning;
+  } *subfiles;
   /* warning: sizeof(struct subfile) = 20 != 17... */
 
-  long int n, i;
-  long int cur_offset;
-  char *buffer, *ptr, *output_file;
-
-  printf(" Parsing %s\n", FASTFILE_NAME);
+  int nb_entries = 0;
+  DEBUG(" Parsing %s\n", filename);
 
   /* grab the number of files */
-  fin = fopen(FASTFILE_NAME, "r");
-  fread(&n, sizeof(n), 1, fin);
+  fin = fopen(filename, "r");
+  fread(&nb_entries, sizeof(nb_entries), 1, fin);
 
   /* allocate some memory to store the {offset/filename}s */
-  beginning = (struct subfile*) malloc(n * sizeof(struct subfile));
-  cur_file = beginning;
-  ptr = (char*) beginning;
-  for (i = 0; i < n; i++)
-    {
-      fread(&cur_file[i].offset, sizeof(cur_file->offset), 1, fin);
-      fread(&cur_file[i].filename, FILECHAR_SIZE, FILENAME_SIZE + 1, fin);
-    }
+  subfiles = (struct subfile*) malloc(nb_entries * sizeof(struct subfile));
+  {
+    int i;
+    for (i = 0; i < nb_entries; i++)
+      {
+	fread(&subfiles[i].offset, sizeof(subfiles[i].offset), 1, fin);
+	fread(&subfiles[i].filename, FILENAME_SIZE + 1, 1, fin);
+      }
+  }
 
   /* grab all the (n-1) files
      the n-th 'file' only tells where EOF is */
-  buffer = (char*) malloc(BLOCK_SIZE * sizeof(char));
-  output_file = (char*) malloc((FILENAME_SIZE + 1) * sizeof(char));
+  {
+    char *output_file = NULL;
+    int i = 0;
+    int nb_subfiles = 0;
+    char buffer[BUFSIZ];
+    nb_subfiles = nb_entries - 1;
+    output_file = (char*)malloc(FILENAME_SIZE + 1);
+    for (i = 0; i < nb_subfiles; i++)
+      {
+	int remaining = -1;
+	strcpy(output_file, subfiles[i].filename);
+	fout = fopen(output_file, "w");
+	
+	/* read while a full block can be read */
+	remaining = subfiles[i+1].offset - subfiles[i].offset;
+	while (remaining > 0)
+	  {
+	    if ((fread(buffer, BUFSIZ, 1, fin)) != 1)
+	      if (feof(fin))
+		{
+		  printf("Error: subfile offset is beyond end of file");
+		  break;
+		}
+	    fwrite(buffer, BUFSIZ, 1, fout);
+	    remaining -= BUFSIZ;
+	    /* printf("  pos = %d\n", cur_offset); */
+	  }
+	fclose(fout);
+      }
+    free(output_file);
+  }
 
-  for(i = 0; i < (n-1); i++, cur_file++)
-    {
-      strcpy(output_file, cur_file->filename);
-      fout = fopen(output_file, "w");
-
-      /* read while a full block can be read */
-      cur_offset = cur_file->offset;
-      /* printf(" Read from %d to %d\n", cur_offset, (cur_file+1)->offset); */
-      while( ((cur_file + 1)->offset - cur_offset) > BLOCK_SIZE )
-	{
-	  fread(buffer, BLOCK_SIZE * sizeof(char), 1, fin);
-	  fwrite(buffer, BLOCK_SIZE * sizeof(char), 1, fout);
-	  cur_offset += BLOCK_SIZE;
-	  /* printf("  pos = %d\n", cur_offset); */
-	}
-      fread(buffer, ((cur_file + 1)->offset - cur_offset) * sizeof(char), 1, fin);
-      fwrite(buffer, ((cur_file + 1)->offset - cur_offset) * sizeof(char),
-	     1, fout);
-      fclose(fout);
-    }
-  free(output_file);
-  free(buffer);
   fclose(fin);
-  free(beginning);
 }
 
 /* return whether the dirent structure points to a directory */
@@ -167,7 +180,7 @@ void ffrextract(void)
   
   /* extract current dir.ff file if it exists */
   if (stat(FASTFILE_NAME, &cur_fastfile) == 0) /* file exists */
-      ffextract();
+      ffextract(FASTFILE_NAME);
   else if (errno != ENOENT) /* file exist but cannot be accessed */
     {
       fprintf(stderr, "Error #%d when accessing %s\n", errno, FASTFILE_NAME);
@@ -177,29 +190,33 @@ void ffrextract(void)
 
   /* do the same thing in the subdirectories */
   n = scandir(".", &namelist, isDir, alphasort);
-  printf(" %d subdir%s found; err=%s\n",
+  DEBUG(" %d subdir%s found; err=%s\n",
 	 n, (n>1)?"s":"", (n==-1)?strerror(errno):"no error");
   for(i = 0; i < n; i++)
     {
-      printf(" - %s\n", namelist[i]->d_name);
-      if (chdir(namelist[i]->d_name))
+      DEBUG(" - %s\n", namelist[i]->d_name);
+      if (chdir(namelist[i]->d_name) < 0)
 	{
 	  fprintf(stderr, "ffrextract: Error#%d (%s) when entering %s\n",
 		  errno, strerror(errno), namelist[i]->d_name);
 	  fprintf(stderr, "Ignoring %s\n", namelist[i]->d_name);
+	  continue;
 	}
-      else
+
+      printf("Entering %s\n", namelist[i]->d_name);
+      ffrextract();
+      if (chdir("..") < 0)
 	{
-	  printf("Entering %s\n", namelist[i]->d_name);
-	  ffrextract();
-	  if (chdir(".."))
-	    {
-	      fprintf(stderr, "ffrextract: Error#%d (%s) while quitting dir.\n",
-		      errno, strerror(errno));
-	      fprintf(stderr, "Stopping extraction process\n");
-	      exit(1);
-	    }
-	  
+	  fprintf(stderr, "ffrextract: Error#%d (%s) while quitting dir.\n",
+		  errno, strerror(errno));
+	  fprintf(stderr, "Stopping extraction process\n");
+	  exit(1);
 	}
     }
 }
+
+/**
+ * Local Variables:
+ * compile-command: "gcc -Wall ffrextract.c -o ffrextract"
+ * End:
+ */

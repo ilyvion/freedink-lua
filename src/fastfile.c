@@ -70,7 +70,7 @@ char *g_MemMap = 0;
 int
 FastFileInit (char *filename, int max_handles)
 {
-  long pos, count = 0;;
+  long pos, count = 0;
 
   FastFileFini ();
 
