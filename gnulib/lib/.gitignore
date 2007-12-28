@@ -82,7 +82,6 @@ same.h
 save-cwd.c
 save-cwd.h
 setenv.c
-setenv.h
 stdbool.in.h
 stdlib.in.h
 strcasecmp.c
