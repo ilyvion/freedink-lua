@@ -158,6 +158,6 @@ int main(int argc, char *argv[])
 
 /**
  * Local Variables:
- * compile-command: "gcc -Wall -std=c99 -pedantic -g d2c.c"
+ * compile-command: "gcc -Wall -std=c99 -pedantic -g d2c.c -o d2c"
  * End:
  */

@@ -89,3 +89,9 @@ int main(int argc, char* argv[]) {
     printf("Warning: %d error(s) detected\n", nb_errors);
   return 0;
 }
+
+/**
+ * Local Variables:
+ * compile-command: "gcc -Wall ffinspect.c -o ffinspect"
+ * End:
+ */

@@ -29,11 +29,6 @@
   Try to simplify
   Cleanup globals
   Comment the code and find some better variable names
-  I think there is a crash on the Mystery Island's only dir.ff, due to
-    incorrect offset in the header. So the code should check whether
-    the offset is a valid one (between the last offset and the next
-    one, for example), and if not, ignore the entry (with some nice
-    stderr output)
 */
 
 #include <stdio.h>
@@ -59,13 +54,15 @@
 #define DEBUG(...) printf(__VA_ARGS__)
 /* #define DEBUG(...) */
 
+#define IMIN(a,b) ((a < b) ? a : b)
+#define IMAX(a,b) ((a > b) ? a : b)
+
 void ffrextract(void);
 void ffextract(char *filename);
 
 int main(int argc, char *argv[])
 {
   /* start from current directory */
-  DEBUG("Starting ffrextract from ./\n");
   if (argc > 1)
     {
       /* We're passed a list of files to extract */
@@ -76,6 +73,7 @@ int main(int argc, char *argv[])
   else
     {
       /* Recursive extraction starting with current directory */
+      DEBUG("Starting ffrextract from ./\n");
       ffrextract();
     }
   return 0;
@@ -104,16 +102,27 @@ void ffextract(char *filename)
   /* allocate some memory to store the {offset/filename}s */
   subfiles = (struct subfile*) malloc(nb_entries * sizeof(struct subfile));
   {
-    int i;
+    int i = 0;
     for (i = 0; i < nb_entries; i++)
       {
 	fread(&subfiles[i].offset, sizeof(subfiles[i].offset), 1, fin);
 	fread(&subfiles[i].filename, FILENAME_SIZE + 1, 1, fin);
+	/* Support badly generated dir.ff such as Mystery Island's or
+	   inter/Text-box/dir.ff */
+	if (subfiles[i].offset <= 0)
+	  {
+	    /* skip that entry */
+	    subfiles[i].filename[FILENAME_SIZE] = '\0';
+	    DEBUG(" %s: skipping bad subfile %s (invalid offset %ld)\n",
+		  filename, subfiles[i].filename, subfiles[i].offset);
+	    i--;
+	    nb_entries--;
+	  }
       }
   }
 
-  /* grab all the (n-1) files
-     the n-th 'file' only tells where EOF is */
+  /* grab all the (n-1) files - the n-th 'file' only tells where EOF
+     is. This last entry is present in all dir.ff I checked. */
   {
     char *output_file = NULL;
     int i = 0;
@@ -131,13 +140,13 @@ void ffextract(char *filename)
 	remaining = subfiles[i+1].offset - subfiles[i].offset;
 	while (remaining > 0)
 	  {
-	    if ((fread(buffer, BUFSIZ, 1, fin)) != 1)
+	    if ((fread(buffer, IMIN(BUFSIZ, remaining), 1, fin)) != 1)
 	      if (feof(fin))
 		{
-		  printf("Error: subfile offset is beyond end of file");
+		  fprintf(stderr, "%s: subfile offset is beyond end of file.\n", filename);
 		  break;
 		}
-	    fwrite(buffer, BUFSIZ, 1, fout);
+	    fwrite(buffer, IMIN(BUFSIZ, remaining), 1, fout);
 	    remaining -= BUFSIZ;
 	    /* printf("  pos = %d\n", cur_offset); */
 	  }
@@ -203,7 +212,7 @@ void ffrextract(void)
 	  continue;
 	}
 
-      printf("Entering %s\n", namelist[i]->d_name);
+      DEBUG("Entering %s\n", namelist[i]->d_name);
       ffrextract();
       if (chdir("..") < 0)
 	{
