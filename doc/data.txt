@@ -1,0 +1,231 @@
+Data from the original game commonly needed by D-Mods
+=====================================================
+
+Now that we have a working portable game engine, it would make sense
+to distribute it along with all data necessary to run D-Mods.
+
+Such a pack already exists: it's a repackaging of v1.06 made by Dan
+Walma and approved by Seth A. Robinson:
+http://files.dinknetwork.com/dinksmallwood106.zip
+
+However, it's not free (as in freedom), thus it cannot be included in
+GNU/Linux distributions. Apparently, Seth want to keep control over
+Dink Smallwood: the character, the story, etc., which is why this data
+will probably stay non-free.
+
+The graphics pack, though, was released under a pretty lax license
+(free for D-Mods and freeware games). A compromise would be to extend
+this to a subset of the Dink Smallwood original story. This subset
+would not cover the original Dink Smallwood story, but would cover
+files commonly required by D-Mods.
+
+This way, FreeDink would ship with a free base data pack that could be
+included in distros and could run any D-Mod out of the box.
+
+We could also imagine creating a very small pack containing the
+missing non-free story files, so that people could easily play the
+original game after installing FreeDink.
+
+
+Graphics differences
+--------------------
+
+(between dinkgraphics.zip and an extraction of all dir.ff files)
+
+dinkgraphics.zip is free for everybody to use in "FREEWARE"
+games. This is a good candidate for the base data pack. However, it is
+not complete because it has a few differences with the original Dink
+graphics.
+
+
+Method for the comparison:
+
+- extraction of dir.ff files using utils/ffrextract.c
+
+- all filenames to lowercase using lc_dmod.sh (from old SDL port)
+
+- diff -r dinkgraphics/ 106/dink/graphics/
+
+
+Results:
+
+- graphics/effects/magic: the original game's end boss animation
+  (poseXX.bmp and sethXwXX.bmp) are not present in dinkgraphics. These
+  graphics are used in some D-Mods such as End of Time v2.
+
+- item-w22.bmp and item-w23.bmp (herb boots graphics) are missing in
+  dinkgraphics.
+
+- graphics/items/food/food-31.bmp (King Daniel!) is missing in
+  dinkgraphics.
+
+- lands/trees/treefire/tree-f17.bmp is somewhat corrupted in
+  dinkgraphics (about 4 rows of pixels are postponed 2 pixels to the
+  right, which looks ugly). Same for struct/castle/castl-03.bmp,
+  struct/castle/castl-08.bmp, struct/castle/castl-09.bmp,
+  struct/home/home-06.bmp, struct/home/home-09.bmp
+
+- inter/text-box/main-01.bmp is different (there's an additional white
+  area in dinkgraphics, which was probably removed later on to make
+  the text easier to read)
+
+
+Other differences that do not matter:
+
+- dink/morph: dinkgraphics is not properly numbered so it can't be
+  used directly as a sequence), but all the animation frames are the
+  same. dinkgraphics also has an extra frame (dinkm17.bmp)! Mystery
+  Island did copy this animation in their graphics/ directory rather
+  reuse it from the original graphics anyway.
+
+- there's a top-level dir.ff that contains a copy of
+  inter\text-box\main-
+
+
+Note: there was no change to graphics/ in v1.07 and v1.08, so this
+comparison is valid for those versions too.
+
+
+Tiles
+-----
+
+All tiles from the original games were reused in various D-Mods. It
+would be good to be able to redistribute them all.
+
+
+Scripts
+-------
+
+At first glance, here is the list of all DinkC files that may be used
+in D-Mods (as opposed to: "related to the original Dink Smallwood
+story itself").
+
+Those are good candidates for the base data pack.
+
+1gold.c
+apotion.c
+bar-dp.c
+bar-e.c
+bar-f1.c
+bar-gh.c
+bar-m.c
+bar-sh.c
+bar-sp.c
+box1-e.c
+box2-e.c
+box2-sp.c
+bpotion.c
+button6.c
+ch1-ap.c
+ch1-g.c
+ch1-gh.c
+ch1-mp.c
+ch1-pap.c
+ch1-sp.c
+ch2-500.c
+ch2-ap.c
+ch2-gh.c
+ch2-sfb.c
+ch3-ap.c
+ch3-h.c
+dam-a1.c
+dam-bom2.c
+dam-bom.c
+dam-bomn.c
+dam-fire.c
+dam-ice.c
+dam-icee.c
+dam-sfb.c
+ddie5.c
+die5.c
+die.c
+dinfo.c
+duck.c
+emake.c
+en-bonc1.c
+en-bonc.c
+en-boncd.c
+en-bong.c
+en-drag.c
+en-gh.c
+en-gmog.c
+en-gs.c
+en-pbon.c
+en-pill1.c
+en-pill2.c
+en-pill.c
+en-pillf.c
+en-slay.c
+en-slimb.c
+en-slim.c
+en-slimg.c
+en-stg.c
+escape.c
+fire.c
+fish1.c
+get-fb.c
+get-sfb.c
+gheart.c
+gold200.c
+gold500.c
+heart.c
+item-axe.c
+item-b1.c
+item-b2.c
+item-b3.c
+item-bom.c
+item-bt.c
+item-eli.c
+item-fb.c
+item-fst.c
+item-ice.c
+item-nut.c
+item-p1.c
+item-pig.c
+item-sfb.c
+item-sw1.c
+item-sw2.c
+item-sw3.c
+lgold.c
+lraise.c
+mag-star.c
+main.c
+make.c
+mgold.c
+papgold.c
+ppotion.c
+rpotion.c
+s1-fount.c
+s1-ntree.c
+s1-nut.c
+s1-sack.c
+s1-slim.c
+s3-ch1.c
+savebot.c
+savetop.c
+sc-drag.c
+sc-lock.c
+sc-pill.c
+sc-slay.c
+sfood.c
+sgold.c
+sheart.c
+shrink.c
+sparkle.c
+start-2.c
+start-4.c
+start.c
+thorn.c
+xlgold.c
+
+
+Sounds
+------
+
+All sounds and music from the original games (except for the
+commercial CD audio tracks) were reused in various D-Mods. It would be
+good to be able to redistribute them all.
+
+In addition, freedinkedit.exe (from version 1.06) contains 2 embedded
+sounds that were extracted and shipped with FreeDink - they need legal
+clarification.
