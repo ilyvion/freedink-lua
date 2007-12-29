@@ -1763,12 +1763,12 @@ void load_info(void)
   char *fullpath = NULL;
 
   fullpath = paths_dmodfile("dink.dat");
-  fp = fopen(ciconvert(fullpath), "rb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "rb");
   if (!fp)
     {
       //fclose(fp);
-      free(fullpath);
-      fp = fopen(ciconvert(fullpath), "wb");
+      fp = fopen(fullpath, "wb");
       //make new data file
       strcpy(map.name, "Smallwood");
       fwrite(&map,sizeof(struct map_info),1,fp);

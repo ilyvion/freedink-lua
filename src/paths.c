@@ -158,7 +158,9 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 		fprintf(stderr, "- %s\n", dir_graphics_ci);
 	      }
 	  }
-	fprintf(stderr, "It should contain 'dink/graphics/' and 'dink/tiles/' directories (as well as D-Mods).\n");
+	fprintf(stderr, "The reference directory contains among others the "
+		"'dink/graphics/' and 'dink/tiles/' directories (as well as "
+		"D-Mods).\n");
 	exit(1);
       }
   }
@@ -170,15 +172,21 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 
   /** dmoddir (e.g. "/usr/share/freedink/island") **/
   {
-    if (dmoddir_opt == NULL)
-      dmoddir_opt = "dink";
-    if (is_directory(dmoddir_opt))
+    if (dmoddir_opt != NULL && is_directory(dmoddir_opt))
       {
+	/* Use path given on the command line, either a full path or a
+	   path relative to the current directory. */
+	/* Note: don't search for "dink" in the default dir if no
+	   '-game' option was given */
 	dmoddir = strdup(dmoddir_opt);
       }
     else
       {
-	dmoddir = malloc(strlen(refdir) + 1 + strlen(dmoddir_opt) + 1);
+	/* Use path given on the command line, relative to $refdir */
+	char *subdir = dmoddir_opt;
+	if (subdir == NULL)
+	  subdir = "dink";
+	dmoddir = malloc(strlen(refdir) + 1 + strlen(subdir) + 1);
 	strcpy(dmoddir, refdir);
 	strcat(dmoddir, "/");
 	strcat(dmoddir, dmoddir_opt);
