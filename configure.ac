@@ -91,7 +91,7 @@ gl_INIT
 
 
 # BinReloc, if not cross-compiling (tests do not check for cross-compilation)
-if test x"$host" = x"$build"; then
+if test "$cross_compiling" = "no"; then
 AM_BINRELOC
 fi
 
@@ -117,10 +117,43 @@ fi
 
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
-AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN(You need to install SDL_ttf); LACK_LIBSDL_TTF=1)
+AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN([You need to install SDL_ttf]); LACK_LIBSDL_TTF=1)
 AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
-# TODO: check that SDL_ttf is 2.0.9 minimum (TTF_BOLD_STYLE fix)
+
+# Check that SDL_ttf is 2.0.9 minimum (TTF_BOLD_STYLE fix)
+AC_MSG_CHECKING([SDL_ttf version >= 2.0.9])
+AC_RUN_IFELSE(
+  [AC_LANG_PROGRAM(
+    [
+#include "SDL.h"
+#include "SDL_ttf.h"
+    ],
+    [[
+SDL_version *link_version;
+link_version = TTF_Linked_Version();
+if (link_version->major < 2)
+{
+   return 1;
+}
+else if (link_version->major == 2)
+{
+  /* if (link_version->minor >= 0) */
+  if (link_version->patch < 9)
+    return 1;
+  return 0;
+}
+else
+{
+  /* major > 2 */
+  return 0;
+}
+    ]])],
+    [AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no]); AC_MSG_WARN([Your version of SDL_ttf is too old (need >= 2.0.9)]); LACK_LIBSDL_TTF=1],
+    [AC_MSG_RESULT([yes (cross-compiling; assumed OK...)])]
+)
+
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
@@ -128,6 +161,7 @@ AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer
 # not present here for some reason). Also sdl-config lacks a
 # --cppflags switch so we use SDL_CFLAGS.
 # http://lists.gnu.org/archive/html/bug-gnulib/2007-10/msg00157.html
+# http://lists.gnu.org/archive/html/bug-gnulib/2007-12/msg00149.html
 old_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
 AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
@@ -184,7 +218,7 @@ if test "$LACK_LIBSDL_GFX" = 1; then
    error=1
 fi
 if test "$LACK_LIBSDL_TTF" = 1; then
-   echo "* You need to install the SDL_ttf library";
+   echo "* You need to install the SDL_ttf library, version >= 2.0.9";
    error=1
 fi
 if test "$LACK_LIBSDL_IMAGE" = 1; then
