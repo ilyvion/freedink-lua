@@ -129,23 +129,16 @@ static TTF_Font *load_default_font(char *filename) {
  * Change the current dialog font (DinkC initfont() command)
  */
 int initfont(char* fontname) {
-  /* TODO: lf.lfWeight = 600; */
-  /* TODO: Load from Woe's system font dir if not found in the current
-     directory */
-
-  if (dialog_font != NULL) {
-    TTF_CloseFont(dialog_font);
-    dialog_font = NULL;
-  }
+  TTF_Font *new_font = NULL;
 
   /* Font from DMod directory */
-  if (dialog_font == NULL)
+  if (new_font == NULL)
     {
-      dialog_font = TTF_OpenFont(fontname, FONT_SIZE);
+      new_font = TTF_OpenFont(fontname, FONT_SIZE);
     }
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-  if (dialog_font == NULL)
+  if (new_font == NULL)
     {
       /* Look in system fonts dir */
       char *path = malloc(MAX_PATH + 1 + strlen(fontname) + 1);
@@ -153,14 +146,18 @@ int initfont(char* fontname) {
       SHGetSpecialFolderPath(NULL, path, CSIDL_FONTS, 0);
       strcat(path, "\\");
       strcat(path, fontname);
-      dialog_font = TTF_OpenFont(path, FONT_SIZE);
+      new_font = TTF_OpenFont(path, FONT_SIZE);
     }
 #endif
 
-  if (dialog_font == NULL) {
+  if (new_font == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());
     return -1;
   }
+
+  /* new_font could be loaded - we can free the previous one */
+  TTF_CloseFont(dialog_font);
+  dialog_font = new_font;
 
   setup_font(dialog_font);
 
