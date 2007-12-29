@@ -1,18 +1,24 @@
 The goal is to embed the SDL window in an existing application. Think
 Windinkedit...
 
+
 Solutions
 ---------
 
-- Avoid the problem: MDI instead of SDI (think Gimp)
+- Manually copy from non-window SDL_Surface to the GUI toolkit:
+  http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062881.html
+  http://code.technoplaza.net/wx-sdl/part1/ (not SetVideoMode(), so maybe issues like above)
+- MDI instead of SDI (think Gimp) - though the double events loop may
+  cause troubles such as
+  http://mail.python.org/pipermail/python-list/2006-July/391859.html
 - "SDL_WINDOWID hack":
   - Gtk+: http://gtksdl.sourceforge.net/
     Update: http://gtk.developpez.com/faq/?page=gtksdl
-    Troubles: http://www.developpez.net/forums/showthread.php?t=202660
+    Woe issues: http://www.developpez.net/forums/showthread.php?t=202660
+    PyGame + PyGtk: http://sparcs.kaist.ac.kr/~tinuviel/devel/gtksdl.py
+                    http://osdir.com/ml/python.pygame/2003-01/msg00107.html
   - gtkmm: http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062896.html
   - Qt: http://doc.qtfr.org/post/2007/02/21/Integration-de-SDL
-- Manually copy from non-window SDL_Surface to the GUI toolkit:
-  http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062881.html
 
 
 putenv or SDL_putenv?
