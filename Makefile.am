@@ -10,6 +10,6 @@ EXTRA_DIST = bootstrap debian doc test utils
 dist-hook:
 	find $(distdir) -name '*~' | xargs -r rm -f
 #	At the end of each line (doubled $), add a \r, so we get \r\n
-	cd $(distdir) && sed 's/$$/'`echo \\\r`'/' README > README.txt
+	cd $(distdir) && sed 's/$$/\r/' README > README.txt
 	make -C $(distdir)/test/sdl clean
 	make -C $(distdir)/autopackage -f Makefile.autopackage
