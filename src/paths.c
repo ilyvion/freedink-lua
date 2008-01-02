@@ -189,11 +189,12 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 	dmoddir = malloc(strlen(refdir) + 1 + strlen(subdir) + 1);
 	strcpy(dmoddir, refdir);
 	strcat(dmoddir, "/");
-	strcat(dmoddir, dmoddir_opt);
+	strcat(dmoddir, subdir);
 	if (!is_directory(dmoddir))
 	  {
-	    fprintf(stderr, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", dmoddir_opt);
-	    fprintf(stderr, "- ./%s\n", dmoddir_opt);
+	    fprintf(stderr, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", subdir);
+	    if (dmoddir_opt != NULL)
+	      fprintf(stderr, "- ./%s\n", dmoddir_opt);
 	    fprintf(stderr, "- %s (refdir is '%s')\n", dmoddir, refdir);
 	    exit(1);
 	  }
@@ -208,7 +209,7 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       {
 	free(dmodname);
 	char *canonical_dmoddir = canonicalize_file_name(dmoddir);
-	dmodname = basename(canonical_dmoddir);
+	dmodname = base_name(canonical_dmoddir);
 	free(canonical_dmoddir);
       }
   }
