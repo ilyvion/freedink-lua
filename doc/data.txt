@@ -223,9 +223,168 @@ Sounds
 ------
 
 All sounds and music from the original games (except for the
-commercial CD audio tracks) were reused in various D-Mods. It would be
-good to be able to redistribute them all.
+commercial CD audio tracks) were reused in various D-Mods.
 
 In addition, freedinkedit.exe (from version 1.06) contains 2 embedded
 sounds that were extracted and shipped with FreeDink - they need legal
 clarification.
+
+There's the status, after a discussion with Seth A. Robinson.
+
+Unfortunately, most of the sounds effects are not redistributable. We
+should replace them.
+
+Some MIDIs were made by Seth. Other midis have unclear legal status
+and should not be redistributed - or we need to find their original
+source again.
+
+Duplicates:
+- 4.mid, Battle.mid [battle with soldiers]
+- 6.mid, 18.mid [end boss theme]
+- 10.mid, 107.mid, Caveexpl.mid [cave]
+
+Summary of internal MIDI comments (obtained using TiMidity++):
+
+1003.mid
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+100.mid
+Sequence: Wanderjam
+
+101.mid
+Sequence: Wander 3
+Track name: Memorymoog 4
+
+102.mid
+Sequence: Tavern2
+Track name: Big PWM
+
+103.mid
+Sequence: Neighbor
+
+104.mid
+Text: Serenade
+Text: Composer:  Franz Schubert
+Text: Sequence:  Faren Raborn (June, 1995)
+Text: Email:  raborn@mail.dtx-bbs.com
+# domain name stolen ^^^^^^^^^^^^^^^^
+
+105.mid
+Playing 105.mid
+MIDI file: 105.mid
+Track name: Rêverie by
+Track name: Claude Debussy
+Track name: Sequence by
+Track name: Faren Raborn
+Track name: June, 1995
+Source (not exactly the same instruments though):
+http://www.classicalmidiconnection.com/cmc/impress.html
+http://www.classicalmidiconnection.com/cgibin/x.cgi/mid/debussy/deb_rev.mid
+No mail information in http://www.midiworld.com/contributors.htm
+No author entry for the other "Rêverie" MIDI's author (Gary D. Lloyd)
+
+106.mid
+Track name: Mendelssohn 
+Track name: Concerto for Violin
+Track name: Opus64- a - Allegro mol. apass.
+Track name: Midi by:
+Track name: B.Fisher
+Source (not exactly the same instruments though):
+"Violin Concerto in E-, Op.64 - 1.Allegro molto appassionato"
+http://www.classicalarchives.com/mendelssohn.html
+http://www.classicalarchives.com/m/8/menop64a.mid
+No mail from http://www.classicalarchives.com/c.html
+
+10.mid
+Sequence: Cave Exploring
+
+11.mid
+Sequence: In my dream
+Sequence: In my dream
+Copyright: The Honest LoveThe Honest LoveThe Honest LoveThe Honest Love
+
+12.mid
+Sequence: winter...from?
+Text: - System Mode Setg
+
+13.mid
+Sequence: untitled
+Text: Sanae Oda
+
+16.mid
+Sequence: Favorite
+
+18.mid
+Sequence: tukiyo.mid
+Copyright: Composed by Y-Asano
+
+1.mid
+Sequence: AVE MARIA    
+Copyright: (C)1994 Roland Corporation
+(Bach/Gounod version)
+
+2.mid
+Sequence: untitled
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+4.mid
+Sequence: battle
+
+5.mid
+Format: 0  Tracks: 1  Divisions: 480
+Text: Oda Sanae
+
+6.mid
+Sequence: tukiyo.mid
+Copyright: Composed by Y-Asano
+
+7.mid
+
+9.mid
+Sequence: Mixed
+
+Bullythe.mid
+Playing Bullythe.mid
+MIDI file: Bullythe.mid
+Sequence: Bully Theme
+Track name: Dreamers
+
+dance.mid
+Sequence: untitled
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+denube.mid
+The Blue Danube / On the Beautiful Blue Danube
+An der schönen blauen Donau op. 314
+
+insper.mid
+Sequence: untitled
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+lively.mid
+Sequence: Lively
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+love.mid
+Sequence: untitled
+Copyright: Copyright © 1997 by Seth A. Robinson
+Text: Seth A. Robinson
+
+lovin.mid
+Sequence: Lovin' / GACHOPIN
+Copyright: Copyright(c)1997,GACHOPIN All Rights Reserved.
+http://sound.jp/gachopin/en/
+http://sound.jp/gachopin/music/lovin-e.html
+http://sound.jp/gachopin/midi/midplug/lovin_mp.mid
+gachos@gmail.com ICQ:21807998
+
+neighbor.mid
+Sequence: Neighbor
+
+Wanderer.mid
+Sequence: wanderer
