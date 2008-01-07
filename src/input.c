@@ -48,6 +48,19 @@ int keypressed(void)
 
 void input_init(void)
 {
+  /* Clear keyboard buffer */
+  {
+    int x, u, x1;
+    for (x = 0; x < 256; x++)
+      GetKeyboard(x);
+	
+    for (u = 1; u <= 10; u++)
+      play.button[u] = u;
+    
+    for (x1 = 1; x1 <= 10; x1++) 
+      sjoy.letgo[x1] = /*TRUE*/1;
+  }
+
   /* JOY */
   /* Joystick initialization never makes Dink fail for now. */
   /* Note: joystick is originaly only used by the game, not the

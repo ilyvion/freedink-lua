@@ -52,6 +52,16 @@
 #include "init.h"
 #include "freedink_xpm.h"
 
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#define WIN32_LEAN_AND_MEAN
+/* MessageBox */
+#include <windows.h>
+#else
+/* fork, waitpid, execlp */
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
 
 /**
  * Prints the version on the standard ouput. Based on the homonymous
@@ -236,13 +246,35 @@ void finiObjects()
 	paths_quit();
 } /* finiObjects */
 
-/*
+/**
  * This function is called if the initialization function fails
  */
-int initFail(char mess[200])
+int initFail(char *message)
 {
-  /* MessageBox( hwnd, mess, TITLE, MB_OK); */
-  fprintf(stderr, "%s\n", mess);
+  fprintf(stderr, "%s\n", message);
+
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+  MessageBox(hwnd, message, PACKAGE_NAME, MB_OK);
+#else
+  pid_t pid = 0;
+  if ((pid = fork()) < 0)
+    perror("fork");
+  else if (pid == 0)
+    {
+      /* child */
+      if (execlp("xmessage", "xmessage", message, NULL) < 0)
+	perror("execlp");
+      exit(EXIT_FAILURE);
+    }
+  else
+    {
+      /* father */
+      pid_t child_pid = pid;
+      int status = 0;
+      waitpid(child_pid, &status, 0);
+    }
+#endif
+
   finiObjects();
   return 0; /* used when "return initFail(...);" */
 }
