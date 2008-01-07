@@ -73,16 +73,15 @@ killcd()
 int
 PlayCD(int cd_track)
 {
+  Mix_HaltMusic();
+
   last_cd_track = cd_track;
-  
-  /* TODO: stopmidi()? */
-  playMIDIFile("");
 
   /* Play track #cd_track */
-  if(CD_INDRIVE(SDL_CDStatus(cdrom)))
+  if (CD_INDRIVE(SDL_CDStatus(cdrom)))
     return SDL_CDPlayTracks(cdrom, cd_track - 1, 0, 1, 0);
-
-  return -1;
+  else
+    return -1;
 } 
 
 
@@ -99,29 +98,37 @@ int something_playing(void)
   return Mix_PlayingMusic();
 }
 
+
+/**
+ * Clean-up music when it's finished or manually halted
+ */
+static void callback_HookMusicFinished()
+{
+  if (music_data != NULL)
+    Mix_FreeMusic (music_data);
+}
+
 /**
  * Thing to play the midi
  */
-/* TODO: midi_filename can be empty, check that */
-int
+static int
 playMIDIFile(char *midi_filename)
 { 
   char tmp_filename[PATH_MAX];
   /* Stop whatever is playing before we play something else. */
   Mix_HaltMusic ();
-  if (music_data != NULL)
-    Mix_FreeMusic (music_data);
   
   /* Load the file */
-  music_data = Mix_LoadMUS(ciconvertbuf(midi_filename, tmp_filename));
-  if (music_data == NULL)
+  if ((music_data = Mix_LoadMUS(ciconvertbuf(midi_filename, tmp_filename))) == NULL)
     {
       Msg("Unable to play '%s': %s", midi_filename, Mix_GetError());
       return 0;
     }
 
   /* Play it */
+  Mix_HookMusicFinished(callback_HookMusicFinished);
   Mix_PlayMusic (music_data, 1);
+
   return 0;
 } 
 
@@ -179,7 +186,8 @@ int PlayMidi(char *sFileName)
 /**
  * Pause midi file if we're not already paused
  */
-// TODO: test when this is used, and whether is works
+/* TODO: should be used when player hits 'n' or alt+'n' - but I never
+   got it to work in the original game */
 int PauseMidi()
 {
   Mix_PauseMusic();
@@ -189,7 +197,8 @@ int PauseMidi()
 /**
  * Resumes playing of a midi file
  */
-// TODO: test when this is used, and whether is works
+/* TODO: should be used when player hits 'b' or alt+'b' - but I never
+   got it to work in the original game */
 int
 ResumeMidi()
 {
@@ -203,21 +212,10 @@ ResumeMidi()
  */
 // TODO: rename *Midi to *BGM (BackGround Music) - we may support
 // background .ogg's in the future
+// DinkC binding: stopmidi()
 int StopMidi()
 {
-  Mix_HaltMusic();
-  return 1;
-}
-
-/**
- * Replays a midi file (as of 2005-09-24, only works MOD, OGG, MP3 and
- * native MIDI). Restart from the beginning of the file without
- * stopping.
- */
-// UNUSED
-int ReplayMidi()
-{
-  Mix_RewindMusic();
+  Mix_HaltMusic(); // return always 0
   return 1;
 }
 
@@ -301,13 +299,11 @@ void bgm_init(void)
 
 void bgm_quit(void)
 {
-  Mix_HaltMusic ();
+  Mix_HaltMusic();
   Msg("Shutting down CD stuff.");
   killcd();
   if (last_midi != NULL)
     free(last_midi);
-  if (music_data != NULL)
-    Mix_FreeMusic (music_data);
   if (cdrom != NULL)
     SDL_CDClose(cdrom);
   SDL_QuitSubSystem(SDL_INIT_CDROM);

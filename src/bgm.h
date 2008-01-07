@@ -7,7 +7,6 @@ extern int cdplaying();
 extern int killcd();
 extern int PlayCD(int cd_track);
 extern int something_playing(void);
-extern int playMIDIFile(char *midi_filename);
 extern int PlayMidi(char *sFileName);
 extern int PauseMidi();
 extern int ResumeMidi();
