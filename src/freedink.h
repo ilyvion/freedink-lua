@@ -60,8 +60,6 @@ extern void people_brain(int h);
 extern void pig_brain(int h);
 extern void pill_brain(int h);
 extern void repeat_brain(int h);
-/* extern HRESULT restoreAll( void ); */
-void restoreAll(void); 
 extern void run_through_tag_list(int h, int strength);
 extern /*bool*/int run_through_tag_list_talk(int h);
 extern void run_through_touch_damage_list(int h);

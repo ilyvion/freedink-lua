@@ -495,7 +495,7 @@ extern /*bool*/int cd_inserted;
 extern /*BOOL*/int joystick;
 /* extern JOYINFOEX jinfo; */
 extern SDL_Joystick *jinfo;
-extern struct wait_for_button wait;
+extern struct wait_for_button wait4b;
 
 /* Game state */
 extern /*bool*/int add_time_to_saved_game(int num);

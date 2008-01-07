@@ -2,7 +2,7 @@
  * FreeDink game-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2003, 2004, 2005, 2007  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2005, 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -21,39 +21,16 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-
-#define NAME "GNU FreeDink"
-#define TITLE "GNU FreeDink"
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "progname.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* for unlink(): */
-/* #include <io.h> */
-
-/* for _O_RDWR, _O_CREAT, _S_IREAD... : */
-#include <fcntl.h>
-
 /* for time(): */
 #include <time.h>
-
-/* TODO: if we follow the autoconf way, I guess we'd need some
-   HAVE_GETMODULEFILENAME or something */
-#ifdef _WIN32
-/* GetModuleFileName */
-#include <windows.h>
-#endif
-
-/* For GetStockBrush */
-/* #include <windowsx.h> */
-/* #include <ddraw.h> */
-/* #include "ddutil.h" */
 
 #include "fastfile.h"
 
@@ -77,7 +54,6 @@
 int fps_average;
 
 
-/*BOOL*/int initFail(char mess[200]);
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(rect box, int color);
 void run_through_tag_list_push(int h);
@@ -89,11 +65,7 @@ int hurt_thing(int h, int damage, int special);
 
 int but_timer;
 
-//const NUM_SOUND_EFFECTS = 10;
 int fps_show = 0;
-
-//idirectsound
-/* LPDIRECTDRAWCLIPPER lpClipper; */
 
 
 int drawthistime = /*true*/1;
@@ -106,8 +78,6 @@ int winoffsetx = 5;
 int cx;
 int cy;
 int speed;
-
-
 
 
 /* Fills 'struct seth_joy sjoy' with the current keyboard and/or
@@ -246,14 +216,14 @@ void check_joystick(void)
     sjoy.downold = /*true*/1;
   
   
-  if (wait.active)
+  if (wait4b.active)
     {
       //check for dirs
       
-      if (sjoy.rightd) wait.button = 16;
-      if (sjoy.leftd) wait.button = 14;
-      if (sjoy.upd) wait.button = 18;
-      if (sjoy.downd) wait.button = 12;
+      if (sjoy.rightd) wait4b.button = 16;
+      if (sjoy.leftd) wait4b.button = 14;
+      if (sjoy.upd) wait4b.button = 18;
+      if (sjoy.downd) wait4b.button = 12;
       
       sjoy.rightd = /*false*/0;
       sjoy.downd = /*false*/0;
@@ -268,25 +238,20 @@ void check_joystick(void)
 	    if (sjoy.button[ll])
 	      {
 		//button was pressed
-	      wait.button = ll;
+	      wait4b.button = ll;
 	      }
 	    sjoy.button[ll] = /*false*/0;
 	  }
       }
       
-      if (wait.button != 0)
+      if (wait4b.button != 0)
 	{
-	  *presult = wait.button;
-	  wait.active = /*false*/0;
-	  run_script(wait.script);
+	  *presult = wait4b.button;
+	  wait4b.active = /*false*/0;
+	  run_script(wait4b.script);
 	}
     }
 }
-
-
-/*
-* This function is called if the initialization function fails
-*/
 
 
 /* Get sprite #h, grab its text and display it */
@@ -441,71 +406,6 @@ void text_draw(int h)
 	       print_text_wrap(cr, &rcRect, 1, 0, FONT_DIALOG);
 	     }
 }
-
-
-
-
-
-
-
-
-/*
-* restoreAll
-*
-* restore all lost objects
-*/
-void restoreAll( void )
-{
-	
-    
-	
-/* 	HRESULT     ddrval; */
-	
-	
-	
-/* 	ddrval = lpDDSPrimary->Restore(); */
-/*     if( ddrval == DD_OK ) */
-/*     { */
-		
-/* 		ddrval = lpDDSTwo->Restore(); */
-		
-/* 		ddrval = lpDDSTrick->Restore(); */
-/*         ddrval = lpDDSTrick2->Restore(); */
-		
-		
-/* 		/\*for (int h=1; h < tile_screens; h++) */
-/* 		{ */
-/* 		ddrval = tiles[h]->Restore(); */
-		
-/* 		  if( ddrval == DD_OK ) */
-/* 		  { */
-/* 		  if (h < 10) strcpy(crap1,"0"); else strcpy(crap1, ""); */
-/* 		  sprintf(crap, "TILES\\TS%s%d.BMP",crap1,h); */
-		  
-/* 			//		sprintf(crap, "TS%d.BMP",h); */
-/* 			DDReLoadBitmap(tiles[h], crap);  */
-/* 			Msg("Loading tile %d",h);  */
-/* 			} */
-/* 			} */
-/* 		*\/ */
-/* 		Msg("Done with reloading tile set.");  */
-/* 		//reload_batch(); */
-/* 		Msg("Have all sprites.");  */
-		
-/* 		//draw_map(); */
-/* 		Msg("Drew map.");  */
-/* 		if (mode > 2) */
-/* 		{ */
-/* 			draw_map_game_background(); */
-/* 			draw_status_all(); */
-/* 		} */
-/* 	} */
-	
-/* 	return ddrval; */
-	
-	
-} /* restoreAll */
-
 
 
 void get_last_sprite(void)
@@ -3911,80 +3811,20 @@ void draw_box(rect box, int color)
 	
 void flip_it(void)
 {
-/*   DDBLTFX     ddbltfx; */
-  
-/*   RECT rcRectSrc;    RECT rcRectDest; */
-/*   POINT p; */
-  
-  /*int timer = GetTickCount() + 50;
-    while(GetTickCount() < timer)
+  /* We work directly on either lpDDSBack (no lpDDSPrimary as in
+     the original game): the double buffer (Back) is directly
+     managed by SDL; SDL_Flip is used to refresh the physical
+     screen. */
+  if (trigger_palette_change)
     {
+      // Apply the logical palette to the physical screen. This
+      // may trigger a Flip (so don't do that until Back is
+      // read), but not necessarily (so do a Flip anyway).
+      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
+		     cur_screen_palette, 0, 256);
+      trigger_palette_change = 0;
     }
-  */
-  
-/*   if (!windowed) */
-/*     { */
-/*       while( 1 ) */
-/* 	{ */
-/* 	  ddrval = lpDDSPrimary->Flip(NULL,DDFLIP_WAIT ); */
-/* 	  if( ddrval == DD_OK ) */
-/* 	    { */
-/* 	      break; */
-/* 	    } */
-/* 	  if( ddrval == DDERR_SURFACELOST ) */
-/* 	    { */
-	      
-/* 	      restoreAll(); */
-/* 	      if( ddrval != DD_OK ) */
-/* 		{ */
-/* 		  break; */
-/* 		} */
-/* 	    } */
-/* 	  if( ddrval != DDERR_WASSTILLDRAWING ) */
-/* 	    { */
-/* 	      // Nope */
-/* 	    } */
-/* 	} */
-/*       // GFX: the windowed code below will also work in full-screen */
-/*       // mode */
-/*     } */
-/*   else */
-/*     { */
-/*       //windowed mode, DX, no flipping */
-/*       p.x = 0; p.y = 0;     */
-/*       ClientToScreen(hWndMain, &p); */
-/*       GetClientRect(hWndMain, &rcRectDest); */
-      
-/*       //rcRectDest.top += winoffset; */
-/*       rcRectDest.bottom = 480; */
-/*       rcRectDest.right = 640; */
-      
-/*       OffsetRect(&rcRectDest, p.x, p.y); */
-/*       SetRect(&rcRectSrc, 0, 0, 640, 480); */
-      
-/*       ddbltfx.dwSize = sizeof(ddbltfx); */
-      
-/*       ddbltfx.dwDDFX = DDBLTFX_NOTEARING; */
-/*       ddrval = lpDDSPrimary->Blt( &rcRectDest, lpDDSBack, &rcRectSrc, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
-
-  // GFX
-  {
-    /* We work directly on either lpDDSBack (no lpDDSPrimary as in
-       the original game): the double buffer (Back) is directly
-       managed by SDL; SDL_Flip is used to refresh the physical
-       screen. */
-    if (trigger_palette_change)
-      {
-	// Apply the logical palette to the physical screen. This
-	// may trigger a Flip (so don't do that until Back is
-	// read), but not necessarily (so do a Flip anyway).
-	SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
-		       cur_screen_palette, 0, 256);
-	trigger_palette_change = 0;
-      }
-    SDL_Flip(GFX_lpDDSBack);
-  }
-/*     } */
+  SDL_Flip(GFX_lpDDSBack);
 }
 
 
@@ -5433,368 +5273,74 @@ void drawscreenlock( void )
 }
 
 
-/* long */
-/* FAR PASCAL WindowProc(HWND hWnd, UINT message,  */
-/* 		      WPARAM wParam, LPARAM lParam) */
-/* { */
-/*   switch (message) */
-/*     { */
-/*     case WM_ACTIVATEAPP: */
-/*       bActive = wParam; */
-/*       break; */
-		
-/*     case WM_SETCURSOR: */
-/*       SetCursor(NULL); */
-/*       return TRUE; */
-		
-/*     case WM_CREATE: */
-/*       break; */
-
-/*     case WM_IMDONE: */
-/*       Msg("Sending quit message."); */
-/*       PostQuitMessage(0); */
-/*       break; */
-		
-/* /\*    case WM_KEYDOWN: */
-/*       //cycle through keys */
-/*       switch (wParam) */
-/* 	{ */
-/* 	case VK_F4: */
-/* 	  { */
-/* 	    process_downcycle = true; */
-/* 	    cycle_clock = thisTickCount; */
-/* 	  } */
-/* 	  break; */
-/* 	} */
-/*       break; */
-/* *\/ */
-/*     } */
-  
-/*   /\* Default Windows processing *\/ */
-/*   return DefWindowProc(hWnd, message, wParam, lParam); */
-/* } */
- 
-
-
 /**
  * doInit - do work required for every instance of the application:
  *                create the window, initialize data
  */
 static int doInit(int argc, char *argv[])
 {
-/*   HWND                hwnd; */
-/*   //    HRESULT             dsrval; */
-/*   // BOOL                bUseDSound; */
-/*   WNDCLASS            wc; */
-/*   DDSURFACEDESC       ddsd; */
-/*   DDSCAPS             ddscaps; */
-/*   HRESULT             ddrval; */
-/*   RECT                rcRect; */
-  
-  
-/*   char crap[30]; */
-/*   char crap1[10]; */
   char *fullpath = NULL;
-	
-/*   RECT rcRectSrc;    RECT rcRectDest; */
-/*   POINT p; */
-
-
-/*   /\* */
-/*    * set up and register window class */
-/*    *\/ */
-/*   wc.style = CS_HREDRAW | CS_VREDRAW; */
-/*   wc.lpfnWndProc = WindowProc; */
-/*   wc.cbClsExtra = 0; */
-/*   wc.cbWndExtra = 0; */
-/*   wc.hInstance = hInstance; */
-/*   wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) ); */
-/*   wc.hCursor = LoadCursor( NULL, IDC_ARROW ); */
-/*   wc.hbrBackground = GetStockBrush(BLACK_BRUSH); */
-/*   wc.lpszMenuName = NAME; */
-/*   wc.lpszClassName = NAME; */
-/*   RegisterClass( &wc ); */
-
-  /*
-   * create a window
-   */
-  windowed = /*false*/0;
-  //	hWndMain = hwnd;   
   
-  if (windowed)
-    {
-/*       hwnd = CreateWindowEx(0, */
-/* 			    NAME, */
-/* 			    TITLE, */
-/* 			    //        WS_POPUP, */
-/* 			    WS_SYSMENU|WS_CAPTION, */
-/* 			    0, */
-/* 			    0, */
-/* 			    640+winoffsetx, 480+winoffset, */
-/* 			    //        GetSystemMetrics(SM_CXSCREEN), */
-/* 			    //      GetSystemMetrics(SM_CYSCREEN), */
-/* 			    NULL, */
-/* 			    NULL, */
-/* 			    hInstance, */
-/* 			    NULL); */
-/*       hWndMain = hwnd; */
-		
-/*       if (!hwnd) */
-/* 	return 0; */
-      
-/*       ShowWindow(hwnd, nCmdShow); */
-/*       UpdateWindow(hwnd); */
-/*       SetFocus(hwnd); */
-
-/*       /\* */
-/*        * create the main DirectDraw object */
-/*        *\/ */
-/*       ddrval = DirectDrawCreate(NULL, &lpDD, NULL); */
-/*       if (ddrval != DD_OK) */
-/* 	return initFail(hwnd, "Couldn't use DirectX 8+...  Install it first."); */
-		
-/*       // Get exclusive mode */
-/*       // using DDSCL_NORMAL means we will coexist with GDI */
-/*       ddrval = lpDD->SetCooperativeLevel(hwnd, DDSCL_NORMAL); */
-		
-/*       if (ddrval != DD_OK) */
-/* 	{         */
-/* 	  lpDD->Release();  */
-/* 	  return initFail(hwnd, "Couldn't make windowed screen."); */
-/* 	} */
-
-/*       memset(&ddsd, 0, sizeof(ddsd)); */
-/*       ddsd.dwSize = sizeof( ddsd ); */
-/*       ddsd.dwFlags = DDSD_CAPS; */
-/*       ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE; */
-		
-/*       // The primary surface is not a page flipping surface this time */
-/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL); */
-/*       // GFX: done in init.cpp */
-      
-/*       if( ddrval != DD_OK )     */
-/* 	{ */
-/* 	  lpDD->Release();   */
-/* 	  return initFail(hwnd, "Couldn't make primary surface."); */
-/* 	}  */
-		
-/*       memset(&ddsd, 0, sizeof(ddsd));  */
-/*       ddsd.dwSize = sizeof(ddsd); */
-/*       ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH; */
-/*       ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;  */
-/*       ddsd.dwWidth = 640; */
-/*       ddsd.dwHeight = 480; // create the backbuffer separately */
-/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSBack, NULL); */
-/*       if (ddrval != DD_OK) */
-/* 	{ */
-/* 	  lpClipper-> Release(); */
-/* 	  lpDDSPrimary->Release();     */
-/* 	  lpDD->Release();  */
-/* 	  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode."); */
-/* 	} */
-		
-/*       // Create a clipper to ensure that our drawing stays inside our window */
-/*       ddrval = lpDD->CreateClipper(0, &lpClipper, NULL); */
-/*       if( ddrval != DD_OK )    */
-/* 	{       */
-/* 	  lpDDSPrimary->Release(); */
-/* 	  lpDD->Release();   */
-/* 	  return initFail(hwnd, "Couldn't make a Clipper object, god knows why."); */
-/* 	} */
-      
-/*       // setting it to our hwnd gives the clipper the coordinates from our window */
-/*       ddrval = lpClipper->SetHWnd( 0, hwnd );    */
-/*       if( ddrval != DD_OK )   */
-/* 	{ */
-/* 	  lpClipper-> Release();    */
-/* 	  lpDDSPrimary->Release(); */
-/* 	  lpDD->Release();      */
-/* 	  return initFail(hwnd, "Couldn't give Clipper window cords."); */
-/* 	} */
-
-/*       // attach the clipper to the primary surface */
-/*       ddrval = lpDDSPrimary->SetClipper(lpClipper);  */
-/*       if( ddrval != DD_OK ) */
-/* 	{   */
-/* 	  lpClipper-> Release();    */
-/* 	  lpDDSPrimary->Release(); */
-/* 	  lpDD->Release();     */
-/* 	  return initFail(hwnd, "Couldn't attach Clipper to primary buffer."); */
-/* 	} */
-    }
-  
-  if (!windowed)
-    {
-/*       hwnd = CreateWindowEx(0, */
-/* 			    NAME, */
-/* 			    TITLE, */
-/* 			    WS_POPUP , */
-/* 			    //WS_SYSMENU|WS_CAPTION, */
-/* 			    0, */
-/* 			    0, */
-/* 			    640, 480, */
-/* 			    //        GetSystemMetrics(SM_CXSCREEN), */
-/* 			    //      GetSystemMetrics(SM_CYSCREEN), */
-/* 			    NULL, */
-/* 			    NULL, */
-/* 			    hInstance, */
-/* 			    NULL); */
-/*       hWndMain = hwnd; */
-		
-/*       if(!hwnd) */
-/* 	return FALSE; */
-		
-/*       ShowWindow(hwnd, nCmdShow); */
-/*       UpdateWindow(hwnd); */
-/*       SetFocus(hwnd); */
-      
-/*       /\* */
-/*        * create the main DirectDraw object */
-/*        *\/ */
-/*       ddrval = DirectDrawCreate(NULL, &lpDD, NULL); */
-/*       if( ddrval != DD_OK ) */
-/* 	return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
-      
-/*       // Get exclusive mode */
-/*       ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN ); */
-
-/*       if( ddrval != DD_OK ) */
-/* 	return initFail(hwnd, "SetCooperative level failed."); */
-
-/*       // Set the video mode to 640x480x8 */
-/*       ddrval = lpDD->SetDisplayMode( x, y, 8); */
-/*       // finiObjects();  	 */
-/*       //	return false; */
-      
-/*       if(ddrval != DD_OK) */
-/* 	return initFail(hwnd, "640 X 480, 8 bit not supported."); */
-
-/*       ZeroMemory(&hm, sizeof(hit_map)); */
-	
-/*       // Create the primary surface with 1 back buffer */
-/*       ddsd.dwSize = sizeof( ddsd ); */
-/*       ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; */
-/*       ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | */
-/* 	DDSCAPS_FLIP | */
-/* 	DDSCAPS_COMPLEX; */
-		
-/*       ddsd.dwBackBufferCount = 1; */
-/*       ddrval = lpDD->CreateSurface(&ddsd, &lpDDSPrimary, NULL); */
-/*       // GFX: not done yet, that's full-screen mode */
-/*       if( ddrval != DD_OK ) */
-/* 	return initFail(hwnd, "Could not create primary surface."); */
-      
-/*       ddscaps.dwCaps = DDSCAPS_BACKBUFFER; */
-		
-/*       ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack); */
-/*       // GFX: not done yet, that's full-screen mode */
-/*       if( ddrval != DD_OK ) */
-/* 	return initFail(hwnd, "Could not create backbuffer,"); */
-      
-    }
-
-
   /* New initialization */
   if (init(argc, argv) == 0)
-    {
-      exit(1);
-    }
-	
-  //init is finished, now lets load some more junk
-
-/*   if (lpDDPal) */
-/*     { */
-/*       lpDDSPrimary->SetPalette(lpDDPal); */
-/*     } */
-/*   if(lpDDPal->GetEntries(0, 0, 256, real_pal) != DD_OK) */
-/*     Msg("error with getting entries in beginning"); */
-	
-
-  /* Better set the palette when actually loading the BMP - commented
-     out */
-  /*
-  // Load the splash screen
-  // The palette will be overwritten later on
-  if (exist("tiles/splash.bmp"))
-    lpDDPal = DDLoadPalette(lpDD, "tiles/SPLASH.BMP");
-  else
-    lpDDPal = DDLoadPalette(lpDD, "../dink/tiles/SPLASH.BMP");	
-  if (lpDDPal)
-    lpDDSPrimary->SetPalette(lpDDPal);
-  */
-
+    exit(1);
 
   /* Create and set the reference palette */
   if (load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal) < 0)
     return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
 
-
-  // Load the tiles from the BMPs
+  /* Load the tiles from the BMPs */
   tiles_load();
 
- 
   srand((unsigned)time(NULL));
-	
-  // Sets the default palette for the screen
-/*   if (lpDDPal) */
-/*     { */
-      // Disabled: already done:
-      //lpDDSPrimary->SetPalette(lpDDPal);
 
-      /* Initialize graphic buffers */
-      /* When a new image is loaded in DX, it's color-converted using
-	 the main palette (possibly altering the colors to match the
-	 palette); currently we emulate that by wrapping SDL_LoadBMP,
+  /* Initialize graphic buffers */
+  /* When a new image is loaded in DX, it's color-converted using
+     the main palette (possibly altering the colors to match the
+     palette); currently we emulate that by wrapping SDL_LoadBMP,
 	 converting image to the internal palette at load time - and
 	 we never change the buffer's palette again, so we're sure
 	 there isn't any conversion even if we change the screen
 	 palette: */
-      SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
-
-      char *base_bmp = "tiles/splash.bmp";
-      fullpath = paths_dmodfile(base_bmp);
-      if (!exist(fullpath))
-	{
-	  free(fullpath);
-	  fullpath = paths_fallbackfile(base_bmp);
-	}
-      
-      GFX_lpDDSTwo = load_bmp(fullpath);
-      GFX_lpDDSTrick = load_bmp(fullpath);
-      GFX_lpDDSTrick2 = load_bmp(fullpath);
-      free(fullpath);
-
-      if (GFX_lpDDSTwo == NULL)
-	{
-	  return initFail("Cannot load base graphics splash.bmp\n");
-	}
-
-      /* Copy splash screen to the screen during loading time */
-      SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-
-      // GFX
-      /* Physical palette (the one we can change to make visual effects) */
-      change_screen_palette(GFX_real_pal);
-/*     } */
+  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
-  /* Display splash screen */
-/*   rcRect.left = 0; */
-/*   rcRect.top = 0; */
-/*   rcRect.right = x; */
-/*   rcRect.bottom = y; */
-/*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTwo, */
-/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
+  char *base_bmp = "tiles/splash.bmp";
+  fullpath = paths_dmodfile(base_bmp);
+  if (!exist(fullpath))
+    {
+      free(fullpath);
+      fullpath = paths_fallbackfile(base_bmp);
+    }
+  
+  GFX_lpDDSTwo = load_bmp(fullpath);
+  GFX_lpDDSTrick = load_bmp(fullpath);
+  GFX_lpDDSTrick2 = load_bmp(fullpath);
+  free(fullpath);
+  
+  if (GFX_lpDDSTwo == NULL)
+    {
+      return initFail("Cannot load base graphics splash.bmp\n");
+    }
+  
+  /* Copy splash screen to the screen during loading time */
+  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+  
+  /* Physical palette (the one we can change to make visual effects) */
+  change_screen_palette(GFX_real_pal);
   flip_it();
 
   if (cd_inserted)
     PlayCD(7);
 	
   //dinks normal walk
-  Msg("loading batch");
+  Msg("Loading batch...");
   load_batch();
-  Msg("done loading batch");
+  Msg(" done!");
   
+  Msg("Loading hard...");
   load_hard();
+  Msg(" done!");
+
 
   //Activate dink, but don't really turn him on
   //spr[1].active = TRUE;
@@ -5811,19 +5357,6 @@ static int doInit(int argc, char *argv[])
   mode = 0;
     
   load_info();
-
-  //clear keyboard buffer
-  {
-    int x, u, x1;
-    for (x = 0; x < 256; x++)
-      GetKeyboard(x);
-	
-    for (u = 1; u <= 10; u++)
-      play.button[u] = u;
-    
-    for (x1 = 1; x1 <= 10; x1++) 
-      sjoy.letgo[x1] = /*TRUE*/1;
-  }
 
   //lets run our init script
   int script = load_script("main", 0, /*true*/1);

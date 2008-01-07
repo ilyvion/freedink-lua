@@ -139,7 +139,7 @@ struct show_bmp showb;
 
 int keep_mouse = 0;
 
-struct wait_for_button wait;
+struct wait_for_button wait4b;
 
 
 
@@ -7062,7 +7062,7 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                wait.active = /*false*/0;
+                                wait4b.active = /*false*/0;
                                 show_bmp(slist[0], nlist[1], nlist[2], script);
                         }
 
@@ -7076,15 +7076,15 @@ pass:
                         Msg("waiting for button with script %d", script);
                         h = &h[strlen(ev[1])];
                         strcpy_nooverlap(s, h);
-                        wait.script = script;
-                        wait.active = /*true*/1;
-                        wait.button = 0;
+                        wait4b.script = script;
+                        wait4b.active = /*true*/1;
+                        wait4b.button = 0;
                         return(2);
                 }
 
                 if (compare(ev[1], "stop_wait_for_button"))
                 {
-                        wait.active = /*false*/0;
+                        wait4b.active = /*false*/0;
 
                         return(0);
                 }
