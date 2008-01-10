@@ -92,6 +92,9 @@ Tiles
 All tiles from the original games were reused in various D-Mods. It
 would be good to be able to redistribute them all.
 
+Tiles also depend on HARD.DAT for the default tile hardness, so this
+file is also necessary.
+
 
 Scripts
 -------
