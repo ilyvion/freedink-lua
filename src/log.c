@@ -21,11 +21,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "io_util.h"
+#include "paths.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "io_util.h"
-#include "paths.h"
 
 char last_debug[200];
 /*bool*/int debug_mode = /*false*/0;

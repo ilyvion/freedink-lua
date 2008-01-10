@@ -25,11 +25,12 @@
 #include <config.h>
 #endif
 
-#include <string.h>
 /* CD functions */
 #include "SDL.h"
 /* MIDI functions */
 #include "SDL_mixer.h"
+
+#include <string.h>
 
 #include "dinkvar.h"
 #include "bgm.h"

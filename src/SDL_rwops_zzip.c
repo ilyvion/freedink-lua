@@ -9,12 +9,13 @@
 #include <config.h>
 #endif
 
+#include "SDL_rwops_zzip.h"
+#include <SDL_rwops.h>
+
 /* Order headers appropriately:
    http://lists.gnu.org/archive/html/bug-gnulib/2007-12/msg00152.html */
 #include <string.h> /* strchr */
 #include <zzip/zzip.h>
-#include <SDL_rwops.h>
-#include "SDL_rwops_zzip.h"
 
 /* MSVC can not take a casted variable as an lvalue ! */
 #define SDL_RWOPS_ZZIP_DATA(_context) \

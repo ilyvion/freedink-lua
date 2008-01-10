@@ -20,9 +20,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
 #include "SDL.h"
 #include "SDL_image.h"
+
+#include <string.h>
+
 #include "io_util.h"
 #include "gfx.h"
 #include "gfx_utils.h"
