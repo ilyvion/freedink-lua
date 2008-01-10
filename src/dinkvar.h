@@ -62,13 +62,13 @@ struct attackinfo_struct
 
 struct map_info
 {
-	char name[20];
-	int loc[769];
-	int music[769];
-	int indoor[769];
-	int v[40];
-	char s[80];
-	char buffer[2000];
+  char name[20];
+  int loc[769];
+  int music[769];
+  int indoor[769];
+  int v[40];         // unused
+  char s[80];        // unused
+  char buffer[2000]; // unused
 	
 };
 

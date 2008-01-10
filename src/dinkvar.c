@@ -1252,7 +1252,7 @@ void fix_dead_sprites( void )
 
 
 /**
- * Load map.dat that contains all 768 game screens
+ * Load 1 screen from map.dat, which contains all 768 game screens
  */
 void load_map(const int num)
 {
