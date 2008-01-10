@@ -24,6 +24,10 @@
 #include <config.h>
 #endif
 
+#include "io_util.h"
+#include "paths.h"
+
+
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0401
@@ -46,9 +50,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "io_util.h"
-#include "paths.h"
-
 static char* pkgdatadir = NULL;
 static char* exedir = NULL;
 static char* fallbackdir = NULL;
@@ -67,8 +68,8 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       char *datadir_binreloc, *default_data_dir;
       
       /* First, ask relocable-prog */
-      /* copy to avoid "comparison with string literal" */
-      default_data_dir = strdup(DEFAULT_DATA_DIR);
+      /* Put in a variable to avoid "comparison with string literal" */
+      default_data_dir = DEFAULT_DATA_DIR;
       datadir_relocatable = relocate(default_data_dir);
       
       /* Then ask binreloc - it handles ../share even if CWD != "bin"
@@ -79,7 +80,6 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       /* Free relocable-prog's path, if necessary */
       if (datadir_relocatable != default_data_dir)
 	free((char *)datadir_relocatable);
-      free(default_data_dir);
       
       /* Binreloc always return a newly allocated string, with either the
 	 built directory, or a copy of its argument */
