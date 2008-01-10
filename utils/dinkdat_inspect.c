@@ -29,7 +29,7 @@ int main(void)
   /*  - 768 signed integers, describing the screen music number */
   /* - 1 dummy integer */
   /*  - 768 signed integers, describing the screen indoor status (yes/no) */
-  /* - And then, unused blank data (2480 bytes) */
+  /* - And then, unused blank data (2240 bytes) */
   FILE *f = fopen("DINK.DAT", "rb");
   fseek(f, 24, SEEK_SET);
   for (int i = 0; i < 768; i++)
