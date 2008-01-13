@@ -89,41 +89,11 @@ contemplate fixing .dmods to make them back valid Tar+BZip2 files
 without data loss.
 
 
-It would be interesting to know whether such corrupted Tar files can
-be detected at extraction time - and fixed. This means we could
-release a fixed version of DFArc, and Dinkers could submit proper
-.tar.bz2 as .dmod files without worrying about whether they'll be
-extractable with DFArc.
-
-
-The DFArc extractor actually does have troubles with extracting files
-it generated. However it seems more foregiving than GNU Tar. When
+The DFArc extractor also have troubles with extracting files it
+generated. However it seems more foregiving than GNU Tar. When
 properly fixed to work under GNU/Linux, DFArc15 will produce weird
 '\377' one-letter files each time GNU Tar would warn about "Skipping
-to next header". The v1.08 RC5 indeed mentions:
-
-* DFArc 2: When installing a D-Mod containing a file with a size of 0
-  KB, DFArc 2 would get rather confused. It would create a file or
-  folder called 'ÿ', and stop installing the D-Mod (such as with
-  several D-Mods like Chaos, Bane of the Magi, and Mayhem). This issue
-  has been fixed.
-
-And v1.08 RC6:
-
-* DFArc2: Properly fixed bugs related to D-Mods not extracting
-  properly if they contained files without any content.
-
-
-Incidentally RC5 also mentions:
-
-* DFArc 2: When installing a D-Mod, DFArc would report a false error
-  if the D-Mod had a folder with no files (just other folders) in it
-  (such as in Terrania). It no longer reports an error.
-
-Other DFArc2 notes appears to relate to the front-end part.
-
-As we can see the extractor was fixed to cope with the archiver's
-issues, instead of directly fixing the archiver.
+to next header".
 
 
 Technical sum-up of the incompatibilities:
@@ -159,3 +129,31 @@ Technical sum-up of the incompatibilities:
   warning, and DFArc creates 'ÿ' files.
 
 This should be fixable in existing archives, at first glance.
+
+
+
+DFArc2 has a "Package" button that is not enabled by default. It
+contains improved source code that fixes these issues.
+
+The v1.08 RC5 indeed mentions:
+
+* DFArc 2: When installing a D-Mod containing a file with a size of 0
+  KB, DFArc 2 would get rather confused. It would create a file or
+  folder called 'ÿ', and stop installing the D-Mod (such as with
+  several D-Mods like Chaos, Bane of the Magi, and Mayhem). This issue
+  has been fixed.
+
+And v1.08 RC6:
+
+* DFArc2: Properly fixed bugs related to D-Mods not extracting
+  properly if they contained files without any content.
+
+
+Incidentally RC5 also mentions:
+
+* DFArc 2: When installing a D-Mod, DFArc would report a false error
+  if the D-Mod had a folder with no files (just other folders) in it
+  (such as in Terrania). It no longer reports an error.
+
+While there's no note about it, DFArc2 also properly add the 'end of
+archive' entry.
