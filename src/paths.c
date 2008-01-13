@@ -57,44 +57,51 @@ static char* dmoddir = NULL;
 static char* dmodname = NULL;
 static char* userappdir = NULL;
 
-void paths_init(char *refdir_opt, char *dmoddir_opt)
+void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 {
+  char *datadir = NULL;
+  char *refdir = NULL;
+
+  /* relocatable_prog */
+  set_program_name(argv0);
+  printf("Hi, I'm '%s'\n", get_full_program_name());
+
+  /** datadir (e.g. "/usr/share") **/
+  {
+    const char *datadir_relocatable;
+    char *datadir_binreloc, *default_data_dir;
+    
+    /* First, ask relocable-prog */
+    /* Put in a variable to avoid "comparison with string literal" */
+    default_data_dir = DEFAULT_DATA_DIR;
+    datadir_relocatable = relocate(default_data_dir);
+    
+    /* Then ask binreloc - it handles ../share even if CWD != "bin"
+       (e.g. "src"). However it's not as precise and portable ($PATH
+       lookup, etc.). */
+    BrInitError error;
+    if (br_init(&error) == 0 && error != BR_INIT_ERROR_DISABLED)
+      {
+	printf("Warning: BinReloc failed to initialize (error code %d)\n", error);
+	datadir_binreloc = strdup(datadir_relocatable);
+      }
+    else
+      {
+	datadir_binreloc = br_find_data_dir(datadir_relocatable);
+      }
+      
+    /* Free relocable-prog's path, if necessary */
+    if (datadir_relocatable != default_data_dir)
+      free((char *)datadir_relocatable);
+    
+    /* BinReloc always return a newly allocated string, with either the
+       built directory, or a copy of its argument */
+    datadir = datadir_binreloc;
+  }
+  
   /** pkgdatadir (e.g. "/usr/share/freedink") **/
   {
-    /** datadir (e.g. "/usr/share") **/
-    char *datadir;
-    {
-      const char *datadir_relocatable;
-      char *datadir_binreloc, *default_data_dir;
-      
-      /* First, ask relocable-prog */
-      /* Put in a variable to avoid "comparison with string literal" */
-      default_data_dir = DEFAULT_DATA_DIR;
-      datadir_relocatable = relocate(default_data_dir);
-      
-      /* Then ask binreloc - it handles ../share even if CWD != "bin"
-	 (e.g. "src"). However it's not as precise and portable ($PATH
-	 lookup, etc.). */
-      datadir_binreloc = br_find_data_dir(datadir_relocatable);
-      
-      /* Free relocable-prog's path, if necessary */
-      if (datadir_relocatable != default_data_dir)
-	free((char *)datadir_relocatable);
-      
-      /* Binreloc always return a newly allocated string, with either the
-	 built directory, or a copy of its argument */
-      datadir = datadir_binreloc;
-    }
-    
-    /** => pkgdatadir **/
     pkgdatadir = br_build_path(datadir, PACKAGE);
-    free(datadir);
-    if (!is_directory(pkgdatadir))
-      {
-	/* Fallback to compile-time datadir */
-	free(pkgdatadir);
-	pkgdatadir = br_build_path(DEFAULT_DATA_DIR, PACKAGE);
-      }
   }
 
   /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
@@ -102,12 +109,12 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
     exedir = dir_name(get_full_program_name());
   }
 
-  /** refdir **/
-  char *refdir;
+  /** refdir  (e.g. "/usr/share/dink") **/
   {
     /** => refdir **/
     char* match = NULL;
-    char* lookup[4];
+    int nb_dirs = 6;
+    char** lookup = malloc(sizeof(char*) * nb_dirs);
     int i = 0;
     if (refdir_opt == NULL)
       lookup[0] = NULL;
@@ -115,15 +122,22 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       lookup[0] = refdir_opt;
     lookup[1] = ".";
     lookup[2] = exedir;
-    lookup[3] = pkgdatadir;
 
-    for (; i < 4; i++)
+    char *default1 = NULL, *default2 = NULL, *default3 = NULL;
+    default1 = br_build_path(datadir, "dink");
+    default2 = "/usr/local/share/dink";
+    default3 = "/usr/share/dink";
+    lookup[3] = default1;
+    lookup[4] = default2;
+    lookup[5] = default3;
+
+    for (; i < nb_dirs; i++)
       {
-	char *dir_graphics_ci, *dir_tiles_ci;
+	char *dir_graphics_ci = NULL, *dir_tiles_ci = NULL;
 	if (lookup[i] == NULL)
 	  continue;
-	dir_graphics_ci = br_strcat(lookup[i], "/dink/graphics");
-	dir_tiles_ci = br_strcat(lookup[i], "/dink/tiles");
+	dir_graphics_ci = br_build_path(lookup[i], "dink/graphics");
+	dir_tiles_ci = br_build_path(lookup[i], "dink/tiles");
 	ciconvert(dir_graphics_ci);
 	ciconvert(dir_tiles_ci);
 	if (is_directory(dir_graphics_ci) && is_directory(dir_tiles_ci))
@@ -144,12 +158,15 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 	    break;
       }
     refdir = match;
-
-    if (refdir == NULL)
+    if (refdir != NULL)
+      {
+	refdir = strdup(refdir);
+      }
+    else
       {
 	fprintf(stderr, "Error: cannot find reference directory (--refdir). I looked in:\n");
 	int i = 0;
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < nb_dirs; i++)
 	  {
 	    if (lookup[i] != NULL)
 	      {
@@ -163,14 +180,17 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 		"D-Mods).\n");
 	exit(1);
       }
+
+    free(default1);
   }
 
-  /** fallbackdir (e.g. "/usr/share/freedink/dink") **/
+  /** fallbackdir (e.g. "/usr/share/dink/dink") **/
+  /* (directory used when a file cannot be found in a D-Mod) */
   {
     fallbackdir = br_strcat(refdir, "/dink");
   }
 
-  /** dmoddir (e.g. "/usr/share/freedink/island") **/
+  /** dmoddir (e.g. "/usr/share/dink/island") **/
   {
     if (dmoddir_opt != NULL && is_directory(dmoddir_opt))
       {
@@ -202,7 +222,7 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
   }
 
   /** dmodname (e.g. "island") **/
-  /* Used to save games in ~/.freedink/<dmod>/... */
+  /* Used to save games in ~/.dink/<dmod>/... */
   {
     dmodname = base_name(dmoddir);
     if (strcmp(dmodname, ".") == 0)
@@ -214,7 +234,7 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
       }
   }
 
-  /** userappdir (e.g. "~/.freedink") **/
+  /** userappdir (e.g. "~/.dink") **/
   {
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
     userappdir = malloc(MAX_PATH);
@@ -229,15 +249,19 @@ void paths_init(char *refdir_opt, char *dmoddir_opt)
 #else
     strcat(userappdir, ".");
 #endif
-    strcat(userappdir, PACKAGE);
+    strcat(userappdir, "dink");
   }
 
-  printf("refdir = %s\n", refdir);
   printf("exedir = %s\n", exedir);
+  printf("datadir = %s\n", datadir);
   printf("pkgdatadir = %s\n", pkgdatadir);
+  printf("refdir = %s\n", refdir);
   printf("dmoddir = %s\n", dmoddir);
   printf("dmodname = %s\n", dmodname);
   printf("userappdir = %s\n", userappdir);
+
+  free(datadir);
+  free(refdir);
 }
 
 
@@ -312,7 +336,7 @@ FILE *paths_savegame_fopen(int num, char *mode)
   ciconvert(fullpath_in_dmoddir);
   
 
-  /* Try ~/.freedink (if present) when reading - but don't try that
+  /* Try ~/.dink (if present) when reading - but don't try that
      first when writing */
   if (strchr(mode, 'r') != NULL)
     fp = fopen(fullpath_in_userappdir, mode);
@@ -321,7 +345,7 @@ FILE *paths_savegame_fopen(int num, char *mode)
   if (fp == NULL)
     fp = fopen(fullpath_in_dmoddir, mode);
 
-  /* Then try in ~/.freedink */
+  /* Then try in ~/.dink */
   if (fp == NULL)
     fp = fopen(fullpath_in_userappdir, mode);
 

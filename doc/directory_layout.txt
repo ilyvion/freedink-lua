@@ -36,8 +36,10 @@ DMod => C:\Dink Smallwood\dmod\
 Dink => DMod\..\dink\
 Resources (window icon, Dinkedit sounds)
   => embedded resource
-.ini => C:\GetWindowsDirectory()\dinksmallwood.ini
-Saved games => DMod/bin/freedink
+.ini
+  => [DFArc2: Registry]
+  => C:\GetWindowsDirectory()\dinksmallwood.ini
+Saved games => DMod
 
 Determined at runtime (search path):
 Font => DMod
@@ -55,22 +57,24 @@ FreeDink (all platforms)
 Layout:
 /usr/bin/freedink
 /usr/share/freedink/LiberationSans-Regular.ttf
-/usr/share/freedink/dink/Map.dat
-/usr/share/freedink/dink/Graphics/
-/usr/share/freedink/dink/Story/
-/usr/share/freedink/dink/Sound/
-/usr/share/freedink/dink/Tiles/
-/usr/share/freedink/island/Story/
-/usr/share/freedink/island/Tiles/
+/usr/share/dink/dink/Map.dat
+/usr/share/dink/dink/Graphics/
+/usr/share/dink/dink/Story/
+/usr/share/dink/dink/Sound/
+/usr/share/dink/dink/Tiles/
+/usr/share/dink/island/Story/
+/usr/share/dink/island/Tiles/
 
 Determined once on startup:
-pkgdatadir = $exedir/../share/freedink/ # binreloc
-	   (test: -d)
-	   FALLBACK $default_data_dir/freedink/
+datadir = $exedir/../share/ # binreloc
+	|| $default_data_dir/freedink/ # binreloc failed
+pkgdatadir = $datadir/freedink
 refdir = -refdir # error if !-d
 	|| ./
 	|| $exedir
-	|| $pkgdatadir
+	|| $datadir/dink
+	|| /usr/local/share/dink
+	|| /usr/share/dink
 	(test: -d $refdir/dink/Graphics -a -d $refdir/dink/Tiles)
 DMod = -game
      || $refdir/$game/
@@ -83,13 +87,13 @@ Resources (LiberationSans-Regular.ttf, vgasys.fon, stop.wav, jump.wav)
   || $pkgdatadir
 Font = DMod
      || C:\Windows\Fonts\ || (? /usr/share/fonts/truetype/**/*.ttf)
-.ini = $binreloc/etc/dinksmallwood.ini || C:\GetWindowsDirectory()\dinksmallwood.ini
-     || /etc/dinksmallwood.ini .ini
-     || ~/.freedink/dinksmallwood.ini
-Write saved games => ~/.freedink/basename($game)/savegame%d.dat # if -e
+.ini = ~/.dink/dinksmallwood.ini || Registry
+     || $binreloc/etc/dinksmallwood.ini
+     || /etc/dinksmallwood.ini .ini || C:\GetWindowsDirectory()\dinksmallwood.ini
+Write saved games => ~/.dink/basename($game)/savegame%d.dat # if -e
       	    	  || DMod/savegame%d.dat
-      	    	  FALLBACK ~/.freedink/basename($game)/save%d.dat
-Read saved games => ~/.freedink/basename($game)/save%d.dat
+      	    	  FALLBACK ~/.dink/basename($game)/save%d.dat
+Read saved games => ~/.dink/basename($game)/save%d.dat
      	   	 => DMod
 
 
@@ -97,7 +101,7 @@ Use cases:
 ~$ freedink -game dmods/island
 DMod => ~/dmods/island/
 Dink => ~/dink/ # not ~/dmods/dink/
-Dink => /usr/share/freedink/dink/
+Dink => /usr/share/dink/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
@@ -117,7 +121,7 @@ Icon => /usr/share/freedink/
 
 /mnt/woe/Program\ Files/Dink\ Smallwood$ freedink -game island
 DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/ # == ./island/
-DMod => /usr/share/freedink/island/
+DMod => /usr/share/dink/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # == ./dink/
 Dink => /usr/share/freedink/
 Icon => <freedink>
@@ -125,7 +129,7 @@ Icon => /usr/share/freedink/
 
 $ /mnt/woe/Program\ Files/Dink\ Smallwood/freedink -game island
 DMod => /mnt/woe/Program\ Files/Dink\ Smallwood/island/ # == $exedir/island/
-DMod => /usr/share/freedink/island/
+DMod => /usr/share/dink/island/
 Dink => /mnt/woe/Program\ Files/Dink\ Smallwood/dink/ # == $exedir/dink/
 Dink => /usr/share/freedink/
 Icon => <freedink>
@@ -133,17 +137,17 @@ Icon => /usr/share/freedink/
 
 ~$ freedink -refdir ~/myshare/freedink/ -game island
 DMod => ~/island/
-DMod => ~/myshare/freedink/island/
-Dink => ~/myshare/freedink/dink/
+DMod => ~/myshare/dink/island/
+Dink => ~/myshare/dink/dink/
 Icon => <freedink>
 Icon => /usr/share/freedink/
 
 ~/freedink$ ./configure && make
 ~/freedink$ src/freedink -game island
 DMod => ~/freedink/island
-DMod => ~/freedink/share/freedink/island/
+DMod => ~/freedink/share/dink/island/
 Dink => ~/freedink/dink/
-Dink => ~/freedink/share/freedink/dink/
+Dink => ~/freedink/share/dink/dink/
 Icon => <src/freedink>
 Icon => ~/freedink/share/freedink/island/
 
@@ -151,8 +155,11 @@ Icon => ~/freedink/share/freedink/island/
 ~/freedink/native$ ../configure && make
 ~/freedink/native$ src/freedink -game island
 DMod => ~/freedink/native/island
-DMod => /usr/share/freedink/island/
+DMod => /usr/share/dink/island/
 Dink => ~/freedink/native/dink/
-Dink => /usr/share/freedink/dink/
+Dink => /usr/share/dink/dink/
 Icon => <src/freedink>
 Icon => /usr/share/freedink/
+
+
+Note: in the beginning 

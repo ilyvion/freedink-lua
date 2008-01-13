@@ -352,7 +352,7 @@ static int check_arg(int argc, char *argv[])
       }
     }
   
-  paths_init(refdir_opt, dmoddir_opt);
+  paths_init(argv[0], refdir_opt, dmoddir_opt);
 
   free(refdir_opt);
   free(dmoddir_opt);
@@ -368,19 +368,6 @@ static int check_arg(int argc, char *argv[])
    subsystem as needed (eg InitSound) */
 int init(int argc, char *argv[])
 {
-  /** [Default paths] **/
-  /* relocatable_prog */
-  set_program_name(argv[0]);
-  printf("Hi, I'm '%s'\n", get_full_program_name());
-
-  /* BinReloc */
-  BrInitError error;
-  if (br_init (&error) == 0 && error != BR_INIT_ERROR_DISABLED)
-    {
-      printf ("Warning: BinReloc failed to initialize (error code %d)\n", error);
-      printf ("Will fallback to hardcoded default path.\n");
-    }
-
   if (!check_arg(argc, argv))
     return 0;
 

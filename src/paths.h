@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-  extern void paths_init(char *refdir_opt, char *dmoddir_opt);
+  extern void paths_init(char* argv0, char *refdir_opt, char *dmoddir_opt);
   extern const char *paths_dmoddir(void);
   extern const char *paths_fallbackdir(void);
   extern const char *paths_pkgdatadir(void);
