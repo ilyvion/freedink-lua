@@ -8,6 +8,10 @@ Such a pack already exists: it's a repackaging of v1.06 made by Dan
 Walma and approved by Seth A. Robinson:
 http://files.dinknetwork.com/dinksmallwood106.zip
 
+It's also possible to extract the data using the '7z' extraction tool
+from http://files.dinknetwork.com/dinksmallwood108.exe
+(see contrib/dextract for an automated extraction script)
+
 However, it's not free (as in freedom), thus it cannot be included in
 GNU/Linux distributions. Apparently, Seth want to keep control over
 Dink Smallwood: the character, the story, etc., which is why this data

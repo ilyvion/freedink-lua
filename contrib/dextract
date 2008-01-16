@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Dink Smallwood installer extractor
+# Released into the public domain by its creator,
+#     Alexander Krivács Schrøder
+#
+# Prerequisites:
+# * 7-Zip command line tool (7z) installed on system (Package called
+#   p7zip on my system)
+#
+# Parameters:
+# 1. The Dink Smallwood installer file (dinksmallwood108.exe)
+# 2. The location of the extracted files
+#
+
+# Define globals
+PACKAGENAME=$1
+DESTINATION=$2
+ORIGLOC=$(pwd)
+
+# Check if we have gotten our parameters
+if [ "x$PACKAGENAME" = "x" ] || [ "x$DESTINATION" = "x" ]; then
+	echo "Usage: $(basename $0) <installer> <output location>"
+	exit
+fi
+
+# Check if parameters are valid
+if [ ! -e $PACKAGENAME ]; then
+	echo "Error: installer does not exist"
+	exit
+fi
+
+# Create destionation folder and extract files into it
+if mkdir -p $DESTINATION; then
+	7z x $PACKAGENAME -o$DESTINATION
+	cd $DESTINATION
+
+	# Remove plugin directory from installer
+	rm -rf \$PLUGINSDIR
+
+	# Move files out of folder with odd name
+	cd \$_OUTDIR
+	mv * ..
+	cd ..
+	rm -rf \$_OUTDIR
+
+	# Remove unnecessary files
+	rm DFArc.exe dink.exe dinkedit.exe
+
+	# Return to original location
+	cd $ORIGLOC
+else
+	echo "Error: Could not create destionation folder"
+fi
