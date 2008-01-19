@@ -1,6 +1,25 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
+# Copyright (C) 2007, 2008  Sylvain Beucler
+
+# This file is part of GNU FreeDink
+
+# GNU FreeDink is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+
+# GNU FreeDink is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+ 
+
 AC_INIT([GNU FreeDink],[1.07.20071224],[beuc@beuc.net])
 AC_CONFIG_AUX_DIR(autotools)
 # For future version of aclocal:
@@ -31,8 +50,9 @@ AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 AC_CHECK_PROG(ZIP, zip, zip)
 AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
 
-AC_ARG_WITH([upx], [compress executables [[default=no]]],
-            [], [with_upx=no])
+AC_ARG_WITH([upx],
+  AS_HELP_STRING([--with-upx], [compress executables [[default=no]]]),
+  [], [with_upx=no])
 
 # Possible values for $with_upx:
 #   "yes" (--with-upx),
@@ -104,7 +124,10 @@ AC_ARG_ENABLE([static],
 if test x"$static" = x"1"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type)
-    *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
+    # Modified to accept "biplet" instead of "triplet", because at
+    # least Debian's MinGW package uses i586-mingw32msvc (instead of
+    # i586-pc-mingw32msvc)
+    *-*-go32* | *-mingw32* | *-*-cygwin* | *-*-windows*)
         LIBS="$LIBS -lfreetype -lwinmm -ldxguid -ljpeg -lz"
         LDFLAGS="$LDFLAGS -static"
         ;;

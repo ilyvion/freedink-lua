@@ -8,7 +8,6 @@ AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 # includes generated files from top_builddir (not only top_srcdir)
 AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib -I$(top_builddir)/gnulib/lib
 LDADD = $(top_builddir)/gnulib/lib/libgnu.a
-# _Not_ LIBADD...
 
 # relocatable-prog
 AM_CPPFLAGS += -DINSTALLDIR=\"$(bindir)\"
@@ -34,8 +33,8 @@ COMMON_OBJS=bgm.c bgm.h dinkvar.c dinkvar.h fastfile.c fastfile.h	\
 	gfx.h gfx_tiles.c gfx_tiles.h gfx_utils.c gfx_utils.h		\
 	gfx_fonts.c gfx_fonts.h init.c init.h rect.c rect.h input.c	\
 	input.h binreloc.c binreloc.h freedink_xpm.c freedink_xpm.h	\
-	paths.c paths.h log.c log.h gfx_sprites.c gfx_sprites.h		\
-	$(WOERES)
+	paths.c paths.h log.c log.h gfx_sprites.c gfx_sprites.h
+
 if HAVE_ZZIPLIB
 COMMON_OBJS+=SDL_rwops_zzip.c SDL_rwops_zzip.h
 endif
@@ -47,9 +46,8 @@ bin_PROGRAMS = freedink freedinkedit
 freedink_SOURCES = $(COMMON_OBJS) freedink.c freedink.h update_frame.c	\
 	update_frame.h
 freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c
-
-
-# TODO: move to post-install hook (after install-strip)
+nodist_freedink_SOURCES = $(WOERES)
+nodist_freedinkedit_SOURCES = $(WOERES)
 
 
 resdir=$(top_srcdir)/share/freedink

@@ -1,4 +1,4 @@
-Cross-compilation
+Cross-compilation # -*- shell-script -*-
 =================
 
 TODO: put all source tarballs in a directory that will be distributed
@@ -239,6 +239,7 @@ CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
   RANLIB="i586-mingw32msvc-ranlib" \
   ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
+make install
 # TODO: --shared doesn't work, it says I should not set CC - but I
 # need it for cross-compilation. Then they say we should try libtool -
 # how about using it directly then? ;)
