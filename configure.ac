@@ -19,7 +19,7 @@
 # along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
  
-
+AC_PREREQ(2.61)
 AC_INIT([GNU FreeDink],[1.07.20071224],[beuc@beuc.net])
 AC_CONFIG_AUX_DIR(autotools)
 # For future version of aclocal:

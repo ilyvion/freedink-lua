@@ -6,7 +6,9 @@ to distribute it along with all data necessary to run D-Mods.
 
 Such a pack already exists: it's a repackaging of v1.06 made by Dan
 Walma and approved by Seth A. Robinson:
-http://files.dinknetwork.com/dinksmallwood106.zip
+  wget http://files.dinknetwork.com/dinksmallwood106.zip
+  mkdir -p /usr/local/share
+  unzip -d /usr/local/share -L dinksmallwood106.zip
 
 It's also possible to extract the data using the '7z' extraction tool
 from http://files.dinknetwork.com/dinksmallwood108.exe
