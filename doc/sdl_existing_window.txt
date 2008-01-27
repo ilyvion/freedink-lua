@@ -1,45 +1,5 @@
 The goal is to embed the SDL window in an existing application. Think
 Windinkedit...
 
-
-Solutions
----------
-
-Note: I wrote an extended version of this doc at the SDL Wiki:
+I moved this doc at the SDL Wiki:
 http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20GUI
-
-- Manually copy from non-window SDL_Surface to the GUI toolkit:
-  http://code.technoplaza.net/wx-sdl/part1/
-  Note: no SetVideoMode(), so maybe issues with SDL_DisplayYUVOverlay:
-    http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062881.html
-  Note2: the code from wxWidgets hard-codes a 24bit depth with RGB
-    byte order; it won't work with another depth for your target
-    SDL_Surface.
-- MDI instead of SDI (think Gimp) - the double events loop may cause
-  troubles such as, though it seemed to work fine when I tried without
-  using SDL_Events.
-  http://mail.python.org/pipermail/python-list/2006-July/391859.html
-  Tcl/Tk demo:
-  http://www.libsdl.org/projects/tcl-demo/ (Tcl/Tk 7)
-- "SDL_WINDOWID hack":
-  - Gtk+: http://gtksdl.sourceforge.net/
-    Update: http://gtk.developpez.com/faq/?page=gtksdl
-    Woe issues: http://www.developpez.net/forums/showthread.php?t=202660
-    PyGame + PyGtk: http://sparcs.kaist.ac.kr/~tinuviel/devel/gtksdl.py
-                    http://osdir.com/ml/python.pygame/2003-01/msg00107.html
-  - gtkmm: http://lists.libsdl.org/pipermail/sdl-libsdl.org/2007-October/062896.html
-  - Qt: http://doc.qtfr.org/post/2007/02/21/Integration-de-SDL
-  - wxWidgets: http://lists.wxwidgets.org/archive/wx-users/msg81102.html
-  - Gtk 1.2: http://www.libsdl.org/projects/gtk-demo/
-
-
-putenv or SDL_putenv?
----------------------
-
-- http://lists.libsdl.org/htdig.cgi/sdl-libsdl.org/2001-August/019141.html
-
-It says that SDL_putenv is only for WinCE?
-
-- http://lists.libsdl.org/htdig.cgi/sdl-libsdl.org/2005-September/051604.html
-
-Different environment blocks?
