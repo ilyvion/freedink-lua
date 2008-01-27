@@ -102,16 +102,18 @@ Technical sum-up of the incompatibilities:
 
   (harmless, ignored by GNU Tar).
 
+  Note that DFArc2 uses GNU-style "ustar  ".
+
 - DFArc does not create entries for directories - only for files. This
   behavior can be reproduced with GNU Tar using:
 
-  $ find marco -type f | xargs tar --format=ustar -cf dmod.tar
+  $ find marco -type f | xargs tar --format=ustar -b1 -cf dmod.tar
 
   (harmless, but directories can't have permissions).
 
 - DFArc lacks the end-of-archive entry, its archives end straight
   after the last file, while
-  http://www.gnu.org/software/tar/manual/html_node/tar_134.html
+  http://www.gnu.org/software/tar/manual/tar.html#Standard
   mentions: "Physically, an archive consists of a series of file
   entries terminated by an end-of-archive entry, which consists of two
   512 blocks of zero bytes.".
