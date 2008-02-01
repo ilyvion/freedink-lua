@@ -147,8 +147,11 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 
 	if (match == NULL && i == 0)
 	  {
-	    fprintf(stderr, "Invalid refdir: %s and/or %s are not accessible.\n",
-		    dir_graphics_ci, dir_tiles_ci);
+	    char *buf = NULL;
+	    asprintf(&buf, "Invalid refdir: %s and/or %s are not accessible.\n",
+		     dir_graphics_ci, dir_tiles_ci);
+	    fprintf(stderr, buf);
+	    free(buf);
 	    exit(1);
 	  }
 

@@ -31,7 +31,7 @@
 char last_debug[200];
 /*bool*/int debug_mode = /*false*/0;
 
-void add_text(char *tex ,char *filename)
+void add_text(char *tex, char *filename)
 {
   FILE *fp;
   char *mode = NULL;
