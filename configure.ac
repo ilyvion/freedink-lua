@@ -20,7 +20,7 @@
 # <http://www.gnu.org/licenses/>.
  
 AC_PREREQ(2.61)
-AC_INIT([GNU FreeDink],[1.07.20071224],[beuc@beuc.net])
+AC_INIT([GNU FreeDink],[1.07.20071224],[bug-freedink@gnu.org])
 AC_CONFIG_AUX_DIR(autotools)
 # For future version of aclocal:
 AC_CONFIG_MACRO_DIR(autotools/macros)
