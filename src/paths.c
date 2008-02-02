@@ -26,6 +26,7 @@
 
 #include "io_util.h"
 #include "paths.h"
+#include "msgbox.h"
 
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
@@ -147,11 +148,8 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 
 	if (match == NULL && i == 0)
 	  {
-	    char *buf = NULL;
-	    asprintf(&buf, "Invalid refdir: %s and/or %s are not accessible.\n",
-		     dir_graphics_ci, dir_tiles_ci);
-	    fprintf(stderr, buf);
-	    free(buf);
+	    msgbox_init_error("Invalid refdir: %s and/or %s are not accessible.",
+			      dir_graphics_ci, dir_tiles_ci);
 	    exit(1);
 	  }
 

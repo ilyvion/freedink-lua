@@ -20,6 +20,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "SDL.h"
 #include "SDL_image.h"
 
@@ -28,6 +32,8 @@
 #include "io_util.h"
 #include "gfx.h"
 #include "gfx_utils.h"
+#include "freedink_xpm.h"
+#include "dinkvar.h" /* windowed */
 
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
@@ -96,36 +102,123 @@ SDL_Color GFX_real_pal[256];
 int trigger_palette_change = 0;
 SDL_Color cur_screen_palette[256];
 
+
+enum gfx_state
+{
+    GFX_NOT_INITIALIZED = 0,
+    GFX_INITIALIZING,
+    GFX_INITIALIZED,
+};
+
+/**
+ * Check if the graphics system is initialized, so we know if we can
+ * use it to display error messages to the user
+ */
+static enum gfx_state is_init = GFX_NOT_INITIALIZED;
+enum gfx_state gfx_is_init()
+{
+  return is_init;
+}
+
+
+/**
+ * Graphics subsystem initalization
+ */
+void gfx_init()
+{
+  /* Initialization in progress */
+  is_init = GFX_INITIALIZING;
+
+  /* Init graphics subsystem */
+  if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
+    {
+      msgbox_init_error("SDL_Init: %s\n", SDL_GetError());
+      return 0;
+    }
+
+  {
+    SDL_Surface *icon = NULL;
+    SDL_WM_SetCaption(PACKAGE_STRING, NULL);
+
+    if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
+      {
+	fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
+      }
+    else
+      {
+	SDL_WM_SetIcon(icon, NULL);
+	SDL_FreeSurface(icon);
+      }
+  }
+
+  putenv("SDL_VIDEO_CENTERED=1");
+
+  /* SDL_HWSURFACE is supposed to give direct memory access */
+  /* SDL_HWPALETTE makes sure we can use all the colors we need
+     (override system palette reserved colors?) */
+  /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
+     and is a pre-requisite for SDL_Flip to use hardware, see
+     http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
+  if (windowed)
+    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
+  else
+    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+  if (GFX_lpDDSBack == NULL)
+    {
+      fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
+      exit(1);
+    }
+  if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
+    printf("INFO: Using hardware video mode.\n");
+  else
+    printf("INFO: Not using a hardware video mode.\n");
+
+  // GFX
+  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
+  /* 				       0, 0, 0, 0); */
+
+  // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
+  // doInit()
+
+  /* Hide mouse */
+  SDL_ShowCursor(SDL_DISABLE);
+
+  /* Disable Alt-Tab and any other window-manager shortcuts */
+  /* SDL_WM_GrabInput(SDL_GRAB_ON); */
+
+  is_init = GFX_INITIALIZED;
+}
+
+
 /* Schedule a change to the physical screen's palette for the next
    frame */
-void change_screen_palette(SDL_Color* new_palette) {
-  {
-    /* Now this one is tricky: DX/Woe has a "feature" where palette
-       indexes 0 and 255 are fixed to black and white,
-       respectively. This is the opposite of the default Dink palette
-       - which is why fill_screen(0) is black and not white as in the
-       Dink palette. This also makes "Lyna's Story"'s palette change a
-       bit ugly, because pure black and white colors are not reversed
-       when you enter "negative" color mode. This does not affect
-       other indexes. Technically this happens when you get a palette
-       from GetEntries(), and when you CreatePalette() without
-       specifying DDPCAPS_ALLOW256 (so respectively, in
-       change_screen_palette() and load_palette_from_*()). But well,
-       reproducing the bug is important for backward compatibility. */
-
-    memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
-
-    cur_screen_palette[0].r = 0;
-    cur_screen_palette[0].g = 0;
-    cur_screen_palette[0].b = 0;
-    cur_screen_palette[255].r = 255;
-    cur_screen_palette[255].g = 255;
-    cur_screen_palette[255].b = 255;
-
-    /* Applying the logical palette to the physical screen may trigger
-       a Flip, so don't do it right now */
-    trigger_palette_change = 1;
-  }
+void change_screen_palette(SDL_Color* new_palette)
+{
+  /* Now this one is tricky: DX/Woe has a "feature" where palette
+     indexes 0 and 255 are fixed to black and white,
+     respectively. This is the opposite of the default Dink palette
+     - which is why fill_screen(0) is black and not white as in the
+     Dink palette. This also makes "Lyna's Story"'s palette change a
+     bit ugly, because pure black and white colors are not reversed
+     when you enter "negative" color mode. This does not affect
+     other indexes. Technically this happens when you get a palette
+     from GetEntries(), and when you CreatePalette() without
+     specifying DDPCAPS_ALLOW256 (so respectively, in
+     change_screen_palette() and load_palette_from_*()). But well,
+     reproducing the bug is important for backward compatibility. */
+  
+  memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
+  
+  cur_screen_palette[0].r = 0;
+  cur_screen_palette[0].g = 0;
+  cur_screen_palette[0].b = 0;
+  cur_screen_palette[255].r = 255;
+  cur_screen_palette[255].g = 255;
+  cur_screen_palette[255].b = 255;
+  
+  /* Applying the logical palette to the physical screen may trigger
+     a Flip, so don't do it right now */
+  trigger_palette_change = 1;
 }
 
 

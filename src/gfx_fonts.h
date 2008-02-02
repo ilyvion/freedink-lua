@@ -44,7 +44,7 @@ extern void kill_fonts(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
 extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
 
-extern void SaySmall(char thing[500], int px, int py, int r,int g,int b);
+extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void Say(char thing[500], int px, int py);
 
 /* DinkC binding */

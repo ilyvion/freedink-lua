@@ -50,18 +50,8 @@
 #include "paths.h"
 #include "log.h"
 #include "init.h"
-#include "freedink_xpm.h"
+#include "msgbox.h"
 
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-#define WIN32_LEAN_AND_MEAN
-/* MessageBox */
-#include <windows.h>
-#else
-/* fork, waitpid, execlp */
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#endif
 
 /**
  * Prints the version on the standard ouput. Based on the homonymous
@@ -251,30 +241,7 @@ void finiObjects()
  */
 int initFail(char *message)
 {
-  fprintf(stderr, "%s\n", message);
-
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-  MessageBox(hwnd, message, PACKAGE_NAME, MB_OK);
-#else
-  pid_t pid = 0;
-  if ((pid = fork()) < 0)
-    perror("fork");
-  else if (pid == 0)
-    {
-      /* child */
-      if (execlp("xmessage", "xmessage", message, NULL) < 0)
-	perror("execlp");
-      exit(EXIT_FAILURE);
-    }
-  else
-    {
-      /* father */
-      pid_t child_pid = pid;
-      int status = 0;
-      waitpid(child_pid, &status, 0);
-    }
-#endif
-
+  msgbox_init_error(message);
   finiObjects();
   return 0; /* used when "return initFail(...);" */
 }
@@ -397,70 +364,12 @@ int init(int argc, char *argv[])
       return 0;
     }
 
+
   SDL_initFramerate(&framerate_manager);
   /* The official v1.08 .exe runs 50-60 FPS in practice, despite the
      documented intent of running 83 FPS (or 12ms delay). */
   /* SDL_setFramerate(manager, 83); */
   SDL_setFramerate(&framerate_manager, 60);
-
-
-  /* TODO: move to gfx.cpp */
-  /* Init graphics subsystem */
-  if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
-    {
-      Msg("SDL_Init: %s\n", SDL_GetError());
-      return 0;
-    }
-
-  {
-    SDL_Surface *icon = NULL;
-    SDL_WM_SetCaption(PACKAGE_STRING, NULL);
-
-    if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
-      {
-	fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
-      }
-    else
-      {
-	SDL_WM_SetIcon(icon, NULL);
-	SDL_FreeSurface(icon);
-      }
-  }
-
-  putenv("SDL_VIDEO_CENTERED=1");
-
-  /* SDL_HWSURFACE is supposed to give direct memory access */
-  /* SDL_HWPALETTE makes sure we can use all the colors we need
-     (override system palette reserved colors?) */
-  /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
-     and is a pre-requisite for SDL_Flip to use hardware, see
-     http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
-  if (windowed)
-    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
-  else
-    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-  if (GFX_lpDDSBack == NULL)
-    {
-      fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
-      exit(1);
-    }
-  if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
-    printf("INFO: Using hardware video mode.\n");
-  else
-    printf("INFO: Not using a hardware video mode.\n");
-
-  // GFX
-  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
-  /* 				       0, 0, 0, 0); */
-
-  // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
-  // doInit()
-
-  /* Hide mouse */
-  SDL_ShowCursor(SDL_DISABLE);
-
-  /* Disable Alt-Tab and any other window-manager shortcuts */
-  /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
 
 
