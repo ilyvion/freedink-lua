@@ -25,6 +25,6 @@
 #define _INIT_H
 
 extern int init(int argc, char *argv[]);
-extern void init_set_error_msg(char *msg);
+extern void init_set_error_msg(char *fmt, ...);
 
 #endif

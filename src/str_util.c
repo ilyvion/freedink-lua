@@ -21,9 +21,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h> /* free */
+#include <stdio.h> /* vasprintf */
 #include "str_util.h"
 
 /**
@@ -60,4 +65,30 @@ void strcpy_nooverlap(char *dst, char* src)
   char *tmp = strdup(src);
   strcpy(dst, tmp);
   free(tmp);
+}
+
+
+/**
+ * Utility - same as asprint, but appends to the specified buffer
+ *
+ * If strp points to a NULL pointer, it allocates a new buffer that
+ * you'll have to free.
+ */
+int asprintf_append(char **strp, const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+
+  if (*strp == NULL)
+    {
+      *strp = (char*)malloc(1);
+      *strp[0] = '\0';
+    }
+
+  char *tmp = NULL;
+  int result = vasprintf(&tmp, fmt, ap);
+  *strp = realloc(*strp, strlen(*strp) + strlen(tmp) + 1);
+  strcat(*strp, tmp);
+  free(tmp);
+  return result;
 }

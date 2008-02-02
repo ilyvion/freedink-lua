@@ -38,7 +38,7 @@
 #include "paths.h"
 #include "gfx_fonts.h"
 #include "vgasys_fon.h"
-#include "msgbox.h"
+#include "init.h"
 
 
 /* Default size was 18 in the original game, but it refers to a
@@ -102,7 +102,7 @@ int gfx_fonts_init()
   /* Load dialog font from built-in resouces */
   dialog_font = load_default_font("LiberationSans-Regular.ttf");
   if (dialog_font == NULL)
-    return -1;
+    return -1; /* error message set by load_default_font */
   setup_font(dialog_font);
 
   return 0;
@@ -139,18 +139,17 @@ static TTF_Font *load_default_font(char *filename) {
   rwops = find_resource_as_rwops(filename);
   if (rwops == NULL)
     {
-      fprintf(stderr, "Could not open font '%s'. I tried:\n", filename);
-      fprintf(stderr, "- loading from executable's resources\n");
-      fprintf(stderr, "- loading from '%s'\n", paths_pkgdatadir());
-      init_set_error_msg("Cannot find default font");
+      init_set_error_msg("Could not open font '%s'. I tried:\n"
+			 "- loading from executable's resources\n"
+			 "- loading from '%s'",
+			 filename, paths_pkgdatadir());
       return NULL;
     }
 
   font_object = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
   if (font_object == NULL)
     {
-      fprintf(stderr, "Could not open font '%s': %s\n", filename, TTF_GetError());
-      init_set_error_msg("Cannot open default font");
+      init_set_error_msg("Could not open font '%s': %s", filename, TTF_GetError());
       return NULL;
     }
 

@@ -52,24 +52,31 @@ void msgbox_sdl(char* msg)
   SDL_FillRect(GFX_lpDDSBack, NULL, SDL_MapRGB(GFX_lpDDSBack->format, 100, 100, 100));
 
   {
+    int margin_h = 50;
+    int margin_v = 20;
+    rect dst = {margin_h, margin_v, 640-margin_h, margin_v+20}; /* top line */
     FONTS_SetTextColor(255, 255, 255); /* white */
-    rect dst = {100, 20, 540, 40}; /* top line */
-    print_text_wrap("Initialization error", &dst, 1, 0, FONT_SYSTEM);
+    print_text_wrap("FreeDink failed to start!", &dst, 1, 0, FONT_SYSTEM);
   }
   {
-    SDL_Rect dst2 = {99, 99, 442, 282};
+    int margin_h = 50;
+    int margin_v = 100;
+    SDL_Rect dst2 = {margin_h-1, margin_v-1, 640-(margin_h*2)+2, 480-(margin_v*2)+2};
     SDL_FillRect(GFX_lpDDSBack, &dst2, SDL_MapRGB(GFX_lpDDSBack->format, 200, 200, 200));
-    SDL_Rect dst3 = {100, 100, 440, 280};
+    SDL_Rect dst3 = {margin_h, margin_v, 640-(margin_h*2), 480-(margin_v*2)};
     SDL_FillRect(GFX_lpDDSBack, &dst3, SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
 
     /* Display error message */
+    int border = 5;
+    rect dst = {margin_h+border, margin_v+border, 640-margin_h-border, 480-margin_v-border}; /* centered with margin */
     FONTS_SetTextColor(0, 0, 0); /* black */
-    rect dst = {100, 100, 540, 380}; /* centered with 100px margin */
     print_text_wrap(msg, &dst, 0, 0, FONT_SYSTEM);
   }
   {
+    int margin_h = 50;
+    int margin_v = 20;
+    rect dst = {margin_h, 480-margin_v-20, 640-margin_h, 480-margin_v}; /* bottom line */
     FONTS_SetTextColor(255, 255, 255); /* white */
-    rect dst = {100, 440, 540, 460}; /* bottom line */
     print_text_wrap("Press ESC to exit", &dst, 1, 0, FONT_SYSTEM);
   }
 

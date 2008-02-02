@@ -54,9 +54,11 @@
 
 static char* init_error_msg = NULL;
 
-void init_set_error_msg(char *msg)
+void init_set_error_msg(char *fmt, ...)
 {
-  init_error_msg = strdup(msg);
+  va_list ap;
+  va_start(ap, fmt);
+  vasprintf(&init_error_msg, fmt, ap);
 }
 
 /**

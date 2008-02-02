@@ -51,12 +51,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "str_util.h" /* asprintf_append */
+
+
 static char* pkgdatadir = NULL;
 static char* exedir = NULL;
 static char* fallbackdir = NULL;
 static char* dmoddir = NULL;
 static char* dmodname = NULL;
 static char* userappdir = NULL;
+
 
 void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 {
@@ -165,7 +169,8 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       }
     else
       {
-	fprintf(stderr, "Error: cannot find reference directory (--refdir). I looked in:\n");
+	char *msg = NULL;
+	asprintf_append(&msg, "Error: cannot find reference directory (--refdir). I looked in:\n");
 	int i = 0;
 	for (i = 0; i < nb_dirs; i++)
 	  {
@@ -173,12 +178,14 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 	      {
 		char *dir_graphics_ci;
 		dir_graphics_ci = lookup[i];
-		fprintf(stderr, "- %s\n", dir_graphics_ci);
+		asprintf_append(&msg, "- %s\n", dir_graphics_ci);
 	      }
 	  }
-	fprintf(stderr, "The reference directory contains among others the "
+	asprintf_append(&msg, "The reference directory contains among others the "
 		"'dink/graphics/' and 'dink/tiles/' directories (as well as "
-		"D-Mods).\n");
+		"D-Mods).");
+	msgbox_init_error(msg);
+	free(msg);
 	exit(1);
       }
 
@@ -213,27 +220,12 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 	strcat(dmoddir, subdir);
 	if (!is_directory(dmoddir))
 	  {
-	    char *msg = (char*)malloc(1);
-	    msg[0] = '\0';
+	    char *msg = NULL;
 
-	    char *tmp = NULL;
-
-	    asprintf(&tmp, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", subdir);
-	    msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
-	    strcat(msg, tmp);
-	    free(tmp);
-
+	    asprintf_append(&msg, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", subdir);
 	    if (dmoddir_opt != NULL)
-	      {
-		asprintf(&tmp, "- ./%s\n", dmoddir_opt);
-		msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
-		strcat(msg, tmp);
-		free(tmp);
-	      }
-	    asprintf(&tmp, "- %s (refdir is '%s')", dmoddir, refdir);
-	    msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
-	    strcat(msg, tmp);
-	    free(tmp);
+	      asprintf_append(&msg, "- ./%s\n", dmoddir_opt);
+	    asprintf_append(&msg, "- %s (refdir is '%s')", dmoddir, refdir);
 
 	    msgbox_init_error(msg);
 	    free(msg);

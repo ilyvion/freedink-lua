@@ -36,7 +36,7 @@
 #include "gfx_tiles.h"
 #include "gfx_sprites.h"
 #include "gfx_utils.h"
-#include "msgbox.h"
+#include "init.h"
 
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
@@ -128,8 +128,8 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* Init graphics subsystem */
   if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     {
-      msgbox_init_error("Video initialization error: %s", SDL_GetError());
-      exit(1);
+      init_set_error_msg("Video initialization error: %s", SDL_GetError());
+      return -1;
     }
 
   {
@@ -161,8 +161,8 @@ int gfx_init(enum gfx_windowed_state windowed)
     GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
   if (GFX_lpDDSBack == NULL)
     {
-      fprintf(stderr, "Unable to set 640x480 video: %s\n", SDL_GetError());
-      exit(1);
+      init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
+      return -1;
     }
   if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
     printf("INFO: Using hardware video mode.\n");
@@ -192,7 +192,7 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* Fonts system, default fonts */
   init_state = GFX_INITIALIZING_FONTS;
   if (gfx_fonts_init() < 0)
-    return -1;
+    return -1; /* error message set in gfx_fonts_init */
   
   init_state = GFX_INITIALIZED;
   return 0;
@@ -227,6 +227,9 @@ int gfx_init_failsafe()
   return gfx_fonts_init_failsafe();
 }
 
+/**
+ * Unload graphics subsystem
+ */
 void gfx_quit()
 {
   init_state = GFX_QUITTING;
