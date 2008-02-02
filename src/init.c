@@ -1,7 +1,7 @@
 /**
  * System initialization, common to FreeDink and FreeDinkEdit
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -52,6 +52,12 @@
 #include "init.h"
 #include "msgbox.h"
 
+static char* init_error_msg = NULL;
+
+void init_set_error_msg(char *msg)
+{
+  init_error_msg = strdup(msg);
+}
 
 /**
  * Prints the version on the standard ouput. Based on the homonymous
@@ -119,93 +125,8 @@ void finiObjects()
 	
 	log_path(/*false*/0);
 
-	
+	gfx_quit();
 
-/* 	if( lpDD != NULL ) */
-/* 	{ */
-	  
-		//change coop mode back
-		
-	   /*
-		if( lpDDSBack != NULL )
-		  {
-		  lpDDSBack->Release();
-		  lpDDSBack = NULL;
-		  }
-		 */ 
-	  //GFX
-	tiles_unload();
-	sprites_unload();
-
-	if (GFX_lpDDSBack   != NULL) SDL_FreeSurface(GFX_lpDDSBack);
-	if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
-	if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
-	if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
-
-/* 			if( lpDDPal != NULL ) */
-/* 			{ */
-/* 			lpDDPal->Release(); */
-/* 			lpDDPal = NULL; */
-/* 			} */
-	
-/* 		if( lpDDSPrimary != NULL ) */
-/* 		{ */
-/* 			lpDDSPrimary->Release(); */
-/* 			lpDDSPrimary = NULL; */
-/* 		} */
-/* 		if (lpDD->RestoreDisplayMode() != DD_OK) */
-/* 			Msg("Error restoring display mode."); */
-	
-		/*
-		HRESULT ddrval = lpDD->SetCooperativeLevel( hWndMain, DDSCL_NORMAL);
-		
-		if( ddrval != DD_OK )  
-	{        
-		 Msg("Unable to set cooperative level on exit.");
-	}
-
-		 */
-/* 		lpDD->Release(); */
-/* 		lpDD = NULL; */
-		
-		/*for (int oo = 1; oo <= max_sprites; oo++)   
-		{
-		
-		  if( k[oo].k != NULL )
-		  {
-		  
-			k[oo].k->Release();
-			k[oo].k = NULL;
-			}
-			
-			  
-				}
-				
-		*/
-/* 	}  */
-	
-	//destroy direct input mouse stuff
-	
-/* 	if (g_pMouse) */
-/* 	{ */
-/* 		g_pMouse->Unacquire(); */
-/* 		g_pMouse->Release(); */
-/* 		g_pMouse = NULL; */
-/* 	} */
-	
-/* 	if (g_hevtMouse) */
-/* 	{ */
-/* 		CloseHandle(g_hevtMouse); */
-/* 		g_hevtMouse = NULL; */
-/* 	} */
-	
-/* 	if (g_pdi)      */
-/* 	{ */
-/* 		g_pdi->Release(); */
-/* 		g_pdi    = NULL; */
-/* 	} */
-	
-	
 	if (sound_on)
 	{
 	//lets kill the cdaudio too
@@ -220,7 +141,7 @@ void finiObjects()
 	
 	kill_all_scripts_for_real();
 	FastFileFini();
-	kill_fonts();
+
 	g_b_kill_app = 1;
 /* 	ShowWindow(hWndMain, SW_HIDE); */
 /* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
@@ -234,7 +155,10 @@ void finiObjects()
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 
 	paths_quit();
-} /* finiObjects */
+	
+	if (init_error_msg != NULL)
+	  free(init_error_msg);
+}
 
 /**
  * This function is called if the initialization function fails
@@ -352,15 +276,11 @@ int init(int argc, char *argv[])
     }
 
 
-  /* Fonts system, default fonts */
-  FONTS_init();
-
-  
   /* SDL */
   /* Init timer subsystem */
   if (SDL_Init(SDL_INIT_TIMER) == -1)
     {
-      Msg("SDL_Init: %s\n", SDL_GetError());
+      Msg("Timer initialization error: %s\n", SDL_GetError());
       return 0;
     }
 
@@ -372,6 +292,13 @@ int init(int argc, char *argv[])
   SDL_setFramerate(&framerate_manager, 60);
 
 
+  int gfx_init_success = 0;
+  if (windowed)
+    gfx_init_success = gfx_init(GFX_WINDOWED);
+  else
+    gfx_init_success = gfx_init(GFX_FULLSCREEN);
+  if (gfx_init_success < 0)
+    return initFail(init_error_msg);
 
   /* Mouse */
   /* Center mouse and reset relative positionning */

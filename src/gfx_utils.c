@@ -111,29 +111,40 @@ load_palette_from_bmp (char *filename, SDL_Color *palette)
 }
 
 
-/* Generate a default/fallback palette */
-/* TODO: maybe use the default Woe palette? */
+/* Generate a default/fallback 216 colors palette */
 void
 setup_palette(SDL_Color *palette)
 {
-  int ncolors, i;
+  int i = 0;
   int r, g, b;
 
-  /* Allocate 256 color palette */
-  ncolors = 256;
-
   /* Set a 3,3,2 color cube */
-  for (r = 0; r < 8; ++r)
+  for (r = 0; r < 256; r += 0x33)
     {
-      for (g = 0; g < 8; ++g)
+      for (g = 0; g < 256; g += 0x33)
 	{
-	  for (b = 0; b < 4; ++b)
+	  for (b = 0; b < 256; b += 0x33)
 	    {
-	      i = ((r << 5) | (g << 2) | b);
-	      palette[i].r = r << 5;
-	      palette[i].g = g << 5;
-	      palette[i].b = b << 6;
+	      palette[i].r = r;
+	      palette[i].g = g;
+	      palette[i].b = b;
+	      i++;
 	    }
 	}
     }
+
+  /* Set the rest of the colors to black */
+  for (; i < 256; i++)
+    palette[i].r
+      = palette[i].g
+      = palette[i].b
+      = 0;
+
+  /* Reproduce DX/Woe limitation (see change_screen_palette) */
+  palette[0].r = 0;
+  palette[0].g = 0;
+  palette[0].b = 0;
+  palette[255].r = 255;
+  palette[255].g = 255;
+  palette[255].b = 255;
 }

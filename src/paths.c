@@ -213,10 +213,30 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 	strcat(dmoddir, subdir);
 	if (!is_directory(dmoddir))
 	  {
-	    fprintf(stderr, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", subdir);
+	    char *msg = (char*)malloc(1);
+	    msg[0] = '\0';
+
+	    char *tmp = NULL;
+
+	    asprintf(&tmp, "Error: D-Mod directory '%s' doesn't exist. I looked in:\n", subdir);
+	    msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
+	    strcat(msg, tmp);
+	    free(tmp);
+
 	    if (dmoddir_opt != NULL)
-	      fprintf(stderr, "- ./%s\n", dmoddir_opt);
-	    fprintf(stderr, "- %s (refdir is '%s')\n", dmoddir, refdir);
+	      {
+		asprintf(&tmp, "- ./%s\n", dmoddir_opt);
+		msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
+		strcat(msg, tmp);
+		free(tmp);
+	      }
+	    asprintf(&tmp, "- %s (refdir is '%s')", dmoddir, refdir);
+	    msg = realloc(msg, strlen(msg) + strlen(tmp) + 1);
+	    strcat(msg, tmp);
+	    free(tmp);
+
+	    msgbox_init_error(msg);
+	    free(msg);
 	    exit(1);
 	  }
       }

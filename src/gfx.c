@@ -1,7 +1,7 @@
 /**
  * Graphics
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -29,11 +29,14 @@
 
 #include <string.h>
 
+#include "freedink_xpm.h"
 #include "io_util.h"
 #include "gfx.h"
+#include "gfx_fonts.h"
+#include "gfx_tiles.h"
+#include "gfx_sprites.h"
 #include "gfx_utils.h"
-#include "freedink_xpm.h"
-#include "dinkvar.h" /* windowed */
+#include "msgbox.h"
 
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
@@ -103,37 +106,30 @@ int trigger_palette_change = 0;
 SDL_Color cur_screen_palette[256];
 
 
-enum gfx_state
-{
-    GFX_NOT_INITIALIZED = 0,
-    GFX_INITIALIZING,
-    GFX_INITIALIZED,
-};
-
 /**
  * Check if the graphics system is initialized, so we know if we can
  * use it to display error messages to the user
  */
-static enum gfx_state is_init = GFX_NOT_INITIALIZED;
-enum gfx_state gfx_is_init()
+static enum gfx_init_state init_state = GFX_NOT_INITIALIZED;
+enum gfx_init_state gfx_get_init_state()
 {
-  return is_init;
+  return init_state;
 }
 
 
 /**
  * Graphics subsystem initalization
  */
-void gfx_init()
+int gfx_init(enum gfx_windowed_state windowed)
 {
   /* Initialization in progress */
-  is_init = GFX_INITIALIZING;
+  init_state = GFX_INITIALIZING_VIDEO;
 
   /* Init graphics subsystem */
   if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     {
-      msgbox_init_error("SDL_Init: %s\n", SDL_GetError());
-      return 0;
+      msgbox_init_error("Video initialization error: %s", SDL_GetError());
+      exit(1);
     }
 
   {
@@ -151,7 +147,7 @@ void gfx_init()
       }
   }
 
-  putenv("SDL_VIDEO_CENTERED=1");
+  SDL_putenv("SDL_VIDEO_CENTERED=1");
 
   /* SDL_HWSURFACE is supposed to give direct memory access */
   /* SDL_HWPALETTE makes sure we can use all the colors we need
@@ -159,7 +155,7 @@ void gfx_init()
   /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
      and is a pre-requisite for SDL_Flip to use hardware, see
      http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
-  if (windowed)
+  if (windowed == GFX_WINDOWED)
     GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
   else
     GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
@@ -186,7 +182,66 @@ void gfx_init()
   /* Disable Alt-Tab and any other window-manager shortcuts */
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
-  is_init = GFX_INITIALIZED;
+
+  /* Default palette (may be used by early init error messages */
+  setup_palette(cur_screen_palette);
+  setup_palette(GFX_real_pal);
+  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+
+
+  /* Fonts system, default fonts */
+  init_state = GFX_INITIALIZING_FONTS;
+  if (gfx_fonts_init() < 0)
+    return -1;
+  
+  init_state = GFX_INITIALIZED;
+  return 0;
+}
+
+/**
+ * Failsafe graphics mode to display initialization error messages
+ */
+int gfx_init_failsafe()
+{
+  /* Init graphics subsystem */
+  if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
+    return -1;
+
+  SDL_putenv("SDL_VIDEO_CENTERED=1");
+  SDL_WM_SetCaption(PACKAGE_STRING " - Initialization error", NULL);
+  SDL_Surface *icon = IMG_ReadXPMFromArray(freedink_xpm);
+  if (icon != NULL)
+    {
+      SDL_WM_SetIcon(icon, NULL);
+      SDL_FreeSurface(icon);
+    }
+
+  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
+  if (GFX_lpDDSBack == NULL)
+    return -1;
+
+  setup_palette(cur_screen_palette);
+  setup_palette(GFX_real_pal);
+  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+
+  return gfx_fonts_init_failsafe();
+}
+
+void gfx_quit()
+{
+  init_state = GFX_QUITTING;
+
+  gfx_fonts_quit();
+
+  tiles_unload();
+  sprites_unload();
+  
+  if (GFX_lpDDSBack   != NULL) SDL_FreeSurface(GFX_lpDDSBack);
+  if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
+  if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
+  if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
+
+  init_state = GFX_NOT_INITIALIZED;
 }
 
 

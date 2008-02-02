@@ -23,22 +23,32 @@
 #ifndef _GFX_H
 #define _GFX_H
 
-/* #include <ddraw.h> */
 #include "SDL.h"
 
-/* extern LPDIRECTDRAW lpDD; /\* DirectDraw object *\/ */
-/* extern LPDIRECTDRAWSURFACE lpDDSPrimary; */
-/* extern LPDIRECTDRAWSURFACE lpDDSBack; */
-/* extern LPDIRECTDRAWSURFACE lpDDSTrick; */
-/* extern LPDIRECTDRAWSURFACE lpDDSTrick2; */
-/* extern LPDIRECTDRAWSURFACE lpDDSTwo; */
+enum gfx_init_state
+{
+    GFX_NOT_INITIALIZED = 0,
+    GFX_INITIALIZING_VIDEO,
+    GFX_INITIALIZING_FONTS,
+    GFX_INITIALIZED,
+    GFX_QUITTING,
+};
+
+enum gfx_windowed_state
+{
+    GFX_WINDOWED = 0,
+    GFX_FULLSCREEN,
+};
 
 extern SDL_Surface *GFX_lpDDSBack;
 extern SDL_Surface *GFX_lpDDSTrick;
 extern SDL_Surface *GFX_lpDDSTrick2;
 extern SDL_Surface *GFX_lpDDSTwo;
 
-/* extern PALETTEENTRY real_pal[256]; */
+extern int gfx_init(enum gfx_windowed_state);
+extern int gfx_init_failsafe();
+extern void gfx_quit(void);
+extern enum gfx_init_state gfx_get_init_state(void);
 extern SDL_Color GFX_real_pal[256];
 extern int trigger_palette_change;
 extern SDL_Color cur_screen_palette[256];
@@ -46,4 +56,5 @@ extern void change_screen_palette(SDL_Color* new_palette);
 extern SDL_Surface* load_bmp(char *filename);
 extern SDL_Surface* load_bmp_from_mem(SDL_RWops *rw);
 extern SDL_Surface* load_bmp_setpal(char *filename);
+
 #endif

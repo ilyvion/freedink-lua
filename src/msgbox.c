@@ -1,7 +1,7 @@
 /**
  * Emergency message boxes
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -49,22 +49,48 @@
  */
 void msgbox_sdl(char* msg)
 {
-  SaySmall(msg,
-	   0, 0,          /* position */
-	   255, 255, 255  /* color */
-	   );
-  SaySmall("Press any key",
-	   0, 400,        /* position */
-	   255, 255, 255  /* color */
-	   );
+  SDL_FillRect(GFX_lpDDSBack, NULL, SDL_MapRGB(GFX_lpDDSBack->format, 100, 100, 100));
+
+  {
+    FONTS_SetTextColor(255, 255, 255); /* white */
+    rect dst = {100, 20, 540, 40}; /* top line */
+    print_text_wrap("Initialization error", &dst, 1, 0, FONT_SYSTEM);
+  }
+  {
+    SDL_Rect dst2 = {99, 99, 442, 282};
+    SDL_FillRect(GFX_lpDDSBack, &dst2, SDL_MapRGB(GFX_lpDDSBack->format, 200, 200, 200));
+    SDL_Rect dst3 = {100, 100, 440, 280};
+    SDL_FillRect(GFX_lpDDSBack, &dst3, SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
+
+    /* Display error message */
+    FONTS_SetTextColor(0, 0, 0); /* black */
+    rect dst = {100, 100, 540, 380}; /* centered with 100px margin */
+    print_text_wrap(msg, &dst, 0, 0, FONT_SYSTEM);
+  }
+  {
+    FONTS_SetTextColor(255, 255, 255); /* white */
+    rect dst = {100, 440, 540, 460}; /* bottom line */
+    print_text_wrap("Press ESC to exit", &dst, 1, 0, FONT_SYSTEM);
+  }
+
   SDL_Flip(GFX_lpDDSBack);
+
+  /* Wait for user to press a key */
   SDL_Event e;
   while (SDL_WaitEvent(&e))
     {
-      if (e.type == SDL_KEYDOWN
-	  || e.type == SDL_KEYUP
-	  || e.type == SDL_QUIT)
-	break;
+      if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
+	{
+	  if (e.key.keysym.sym == SDLK_ESCAPE
+	      || e.key.keysym.sym == SDLK_SPACE
+	      || e.key.keysym.sym == SDLK_RETURN
+	      || e.key.keysym.sym == 'q')
+	  break;
+	}
+      else if(e.type == SDL_QUIT)
+	{
+	  break;
+	}
     }
 }
 
@@ -77,7 +103,7 @@ void msgbox_os(char *msg)
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 
   /* WIN32 API */
-  MessageBox(hwnd, msg, PACKAGE_NAME, MB_OK);
+  MessageBox(NULL, msg, PACKAGE_NAME, MB_OK);
 
 #else
 
@@ -88,7 +114,10 @@ void msgbox_os(char *msg)
   else if (pid == 0)
     {
       /* child */
-      if (execlp("xmessage", "xmessage", msg, NULL) < 0)
+      /* Don't display xmessage errors, this would be misleading */
+      fclose(stdout);
+      fclose(stderr);
+      if (execlp("xmessage", "xmessage", "-center", "-buttons", "OK:0", msg, NULL) < 0)
 	perror("execlp");
       exit(EXIT_FAILURE);
     }
@@ -106,14 +135,33 @@ void msgbox_os(char *msg)
 
 void msgbox(char* msg)
 {
-  if (GFX_lpDDSBack != NULL)
+  /* Try initializing graphics if not already */
+  int graphics_on = 0;
+  switch (gfx_get_init_state())
     {
-      msgbox_sdl(msg);
+    case GFX_NOT_INITIALIZED:
+      graphics_on = !(gfx_init_failsafe() < 0);
+      break;
+    case GFX_INITIALIZING_VIDEO:
+      graphics_on = 0;
+      break;
+    case GFX_INITIALIZING_FONTS:
+      graphics_on = !(gfx_fonts_init_failsafe() < 0);
+      break;
+    case GFX_INITIALIZED:
+      graphics_on = 1;
+      break;
+    default:
+      graphics_on = 0;
+      break;
     }
+
+  /* Display a SDL message box if possible, otherwise fall back to a
+     system message box */
+  if (graphics_on)
+    msgbox_sdl(msg);
   else
-    {
-      msgbox_os(msg);
-    }
+    msgbox_os(msg);
 }
 
 

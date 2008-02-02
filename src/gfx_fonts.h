@@ -39,8 +39,9 @@ typedef enum enum_font
 } FONT_TYPE;
 
 
-extern void FONTS_init(void);
-extern void kill_fonts(void);
+extern int gfx_fonts_init(void);
+extern int gfx_fonts_init_failsafe(void);
+extern void gfx_fonts_quit(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
 extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
 

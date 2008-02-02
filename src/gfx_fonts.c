@@ -37,6 +37,8 @@
 #include "io_util.h"
 #include "paths.h"
 #include "gfx_fonts.h"
+#include "vgasys_fon.h"
+#include "msgbox.h"
 
 
 /* Default size was 18 in the original game, but it refers to a
@@ -56,30 +58,60 @@ static void setup_font(TTF_Font *font);
 
 
 /**
+ * Init font subsystem and one built-in font, so we can display error
+ * messages in emergency (init error) situations
+ */
+int gfx_fonts_init_failsafe()
+{
+  if (!TTF_WasInit() && TTF_Init() == -1)
+    return -1;
+
+  /* Load system font from compiled data */
+  if (system_font == NULL)
+    {
+      system_font = TTF_OpenFontRW(SDL_RWFromMem(vgasys_fon, sizeof(vgasys_fon)),
+				   1, FONT_SIZE);
+      if (system_font == NULL)
+	return -1;
+      setup_font(system_font);
+    }
+
+  return 0;
+}
+
+/**
  * Init font subsystem and load the default fonts
  */
-void FONTS_init()
+int gfx_fonts_init()
 {
-  if(TTF_Init()==-1) {
-    fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
-    exit(1);
+  if (TTF_Init() == -1) {
+    init_set_error_msg(TTF_GetError());
+    return -1;
   }
 
-  dialog_font = load_default_font("LiberationSans-Regular.ttf");
-  if (dialog_font != NULL)
-    system_font = load_default_font("vgasys.fon");
-
-  if (dialog_font == NULL || system_font == NULL)
+  /* Load system font from compiled data */
+  system_font = TTF_OpenFontRW(SDL_RWFromMem(vgasys_fon, sizeof(vgasys_fon)),
+			       1, FONT_SIZE);
+  if (system_font == NULL)
     {
-      fprintf(stderr, "Failed to load default fonts.\n");
-      exit(1);
+      init_set_error_msg("Failed to load builtin 'vgasys.fon' font.");
+      return -1;
     }
+  setup_font(system_font);
+
+  /* Load dialog font from built-in resouces */
+  dialog_font = load_default_font("LiberationSans-Regular.ttf");
+  if (dialog_font == NULL)
+    return -1;
+  setup_font(dialog_font);
+
+  return 0;
 }
 
 /**
  * Quit the font subsystem (and free loaded fonts from memory)
  */
-void kill_fonts(void)
+void gfx_fonts_quit(void)
 {
   if (dialog_font)
     {
@@ -110,6 +142,7 @@ static TTF_Font *load_default_font(char *filename) {
       fprintf(stderr, "Could not open font '%s'. I tried:\n", filename);
       fprintf(stderr, "- loading from executable's resources\n");
       fprintf(stderr, "- loading from '%s'\n", paths_pkgdatadir());
+      init_set_error_msg("Cannot find default font");
       return NULL;
     }
 
@@ -117,10 +150,9 @@ static TTF_Font *load_default_font(char *filename) {
   if (font_object == NULL)
     {
       fprintf(stderr, "Could not open font '%s': %s\n", filename, TTF_GetError());
+      init_set_error_msg("Cannot open default font");
       return NULL;
     }
-
-  setup_font(font_object);
 
   return font_object;
 }
