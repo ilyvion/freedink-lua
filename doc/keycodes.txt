@@ -84,7 +84,7 @@ EN
  US-Q -> 113 'q'
  US-2 -> 50 '2'
 FR
- US-Q -> 113 'q'
+ US-Q -> 97 'a'
  US-2 -> 233 'world 73'
 
 -> What was typed as text, without caps
