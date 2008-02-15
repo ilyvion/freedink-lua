@@ -3,7 +3,8 @@ LDLIBS=$(shell sdl-config --libs)
 
 .PHONY: all
 
-PROGS = joytest mousetest msb ticks embedded_font embedded_font2
+PROGS = joytest mousetest msb ticks embedded_font embedded_font2	\
+	keycodes
 all: $(PROGS)
 
 embedded_font: embedded_font.o SDL_rwops_zzip.o
