@@ -79,9 +79,6 @@ endif
 	ln -s "$(DESTDIR)$(bindir)/freedink$(EXEEXT)" "$(DESTDIR)$(bindir)/dink$(EXEEXT)"
 	ln -s "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)" "$(DESTDIR)$(bindir)/dinkedit$(EXEEXT)"
 
-clean-local:
-	-rm -f *stamp
-
 # Other projects that use Autotools and support MinGW
 # http://sourceforge.net/projects/chocolate-doom (Doom port)
 # http://savannah.nongnu.org/projects/akfavatar (text display)
