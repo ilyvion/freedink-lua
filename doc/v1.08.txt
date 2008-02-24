@@ -61,6 +61,9 @@ the "reDink" version, which are described in its readme_reDink.txt.
 The included dinkc.chm has a section "Internal Functions by Version"
 with a "v1.08+" entry, describing all added DinkC commands.
 
+Paul Jewsbury posted a list of v1.08 bugs he ran into:
+http://www.dinknetwork.com/forum.cgi?MID=89849
+
 
 List of changes
 ===============
