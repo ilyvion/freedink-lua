@@ -60,6 +60,7 @@ struct attackinfo_struct
 	int pull_wait;
 };
 
+/* dink.dat */
 struct map_info
 {
   char name[20];
@@ -69,7 +70,6 @@ struct map_info
   int v[40];         // unused
   char s[80];        // unused
   char buffer[2000]; // unused
-	
 };
 
 struct tile
@@ -103,6 +103,7 @@ struct sprite_placement
   int buff[5];
 };
 
+/* one screen from map.dat */
 struct small_map
 {
   char name[20];
