@@ -7,10 +7,3 @@ process_line() from dinkvar.h also set its value.
 
 At a point, mode needs to be properly initialized somewhere, to avoid
 "duplicating" the variable in each object file that uses it.
-
-
-FreeDinkedit
-============
-
-* When pressing "Shift" in dialog mode, this happends zeros "0" to the
-  text.
