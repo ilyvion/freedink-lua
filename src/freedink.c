@@ -5391,6 +5391,10 @@ int main(int argc, char* argv[])
 			 SDL_EVENTMASK(SDL_QUIT)) > 0)
 	finiObjects();
 
+      /* Fullscreen <-> window */
+      if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
+	SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
+
       /* TODO: maybe check for application active/background state and
 	 pause the game accordingly - but this may be an annoying
 	 behavior. */

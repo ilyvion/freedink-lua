@@ -5972,13 +5972,16 @@ int main(int argc, char *argv[])
     {
       SDL_Event event;
       SDL_PumpEvents();
-      /* Check for unprocessed clicks */
       if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
 			 SDL_EVENTMASK(SDL_QUIT)) > 0)
 	{
 	  finiObjects();
 	  break;
 	}
+
+      /* Fullscreen <-> window */
+      if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
+	SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
 
       updateFrame();
     }

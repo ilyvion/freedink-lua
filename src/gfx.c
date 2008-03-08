@@ -40,7 +40,7 @@
 
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
-// //LPDIRECTDRAWSURFACE     lpDDSOne;       // Offscreen surface 1
+// //LPDIxRECTDRAWSURFACE     lpDDSOne;       // Offscreen surface 1
 
 // LPDIRECTDRAWSURFACE     lpDDSPrimary = NULL;   // DirectDraw primary surface
 // LPDIRECTDRAWSURFACE     lpDDSBack = NULL;      // DirectDraw back surface
@@ -193,6 +193,39 @@ int gfx_init(enum gfx_windowed_state windowed)
   init_state = GFX_INITIALIZING_FONTS;
   if (gfx_fonts_init() < 0)
     return -1; /* error message set in gfx_fonts_init */
+
+
+  /* Mouse */
+  /* Center mouse and reset relative positionning */
+  SDL_WarpMouse(320, 240);
+  SDL_PumpEvents();
+  SDL_GetRelativeMouseState(NULL, NULL);
+
+
+  /* We'll handle those events manually */
+  SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
+  SDL_EventState(SDL_VIDEOEXPOSE, SDL_IGNORE);
+  SDL_EventState(SDL_VIDEORESIZE, SDL_IGNORE);
+  SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
+  SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
+  SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
+  SDL_EventState(SDL_KEYUP, SDL_IGNORE);
+  SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+  SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+  /* We still process through a SDL_PollEvent() loop: */
+  /* - SDL_QUIT: quit on window close and Ctrl+C */
+  /* - SDL_MOUSEBUTTONDOWN: don't miss quick clicks */
+  /* - Joystick: apparently we need to keep them, otherwise joystick
+       doesn't work at all */
+
+  /* SDL_MouseMotionEvent: If the cursor is hidden (SDL_ShowCursor(0))
+     and the input is grabbed (SDL_WM_GrabInput(SDL_GRAB_ON)), then
+     the mouse will give relative motion events even when the cursor
+     reaches the edge of the screen. This is currently only
+     implemented on Windows and Linux/Unix-alikes. */
+  /* So it's not portable and it blocks Alt+Tab, so let's try
+     something else - maybe enable it as a command line option. */
+  /* SDL_WM_GrabInput(SDL_GRAB_ON); */
   
   init_state = GFX_INITIALIZED;
   return 0;
