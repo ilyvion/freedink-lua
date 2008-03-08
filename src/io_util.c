@@ -47,11 +47,6 @@
 
 #include "paths.h"
 
-/* TODO: use Gnulib */
-#ifndef PATH_MAX
-#  define PATH_MAX 255
-#endif
-
 /* Returns a pointer to the end of the current path element (file or
    directory) */
 static char*
@@ -63,19 +58,20 @@ end_of_elt(char *str)
   return p;
 }
 
-/* Look for filename case-insensitively, to mimic MS Woe's
-   case-insensitive file system; modifies the 'filename' buffer and
-   returns case-sensitive path. Also converts '\' to '/'. */
-/* I repeat: the filename buffer is modified, so it cannot be "a
-   constant string" */
-char*
+/**
+ * Look for filename case-insensitively, to mimic MS Woe's
+ * case-insensitive file system. It modifies the 'filename' buffer
+ * in-place. Also converts '\' to '/'. I REPEAT: the filename buffer
+ * is modified, so it cannot be "a constant string", or you'll get a
+ * segfault. */
+void
 ciconvert (char *filename)
 {
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
-  return filename;
+  return;
 #else
   /* Parse all the directories that composes filename */
-  char cur_dir[PATH_MAX];
+  char *cur_dir = NULL;
   char *pcur_elt, *pend_of_elt, *pend_of_cur_dir;
   int error = 0;
   
@@ -85,11 +81,11 @@ ciconvert (char *filename)
   if ((f = fopen(filename, "r")) != NULL)
     {
       fclose(f);
-      return filename;
     }
 
   /* Else, check each path element of the filename */
-  if (*filename == '/')
+  cur_dir = malloc(strlen("./") + strlen(filename) + 1);
+  if (filename[0] == '/')
     {
       strcpy(cur_dir, "/");
       pend_of_cur_dir = cur_dir + 1;
@@ -157,35 +153,21 @@ ciconvert (char *filename)
       pcur_elt = pend_of_elt + 1;
     }
   while(*pend_of_elt != '\0' && !error);
+  free(cur_dir);
 
   /* If there was an error, we return a half-converted path (maybe the
      file didn't exist yet, but leading directories still needed to be
      converted); otherwise, filename contains the fully-converted
      path, ready to be opened on a case-sensitive filesystem. */
-  return filename;
 #endif /* !_WIN32 */
-}
-
-/* Variant to make it easier to use constant strings: */
-/* char tmp_filename[PATH_MAX]; */
-/* ... */
-/* if (exists(ciconvert("/usr/share/freedink/myfile1", tmp_filename))) */
-/* ... */
-/* if (exists(ciconvert("/usr/share/freedink/myfile2", tmp_filename))) */
-char*
-ciconvertbuf (const char *filename, char* buf)
-{
-  strcpy(buf, filename);
-  return ciconvert(buf);
 }
 
 /* Does this file exist and can be opened? */
 int exist(char *name)
 {
-  char tmp_filename[PATH_MAX];
-
   FILE *fp;
-  fp = fopen(ciconvertbuf(name, tmp_filename), "rb");
+  ciconvert(name);
+  fp = fopen(name, "rb");
   if (!fp)
     return 0;
   
@@ -258,7 +240,8 @@ SDL_RWops *find_resource_as_rwops(char *name)
 
   /* Fallback to pkgdatadir */
   char *path = paths_pkgdatafile(name);
-  rwops = SDL_RWFromFile(ciconvert(path), "rb");
+  ciconvert(path);
+  rwops = SDL_RWFromFile(path, "rb");
   free(path);
   return rwops;
 }
@@ -273,18 +256,20 @@ main (int argc, char *argv[])
     fprintf (stderr, "Usage: %s file...\n", argv[0]);
   while (*++argv)
     {
-      char before[PATH_MAX];
-      char after[PATH_MAX];
+      char *before = NULL;
+      char *after = NULL;
       FILE *f = NULL;
-      strcpy(before, *argv);
+      before = strdup(*argv);
+      after = strdup(*argv);
       ciconvert(after);
-      strcpy(after, *argv);
       printf("%s => ", before);
       printf("%s\n", after);
       if ((strcasecmp(before, after) != 0)
 	  || ((f = fopen(after, "r")) == NULL))
 	fprintf(stderr, "ERROR with %s => %s\n", before, after);
       if (f != NULL) fclose(f);
+      free(before);
+      free(after);
     }
   return 0;
   /* other tests: */

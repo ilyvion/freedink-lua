@@ -1264,7 +1264,8 @@ void load_map(const int num)
   char *fullpath;
   
   fullpath = paths_dmodfile(current_map);
-  fp = fopen(ciconvert(fullpath), "rb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "rb");
   free(fullpath);
   if (!fp)
     {
@@ -1303,9 +1304,10 @@ void save_map(const int num)
   Msg("Saving map data..");
   strcpy(crap, current_map);
   fullpath = paths_dmodfile(crap);
+  ciconvert(fullpath);
   if (num > 0)
     {
-      fp = fopen(ciconvert(fullpath), "r+b");
+      fp = fopen(fullpath, "r+b");
       free(fullpath);
       lsize = sizeof(struct small_map);
       holdme = (lsize * (num-1));
@@ -1326,7 +1328,8 @@ void save_info(void)
   char *fullpath = NULL;
 
   fullpath = paths_dmodfile("dink.dat");
-  fp = fopen(ciconvert(fullpath), "wb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "wb");
   free(fullpath);
   if (fp != NULL)
     {
@@ -1788,7 +1791,8 @@ void save_hard(void)
   FILE *fp;
   char *fullpath = NULL;
   fullpath = paths_dmodfile("hard.dat");
-  fp = fopen(ciconvert(fullpath), "wb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "wb");
   
   if (!fp)
     Msg("Couldn't save hard.dat for some reason.  Out of disk space?");
@@ -1807,20 +1811,22 @@ void load_hard(void)
   char *fullpath = NULL;
 
   fullpath = paths_dmodfile(harddat_filename);
+  ciconvert(fullpath);
   if (!dinkedit)
     {
       if (!exist(fullpath))
 	{
 	  free(fullpath);
 	  fullpath = paths_fallbackfile(harddat_filename);
+	  ciconvert(fullpath);
 	}
     }
 
-  fp = fopen(ciconvert(fullpath), "rb");
+  fp = fopen(fullpath, "rb");
   if (!fp)
     {
       //fclose(fp);
-      fp = fopen(ciconvert(fullpath), "wb");
+      fp = fopen(fullpath, "wb");
       //make new data file
       memset(&hmap, 0, sizeof(struct hardness));
       fwrite(&hmap,sizeof(struct hardness),1,fp);
@@ -1924,8 +1930,9 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
     fullpath = paths_dmodfile(crap);
   else
     fullpath = paths_fallbackfile(crap);
+  ciconvert(fullpath);
 
-  if (!FastFileInit(ciconvert(fullpath), 5))
+  if (!FastFileInit(fullpath, 5))
     {
       Msg("Could not load dir.ff art file %s", crap);
       cur_sprite = save_cur;
@@ -2257,8 +2264,9 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   /* - ../dink/.../...01.BMP */
   sprintf(crap, "%s/dir.ff", org_dirname);
   fullpath = paths_dmodfile(crap);
+  ciconvert(fullpath);
   //Msg("Checking for %s..", crap);
-  if (exist(ciconvert(fullpath)))
+  if (exist(fullpath))
     {
       free(fullpath);
       free(org_dirname);
@@ -2269,14 +2277,16 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
   sprintf(crap, "%s01.BMP",org);
   fullpath = paths_dmodfile(crap);
-  exists = exist(ciconvert(fullpath));
+  ciconvert(fullpath);
+  exists = exist(fullpath);
   free(fullpath);
   if (!exists)
     {
       sprintf(crap, "%s/dir.ff",  org_dirname);
       fullpath = paths_fallbackfile(crap);
+      ciconvert(fullpath);
       //Msg("Checking for %s..", crap);
-      exists = exist(ciconvert(fullpath));
+      exists = exist(fullpath);
       free(fullpath);
       if (exists)
 	{
@@ -3866,23 +3876,27 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   
   sprintf(temp, "story/%s.d", filename);
   fullpath = paths_dmodfile(temp);
+  ciconvert(fullpath);
 
-  if (!exist(ciconvert(fullpath)))
+  if (!exist(fullpath))
     {
       free(fullpath);
       sprintf(temp, "story/%s.c", filename);
       fullpath = paths_dmodfile(temp);
-      if (!exist(ciconvert(fullpath)))
+      ciconvert(fullpath);
+      if (!exist(fullpath))
 	{
 	  free(fullpath);
 	  sprintf(temp, "story/%s.d", filename);
 	  fullpath = paths_fallbackfile(temp);
-	  if (!exist(ciconvert(fullpath)))
+	  ciconvert(fullpath);
+	  if (!exist(fullpath))
 	    {
 	      free(fullpath);
 	      sprintf(temp, "story/%s.c", filename);
 	      fullpath = paths_fallbackfile(temp);
-	      if (!exist(ciconvert(fullpath)))
+	      ciconvert(fullpath);
+	      if (!exist(fullpath))
 		{
 		  free(fullpath);
 		  Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
@@ -3923,7 +3937,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   //if compiled
   {
     //load compiled script
-    stream = fopen(ciconvert(fullpath), "rb");
+    stream = fopen(fullpath, "rb");
     free(fullpath);
     if (stream == NULL)
       {

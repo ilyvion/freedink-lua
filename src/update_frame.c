@@ -247,19 +247,6 @@ trigger_start:
 		return;
 	}
 	
-	/*
-	// TODO: keep that so people can enforce using a CD
-	if (!cd_inserted)
-	{
-	if (exist("tiles\\cd.bmp"))
-	show_bmp("tiles\\cd.bmp", false, 0, 0);
-	else
-	//look in alt path for CD nag
-	show_bmp("..\\dink\\tiles\\cd.bmp", false, 0, 0);
-	return;
-	}
-	*/
-	
 	mbase_count++;
 	
 	if (thisTickCount > mold+100)

@@ -34,15 +34,15 @@ void load_batch(void)
 {
   FILE *stream;  
   char line[255];
-  char tmp_filename[PATH_MAX];
   
   char *dinkini_file = "dink.ini";
   char *fullpath = paths_dmodfile(dinkini_file);
+  ciconvert(fullpath);
   printf("Loading dink.ini");
 
   /* Open the text file in binary mode, so it's read the same way
      under different OSes (Unix has no text mode) */
-  if ((stream = fopen(ciconvertbuf(fullpath, tmp_filename), "rb")) == NULL)
+  if ((stream = fopen(fullpath, "rb")) == NULL)
     fprintf(stderr, "Error opening dink.ini for reading.\n");
   else
     {
@@ -91,12 +91,14 @@ load_palette_from_bmp (char *filename, SDL_Color *palette)
   char *fullpath = NULL;
 
   fullpath = paths_dmodfile(filename);
-  bmp = IMG_Load(ciconvert(fullpath));
+  ciconvert(fullpath);
+  bmp = IMG_Load(fullpath);
   free(fullpath);
   if (bmp == NULL)
     {
       fullpath = paths_fallbackfile(filename);
-      bmp = IMG_Load(ciconvert(fullpath));
+      ciconvert(fullpath);
+      bmp = IMG_Load(fullpath);
       free(fullpath);
       if (bmp == NULL)
 	{

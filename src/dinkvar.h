@@ -31,9 +31,6 @@
 /* #include <mmsystem.h> */
 
 #include <limits.h>
-#ifndef PATH_MAX
-#  define PATH_MAX 255
-#endif
 
 #include "SDL.h"
 #include "SDL_framerate.h"

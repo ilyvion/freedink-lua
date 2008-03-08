@@ -25,19 +25,13 @@
 
 #include <limits.h>
 #include "SDL.h"
-#ifndef PATH_MAX
-/* Woe */
-#define PATH_MAX MAX_PATH
-#endif
-
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  extern char* ciconvert (char *filename);
-  extern char* ciconvertbuf (const char *filename, char *buf);
+  extern void ciconvert (char *filename);
   extern SDL_RWops *find_resource_as_rwops(const char *filename);
   extern /*bool*/int exist(char *name);
   extern int is_directory(char *name);

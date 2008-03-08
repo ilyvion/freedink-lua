@@ -319,12 +319,16 @@ void change_screen_palette(SDL_Color* new_palette)
    somewhat longer. */
 static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int set_pal) {
   SDL_Surface *image, *copy;
-  char tmp_filename[PATH_MAX];
 
   if (from_mem == 1)
-    image = IMG_Load_RW(rw, 0);
+    {
+      image = IMG_Load_RW(rw, 0);
+    }
   else
-    image = IMG_Load(ciconvertbuf(filename, tmp_filename));
+    {
+      ciconvert(filename);
+      image = IMG_Load(filename);
+    }
 
   if (image == NULL)
     {

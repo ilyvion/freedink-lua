@@ -285,14 +285,16 @@ int CreateBufferFromWaveFile(char* filename, int index)
 
   sprintf(path, "sound/%s", filename);
   fullpath = paths_dmodfile(path);
+  ciconvert(fullpath);
 
-  if (!exist(ciconvert(fullpath)))
+  if (!exist(fullpath))
     {
       free(fullpath);
       fullpath = paths_fallbackfile(path);
+      ciconvert(fullpath);
     }
 
-  SDL_RWops* rwops = SDL_RWFromFile(ciconvert(fullpath), "rb");
+  SDL_RWops* rwops = SDL_RWFromFile(fullpath, "rb");
   free(fullpath);
   return CreateBufferFromWaveFile_RW(rwops, 1, index);
 }

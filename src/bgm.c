@@ -115,12 +115,12 @@ static void callback_HookMusicFinished()
 static int
 playMIDIFile(char *midi_filename)
 { 
-  char tmp_filename[PATH_MAX];
   /* Stop whatever is playing before we play something else. */
   Mix_HaltMusic ();
   
   /* Load the file */
-  if ((music_data = Mix_LoadMUS(ciconvertbuf(midi_filename, tmp_filename))) == NULL)
+  ciconvert(midi_filename);
+  if ((music_data = Mix_LoadMUS(midi_filename)) == NULL)
     {
       Msg("Unable to play '%s': %s", midi_filename, Mix_GetError());
       return 0;

@@ -143,7 +143,6 @@ int sp_seq,sp_frame = 0;
 /* const int NUM_SOUND_EFFECTS = 6; */
 #define NUM_SOUND_EFFECTS 2
 
-/* TODO: there should be more resources in Dinkedit.exe - ask Seth */
 typedef enum enum_EFFECT
 {
     SOUND_STOP = 0,
@@ -154,7 +153,7 @@ typedef enum enum_EFFECT
 /*     SOUND_BEARMISS, */
 } EFFECT;
 
-char szSoundEffects[NUM_SOUND_EFFECTS][PATH_MAX] =
+char *szSoundEffects[NUM_SOUND_EFFECTS] =
 {
     "stop.wav",
 /*     "THROW.WAV", */
@@ -803,7 +802,8 @@ void draw_minimap(void)
      the current D-Mod directory. Maybe change that to handle absolute
      paths and paths relative to the refdir. */
   fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "rb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "rb");
   free(fullpath);
   if (!fp)
     {
@@ -829,12 +829,13 @@ void load_info_buff(void)
 
   sprintf(crap, "%sDINK.DAT", buf_path);
   fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "rb");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "rb");
   free(fullpath);
   if (fp)
     {
       Msg("World data loaded.");
-      fread(&buffmap,sizeof(struct map_info),1,fp);
+      fread(&buffmap, sizeof(struct map_info), 1, fp);
       fclose(fp);
       buf_mode = /*true*/1;
     }
@@ -866,12 +867,11 @@ int add_new_map(void)
 {
   FILE *fp;
   long now;
-  char crap[80];
   char *fullpath = NULL;
 
-  sprintf(crap, "MAP.DAT");
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "a+b");
+  fullpath = paths_dmodfile("MAP.DAT");
+  ciconvert(fullpath);
+  fp = fopen(fullpath, "a+b");
   free(fullpath);
   
   fwrite(&pam,sizeof(struct small_map),1,fp);
@@ -880,28 +880,6 @@ int add_new_map(void)
 
   return(now);
 }
-
-int add_new_map_buff(void)
-{
-  FILE *fp;
-  long now;
-  char *fullpath = NULL;
-
-  char crap[120];
-  sprintf(crap, "%sMAP.DAT", buf_path);
-  fullpath = paths_dmodfile(crap);
-  fp = fopen(ciconvert(fullpath), "a+b");
-  free(fullpath);
-
-  fwrite(&pam,sizeof(struct small_map),1,fp);
-  now = (ftell(fp) / (sizeof(struct small_map)));
-  fclose(fp);
-
-  return(now);
-}
-
-
-
 
 
 /* Set the keyboard state in sjoy */
@@ -5474,7 +5452,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  POINT p; */
        char tdir[100];
        char *fullpath = NULL;
-/*        char tmp_filename[PATH_MAX]; */
 	  /*
 	  * set up and register window class
 	  */
