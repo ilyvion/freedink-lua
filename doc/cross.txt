@@ -18,7 +18,7 @@ ln -s i386-mingw32msvc i386-mingw32
 # Install precompiled SDL binaries
 ##
 
-VERSION=1.2.12
+VERSION=1.2.13
 # Cf. http://libsdl.org/download-1.2.php
 wget http://libsdl.org/release/SDL-devel-$VERSION-mingw32.tar.gz
 tar xzf SDL-devel-$VERSION-mingw32.tar.gz
@@ -87,7 +87,7 @@ Among others, necessary for static builds (no static libraries are
 provided with the official releases).
 
 # SDL
-VERSION=1.2.12
+VERSION=1.2.13
 cd /usr/src/
 # Get DX headers
 # TODO: maybe it'd be legally cleaner to use those from libwine-dev?

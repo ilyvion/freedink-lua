@@ -44,14 +44,6 @@ in non-8-bit modes should be fixed as well - it was due to raw access
 to the buffer memory assuming that the mode with 8-bit.
 
 
-Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
-external .wav, grabbed in Dinkedit 1.06 resources.
-
-
-Dinkedit creates a custom sequence #1 but mark the 4th frame as
--1. This made FreeDinkEdit crash, so it's set to 0, which means "end
-of sequence".
-
 In init_scripts, the script may check the active status of sprite
 1000, while the sprite array has 300 elements. This caused bugs after
 the port and is now fixed. Curiously it didn't seem to cause bugs
@@ -78,3 +70,24 @@ pass, either the missing sprite is causing a DinkC script to stop.
 So, vanilla SDL does not support compressed BMPs, so I used SDL_image
 everywhere to do so. This means that FreeDink always support
 compressed BMPs.
+
+
+
+Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
+external .wav, grabbed in Dinkedit 1.06 resources.
+
+
+Dinkedit creates a custom sequence #1 but mark the 4th frame as
+-1. This made FreeDinkEdit crash, so it's set to 0, which means "end
+of sequence".
+
+To avoid issues with non-US keyboards in the editor, F1->F10-F11 and
+NumPad 0->9-. are used in addition to 1->0-` for tiles selection.
+
+
+When vision is changed from the minimap mode in the editor, don't
+display the current screen's sprites over the minimap.
+
+
+When text or number is asked in the editor, user now can press
+'escape' to discard changes.

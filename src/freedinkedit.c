@@ -34,7 +34,7 @@
 */
 
 /* Use constants for readability */
-#define MODE_MAP_PICKER 1
+#define MODE_MINIMAP 1
 #define MODE_TILE_PICKER 2
 #define MODE_SPRITE_PICKER 5
 
@@ -48,6 +48,11 @@
 #define MODE_DIALOG 0
 #define MODE_UNKNOWN 9
 
+
+#define INPUT_MINIMAP_LOAD  30
+#define INPUT_SCREEN_VISION 32
+#define INPUT_SCREEN_MIDI   33
+#define INPUT_SCREEN_TYPE   34
 
 #define NAME "DinkEdit"
 #define TITLE "DinkEdit"
@@ -179,7 +184,7 @@ int speed;
 char key_convert(int key);
 
 void draw_map(void);
-void draw_used(void);
+void draw_minimap(void);
 /* void dderror(HRESULT hErr); */
 
 int SInitSound();
@@ -324,11 +329,11 @@ void flip_it_second(void)
 
 /* } */
 
-/* // if (mode == 1) draw_used(); */
+/* // if (mode == 1) draw_minimap(); */
 /* // if (mode == 3) draw_map(); */
 /* // if (mode == 6) draw_map(); */
 /* // if (mode == 7) draw_map(); */
-/* if (mode == MODE_MAP_PICKER) draw_used(); */
+/* if (mode == MODE_MINIMAP) draw_minimap(); */
 /* if (mode == MODE_SCREEN_TILES) draw_map(); */
 /* if (mode == MODE_SCREEN_SPRITES) draw_map(); */
 /* if (mode == MODE_SPRITE_HARDNESS) draw_map(); */
@@ -770,7 +775,7 @@ draw_this_map(struct map_info* pmap)
 
 /* Draw all squares in the map picker mode, including the 'M' (midi)
    and 'S' (screentype) marks */
-void draw_used(void)
+void draw_minimap(void)
 {
   /*box_crap.top = spr[h].y + k[spr[h].pic].hardbox.top;
     box_crap.bottom = spr[h].y + k[spr[h].pic].hardbox.bottom;
@@ -840,8 +845,8 @@ void load_info_buff(void)
     }
 }
 
-/* draw_used() but on a different map ('L' in map picker mode) */
-void draw_used_buff(void)
+/* draw_minimap() but on a different map ('L' in map picker mode) */
+void draw_minimap_buff(void)
 {
   load_info_buff();
 
@@ -849,7 +854,7 @@ void draw_used_buff(void)
     {
       //failed
       /* TODO: display error message to the user */
-      draw_used();
+      draw_minimap();
       return;
     }
 
@@ -1601,15 +1606,16 @@ void check_in(void)
    * 21 = base_attack
    * 22 = defense
    * 
-   * - Map dialogs:
+   * - Minimap dialogs:
    * 30 = 'L' - load screen from another map
    * 
-   * 33 = 'M' - screen midi
-   * 34 = 'S' - screen type (indoors / outside)
-   * 
    * - Screen dialogs:
+   * (called from minimap or screen mode)
    * 31 = 'B' - screen script
    * 32 = 'V' - vision
+   * (called from minimap mod)
+   * 33 = 'M' - screen midi
+   * 34 = 'S' - screen type (indoors / outside)
    **/
 
   /* In: */
@@ -1892,7 +1898,7 @@ void check_in(void)
 	    ,10,10);
       }
 
-    if (in_master == 30)
+    if (in_master == INPUT_MINIMAP_LOAD)
       {
 	in_command = 2; //string
 	sprintf(in_default, "%s",  buf_path);
@@ -1920,7 +1926,7 @@ void check_in(void)
 	    ,10,10);
       }
 
-    if (in_master == 32)
+    if (in_master == INPUT_SCREEN_VISION)
       {
 	in_command = 1; //number
 	in_int = &map_vision;
@@ -1933,7 +1939,7 @@ void check_in(void)
 	    ,10,10);
       }
 
-    if (in_master == 33)
+    if (in_master == INPUT_SCREEN_MIDI)
       {
 	in_command = 1; //number
 	in_max = 10; //max _length
@@ -1944,7 +1950,7 @@ void check_in(void)
 	    ,10,10);
       }
 
-    if (in_master == 34)
+    if (in_master == INPUT_SCREEN_TYPE)
       {
 	in_command = 1; //number
 	in_max = 10; //max _length
@@ -2188,6 +2194,23 @@ case DIDFT_BUTTON: if (od.dwData > 0) mouse1 = true; break;
 
 
 /**
+ * Get the letter/character that the user typed, taking
+ * layout/language into account
+ */
+void get_keyboard_last_unicode()
+{
+  SDL_Event event;
+  sjoy.last_unicode = 0;
+  SDL_PumpEvents();
+  /* Process events to get the 'unicode' field */
+  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+		     SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
+    sjoy.last_unicode = event.key.keysym.unicode;
+  return;
+}
+
+
+/**
  * So-called "Movie2000 sprite movie maker" feature. It will dump a
  * series of DinkC moves that you specify using the mouse
  * (destination) and the numpad (direction). Check
@@ -2358,6 +2381,7 @@ void updateFrame(void)
   state[1] = 0;
   check_joystick();
   Scrawl_OnMouseInput();
+  get_keyboard_last_unicode();
   kickass = /*false*/0;
   rcRect.left = 0;
   rcRect.top = 0;
@@ -2799,7 +2823,7 @@ void updateFrame(void)
 			// place sprite
 			if ( (sjoy.key['v']) )
 			  {
-			    in_master = 32; // Set screen vision?
+			    in_master = INPUT_SCREEN_VISION; // Set screen vision?
 			  }
 
 			int modif = 0;
@@ -2861,16 +2885,16 @@ void updateFrame(void)
 			    if (SDL_GetModState()&KMOD_SHIFT)
 			      {
 				//shift is being held down
-				if (getkey('1'))  in_master = 11;
-				if (getkey('2'))  in_master = 12;
-				if (getkey('3'))  in_master = 13;
-				if (getkey('4'))  in_master = 14;
-				if (getkey('5'))  in_master = 15;
+				if (getkey('1') || getkey(SDLK_KP1) || getkey(SDLK_F1))  in_master = 11;
+				if (getkey('2') || getkey(SDLK_KP2) || getkey(SDLK_F2))  in_master = 12;
+				if (getkey('3') || getkey(SDLK_KP3) || getkey(SDLK_F3))  in_master = 13;
+				if (getkey('4') || getkey(SDLK_KP4) || getkey(SDLK_F4))  in_master = 14;
+				if (getkey('5') || getkey(SDLK_KP5) || getkey(SDLK_F5))  in_master = 15;
 
-				if (getkey('6'))  in_master = 16;
-				if (getkey('7'))  in_master = 17;
-				if (getkey('8'))  in_master = 18;
-				if (getkey('9'))  in_master = 19;
+				if (getkey('6') || getkey(SDLK_KP6) || getkey(SDLK_F6))  in_master = 16;
+				if (getkey('7') || getkey(SDLK_KP7) || getkey(SDLK_F7))  in_master = 17;
+				if (getkey('8') || getkey(SDLK_KP8) || getkey(SDLK_F8))  in_master = 18;
+				if (getkey('9') || getkey(SDLK_KP9) || getkey(SDLK_F9))  in_master = 19;
 
 
 
@@ -2878,9 +2902,9 @@ void updateFrame(void)
 			    else if (SDL_GetModState()&KMOD_ALT)
 			      {
 				  //alt is being held down
-				  if (getkey('1' /* 49 */))  in_master = 20;
-				  if (getkey('2'))  in_master = 21;
-				  if (getkey('3'))  in_master = 22;
+				  if (getkey('1') || getkey(SDLK_KP1) || getkey(SDLK_F1))  in_master = 20;
+				  if (getkey('2') || getkey(SDLK_KP2) || getkey(SDLK_F2))  in_master = 21;
+				  if (getkey('3') || getkey(SDLK_KP3) || getkey(SDLK_F3))  in_master = 22;
 				  /*(getkey('4' /\* 52 *\/))  in_master = 14;
 				    if (getkey(53))  in_master = 15;
 
@@ -2894,16 +2918,16 @@ void updateFrame(void)
 			    else
 			      {
 				  //shift is not being held down
-				  if (getkey('1')) in_master = 1;
-				  if (getkey('2')) in_master = 2;
-				  if (getkey('3')) in_master = 3;
-				  if (getkey('4')) in_master = 4;
-				  if (getkey('5')) in_master = 5;
-				  if (getkey('6')) in_master = 6;
-				  if (getkey('7')) in_master = 7;
-				  if (getkey('8')) in_master = 8;
-				  if (getkey('9')) in_master = 9;
-				  if (getkey('0')) in_master = 10;
+				  if (getkey('1') || getkey(SDLK_KP1) || getkey(SDLK_F1)) in_master = 1;
+				  if (getkey('2') || getkey(SDLK_KP2) || getkey(SDLK_F2)) in_master = 2;
+				  if (getkey('3') || getkey(SDLK_KP3) || getkey(SDLK_F3)) in_master = 3;
+				  if (getkey('4') || getkey(SDLK_KP4) || getkey(SDLK_F4)) in_master = 4;
+				  if (getkey('5') || getkey(SDLK_KP5) || getkey(SDLK_F5)) in_master = 5;
+				  if (getkey('6') || getkey(SDLK_KP6) || getkey(SDLK_F6)) in_master = 6;
+				  if (getkey('7') || getkey(SDLK_KP7) || getkey(SDLK_F7)) in_master = 7;
+				  if (getkey('8') || getkey(SDLK_KP8) || getkey(SDLK_F8)) in_master = 8;
+				  if (getkey('9') || getkey(SDLK_KP9) || getkey(SDLK_F9)) in_master = 9;
+				  if (getkey('0') || getkey(SDLK_KP0) || getkey(SDLK_F10)) in_master = 10;
 			      }
 
 
@@ -3609,9 +3633,9 @@ void updateFrame(void)
 
 			spr[h].seq = 2;
 			spr[h].seq_orig = 2;
-			draw_used();
+			draw_minimap();
 			spr[1].que = 20000;
-			mode = MODE_MAP_PICKER;
+			mode = MODE_MINIMAP;
 			spr[2].active = /*FALSE*/0;
 			spr[3].active = /*FALSE*/0;
 			spr[4].active = /*FALSE*/0;
@@ -3861,7 +3885,7 @@ void updateFrame(void)
 
 		    if ( (sjoy.key['v']) )
 		      {
-			in_master = 32;
+			in_master = INPUT_SCREEN_VISION;
 		      }
 
 
@@ -4088,16 +4112,16 @@ void updateFrame(void)
 		    if (mode == MODE_SCREEN_TILES || mode == MODE_TILE_PICKER)
 		      {
 			int unit = 0, tile_no = 0;
-			if (GetKeyboard('1')) unit = 1;
-			if (GetKeyboard('2')) unit = 2;
-			if (GetKeyboard('3')) unit = 3;
-			if (GetKeyboard('4')) unit = 4;
-			if (GetKeyboard('5')) unit = 5;
-			if (GetKeyboard('6')) unit = 6;
-			if (GetKeyboard('7')) unit = 7;
-			if (GetKeyboard('8')) unit = 8;
-			if (GetKeyboard('9')) unit = 9;
-			if (GetKeyboard('0')) unit = 10;
+			if (getkey('1') || getkey(SDLK_KP1) || getkey(SDLK_F1)) unit = 1;
+			if (getkey('2') || getkey(SDLK_KP2) || getkey(SDLK_F2)) unit = 2;
+			if (getkey('3') || getkey(SDLK_KP3) || getkey(SDLK_F3)) unit = 3;
+			if (getkey('4') || getkey(SDLK_KP4) || getkey(SDLK_F4)) unit = 4;
+			if (getkey('5') || getkey(SDLK_KP5) || getkey(SDLK_F5)) unit = 5;
+			if (getkey('6') || getkey(SDLK_KP6) || getkey(SDLK_F6)) unit = 6;
+			if (getkey('7') || getkey(SDLK_KP7) || getkey(SDLK_F7)) unit = 7;
+			if (getkey('8') || getkey(SDLK_KP8) || getkey(SDLK_F8)) unit = 8;
+			if (getkey('9') || getkey(SDLK_KP9) || getkey(SDLK_F9)) unit = 9;
+			if (getkey('0') || getkey(SDLK_KP0) || getkey(SDLK_F10)) unit = 10;
 
 			tile_no = unit;
 			if (SDL_GetModState()&KMOD_SHIFT)
@@ -4112,8 +4136,10 @@ void updateFrame(void)
 
 			/* Exception: tile #41 = Alt+` */
 			if (SDL_GetModState()&KMOD_ALT
-			    /* && GetKeyboard(192/\* VK_OEM_3 *\/ /\* 192/'`' for US *\/)) */
 			    && GetKeyboard(SDLK_BACKQUOTE))
+			  loadtile(41);
+			/* alternatives for non-US keyboards */
+			if (GetKeyboard(SDLK_F11) || GetKeyboard(SDLK_KP_PERIOD))
 			  loadtile(41);
 		      }
 
@@ -4160,49 +4186,49 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (sjoy.key[SDLK_SPACE])  && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key[SDLK_SPACE])  && (mode == MODE_MINIMAP))
 		      {
 			//make_map_tiny();
 			draw_map_tiny = 0;
 
 		      }
 
-		    if ( (sjoy.key['l'])  && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key['l'])  && (mode == MODE_MINIMAP))
 		      {
 
 			//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
 			//{
 			buf_map = (((spr[1].y+1)*32) / 20)+(spr[1].x / 20);
-			in_master = 30;
+			in_master = INPUT_MINIMAP_LOAD;
 			//}
 
 		      }
 
 
-		    if ( (sjoy.key[SDLK_ESCAPE /* 27 */]) && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key[SDLK_ESCAPE /* 27 */]) && (mode == MODE_MINIMAP))
 		      {
 			load_info();
-			draw_used();
+			draw_minimap();
 			buf_mode = /*false*/0;
 
 		      }
 
 
-		    if ( (sjoy.key['m']) && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key['m']) && (mode == MODE_MINIMAP))
 		      {
 			//set music # for this block
 			in_int = &map.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-			in_master = 33;
+			in_master = INPUT_SCREEN_MIDI;
 		      }
 
-		    if ( (sjoy.key['s']) && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key['s']) && (mode == MODE_MINIMAP))
 		      {
 			//set music # for this block
 			in_int = &map.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
-			in_master = 34;
+			in_master = INPUT_SCREEN_TYPE;
 		      }
 
-		    if ( (sjoy.key['q']) && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.key['q']) && (mode == MODE_MINIMAP))
 		      {
 			save_hard();
 			Msg("Info saved.");
@@ -4210,7 +4236,7 @@ void updateFrame(void)
 			exit(0);
 		      }
 
-		    if ( (sjoy.button[2]) && (mode == MODE_MAP_PICKER))
+		    if ( (sjoy.button[2]) && (mode == MODE_MINIMAP))
 		      {
 
 			if (buf_mode)
@@ -4224,7 +4250,7 @@ void updateFrame(void)
 			      {
 
 
-				draw_used();
+				draw_minimap();
 				sjoy.button[2] = /*false*/0;
 				return;
 			      }
@@ -4239,7 +4265,7 @@ void updateFrame(void)
 				 map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]) = add_new_map();
 				//wrongo, let's add the map
 
-				//draw_used();
+				//draw_minimap();
 
 
 			      }
@@ -4250,7 +4276,7 @@ void updateFrame(void)
 			    save_map(map.loc[buf_map]);
 
 			    save_info();
-			    draw_used();
+			    draw_minimap();
 			    return;
 			  }
 
@@ -4485,10 +4511,10 @@ void updateFrame(void)
 									       m3y = spr[h].y;
 									       spr[h].x = m1x;
 									       spr[h].y = m1y;
-									       mode = MODE_MAP_PICKER;
+									       mode = MODE_MINIMAP;
 									       spr[h].speed = 20;
 									       load_info();
-									       draw_used();
+									       draw_minimap();
 									       while (kill_last_sprite());
 									       return;
 									     }
@@ -4509,7 +4535,7 @@ void updateFrame(void)
 			mode = 1;
 			spr[h].speed = 20;
 			load_info();
-			draw_used();
+			draw_minimap();
 			while (kill_last_sprite());
 			return;
 		      }
@@ -4834,7 +4860,7 @@ void updateFrame(void)
       if (mode == MODE_DIALOG)
 	strcpy(msg,"");
 
-      if (mode == MODE_MAP_PICKER)
+      if (mode == MODE_MINIMAP)
 	{
 	  if (20 * (spr[1].y / 20) != spr[1].y)
 	    {
@@ -4981,7 +5007,7 @@ void updateFrame(void)
 /*     } /\* GetDC(&hdc) *\/ */
 
 
-  if ((mode == MODE_MAP_PICKER))
+  if ((mode == MODE_MINIMAP))
     {
       if (sjoy.key['z'])
 	{
@@ -5140,33 +5166,22 @@ void updateFrame(void)
 	}
     }
 
-
+  
   if (in_enabled)
     {
       //text window is open, lets act accordingly
       //check_joystick();
-
-
-      if (getkey(SDLK_RETURN))
+      if (getkey(SDLK_RETURN) || getkey(SDLK_KP_ENTER))
 	{
-
 	  //exit text mode
-
-
+	  
 	  if (in_command == 2)
 	    {
 	      if (in_string != NULL)
-		{
-
-
-		  strcpy(in_string,in_temp);
-
-
-		} else Msg("Error, in_char pointer not set, can't issue a value.");
-
+		strcpy(in_string, in_temp);
+	      else
+		Msg("Error, in_char pointer not set, can't issue a value.");
 	    }
-
-
 
 	  if (in_command == 1)
 	    {
@@ -5174,33 +5189,24 @@ void updateFrame(void)
 		{
 		  char *stop;
 		  int in_crap = strtol(in_temp, &stop,10);
-
+		  
 		  in_crap2 = in_crap;
-
-		  if (   (old_command == 33) | (old_command == 34)  )
-		    {
-		      load_info();
-		    }
-
+		  
+		  if ((old_command == INPUT_SCREEN_MIDI) || (old_command == INPUT_SCREEN_TYPE))
+		    load_info();
+		  
 		  *in_int = in_crap2;
 
-
-
-		  if (   (old_command == 33) | (old_command == 34)  )
-		    {
-		      save_info();
-		    }
-
-
-		} else Msg("Error, in_int pointer not set, can't issue a value.");
-
+		  if ((old_command == INPUT_SCREEN_MIDI) || (old_command == INPUT_SCREEN_TYPE))
+		    save_info();
+		}
+	      else
+		{
+		  Msg("Error, in_int pointer not set, can't issue a value.");
+		}
 	    }
 
-
-
 	  in_command = 0;
-
-
 
 	  if (in_huh == 3)
 	    {
@@ -5216,9 +5222,8 @@ void updateFrame(void)
 		  sp_type = 1;
 		  sp_que = 0;
 		  sp_hard = 1;
-
 		}
-
+	      
 	      if (in_crap2 == 4)
 		{
 		  //default pig settings
@@ -5262,71 +5267,46 @@ void updateFrame(void)
 		  sp_que = 0;
 		  sp_hard = 1;
 		}
-
-
 	    }
-	  if (old_command == 32)
-	    {
-	      draw_map();
-
-	    }
-
-	  in_enabled = /*false*/0;
-
-	  if (mode == MODE_MAP_PICKER) if (old_command == 30)
-					 {
-					   draw_used_buff();
-					   return;
-					 }
-
-	  if (mode == MODE_MAP_PICKER) if (old_command == 33)
-					 {
-
-					   draw_used();
-					   return;
-					 }
-
-	  if (mode == MODE_MAP_PICKER) if (old_command == 34)
-					 {
-
-					   Msg("drawing used");
-					   draw_used();
-					   return;
-					 }
-
-
-	  draw_map();
-
-	  return;
+	  
+	  in_enabled = 0;
 	}
-
-      if (sjoy.key[SDLK_BACKSPACE])
-
+      else if (sjoy.key[SDLK_ESCAPE])
+	{
+	  in_enabled = 0;
+	}
+      else if (sjoy.key[SDLK_BACKSPACE])
 	//	if (getkey(8)) //this is a much faster backspace than the above
 	{
 	  if (strlen(in_temp) > 0)
 	    in_temp[strlen(in_temp)-1] = 0;
 
 	}
-
-
-      if (in_max > strlen(in_temp))
+      else if (strlen(in_temp) < in_max)
 	{
-	  int x;
-	  for (x = 32; x < SDLK_LAST; x++)
+	  if (isprint(sjoy.last_unicode))
+	    sprintf(in_temp, "%s%c", in_temp, sjoy.last_unicode);
+	}
+
+      if (in_enabled)
+	{
+	  Say(in_temp,260,200);
+	}
+      else
+	{
+	  /* Redraw last mode */
+	  if (mode == MODE_MINIMAP)
 	    {
-	      if (sjoy.key[x])
-
-		{
-		  int key = key_convert(x);
-
-		  sprintf(in_temp, "%s%c",in_temp,key);
-
-		}
+	      if (old_command == INPUT_MINIMAP_LOAD)
+		draw_minimap_buff();
+	      else
+		draw_minimap();
+	    }
+	  else
+	    {
+	      draw_map();
 	    }
 	}
-      Say(in_temp,260,200);
-
     }
 
 
@@ -5749,6 +5729,13 @@ static /*BOOL*/int doInit(int argc, char *argv[])
       exit(1);
     }
 
+    /* Difference with the game: we want the keydown events for text
+       input */
+    SDL_EventState(SDL_KEYDOWN, SDL_ENABLE);
+    /* Enable Unicode to be able to grab what letter the user actually
+       typed, taking the keyboard layout/language into account */
+    SDL_EnableUNICODE(1);
+    
 
   memset(&hm, 0, sizeof(struct hit_map));
 

@@ -207,6 +207,8 @@ struct seth_joy
 		    pressed or released; reset before each loop */
   /*BOOL*/int kletgo[SDLK_LAST]; /* non-reset "is released?" value; used to set .key */
   /*bool*/int realkey[SDLK_LAST]; /* current GetAsyncKeyState value, in cache */
+  Uint16 last_unicode; /* last layout-dependent character typed by the
+			  user, used for text input */
 
   /*BOOL*/int right,left,up,down;
   /*BOOL*/int rightd,leftd,upd,downd;

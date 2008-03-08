@@ -26,6 +26,8 @@
 #include "log.h"
 #include "input.h"
 
+/* TODO: maybe it's not necessary to SDL_PumpEvents every time, since
+   it's usually done before this function is called */
 int GetKeyboard(int key)
 {
   // returns 0 if the key has been depressed, else returns 1 and sets key to code recd.

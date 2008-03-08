@@ -25,8 +25,10 @@
 int main(int argc, char*argv[])
 {
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_EnableUNICODE(1);
   SDL_Surface *screen = SDL_SetVideoMode(320, 200, 0, 0);
+  /* EnableUNICODE needs to be placed after SDL_Init, and it does not
+     matter whether it's placed before or after SetVideoMode) */
+  SDL_EnableUNICODE(1);
 
   SDL_Event e;
   while (SDL_WaitEvent(&e))
@@ -34,9 +36,10 @@ int main(int argc, char*argv[])
       if (e.type == SDL_KEYDOWN)
 	{
 	  
-	  printf("code=%d('%s')\tu=%d\n",
+	  printf("code=%d(keyname'%s')\tu=%d(ascii'%c')\n",
 		 e.key.keysym.sym,
 		 SDL_GetKeyName(e.key.keysym.sym),
+		 e.key.keysym.unicode,
 		 e.key.keysym.unicode);
 	  fflush(stdout);
 	  if (e.key.keysym.sym == SDLK_ESCAPE)
