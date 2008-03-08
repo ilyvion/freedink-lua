@@ -31,31 +31,21 @@
 char last_debug[200];
 /*bool*/int debug_mode = /*false*/0;
 
-void add_text(char *tex, char *filename)
+void add_text(char *text, char *filename)
 {
-  FILE *fp;
-  char *mode = NULL;
-  char *fullpath = paths_dmodfile(filename);
-  ciconvert(fullpath);
-  
-  if (strlen(tex) < 1)
+  if (strlen(text) < 1)
     return;
   
-  if (exist(fullpath) == /*FALSE*/0)
-    mode = "wb";
-  else
-    mode = "ab";
-
-  if ((fp = fopen(fullpath, mode)) != NULL)
+  FILE *fp = paths_dmodfile_fopen(filename, "ab");
+  if (fp != NULL)
     {
-      fwrite( tex, strlen(tex), 1, fp);       /* current player */
+      fwrite(text, strlen(text), 1, fp); /* current player */
       fclose(fp);
     }
   else
     {
-      fprintf(stderr, "add_text: cannot write to %s\n", fullpath);
+      perror("add_text");
     }
-  free(fullpath);
 }
 
 void Msg(char *fmt, ...)

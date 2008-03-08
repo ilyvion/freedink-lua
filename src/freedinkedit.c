@@ -793,7 +793,6 @@ void draw_minimap(void)
   FILE *fp;
   long holdme,lsize;
   char crap[120];
-  char *fullpath = NULL;
   //RECT box;
   // play.map = num;
   //Msg("Loading map %d...",num);
@@ -801,14 +800,11 @@ void draw_minimap(void)
   /* TODO: Dinkedit historically loads map with a filename relative to
      the current D-Mod directory. Maybe change that to handle absolute
      paths and paths relative to the refdir. */
-  fullpath = paths_dmodfile(crap);
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "rb");
-  free(fullpath);
-  if (!fp)
+  fp = paths_dmodfile_fopen(crap, "rb");
+  if (fp == NULL)
     {
       Msg("Cannot find MAP.DAT file!!!");
-      return(/*false*/0);
+      return /*false*/0;
     }
   lsize = sizeof(struct small_map);
   holdme = (lsize * (num-1));
@@ -818,21 +814,17 @@ void draw_minimap(void)
   //Msg("Read %d bytes.",shit);
   fclose(fp);
   
-  return(/*true*/1);
+  return /*true*/1;
 }
 
 void load_info_buff(void)
 {
   FILE *fp;
   char crap[120];
-  char *fullpath = NULL;
 
   sprintf(crap, "%sDINK.DAT", buf_path);
-  fullpath = paths_dmodfile(crap);
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "rb");
-  free(fullpath);
-  if (fp)
+  fp = paths_dmodfile_fopen(crap, "rb");
+  if (fp != NULL)
     {
       Msg("World data loaded.");
       fread(&buffmap, sizeof(struct map_info), 1, fp);
@@ -867,14 +859,14 @@ int add_new_map(void)
 {
   FILE *fp;
   long now;
-  char *fullpath = NULL;
 
-  fullpath = paths_dmodfile("MAP.DAT");
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "a+b");
-  free(fullpath);
-  
-  fwrite(&pam,sizeof(struct small_map),1,fp);
+  fp = paths_dmodfile_fopen("MAP.DAT", "a+b");
+  if (fp == NULL)
+    {
+      perror("Cannot open MAP.DAT");
+      return -1;
+    }
+  fwrite(&pam,sizeof(struct small_map), 1, fp);
   now = (ftell(fp) / (sizeof(struct small_map)));
   fclose(fp);
 
@@ -5426,7 +5418,8 @@ int SInitSound()
       if (rwops != NULL)
 	result = CreateBufferFromWaveFile_RW(rwops, 1, i);
       else
-	fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n", filename, paths_pkgdatadir());
+	fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n",
+		filename, paths_getpkgdatadir());
     }
   return 1;
 }

@@ -112,27 +112,6 @@ static void callback_HookMusicFinished()
 /**
  * Thing to play the midi
  */
-static int
-playMIDIFile(char *midi_filename)
-{ 
-  /* Stop whatever is playing before we play something else. */
-  Mix_HaltMusic ();
-  
-  /* Load the file */
-  ciconvert(midi_filename);
-  if ((music_data = Mix_LoadMUS(midi_filename)) == NULL)
-    {
-      Msg("Unable to play '%s': %s", midi_filename, Mix_GetError());
-      return 0;
-    }
-
-  /* Play it */
-  Mix_HookMusicFinished(callback_HookMusicFinished);
-  Mix_PlayMusic (music_data, 1);
-
-  return 0;
-} 
-
 int PlayMidi(char *sFileName)
 {
   char midi_filename[256];
@@ -177,8 +156,21 @@ int PlayMidi(char *sFileName)
   Msg("Killing cd...");
   killcd();
 
-  playMIDIFile(fullpath);
-  free(fullpath);
+
+  /* Stop whatever is playing before we play something else. */
+  Mix_HaltMusic ();
+  
+  /* Load the file */
+  if ((music_data = Mix_LoadMUS(fullpath)) == NULL)
+    {
+      Msg("Unable to play '%s': %s", fullpath, Mix_GetError());
+      return 0;
+    }
+
+  /* Play it */
+  Mix_HookMusicFinished(callback_HookMusicFinished);
+  Mix_PlayMusic (music_data, 1);
+
   return 1;
 }
 

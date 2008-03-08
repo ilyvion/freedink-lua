@@ -386,6 +386,15 @@ SDL_Surface* load_bmp(char *filename)
   return load_bmp_internal(filename, NULL, 0, 0);
 }
 
+/* LoadBMP wrapper, from FILE pointer */
+SDL_Surface* load_bmp_from_fp(FILE* in)
+{
+  if (in == NULL)
+    return NULL;
+  SDL_RWops *rw = SDL_RWFromFP(in, /*autoclose=*/1);
+  return load_bmp_internal(NULL, rw, 1, 0);
+}
+
 /* LoadBMP wrapper, from memory */
 SDL_Surface* load_bmp_from_mem(SDL_RWops *rw)
 {
@@ -393,7 +402,10 @@ SDL_Surface* load_bmp_from_mem(SDL_RWops *rw)
 }
 
 /* LoadBMP wrapper + use as current palette */
-SDL_Surface* load_bmp_setpal(char *filename)
+SDL_Surface* load_bmp_setpal(FILE* in)
 {
-  return load_bmp_internal(filename, NULL, 0, 1);
+  if (in == NULL)
+    return NULL;
+  SDL_RWops *rw = SDL_RWFromFP(in, /*autoclose=*/1);
+  return load_bmp_internal(NULL, rw, 1, 1);
 }

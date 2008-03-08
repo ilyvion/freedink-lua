@@ -162,20 +162,22 @@ ciconvert (char *filename)
 #endif /* !_WIN32 */
 }
 
-/* Does this file exist and can be opened? */
+/**
+ * Does this file exist and can be opened?
+ * Note: this is case-sensitive.
+ */
 int exist(char *name)
 {
-  FILE *fp;
-  ciconvert(name);
-  fp = fopen(name, "rb");
+  FILE *fp = fopen(name, "rb");
   if (!fp)
     return 0;
-  
   fclose(fp);
   return 1;
 }
 
-/* Is it a directory that exists? */
+/**
+ * Is it a directory that exists?
+ */
 int is_directory(char *name)
 {
   char *tmp_filename = strdup(name);
@@ -212,7 +214,7 @@ pdirname (const char* filename)
   return retval;
 }
 
-SDL_RWops *find_resource_as_rwops(char *name)
+SDL_RWops* find_resource_as_rwops(char *name)
 {
   /* Look in appended ZIP archive */
   SDL_RWops* rwops = NULL;
@@ -239,10 +241,10 @@ SDL_RWops *find_resource_as_rwops(char *name)
      return rwops;
 
   /* Fallback to pkgdatadir */
-  char *path = paths_pkgdatafile(name);
-  ciconvert(path);
-  rwops = SDL_RWFromFile(path, "rb");
-  free(path);
+  FILE *in = paths_pkgdatafile_fopen(name, "rb");
+  if (in == NULL)
+    return NULL;
+  rwops = SDL_RWFromFP(in, /*autoclose=*/1);
   return rwops;
 }
 

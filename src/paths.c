@@ -278,40 +278,70 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 }
 
 
-const char *paths_pkgdatadir(void)
+const char *paths_getpkgdatadir(void)
 {
   return pkgdatadir;
 }
 
-const char *paths_dmoddir(void)
+const char *paths_getdmoddir(void)
 {
   return dmoddir;
 }
 
-const char *paths_fallbackdir(void)
+const char *paths_getfallbackdir(void)
 {
   return fallbackdir;
 }
 
-const char *paths_exedir(void)
+const char *paths_getexedir(void)
 {
   return exedir;
 }
 
 
-char *paths_pkgdatafile(char *file)
+char* paths_dmodfile(char *file)
 {
-  return br_build_path(pkgdatadir, file);
+  char *fullpath = br_build_path(dmoddir, file);
+  ciconvert(fullpath);
+  return fullpath;
 }
 
-char *paths_dmodfile(char *file)
+FILE* paths_dmodfile_fopen(char *file, char *mode)
 {
-  return br_build_path(dmoddir, file);
+  char *fullpath = paths_dmodfile(file);
+  FILE *result = fopen(fullpath, mode);
+  free(fullpath);
+  return result;
 }
 
-char *paths_fallbackfile(char *file)
+char* paths_fallbackfile(char *file)
 {
-  return br_build_path(fallbackdir, file);
+  char *fullpath = br_build_path(fallbackdir, file);
+  ciconvert(fullpath);
+  return fullpath;
+}
+
+FILE* paths_fallbackfile_fopen(char *file, char *mode)
+{
+  char *fullpath = paths_fallbackfile(file);
+  FILE *result = fopen(fullpath, mode);
+  free(fullpath);
+  return result;
+}
+
+char* paths_pkgdatafile(char *file)
+{
+  char *fullpath = br_build_path(pkgdatadir, file);
+  ciconvert(fullpath);
+  return fullpath;
+}
+
+FILE* paths_pkgdatafile_fopen(char *file, char *mode)
+{
+  char *fullpath = paths_pkgdatafile(file);
+  FILE *result = fopen(fullpath, mode);
+  free(fullpath);
+  return result;
 }
 
 

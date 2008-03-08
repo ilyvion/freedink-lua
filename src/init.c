@@ -250,7 +250,7 @@ static int check_arg(int argc, char *argv[])
   free(refdir_opt);
   free(dmoddir_opt);
 
-  Msg("Game directory is '%s'.", paths_dmoddir());
+  Msg("Game directory is '%s'.", paths_getdmoddir());
   return 1;
 }
 

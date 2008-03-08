@@ -823,7 +823,7 @@ void log_path(/*bool*/int playing)
   unlink(inifile);
 
   add_text("[Dink Smallwood Directory Information for the CD to read]\r\n", inifile);
-  add_text((char *)paths_exedir(), inifile);
+  add_text((char *)paths_getexedir(), inifile);
   add_text("\r\n", inifile);
   if (playing)
     add_text("TRUE\r\n", inifile);
@@ -1258,15 +1258,7 @@ void load_map(const int num)
 {
   FILE *fp;
   long holdme,lsize;
-  //RECT box;
-  // play.map = num;
-  //Msg("Loading map %d...",num);
-  char *fullpath;
-  
-  fullpath = paths_dmodfile(current_map);
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "rb");
-  free(fullpath);
+  fp = paths_dmodfile_fopen(current_map, "rb");
   if (!fp)
     {
       Msg("Cannot find %s file!!!",current_map);
@@ -1296,23 +1288,22 @@ void load_map(const int num)
 
 void save_map(const int num)
 {
-  FILE *          fp;
+  FILE *fp;
   long holdme,lsize;
-  char crap[80];
-  char *fullpath = NULL;
 
   Msg("Saving map data..");
-  strcpy(crap, current_map);
-  fullpath = paths_dmodfile(crap);
-  ciconvert(fullpath);
   if (num > 0)
     {
-      fp = fopen(fullpath, "r+b");
-      free(fullpath);
+      fp = paths_dmodfile_fopen(current_map, "r+b");
+      if (fp == NULL)
+	{
+	  perror("Cannot save map");
+	  return;
+	}
       lsize = sizeof(struct small_map);
       holdme = (lsize * (num-1));
-      fseek( fp, holdme, SEEK_SET);
-      fwrite( &pam, lsize, 1, fp);       /* current player */
+      fseek(fp, holdme, SEEK_SET);
+      fwrite(&pam, lsize, 1, fp);       /* current player */
       fclose(fp);
     }
 
@@ -1324,13 +1315,7 @@ void save_map(const int num)
 
 void save_info(void)
 {
-  FILE *fp;
-  char *fullpath = NULL;
-
-  fullpath = paths_dmodfile("dink.dat");
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "wb");
-  free(fullpath);
+  FILE *fp = paths_dmodfile_fopen("dink.dat", "wb");
   if (fp != NULL)
     {
       fwrite(&map, sizeof(struct map_info), 1, fp);
@@ -1350,9 +1335,7 @@ void save_info(void)
  */
 /*bool*/int load_game_small(int num, char *line, int *mytime)
 {
-  FILE *fp;
-
-  fp = paths_savegame_fopen(num, "rb");
+  FILE *fp = paths_savegame_fopen(num, "rb");
   if (fp == NULL)
     {
       Msg("Couldn't quickload save game %d", num);
@@ -1763,16 +1746,12 @@ void update_screen_time(void )
 void load_info(void)
 {
   FILE *fp;
-  char *fullpath = NULL;
 
-  fullpath = paths_dmodfile("dink.dat");
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "rb");
+  fp = paths_dmodfile_fopen("dink.dat", "rb");
   if (!fp)
     {
-      //fclose(fp);
-      fp = fopen(fullpath, "wb");
       //make new data file
+      fp = paths_dmodfile_fopen("dink.dat", "wb");
       strcpy(map.name, "Smallwood");
       fwrite(&map,sizeof(struct map_info),1,fp);
       fclose(fp);
@@ -1783,20 +1762,17 @@ void load_info(void)
       fread(&map,sizeof(struct map_info),1,fp);
       fclose(fp);
     }
-  free(fullpath);
 }
 
 void save_hard(void)
 {
-  FILE *fp;
-  char *fullpath = NULL;
-  fullpath = paths_dmodfile("hard.dat");
-  ciconvert(fullpath);
-  fp = fopen(fullpath, "wb");
-  
+  FILE *fp = paths_dmodfile_fopen("hard.dat", "wb");
   if (!fp)
-    Msg("Couldn't save hard.dat for some reason.  Out of disk space?");
-  fwrite(&hmap,sizeof(struct hardness),1,fp);
+    {
+      perror("Couldn't save hard.dat");
+      return;
+    }
+  fwrite(&hmap, sizeof(struct hardness), 1, fp);
   fclose(fp);
 }
 
@@ -1806,30 +1782,21 @@ void save_hard(void)
  */
 void load_hard(void)
 {
-  FILE *fp;
-  char *harddat_filename = "hard.dat";
-  char *fullpath = NULL;
+  FILE *fp = NULL;
 
-  fullpath = paths_dmodfile(harddat_filename);
-  ciconvert(fullpath);
   if (!dinkedit)
     {
-      if (!exist(fullpath))
-	{
-	  free(fullpath);
-	  fullpath = paths_fallbackfile(harddat_filename);
-	  ciconvert(fullpath);
-	}
+      fp = paths_dmodfile_fopen("hard.dat", "rb");
+      if (fp == NULL)
+	fp = paths_fallbackfile_fopen("hard.dat", "rb");
     }
 
-  fp = fopen(fullpath, "rb");
   if (!fp)
     {
-      //fclose(fp);
-      fp = fopen(fullpath, "wb");
       //make new data file
+      fp = paths_dmodfile_fopen("hard.dat", "wb");
       memset(&hmap, 0, sizeof(struct hardness));
-      fwrite(&hmap,sizeof(struct hardness),1,fp);
+      fwrite(&hmap, sizeof(struct hardness), 1, fp);
       fclose(fp);
     }
   else
@@ -1837,7 +1804,6 @@ void load_hard(void)
       fread(&hmap,sizeof(struct hardness),1,fp);
       fclose(fp);
     }
-  free(fullpath);
 }
 
 /* Display a flashing "Please Wait" anim directly on the screen, just
@@ -1930,7 +1896,6 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
     fullpath = paths_dmodfile(crap);
   else
     fullpath = paths_fallbackfile(crap);
-  ciconvert(fullpath);
 
   if (!FastFileInit(fullpath, 5))
     {
@@ -2264,7 +2229,6 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   /* - ../dink/.../...01.BMP */
   sprintf(crap, "%s/dir.ff", org_dirname);
   fullpath = paths_dmodfile(crap);
-  ciconvert(fullpath);
   //Msg("Checking for %s..", crap);
   if (exist(fullpath))
     {
@@ -2277,14 +2241,12 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
   sprintf(crap, "%s01.BMP",org);
   fullpath = paths_dmodfile(crap);
-  ciconvert(fullpath);
   exists = exist(fullpath);
   free(fullpath);
   if (!exists)
     {
       sprintf(crap, "%s/dir.ff",  org_dirname);
       fullpath = paths_fallbackfile(crap);
-      ciconvert(fullpath);
       //Msg("Checking for %s..", crap);
       exists = exist(fullpath);
       free(fullpath);
@@ -2311,6 +2273,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   for (oo = 1; oo <= 1000; oo++)
     {
+      FILE *in = NULL;
       if (oo < 10) strcpy(hold, "0"); else strcpy(hold,"");
       sprintf(crap, "%s%s%d.BMP",org,hold,oo);
 
@@ -2318,12 +2281,11 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 /*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
       // GFX
       if (use_fallback)
-	fullpath = paths_fallbackfile(crap);
+	in = paths_fallbackfile_fopen(crap, "rb");
       else
-	fullpath = paths_dmodfile(crap);
+	in = paths_dmodfile_fopen(crap, "rb");
 
-      GFX_k[cur_sprite].k = load_bmp(fullpath);
-      free(fullpath);
+      GFX_k[cur_sprite].k = load_bmp_from_fp(in);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)
 	{
 	  /* First frame didn't load! */
@@ -3866,39 +3828,29 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
 {
   char temp[100];
   int script;
-  FILE *stream;
+  FILE *in;
   /*bool*/int comp = /*false*/0;
   char tab[10];
-  char *fullpath;
   
   Msg("LOADING %s",filename);
   sprintf(tab, "%c",9);
   
   sprintf(temp, "story/%s.d", filename);
-  fullpath = paths_dmodfile(temp);
-  ciconvert(fullpath);
-
-  if (!exist(fullpath))
+  in = paths_dmodfile_fopen(temp, "rb");
+  if (in == NULL)
     {
-      free(fullpath);
       sprintf(temp, "story/%s.c", filename);
-      fullpath = paths_dmodfile(temp);
-      ciconvert(fullpath);
-      if (!exist(fullpath))
+      in = paths_dmodfile_fopen(temp, "rb");
+      if (in == NULL)
 	{
-	  free(fullpath);
 	  sprintf(temp, "story/%s.d", filename);
-	  fullpath = paths_fallbackfile(temp);
-	  ciconvert(fullpath);
-	  if (!exist(fullpath))
+	  in = paths_fallbackfile_fopen(temp, "rb");
+	  if (in == NULL)
 	    {
-	      free(fullpath);
 	      sprintf(temp, "story/%s.c", filename);
-	      fullpath = paths_fallbackfile(temp);
-	      ciconvert(fullpath);
-	      if (!exist(fullpath))
+	      in = paths_fallbackfile_fopen(temp, "rb");
+	      if (in == NULL)
 		{
-		  free(fullpath);
 		  Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
 		  return 0;
 		}
@@ -3924,6 +3876,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
     }
   
   Msg("Couldn't find unused buffer for script.");
+  fclose(in);
   return 0;
   
 
@@ -3937,28 +3890,18 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   //if compiled
   {
     //load compiled script
-    stream = fopen(fullpath, "rb");
-    free(fullpath);
-    if (stream == NULL)
-      {
-	Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
-	return(0);
-      }
-    
     cbuf[0] = 0;
+
     //Msg("decompressing!");
-    
     if (comp)
-      decompress(stream);
+      decompress(in);
     else
-      decompress_nocomp(stream);
+      decompress_nocomp(in);
     
-    fclose(stream);
+    fclose(in);
     
     //Msg("done decompressing!");
-    
     //file is now in cbuf!!
-    
 
     rinfo[script]->end = (strlen(cbuf));
     //Msg("dlength is %d!", rinfo[script]->end);
@@ -3989,7 +3932,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   if (set_sprite && sprite != 0 && sprite != 1000)
     spr[sprite].script = script;
 
-  return (script);
+  return script;
 }
 
 
@@ -6052,35 +5995,24 @@ void place_sprites_game(void)
 }
 
 
-void show_bmp( char name[80], int showdot, int reserved, int script)
+void show_bmp(char name[80], int showdot, int reserved, int script)
 {
   SDL_Surface *image = NULL;
-  char *fullpath = NULL;
+  FILE* in = NULL;
 
-  fullpath = paths_dmodfile(name);
-  if (!exist(fullpath))
+  in = paths_dmodfile_fopen(name, "rb");
+  if (in == NULL)
     {
-      Msg("Error: Can't find bitmap at %s.", fullpath);
-      free(fullpath);
+      Msg("Error: Can't open bitmap '%s'.", name);
       return;
     }
 
-  // memory leak?
-  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-
-/*   lpDDPal = DDLoadPalette(lpDD, name); */
-
-/*   if (lpDDPal) */
-/*     lpDDSPrimary->SetPalette(lpDDPal); */
-
-  image = load_bmp_setpal(fullpath);
+  image = load_bmp_setpal(in);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load %s\n", fullpath);
-      free(fullpath);
+      fprintf(stderr, "Couldn't load '%s'.\n", name);
       return;
     }
-  free(fullpath);
 
   showb.active = /*true*/1;
   showb.showdot = showdot;
@@ -6118,13 +6050,12 @@ void show_bmp( char name[80], int showdot, int reserved, int script)
 void copy_bmp( char name[80])
 {
   SDL_Surface *image = NULL;
-  char *fullpath = NULL;
+  FILE* in = NULL;
 
-  fullpath = paths_dmodfile(name);
-  if (!exist(fullpath))
+  in = paths_dmodfile_fopen(name, "rb");
+  if (in == NULL)
     {
-      Msg("Error: Can't find bitmap at %s.",name);
-      free(fullpath);
+      Msg("Error: Can't open bitmap '%s'.", name);
       return;
     }
 
@@ -6136,14 +6067,12 @@ void copy_bmp( char name[80])
 /*   if (lpDDPal) */
 /*     lpDDSPrimary->SetPalette(lpDDPal); */
 
-  image = load_bmp_setpal(fullpath);
+  image = load_bmp_setpal(in);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load %s\n", fullpath);
-      free(fullpath);
+      fprintf(stderr, "Couldn't load '%s'.\n", name);
       return;
     }
-  free(fullpath);
 
   abort_this_flip = /*true*/1;
 

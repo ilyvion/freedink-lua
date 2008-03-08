@@ -64,7 +64,7 @@ void tiles_load(void) {
   Msg("loading tilescreens...");
   for (h=1; h < NB_TILE_SCREENS; h++)
     {
-      char *fullpath;
+      FILE* in = NULL;
 
       if (h < 10)
 	strcpy(crap1,"0");
@@ -72,18 +72,14 @@ void tiles_load(void) {
 	strcpy(crap1, "");
       
       sprintf(crap, "tiles/Ts%s%d.BMP", crap1, h);
-      fullpath = paths_dmodfile(crap);
+      in = paths_dmodfile_fopen(crap, "rb");
 
-      if (!exist(fullpath))
-	{
-	  free(fullpath);
-	  fullpath = paths_fallbackfile(crap);
-	}
+      if (in == NULL)
+	in = paths_fallbackfile_fopen(crap, "rb");
       
 /*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
       // GFX
-      GFX_tiles[h] = load_bmp(fullpath);
-      free(fullpath);
+      GFX_tiles[h] = load_bmp_from_fp(in);
 
       if(GFX_tiles[h] == NULL) {
 	fprintf(stderr, "Couldn't find tilescreen %s: %s\n", crap, SDL_GetError());

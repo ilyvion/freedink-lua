@@ -142,7 +142,7 @@ static TTF_Font *load_default_font(char *filename) {
       init_set_error_msg("Could not open font '%s'. I tried:\n"
 			 "- loading from executable's resources\n"
 			 "- loading from '%s'",
-			 filename, paths_pkgdatadir());
+			 filename, paths_getpkgdatadir());
       return NULL;
     }
 
