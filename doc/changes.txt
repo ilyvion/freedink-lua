@@ -72,6 +72,9 @@ everywhere to do so. This means that FreeDink always support
 compressed BMPs.
 
 
+The engine now can switch between fullscreen and window mode at
+run-time, using the Ctrl+Enter shortcut.
+
 
 Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
 external .wav, grabbed in Dinkedit 1.06 resources.
