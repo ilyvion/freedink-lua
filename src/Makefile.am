@@ -76,8 +76,8 @@ if HAVE_ZIP
 	zip -A "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 endif
 # Add 'dink' and 'dinkedit' aliases, to please 3rd-party tools
-	ln -s "$(DESTDIR)$(bindir)/freedink$(EXEEXT)" "$(DESTDIR)$(bindir)/dink$(EXEEXT)"
-	ln -s "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)" "$(DESTDIR)$(bindir)/dinkedit$(EXEEXT)"
+	$(LN_S) -f "$(DESTDIR)$(bindir)/freedink$(EXEEXT)" "$(DESTDIR)$(bindir)/dink$(EXEEXT)"
+	$(LN_S) -f "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)" "$(DESTDIR)$(bindir)/dinkedit$(EXEEXT)"
 
 # Other projects that use Autotools and support MinGW
 # http://sourceforge.net/projects/chocolate-doom (Doom port)
