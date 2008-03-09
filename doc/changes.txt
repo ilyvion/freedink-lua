@@ -50,6 +50,16 @@ the port and is now fixed. Curiously it didn't seem to cause bugs
 before.
 
 
+Removed DinkC command 'playavi', which was removed in v1.08. It was
+previously abused into launching external executables but no released
+D-Mod made use of that. Additionaly the command used to stop the
+execution of the current script, while it's now just ignored in
+v1.08. This means v1.07 may stop where v1.08 would continue, e.g.  in
+"City of the Dead"'s start.c. "Fairy Goodness Online" also rely on an
+external executable but it's lanched manually. So removing this
+command does not break anything released.
+
+
 Gamepad: I didn't test much with the original game, but I set a
 greater threshold for joystick axis - with the same threshold than the
 original game (~10%) Dink is going diags too easily.

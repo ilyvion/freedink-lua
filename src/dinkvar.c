@@ -7571,31 +7571,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "playavi"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //DSDisable();
-
-
-                                //ShowWindow(hWndMain, SW_MINIMIZE);
-
-			  /* TODO: portable replacement */
-/*                                 int     myreturn =      _spawnl(_P_WAIT, "..\\dplay.exe","..\\dplay.exe",slist[0], NULL ); */
-
-//                                 Msg("Return is %d", myreturn);
-                                //ShowWindow(hWndMain, SW_MAXIMIZE);
-
-                                //SetFocus(hWndMain);
-                        }
-                        //InitSound(hWndMain);
-                        strcpy_nooverlap(s, h);
-                        return(2);
-
-                }
                 if (compare(ev[1], "playmidi"))
                 {
                         // (sprite, direction, until, nohard);

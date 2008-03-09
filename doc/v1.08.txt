@@ -74,22 +74,33 @@ Framerate: see framerate.txt. It also sets the Dink speed a bit
 differently, but I'm unsure of the effect.
 
 
-From dinkc.chm, entry for say():
+From dinkc.chm:
 
+- entry for say():
 "Also in 1.07 and earlier, Dink would not interpret lines with a colon
 correctly, like so:say("bonus: 5 points", 1); // would not display any
 text at all!This issue has also been fixed in 1.08."
 
-entry for sp_move_nohard():
+- entry for sp_move_nohard():
 "In 1.07 and earlier, the move_no_hard value only had an effect when
 the active_sprite was actively moving (through move and move_stop
-commands).In 1.08+, the move_no_hard value should take effect at all
+commands). In 1.08+, the move_no_hard value should take effect at all
 times."
 
-entry for show_bmp():
+- entry for show_bmp():
 "1.07 had a couple bugs displaying the map dot: it would not be
 displayed properly if Dink was warped using DinkC or if he was on the
-32nd screen of any row.  This has been fixed in 1.08+."
+32nd screen of any row. This has been fixed in 1.08+."
+
+- entry for playavi():
+"playavi was removed from 1.08+.  In early development versions of
+Dink Smallwood, this command was used to call an external dplay.exe
+file to play avi movies. However, this was not implemented in the
+final game as it didn't work very well. Before the Dink Smallwood
+source code was released, Dan Walma used this command to add
+additional features, like changing maps. He released dPlay, a
+replacement for dplay.exe. No D-Mods were released that took advantage
+of this functionality."
 
 [TODO]
 
@@ -116,6 +127,11 @@ Digest:
   and a couple clean-up.
 
 - dinkvar.h: ~190kB. TrueColor mode, scope?, ...
+
+  - max_idata changed from 600 to 1000; idata are additional sprite
+    data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
+    more than 600 idata, and v1.07 ignores part of them, resulting in
+    misplaced sprites.
 
 
 Compilation
