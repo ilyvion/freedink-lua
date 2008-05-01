@@ -5956,7 +5956,7 @@ int main(int argc, char *argv[])
       updateFrame();
     }
 
-  return(/*true*/1);
+  return(/*true*/0);
 }
 
 

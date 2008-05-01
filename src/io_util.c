@@ -81,9 +81,12 @@ ciconvert (char *filename)
   if ((f = fopen(filename, "r")) != NULL)
     {
       fclose(f);
+      return;
     }
 
   /* Else, check each path element of the filename */
+  /* No need to support volumes ("C:\"...) because this function
+     already returned in case-insensitive environments (woe&dos) */
   cur_dir = malloc(strlen("./") + strlen(filename) + 1);
   if (filename[0] == '/')
     {
