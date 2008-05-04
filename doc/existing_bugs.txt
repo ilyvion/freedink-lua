@@ -9,4 +9,10 @@ Bugs that existed in v1.07 and needs to be fixed:
 - When saying a text near the border of a screen, it isn't placed
   correctly the very first time it's displayed
 
+- say_stop*(&sprite, ...) kills other text sprites related to
+  &sprite. Unfortunately this prevents those other texts to return to
+  their originating script, because of kill_text_owned_by(). This is
+  discussed in http://www.dinknetwork.com/forum.cgi?MID=92406 so it's
+  also present in v1.08.
+
 For fixed bugs, see changes.txt.

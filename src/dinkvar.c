@@ -9647,9 +9647,11 @@ void run_script(int script)
  * Run callbacks, order by index. Sets the activation delay if
  * necessary. Kill obsolete callbacks along the way.
  *
- * Callbacks are set by wait() and
- * set_callback_random(). spawn()/external()/etc. use other
- * mechanisms.
+ * Callbacks are set by wait() and set_callback_random().
+ * 
+ * spawn()/external()/etc. use other mechanisms. say_stop*() also use
+ * callbacks, but implemented differently (spr[x].callback, processed
+ * in updateFrame()).
  **/
 void process_callbacks(void)
 {
