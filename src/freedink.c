@@ -2810,7 +2810,7 @@ void human_brain(int h)
 				if (randy == 1) say_text("`$I don't know any magic.",h,0);
 				if (randy == 2) say_text("`$I'm no wizard!",h,0);
 				if (randy == 3) say_text("`$I need to learn magic before trying this.",h,0);
-				if (randy == 4) say_text("`$I'm gesturing wildly to  no avail!",h,0);
+				if (randy == 4) say_text("`$I'm gesturing wildly to no avail!",h,0);
 				if (randy == 5) say_text("`$Nothing happened.",h,0);
 				if (randy == 6) say_text("`$Hocus pocus!",h,0);
 				

@@ -61,6 +61,8 @@ the "reDink" version, which are described in its readme_reDink.txt.
 The included dinkc.chm has a section "Internal Functions by Version"
 with a "v1.08+" entry, describing all added DinkC commands.
 
+Grep //redink1 in the 1.08 source code.
+
 Paul Jewsbury posted a list of v1.08 bugs he ran into:
 http://www.dinknetwork.com/forum.cgi?MID=89849
 
@@ -84,17 +86,176 @@ I suggest different approaches depending on the kind of fix:
 - bad improvement never used in a released D-Mod: don't apply change
   and mark as deprecated
 
+- DinkC changes: offer 2 versions of the engine (1.07 and 1.08) as
+  well as a new DinkC with a clean syntax, a different file extension,
+  and UTF-8 support.
 
 List of changes
 ===============
 
-Compiled by merging the list of fixes in each of the links above:
+whatsnew.txt
+------------
 
-Framerate: see framerate.txt. It also sets the Dink speed a bit
-differently, but I'm unsure of the effect.
+Fixes:
+[X] Support for windowed mode (-window parameter).
+    => this refers to fixing the colors in windowed mode, which SDL
+    already provided for us.
+[X] Dink moves at a normal (slower) speed on faster computers.
+[X] Framerate can no longer exceed 83 FPS (to fix problems with vsync disabled).
+    => See 2007-09-18 - 2007-09-20 commits; I also improved the code
+    for better correctness. See framerate.txt.
+[ ] The 1-pixel row above the status bar now draws sprite graphics.
+[ ] Dink can no longer walk around the edges of the screen during a screenlock.
+[ ] Time for save game correctly displayed (2:05 instead of 2:5).
+[ ] The first tile on the fire and water tile pages animate correctly.
+[ ] Dink's map position appears correctly after warps.
+[X] Properly exits when closed with Alt-F4.
+    => done as part of FreeDink v1.07 clean-up
+[ ] Scrolling now appears on 1-pixel rows and columns near status bar.
+[ ] Level-up no longer lost if in inventory screen, fixed several other
+    experience count issues.
+[ ] Status is drawn on load so the magic-level is always displayed.
+[ ] Dink's speed reset to normal (3) on load to prevent 'hyper-sword' bug.
+[ ] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
+[ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
+    infinite loop of hard-drive punishment).
+[ ] Restoring game will not redraw status bar if it wasn't drawn.
+[ ] Removed screenlock on restart game
+[ ] Fixed issue of loading regular bmp sequences over top of previous sequences
+    (before the animation would be 'corrupt').
+
+[X] Dinkedit: several spelling/grammar fixes
+[X] Removed extra space in "I'm gesturing wildly to  no avail!"
+    => Fixed 2008-06-08
+
+Improvements:
+[ ] Support for high-color (-truecolor parameter).
+[ ] "dnotalk" script is run if no sprites are around when Dink talks (not
+    required).
+[ ] "dnomagic" script is run if Dink tries to use magic without arming any (not
+    required).
+
+Improvements that potentially break backward compatibility:
+[ ] "button4" script is run when the user hits the enter key (not required).
+[ ] "button7" through "button10" scripts will be run when extra gamepad buttons
+    are pressed.
+    => there's a naming conflict: "Edit: Well, that's beautiful... As
+    you may or may not be aware, as of 1.08, you can change the
+    function of the Enter key in your D-Mod with a script named
+    'button4'. Secret of Parizaya just happens to have a script named
+    button4, interfering with the Enter key's ability to
+    work. Therefore, Secret of Parizaya is currently incompatible with
+    1.08. Tada." (http://www.dinknetwork.com/forum.cgi?MID=59442)
+[ ] Variables are no longer shared between two instances of the same script.
+[ ] Variables can begin with another variable stub (i.e. &goldtemp will work with
+    &gold).
+[ ] &missle_source is defined for all attacks, not just missiles.
+[ ] &return is a built-in variable that stores the last return value of any
+    function (built-in or custom).
+[ ] Custom functions can have up to 9 arguments, stored in the built-in variables
+    &arg1 through &arg9.
+
+???
+[ ] Corpses appear as the same size as the living sprite.
 
 
-From dinkc.chm:
+DinkC changes:
+
+Fixes:
+[X] playavi(str avifile)
+    Removed command.
+    => applied unconditionaly 2008-03-09
+[ ] run_script_by_number(int script, "proc");
+    No longer runs a random procedure if it cannot locate proc specified.
+[ ] sp_sound(int sprite, int value)
+    Passing a -1 will no longer crash the game.
+
+Backward-incompatible fixes:
+[ ] compare_magic(str magicitem)
+    Works correctly.
+[ ] sp_freeze(int sprite, bool freeze (-1 to return))
+    If 1, acts like freeze.  If 0, acts like unfreeze.  -1 will return whether
+    the given sprite is frozen or not (basically a better 'busy' function).
+[ ] sp_move_x(int sprite, int value)
+    Like sp_mx, but does not return a value.
+[ ] sp_move_y(int sprite, int value)
+    Like sp_my, but does not return a value.
+[ ] sp_move_nohard(int sprite, bool value)
+    When activated, a sprite can move freely through all hardness.  Previously
+    had no effect.
+
+New functions:
+[ ] clear_editor_info()
+    Removes the editor_seq and editor_frame for all sprites on the map.
+[ ] get_date_day()
+    Returns the current day.
+[ ] get_date_month()
+    Returns the current month.
+[ ] get_date_year()
+    Returns the current year.
+[ ] get_item(str item)
+    Returns first slot of this item.
+[ ] get_magic(str magicitem)
+    Returns first slot of this magic.
+[ ] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
+    Begins searching for brains of type 'brain' starting with 'spritestart'.
+[ ] get_time_game()
+    Returns the number of minutes the player has been playing the game (total).
+[ ] get_time_real()
+    Returns the number of minutes in the day (900 = 3 pm).
+[ ] get_truecolor()
+    Returns true if the game is in true-color mode.
+[ ] load_map(str mapdat, str dinkdat)
+    Loads a new map.dat/dink.dat.  Saved and loaded with the save game.
+[ ] load_palette(str palbmp)
+    Loads a new global palette (only works in full screen 256 color mode). Saved
+    and loaded with the save game.
+[ ] load_tile(str tilebmp, int index)
+    Loads a new tile set for the given index.  Saved and loaded with the save
+    game.
+[ ] loopmidi(bool loop)
+    If 1, all midis will automatically loop.  If 0, midis will not loop.
+[ ] make_global_function(str script, str function)
+    Allows you to use the specified function in DinkC without the use of
+    external.
+[ ] math_abs(int num)
+[ ] math_mod(int num1, int num2)
+[ ] math_sqrt(int num1)
+[ ] map_hard_tile(int maptile, int hardtileindex)
+    Gets or sets the hard tiles on the current map screen.  'maptile' refers to
+    the tiles on the current screen from 1 (upper-left corner) to 96
+    (lower-right corner).
+[ ] map_tile(int maptile, int tileindex)
+    Gets or sets the tiles on the current map screen.  'maptile' refers to the
+    tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
+    corner).
+[ ] screenlock(int value)
+    Returns the current screenlock value if value is -1.
+[ ] set_dink_base_push(int dinkbasepush)
+    Sets the base-push for Dink.  Default is 310.  Not saved with save games.
+[ ] set_font_color(int colorindex, int red, int green, int blue)
+    Changes the specified color index to the specified color.
+[ ] set_save_game_info(str line)
+    Sets the line of information to be displayed in the save game summary.  The
+    default is "Level &level".
+[ ] show_console()
+    Shows the console, which accepts DinkC commands as input (Escape to cancel).
+[ ] show_inventory()
+    Displays the inventory screen.
+[ ] sp_blood_seq(int sprite, int seq)
+    The start of the blood sequences.
+[ ] sp_blood_num(int sprite, int num)
+    How many blood sequences follow sp_blood_seq.
+[ ] sp_clip_bottom(int sprite, int pixels)
+[ ] sp_clip_left(int sprite, int pixels)
+[ ] sp_clip_right(int sprite, int pixels)
+[ ] sp_clip_top(int sprite, int pixels)
+[ ] var_used()
+    Returns the number of variables used.
+
+
+dinkc.chm
+---------
 
 - entry for say():
 "Also in 1.07 and earlier, Dink would not interpret lines with a colon
@@ -122,11 +283,9 @@ additional features, like changing maps. He released dPlay, a
 replacement for dplay.exe. No D-Mods were released that took advantage
 of this functionality."
 
-[TODO]
 
-
-Diffs
-=====
+Diffing
+-------
 
 Files cannot be diffed directly because the indentation
 changed. Indenting both v1.07 and v1.08 using 'indent' (no option)
@@ -137,21 +296,33 @@ allows you to get small diffs suitable for review:
 Removing ^M characters can make the reading more pleasurable:
   find 107/ 108/ -type f | xargs sed -i -e 's/\r//g'
 
-Digest:
-[ ] dink.cpp: ~75kB. Numerous references to the console mode, which
-    needs to take over input at several points in the code.
 
-[X] dinkedit.cpp: only a few grammar changes.
+Diff overview
+-------------
 
-[ ] update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
-    and a couple clean-up.
+- dink.cpp: ~75kB. Numerous references to the console mode, which
+  needs to take over input at several points in the code.
 
-[ ] dinkvar.h: ~190kB. TrueColor mode, scope?, ...
+- dinkedit.cpp: only a few grammar changes.
 
-  [ ] max_idata changed from 600 to 1000; idata are additional sprite
-      data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
-      more than 600 idata, and v1.07 ignores part of them, resulting in
-      misplaced sprites.
+- update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
+  and a couple clean-up.
+
+- dinkvar.h: ~190kB. TrueColor mode, scope?, ...
+
+
+Changes not documented in whatsnew.txt
+--------------------------------------
+
+[ ] max_idata changed from 600 to 1000; idata are additional sprite
+    data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
+    more than 600 idata, and v1.07 ignores part of them, resulting in
+    misplaced sprites.
+
+[ ] added a woe registry key so as to deprecate
+    %WINDIR%/dinksmallwood.ini overwrite
+
+[ ] New DinkC function: set_smooth_follow
 
 
 Compilation
