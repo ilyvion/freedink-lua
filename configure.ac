@@ -48,8 +48,14 @@ gl_EARLY
 AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
+AC_ARG_ENABLE([embedded-resources],
+  AS_HELP_STRING([--disable-embedded-resources], [don't embed default fonts in the executable [[default=enabled]]]),
+  [], [enable_embedded_resources=yes])
+if test x"$enable_embedded_resources" = x"yes"; then
 AC_CHECK_PROG(ZIP, zip, zip)
+fi
 AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
+
 
 AC_ARG_WITH([upx],
   AS_HELP_STRING([--with-upx], [compress executables [[default=no]]]),
@@ -119,10 +125,10 @@ fi
 
 # Dynamic and static builds
 AC_ARG_ENABLE([static],
-  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default=no]]]),
-  [static=1], [static=0])
+  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default=disabled]]]),
+  [], [enable_static=no])
 
-if test x"$static" = x"1"; then
+if test x"$enable_static" = x"yes"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type)
     # Modified to accept "biplet" instead of "triplet", because at
@@ -301,6 +307,9 @@ AC_OUTPUT
 echo
 echo "Options summary:"
 echo "* --with-upx=$with_upx"
-echo "* --enable-static=$static"
+echo "* --enable-static=$enable_static"
+# We'd rather have a consistent autonomous executable across
+# platforms, always enable this:
+#echo "* --enable-embedded-resources=$enable_embedded_resources"
 echo
 echo "Now you can type 'make' to compile $PACKAGE_STRING"

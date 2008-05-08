@@ -37,7 +37,7 @@ $(BUILD)/config.status: configure
 	dh_testdir
 	[ -d $(BUILD) ] || mkdir $(BUILD)
 	# Add here commands to configure the package.
-	cd $(BUILD) && $(SRC)/configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+	cd $(BUILD) && $(SRC)/configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --bindir=/usr/games CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 
 build: debian/build-stamp

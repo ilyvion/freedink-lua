@@ -1,6 +1,6 @@
 ?package(freedink):needs="X11" section="Games/Adventure"\
-  title="GNU FreeDink" command="/usr/bin/freedink"\
+  title="GNU FreeDink" command="/usr/games/freedink"\
   icon="/usr/share/pixmaps/freedink.xpm"
 ?package(freedink):needs="X11" section="Games/Adventure"\
-  title="GNU FreeDinkedit" command="/usr/bin/freedinkedit"\
+  title="GNU FreeDinkedit" command="/usr/games/freedinkedit"\
   icon="/usr/share/pixmaps/freedink.xpm"
