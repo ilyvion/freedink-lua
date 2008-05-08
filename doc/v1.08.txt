@@ -65,6 +65,26 @@ Paul Jewsbury posted a list of v1.08 bugs he ran into:
 http://www.dinknetwork.com/forum.cgi?MID=89849
 
 
+Incorporating changes in FreeDink
+=================================
+
+I suggest different approaches depending on the kind of fix:
+
+- bug fix with no side effect: apply fix
+
+- bug fix that was exploited in a released D-Mod: don't apply fix in
+  v1.07 mode, add in v1.08 mode
+
+- good improvement: apply change
+
+- bad improvement already used in a released D-Mod: apply change in
+  v1.08 mode, or if possible, don't apply change at all, and fix the
+  D-Mod
+
+- bad improvement never used in a released D-Mod: don't apply change
+  and mark as deprecated
+
+
 List of changes
 ===============
 
@@ -118,20 +138,20 @@ Removing ^M characters can make the reading more pleasurable:
   find 107/ 108/ -type f | xargs sed -i -e 's/\r//g'
 
 Digest:
-- dink.cpp: ~75kB. Numerous references to the console mode, which
-  needs to take over input at several points in the code.
+[ ] dink.cpp: ~75kB. Numerous references to the console mode, which
+    needs to take over input at several points in the code.
 
-- dinkedit.cpp: only a few grammar changes.
+[X] dinkedit.cpp: only a few grammar changes.
 
-- update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
-  and a couple clean-up.
+[ ] update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
+    and a couple clean-up.
 
-- dinkvar.h: ~190kB. TrueColor mode, scope?, ...
+[ ] dinkvar.h: ~190kB. TrueColor mode, scope?, ...
 
-  - max_idata changed from 600 to 1000; idata are additional sprite
-    data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
-    more than 600 idata, and v1.07 ignores part of them, resulting in
-    misplaced sprites.
+  [ ] max_idata changed from 600 to 1000; idata are additional sprite
+      data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
+      more than 600 idata, and v1.07 ignores part of them, resulting in
+      misplaced sprites.
 
 
 Compilation

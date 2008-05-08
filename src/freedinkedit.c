@@ -1616,7 +1616,7 @@ void check_in(void)
       sprintf(in_default,"%d",sp_type); //set default
       blit(30,1,GFX_lpDDSBack,250,170);
       Say("New Type?",260,175);
-      Say("Type controls the sprites basic type - 0 means it is ornamental only"
+      Say("Type controls the sprite's basic type - 0 means it is ornamental only"
 	  "(cannot walk behind or think) 1 - means normal sprite.  (for a tree or person)"
 	  ,10,10);
     }
@@ -1631,7 +1631,7 @@ void check_in(void)
       Say("New Brain?",260,175);
       Say("Brains are a predefined way for this sprite to behave. 0 = No movement, 1 = Dink,"
 	  " 2 = Dumb Sprite Bouncer, 3 = Duck, 4 = Pig, 6 = repeat, 7 = one loop then kill,"
-	  " 9 = moster (all diag), 10 = monster(no diag)"
+	  " 9 = monster (all diag), 10 = monster(no diag)"
 	  ,10,10);
     }
 
@@ -1814,7 +1814,7 @@ void check_in(void)
 	sprintf(in_default,"%d",sp_hitpoints); //set default
 	blit(30,1,GFX_lpDDSBack,250,170);
 	Say("Hitpoints:",260,175);
-	Say("How strong is this creature?  (0 = not alive/invincable)"
+	Say("How strong is this creature?  (0 = not alive/invincible)"
 	    ,10,10);
       }
 
@@ -1826,7 +1826,7 @@ void check_in(void)
 	sprintf(in_default,"%d",sp_nohit); //set default
 	blit(30,1,GFX_lpDDSBack,250,170);
 	Say("Nohit:",260,175);
-	Say("Can this this be punched? 0 if yes.  Either way it will"
+	Say("Can this be punched? 0 if yes.  Either way it will"
 	    "still check for hit() if a script is attached."
 	    ,10,10);
       }
@@ -1864,7 +1864,7 @@ void check_in(void)
 	sprintf(in_default,"%d",sp_defense); //set default
 	blit(30,1,GFX_lpDDSBack,250,170);
 	Say("Defense:",260,175);
-	Say("This will deducted from any attack."
+	Say("This will be deducted from any attack."
 	    ,10,10);
       }
 
@@ -4838,7 +4838,7 @@ void updateFrame(void)
 	    }
 	  sprintf(msg,
 		  "Map # %d - Press ENTER to edit, SPACE to detail map. (%d)  (Q) to quit and save. L to replace a "
-		  "screen from another map file.  Z to toggle this help text.",
+		  "screen from another map file.  Z to toggle this help text. S to modify screentype. M to modify midi.",
 		  mode,
 		  (((spr[1].y+1)*32) / 20)+(spr[1].x / 20));
 /* 		  map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20) ]); */
@@ -4886,11 +4886,11 @@ void updateFrame(void)
       if (mode == MODE_SCREEN_SPRITES)
 	{
 
-	  char crap7[10];
+	  char crap7[80];
 	  if (sp_screenmatch) strcpy(crap7, "ScreenMatch is ON."); else strcpy(crap7, "ScreenMatch is OFF");
 
 	  sprintf(msg, "Press ENTER to pickup/putdown sprite. Space to show hardness.  E to edit/pick new sprite. SHIFT to move fast. (S)tamp sprite. ] &"
-		  "[ to scale (now at %d). DEL to erase sprite.  Press 1 through 9 to change sprite attributes. (shift for more)  Last sprite touched: %d  %s (M to toggle)"
+		  "[ to scale (now at %d). DEL to erase sprite.  Press 1 through 9 to change sprite attributes. (hold alt or shift for more)  Last sprite touched: %d  %s (M to toggle)"
 		  "Hold Z or X + arrow keys to trim a sprite. V to change Vision mode. X: %d Y: %d",
 		  spr[1].size,last_sprite_added,crap7, spr[1].x, spr[1].y);
 
