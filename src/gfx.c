@@ -322,7 +322,7 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
 
   if (from_mem == 1)
     {
-      image = IMG_Load_RW(rw, 0);
+      image = IMG_Load_RW(rw, 1);
     }
   else
     {

@@ -2081,14 +2081,12 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
 	    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
 
-	    GFX_k[sprite].k = load_bmp_from_mem(rw);
+	    GFX_k[sprite].k = load_bmp_from_mem(rw); // auto free()
 	    // bmp_surf = IMG_Load_RW (rw, 0);
 	    if (GFX_k[sprite].k == NULL)
 	      {
 		Msg("unable to load %s from fastfile", crap);
 	      }
-
-	    SDL_FreeRW (rw);
 
 	    if (leftalign)
 	      ; // ?

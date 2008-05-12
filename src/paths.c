@@ -190,6 +190,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       }
 
     free(default1);
+    free(lookup);
   }
 
   /** fallbackdir (e.g. "/usr/share/dink/dink") **/
