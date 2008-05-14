@@ -1933,7 +1933,8 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
       if (pfile == NULL)
 	{
-	  FastFileClose( pfile );
+	  FastFileClose(pfile);
+
 	  //   FastFileFini();
 	  if (oo == 1)
 	    Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
@@ -2192,8 +2193,8 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	      cur_sprite++;
 	      if (!reload)
 		save_cur++;
-	      FastFileClose( pfile );
 	    }
+	  FastFileClose(pfile);
 	}
     }
   // FastFileFini();
@@ -2282,6 +2283,13 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	in = paths_fallbackfile_fopen(crap, "rb");
       else
 	in = paths_dmodfile_fopen(crap, "rb");
+
+      // Free previous surface before overwriting it (prevent
+      // memory leak)
+      if (GFX_k[cur_sprite].k != NULL)
+	{
+	  SDL_FreeSurface(GFX_k[cur_sprite].k);
+	}
 
       GFX_k[cur_sprite].k = load_bmp_from_fp(in);
       if (GFX_k[cur_sprite].k == NULL && oo == 1)
