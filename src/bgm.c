@@ -164,6 +164,7 @@ int PlayMidi(char *sFileName)
   if ((music_data = Mix_LoadMUS(fullpath)) == NULL)
     {
       Msg("Unable to play '%s': %s", fullpath, Mix_GetError());
+      free(fullpath);
       return 0;
     }
 
@@ -171,6 +172,7 @@ int PlayMidi(char *sFileName)
   Mix_HookMusicFinished(callback_HookMusicFinished);
   Mix_PlayMusic (music_data, 1);
 
+  free(fullpath);
   return 1;
 }
 
