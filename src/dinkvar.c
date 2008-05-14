@@ -3572,30 +3572,6 @@ Msg("Ok, sprite %d is being scaled.", h);
 
 
 
-
-
-void refigure_out(char line[255])
-{
-        char ev[15][100];
-/*         int myseq = 0,myframe = 0; */
-        int i;
-        memset(&ev, 0, sizeof(ev));
-        for (i = 1; i <= 14; i++)
-        {
-                separate_string(line, i,' ',ev[i]);
-                //   Msg("Word %d is \"%s\"",i,ev[i]);
-        }
-
-        if (compare(ev[1],"LOAD_SEQUENCE_NOW"))
-        {
-                //           name   seq    speed       offsetx     offsety       hardx      hardy
-                //      reload_sprites(ev[2],atol(ev[3]),0);
-        }
-
-
-}
-
-
 void strchar(char *string, char ch)
 /* This acts in the same way as strcat except it combines a string and
 a single character, updating the null at the end. */
