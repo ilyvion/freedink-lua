@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define NB_PAIRS_MAX 128
 
 /* Dink's .d files are compressed using the Binary Pair Encoding
    algorithm, using one single block, check
@@ -42,10 +43,15 @@
 
 int decompress(FILE *in, FILE *out)
 {
-  /* Replacement strings contain at most 2^nb_pairs_max */
+  /* Replacement strings contain at most 2^NB_PAIRS_MAX
+     (or 1<<NB_PAIRS_MAX) */
   /* Memory footprint = 2MB = acceptable :) */
-  char repl[128][2^128];
-  memset(repl, 0, 128 * 2^128);
+  /* EDIT: it's rather 2x10^38, which is less acceptable */
+  /* TODO: reimplement all this using a 128-bytes stack and on-the-fly
+     substitution; the previous version "worked" but could segfault
+     easily. I had confused 2^128 (e.g. 130) and 1<<128... */
+  char repl[128][1<<128 + 1];
+  memset(repl, 0, 128 * (1<<128 + 1));
 
   /* First byte is the number of pairs + 128 */
   int nb_pairs = fgetc(in);
