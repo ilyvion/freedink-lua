@@ -301,6 +301,18 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   SDL_AudioSpec wav_spec;
   Uint8 *wav_buf;
   Uint32 wav_len;
+
+  // Safety check
+  if (index >= MAX_SOUNDS)
+    {
+      fprintf(stderr, "SCRIPTING ERROR: sound index %d is too big.\n", index);
+      return 0;
+    }
+
+  // Free previous sound if necessary
+  FreeRegisteredSound(index);
+
+
   if (SDL_LoadWAV_RW(rwops, rwfreesrc, &wav_spec, &wav_buf, &wav_len) == NULL)
     {
       fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
@@ -429,7 +441,8 @@ void kill_repeat_sounds(void)
 }
 
 /**
- * Kill all repeating sounds, even the ones that survive
+ * Kill all repeating sounds, even the ones that survive (used from
+ * DinkC's restart_game() and load_game())
  */
 void kill_repeat_sounds_all(void)
 {
@@ -543,6 +556,13 @@ int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repea
 static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*bool*/int repeat, int explicit_channel)
 {
   int channel;
+
+  // Safety check
+  if (registered_sounds[sound].cvt.buf == NULL)
+    {
+      fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
+      return 0;
+    }
 
   /* Sample rate / frequency */
   {
@@ -698,6 +718,9 @@ int InitSound()
 
   /* No sound loaded yet - initialise the registered sounds: */
   memset(registered_sounds, 0, sizeof(registered_sounds));
+  /* Make sure they won't be used: */
+  for (i = 0; i < MAX_SOUNDS; i++)
+    registered_sounds[i].cvt.buf = NULL;
   
   return 0;
 }
@@ -728,10 +751,14 @@ void QuitSound(void)
 static void FreeRegisteredSound(int sound)
 {
   if (registered_sounds[sound].cvt.buf != NULL)
-    {
-      free(registered_sounds[sound].cvt.buf);
-      registered_sounds[sound].cvt.buf = NULL;
-    }
+    /* TODO: is it the one we allocated by malloc, or a copy from SDL?
+       In the latter case, maybe we need to use SDL_Free or
+       SDL_FreeWAV instead */
+    free(registered_sounds[sound].cvt.buf);
+
+  memset(&registered_sounds[sound], 0, sizeof (registered_sounds[sound]));
+  /* Make sure it won't be reused: */
+  registered_sounds[sound].cvt.buf = NULL;
 }
 
 /**

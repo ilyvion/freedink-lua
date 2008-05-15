@@ -1,3 +1,6 @@
 - Alexander Krivács Schrøder: early beta-testing
 
+- José María Pavón Núñez: tracked big memory leaks (sound and graphics
+  resources) on game reload and restart
+
 - Your name here :)
