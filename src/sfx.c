@@ -751,9 +751,9 @@ void QuitSound(void)
 static void FreeRegisteredSound(int sound)
 {
   if (registered_sounds[sound].cvt.buf != NULL)
-    /* TODO: is it the one we allocated by malloc, or a copy from SDL?
-       In the latter case, maybe we need to use SDL_Free or
-       SDL_FreeWAV instead */
+    /* cvt.buf was malloc'd by us before. It's used both as source and
+       destination by 'SDL_ConvertAudio', so it's not realloc'd in the
+       process, and we use 'free' (and not a SDL-specific func): */
     free(registered_sounds[sound].cvt.buf);
 
   memset(&registered_sounds[sound], 0, sizeof (registered_sounds[sound]));
