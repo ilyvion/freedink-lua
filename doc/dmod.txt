@@ -44,7 +44,7 @@ void main(void)
 }
 EOF
 cat <<'EOF' > story/start.c
-int main(void)
+void main(void)
 {
   debug("Loading sounds..");
   load_sound("QUACK.WAV", 1);
