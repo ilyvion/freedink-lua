@@ -23,6 +23,8 @@
 #ifndef _GFX_SPRITES_H
 #define _GFX_SPRITES_H
 
+#include "rect.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -31,6 +33,10 @@ extern "C"
 #define MAX_SPRITES 4000
 
   extern void sprites_unload(void);
+  extern void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
+			      rect hardbox, int notanim, int black, int leftalign, int samedir);
+  extern void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
+			   rect hardbox, int notanim, int black, int leftalign);
 
 #ifdef __cplusplus
 }
