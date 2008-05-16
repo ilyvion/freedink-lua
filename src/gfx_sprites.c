@@ -472,7 +472,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* Load sprite, either from a dir.ff pack (delegated to
    load_sprite_pak), either from a BMP file */
 /* - org: path to the file, relative to the current game (dink or dmod) */
-/* - nummy: ??? */
+/* - nummy: sequence number */
 void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {

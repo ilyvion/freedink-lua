@@ -418,11 +418,11 @@ struct GFX_pic_info
   int xoffset;
 };
 
+/* Sequence (not sprite) description */
 struct sprite_index
 {
-	int x,y;
-	int s;
-	int last;
+  int s;    // index in GFX_k for the first ("start") frame
+  int last; // index in GFX_k for the last frame
 	
 };
 
