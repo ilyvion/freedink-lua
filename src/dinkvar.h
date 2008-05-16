@@ -409,15 +409,16 @@ struct GFX_pic_info
 };
 
 /* Sequence description */
+#define MAX_FRAMES_PER_SEQUENCE 50
 struct sequence
 {
   int is_active; // does it contain something
-  int start;     // index in GFX_k for the first ("start") frame
-  int len;       // number of frames in this sequence
-  int frame[51]; // index in GFX_k for the each frame
-  int delay[51]; // frame duration
-  unsigned char special[51];
   char data[80]; // matching dink.ini (or init()) line?
+  int start;     // index in GFX_k for the first ("start") frame - 1
+  int len;       // number of frames in this sequence
+  int frame[MAX_FRAMES_PER_SEQUENCE+1+1]; // index in GFX_k for the each frame, indexed from 1, ended by '0'
+  int delay[MAX_FRAMES_PER_SEQUENCE+1]; // frame duration, indexed from 1
+  unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
 };
 
 extern struct pic_info k[];

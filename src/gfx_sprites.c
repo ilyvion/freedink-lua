@@ -96,8 +96,6 @@ static void setup_anim(int seq_no, int delay)
 void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoffset,
 		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
-  int work;
-
   HFASTFILE                  pfile;
 /*   BITMAPFILEHEADER UNALIGNED *pbf; */
 /*   BITMAPINFOHEADER UNALIGNED *pbi; */
@@ -113,21 +111,18 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   //IDirectDrawSurface *pdds;
 
   int sprite = 71;
-/*   /\*BOOL*\/int trans = /\*FALSE*\/0; */
-  /*bool*/int reload = /*false*/0;
+  int is_a_reload = 0;
 
   char crap[200];
 
   int save_cur = cur_sprite;
-
-  int oo;
 
   if (seq[seq_no].len != 0)
     {
       //  Msg("Saving sprite %d", save_cur);
       cur_sprite = seq[seq_no].start + 1;
       //Msg("Temp cur_sprite is %d", cur_sprite);
-      reload = /*true*/1;
+      is_a_reload = 1;
     }
 
 
@@ -167,16 +162,14 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 	       }
   */
 
+  int oo;
   for (oo = 1; oo <= 51; oo++)
     {
-      char leading_zero[1+1];
+      char *leading_zero;
       //load sprite
       sprite = cur_sprite;
       //if (reload) Msg("Ok, programming sprite %d", sprite);
-      if (oo < 10)
-	strcpy(leading_zero, "0");
-      else
-	strcpy(leading_zero, "");
+      if (oo < 10) leading_zero = "0"; else leading_zero = "";
       sprintf(crap, "%s%s%d.bmp", fname, leading_zero, oo);
 
       pfile = FastFileOpen(crap);
@@ -411,7 +404,7 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 	      else
 		{
 		  //guess setting
-		  work = k[cur_sprite].box.right / 4;
+		  int work = k[cur_sprite].box.right / 4;
 		  k[cur_sprite].hardbox.left -= work;
 		  k[cur_sprite].hardbox.right += work;
 		}
@@ -423,7 +416,7 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 		}
 	      else
 		{
-		  work = k[cur_sprite].box.bottom / 10;
+		  int work = k[cur_sprite].box.bottom / 10;
 		  k[cur_sprite].hardbox.top -= work;
 		  k[cur_sprite].hardbox.bottom += work;
 		}
@@ -442,7 +435,7 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 		    }
 	      cur_sprite++;
-	      if (!reload)
+	      if (!is_a_reload)
 		save_cur++;
 	    }
 	  FastFileClose(pfile);
@@ -460,22 +453,21 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
-  int work;
-  char crap[200], hold[5];
-  char *fullpath;
-  int oo;
-  int exists = 0;
+  char crap[200];
+  char *fullpath = NULL;
   int use_fallback = 0;
 
-  if (no_running_main) draw_wait();
 
-  char *org_dirname = pdirname(org);
+  if (no_running_main)
+    draw_wait();
+
 
   /* Order: */
   /* - dmod/.../dir.ff */
   /* - dmod/.../...01.BMP */
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
+  char *org_dirname = pdirname(org);
   sprintf(crap, "%s/dir.ff", org_dirname);
   fullpath = paths_dmodfile(crap);
   //Msg("Checking for %s..", crap);
@@ -483,11 +475,13 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
     {
       free(fullpath);
       free(org_dirname);
-      load_sprite_pak(org, seq_no, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
+      load_sprite_pak(org, seq_no, speed, xoffset, yoffset,
+		      hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
   free(fullpath);
-
+  
+  int exists = 0;
   sprintf(crap, "%s01.BMP",org);
   fullpath = paths_dmodfile(crap);
   exists = exist(fullpath);
@@ -505,22 +499,26 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  free(org_dirname);
 	  return;
 	}
-      use_fallback = 1;
+      else
+	{
+	  use_fallback = 1;
+	}
     }
   free(org_dirname);
 
-  seq[seq_no].start = cur_sprite -1;
+
+  seq[seq_no].start = cur_sprite - 1;
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
-  for (oo = 1; oo <= 1000; oo++)
+  int oo;
+  for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
       FILE *in = NULL;
-      if (oo < 10) strcpy(hold, "0"); else strcpy(hold,"");
-      sprintf(crap, "%s%s%d.BMP",org,hold,oo);
+      char *leading_zero = NULL;
+      if (oo < 10) leading_zero = "0"; else leading_zero = "";
+      sprintf(crap, "%s%s%d.bmp", org, leading_zero, oo);
 
       /* Set the pixel data */
-/*       k[cur_sprite].k = DDSethLoad(lpDD, crap, 0, 0, cur_sprite); */
-      // GFX
       if (use_fallback)
 	in = paths_fallbackfile_fopen(crap, "rb");
       else
@@ -533,22 +531,29 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  SDL_FreeSurface(GFX_k[cur_sprite].k);
 	}
 
-      GFX_k[cur_sprite].k = load_bmp_from_fp(in);
-      if (GFX_k[cur_sprite].k == NULL && oo == 1)
-	{
-	  /* First frame didn't load! */
-	  /* It's normal if we're at the end of a sequence */
-	  fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
-	}
 
-      /* Define the offsets / center of the image */
-      if (GFX_k[cur_sprite].k != NULL)
+      GFX_k[cur_sprite].k = load_bmp_from_fp(in);
+
+      if (GFX_k[cur_sprite].k == NULL)
 	{
+	  // end of sequence
+	  break;
+	}
+      else
+	{
+	  /** Configure current frame **/
+
+	  /* Fill in .box; this was previously done in DDSethLoad; in
+	     the future we could get rid of the .box field and rely
+	     directly on SDL_Surface's .w and .h fields instead: */
 	  k[cur_sprite].box.top = 0;
 	  k[cur_sprite].box.left = 0;
 	  k[cur_sprite].box.right = GFX_k[cur_sprite].k->w;
 	  k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
-	  if ((oo > 1) & (notanim))
+	  
+	  /* Define the offsets / center of the image */
+
+	  if (oo > 1 && notanim)
 	    {
 	      k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
 	    }
@@ -563,7 +568,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 		}
 	    }
 
-	  if ((oo > 1) & (notanim))
+	  if (oo > 1 && notanim)
 	    {
 	      k[cur_sprite].xoffset = k[seq[seq_no].start + 1].xoffset;
 	    }
@@ -587,7 +592,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  else
 	    {
 	      //default setting
-	      work = k[cur_sprite].box.right / 4;
+	      int work = k[cur_sprite].box.right / 4;
 	      k[cur_sprite].hardbox.left -= work;
 	      k[cur_sprite].hardbox.right += work;
 	    }
@@ -603,7 +608,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	      //default setting
 	      /* eg: graphics\dink\push\ds-p2- and
 		 graphics\effects\comets\sm-comt2\fbal2- */
-	      work = k[cur_sprite].box.bottom / 10;
+	      int work = k[cur_sprite].box.bottom / 10;
 	      k[cur_sprite].hardbox.top -= work;
 	      k[cur_sprite].hardbox.bottom += work;
 	    }
@@ -615,25 +620,6 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  //     k[cur_sprite].yoffset = 0;
 	}
 
-      //add_text(crap,"LOG.TXT");
-
-      if (GFX_k[cur_sprite].k == NULL)
-	{
-	  /* oo == 1 => not even one sprite was loaded, error */
-	  /* oo > 1 => the sequence ends */
-
-	  if (oo < 2)
-	    {
-	      Msg("load_sprites:  Anim %s not found.",org);
-	    }
-
-	  seq[seq_no].len = (oo - 1);
-	  //       initFail(hWndMain, crap);
-	  setup_anim(seq_no, speed);
-
-	  return;
-	}
-
       /* Set transparent color: either black or white */
       if (black)
 	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
@@ -643,66 +629,18 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
       cur_sprite++;
     }
+
+  /* oo == 1 => not even one sprite was loaded, error */
+  /* oo > 1 => the sequence ends */
+  
+  if (oo == 1)
+    {
+      /* First frame didn't load! */
+      fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
+      Msg("load_sprites:  Anim %s not found.",org);
+    }
+  /* Finalize sequence */
+  seq[seq_no].len = oo - 1;
+  setup_anim(seq_no, speed);
+  return;
 }
-
-
-
-
-
-
-/* Like DDLoadBitmap, except that we don't check the existence of
-   szBitmap, and we define the .box sprite attribute with the
-   dimentions of the picture */
-/* Used in load_sprites() and in freedinkedit.cpp */
-/* extern "C" IDirectDrawSurface * DDSethLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */
-/* { */
-/*         HBITMAP             hbm; */
-/*         BITMAP              bm; */
-/*         DDSURFACEDESC       ddsd; */
-/*         IDirectDrawSurface *pdds; */
-
-/*         // */
-/*         //  try to load the bitmap as a resource, if that fails, try it as a file */
-/*         // */
-/*         hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION); */
-
-/*         if (hbm == NULL) */
-/*                 hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION); */
-
-/*         if (hbm == NULL) */
-/*                 return NULL; */
-
-/*         // */
-/*         // get size of the bitmap */
-/*         // */
-/*         GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap */
-
-/*         // */
-/*         // create a DirectDrawSurface for this bitmap */
-/*         // */
-/*         ZeroMemory(&ddsd, sizeof(ddsd)); */
-/*         ddsd.dwSize = sizeof(ddsd); */
-/*         ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
-/*         ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
-/*         ddsd.dwWidth = bm.bmWidth; */
-/*         ddsd.dwHeight = bm.bmHeight; */
-
-/*         if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK) */
-/*                 return NULL; */
-
-/*         DDCopyBitmap(pdds, hbm, 0, 0, 0, 0); */
-
-/*         DeleteObject(hbm); */
-/*         if (sprite > 0) */
-/*         { */
-/*                 k[sprite].box.top = 0; */
-/*                 k[sprite].box.left = 0; */
-/*                 k[sprite].box.right = ddsd.dwWidth; */
-/*                 k[sprite].box.bottom = ddsd.dwHeight; */
-
-/*         } */
-
-
-
-/*         return pdds; */
-/* } */
