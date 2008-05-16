@@ -1,0 +1,13 @@
+Here are the sequence numbers that are directly used by the game.  The
+original game would crash if they were not present.  They are not
+configurable.
+
+seq 165 - process_show_bmp():
+
+  little star in the map stating where the player currently is
+
+
+seq 423 frame 7, seq 423 frame 8 - draw_wait():
+
+  2-images "Please Wait" flashing text before you enter a screen
+  containing lots of new sprites
