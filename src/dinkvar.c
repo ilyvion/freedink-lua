@@ -293,8 +293,6 @@ int  show_dot = /*FALSE*/0;
 int  plane_process = /*TRUE*/1;
 struct hit_map hm;
 
-/* HWND     g_hWnd; */
-struct sprite_index s_index[MAX_SEQUENCES];
 int last_sprite_added = 0;
 unsigned long timer = 0;
 char *command_line;
@@ -315,7 +313,7 @@ int m3x,m3y;
 int playx = 620;
 /*bool*/int windowed = /*false*/0;
 int playl = 20;
-/* HINSTANCE MyhInstance = NULL; */
+
 /*bool*/int mouse1 = /*false*/0;
 int playy = 399;
 int cur_map,cur_tile;
@@ -329,9 +327,7 @@ FPSmanager framerate_manager;
 unsigned long timecrap;
 rect math,box_crap,box_real;
 
-/* HRESULT             ddrval; */
 int sz,sy,x_offset,y_offset;
-/* DDBLTFX     ddbltfx; */
 
 
 
@@ -1757,7 +1753,7 @@ void figure_out(char line[255], int load_seq)
                 //           name   seq    speed       offsetx     offsety       hardx      hardy
 
 	  memset(&hardbox, 0, sizeof(rect));
-                seq[atol(ev[3])].active = /*true*/1;
+                seq[atol(ev[3])].is_active = 1;
 		if (seq[atol(ev[3])].data != line)
 		  strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
@@ -1971,7 +1967,7 @@ void pre_figure_out(char line[255], int load_seq)
                 //           name   seq    speed       offsetx     offsety       hardx      hardy
 
 	  memset(&hardbox, 0, sizeof(rect));
-                seq[atol(ev[3])].active = /*true*/1;
+                seq[atol(ev[3])].is_active = 1;
                 strcpy(seq[atol(ev[3])].data, line);
                 if (compare(ev[4], "BLACK"))
                 {
@@ -2045,7 +2041,7 @@ void pre_figure_out(char line[255], int load_seq)
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy
                 strcpy(seq[atol(ev[3])].data, line);
-                seq[atol(ev[3])].active = /*true*/1;
+                seq[atol(ev[3])].is_active = 1;
                 return;
         }
 
@@ -3732,7 +3728,7 @@ void check_frame_status(int h, int frame)
 /*         HRESULT dderror; */
 /*         char word1[80]; */
 
-        if (seq[h].active == /*false*/0) return;
+        if (!seq[h].is_active) return;
 
         if (h > 0)
         {
@@ -3769,7 +3765,7 @@ void check_seq_status(int h)
 /*         HRESULT dderror; */
 /*         char word1[80]; */
 
-        if (seq[h].active == /*false*/0) return;
+        if (!seq[h].is_active) return;
         if (h > 0) if (h < MAX_SEQUENCES)
         {
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
@@ -3802,13 +3798,9 @@ void check_seq_status(int h)
 void check_base(int base)
 {
   int i;
-        for (i = 1; i < 10; i++)
-        {
-                if (seq[base+i].active == /*TRUE*/1) check_seq_status(base+i);
-
-        }
-
-
+  for (i = 1; i < 10; i++)
+    if (seq[base+i].is_active)
+      check_seq_status(base+i);
 }
 
 void check_sprite_status_full(int h)
@@ -4714,7 +4706,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 
 
                                 spr[k].seq = base + 1;
-                                if (seq[spr[k].seq].active == /*false*/0)
+                                if (!seq[spr[k].seq].is_active)
                                 {
                                         spr[k].seq = base + 9;
 
@@ -4738,8 +4730,10 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 2;
 
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+3].active) spr[k].seq = base +3;
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+1].active) spr[k].seq = base +1;
+                        if (!seq[spr[k].seq].is_active && seq[base+3].is_active)
+			  spr[k].seq = base + 3;
+                        if (!seq[spr[k].seq].is_active && seq[base+1].is_active)
+			  spr[k].seq = base + 1;
 
 
                         if (old_seq != spr[k].seq)
@@ -4757,7 +4751,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                         {
                                 spr[k].seq = base + 3;
-                                if (seq[spr[k].seq].active == /*false*/0)
+                                if (!seq[spr[k].seq].is_active)
                                         spr[k].seq = base + 7;
 
                         }
@@ -4779,8 +4773,10 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         spr[k].my = 0;
                         if (base != -1)
                                 spr[k].seq = base + 4;
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+7].active) spr[k].seq = base +7;
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+1].active) spr[k].seq = base +1;
+                        if (!seq[spr[k].seq].is_active && seq[base+7].is_active)
+			  spr[k].seq = base + 7;
+                        if (!seq[spr[k].seq].is_active && seq[base+1].is_active)
+			  spr[k].seq = base + 1;
                 }
 
                 if (dir1 == 6)
@@ -4790,8 +4786,10 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 6;
 
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+3].active) spr[k].seq = base +3;
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+9].active) spr[k].seq = base +9;
+                        if (!seq[spr[k].seq].is_active && seq[base+3].is_active)
+			  spr[k].seq = base + 3;
+                        if (!seq[spr[k].seq].is_active && seq[base+9].is_active)
+			  spr[k].seq = base + 9;
 
                 }
 
@@ -4804,11 +4802,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                                 spr[k].seq = base + 7;
 
 
-                                if (seq[spr[k].seq].active == /*false*/0)
-                                {
-
-                                        spr[k].seq = base + 3;
-                                }
+                                if (!seq[spr[k].seq].is_active)
+				  spr[k].seq = base + 3;
                         }
 
                 }
@@ -4819,8 +4814,10 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                                 spr[k].seq = base + 8;
 
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+7].active) spr[k].seq = base +7;
-                        if (seq[spr[k].seq].active == /*false*/0) if (seq[base+9].active) spr[k].seq = base +9;
+                        if (!seq[spr[k].seq].is_active && seq[base+7].is_active)
+			  spr[k].seq = base + 7;
+                        if (!seq[spr[k].seq].is_active && seq[base+9].is_active)
+			  spr[k].seq = base + 9;
 
                 }
 
@@ -4832,10 +4829,8 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         if (base != -1)
                         {
                                 spr[k].seq = base + 9;
-                                if (seq[spr[k].seq].active == /*false*/0)
-                                {
+                                if (!seq[spr[k].seq].is_active)
                                         spr[k].seq = base + 1;
-                                }
                         }
                 }
 
@@ -4848,7 +4843,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                 }
 
 
-                if (seq[spr[k].seq].active == /*false*/0)
+                if (!seq[spr[k].seq].is_active)
                 {
                         //spr[k].mx = 0;
                         //spr[k].my = 0;

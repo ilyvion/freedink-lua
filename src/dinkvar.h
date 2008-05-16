@@ -184,16 +184,6 @@ struct player_info
   char  cbuff[6000];
 };
 
-struct sequence
-{
-	
-	int frame[51];
-	int delay[51];
-	unsigned char special[51];
-	char data[80];
-	/*bool*/int active;
-};
-
 struct seth_joy
 {
   /*BOOL*/int joybit[17]; //is button held down?
@@ -418,17 +408,20 @@ struct GFX_pic_info
   int xoffset;
 };
 
-/* Sequence (not sprite) description */
-struct sprite_index
+/* Sequence description */
+struct sequence
 {
-  int s;    // index in GFX_k for the first ("start") frame
-  int last; // index in GFX_k for the last frame
-	
+  int is_active; // does it contain something
+  int start;     // index in GFX_k for the first ("start") frame
+  int len;       // number of frames in this sequence
+  int frame[51]; // index in GFX_k for the each frame
+  int delay[51]; // frame duration
+  unsigned char special[51];
+  char data[80]; // matching dink.ini (or init()) line?
 };
 
 extern struct pic_info k[];
 extern struct GFX_pic_info GFX_k[];
-extern struct sprite_index s_index[];
 
 /* show_bmp() currently ran */
 struct show_bmp

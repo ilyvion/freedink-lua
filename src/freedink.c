@@ -626,7 +626,7 @@ void add_kill_sprite(int h)
 	if (base == -1) 
 	{
 		
-	  if (seq[spr[h].base_walk+5].active == /*true*/1)
+	  if (seq[spr[h].base_walk+5].is_active)
 		{
 			add_exp(spr[h].exp, h);
 			
@@ -644,7 +644,7 @@ void add_kill_sprite(int h)
 	
 	
 	
-	if (seq[base+dir].active == /*false*/0)
+	if (!seq[base+dir].is_active)
 	{  
 		
 		if (dir == 1) dir = 9;
@@ -659,7 +659,7 @@ void add_kill_sprite(int h)
 		
 		
 	}
-	if (seq[base+dir].active == /*false*/0)
+	if (!seq[base+dir].is_active)
 		
 	{
 		Msg("Can't make a death sprite for dir %d!", base+dir);
@@ -5197,7 +5197,7 @@ void process_show_bmp( void )
       int mseq = 165;
       
       showb.picframe++;
-      if (showb.picframe > s_index[mseq].last) showb.picframe = 1;
+      if (showb.picframe > seq[mseq].len) showb.picframe = 1;
       int mframe = showb.picframe;
       
 /*       lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k, */

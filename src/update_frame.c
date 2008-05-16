@@ -521,10 +521,10 @@ animate:
 						{
 							// new anim
 							spr[h].pseq = spr[h].seq;
-							spr[h].pframe = s_index[spr[h].seq].last;
-							spr[h].frame = s_index[spr[h].seq].last;
+							spr[h].pframe = seq[spr[h].seq].len;
+							spr[h].frame = seq[spr[h].seq].len;
 							if (spr[h].frame_delay != 0) spr[h].delay = (thisTickCount+ spr[h].frame_delay); else
-								spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[s_index[spr[h].seq].last]);
+								spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[seq[spr[h].seq].len]);
 						}   else
 						{
 							// not new anim

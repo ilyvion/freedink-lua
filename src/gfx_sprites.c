@@ -37,7 +37,7 @@
 
 
 int cur_sprite = 1;
-/*bool*/int please_wait = /*false*/0;
+int please_wait = 0;
 
 /**
  * Free memory used by sprites. It's not much useful in itself, since
@@ -66,53 +66,35 @@ static void draw_wait()
 
       if (please_wait)
 	{
-/*                         ddrval = lpDDSPrimary->BltFast(232, 0, k[seq[423].frame[7]].k, */
-/*                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY); */
-	  // GFX
-	  {
-	    SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[7]].k->w, GFX_k[seq[423].frame[7]].k->h};
-	    SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSBack, &dst);
-	    SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
-	  }
-	  please_wait = /*false*/0;
+	  SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[7]].k->w, GFX_k[seq[423].frame[7]].k->h};
+	  SDL_BlitSurface(GFX_k[seq[423].frame[7]].k, NULL, GFX_lpDDSBack, &dst);
+	  SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
+	  please_wait = 0;
 	}
       else
 	{
-/*                         ddrval = lpDDSPrimary->BltFast( 232, 0, k[seq[423].frame[8]].k, */
-/*                                 &k[seq[423].frame[7]].box, DDBLTFAST_SRCCOLORKEY); */
-	  // GFX
-	  {
-	    SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[8]].k->w, GFX_k[seq[423].frame[8]].k->h};
-	    SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSBack, &dst);
-	    SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
-	  }
-	  please_wait = /*true*/1;
-
+	  SDL_Rect dst = {232, 0, GFX_k[seq[423].frame[8]].k->w, GFX_k[seq[423].frame[8]].k->h};
+	  SDL_BlitSurface(GFX_k[seq[423].frame[8]].k, NULL, GFX_lpDDSBack, &dst);
+	  SDL_UpdateRects(GFX_lpDDSBack, 1, &dst);
+	  please_wait = 1;
 	}
     }
 }
 
-
-
-static void setup_anim (int fr, int start,int delay)
+static void setup_anim(int seq_no, int delay)
 {
-  //** start is sprite sequence #, don't know why it is called start
   int o;
-  for (o = 1; o <= s_index[start].last; o++)
+  for (o = 1; o <= seq[seq_no].len; o++)
     {
-      seq[fr].frame[o] = s_index[start].s+o;
-      seq[fr].delay[o] = delay;
+      seq[seq_no].frame[o] = seq[seq_no].start + o;
+      seq[seq_no].delay[o] = delay;
     }
-
-  seq[fr].frame[s_index[start].last+1] = 0;
+  seq[seq_no].frame[seq[seq_no].len + 1] = 0;
 }
 
 
-
-
-
-void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffset,
-			 rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
+void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoffset,
+		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
   int work;
 
@@ -140,18 +122,19 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
   int oo;
 
-  if (s_index[nummy].last != 0)
+  if (seq[seq_no].len != 0)
     {
       //  Msg("Saving sprite %d", save_cur);
-      cur_sprite = s_index[nummy].s+1;
+      cur_sprite = seq[seq_no].start + 1;
       //Msg("Temp cur_sprite is %d", cur_sprite);
       reload = /*true*/1;
     }
 
 
-  s_index[nummy].s = cur_sprite -1;
+  seq[seq_no].start = cur_sprite -1;
 
-  if (no_running_main) draw_wait();
+  if (no_running_main)
+    draw_wait();
 
   char *org_dirname = pdirname(org);
 
@@ -206,9 +189,9 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	  if (oo == 1)
 	    Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
 
-	  s_index[nummy].last = (oo - 1);
+	  seq[seq_no].len = (oo - 1);
 	  //      initFail(hWndMain, crap);
-	  setup_anim(nummy,nummy,speed);
+	  setup_anim(seq_no, speed);
 	  //                           if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
 
 	  //if (reload) Msg("Ok, tacking %d back on.", save_cur);
@@ -353,7 +336,8 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 	    // bmp_surf = IMG_Load_RW (rw, 0);
 	    if (GFX_k[sprite].k == NULL)
 	      {
-		Msg("unable to load %s from fastfile", crap);
+		fprintf(stderr, "unable to load %s from fastfile", crap);
+		return;
 	      }
 
 	    if (leftalign)
@@ -390,7 +374,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
 	      if ( (oo > 1) & (notanim) )
 		{
-		  k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
+		  k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
 		}
 	      else
 		{
@@ -404,7 +388,7 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 
 	      if ( (oo > 1 ) & (notanim))
 		{
-		  k[cur_sprite].xoffset =  k[s_index[nummy].s+1].xoffset;
+		  k[cur_sprite].xoffset =  k[seq[seq_no].start + 1].xoffset;
 		    }
 	      else
 		{
@@ -472,13 +456,12 @@ void load_sprite_pak(char org[100], int nummy, int speed, int xoffset, int yoffs
 /* Load sprite, either from a dir.ff pack (delegated to
    load_sprite_pak), either from a BMP file */
 /* - org: path to the file, relative to the current game (dink or dmod) */
-/* - nummy: sequence number */
-void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
+/* - seq_no: sequence number */
+void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
   int work;
-/*   PALETTEENTRY holdpal[256]; */
-  char crap[200],hold[5];
+  char crap[200], hold[5];
   char *fullpath;
   int oo;
   int exists = 0;
@@ -500,7 +483,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
     {
       free(fullpath);
       free(org_dirname);
-      load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
+      load_sprite_pak(org, seq_no, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
   free(fullpath);
@@ -518,7 +501,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
       free(fullpath);
       if (exists)
 	{
-	  load_sprite_pak(org, nummy, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
+	  load_sprite_pak(org, seq_no, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
 	  free(org_dirname);
 	  return;
 	}
@@ -526,15 +509,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
     }
   free(org_dirname);
 
-  s_index[nummy].s = cur_sprite -1;
-
-  /* Possibly used to temporarily use the reference palette even if
-     the screen palette was changed. */
-/*   if (!windowed) */
-/*     { */
-/*       lpDDPal->GetEntries(0,0,256,holdpal); */
-/*       lpDDPal->SetEntries(0,0,256,real_pal); */
-/*     } */
+  seq[seq_no].start = cur_sprite -1;
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   for (oo = 1; oo <= 1000; oo++)
@@ -575,7 +550,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	  k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
 	  if ((oo > 1) & (notanim))
 	    {
-	      k[cur_sprite].yoffset = k[s_index[nummy].s+1].yoffset;
+	      k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
 	    }
 	  else
 	    {
@@ -590,7 +565,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 
 	  if ((oo > 1) & (notanim))
 	    {
-	      k[cur_sprite].xoffset = k[s_index[nummy].s+1].xoffset;
+	      k[cur_sprite].xoffset = k[seq[seq_no].start + 1].xoffset;
 	    }
 	  else
 	    {
@@ -611,7 +586,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	    }
 	  else
 	    {
-	      //guess setting
+	      //default setting
 	      work = k[cur_sprite].box.right / 4;
 	      k[cur_sprite].hardbox.left -= work;
 	      k[cur_sprite].hardbox.right += work;
@@ -625,7 +600,7 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	    }
 	  else
 	    {
-	      //guess setting
+	      //default setting
 	      /* eg: graphics\dink\push\ds-p2- and
 		 graphics\effects\comets\sm-comt2\fbal2- */
 	      work = k[cur_sprite].box.bottom / 10;
@@ -652,37 +627,21 @@ void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 	      Msg("load_sprites:  Anim %s not found.",org);
 	    }
 
-	  s_index[nummy].last = (oo - 1);
+	  seq[seq_no].len = (oo - 1);
 	  //       initFail(hWndMain, crap);
-	  setup_anim(nummy,nummy,speed);
-
-	  /* Restore screen palette to what it was */
-/* 	  if (!windowed) */
-/* 	    lpDDPal->SetEntries(0,0,256,holdpal); */
+	  setup_anim(seq_no, speed);
 
 	  return;
 	}
 
-      //if (show_dot) Msg( "%s", crap);
-
       /* Set transparent color: either black or white */
       if (black)
-	{
-/* 	  DDSetColorKey(k[cur_sprite].k, RGB(0,0,0)); */
-	  // GFX
-	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
-	}
+	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
       else
-	{
-/* 	  DDSetColorKey(k[cur_sprite].k, RGB(255,255,255)); */
-	  // GFX
-	  SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			  SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
-	}
+	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
       cur_sprite++;
-
-      //if (first_frame) if  (oo == 1) return;
     }
 }
 
