@@ -38,6 +38,7 @@ extern "C"
 			      rect hardbox, int notanim, int black, int leftalign, int samedir);
   extern void load_sprites(char org[100], int nummy, int speed, int xoffset, int yoffset,
 			   rect hardbox, int notanim, int black, int leftalign);
+  extern void seq_set_ini(int seq_no, char *line);
 
 #ifdef __cplusplus
 }

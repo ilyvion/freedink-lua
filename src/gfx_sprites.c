@@ -36,8 +36,8 @@
 */
 
 
-int cur_sprite = 1;
-int please_wait = 0;
+static int cur_sprite = 1;
+static int please_wait = 0;
 
 /**
  * Free memory used by sprites. It's not much useful in itself, since
@@ -51,6 +51,9 @@ void sprites_unload(void)
   for (i = 0; i < MAX_SPRITES; i++)
     if (GFX_k[i].k != NULL)
       SDL_FreeSurface(GFX_k[i].k);
+  for (i = 0; i < MAX_SEQUENCES; i++)
+    if (seq[i].ini != NULL)
+      free(seq[i].ini);
 }
 
 
@@ -86,7 +89,7 @@ static void setup_anim(int seq_no, int delay)
   int o;
   for (o = 1; o <= seq[seq_no].len; o++)
     {
-      seq[seq_no].frame[o] = seq[seq_no].start + o;
+      seq[seq_no].frame[o] = seq[seq_no].base_index + o;
       seq[seq_no].delay[o] = delay;
     }
   seq[seq_no].frame[seq[seq_no].len + 1] = 0;
@@ -112,12 +115,12 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
      released D-Mod. */
   if (seq[seq_no].len != 0)
     {
-      cur_sprite = seq[seq_no].start + 1;
+      cur_sprite = seq[seq_no].base_index + 1;
       is_a_reload = 1;
     }
 
 
-  seq[seq_no].start = cur_sprite -1;
+  seq[seq_no].base_index = cur_sprite -1;
 
   if (no_running_main)
     draw_wait();
@@ -148,6 +151,13 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
+      if (cur_sprite >= MAX_SPRITES)
+	{
+	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
+		  cur_sprite, MAX_SPRITES);
+	  break;
+	}
+
       char *leading_zero = NULL;
       //load sprite
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
@@ -278,7 +288,7 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
       
       if ( (oo > 1) & (notanim) )
 	{
-	  k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
+	  k[cur_sprite].yoffset = k[seq[seq_no].base_index + 1].yoffset;
 	}
       else
 	{
@@ -292,7 +302,7 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
       
       if ( (oo > 1 ) & (notanim))
 	{
-	  k[cur_sprite].xoffset =  k[seq[seq_no].start + 1].xoffset;
+	  k[cur_sprite].xoffset =  k[seq[seq_no].base_index + 1].xoffset;
 	}
       else
 	{
@@ -346,12 +356,6 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 	}
       cur_sprite++;
-      if (cur_sprite >= MAX_SPRITES)
-	{
-	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  cur_sprite, MAX_SPRITES);
-	  break;
-	}
       if (!is_a_reload)
 	save_cur++;
       FastFileClose(pfile);
@@ -428,12 +432,19 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   free(org_dirname);
 
 
-  seq[seq_no].start = cur_sprite - 1;
+  seq[seq_no].base_index = cur_sprite - 1;
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
+      if (cur_sprite >= MAX_SPRITES)
+	{
+	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
+		  cur_sprite, MAX_SPRITES);
+	  break;
+	}
+
       FILE *in = NULL;
       char *leading_zero = NULL;
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
@@ -476,7 +487,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 
 	  if (oo > 1 && notanim)
 	    {
-	      k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
+	      k[cur_sprite].yoffset = k[seq[seq_no].base_index + 1].yoffset;
 	    }
 	  else
 	    {
@@ -491,7 +502,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 
 	  if (oo > 1 && notanim)
 	    {
-	      k[cur_sprite].xoffset = k[seq[seq_no].start + 1].xoffset;
+	      k[cur_sprite].xoffset = k[seq[seq_no].base_index + 1].xoffset;
 	    }
 	  else
 	    {
@@ -549,12 +560,6 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
 			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
       cur_sprite++;
-      if (cur_sprite >= MAX_SPRITES)
-	{
-	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  cur_sprite, MAX_SPRITES);
-	  break;
-	}
     }
 
   /* oo == 1 => not even one sprite was loaded, error */
@@ -570,4 +575,19 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   seq[seq_no].len = oo - 1;
   setup_anim(seq_no, speed);
   return;
+}
+
+/**
+ * Set the dink.ini / init() line for this sequence.
+ */
+void seq_set_ini(int seq_no, char *line)
+{
+  /* Check if we are not attempting to replace a line by itself
+     (e.g. when a sequence is lazy-loaded) and free previous line. */
+  if (seq[seq_no].ini != line)
+    {
+      if (seq[seq_no].ini != NULL)
+	free(seq[seq_no].ini);
+      seq[seq_no].ini = strdup(line);
+    }
 }

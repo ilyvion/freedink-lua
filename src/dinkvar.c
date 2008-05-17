@@ -1754,8 +1754,7 @@ void figure_out(char line[255], int load_seq)
 
 	  memset(&hardbox, 0, sizeof(rect));
                 seq[atol(ev[3])].is_active = 1;
-		if (seq[atol(ev[3])].data != line)
-		  strcpy(seq[atol(ev[3])].data, line);
+		seq_set_ini(atol(ev[3]), line);
                 if (compare(ev[4], "BLACK"))
                 {
                         load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*true*/1, /*false*/0);
@@ -1968,7 +1967,7 @@ void pre_figure_out(char line[255], int load_seq)
 
 	  memset(&hardbox, 0, sizeof(rect));
                 seq[atol(ev[3])].is_active = 1;
-                strcpy(seq[atol(ev[3])].data, line);
+		seq_set_ini(atol(ev[3]), line);
                 if (compare(ev[4], "BLACK"))
                 {
                         load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]), hardbox,/*true*/1, /*true*/1, /*false*/0);
@@ -2040,7 +2039,7 @@ void pre_figure_out(char line[255], int load_seq)
 
         {
                 //           name   seq    speed       offsetx     offsety       hardx      hardy
-                strcpy(seq[atol(ev[3])].data, line);
+                seq_set_ini(atol(ev[3]), line);
                 seq[atol(ev[3])].is_active = 1;
                 return;
         }
@@ -3695,7 +3694,7 @@ void check_sprite_status(int h)
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
                 if (seq[spr[h].pseq].frame[1] == 0)
                 {
-                        figure_out(seq[spr[h].pseq].data, 0);
+                        figure_out(seq[spr[h].pseq].ini, 0);
                 }
                 else
                 {
@@ -3736,7 +3735,7 @@ void check_frame_status(int h, int frame)
                 if (seq[h].frame[1] == 0)
                 {
                         first_frame = /*true*/1;
-                        figure_out(seq[h].data, 0);
+                        figure_out(seq[h].ini, 0);
                         first_frame = /*false*/0;
                 }
                 else
@@ -3772,7 +3771,7 @@ void check_seq_status(int h)
 
                 if (seq[h].frame[1] == 0)
                 {
-                        figure_out(seq[h].data, 0);
+                        figure_out(seq[h].ini, 0);
                 }
                 else
                 {
