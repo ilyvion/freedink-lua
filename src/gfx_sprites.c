@@ -96,7 +96,7 @@ static void setup_anim(int seq_no, int delay)
 }
 
 
-void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoffset,
+void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
 		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
   char fname[20];
@@ -118,12 +118,12 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   if (no_running_main)
     draw_wait();
 
-  char *org_dirname = pdirname(org);
+  char *seq_dirname = pdirname(seq_path_prefix);
 
-  int num = strlen(org) - strlen(org_dirname)-1;
+  int num = strlen(seq_path_prefix) - strlen(seq_dirname)-1;
   char *fullpath = NULL;
-  strcpy(fname, &org[strlen(org)-num]);
-  sprintf(crap, "%s/dir.ff", org_dirname);
+  strcpy(fname, &seq_path_prefix[strlen(seq_path_prefix)-num]);
+  sprintf(crap, "%s/dir.ff", seq_dirname);
   if (samedir)
     fullpath = paths_dmodfile(crap);
   else
@@ -133,11 +133,11 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
     {
       Msg("Could not load dir.ff art file %s", crap);
       free(fullpath);
-      free(org_dirname);
+      free(seq_dirname);
       return;
     }
   free(fullpath);
-  free(org_dirname);
+  free(seq_dirname);
 
 
   int oo;
@@ -367,8 +367,8 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 
 /* Load sprite, either from a dir.ff pack (delegated to
    load_sprite_pak), either from a BMP file */
-/* - org: path to the file, relative to the current game (dink or dmod) */
-void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset,
+/* - seq_path_prefix: path to the file, relative to the current game (dink or dmod) */
+void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
   char crap[200];
@@ -386,36 +386,37 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   /* - dmod/.../...01.BMP */
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
-  char *org_dirname = pdirname(org);
-  sprintf(crap, "%s/dir.ff", org_dirname);
+  char *seq_dirname = pdirname(seq_path_prefix);
+  sprintf(crap, "%s/dir.ff", seq_dirname);
   fullpath = paths_dmodfile(crap);
   //Msg("Checking for %s..", crap);
   if (exist(fullpath))
     {
       free(fullpath);
-      free(org_dirname);
-      load_sprite_pak(org, seq_no, speed, xoffset, yoffset,
+      free(seq_dirname);
+      load_sprite_pak(seq_path_prefix, seq_no, speed, xoffset, yoffset,
 		      hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
   free(fullpath);
   
   int exists = 0;
-  sprintf(crap, "%s01.BMP",org);
+  sprintf(crap, "%s01.BMP",seq_path_prefix);
   fullpath = paths_dmodfile(crap);
   exists = exist(fullpath);
   free(fullpath);
   if (!exists)
     {
-      sprintf(crap, "%s/dir.ff",  org_dirname);
+      sprintf(crap, "%s/dir.ff",  seq_dirname);
       fullpath = paths_fallbackfile(crap);
       //Msg("Checking for %s..", crap);
       exists = exist(fullpath);
       free(fullpath);
       if (exists)
 	{
-	  load_sprite_pak(org, seq_no, speed, xoffset, yoffset, hardbox, notanim, black, leftalign, /*false*/0);
-	  free(org_dirname);
+	  load_sprite_pak(seq_path_prefix, seq_no, speed, xoffset, yoffset,
+			  hardbox, notanim, black, leftalign, /*false*/0);
+	  free(seq_dirname);
 	  return;
 	}
       else
@@ -423,7 +424,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  use_fallback = 1;
 	}
     }
-  free(org_dirname);
+  free(seq_dirname);
 
 
   seq[seq_no].base_index = myslot - 1;
@@ -442,7 +443,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
       FILE *in = NULL;
       char *leading_zero = NULL;
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
-      sprintf(crap, "%s%s%d.bmp", org, leading_zero, oo);
+      sprintf(crap, "%s%s%d.bmp", seq_path_prefix, leading_zero, oo);
 
       /* Set the pixel data */
       if (use_fallback)
@@ -563,7 +564,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
     {
       /* First frame didn't load! */
       fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
-      Msg("load_sprites:  Anim %s not found.",org);
+      Msg("load_sprites:  Anim %s not found.",seq_path_prefix);
     }
   /* Finalize sequence */
   seq[seq_no].len = oo - 1;
