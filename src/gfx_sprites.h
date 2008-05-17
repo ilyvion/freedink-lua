@@ -30,6 +30,7 @@ extern "C"
 {
 #endif
 
+/* Max number of sprites, minus 1 (GFX_k is indexed from 1) */
 #define MAX_SPRITES 4000
 
   extern void sprites_unload(void);

@@ -96,32 +96,23 @@ static void setup_anim(int seq_no, int delay)
 void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoffset,
 		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
-  HFASTFILE                  pfile;
-/*   BITMAPFILEHEADER UNALIGNED *pbf; */
-/*   BITMAPINFOHEADER UNALIGNED *pbi; */
-/*   DDSURFACEDESC       ddsd; */
-/*   BITMAP              bm; */
-
-/*   DDCOLORKEY          ddck; */
-
-/*   int x,y,dib_pitch; */
-/*   unsigned char *src, *dst; */
   char fname[20];
-
-  //IDirectDrawSurface *pdds;
-
-  int sprite = 71;
   int is_a_reload = 0;
 
   char crap[200];
 
   int save_cur = cur_sprite;
 
+
+  /* If we're reloading a sequence, load_sprite_pak will overwrite the
+     previous data. Note that indexes are not checked, so if the new
+     sequence is longer than the old one, then it will overwrite
+     sprites in other unrelated sequences. In FreeDink, we'll keep
+     this behavior, until we're sure this weren't ever misused in a
+     released D-Mod. */
   if (seq[seq_no].len != 0)
     {
-      //  Msg("Saving sprite %d", save_cur);
       cur_sprite = seq[seq_no].start + 1;
-      //Msg("Temp cur_sprite is %d", cur_sprite);
       is_a_reload = 1;
     }
 
@@ -153,99 +144,44 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   free(fullpath);
   free(org_dirname);
 
-  // No color conversion for sprite paks - they need to use the Dink
-  // Palette, otherwise weird colors will appear!
-  /*           if (!windowed)
-	       {
-	       lpDDPal->GetEntries(0,0,256,holdpal);
-	       lpDDPal->SetEntries(0,0,256,real_pal);
-	       }
-  */
 
   int oo;
-  for (oo = 1; oo <= 51; oo++)
+  for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
-      char *leading_zero;
+      char *leading_zero = NULL;
       //load sprite
-      sprite = cur_sprite;
-      //if (reload) Msg("Ok, programming sprite %d", sprite);
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
       sprintf(crap, "%s%s%d.bmp", fname, leading_zero, oo);
 
-      pfile = FastFileOpen(crap);
+      HFASTFILE pfile = FastFileOpen(crap);
 
       if (pfile == NULL)
+	break;
+      
+      // GFX
+      Uint8 *buffer;
+      SDL_RWops *rw;
+      if (GFX_k[cur_sprite].k != NULL)
+	    SDL_FreeSurface(GFX_k[cur_sprite].k);
+      
+      buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
+      rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
+      
+      GFX_k[cur_sprite].k = load_bmp_from_mem(rw); // auto free()
+      // bmp_surf = IMG_Load_RW (rw, 0);
+      if (GFX_k[cur_sprite].k == NULL)
 	{
+	  fprintf(stderr, "Failed to load %s from fastfile\n", crap);
 	  FastFileClose(pfile);
-
-	  //   FastFileFini();
-	  if (oo == 1)
-	    Msg("Sprite_load_pak error:  Couldn't load %s.",crap);
-
-	  seq[seq_no].len = (oo - 1);
-	  //      initFail(hWndMain, crap);
-	  setup_anim(seq_no, speed);
-	  //                           if (!windowed)  lpDDPal->SetEntries(0,0,256,holdpal);
-
-	  //if (reload) Msg("Ok, tacking %d back on.", save_cur);
-	  cur_sprite = save_cur;
-	  return;
+	  break;
 	}
-      else
-	{
-	  //got file
-/* 	  pbf = (BITMAPFILEHEADER *)FastFileLock(pfile, 0, 0); */
-/* 	  pbi = (BITMAPINFOHEADER *)(pbf+1); */
-
-/* 	  if (pbf->bfType != 0x4d42 || */
-/* 	      pbi->biSize != sizeof(BITMAPINFOHEADER)) */
-/* 	    { */
-/* 	      Msg("Failed to load"); */
-/* 	      Msg(crap); */
-/* 	      cur_sprite = save_cur; */
-/* 	      FastFileClose( pfile ); */
-/* 	      //   FastFileFini(); */
-
-/* 	      return; */
-/* 	    } */
-
-/* 	  byte *pic; */
-
-/* 	  pic = (byte *)pbf + 1078; */
-
-	  //Msg("Pic's size is now %d.",sizeof(pic));
-
-/* 	  bm.bmWidth = pbi->biWidth; */
-/* 	  bm.bmHeight = pbi->biHeight; */
-/*  	  bm.bmWidthBytes = 32; */
-/* 	  bm.bmPlanes = pbi->biPlanes; */
-/* 	  bm.bmBitsPixel = pbi->biBitCount; */
-/* 	  bm.bmBits = pic; */
-
-	  //
-	  // create a DirectDrawSurface for this bitmap
-	  //
-/* 	  ZeroMemory(&ddsd, sizeof(ddsd)); */
-/* 	  ddsd.dwSize = sizeof(ddsd); */
-/* 	  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
-/* 	  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
-/* 	  ddsd.dwWidth = pbi->biWidth; */
-/* 	  ddsd.dwHeight = pbi->biHeight; */
-
-	  if (GFX_k[sprite].k != NULL)
-	    {
-/* 	      k[sprite].k->Release(); */
-	      SDL_FreeSurface(GFX_k[sprite].k);
-	    }
-
-/* 	  if (lpDD->CreateSurface(&ddsd, &k[sprite].k, NULL) != DD_OK) */
-/* 	    { */
-/* 	      Msg("Failed to create pdd surface description"); */
-/* 	    } */
-/* 	  else */
-/* 	    { */
-/* 	      ddsd.dwSize = sizeof(ddsd); */
-/* 	      ddrval = IDirectDrawSurface_Lock(k[sprite].k, NULL, &ddsd, DDLOCK_WAIT, NULL); */
+      
+      // Palettes and transparency
+      
+      /* Note: in the original engine, no palette conversion was done
+	 for sprite paks - they need to use the Dink Palette,
+	 otherwise weird colors will appear! I think this was done for
+	 efficiency. The transparent color was done manually: */
 
 /* 	      if( ddrval == DD_OK ) */
 /* 		{ */
@@ -312,136 +248,122 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 /* 			} */
 /* 		    } */
 
-/* 		  IDirectDrawSurface_Unlock(k[sprite].k, NULL); */
-
-
-	  // GFX
-	  /* TODO: perform the same manual palette conversion
-	     like above? */
-	  {
-	    Uint8 *buffer;
-	    SDL_RWops *rw;
-
-	    buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
-	    rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
-
-	    GFX_k[sprite].k = load_bmp_from_mem(rw); // auto free()
-	    // bmp_surf = IMG_Load_RW (rw, 0);
-	    if (GFX_k[sprite].k == NULL)
-	      {
-		fprintf(stderr, "unable to load %s from fastfile", crap);
-		return;
-	      }
-
-	    if (leftalign)
-	      ; // ?
-	    else if (black)
-
-	      /* TODO: use SDL_RLEACCEL? "RLE acceleration can
-		 substantially speed up blitting of images with large
-		 horizontal runs of transparent pixels" (man
-		 SDL_SetColorKey) */
-	      /* We might want to directly use the hard-coded
-		 '0' index for efficiency */
-	      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
-			      SDL_MapRGB(GFX_k[sprite].k->format, 0, 0, 0));
-	    else
-	      /* We might want to directly use the hard-coded
-		 '255' index for efficiency */
-	      SDL_SetColorKey(GFX_k[sprite].k, SDL_SRCCOLORKEY,
-			      SDL_MapRGB(GFX_k[sprite].k->format, 255, 255, 255));
-	  }
-/* 		} */
-/* 	      else */
-/* 		{ */
-/* 		  Msg("Lock failed err=%d", ddrval); */
-/* 		  //return; */
-/* 		} */
-
-	  if (sprite > 0)
+      
+      /* TODO: perform the same manual palette conversion like
+	 above? */
+      if (leftalign)
+	; // what are we supposed to do here?
+      else if (black)
+	/* We might want to directly use the hard-coded '0' index for
+	   efficiency */
+	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
+      else
+	/* We might want to directly use the hard-coded '255' index
+	   for efficiency */
+	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
+      
+      
+      /* TODO: use SDL_RLEACCEL above? "RLE acceleration can
+	 substantially speed up blitting of images with large
+	 horizontal runs of transparent pixels" (man
+	 SDL_SetColorKey) */
+      
+      
+      k[cur_sprite].box.top = 0;
+      k[cur_sprite].box.left = 0;
+      k[cur_sprite].box.right = GFX_k[cur_sprite].k->w;
+      k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
+      
+      if ( (oo > 1) & (notanim) )
+	{
+	  k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
+	}
+      else
+	{
+	  if (yoffset > 0)
+	    k[cur_sprite].yoffset = yoffset; else
 	    {
-	      k[sprite].box.top = 0;
-	      k[sprite].box.left = 0;
-	      k[sprite].box.right = GFX_k[sprite].k->w;
-	      k[sprite].box.bottom = GFX_k[sprite].k->h;
-
-	      if ( (oo > 1) & (notanim) )
-		{
-		  k[cur_sprite].yoffset = k[seq[seq_no].start + 1].yoffset;
-		}
-	      else
-		{
-		  if (yoffset > 0)
-		    k[cur_sprite].yoffset = yoffset; else
-		    {
-		      k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
-					       (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
-		    }
-		}
-
-	      if ( (oo > 1 ) & (notanim))
-		{
-		  k[cur_sprite].xoffset =  k[seq[seq_no].start + 1].xoffset;
-		    }
-	      else
-		{
-		  if (xoffset > 0)
-		    k[cur_sprite].xoffset = xoffset;
-		  else
-		    {
-		      k[cur_sprite].xoffset = (k[cur_sprite].box.right -
-					       (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
-		    }
-		}
-	      //ok, setup main offsets, lets build the hard block
-
-	      if (hardbox.right > 0)
-		{
-		  //forced setting
-		  k[cur_sprite].hardbox.left = hardbox.left;
-		  k[cur_sprite].hardbox.right = hardbox.right;
-		}
-	      else
-		{
-		  //guess setting
-		  int work = k[cur_sprite].box.right / 4;
-		  k[cur_sprite].hardbox.left -= work;
-		  k[cur_sprite].hardbox.right += work;
-		}
-
-	      if (hardbox.bottom > 0)
-		{
-		  k[cur_sprite].hardbox.top = hardbox.top;
-		  k[cur_sprite].hardbox.bottom = hardbox.bottom;
-		}
-	      else
-		{
-		  int work = k[cur_sprite].box.bottom / 10;
-		  k[cur_sprite].hardbox.top -= work;
-		  k[cur_sprite].hardbox.bottom += work;
-		}
-
-	      if (black)
-		{
+	      k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
+				       (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
+	    }
+	}
+      
+      if ( (oo > 1 ) & (notanim))
+	{
+	  k[cur_sprite].xoffset =  k[seq[seq_no].start + 1].xoffset;
+	}
+      else
+	{
+	  if (xoffset > 0)
+	    k[cur_sprite].xoffset = xoffset;
+	  else
+	    {
+	      k[cur_sprite].xoffset = (k[cur_sprite].box.right -
+				       (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
+	    }
+	}
+      //ok, setup main offsets, lets build the hard block
+      
+      if (hardbox.right > 0)
+	{
+	  //forced setting
+	  k[cur_sprite].hardbox.left = hardbox.left;
+	  k[cur_sprite].hardbox.right = hardbox.right;
+	}
+      else
+	{
+	  //guess setting
+	  int work = k[cur_sprite].box.right / 4;
+	  k[cur_sprite].hardbox.left -= work;
+	  k[cur_sprite].hardbox.right += work;
+	}
+      
+      if (hardbox.bottom > 0)
+	{
+	  k[cur_sprite].hardbox.top = hardbox.top;
+	  k[cur_sprite].hardbox.bottom = hardbox.bottom;
+	}
+      else
+	{
+	  int work = k[cur_sprite].box.bottom / 10;
+	  k[cur_sprite].hardbox.top -= work;
+	  k[cur_sprite].hardbox.bottom += work;
+	}
+      
+      if (black)
+	{
 /* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255)); */
 
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
-		}
-	      else
-		{
+	}
+      else
+	{
 /* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0)); */
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
 /* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
-		    }
-	      cur_sprite++;
-	      if (!is_a_reload)
-		save_cur++;
-	    }
-	  FastFileClose(pfile);
 	}
+      cur_sprite++;
+      if (cur_sprite >= MAX_SPRITES)
+	{
+	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
+		  cur_sprite, MAX_SPRITES);
+	  break;
+	}
+      if (!is_a_reload)
+	save_cur++;
+      FastFileClose(pfile);
     }
-  // FastFileFini();
+  
+  if (oo == 1)
+    fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s.\n", crap);
+  
+  seq[seq_no].len = oo - 1;
+  setup_anim(seq_no, speed);
+  
+  cur_sprite = save_cur;
   return;
 }
 
@@ -449,7 +371,6 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 /* Load sprite, either from a dir.ff pack (delegated to
    load_sprite_pak), either from a BMP file */
 /* - org: path to the file, relative to the current game (dink or dmod) */
-/* - seq_no: sequence number */
 void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
@@ -628,6 +549,12 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
 			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
       cur_sprite++;
+      if (cur_sprite >= MAX_SPRITES)
+	{
+	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
+		  cur_sprite, MAX_SPRITES);
+	  break;
+	}
     }
 
   /* oo == 1 => not even one sprite was loaded, error */

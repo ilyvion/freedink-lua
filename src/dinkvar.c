@@ -833,7 +833,7 @@ void log_path(/*bool*/int playing)
 int getpic(int h)
 {
         if (spr[h].pseq == 0) return(0);
-        if (spr[h].pseq > MAX_SEQUENCES)
+        if (spr[h].pseq >= MAX_SEQUENCES)
         {
 
                 Msg("Sequence %d?  But max is %d!", spr[h].pseq, MAX_SEQUENCES);
