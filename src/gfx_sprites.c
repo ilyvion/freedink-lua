@@ -36,7 +36,7 @@
 */
 
 
-static int cur_sprite = 1;
+static int next_slot = 1;
 static int please_wait = 0;
 
 /**
@@ -100,12 +100,8 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
   char fname[20];
-  int is_a_reload = 0;
-
   char crap[200];
-
-  int save_cur = cur_sprite;
-
+  int myslot = next_slot;
 
   /* If we're reloading a sequence, load_sprite_pak will overwrite the
      previous data. Note that indexes are not checked, so if the new
@@ -114,13 +110,10 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
      this behavior, until we're sure this weren't ever misused in a
      released D-Mod. */
   if (seq[seq_no].len != 0)
-    {
-      cur_sprite = seq[seq_no].base_index + 1;
-      is_a_reload = 1;
-    }
+    myslot = seq[seq_no].base_index + 1;
 
 
-  seq[seq_no].base_index = cur_sprite -1;
+  seq[seq_no].base_index = myslot - 1;
 
   if (no_running_main)
     draw_wait();
@@ -139,7 +132,6 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   if (!FastFileInit(fullpath, 5))
     {
       Msg("Could not load dir.ff art file %s", crap);
-      cur_sprite = save_cur;
       free(fullpath);
       free(org_dirname);
       return;
@@ -151,10 +143,10 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
-      if (cur_sprite >= MAX_SPRITES)
+      if (myslot >= MAX_SPRITES)
 	{
 	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  cur_sprite, MAX_SPRITES);
+		  myslot, MAX_SPRITES);
 	  break;
 	}
 
@@ -171,15 +163,15 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
       // GFX
       Uint8 *buffer;
       SDL_RWops *rw;
-      if (GFX_k[cur_sprite].k != NULL)
-	    SDL_FreeSurface(GFX_k[cur_sprite].k);
+      if (GFX_k[myslot].k != NULL)
+	    SDL_FreeSurface(GFX_k[myslot].k);
       
       buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
       rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
       
-      GFX_k[cur_sprite].k = load_bmp_from_mem(rw); // auto free()
+      GFX_k[myslot].k = load_bmp_from_mem(rw); // auto free()
       // bmp_surf = IMG_Load_RW (rw, 0);
-      if (GFX_k[cur_sprite].k == NULL)
+      if (GFX_k[myslot].k == NULL)
 	{
 	  fprintf(stderr, "Failed to load %s from fastfile\n", crap);
 	  FastFileClose(pfile);
@@ -266,13 +258,13 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
       else if (black)
 	/* We might want to directly use the hard-coded '0' index for
 	   efficiency */
-	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
       else
 	/* We might want to directly use the hard-coded '255' index
 	   for efficiency */
-	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
       
       
       /* TODO: use SDL_RLEACCEL above? "RLE acceleration can
@@ -281,37 +273,37 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
 	 SDL_SetColorKey) */
       
       
-      k[cur_sprite].box.top = 0;
-      k[cur_sprite].box.left = 0;
-      k[cur_sprite].box.right = GFX_k[cur_sprite].k->w;
-      k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
+      k[myslot].box.top = 0;
+      k[myslot].box.left = 0;
+      k[myslot].box.right = GFX_k[myslot].k->w;
+      k[myslot].box.bottom = GFX_k[myslot].k->h;
       
       if ( (oo > 1) & (notanim) )
 	{
-	  k[cur_sprite].yoffset = k[seq[seq_no].base_index + 1].yoffset;
+	  k[myslot].yoffset = k[seq[seq_no].base_index + 1].yoffset;
 	}
       else
 	{
 	  if (yoffset > 0)
-	    k[cur_sprite].yoffset = yoffset; else
+	    k[myslot].yoffset = yoffset; else
 	    {
-	      k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
-				       (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
+	      k[myslot].yoffset = (k[myslot].box.bottom -
+				       (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
 	    }
 	}
       
       if ( (oo > 1 ) & (notanim))
 	{
-	  k[cur_sprite].xoffset =  k[seq[seq_no].base_index + 1].xoffset;
+	  k[myslot].xoffset =  k[seq[seq_no].base_index + 1].xoffset;
 	}
       else
 	{
 	  if (xoffset > 0)
-	    k[cur_sprite].xoffset = xoffset;
+	    k[myslot].xoffset = xoffset;
 	  else
 	    {
-	      k[cur_sprite].xoffset = (k[cur_sprite].box.right -
-				       (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
+	      k[myslot].xoffset = (k[myslot].box.right -
+				       (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
 	    }
 	}
       //ok, setup main offsets, lets build the hard block
@@ -319,45 +311,43 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
       if (hardbox.right > 0)
 	{
 	  //forced setting
-	  k[cur_sprite].hardbox.left = hardbox.left;
-	  k[cur_sprite].hardbox.right = hardbox.right;
+	  k[myslot].hardbox.left = hardbox.left;
+	  k[myslot].hardbox.right = hardbox.right;
 	}
       else
 	{
 	  //guess setting
-	  int work = k[cur_sprite].box.right / 4;
-	  k[cur_sprite].hardbox.left -= work;
-	  k[cur_sprite].hardbox.right += work;
+	  int work = k[myslot].box.right / 4;
+	  k[myslot].hardbox.left -= work;
+	  k[myslot].hardbox.right += work;
 	}
       
       if (hardbox.bottom > 0)
 	{
-	  k[cur_sprite].hardbox.top = hardbox.top;
-	  k[cur_sprite].hardbox.bottom = hardbox.bottom;
+	  k[myslot].hardbox.top = hardbox.top;
+	  k[myslot].hardbox.bottom = hardbox.bottom;
 	}
       else
 	{
-	  int work = k[cur_sprite].box.bottom / 10;
-	  k[cur_sprite].hardbox.top -= work;
-	  k[cur_sprite].hardbox.bottom += work;
+	  int work = k[myslot].box.bottom / 10;
+	  k[myslot].hardbox.top -= work;
+	  k[myslot].hardbox.bottom += work;
 	}
       
       if (black)
 	{
-/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(255,255,255)); */
+/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[myslot].k, RGB(255,255,255)); */
 
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
-/* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
+/* 		      k[myslot].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 	}
       else
 	{
-/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[cur_sprite].k, RGB(0,0,0)); */
+/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[myslot].k, RGB(0,0,0)); */
 /* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
-/* 		      k[cur_sprite].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
+/* 		      k[myslot].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 	}
-      cur_sprite++;
-      if (!is_a_reload)
-	save_cur++;
+      myslot++;
       FastFileClose(pfile);
     }
   
@@ -366,8 +356,11 @@ void load_sprite_pak(char org[100], int seq_no, int speed, int xoffset, int yoff
   
   seq[seq_no].len = oo - 1;
   setup_anim(seq_no, speed);
-  
-  cur_sprite = save_cur;
+
+  if (myslot > next_slot)
+    // new sequence, not a reload
+    next_slot = myslot;
+
   return;
 }
 
@@ -381,6 +374,7 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   char crap[200];
   char *fullpath = NULL;
   int use_fallback = 0;
+  int myslot = next_slot;
 
 
   if (no_running_main)
@@ -432,16 +426,16 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   free(org_dirname);
 
 
-  seq[seq_no].base_index = cur_sprite - 1;
+  seq[seq_no].base_index = myslot - 1;
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
-      if (cur_sprite >= MAX_SPRITES)
+      if (myslot >= MAX_SPRITES)
 	{
 	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  cur_sprite, MAX_SPRITES);
+		  myslot, MAX_SPRITES);
 	  break;
 	}
 
@@ -458,15 +452,15 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 
       // Free previous surface before overwriting it (prevent
       // memory leak)
-      if (GFX_k[cur_sprite].k != NULL)
+      if (GFX_k[myslot].k != NULL)
 	{
-	  SDL_FreeSurface(GFX_k[cur_sprite].k);
+	  SDL_FreeSurface(GFX_k[myslot].k);
 	}
 
 
-      GFX_k[cur_sprite].k = load_bmp_from_fp(in);
+      GFX_k[myslot].k = load_bmp_from_fp(in);
 
-      if (GFX_k[cur_sprite].k == NULL)
+      if (GFX_k[myslot].k == NULL)
 	{
 	  // end of sequence
 	  break;
@@ -478,39 +472,39 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  /* Fill in .box; this was previously done in DDSethLoad; in
 	     the future we could get rid of the .box field and rely
 	     directly on SDL_Surface's .w and .h fields instead: */
-	  k[cur_sprite].box.top = 0;
-	  k[cur_sprite].box.left = 0;
-	  k[cur_sprite].box.right = GFX_k[cur_sprite].k->w;
-	  k[cur_sprite].box.bottom = GFX_k[cur_sprite].k->h;
+	  k[myslot].box.top = 0;
+	  k[myslot].box.left = 0;
+	  k[myslot].box.right = GFX_k[myslot].k->w;
+	  k[myslot].box.bottom = GFX_k[myslot].k->h;
 	  
 	  /* Define the offsets / center of the image */
 
 	  if (oo > 1 && notanim)
 	    {
-	      k[cur_sprite].yoffset = k[seq[seq_no].base_index + 1].yoffset;
+	      k[myslot].yoffset = k[seq[seq_no].base_index + 1].yoffset;
 	    }
 	  else
 	    {
 	      if (yoffset > 0)
-		k[cur_sprite].yoffset = yoffset;
+		k[myslot].yoffset = yoffset;
 	      else
 		{
-		  k[cur_sprite].yoffset = (k[cur_sprite].box.bottom -
-					   (k[cur_sprite].box.bottom / 4)) - (k[cur_sprite].box.bottom / 30);
+		  k[myslot].yoffset = (k[myslot].box.bottom -
+				       (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
 		}
 	    }
 
 	  if (oo > 1 && notanim)
 	    {
-	      k[cur_sprite].xoffset = k[seq[seq_no].base_index + 1].xoffset;
+	      k[myslot].xoffset = k[seq[seq_no].base_index + 1].xoffset;
 	    }
 	  else
 	    {
 	      if (xoffset > 0)
-		k[cur_sprite].xoffset = xoffset; else
+		k[myslot].xoffset = xoffset; else
 		{
-		  k[cur_sprite].xoffset = (k[cur_sprite].box.right -
-					   (k[cur_sprite].box.right / 2)) + (k[cur_sprite].box.right / 6);
+		  k[myslot].xoffset = (k[myslot].box.right -
+				       (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
 		}
 	    }
 	  //ok, setup main offsets, lets build the hard block
@@ -518,48 +512,48 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
 	  if (hardbox.right > 0)
 	    {
 	      //forced setting
-	      k[cur_sprite].hardbox.left = hardbox.left;
-	      k[cur_sprite].hardbox.right = hardbox.right;
+	      k[myslot].hardbox.left = hardbox.left;
+	      k[myslot].hardbox.right = hardbox.right;
 	    }
 	  else
 	    {
 	      //default setting
-	      int work = k[cur_sprite].box.right / 4;
-	      k[cur_sprite].hardbox.left -= work;
-	      k[cur_sprite].hardbox.right += work;
+	      int work = k[myslot].box.right / 4;
+	      k[myslot].hardbox.left -= work;
+	      k[myslot].hardbox.right += work;
 	    }
 
 	  if (hardbox.bottom > 0)
 	    {
 	      //forced setting
-	      k[cur_sprite].hardbox.top = hardbox.top;
-	      k[cur_sprite].hardbox.bottom = hardbox.bottom;
+	      k[myslot].hardbox.top = hardbox.top;
+	      k[myslot].hardbox.bottom = hardbox.bottom;
 	    }
 	  else
 	    {
 	      //default setting
 	      /* eg: graphics\dink\push\ds-p2- and
 		 graphics\effects\comets\sm-comt2\fbal2- */
-	      int work = k[cur_sprite].box.bottom / 10;
-	      k[cur_sprite].hardbox.top -= work;
-	      k[cur_sprite].hardbox.bottom += work;
+	      int work = k[myslot].box.bottom / 10;
+	      k[myslot].hardbox.top -= work;
+	      k[myslot].hardbox.bottom += work;
 	    }
 	}
 
       if (leftalign)
 	{
-	  //     k[cur_sprite].xoffset = 0;
-	  //     k[cur_sprite].yoffset = 0;
+	  //     k[myslot].xoffset = 0;
+	  //     k[myslot].yoffset = 0;
 	}
 
       /* Set transparent color: either black or white */
       if (black)
-	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[cur_sprite].k->format, 0, 0, 0));
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
       else
-	SDL_SetColorKey(GFX_k[cur_sprite].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[cur_sprite].k->format, 255, 255, 255));
-      cur_sprite++;
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
+      myslot++;
     }
 
   /* oo == 1 => not even one sprite was loaded, error */
@@ -574,6 +568,10 @@ void load_sprites(char org[100], int seq_no, int speed, int xoffset, int yoffset
   /* Finalize sequence */
   seq[seq_no].len = oo - 1;
   setup_anim(seq_no, speed);
+
+  // adust next slot index
+  next_slot = myslot;
+
   return;
 }
 
