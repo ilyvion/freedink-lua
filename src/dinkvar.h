@@ -415,8 +415,10 @@ struct sequence
   int is_active;  // does it contain something
   char* ini;      // matching dink.ini (or init()) line
   int base_index; // index in GFX_k for the first ("start") frame - 1
-  int len;        // number of frames in this sequence
+  int len;        // number of initial frames in this sequence
+                  // - inaccurate if the sequence is modified by 'set_frame_frame'
   int frame[MAX_FRAMES_PER_SEQUENCE+1+1]; // index in GFX_k for the each frame, indexed from 1, ended by '0'
+                                          // if -1, loop from beginning
   int delay[MAX_FRAMES_PER_SEQUENCE+1]; // frame duration, indexed from 1
   unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
 };

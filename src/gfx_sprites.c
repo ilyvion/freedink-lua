@@ -368,6 +368,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
 /* Load sprite, either from a dir.ff pack (delegated to
    load_sprite_pak), either from a BMP file */
 /* - seq_path_prefix: path to the file, relative to the current game (dink or dmod) */
+/* - not_anim: reuse xoffset and yoffset from the first frame of the animation (misnomer) */
 void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {

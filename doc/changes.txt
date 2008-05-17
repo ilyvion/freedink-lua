@@ -82,6 +82,13 @@ everywhere to do so. This means that FreeDink always support
 compressed BMPs.
 
 
+Sometimes, a init() or dink.ini line would be more than 80 chars,
+which is its allocated length in the 'sequence' structure. This would
+overwrite parts of the next sequence. Possibly this never was an
+issue, because sequences were initialized incrementally, but an init()
+line was more likely to cause breakage. This is fixed anyway.
+
+
 The engine now can switch between fullscreen and window mode at
 run-time, using the Ctrl+Enter shortcut.
 
