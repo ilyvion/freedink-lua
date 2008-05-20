@@ -180,91 +180,68 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
       
       // Palettes and transparency
       
-      /* Note: in the original engine, no palette conversion was done
-	 for sprite paks - they need to use the Dink Palette,
-	 otherwise weird colors will appear! I think this was done for
-	 efficiency. The transparent color was done manually: */
+      /* Note: in the original engine, for efficiency, no palette
+	 conversion was done for sprite paks - they needed to use the
+	 Dink Palette (otherwise weird colors would appear!)) */
+      /* The engine suffered a DX limitation: palette indexes 0 and
+	 255 fixed fixed to black and white respectively. This is also
+	 the opposite of the Dink BMP palette indexes. This causes
+	 troubles when skipping palette conversion (here) and during
+	 fade_down()/fade_up() (255/white pixels can't be
+	 darkened). This is why this function replaced black with
+	 brighter black and white with darker white. */
+      /* In FreeDink palette conversion is done in load_bmp_internal,
+	 so we mainly care about avoiding white pixels during
+	 fade_down(), and only because we reproduced the palette
+	 limitation so as to support dynamic palette-changing tricks
+	 (cf. Lyna's Story) as well as having readable white text
+	 during fade_down(). But we might consider getting rid of it
+	 entirely. Just make sure dir.ff LEFTALIGN has no
+	 transparency, otherwise the experience counter digits in the
+	 status bar will become transparent. */
+      /* v1.08 does a similar job for true color mode; I believe this
+	 is pointless in such case. */
+      Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
+      Uint8 *last = p + GFX_k[myslot].k->h * GFX_k[myslot].k->pitch;
 
-/* 	      if( ddrval == DD_OK ) */
-/* 		{ */
-/* 		  dib_pitch = (pbi->biWidth+3)&~3; */
-/* 		  src = (BYTE *)pic + dib_pitch * (pbi->biHeight-1); */
-/* 		  dst = (BYTE *)ddsd.lpSurface; */
-/* 		  if (leftalign) */
-/* 		    { */
-/* 		      //Msg("left aligning.."); */
-
-/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
-/* 			{ */
-/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
-/* 			    { */
-/* 			      dst[x] = src[x]; */
-/* 			      if (dst[x] == 0) */
-/* 				{ */
-/* 				  // Msg("Found a 255..."); */
-/* 				  dst[x] = 30; */
-/* 				} else */
-/* 				if (dst[x] == 255) */
-/* 				  { */
-/* 				    dst[x] = 249; */
-/* 				  } */
-/* 			    } */
-/* 			  dst += ddsd.lPitch; */
-/* 			  src -= dib_pitch; */
-/* 			} */
-/* 		    } */
-/* 		  else if (black) */
-/* 		    { */
-/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
-/* 			{ */
-/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
-/* 			    { */
-/* 			      dst[x] = src[x]; */
-
-/* 			      if (dst[x] == 0) */
-/* 				{ */
-/* 				  dst[x] = 30; */
-/* 				} */
-/* 			    } */
-/* 			  dst += ddsd.lPitch; */
-/* 			  src -= dib_pitch; */
-/* 			} */
-/* 		    } */
-/* 		  else */
-/* 		    { */
-/* 		      //doing white */
-/* 		      for( y=0; y<(int)pbi->biHeight; y++ ) */
-/* 			{ */
-/* 			  for( x=0; x<(int)pbi->biWidth; x++ ) */
-/* 			    { */
-/* 			      dst[x] = src[x]; */
-
-/* 			      if (dst[x] == 255) */
-/* 				{ */
-/* 				  // Msg("Found a 255..."); */
-/* 				  dst[x] = 249; */
-/* 				} */
-/* 			    } */
-/* 			  dst += ddsd.lPitch; */
-/* 			  src -= dib_pitch; */
-/* 			} */
-/* 		    } */
-
-      
-      /* TODO: perform the same manual palette conversion like
-	 above? */
+      /* Note that graphics are already converted to the system
+	 palette (with reproduced fixed indexes) at this point in
+	 FreeDink. Hence, the color index we use will be different
+	 than in the original source code. */
       if (leftalign)
-	; // what are we supposed to do here?
+	{
+	// brighten black and darken white
+	while (p < last)
+	  {
+	    if (*p == 0)   // black
+	      *p = 249;    // brighter black
+	    if (*p == 255) // white
+	      *p = 30;     // darker white
+	    p++;
+	  }
+	}
       else if (black)
-	/* We might want to directly use the hard-coded '0' index for
-	   efficiency */
-	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
+	{
+	  // darken white and set black as transparent
+	  while (p < last)
+	    {
+	      if (*p == 255) // white
+		*p = 30;     // darker white
+	      p++;
+	    }
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY, 0);
+	}
       else
-	/* We might want to directly use the hard-coded '255' index
-	   for efficiency */
-	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
-			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
+	{
+	  // brighten black and set white as transparent
+	  while (p < last)
+	    {
+	      if (*p == 0) // white in Dink palette
+		*p = 249;  // darker white
+	      p++;
+	    }
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY, 255);
+	}
       
       
       /* TODO: use SDL_RLEACCEL above? "RLE acceleration can
@@ -332,20 +309,6 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
 	  int work = k[myslot].box.bottom / 10;
 	  k[myslot].hardbox.top -= work;
 	  k[myslot].hardbox.bottom += work;
-	}
-      
-      if (black)
-	{
-/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[myslot].k, RGB(255,255,255)); */
-
-/* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
-/* 		      k[myslot].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
-	}
-      else
-	{
-/* 		      ddck.dwColorSpaceLowValue  = DDColorMatch(k[myslot].k, RGB(0,0,0)); */
-/* 		      ddck.dwColorSpaceHighValue = ddck.dwColorSpaceLowValue; */
-/* 		      k[myslot].k->SetColorKey(DDCKEY_SRCBLT, &ddck); */
 	}
       myslot++;
       FastFileClose(pfile);
