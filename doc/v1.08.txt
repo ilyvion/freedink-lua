@@ -287,14 +287,15 @@ of this functionality."
 Diffing
 -------
 
-Files cannot be diffed directly because the indentation
-changed. Indenting both v1.07 and v1.08 using 'indent' (no option)
-allows you to get small diffs suitable for review:
-  indent 107/update_frame.cpp 108/Dink/update_frame.cpp
-  diff -u -Bbw 107/update_frame.cpp 108/Dink/update_frame.cpp | less
+Files cannot be diffed directly because the indentation changed.
 
-Removing ^M characters can make the reading more pleasurable:
-  find 107/ 108/ -type f | xargs sed -i -e 's/\r//g'
+The best way to get rid of identation differences is to transform
+source files into canonical forms and indent them:
+
+# Remove the few lines containing to std::*, which confuse 'indent'
+./c_canonicalize.sh a
+./c_canonicalize.sh b
+diff -u -Bbw a_canonical b_canonical
 
 
 Diff overview
@@ -314,13 +315,13 @@ Diff overview
 Changes not documented in whatsnew.txt
 --------------------------------------
 
-[ ] max_idata changed from 600 to 1000; idata are additional sprite
-    data in dink.ini. Some 1.08 D-Mods such as "City of Dead" require
-    more than 600 idata, and v1.07 ignores part of them, resulting in
-    misplaced sprites.
+[ ] max_idata changed from 600 to 1000; idata store additional sprite
+    data during dink.ini initial loading. Some 1.08 D-Mods such as
+    "City of Dead" require more than 600 idata, and v1.07 ignores part
+    of them, resulting in misplaced sprites.
 
 [ ] added a woe registry key so as to deprecate
-    %WINDIR%/dinksmallwood.ini overwrite
+    %WINDIR%/dinksmallwood.ini overwrite.
 
 [ ] New DinkC function: set_smooth_follow
 
