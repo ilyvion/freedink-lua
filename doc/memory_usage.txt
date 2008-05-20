@@ -1,0 +1,42 @@
+Here's a good, if dated, introduction to memory usage analysis under
+GNU/Linux: http://ktown.kde.org/~seli/memory/analysis.html
+
+exmap
+=====
+
+The memory usage can be checked with exmap. This requires compiling a
+kernel module::
+
+  aptitude install exmap-source
+  m-a a-i exmap
+  sudo modprobe exmap
+
+Now:
+
+* run FreeDink and wait until it's loaded
+
+* run "gexmap" and check Resident Mapped in particular
+
+
+memprof
+=======
+
+http://www.gnome.org/projects/memprof/
+
+It's a GUI to display a progress bar with how much heap your
+application is allocating or freeing. Unlike exmap it's updated in
+real time, so you'll immediately notice when your code is eating some
+more memory, or when it released it.
+
+It's not packaged in Debian because of a 2002->2006 gap in the
+development. But we can easily compile it::
+
+  aptitude install libgtk2.0-dev libgnomeui-dev libglade2-dev libgconf2-dev
+  aptitude install binutils-dev # libiberty
+  ./configure
+  make
+  sudo make install
+
+Then you can FreeDink through memprof::
+
+  memprof src/freedink -- --window --game ...
