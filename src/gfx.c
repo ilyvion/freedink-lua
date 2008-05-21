@@ -79,7 +79,7 @@ SDL_Surface *GFX_lpDDSTwo = NULL;
    generaly as temporary buffers. Only used by the game, not the
    editor. */
 /* Used in freedink.cpp only + as a local/independent temporary buffer
-   in show_bmp&copy_bmp&process_show_bmp */
+   in show_bmp&copy_bmp&process_show_bmp&load_sprite* */
 SDL_Surface *GFX_lpDDSTrick = NULL;
 /* Used in freedink.cpp and update_frame.cpp */
 SDL_Surface *GFX_lpDDSTrick2 = NULL;
@@ -337,9 +337,9 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       return NULL;
     }
 
-  /* Copy the surface */
-  /* Use SDL_ConvertSurface(); SDL_DisplayFormat() would be simpler
-     but seems to set a different palette */
+  /* Make an identical copy of the surface */
+  /* We use SDL_ConvertSurface(); SDL_DisplayFormat() would be simpler
+     but applies a different palette (the screen's) */
   copy = SDL_ConvertSurface(image, image->format, image->flags);
 
   if (set_pal == 1)

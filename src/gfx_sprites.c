@@ -242,7 +242,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 		*p = 30;     // darker white
 	      p++;
 	    }
-	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY, 0);
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
 	}
       else
 	{
@@ -253,16 +253,12 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 		*p = 249;  // darker white
 	      p++;
 	    }
-	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY, 255);
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
 	}
       
-      
-      /* TODO: use SDL_RLEACCEL above? "RLE acceleration can
-	 substantially speed up blitting of images with large
-	 horizontal runs of transparent pixels" (man
-	 SDL_SetColorKey) */
-      
-      
+      /* Force RLE encoding now to save memory space */
+      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick, NULL);
+
       k[myslot].box.top = 0;
       k[myslot].box.left = 0;
       k[myslot].box.right = GFX_k[myslot].k->w;
@@ -438,13 +434,15 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       
       /* Set transparent color: either black or white */
       if (black)
-	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
 			SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
       else
-	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
+	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
 			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
       
-      
+      /* Force RLE encoding now to save memory space */
+      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick, NULL);
+
       /* Fill in .box; this was previously done in DDSethLoad; in
 	 the future we could get rid of the .box field and rely
 	 directly on SDL_Surface's .w and .h fields instead: */
