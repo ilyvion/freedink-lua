@@ -88,6 +88,15 @@ overwrite parts of the next sequence. Possibly this never was an
 issue, because sequences were initialized incrementally, but an init()
 line was more likely to cause breakage. This is fixed anyway.
 
+When reloading a sequence through init() with a longer sequence, v1.07
+will overwrite bits of the next sequence, for dir.ff loading
+only. v1.08 overwrites for both BMPs and dir.ff sequences to avoid to
+a bug with mixed dir.ff and BMPs sequences. This bug is documented in
+dink.ini and loads the sword (longer) hit sequence before the first
+(shorter) sequence to work-around it. See
+http://www.dinknetwork.com/forum.cgi?MID=92733 for details. In
+FreeDink, sequences are never overwritten.
+
 
 The engine now can switch between fullscreen and window mode at
 run-time, using the Ctrl+Enter shortcut.

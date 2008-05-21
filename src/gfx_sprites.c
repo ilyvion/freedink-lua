@@ -36,7 +36,6 @@
 */
 
 
-static int next_slot = 1;
 static int please_wait = 0;
 
 /**
@@ -84,45 +83,57 @@ static void draw_wait()
     }
 }
 
-static void setup_anim(int seq_no, int delay)
+
+/**
+ * Return the next available graphic slot
+ */
+static int next_slot()
 {
-  int o;
-  for (o = 1; o <= seq[seq_no].len; o++)
+  /* Start index at 1 instead of 0. A few parts in the game rely on
+     this (e.g. if getpic(...) < 1). I noticed that sprite in slot 0
+     (by default, this would be a small white square) would be
+     displayed temporarily on the screen in some situations . */
+  int i = 1;
+  while (i < MAX_SPRITES && GFX_k[i].k != NULL)
+    i++;
+  return i;
+  /* Callee will need to check if i >= MAX_SPRITES and fail if
+     necessary */
+}
+
+/**
+ * Free all graphic slots used by given sequence
+ */
+static void free_seq(int seq_no)
+{
+  int i = 1;
+  int slot_index = -1;
+  while ((slot_index = seq[seq_no].frame[i]) != 0)
     {
-      seq[seq_no].frame[o] = seq[seq_no].base_index + o;
-      seq[seq_no].delay[o] = delay;
+      SDL_FreeSurface(GFX_k[slot_index].k);
+      GFX_k[slot_index].k = NULL;
+      i++;
     }
-  seq[seq_no].frame[seq[seq_no].len + 1] = 0;
+  /* 0 means end-of-sequence, no more frames */
 }
 
 
-void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
+void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffset, int yoffset,
 		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
 {
   char fname[20];
   char crap[200];
-  int myslot = next_slot;
 
-  /* If we're reloading a sequence, load_sprite_pak will overwrite the
-     previous data. Note that indexes are not checked, so if the new
-     sequence is longer than the old one, then it will overwrite
-     sprites in other unrelated sequences. In FreeDink, we'll keep
-     this behavior, until we're sure this weren't ever misused in a
-     released D-Mod. */
-  if (seq[seq_no].len != 0)
-    myslot = seq[seq_no].base_index + 1;
-
-
-  seq[seq_no].base_index = myslot - 1;
+  /* If the sequence already exists, free it first */
+  free_seq(seq_no);
 
   if (no_running_main)
     draw_wait();
 
   char *seq_dirname = pdirname(seq_path_prefix);
-
-  int num = strlen(seq_path_prefix) - strlen(seq_dirname)-1;
+  int n = strlen(seq_path_prefix) - strlen(seq_dirname)-1;
   char *fullpath = NULL;
-  strcpy(fname, &seq_path_prefix[strlen(seq_path_prefix)-num]);
+  strcpy(fname, &seq_path_prefix[strlen(seq_path_prefix) - n]);
   sprintf(crap, "%s/dir.ff", seq_dirname);
   if (samedir)
     fullpath = paths_dmodfile(crap);
@@ -143,6 +154,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
+      int myslot = next_slot();
       if (myslot >= MAX_SPRITES)
 	{
 	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
@@ -163,9 +175,6 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
       // GFX
       Uint8 *buffer;
       SDL_RWops *rw;
-      if (GFX_k[myslot].k != NULL)
-	    SDL_FreeSurface(GFX_k[myslot].k);
-      
       buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
       rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
       
@@ -261,7 +270,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
       
       if ( (oo > 1) & (notanim) )
 	{
-	  k[myslot].yoffset = k[seq[seq_no].base_index + 1].yoffset;
+	  k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
 	}
       else
 	{
@@ -275,7 +284,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
       
       if ( (oo > 1 ) & (notanim))
 	{
-	  k[myslot].xoffset =  k[seq[seq_no].base_index + 1].xoffset;
+	  k[myslot].xoffset =  k[seq[seq_no].frame[1]].xoffset;
 	}
       else
 	{
@@ -314,21 +323,19 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
 	  k[myslot].hardbox.top -= work;
 	  k[myslot].hardbox.bottom += work;
 	}
-      myslot++;
       FastFileClose(pfile);
+
+      seq[seq_no].frame[oo] = myslot;
+      seq[seq_no].delay[oo] = delay;
     }
+
+  /* Mark end-of-sequence */
+  seq[seq_no].frame[oo] = 0;
+  /* Length: inaccurate if 'set_frame_frame' is used */
+  seq[seq_no].len = oo - 1; 
   
   if (oo == 1)
     fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s.\n", crap);
-  
-  seq[seq_no].len = oo - 1;
-  setup_anim(seq_no, speed);
-
-  if (myslot > next_slot)
-    // new sequence, not a reload
-    next_slot = myslot;
-
-  return;
 }
 
 
@@ -336,14 +343,12 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
    load_sprite_pak), either from a BMP file */
 /* - seq_path_prefix: path to the file, relative to the current game (dink or dmod) */
 /* - not_anim: reuse xoffset and yoffset from the first frame of the animation (misnomer) */
-void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
+void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset, int yoffset,
 		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
 {
   char crap[200];
   char *fullpath = NULL;
   int use_fallback = 0;
-  int myslot = next_slot;
-
 
   if (no_running_main)
     draw_wait();
@@ -362,7 +367,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
     {
       free(fullpath);
       free(seq_dirname);
-      load_sprite_pak(seq_path_prefix, seq_no, speed, xoffset, yoffset,
+      load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
 		      hardbox, notanim, black, leftalign, /*true*/1);
       return;
     }
@@ -382,7 +387,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
       free(fullpath);
       if (exists)
 	{
-	  load_sprite_pak(seq_path_prefix, seq_no, speed, xoffset, yoffset,
+	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
 			  hardbox, notanim, black, leftalign, /*false*/0);
 	  free(seq_dirname);
 	  return;
@@ -395,12 +400,14 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
   free(seq_dirname);
 
 
-  seq[seq_no].base_index = myslot - 1;
+  /* If the sequence already exists, free it first */
+  free_seq(seq_no);
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   int oo;
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
+      int myslot = next_slot();
       if (myslot >= MAX_SPRITES)
 	{
 	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
@@ -419,14 +426,6 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
       else
 	in = paths_dmodfile_fopen(crap, "rb");
 
-      // Free previous surface before overwriting it (prevent
-      // memory leak)
-      if (GFX_k[myslot].k != NULL)
-	{
-	  SDL_FreeSurface(GFX_k[myslot].k);
-	}
-
-
       GFX_k[myslot].k = load_bmp_from_fp(in);
 
       if (GFX_k[myslot].k == NULL)
@@ -434,87 +433,9 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
 	  // end of sequence
 	  break;
 	}
-      else
-	{
-	  /** Configure current frame **/
 
-	  /* Fill in .box; this was previously done in DDSethLoad; in
-	     the future we could get rid of the .box field and rely
-	     directly on SDL_Surface's .w and .h fields instead: */
-	  k[myslot].box.top = 0;
-	  k[myslot].box.left = 0;
-	  k[myslot].box.right = GFX_k[myslot].k->w;
-	  k[myslot].box.bottom = GFX_k[myslot].k->h;
-	  
-	  /* Define the offsets / center of the image */
-
-	  if (oo > 1 && notanim)
-	    {
-	      k[myslot].yoffset = k[seq[seq_no].base_index + 1].yoffset;
-	    }
-	  else
-	    {
-	      if (yoffset > 0)
-		k[myslot].yoffset = yoffset;
-	      else
-		{
-		  k[myslot].yoffset = (k[myslot].box.bottom -
-				       (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
-		}
-	    }
-
-	  if (oo > 1 && notanim)
-	    {
-	      k[myslot].xoffset = k[seq[seq_no].base_index + 1].xoffset;
-	    }
-	  else
-	    {
-	      if (xoffset > 0)
-		k[myslot].xoffset = xoffset; else
-		{
-		  k[myslot].xoffset = (k[myslot].box.right -
-				       (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
-		}
-	    }
-	  //ok, setup main offsets, lets build the hard block
-
-	  if (hardbox.right > 0)
-	    {
-	      //forced setting
-	      k[myslot].hardbox.left = hardbox.left;
-	      k[myslot].hardbox.right = hardbox.right;
-	    }
-	  else
-	    {
-	      //default setting
-	      int work = k[myslot].box.right / 4;
-	      k[myslot].hardbox.left -= work;
-	      k[myslot].hardbox.right += work;
-	    }
-
-	  if (hardbox.bottom > 0)
-	    {
-	      //forced setting
-	      k[myslot].hardbox.top = hardbox.top;
-	      k[myslot].hardbox.bottom = hardbox.bottom;
-	    }
-	  else
-	    {
-	      //default setting
-	      /* eg: graphics\dink\push\ds-p2- and
-		 graphics\effects\comets\sm-comt2\fbal2- */
-	      int work = k[myslot].box.bottom / 10;
-	      k[myslot].hardbox.top -= work;
-	      k[myslot].hardbox.bottom += work;
-	    }
-	}
-
-      if (leftalign)
-	{
-	  //     k[myslot].xoffset = 0;
-	  //     k[myslot].yoffset = 0;
-	}
-
+      /** Configure current frame **/
+      
       /* Set transparent color: either black or white */
       if (black)
 	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
@@ -522,26 +443,96 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset,
       else
 	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY,
 			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
-      myslot++;
+      
+      
+      /* Fill in .box; this was previously done in DDSethLoad; in
+	 the future we could get rid of the .box field and rely
+	 directly on SDL_Surface's .w and .h fields instead: */
+      k[myslot].box.top = 0;
+      k[myslot].box.left = 0;
+      k[myslot].box.right = GFX_k[myslot].k->w;
+      k[myslot].box.bottom = GFX_k[myslot].k->h;
+      
+      /* Define the offsets / center of the image */
+      
+      if (oo > 1 && notanim)
+	{
+	  k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
+	}
+      else
+	{
+	  if (yoffset > 0)
+	    k[myslot].yoffset = yoffset;
+	  else
+	    {
+	      k[myslot].yoffset = (k[myslot].box.bottom -
+				   (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
+	    }
+	}
+      
+      if (oo > 1 && notanim)
+	{
+	  k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
+	}
+      else
+	{
+	  if (xoffset > 0)
+	    k[myslot].xoffset = xoffset; else
+	    {
+	      k[myslot].xoffset = (k[myslot].box.right -
+				   (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
+	    }
+	}
+      //ok, setup main offsets, lets build the hard block
+      
+      if (hardbox.right > 0)
+	{
+	  //forced setting
+	  k[myslot].hardbox.left = hardbox.left;
+	  k[myslot].hardbox.right = hardbox.right;
+	    }
+      else
+	{
+	  //default setting
+	  int work = k[myslot].box.right / 4;
+	  k[myslot].hardbox.left -= work;
+	  k[myslot].hardbox.right += work;
+	}
+      
+      if (hardbox.bottom > 0)
+	{
+	  //forced setting
+	  k[myslot].hardbox.top = hardbox.top;
+	  k[myslot].hardbox.bottom = hardbox.bottom;
+	}
+      else
+	{
+	  //default setting
+	  /* eg: graphics\dink\push\ds-p2- and
+	     graphics\effects\comets\sm-comt2\fbal2- */
+	  int work = k[myslot].box.bottom / 10;
+	  k[myslot].hardbox.top -= work;
+	  k[myslot].hardbox.bottom += work;
+	}
+      
+      seq[seq_no].frame[oo] = myslot;
+      seq[seq_no].delay[oo] = delay;
     }
 
+  /* Mark end-of-sequence */
+  seq[seq_no].frame[oo] = 0;
+  /* Length: inaccurate if 'set_frame_frame' is used */
+  seq[seq_no].len = oo - 1; 
+  
   /* oo == 1 => not even one sprite was loaded, error */
   /* oo > 1 => the sequence ends */
-  
+
   if (oo == 1)
     {
       /* First frame didn't load! */
       fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
       Msg("load_sprites:  Anim %s not found.",seq_path_prefix);
     }
-  /* Finalize sequence */
-  seq[seq_no].len = oo - 1;
-  setup_anim(seq_no, speed);
-
-  // adust next slot index
-  next_slot = myslot;
-
-  return;
 }
 
 /**

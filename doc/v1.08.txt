@@ -121,8 +121,10 @@ Fixes:
     infinite loop of hard-drive punishment).
 [ ] Restoring game will not redraw status bar if it wasn't drawn.
 [ ] Removed screenlock on restart game
-[ ] Fixed issue of loading regular bmp sequences over top of previous sequences
-    (before the animation would be 'corrupt').
+[X] Fixed issue of loading regular bmp sequences over top of previous sequences
+    (before the animation would be 'corrupt')
+    => See for further explanation http://www.dinknetwork.com/forum.cgi?MID=92733
+    => fixed 2008-05-22, but differently (clean sequence reload)
 
 [X] Dinkedit: several spelling/grammar fixes
 [X] Removed extra space in "I'm gesturing wildly to  no avail!"

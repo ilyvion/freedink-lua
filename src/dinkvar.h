@@ -400,12 +400,8 @@ struct pic_info
 struct GFX_pic_info
 {
   SDL_Surface *k; // Sprites
-
-  // RECT box;              // Dimensions (0,0,width,height)
-  rect hardbox;          // Square where Dink can't go through if sprite is hard
-
-  int yoffset;           // Center of the picture
-  int xoffset;
+  /* TODO: move pic_info to GFX_pic_info; if possible, replace 'box'
+     with k->h and k->w in the code */
 };
 
 /* Sequence description */
@@ -414,7 +410,6 @@ struct sequence
 {
   int is_active;  // does it contain something
   char* ini;      // matching dink.ini (or init()) line
-  int base_index; // index in GFX_k for the first ("start") frame - 1
   int len;        // number of initial frames in this sequence
                   // - inaccurate if the sequence is modified by 'set_frame_frame'
   int frame[MAX_FRAMES_PER_SEQUENCE+1+1]; // index in GFX_k for the each frame, indexed from 1, ended by '0'
