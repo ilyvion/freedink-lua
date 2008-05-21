@@ -186,19 +186,23 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffs
       /* The engine suffered a DX limitation: palette indexes 0 and
 	 255 fixed fixed to black and white respectively. This is also
 	 the opposite of the Dink BMP palette indexes. This causes
-	 troubles when skipping palette conversion (here) and during
-	 fade_down()/fade_up() (255/white pixels can't be
-	 darkened). This is why this function replaced black with
-	 brighter black and white with darker white. */
+	 troubles when skipping palette conversion (here), during
+	 fade_down()/fade_up() (255/white pixels can't be darkened)
+	 and in DinkC's fillcolor(index). This is why this function
+	 replaced black with brighter black and white with darker
+	 white. */
       /* In FreeDink palette conversion is done in load_bmp_internal,
 	 so we mainly care about avoiding white pixels during
 	 fade_down(), and only because we reproduced the palette
 	 limitation so as to support dynamic palette-changing tricks
 	 (cf. Lyna's Story) as well as having readable white text
-	 during fade_down(). But we might consider getting rid of it
-	 entirely. Just make sure dir.ff LEFTALIGN has no
-	 transparency, otherwise the experience counter digits in the
-	 status bar will become transparent. */
+	 during fade_down(). Maintaining compatibility with
+	 fillcolor() is also important (although forcing 0 and 255
+	 indexes could be done in that function only). But we might
+	 consider getting rid of it entirely. We just have to make
+	 sure a dir.ff LEFTALIGN has no transparency, otherwise the
+	 experience counter digits in the status bar will become
+	 transparent. */
       /* v1.08 does a similar job for true color mode; I believe this
 	 is pointless in such case. */
       Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
