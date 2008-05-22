@@ -316,7 +316,7 @@ int playx = 620;
 int playl = 20;
 
 /*bool*/int mouse1 = /*false*/0;
-int playy = 399;
+int playy = 400;
 int cur_map,cur_tile;
 struct seth_joy sjoy;
 
