@@ -1709,12 +1709,14 @@ void load_hard(void)
 {
   FILE *fp = NULL;
 
+  /* Try loading the D-Mod hard.dat */
+  fp = paths_dmodfile_fopen("hard.dat", "rb");
+
+  /* If running the game, fallback to the default hard.dat, but if
+     running the editor, recreate it in all cases. */
   if (!dinkedit)
-    {
-      fp = paths_dmodfile_fopen("hard.dat", "rb");
-      if (fp == NULL)
-	fp = paths_fallbackfile_fopen("hard.dat", "rb");
-    }
+    fp = paths_fallbackfile_fopen("hard.dat", "rb");
+
 
   if (!fp)
     {
