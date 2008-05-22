@@ -1,6 +1,7 @@
 /**
  * Graphics - sprites management
 
+ * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink

@@ -97,6 +97,9 @@ dink.ini and loads the sword (longer) hit sequence before the first
 http://www.dinknetwork.com/forum.cgi?MID=92733 for details. In
 FreeDink, sequences are never overwritten.
 
+In addition, reloading a BMP sequence in 1.07 was not freeing the
+existing sequence slots. This is fixed too.
+
 
 The engine now can switch between fullscreen and window mode at
 run-time, using the Ctrl+Enter shortcut.
