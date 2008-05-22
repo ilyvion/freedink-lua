@@ -324,6 +324,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       seq[seq_no].frame[oo] = myslot;
       seq[seq_no].delay[oo] = delay;
     }
+  FastFileFini();
 
   /* Mark end-of-sequence */
   seq[seq_no].frame[oo] = 0;
