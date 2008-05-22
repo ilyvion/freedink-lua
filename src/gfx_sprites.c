@@ -1,7 +1,7 @@
 /**
  * Graphics - sprites management
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -32,7 +32,7 @@
 
 /*
   External global variables in use:
-  s_index[], seq[], GFX_k[], k[], no_running_main
+  seq[], GFX_k[], k[], no_running_main
 */
 
 
