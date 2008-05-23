@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #define NB_PAIRS_MAX 128
 
 /* Dink's .d files are compressed using the Binary Pair Encoding
@@ -38,78 +39,110 @@
      matching pair
 */
 
-/* #define debug(...) fprintf(stderr, __VA_ARGS__) */
+/* Simple run with 3 pairs: */
+/*
+- Pairs:
+0 = 65 ('a'), 65 ('a') // coded as 128
+1 = 128, 128           // coded as 129
+2 = 129, 129           // coded as 130
+- Text body:
+130
+- Stack (bottom is left):
+-> (0)
+-> 130
+-> 129, 129
+-> 129, 128, 128
+-> 129, 128, 65, 65
+-> 129, 128, 65 [output => 65]
+-> 129, 128 [output => 65]
+-> 129, 65, 65
+-> 129, 65 [output => 65]
+-> 129, [output => 65]
+-> 129
+-> 128, 128
+-> 128, 65, 65
+-> 128, 65 [output => 65]
+-> 128 [output => 65]
+-> 65, 65
+-> 65 [output => 65]
+-> (0) [output => 65]
+- Output:
+aaaaaaaa
+*/
+
+#ifdef DEBUG
+#define debug(...) fprintf(stderr, __VA_ARGS__)
+#else
 #define debug(...) 
+#endif
 
 int decompress(FILE *in, FILE *out)
 {
   /* Replacement strings contain at most 2^NB_PAIRS_MAX
      (or 1<<NB_PAIRS_MAX) */
-  /* Memory footprint = 2MB = acceptable :) */
-  /* EDIT: it's rather 2x10^38, which is less acceptable */
-  /* TODO: reimplement all this using a 128-bytes stack and on-the-fly
-     substitution; the previous version "worked" but could segfault
-     easily. I had confused 2^128 (e.g. 130) and 1<<128... */
-  char repl[128][1<<128 + 1];
-  memset(repl, 0, 128 * (1<<128 + 1));
+  /* Maximum length of a substitution = 2^128 =~ 2x10^38 => can't be
+     cached. Instead we'll stack the pairs references in the body of
+     the compressed text and pop them until the stack is
+     empty. There's a maximum of 128 chained pairs, so the stack has a
+     size of 128 + 1 (last substitution references non-pairs). */
+  unsigned char pairs[NB_PAIRS_MAX][2];
+  unsigned char stack[NB_PAIRS_MAX+1];
+  int stack_top = -1; /* empty stack */
 
   /* First byte is the number of pairs + 128 */
   int nb_pairs = fgetc(in);
-  nb_pairs -= 128;
+  nb_pairs -= NB_PAIRS_MAX;
   debug("nb_pairs = %d\n", nb_pairs);
   if (nb_pairs < 0)
-    return -1;
+    return -1; /* Invalid header: negative number of pairs */
 
   /* Read pairs table */
   for (int i = 0; i < nb_pairs; i++)
     {
-      char *pc = repl[i];
-      for (int n = 0; n < 2; n++)
+      for (int j = 0; j < 2; j++)
 	{
 	  int c = fgetc(in);
-
+	  if (c == EOF)
+	    return -1; /* Invalid header: truncated pair table */
 	  if (c > i+128)
-	    {
-	      /* reference to a pair that is not registered yet! */
-	      return -1;
-	    }
-
-	  if (c < 128)
-	    {
-	      /* Copy this char */
-	      *pc = c;
-	      pc++;
-	    }
-	  else
-	    {
-	      /* Copy the matching replacement string */
-	      char *pc2 = repl[c-128];
-	      while(*pc2 != '\0')
-		{
-		  *pc = *pc2;
-		  pc++;
-		  pc2++;
-		}
-	    }
-	  *pc = '\0';
+	    return -1; /* Invalid header: reference to a pair that is not registered yet */
+	  pairs[i][j] = c;
 	}
     }
 
-  /* Debug: dump replacement strings table */
-  for (int i = 0; i < 128; i++)
+  /* Debug: dump pair table */
+  for (int i = 0; i < nb_pairs; i++)
     {
-      debug("%d(%d): %s\n", i, strlen(repl[i]), repl[i]);
+      debug("pairs[%d]: %d . %d\n", i,  pairs[i][0], pairs[i][1]);
     }
 
   /* Decompress file */
-  int c;
-  while((c = fgetc(in)) != EOF)
+  while (1)
     {
-      debug("%d/%d ", c, c-128);
-      if (c < 128)
-	fputc(c, out);
+      assert(stack_top < nb_pairs+1);
+      if (stack_top < 0) /* empty stack */
+	{
+	  int c = fgetc(in);
+	  if (c == EOF) /* end of file */
+	    break;
+	  else if (c < 128)
+	    fputc(c, out);
+	  else
+	    stack[++stack_top] = c;
+	}
       else
-	fputs(repl[c-128], out);
+	{
+	  if (stack[stack_top] < 128)
+	    fputc(stack[stack_top--], out);
+	  else
+	    {
+	      unsigned char cur_pair = stack[stack_top--] - 128;
+	      if (cur_pair >= nb_pairs)
+		return -1; /* Invalid body: references non-existent pair */
+	      stack[++stack_top] = pairs[cur_pair][1];
+	      stack[++stack_top] = pairs[cur_pair][0];
+	    }
+	}
     }
   return 0;
 }
@@ -128,7 +161,7 @@ int main(int argc, char *argv[])
       char *outfile;
       int infile_len = strlen(infile);
       int success = -1;
-      printf("Uncompressing %s...", infile);
+      printf("Uncompressing %s... ", infile);
       FILE *in;
       if ((in = fopen(*argv, "rb")) == NULL)
 	{
