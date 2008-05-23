@@ -11,3 +11,10 @@ seq 423 frame 7, seq 423 frame 8 - draw_wait():
 
   2-images "Please Wait" flashing text before you enter a screen
   containing lots of new sprites
+
+
+
+Same for sound:
+
+* 19: in a choice, when moving through the choices, with the mouse or
+  the keyboard

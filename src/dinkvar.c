@@ -83,9 +83,11 @@
 #include "paths.h"
 #include "log.h"
 
+const int dversion = 107;
+char dversion_string[7] = "v1.07";
+
 int g_b_no_write_ini = 0;
 /*bool*/int no_cheat =  /*true*/1;
-const int dversion = 107;
 int last_saved_game = 0;
 
 //if true, will close app as soon as the message pump is empty
@@ -96,7 +98,6 @@ char current_map[255] = "MAP.DAT";
 time_t time_start;
 /*bool*/int item_screen = /*false*/0;
 /*bool*/int midi_active = /*true*/1;
-char dversion_string[7] = "v1.07";
 
 int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 void strchar(char *string, char ch);
@@ -1714,22 +1715,25 @@ void load_hard(void)
 
   /* If running the game, fallback to the default hard.dat, but if
      running the editor, recreate it in all cases. */
-  if (!dinkedit)
+  if (fp == NULL && !dinkedit)
     fp = paths_fallbackfile_fopen("hard.dat", "rb");
 
 
-  if (!fp)
+  if (fp != NULL)
     {
-      //make new data file
-      fp = paths_dmodfile_fopen("hard.dat", "wb");
-      memset(&hmap, 0, sizeof(struct hardness));
-      fwrite(&hmap, sizeof(struct hardness), 1, fp);
+      fread(&hmap,sizeof(struct hardness), 1, fp);
       fclose(fp);
     }
   else
     {
-      fread(&hmap,sizeof(struct hardness),1,fp);
-      fclose(fp);
+      //make new data file
+      memset(&hmap, 0, sizeof(struct hardness));
+      fp = paths_dmodfile_fopen("hard.dat", "wb");
+      if (fp != NULL)
+	{
+	  fwrite(&hmap, sizeof(struct hardness), 1, fp);
+	  fclose(fp);
+	}
     }
 }
 
