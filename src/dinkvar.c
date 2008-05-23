@@ -121,7 +121,7 @@ unsigned short decipher_savegame = 0;
 int draw_map_tiny = -1;
 
 int walk_off_screen = /*false*/0;
-char cbuf[64000];
+
 /*bool*/int cd_inserted;
 const int old_burn = 0;
 
@@ -2984,44 +2984,78 @@ void kill_all_scripts_for_real(void)
 }
 
 
-void decompress (FILE *in)
+
+#define NB_PAIRS_MAX 128
+/* DinkC script buffer */
+char cbuf[64000];
+
+/**
+ * Decompress a .d DinkC script; also clean newlines. Check
+ * contrib/d2c.c for more explanation about the decompression process.
+ */
+void decompress(FILE *in)
 {
-        unsigned char stack[16], pair[128][2];
-        short c, top = 0;
-
-        /* Check for optional pair count and pair table */
-        if ((c = getc(in)) > 127)
-                fread(pair,2,c-128,in);
-        else
-        {
-                if (c == '\r') c = '\n';
-                if (c == 9) c = ' ';
-
-                strchar(cbuf,c);
-        }
-        //        putc(c,out);
-
-        for (;;) {
-
-                /* Pop byte from stack or read byte from file */
-                if (top)
-                        c = stack[--top];
-                else if ((c = getc(in)) == EOF)
-                        break;
-
-                /* Push pair on stack or output byte to file */
-                if (c > 127) {
-                        stack[top++] = pair[c-128][1];
-                        stack[top++] = pair[c-128][0];
-                }
-                else
-                {
-                        if (c == '\r') c = '\n';
-                        if (c == 9) c = ' ';
-
-                        strchar(cbuf,c);//     putc(c,out);
-                }
-        }
+  unsigned char stack[NB_PAIRS_MAX+1], pairs[NB_PAIRS_MAX][2];
+  short c, top = -1;
+  int nb_pairs = 0;
+  
+  /* Check for optional pair count and pair table */
+  if ((c = fgetc(in)) > 127)
+    {
+      /* Read pairs table */
+      nb_pairs = c - 128;
+      int i, j;
+      for (i = 0; i < nb_pairs; i++)
+	{
+	  for (j = 0; j < 2; j++)
+	    {
+	      int c = fgetc(in);
+	      if (c == EOF)
+		{
+		  fprintf(stderr, "decompress: invalid header: truncated pair table\n");
+		  return;
+		}
+	      if (c > i+128)
+		{
+		  fprintf(stderr, "decompress: invalid header: reference to a pair that is not registered yet\n");
+		  return;
+		}
+	      pairs[i][j] = c;
+	    }
+	}
+    }
+  else
+    {
+      /* Non-compressed file, put back the character we read */
+      ungetc(c, in);
+    }
+  
+  for (;;)
+    {
+      /* Pop byte from stack or read byte from file */
+      if (top >= 0)
+	c = stack[top--];
+      else if ((c = fgetc(in)) == EOF)
+	break;
+    
+      /* Push pair on stack or output byte to file */
+      if (c > 127)
+	{
+	  if ((c-128) >= nb_pairs)
+	    {
+	      fprintf(stderr, "decompress: invalid body: references non-existent pair\n");
+	      return;
+	    }
+	  stack[++top] = pairs[c-128][1];
+	  stack[++top] = pairs[c-128][0];
+	}
+      else
+	{
+	  if (c == '\r') c = '\n';
+	  if (c == 9) c = ' ';
+	  strchar(cbuf,c);
+	}
+    }
 }
 
 
