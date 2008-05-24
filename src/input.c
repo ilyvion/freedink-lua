@@ -22,7 +22,7 @@
  */
 
 #include "SDL.h"
-#include "dinkvar.h"
+#include "game_engine.h"
 #include "log.h"
 #include "input.h"
 

@@ -28,6 +28,8 @@ extern "C"
 {
 #endif
 
+#include <stdio.h>
+
   extern void paths_init(char* argv0, char* refdir_opt, char* dmoddir_opt);
   extern const char *paths_getdmoddir(void);
   extern const char *paths_getfallbackdir(void);

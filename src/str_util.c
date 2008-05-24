@@ -92,3 +92,159 @@ int asprintf_append(char **strp, const char* fmt, ...)
   free(tmp);
   return result;
 }
+
+void reverse(char *st)
+{
+        int i,ii;
+        char don[255];
+        don[0] = 0;
+        ii = strlen(st);
+        for (i=ii; i > -1; i--)
+        {
+                strchar(don, st[i]);
+        }
+        strcpy(st, don);
+}
+
+void strchar(char *string, char ch)
+/* This acts in the same way as strcat except it combines a string and
+a single character, updating the null at the end. */
+{
+        int last;
+        last=strlen(string);
+        string[last]=ch;
+        string[last+1]=0;
+
+}
+
+/**
+ * Split 'str' in words separated by 'liney', and copy the #'num' one
+ * to 'return1'. The function does not alter 'str'.
+ */
+/*bool*/int separate_string (char str[255], int num, char liney, char *return1)
+{
+  int l;
+  int k;
+  int len = 0;
+
+  len = strlen(str);
+  l = 1;
+  strcpy(return1, "");
+
+  for (k = 0; k <= len; k++)
+    {
+      if (str[k] == liney)
+	{
+	  l++;
+	  if (l == num+1)
+	    goto done;
+
+	  if (k < len)
+	    strcpy(return1, "");
+	}
+      else /* (str[k] != liney) */
+	{
+	  char cur_char_as_string[2];
+	  cur_char_as_string[0] = str[k];
+	  cur_char_as_string[1] = '\0';
+	  strcat(return1, cur_char_as_string);
+	}
+    }
+
+  if (l < num)
+    strcpy(return1, "");
+
+  replace("\r", "", return1); //Take the /r off it.
+  replace("\n", "", return1); //Take the /n off it.
+
+  return /*false*/0;
+
+done:
+  if (l < num)
+    strcpy(return1, "");
+
+  replace("\r", "", return1); //Take the /r off it.
+  replace("\n", "", return1); //Take the /n off it.
+
+  //Msg("Took %s and turned it to %s.",str, return1);
+  return /*true*/1;
+}
+
+/*bool*/int compare(char *orig, char *comp)
+{
+
+        int len;
+
+        //strcpy(comp, _strupr(comp));
+        //strcpy(orig, _strupr(orig));
+
+
+        len = strlen(comp);
+        if (strlen(orig) != len) return(/*false*/0);
+
+
+        if (strncasecmp(orig,comp,len) == 0)
+        {
+                return(/*true*/1);
+        }
+
+        //Msg("I'm sorry, but %s does not equal %s.",orig, comp);
+
+        return(/*false*/0);
+}
+
+void replace(const char *this1, char *that, char *line)
+{
+
+        char hold[500];
+        char thisup[200],lineup[500];
+        int u,i;
+        int checker;
+start:
+        strcpy(hold,"");
+
+        strcpy(lineup,line);
+        strcpy(thisup,this1);
+
+        strtoupper(lineup);
+        strtoupper(thisup);
+        if (strstr(lineup,thisup) == NULL) return;
+        checker = -1;
+        strcpy(hold,"");
+        for (u = 0; u < strlen(line); u++)
+        {
+                if (checker > -1)
+                {
+                        if (toupper(line[u]) == toupper(this1[checker]))
+                        {
+                                if (checker+1 == strlen(this1))
+                                {
+doit:
+                                u = u - strlen(this1);
+                                u++;
+                                for (i = 0; i < u; i++) hold[i] = line[i];
+                                for (i = 0; i < strlen(that); i++) hold[(u)+i]=that[i];
+                                hold[strlen(that)+u] = 0;
+                                for (i = 0; i < (strlen(line)-u)-strlen(this1); i++)
+                                {
+                                        hold[(u+strlen(that))+i] = line[(u+strlen(this1))+i];
+                                }
+                                hold[(strlen(line)-strlen(this1))+strlen(that)] = 0;
+                                strcpy(line,hold);
+                                goto start;
+                                }
+                                checker++;
+                          } else { checker = -1;    }
+                }
+                if( checker == -1)
+                {
+                        if (toupper(line[u]) == toupper(this1[0]))
+                        {
+
+                                //      if (line[u] < 97) that[0] = toupper(that[0]);
+                                checker = 1;
+                                if (strlen(this1) == 1) goto doit;
+                        }
+                }
+        }
+}

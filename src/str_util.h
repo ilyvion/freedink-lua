@@ -34,6 +34,11 @@ extern "C"
   extern void strtoupper (char *s);
   extern void strcpy_nooverlap(char *dst, char* src);
   extern int asprintf_append(char **strp, const char* fmt, ...);
+  extern void reverse(char *st);
+  extern void strchar(char *string, char ch);
+  extern /*bool*/int separate_string (char str[255], int num, char liney, char *return1);
+  extern /*bool*/int compare(char *orig, char *comp);
+  extern void replace(const char *this1, char *that, char *line);
 
 #ifdef __cplusplus
 }

@@ -37,6 +37,7 @@
 #include "binreloc.h"
 #include "progname.h"
 /* Msg */
+#include "game_engine.h"
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
@@ -52,6 +53,7 @@
 #include "init.h"
 #include "msgbox.h"
 
+static int g_b_no_write_ini = 0; // -noini passed to command line?
 static char* init_error_msg = NULL;
 
 void init_set_error_msg(char *fmt, ...)
@@ -321,4 +323,36 @@ int init(int argc, char *argv[])
   memset(&pam, 0, sizeof(pam));
 
   return 1;
+}
+
+
+
+/**
+ * Save where Dink is installed in a .ini file, read by third-party
+ * applications like the DinkFrontEnd. Also notify whether Dink is
+ * running or not.
+ */
+void log_path(/*bool*/int playing)
+{
+  if (g_b_no_write_ini)
+    return; //fix problem with NT security if -noini is set
+  /* TODO: saves it in the user home instead. Think about where to
+     cleanly store additional DMods. */
+
+#ifdef _WIN32
+  char windir[100];
+  char inifile[256];
+  GetWindowsDirectory(windir, 256);
+  sprintf(inifile, "%s\\dinksmallwood.ini", windir);
+
+  unlink(inifile);
+
+  add_text("[Dink Smallwood Directory Information for the CD to read]\r\n", inifile);
+  add_text((char *)paths_getexedir(), inifile);
+  add_text("\r\n", inifile);
+  if (playing)
+    add_text("TRUE\r\n", inifile);
+  else
+    add_text("FALSE\r\n", inifile);
+#endif
 }

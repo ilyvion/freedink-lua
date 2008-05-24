@@ -23,6 +23,7 @@
 #ifndef _GFX_SPRITES_H
 #define _GFX_SPRITES_H
 
+#include "SDL.h"
 #include "rect.h"
 
 #ifdef __cplusplus
@@ -32,6 +33,43 @@ extern "C"
 
 /* Max number of sprites, minus 1 (GFX_k is indexed from 1) */
 #define MAX_SPRITES 4000
+#define MAX_FRAMES_PER_SEQUENCE 50
+  
+  /* Store sprites info */
+  struct pic_info
+  {
+    /*   LPDIRECTDRAWSURFACE k; // Sprites */
+    
+    rect box;     // Dimensions (0,0,width,height)
+    rect hardbox; // Square where Dink can't block if sprite is hard
+    
+    int yoffset;  // Center of the picture
+    int xoffset;
+  };
+  
+  struct GFX_pic_info
+  {
+    SDL_Surface *k; // Sprites
+    /* TODO: move pic_info to GFX_pic_info; if possible, replace 'box'
+       with k->h and k->w in the code */
+  };
+  
+  /* Sequence description */
+  struct sequence
+  {
+    int is_active;  // does it contain something
+    char* ini;      // matching dink.ini (or init()) line
+    int len;        // number of initial frames in this sequence
+                    // - inaccurate if the sequence is modified by 'set_frame_frame'
+    int frame[MAX_FRAMES_PER_SEQUENCE+1+1]; // index in GFX_k for the each frame, indexed from 1, ended by '0'
+                                            // if -1, loop from beginning
+    int delay[MAX_FRAMES_PER_SEQUENCE+1]; // frame duration, indexed from 1
+    unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
+  };
+
+  extern struct pic_info k[];
+  extern struct GFX_pic_info GFX_k[];
+  extern struct sequence seq[];
 
   extern void sprites_unload(void);
   extern void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,

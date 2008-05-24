@@ -86,6 +86,8 @@
 #include "dinkvar.h"
 #include "fastfile.h"
 #include "gfx.h"
+#include "game_engine.h"
+#include "gfx_sprites.h"
 #include "gfx_tiles.h"
 #include "gfx_utils.h"
 #include "gfx_fonts.h"

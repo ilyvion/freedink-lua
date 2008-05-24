@@ -77,6 +77,4 @@ extern int drawthistime;
 extern int fps_average;
 extern int fps_show;
 
-#define __ENGLISH
-
 #endif

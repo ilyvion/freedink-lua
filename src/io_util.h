@@ -31,6 +31,13 @@ extern "C"
 {
 #endif
 
+#define BOOL_1BYTE char /* Boolean value on 1 byte exactly, used to
+			   replace the C++ bool type during the C++=>C
+			   conversion. Do not change to int, else
+			   player_info (among others) will have a
+			   different size and savegame format will
+			   change! */
+
   extern void ciconvert (char *filename);
   extern SDL_RWops *find_resource_as_rwops(const char *filename);
   extern /*bool*/int exist(char *name);

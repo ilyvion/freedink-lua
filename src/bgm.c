@@ -32,9 +32,10 @@
 
 #include <string.h>
 
-#include "dinkvar.h"
+#include "game_engine.h"
 #include "bgm.h"
 #include "io_util.h"
+#include "str_util.h"
 #include "paths.h"
 #include "log.h"
 

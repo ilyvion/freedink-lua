@@ -26,5 +26,6 @@
 
 extern int init(int argc, char *argv[]);
 extern void init_set_error_msg(char *fmt, ...);
+extern void log_path(/*bool*/int playing);
 
 #endif

@@ -24,7 +24,7 @@
 
 #include "SDL.h"
 #include "SDL_mixer.h"
-#include "dinkvar.h"
+#include "game_engine.h"
 #include "io_util.h"
 #include "paths.h"
 #include "log.h"

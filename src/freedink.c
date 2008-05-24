@@ -25,6 +25,8 @@
 #include <config.h>
 #endif
 
+#include "freedink.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,19 +37,21 @@
 #include "fastfile.h"
 
 #include "gfx.h"
-#include "gfx_tiles.h"
 #include "gfx_utils.h"
 #include "gfx_fonts.h"
+#include "gfx_sprites.h"
+#include "gfx_tiles.h"
 #include "bgm.h"
 #include "sfx.h"
-#include "dinkvar.h"
 #include "update_frame.h"
 #include "init.h"
 #include "io_util.h"
 #include "paths.h"
 #include "input.h"
 #include "log.h"
-#include "freedink.h"
+
+#include "game_engine.h"
+#include "dinkvar.h"
 
 /* const int WM_IMDONE = WM_USER+110; */
 

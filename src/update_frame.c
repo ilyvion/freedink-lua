@@ -32,11 +32,13 @@
 #include "SDL_framerate.h"
 
 #include "dinkvar.h"
+#include "game_engine.h"
 #include "freedink.h"
 #include "gfx.h"
-#include "gfx_tiles.h"
 /* For printing strings in debug mode */
 #include "gfx_fonts.h"
+#include "gfx_sprites.h"
+#include "gfx_tiles.h"
 #include "bgm.h"
 #include "log.h"
 #include "rect.h"

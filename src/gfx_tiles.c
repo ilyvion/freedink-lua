@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "game_engine.h"
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
