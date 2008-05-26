@@ -62,8 +62,12 @@ void updateFrame( void )
 /*     HRESULT             ddrval; */
 
     int move_result ;
+    
+    /* Probably a debug variable, only set in a "if (5 > 9)" block. I
+       don't know what this allows to debug though; this involves
+       copying the screen to lpDDSTrick2 */
+    /*bool*/int get_frame = /*false*/0;
 
-	/*bool*/int get_frame = /*false*/0;
 	int h,max_s,j;
 	//HBRUSH brush;
 	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];

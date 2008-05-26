@@ -258,7 +258,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	}
       
       /* Force RLE encoding now to save memory space */
-      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick, NULL);
+      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
 
       k[myslot].box.top = 0;
       k[myslot].box.left = 0;
@@ -443,7 +443,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 			SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
       
       /* Force RLE encoding now to save memory space */
-      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick, NULL);
+      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
 
       /* Fill in .box; this was previously done in DDSethLoad; in
 	 the future we could get rid of the .box field and rely

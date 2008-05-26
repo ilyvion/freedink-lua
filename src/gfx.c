@@ -70,9 +70,7 @@ SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer and link to physical
    should do so as well. */
 /* After the background is done, all the other operations are applied
    on lpDDSBack, the double buffer which is directly used by the
-   physical screen. (Note: in DX, that's the case; in SDL, the double
-   buffer is included in lpDDSPrimary, so we need to get rid of the
-   useless lpDDSBack intermediary - but later. */
+   physical screen. */
 SDL_Surface *GFX_lpDDSTwo = NULL;
 
 /* Beuc: apparently used for the scrolling screen transition and more
