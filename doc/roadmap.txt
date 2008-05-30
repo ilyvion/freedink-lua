@@ -113,10 +113,7 @@ Well, merge the _idea_, the code is for DirectX anyway
 [ ] Merge interesting changes from redink1's reDink and toa's unDink
 
 Some stuff need to discussed, namely bugs that are used as features in
-some DMods (eg the moving background bug that erase dead sprites is
-used by Mike Snyder to make a special floor where Slayers
-automatically disappear when dead - I can't remember the exact DMod
-though). Publicly discuss those issues (Wiki, board).
+some DMods. Publicly discuss those issues (Wiki, board).
 
 [ ] Add translation support
 

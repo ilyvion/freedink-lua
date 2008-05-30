@@ -62,12 +62,9 @@ SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer and link to physical
    3) with various hacks such as fill_screen() (and maybe
    copy_bmp_to_screen()). */
 /* Those changes may conflict with each other (eg: an animated tile
-   overwrites half the carcass of a dead enemy - which I think is used
-   in one of Mike Snyder's DMods to make a slayer carcass disappear
-   when killed on a weird alien floor; or maybe that was a real
-   bug..). I think that some alternate versions of Dink considered
-   those conflicts as bugs (not features) and fixed them. Maybe we
-   should do so as well. */
+   overwrites half the carcass of a dead enemy). I think that some
+   alternate versions of Dink considered those conflicts as bugs (not
+   features) and fixed them. Maybe we should do so as well. */
 /* After the background is done, all the other operations are applied
    on lpDDSBack, the double buffer which is directly used by the
    physical screen. */
