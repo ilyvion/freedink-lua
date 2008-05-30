@@ -426,5 +426,21 @@ tar xzf guile-$VERSION.tar.gz
 cd guile-$VERSION
 CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
-  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
-... some problems to fix ...
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+    --prefix=/usr/local/cross-tools/i386-mingw32msvc \
+    --disable-shared
+make
+make install
+
+Some problems need to be fixed:
+
+- Comment obsolete AC_SYS_RESTARTABLE_SYSCALLS in configure.in, plus
+  refresh ./configure by running 'autoconf'
+
+- Replace '#ifndef tzname' with '#ifndef HAVE_DECL_TZNAME' in
+  libguile/stime.c
+
+- Comment '# define SCM_IMPORT 1' in libguile/guile.c
+
+See:
+http://lists.gnu.org/archive/html/bug-guile/2008-05/msg00016.html
