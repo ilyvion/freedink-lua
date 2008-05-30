@@ -2550,7 +2550,11 @@ void check_sprite_status(int h)
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
                 if (seq[spr[h].pseq].frame[1] == 0)
                 {
-                        figure_out(seq[spr[h].pseq].ini, 0);
+		  if (seq[spr[h].pseq].is_active)
+		    figure_out(seq[spr[h].pseq].ini, 0);
+		  else
+		    fprintf(stderr, "Error: sprite %d on map %d references non-existent sequence %d \n",
+			    h, cur_map, spr[h].pseq);
                 }
                 else
                 {
