@@ -1,0 +1,6 @@
+Freely-licensed sound and music
+
+Existing games:
+- Addonthell (bgm & sfx)
+- Trackballs (bgm)
+- Battle of Wesnoth (sfx)
