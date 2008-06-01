@@ -449,57 +449,41 @@ void strip_beginning_spaces(char *str)
 }
 
 
-/*void check_for_real_vars(char crap[20], int i)
+/**
+ * Expand 'variable' in the scope of 'script'
+ */
+void decipher(char *variable, int script)
 {
-if (compare(play.var[i].name, "&vision")) map_vision = play.var[i].var;
-if (compare(play.var[i].name, "&life")) map_vision = play.var[i].var;
-if (compare(play.var[i].name, "&exp")) map_vision = play.var[i].var;
+  // Special vars: &current_sprite and &current_script
+  if (compare(variable, "&current_sprite"))
+    {
+      sprintf(variable, "%d",rinfo[script]->sprite);
+      return;
+    }
+  if (compare(variable, "&current_script"))
+    {
+      sprintf(variable, "%d",script);
+      return;
+    }
 
-  }
-*/
-
-void decipher(char *crap, int script)
-{
+  // Check in local and global variables
   int i;
-
-        if (compare(crap, "&current_sprite"))
-        {
-
-                sprintf(crap, "%d",rinfo[script]->sprite);
-                //Msg("cur sprite returning %s, ",crap);
-                return;
-        }
-
-        if (compare(crap, "&current_script"))
-        {
-                sprintf(crap, "%d",script);
-                return;
-        }
-
-
-
-
-
-        for (i = 1; i < MAX_VARS; i ++)
-        {
-
-
-                if (play.var[i].active == /*true*/1) if (  (play.var[i].scope == DINKC_GLOBAL_SCOPE) | (play.var[i].scope == script) )
-                        if (compare(play.var[i].name, crap))
-                        {
-
-
-                                sprintf(crap, "%d",play.var[i].var);
-                                //        check_for_real_vars(crap, i);
-
-                                return;
-                        }
-
-        }
-
-
+  for (i = 1; i < MAX_VARS; i ++)
+    {
+      if (play.var[i].active == 1
+	  && ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == script))
+	  && (compare(play.var[i].name, variable)))
+	{
+	  sprintf(variable, "%d",play.var[i].var);
+	  return;
+	}
+    }
 }
 
+/**
+ * Similar to decipher, plus expand special choice variables
+ * &savegameinfo and &buttoninfo
+ */
 void decipher_string(char line[200], int script)
 {
   char crap[20];
@@ -510,12 +494,11 @@ void decipher_string(char line[200], int script)
   
   for (i = 1; i < MAX_VARS; i ++)
     {
-      if ((play.var[i].active == /*true*/1) &&
-	  ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == script)))
+      if ((play.var[i].active == 1)
+	  && ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == script)))
 	{
 	  sprintf(crap, "%d", play.var[i].var);
 	  replace(play.var[i].name, crap, line);
-	  //        check_for_real_vars(crap, i);
 	}
     }
   

@@ -40,9 +40,9 @@
 #include "paths.h"
 #include "log.h"
 
-/* store current procedure arguments (see get_parms) */
+/* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
-/* ? */
+/* store current procedure arguments of type 'string' (idem) */
 static char slist[10][200];
 
 
@@ -264,132 +264,114 @@ morestuff:
 
 /**
  * Utility function for 'process_line', to separate and store the current procedure arguments.
+ *
+ * proc_name: named of the called function
+ * script: script id
+ * h: string to parse
+ * p: describe the function's parameters:
+ *    1=int
+ *    2=string
+ *    0=no more args (10 args max)
+ *
+ * Return: 0 if parse error, 1 if success
  */
-/*bool*/int get_parms(char proc_name[20], int script, char *h, int p[10])
+int get_parms(char proc_name[20], int script, char *h, int p[10])
 {
+  char crap[1024];
+
+  strip_beginning_spaces(h);
+  if (h[0] == '(')
+    {
+      //Msg("Found first (.");
+      h++;
+    }
+  else
+    {
+      Msg("Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+      return 0;
+    }
+
   int i;
-        char crap[100];
+  for (i = 0; i < 10; i++)
+    {
+      strip_beginning_spaces(h);
+      
+      if (p[i] == 1) // type=int
+	{
+	  // Get next parameter (until ',' or ')' is reached)
+	  if (strchr(h, ',') != NULL)
+	    separate_string(h, 1, ',', crap);
+	  else if (strchr(h, ')') != NULL)
+	    separate_string(h, 1, ')', crap);
 
-        strip_beginning_spaces(h);
-        if (h[0] == '(')
-        {
-                //Msg("Found first (.");
-                h = &h[1];
+	  // move to next param
+	  h += strlen(crap);
+	  
+	  if (crap[0] == '&')
+	    {
+	      replace(" ", "", crap);
+	      //      Msg("Found %s, 1st is %c",crap, crap[0]);
+	      decipher(crap, script);
+	    }
+	  // store parameter of type 'int'
+	  nlist[i] = atol(crap);
+	}
+      else if (p[i] == 2) // type=string
+	{
+	  // Msg("Checking for string..");
+	  separate_string(h, 2, '"', crap);
+	  // move to next param
+	  h += strlen(crap)+2;
 
-        } else
-        {
-                Msg("Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+	  // store parameter of type 'string'
+	  strcpy(slist[i], crap);
+	}
 
+      if ((i+1) == 10 || p[i+1] == 0) // this was the last arg
+	{
+	  //finish
+	  strip_beginning_spaces(h);
+	  
+	  if (h[0] == ')')
+	    {
+	      h++;
+	    }
+	  else
+	    {
+	      Msg("Missing ')' in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+	      h++;
+	      return 0;
+	    }
+	  strip_beginning_spaces(h);
 
-                return(/*false*/0);
-        }
+	  if (h[0] == ';')
+	    {
+	      //  Msg("Found ending ;");
+	      h++;
+	    }
+	  else
+	    {
+	      //Msg("Missing ; in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+	      //      h = &h[1];
+	      return 1;
+	    }
+	  return 1;
+	}
 
+      //got a parm, but there is more to get, lets make sure there is a comma there
+      strip_beginning_spaces(h);
 
-
-        for (i = 0; i < 10; i++)
-        {
-
-                strip_beginning_spaces(h);
-
-
-                if (p[i] == 1)
-                {
-                        // Msg("Checking for number..");
-
-
-                        if (strchr(h, ',') != NULL)
-                                separate_string(h, 1,',',crap); else
-                                if (strchr(h, ')') != NULL)
-                                        separate_string(h, 1,')',crap);
-
-
-                                h = &h[strlen(crap)];
-
-
-                                if (crap[0] == '&')
-                                {
-                                        replace(" ", "", crap);
-                                        //      Msg("Found %s, 1st is %c",crap, crap[0]);
-                                        decipher(crap, script);
-
-
-                                }
-
-                                nlist[i] = atol( crap);
-
-                } else
-
-                        if (p[i] == 2)
-                        {
-                                // Msg("Checking for string..");
-                                separate_string(h, 2,'"',crap);
-                                h = &h[strlen(crap)+2];
-
-                                //Msg("Found %s",crap);
-                                strcpy(slist[i], crap);
-
-                        }
-
-
-                        if ( p[i+1] == 0)
-                        {
-                                //finish
-                                strip_beginning_spaces(h);
-
-                                if (h[0] == ')')
-                                {
-                                        h = &h[1];
-                                } else
-                                {
-
-                                        Msg("Missing ) in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-                                        h = &h[1];
-
-                                        return(/*false*/0);
-                                }
-
-                                strip_beginning_spaces(h);
-
-                                if (h[0] == ';')
-                                {
-                                        //  Msg("Found ending ;");
-                                        h = &h[1];
-
-                                } else
-                                {
-                                        //Msg("Missing ; in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-                                        //      h = &h[1];
-
-                                        return(/*true*/1);
-                                }
-
-
-
-
-
-                                return(/*true*/1);
-                        }
-
-
-                        //got a parm, but there is more to get, lets make sure there is a comma there
-                        strip_beginning_spaces(h);
-
-                        if (h[0] == ',')
-                        {
-                                //     Msg("Found expected ,");
-                                h = &h[1];
-
-                        } else
-                        {
-                                Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, h);
-
-                                return(/*false*/0);
-                        }
-
-        }
-
-
-        return(/*true*/1);
+      if (h[0] == ',')
+	{
+	  h++;
+	}
+      else
+	{
+	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, h);
+	  return 0;
+	}
+    }
+  return 1;
 }
 
 
@@ -3175,6 +3157,11 @@ pass:
                                                                                         if (spr[nlist[0]].script == 0)
                                                                                         {
                                                                                                 Msg("Compare sprite script says: Sprite %d has no script.",nlist[0]);
+                                                                                                return(0);
+                                                                                        }
+                                                                                        if (rinfo[spr[nlist[0]].script] == NULL)
+                                                                                        {
+											        Msg("Compare sprite script says: script %d for sprite %d was already killed!.", nlist[0], spr[nlist[0]].script);
                                                                                                 return(0);
                                                                                         }
                                                                                         if (compare(slist[1], rinfo[spr[nlist[0]].script]->name))

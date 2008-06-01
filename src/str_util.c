@@ -121,7 +121,7 @@ a single character, updating the null at the end. */
  * Split 'str' in words separated by 'liney', and copy the #'num' one
  * to 'return1'. The function does not alter 'str'.
  */
-/*bool*/int separate_string (char str[255], int num, char liney, char *return1)
+/*bool*/int separate_string (char str[255], int num, char sep, char *return1)
 {
   int l;
   int k;
@@ -133,7 +133,7 @@ a single character, updating the null at the end. */
 
   for (k = 0; k <= len; k++)
     {
-      if (str[k] == liney)
+      if (str[k] == sep)
 	{
 	  l++;
 	  if (l == num+1)
@@ -142,7 +142,7 @@ a single character, updating the null at the end. */
 	  if (k < len)
 	    strcpy(return1, "");
 	}
-      else /* (str[k] != liney) */
+      else /* (str[k] != sep) */
 	{
 	  char cur_char_as_string[2];
 	  cur_char_as_string[0] = str[k];
