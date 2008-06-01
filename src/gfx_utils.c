@@ -57,7 +57,7 @@ load_palette_from_surface (SDL_Surface *bmp, SDL_Color *palette)
 {
   int i;
 
-  if (bmp == NULL)
+  if (bmp == NULL || bmp->format->palette == NULL)
     return -1;
 
   for (i = 0; i < bmp->format->palette->ncolors; i++)

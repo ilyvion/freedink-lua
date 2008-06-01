@@ -312,8 +312,8 @@ void change_screen_palette(SDL_Color* new_palette)
    reference palette so that all subsequent blits are faster (color
    convertion is avoided) - although the initial loading time will be
    somewhat longer. */
-static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int set_pal) {
-  SDL_Surface *image, *copy;
+static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int setpal) {
+  SDL_Surface *image, *converted;
 
   if (from_mem == 1)
     {
@@ -332,47 +332,51 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       return NULL;
     }
 
-  /* Make an identical copy of the surface */
-  /* We use SDL_ConvertSurface(); SDL_DisplayFormat() would be simpler
-     but applies a different palette (the screen's) */
-  copy = SDL_ConvertSurface(image, image->format, image->flags);
+  /* Make a copy of the surface using the screen format (in
+     particular: same color depth) */
+  converted = SDL_DisplayFormat(image);
 
-  if (set_pal == 1)
+  int palette_is_applied = 0;
+  if (setpal == 1)
     {
       SDL_Color palette[256];
-      load_palette_from_surface(image, palette);
-      change_screen_palette(palette);
-      /* Pretend that the image uses the current screen and buffers
-	 palette, to avoid color conversion to the reference palette
-	 (maintain palette indexes). We maintain palette indexes so
-	 that they will match the physical screen's palette, which we
-	 just change. */
-      /* Note: cur_screen_palette is not exactly the same as palette,
-	 because DX reserves some indexes, and FreeDink reimplement
-	 this limitation for compatibility. So we still need a blit
-	 with color convertion to take reserved indexes into
-	 account. Typically skipping this step will reverse black and
-	 white (with Dink palette indexes: 255 and 0; with DX reserved
-	 indexes: 0 and 255). */
-      SDL_SetPalette(image, SDL_LOGPAL, cur_screen_palette, 0, 256);
+      if (!(load_palette_from_surface(image, palette) < 0))
+	{
+	  change_screen_palette(palette);
+	  /* Pretend that the image uses the current screen and
+	     buffers palette, to avoid color conversion to the
+	     reference palette (maintain palette indexes). We maintain
+	     palette indexes so that they will match the physical
+	     screen's palette, which we just change. */
+	  /* Note: cur_screen_palette is not exactly the same as
+	     palette, because DX reserves some indexes, and FreeDink
+	     reimplement this limitation for compatibility. So we
+	     still need a blit with color convertion to take reserved
+	     indexes into account. Typically skipping this step will
+	     reverse black and white (with Dink palette indexes: 255
+	     and 0; with DX reserved indexes: 0 and 255). */
+	  SDL_SetPalette(converted, SDL_LOGPAL, cur_screen_palette, 0, 256);
+	  palette_is_applied = 1;
+	}
     }
-  else
+  if (!palette_is_applied)
     {
       /* Prepare a color conversion to the reference palette */
-      SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+      SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
     }
 
   /* Blit the copy back to the original, with a potentially different
      palette, which triggers color conversion to image's palette. */
-  SDL_BlitSurface(copy, NULL, image, NULL);
-  SDL_FreeSurface(copy);
+  SDL_BlitSurface(image, NULL, converted, NULL);
+  SDL_FreeSurface(image);
+  image = NULL;
   
   /* In the end, the image must use the reference palette: that way no
      mistaken color conversion will occur during blits to other
      surfaces/buffers. Blits should also be faster(?). */
-  SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+  SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
 
-  return image;
+  return converted;
 }
 
 /* LoadBMP wrapper, from file */
