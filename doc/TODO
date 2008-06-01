@@ -5,5 +5,22 @@ mode is not initialized in dinkvar.h.
 It is, I think, first initialized in dink.cpp in doInit().
 process_line() from dinkvar.h also set its value.
 
+
 At a point, mode needs to be properly initialized somewhere, to avoid
 "duplicating" the variable in each object file that uses it.
+
+
+When sprites are disabled for N minutes with editor_type(), the 'N
+minutes' are computed with the value SDL_GetTicks() the last time you
+entered the screen. This can be a problem:
+
+- Generally: the last_time per-screen value is reset each time the
+  screen is loaded. This means that if you enter a screen once every 5
+  minutes, the counter will always be reset, and you'll never see
+  enemies reappearing. This is more complex to fix, as it probably
+  requires altering the savegame format.
+
+- SDL-specific: if you quit and restart the game, then SDL_GetTicks is
+  reset. In the woe version, you needed to reboot the computer (not
+  the game) to get the same effect. So maybe we can check if N minutes
+  passed using a timestamp instead.

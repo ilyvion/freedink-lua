@@ -859,47 +859,49 @@ void drawallhard( void)
 }
 
 
-void fix_dead_sprites( void )
+/**
+ * Resurrect sprites that were temporarily disabled
+ * (editor_type(6/7/8))
+ */
+void fix_dead_sprites()
 {
   int i;
   if (dinkedit) return;
 
   for (i = 1; i < 100; i++)
     {
-      if (play.spmap[*pmap].type[i] == 6)
+      int type = play.spmap[*pmap].type[i];
+
+      // Resurrect sprites after 5mn
+      if (type == 6)
 	{
+	  if  ((thisTickCount > (play.spmap[*pmap].last_time + 300000))
+	       || (thisTickCount + 400000 < play.spmap[*pmap].last_time + 300000))
+	    {
+	      //this sprite can come back online now
+	      play.spmap[*pmap].type[i] = 0;
+	    }
+	}
 
-                        if  ((thisTickCount > (play.spmap[*pmap].last_time +  300000)) ||
-                                (thisTickCount  +400000 < play.spmap[*pmap].last_time +  300000) )
+      // Resurrect sprites after 3mn
+      if (type == 7)
+	{
+	  if (thisTickCount > (play.spmap[*pmap].last_time + 180000))
+	    {
+	      //this sprite can come back online now
+	      play.spmap[*pmap].type[i] = 0;
+	    }
+	}
 
-
-                        {
-                                //this sprite can come back online now
-                                play.spmap[*pmap].type[i] = 0;
-                        }
-                }
-
-                if (play.spmap[*pmap].type[i] == 7)
-                {
-
-                        if (thisTickCount > (play.spmap[*pmap].last_time +  180000))
-                        {
-                                //this sprite can come back online now
-                                play.spmap[*pmap].type[i] = 0;
-                        }
-                }
-
-                if (play.spmap[*pmap].type[i] == 8)
-                {
-
-                        if (thisTickCount > (play.spmap[*pmap].last_time +  60000))
-                        {
-                                //this sprite can come back online now
-                                play.spmap[*pmap].type[i] = 0;
-                        }
-                }
-
-
+      // Resurrect sprites after 1mn
+      if (type == 8)
+	{
+	  if (thisTickCount > (play.spmap[*pmap].last_time + 60000))
+	    {
+	      //this sprite can come back online now
+	      play.spmap[*pmap].type[i] = 0;
+	    }
+	}
     }
 }
 
@@ -1319,12 +1321,16 @@ void kill_cur_magic( void )
 }
 
 
-void update_screen_time(void )
+/**
+ * Remember last time we entered this screen (so we can disable
+ * sprites for some minutes, e.g. monsters)
+ */
+void update_screen_time()
 {
-        //Msg("Cur time is %d", play.spmap[*pmap].last_time);
-        //Msg("Map is %d..", *pmap);
-        play.spmap[*pmap].last_time = thisTickCount;
-        //Msg("Time was saved as %d", play.spmap[*pmap].last_time);
+  //Msg("Cur time is %d", play.spmap[*pmap].last_time);
+  //Msg("Map is %d..", *pmap);
+  play.spmap[*pmap].last_time = thisTickCount;
+  //Msg("Time was saved as %d", play.spmap[*pmap].last_time);
 }
 
 
@@ -2930,6 +2936,11 @@ void get_right(char line[200], char thing[100], char *ret)
                 return(*change);
 
         }
+
+/**
+ * Sanity-check and set an editor variable (editor_type(),
+ * editor_seq() and editor_frame())
+ */
         int change_edit_char(int h,  int val, unsigned char * change)
         {
                 //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
