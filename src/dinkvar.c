@@ -3457,193 +3457,160 @@ void update_status_all(void)
 /* used by gfx_tiles only */
 void place_sprites_game(void)
 {
-        int sprite;
+  int rank[MAX_SPRITES_AT_ONCE];
+  memset(&rank, 0, sizeof(rank));
+  
+  update_play_changes();
+  
+  int r1;
+  int already_checked[MAX_SPRITES_AT_ONCE];
+  memset(&already_checked, 0, sizeof(already_checked));
+  for (r1 = 1; r1 < 100; r1++)
+    {
+      int hs;
+      int highest_sprite = 20000; //more than it could ever be
+      rank[r1] = 0;
 
-        /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
-        int rank[MAX_SPRITES_AT_ONCE];
-        int highest_sprite;
+      int h1;
+      for (h1 = 1; h1 < 100; h1++)
+	{
+	  if (already_checked[h1] == 0 && pam.sprite[h1].active)
+	    {
+	      if (pam.sprite[h1].que != 0)
+		hs = pam.sprite[h1].que;
+	      else
+		hs = pam.sprite[h1].y;
 
-        update_play_changes();
+	      if (hs < highest_sprite)
+		{
+		  highest_sprite = hs;
+		  rank[r1] = h1;
+		}
+	    }
+	}
+      if (rank[r1] != 0)
+	already_checked[rank[r1]] = 1;
+    }
+  // mark last element
+  rank[r1] = 0;
+  
+  int oo;
+  for (oo = 1; rank[oo] > 0; oo++)
+    {
+      //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);
+      int j = rank[oo];
+      
+      if (pam.sprite[j].active == /*true*/1
+	  && ((pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision)))
+					       {
+	  check_seq_status(pam.sprite[j].seq);
+	  
+	  //we have instructions to make a sprite
+	  if ((pam.sprite[j].type == 0) || (pam.sprite[j].type == 2))
+	    {
+	      //make it part of the background (much faster)
+	      int sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
+				       pam.sprite[j].seq,pam.sprite[j].frame,
+				       pam.sprite[j].size);
+	      //Msg("Background sprite %d has hard of %d..", j, pam.sprite[j].hard);
+	      spr[sprite].hard = pam.sprite[j].hard;
+	      
+	      spr[sprite].sp_index = j;
+	      
+	      rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
+	      
+	      
+	      check_sprite_status_full(sprite);
+	      if (pam.sprite[j].type == 0)
+		draw_sprite_game(GFX_lpDDSTwo, sprite);
+	      
+	      if (spr[sprite].hard == 0)
+		{
+		  /*if (pam.sprite[j].prop == 0)
+		    add_hardness(sprite, 1); else */ add_hardness(sprite,100+j);
+		}
+	      spr[sprite].active = /*false*/0;
+	    }
 
-        memset(&bs,0,sizeof(bs));
-        int hs;
-        int r1;
-        int j;
-	int oo;
-
-        for (r1 = 1; r1 < 100; r1++)
-        {
-	  int h1;
-                highest_sprite = 20000; //more than it could ever be
-
-                rank[r1] = 0;
-
-                for (h1 = 1; h1 < 100;  h1++)
-                {
-                        if (bs[h1] == /*FALSE*/0)
-                        {
-                                if (pam.sprite[h1].active)
-                                {
-                                        if (pam.sprite[h1].que != 0) hs = pam.sprite[h1].que; else hs = pam.sprite[h1].y;
-                                        if ( hs < highest_sprite )
-                                        {
-                                                highest_sprite =hs;
-                                                rank[r1] = h1;
-                                        }
-                                }
-
-                        }
-                }
-                if (rank[r1] != 0)
-                        bs[rank[r1]] = /*TRUE*/1;
-        }
-
-
-
-        for (oo = 1; rank[oo] > 0; oo++)
-        {
-                //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);
-                j = rank[oo];
-
-
-
-                if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == *pvision))
-                {
-
-
-
-                        check_seq_status(pam.sprite[j].seq);
-
-                        //we have instructions to make a sprite
-                        if (  (pam.sprite[j].type == 0)  | (pam.sprite[j].type == 2) )
-
-                        {
-                                //make it part of the background (much faster)
-
-                                sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
-                                        pam.sprite[j].seq,pam.sprite[j].frame,
-                                        pam.sprite[j].size);
-                                //Msg("Background sprite %d has hard of %d..", j, pam.sprite[j].hard);
-                                spr[sprite].hard = pam.sprite[j].hard;
-
-                                spr[sprite].sp_index = j;
-
-                                rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
-
-
-                                check_sprite_status_full(sprite);
-                                if (pam.sprite[j].type == 0)
-				  draw_sprite_game(GFX_lpDDSTwo, sprite);
-
-
-                                if (spr[sprite].hard == 0)
-                                {
-                                /*if (pam.sprite[j].prop == 0)
-                                        add_hardness(sprite, 1); else */ add_hardness(sprite,100+j);
-                                }
-                                spr[sprite].active = /*false*/0;
-                        }
-
-                        if (pam.sprite[j].type == 1)
-                        {
-                                //make it a living sprite
-
-
-                                sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
-                                        pam.sprite[j].seq,pam.sprite[j].frame,
-                                        pam.sprite[j].size);
-
-                                spr[sprite].hard = pam.sprite[j].hard;
-
-
-
-                                //assign addition parms to the new sprite
-                                spr[sprite].sp_index = j;
-
-                                spr[sprite].brain = pam.sprite[j].brain;
-                                spr[sprite].speed = pam.sprite[j].speed;
-                                spr[sprite].base_walk = pam.sprite[j].base_walk;
-                                spr[sprite].base_idle = pam.sprite[j].base_idle;
-                                spr[sprite].base_attack = pam.sprite[j].base_attack;
-                                spr[sprite].base_hit = pam.sprite[j].base_hit;
-                                spr[sprite].hard = pam.sprite[j].hard;
-                                spr[sprite].timer = pam.sprite[j].timer;
-                                spr[sprite].que = pam.sprite[j].que;
-
-
-                                spr[sprite].sp_index = j;
-
-
-                                rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
-
-                                spr[sprite].base_die = pam.sprite[j].base_die;
-                                spr[sprite].strength = pam.sprite[j].strength;
-                                spr[sprite].defense = pam.sprite[j].defense;
-                                spr[sprite].gold = pam.sprite[j].gold;
-                                spr[sprite].exp = pam.sprite[j].exp;
-                                spr[sprite].nohit = pam.sprite[j].nohit;
-                                spr[sprite].touch_damage = pam.sprite[j].touch_damage;
-                                spr[sprite].hitpoints = pam.sprite[j].hitpoints;
-                                spr[sprite].sound = pam.sprite[j].sound;
-                                check_sprite_status_full(sprite);
-                if (pam.sprite[j].prop == 0) if (spr[sprite].sound != 0)
-                                {
-                                        //make looping sound
-                                        Msg("making sound with sprite %d..", sprite);
-                                        SoundPlayEffect( spr[sprite].sound,22050, 0,sprite, 1);
-
-
-                                }
-                                if (spr[sprite].brain == 3)
-                                {
-
-                                        check_seq_status(21);
-                                        check_seq_status(23);
-                                        check_seq_status(24);
-                                        check_seq_status(26);
-                                        check_seq_status(27);
-                                        check_seq_status(29);
-                                        check_seq_status(111);
-                                        check_seq_status(113);
-                                        check_seq_status(117);
-                                        check_seq_status(119);
-                                        check_seq_status(121);
-                                        check_seq_status(123);
-                                        check_seq_status(127);
-                                        check_seq_status(129);
-
-                                }
-
-
-                                if (spr[sprite].hard == 0)
-                                {
-                                /*              if (pam.sprite[j].prop == 0)
-                                        add_hardness(sprite, 1); else */ add_hardness(sprite,100+j);
-
-
-                                }
-
-                                //does it need a script loaded?
-
-                                if (strlen(pam.sprite[j].script) > 1)
-                                {
-                                        spr[sprite].script = load_script(pam.sprite[j].script, sprite, /*true*/1);
-
-                                }
-
-                        }
-                        //Msg("I just made sprite %d because rank[%d] told me to..",sprite,j);
-
-
-                }
-
-                }
-
-
-        }
-
-
-
+	  if (pam.sprite[j].type == 1)
+	    {
+	      //make it a living sprite
+	      int sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
+				       pam.sprite[j].seq,pam.sprite[j].frame,
+				       pam.sprite[j].size);
+	      
+	      spr[sprite].hard = pam.sprite[j].hard;
+	      
+	      //assign addition parms to the new sprite
+	      spr[sprite].sp_index = j;
+	      
+	      spr[sprite].brain = pam.sprite[j].brain;
+	      spr[sprite].speed = pam.sprite[j].speed;
+	      spr[sprite].base_walk = pam.sprite[j].base_walk;
+	      spr[sprite].base_idle = pam.sprite[j].base_idle;
+	      spr[sprite].base_attack = pam.sprite[j].base_attack;
+	      spr[sprite].base_hit = pam.sprite[j].base_hit;
+	      spr[sprite].hard = pam.sprite[j].hard;
+	      spr[sprite].timer = pam.sprite[j].timer;
+	      spr[sprite].que = pam.sprite[j].que;
+	      
+	      
+	      spr[sprite].sp_index = j;
+	      
+	      rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
+	      
+	      spr[sprite].base_die = pam.sprite[j].base_die;
+	      spr[sprite].strength = pam.sprite[j].strength;
+	      spr[sprite].defense = pam.sprite[j].defense;
+	      spr[sprite].gold = pam.sprite[j].gold;
+	      spr[sprite].exp = pam.sprite[j].exp;
+	      spr[sprite].nohit = pam.sprite[j].nohit;
+	      spr[sprite].touch_damage = pam.sprite[j].touch_damage;
+	      spr[sprite].hitpoints = pam.sprite[j].hitpoints;
+	      spr[sprite].sound = pam.sprite[j].sound;
+	      check_sprite_status_full(sprite);
+	      if (pam.sprite[j].prop == 0 && spr[sprite].sound != 0)
+		{
+		  //make looping sound
+		  Msg("making sound with sprite %d..", sprite);
+		  SoundPlayEffect( spr[sprite].sound,22050, 0,sprite, 1);
+		}
+	      if (spr[sprite].brain == 3)
+		{
+		  check_seq_status(21);
+		  check_seq_status(23);
+		  check_seq_status(24);
+		  check_seq_status(26);
+		  check_seq_status(27);
+		  check_seq_status(29);
+		  check_seq_status(111);
+		  check_seq_status(113);
+		  check_seq_status(117);
+		  check_seq_status(119);
+		  check_seq_status(121);
+		  check_seq_status(123);
+		  check_seq_status(127);
+		  check_seq_status(129);
+		}
+	      
+	      if (spr[sprite].hard == 0)
+		{
+		  /*  if (pam.sprite[j].prop == 0)
+			add_hardness(sprite, 1);
+		      else */
+		  add_hardness(sprite,100+j);
+		}
+	      
+	      //does it need a script loaded?
+	      if (strlen(pam.sprite[j].script) > 1)
+		{
+		  spr[sprite].script = load_script(pam.sprite[j].script, sprite, /*true*/1);
+		}
+	    }
+	  //Msg("I just made sprite %d because rank[%d] told me to..",sprite,j);
+					       }
+    }
+}
 
 
 /*bool*/int kill_last_sprite(void)
