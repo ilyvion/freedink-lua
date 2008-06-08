@@ -529,7 +529,7 @@ void decipher_string(char line[200], int script)
       sprintf(crap, "save%d.dat", decipher_savegame);
       if (load_game_small(decipher_savegame, crab, &mytime) == 1)
 	{
-	  sprintf(line, "Slot %d - %d:%d - %s",decipher_savegame, (mytime / 60),
+	  sprintf(line, "Slot %d - %d:%02d - %s",decipher_savegame, (mytime / 60),
 		  mytime - ((mytime / 60) * 60) , crab);
 	  //sprintf(line, "In Use");
 	}
