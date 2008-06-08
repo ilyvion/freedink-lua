@@ -1898,8 +1898,6 @@ void bounce_brain(int h)
 
 void grab_trick(int trick)
 {
-/*   rect rcRect; */
-/*   HRESULT ddrval; */
   //Msg("making trick.");
   
   if (no_transition)
@@ -1912,24 +1910,13 @@ void grab_trick(int trick)
     }
 
   /* Capture the current game zone from the backbuffer */
-/*   rcRect.left = playl; /\* playl = const = 20 *\/ */
-/*   rcRect.top = 0; */
-/*   rcRect.right = 619; */
-/*   rcRect.bottom = 399; */
-  
-/*   ddrval = lpDDSTrick->BltFast(0, 0, lpDDSBack, */
-/* 			       &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/*   if (ddrval != DD_OK) dderror(ddrval); */
-  // GFX
-  {
-    SDL_Rect src, dst;
-    src.x = playl;
-    src.y = 0;
-    src.w = 619 - playl;
-    src.h = 399;
-    dst.x = dst.y = 0;
-    SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTrick, &dst);
-  }
+  SDL_Rect src, dst;
+  src.x = playl;
+  src.y = 0;
+  src.w = 620 - playl;
+  src.h = 400;
+  dst.x = dst.y = 0;
+  SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTrick, &dst);
   
   move_screen = trick;			
   trig_man = /*true*/1;
@@ -1944,130 +1931,112 @@ void grab_trick(int trick)
 
 void did_player_cross_screen(/*bool*/int real, int h)
 {
+  if (walk_off_screen == 1)
+    return;
 	
-	if (walk_off_screen == 1) return;
+
+  //DO MATH TO SEE IF THEY HAVE CROSSED THE SCREEN, IF SO LOAD NEW ONE
 	
-	//DO MATH TO SEE IF THEY HAVE CROSSED THE SCREEN, IF SO LOAD NEW ONE
-	
-	if ((spr[h].x) < playl) 
+  if ((spr[h].x) < playl) 
+    {
+      if ((map.loc[*pmap-1] > 0) && (screenlock == 0))
 	{
-								if ((map.loc[*pmap-1] > 0) && (screenlock == 0) )
-								{
-									//move one map to the left
-									if (real)
-									{
-										move_gonna = /*true*/1;
-										return;
-									}
-									update_screen_time();
-									grab_trick(4);
-									*pmap -= 1;	
-									load_map(map.loc[*pmap]);
-									if (map.indoor[*pmap] == 0) play.last_map = *pmap;
-									
-									draw_map_game();									
-									spr[h].x = 619;
-									spr[h].y = spr[h].lpy[0];
-									goto b1end;
-								} else
-								{
-									spr[h].x = playl;
-									
-								}
-								
-								
-	}
-	
-	if ((spr[h].x) > 619) 
-	{
-								if ((map.loc[*pmap+1] > 0)  && (screenlock == 0) )
-								{
-									//move one map to the right
-									if (real)
-									{
-										move_gonna = /*true*/1;
-										return;
-									}
-									
-									update_screen_time();
-									grab_trick(6);
-									*pmap += 1;	
-									load_map(map.loc[*pmap]);
-									if (map.indoor[*pmap] == 0) play.last_map = *pmap;
-									
-									draw_map_game();
-									spr[h].x =  playl;
-									spr[h].y = spr[h].lpy[0];
-									goto b1end;
-								} else
-								{
-									spr[h].x = 619;
-								}
-	}
-	
-	if (spr[h].y < 0)
-		
-	{
-								if ((map.loc[*pmap-32] > 0)  && (screenlock == 0) )
-								{
-									//move one map up
-									if (real)
-									{
-										move_gonna = /*true*/1;
-										return;
-									}
-									update_screen_time();
-									grab_trick(8);
-									*pmap -= 32;	
-									load_map(map.loc[*pmap]);
-									if (map.indoor[*pmap] == 0) play.last_map = *pmap;
-									
-									spr[h].x = spr[h].lpx[0];
-									draw_map_game();
-									spr[h].y =  399;
-									
-									goto b1end;
-								} else
-								{
-									spr[h].y = 0;
-								}
-	}
-	
-	
-	if ( (spr[h].y > 399 ) )
-	{
-								if ( (map.loc[*pmap+32] > 0)  && (screenlock == 0) )
-								{
-									//move one map down
-									if (real)
-									{
-										move_gonna = /*true*/1;
-										return;
-									}
-									update_screen_time();
-									grab_trick(2);
-									*pmap += 32;	
-									load_map(map.loc[*pmap]);
-									if (map.indoor[*pmap] == 0) play.last_map = *pmap;
-									
-									draw_map_game();
-									spr[h].y = 0;
-									
-									spr[h].x = spr[h].lpx[0];
-									
-									goto b1end;
-								} else
-								{
-									spr[h].y = 399;
-								}
-	}
-	
-	
-	
-b1end:;
+	  //move one map to the left
+	  if (real)
+	    return;
 	  
+	  update_screen_time();
+	  grab_trick(4);
+	  *pmap -= 1;
+	  load_map(map.loc[*pmap]);
+	  if (map.indoor[*pmap] == 0)
+	    play.last_map = *pmap;
 	  
+	  spr[h].x = 619;
+	  spr[h].y = spr[h].lpy[0];
+	  draw_map_game();
+	}
+      else
+	{
+	  spr[h].x = playl;
+	}
+    }
+  
+  else if (spr[h].x > 619)
+    {
+      if ((map.loc[*pmap+1] > 0) && (screenlock == 0))
+	{
+	  //move one map to the right
+	  if (real)
+	    return;
 	  
+	  update_screen_time();
+	  grab_trick(6);
+	  *pmap += 1;
+	  load_map(map.loc[*pmap]);
+	  if (map.indoor[*pmap] == 0)
+	    play.last_map = *pmap;
+	  
+	  spr[h].x = playl;
+	  spr[h].y = spr[h].lpy[0];
+	  draw_map_game();
+	}
+      else
+	{
+	  spr[h].x = 619;
+	}
+    }
+  
+  else if (spr[h].y < 0)
+    {
+      if ((map.loc[*pmap-32] > 0)  && (screenlock == 0) )
+	{
+	  //move one map up
+	  if (real)
+	    return;
+
+	  update_screen_time();
+	  grab_trick(8);
+	  *pmap -= 32;
+	  load_map(map.loc[*pmap]);
+	  if (map.indoor[*pmap] == 0)
+	    play.last_map = *pmap;
+	  
+	  spr[h].x = spr[h].lpx[0];
+	  spr[h].y = 399;
+	  draw_map_game();
+	}
+      else
+	{
+	  spr[h].y = 0;
+	}
+    }
+  
+  
+  else if (spr[h].y > 399)
+    {
+      if ((map.loc[*pmap+32] > 0) && (screenlock == 0))
+	{
+	  //move one map down
+	  if (real)
+	    return;
+	  
+	  update_screen_time();
+	  grab_trick(2);
+	  *pmap += 32;
+	  load_map(map.loc[*pmap]);
+	  if (map.indoor[*pmap] == 0)
+	    play.last_map = *pmap;
+	  
+	  spr[h].y = 0;
+	  spr[h].x = spr[h].lpx[0];
+	  draw_map_game();
+	}
+      else
+	{
+	  spr[h].y = 399;
+	}
+    }
 }
 
 
@@ -3254,285 +3223,181 @@ smoothend:;
 		  
 }
 
-/*bool*/int transition(void)
+
+/*bool*/int transition()
 {
-/* 	RECT rcRect; */
-	SDL_Rect src, dst;
+  SDL_Rect src, dst;
+  
+  //we need to do our fancy screen transition
+  int dumb = fps_final * 2;
+  
+  if (0) //DEBUG
+    {
+      // Make the transition last ~5 seconds
+      if (move_screen == 4 || move_screen == 6)
+	dumb = 600 / (fps_final * 5);
+      else if (move_screen == 8 || move_screen == 2)
+	dumb = 400 / (fps_final * 5);
+    }
+  
+  move_counter += dumb;
+  
+  if (no_transition)
+    {    
+      total_trigger = /*false*/0;
+      move_screen = 0;
+      move_counter = 0;
+      trig_man = 0;
+      //draw_map();
+      return /*false*/0;
+    }
+  
+  //total_trigger = /*false*/0;
+  //return(/*false*/0);
 
-/* 	HRESULT             ddrval;	 */
-	//we need to do our fancy screen transition
-	int dumb = 5;
-	//if (fps_final < 30) dumb = 50;
-	dumb = fps_final * 2;
-
-	move_counter += dumb;
-		
-	if (no_transition)
-	{    
-		
-		total_trigger = /*false*/0;
-		move_screen = 0;
-		move_counter = 0;
-		trig_man = 0;
-		//draw_map();
-		return(/*false*/0);
-	}	
-	
-	
-	//total_trigger = /*false*/0;
-	//return(/*false*/0);
-	
-	if (move_screen == 4)
+  
+  if (move_screen == 4)
+    {
+      if (move_counter > 598)
+	move_counter = 598;
+      
+      src.x = 0;
+      src.y = 0;
+      src.w = 600 - move_counter;
+      src.h = 400;
+      dst.x = 20 + move_counter;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+      
+      src.x = 600 - move_counter;
+      src.y = 0;
+      src.w = move_counter;
+      src.h = 400;
+      dst.x = 20;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+      
+      if (move_counter >= 595)
 	{
-        //move_counter =+ 20;
-		
-		if (move_counter > 598) move_counter = 598;
-		
-		
-/* 		rcRect.left = 0; */
-/* 		rcRect.right = 600 - move_counter;  */
-/* 		rcRect.top = 0; */
-/* 		rcRect.bottom = 400; */
-		
-/* 		ddrval = lpDDSBack->BltFast( move_counter+20, 0, lpDDSTrick, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = 0;
-		  src.w = 600 - move_counter;
-		  src.h = 400;
-		  dst.x = move_counter + 20;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
-		}
-
-/* 		rcRect.left = 600 -  move_counter; ; */
-/* 		rcRect.right = 600; */
-/* 		rcRect.top = 0; */
-/* 		rcRect.bottom = 400; */
-		
-/* 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 600 - move_counter;
-		  src.y = 0;
-		  src.w = move_counter;
-		  src.h = 400;
-		  dst.x = 20;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
-		}
-        
-		if (move_counter >= 595)
-		{
-			total_trigger = /*false*/0;
-			move_screen = 0;
-			move_counter = 0;
-			trig_man = 0;
-			//draw_map();
-			return(/*false*/0);
-		}
-		
-		return(/*true*/1);
+	  total_trigger = /*false*/0;
+	  move_screen = 0;
+	  move_counter = 0;
+	  trig_man = 0;
+	  //draw_map();
+	  return /*false*/0;
 	}
-	
-	if (move_screen == 6)
+      
+      return /*true*/1;
+    }
+
+  
+  if (move_screen == 6)
+    {
+      if (move_counter > 598)
+	move_counter = 598;
+      
+      src.x = move_counter;
+      src.y = 0;
+      src.w = 600 - move_counter;
+      src.h = 400;
+      dst.x = 20;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+		
+      src.x = 0;
+      src.y = 0;
+      src.w = move_counter;
+      src.h = 400;
+      dst.x = 620 - move_counter;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+      
+      if (move_counter >= 595)
 	{
-        //move_counter =+ 20;
-		
-		
-		if (move_counter > 598) move_counter = 598;
-/* 		rcRect.left = move_counter; */
-/* 		rcRect.right = 599; */
-/* 		rcRect.top = 0; */
-/* 		rcRect.bottom = 399; */
-		
-/* 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = move_counter;
-		  src.y = 0;
-		  src.w = 599 - move_counter;
-		  src.h = 399;
-		  dst.x = 20;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
-		}
-
-		
-/*         rcRect.left = 0; */
-/* 		rcRect.right = move_counter; */
-/* 		rcRect.top = 0; */
-/*         rcRect.bottom = 399; */
-		
-/* 		ddrval = lpDDSBack->BltFast( 620 - move_counter, 0, lpDDSTrick2, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-        
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = 0;
-		  src.w = move_counter;
-		  src.h = 399;
-		  dst.x = 620 - move_counter;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
-		}
-		
-		if (move_counter >= 595)
-		{
-			total_trigger = /*false*/0;
-			move_screen = 0;
-			move_counter = 0;
-			trig_man = 0;
-			//draw_map();
-			return(/*false*/0);
-		}
-		
-		return(/*true*/1);
+	  total_trigger = /*false*/0;
+	  move_screen = 0;
+	  move_counter = 0;
+	  trig_man = 0;
+	  //draw_map();
+	  return /*false*/0;
 	}
-	
-	
-	if (move_screen == 8)
+      
+      return /*true*/1;
+    }
+  
+
+  if (move_screen == 8)
+    {
+      if (move_counter > 398)
+	move_counter = 398;
+      
+      src.x = 0;
+      src.y = 0;
+      src.w = 600;
+      src.h = 400 - move_counter;
+      dst.x = 20;
+      dst.y = move_counter;
+      SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+      
+      src.x = 0;
+      src.y = 400 - move_counter;
+      src.w = 600;
+      src.h = move_counter;
+      dst.x = 20;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+      
+      if (move_counter >= 398)
 	{
-        //move_counter =+ 20;
-		
-		if (move_counter > 398) move_counter = 398;
-		
-		
-/* 		rcRect.left = 0; */
-/* 		rcRect.right = 599; */
-		
-/* 		rcRect.top = 0; */
-/*         rcRect.bottom = 399 - move_counter; */
-		
-/* 		ddrval = lpDDSBack->BltFast( 20, move_counter, lpDDSTrick, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = 0;
-		  src.w = 599;
-		  src.h = 399 - move_counter;
-		  dst.x = 20;
-		  dst.y = move_counter;
-		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
-		}
-
-		
-/*         rcRect.left = 0; */
-/* 		rcRect.right = 599; */
-/* 		rcRect.top = 399 -  move_counter; ; */
-/*         rcRect.bottom = 399; */
-		
-/* 		ddrval = lpDDSBack->BltFast( 20, 0, lpDDSTrick2, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = 399 - move_counter;
-		  src.w = 599;
-		  src.h = move_counter;
-		  dst.x = 20;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
-		}
-
-		
-		
-		
-		
-		if (move_counter >= 398)
-		{
-			total_trigger = /*false*/0;
-			move_screen = 0;
-			move_counter = 0;
-			trig_man = 0;
-			//draw_map();
-			return(/*false*/0);
-		}
-		
-		return(/*true*/1);
+	  total_trigger = /*false*/0;
+	  move_screen = 0;
+	  move_counter = 0;
+	  trig_man = 0;
+	  //draw_map();
+	  return /*false*/0;
 	}
-	
-	
-	
-	if (move_screen == 2)
+      
+      return /*true*/1;
+    }
+  
+
+  if (move_screen == 2)
+    {
+      if (move_counter > 398)
+	move_counter = 398;
+      
+      src.x = 0;
+      src.y = move_counter;
+      src.w = 600;
+      src.h = 400 - move_counter;
+      dst.x = 20;
+      dst.y = 0;
+      SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
+      
+      src.x = 0;
+      src.y = 0;
+      src.w = 600;
+      src.h = move_counter;
+      dst.x = 20;
+      dst.y = 400 - move_counter;
+      SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
+      
+      if (move_counter >= 398)
 	{
-        //move_counter =+ 20;
-		
-		
-		if (move_counter > 398) move_counter = 398;
-/* 		rcRect.left = 0; */
-		
-/* 		rcRect.right = 599;  */
-/* 		rcRect.top = move_counter; */
-/*         rcRect.bottom = 399; */
-		
-/* 		ddrval = lpDDSBack->BltFast(20, 0, lpDDSTrick, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = move_counter;
-		  src.w = 599;
-		  src.h = 399 - move_counter;
-		  dst.x = 20;
-		  dst.y = 0;
-		  SDL_BlitSurface(GFX_lpDDSTrick, &src, GFX_lpDDSBack, &dst);
-		}
-
-/*         rcRect.left = 0; */
-/* 		rcRect.right = 599; */
-		
-/* 		rcRect.top = 0; */
-/*         rcRect.bottom = move_counter; */
-		
-/* 		ddrval = lpDDSBack->BltFast( 20, 399 - move_counter, lpDDSTrick2, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); */
-/* 		if (ddrval != DD_OK) dderror(ddrval); */
-		// GFX
-		{
-		  src.x = 0;
-		  src.y = 0;
-		  src.w = 599;
-		  src.h = move_counter;
-		  dst.x = 20;
-		  dst.y = 399 - move_counter;
-		  SDL_BlitSurface(GFX_lpDDSTrick2, &src, GFX_lpDDSBack, &dst);
-		}
-
-		if (move_counter >= 398)
-		{
-			total_trigger = /*false*/0;
-			move_screen = 0;
-			move_counter = 0;
-			trig_man = 0;
-			//draw_map();
-			return(/*false*/0);
-		}
-		
-		return(/*true*/1);
+	  total_trigger = /*false*/0;
+	  move_screen = 0;
+	  move_counter = 0;
+	  trig_man = 0;
+	  //draw_map();
+	  return /*false*/0;
 	}
-	
-	
-	
-	
-	return(/*false*/0);
-	}
-	
-	
-	
+      
+      return /*true*/1;
+    }
+  
+  return /*false*/0;
+}
+
 	
 	int find_sprite(int block)
 	{

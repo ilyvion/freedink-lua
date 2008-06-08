@@ -214,7 +214,6 @@ extern /*bool*/int process_downcycle;
 extern /*bool*/int process_upcycle;
 extern int process_warp;
 extern int *pupdate_status;
-extern /*bool*/int move_gonna;
 extern /*bool*/int no_cheat;
 extern /*bool*/int no_transition;
 extern struct small_map pam;

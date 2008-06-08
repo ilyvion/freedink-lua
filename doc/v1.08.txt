@@ -106,7 +106,8 @@ Fixes:
     for better correctness. See framerate.txt.
 [X] The 1-pixel row above the status bar now draws sprite graphics.
     => just playy = 400 instead of 399; fixed 2008-05-22
-[ ] Scrolling now appears on 1-pixel rows and columns near status bar.
+[X] Scrolling now appears on 1-pixel rows and columns near status bar.
+    => fixed 2008-06-08, in 'transition'.
 [ ] Dink can no longer walk around the edges of the screen during a screenlock.
 [ ] Time for save game correctly displayed (2:05 instead of 2:5).
 [ ] The first tile on the fire and water tile pages animate correctly.

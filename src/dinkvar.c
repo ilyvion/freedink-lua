@@ -224,7 +224,6 @@ int magic_script = 0;
 int sp_mode = 0;
 int fps,fps_final = 0;
 int move_screen = 0;
-/*bool*/int move_gonna = /*false*/0;
 int move_counter = 0;
 int m1x,m1y;
 int m2x,m2y;

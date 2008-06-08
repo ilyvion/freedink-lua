@@ -691,7 +691,6 @@ animate:
 				if (spr[h].active) if (spr[h].brain == 1)
 				{
 					did_player_cross_screen(/*true*/1, h);
-					// if (move_gonna) goto past; 
 				}		
 				
 past: 
@@ -705,8 +704,6 @@ past:
 				// if (mcc == sound_support)
 				draw_sprite_game(GFX_lpDDSBack, h);
 				
-				
-				move_gonna = /*false*/0;
 				
 				//draw a dot to show where the computer is guessing the start of the shadow is	 
 				/* Note: show_dot is never set to
@@ -894,7 +891,8 @@ past:
 	
 	
 	
-	if (spr[1].active) if (spr[1].brain == 1) did_player_cross_screen(/*false*/0, 1);
+	if (spr[1].active && spr[1].brain == 1)
+	  did_player_cross_screen(/*false*/0, 1);
 	
 	if (trig_man)
 	{
