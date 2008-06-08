@@ -1178,6 +1178,7 @@ pass:
                         kill_repeat_sounds_all();
                         kill_all_scripts_for_real();
                         mode = 0;
+                        screenlock = 0;
                         kill_all_vars();
                         memset(&hm, 0, sizeof(hm));
                         for (u = 1; u <= 10; u++)

@@ -109,6 +109,8 @@ Fixes:
 [X] Scrolling now appears on 1-pixel rows and columns near status bar.
     => fixed 2008-06-08, in 'transition'.
 [ ] Dink can no longer walk around the edges of the screen during a screenlock.
+[X] Removed screenlock on restart game
+    => fixed 2008-06-08, in DinkC binding for 'restart_game'.
 [ ] Time for save game correctly displayed (2:05 instead of 2:5).
 [ ] The first tile on the fire and water tile pages animate correctly.
 [ ] Dink's map position appears correctly after warps.
@@ -122,7 +124,6 @@ Fixes:
 [ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
     infinite loop of hard-drive punishment).
 [ ] Restoring game will not redraw status bar if it wasn't drawn.
-[ ] Removed screenlock on restart game
 [X] Fixed issue of loading regular bmp sequences over top of previous sequences
     (before the animation would be 'corrupt')
     => See for further explanation http://www.dinknetwork.com/forum.cgi?MID=92733
