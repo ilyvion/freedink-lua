@@ -278,8 +278,8 @@ extern void kill_returning_stuff(int script);
 extern int say_text(char text[200], int h, int script);
 
 /* Map */
-extern unsigned char get_hard(int h,int x1, int y1);
-extern unsigned char get_hard_play(int h,int x1, int y1);
+extern unsigned char get_hard(int x1, int y1);
+extern unsigned char get_hard_play(int h, int x1, int y1);
 extern void load_hard(void);
 extern void load_info(void);
 

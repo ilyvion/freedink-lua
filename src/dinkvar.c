@@ -3,6 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
+ * Copyright (C) 2006  Dan Walma
  * Copyright (C) 2005, 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
@@ -591,43 +592,57 @@ void add_hardness (int sprite, int num)
 
 
 
-
-unsigned char get_hard(int h,int x1, int y1)
+/**
+ * Check whether planned new position (x1,y1) is solid
+ * 
+ * Only used in 'check_if_move_is_legal'
+ */
+unsigned char get_hard(int x1, int y1)
 {
-        int value;
+  if (screenlock)
+    {
+      if (x1 < 0)        x1 = 0;
+      else if (x1 > 599) x1 = 599;
 
-        if ((x1 < 0) || (y1 < 0)) return(/*false*/0);
-        if ((x1 > 599) ) return(/*false*/0);
-        if (y1 > 399) return(/*false*/0);
-
-        value =  hm.x[x1].y[y1];
-
-
-        return(value);
+      if (y1 < 0)        y1 = 0;
+      else if (y1 > 399) y1 = 399;
+    }
+  if ((x1 < 0) || (y1 < 0) || (x1 > 599) || (y1 > 399))
+    return 0;
+  
+  int value = hm.x[x1].y[y1];
+  return(value);
 }
 
-unsigned char get_hard_play(int h,int x1, int y1)
+/**
+ * Check whether planned new position (x1,y1) is solid
+ * 
+ * Does something weird when hard value is > 100??
+ * 
+ * Only used in 'human_brain'
+ */
+unsigned char get_hard_play(int h, int x1, int y1)
 {
-        int value;
-        x1 -= 20;
-        if ((x1 < 0) || (y1 < 0)) return(/*false*/0);
-        if ((x1 > 599) ) return(/*false*/0);
-        if (y1 > 399) return(/*false*/0);
+  x1 -= 20;
 
-        value =  hm.x[x1].y[y1];
+  if (screenlock)
+    {
+      if (x1 < 0)        x1 = 0;
+      else if (x1 > 599) x1 = 599;
 
-        if (value > 100)
-        {
+      if (y1 < 0)        y1 = 0;
+      else if (y1 > 399) y1 = 399;
+    }
+  if ((x1 < 0) || (y1 < 0) || (x1 > 599) || (y1 > 399))
+    return 0;
 
-                if (pam.sprite[value-100].prop != 0)
-
-                {
-                        flub_mode = value;
-                        value = 0;
-                }
-        }
-
-        return(value);
+  int value =  hm.x[x1].y[y1];
+  if (value > 100 && pam.sprite[value-100].prop != 0)
+    {
+      flub_mode = value;
+      value = 0;
+    }
+  return(value);
 }
 
 
@@ -661,17 +676,15 @@ void fill_hardxy(rect box)
   int x1, y1;
   //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
 
-  if (box.right > 599) box.right = 599;
-  if (box.top < 0) box.top = 0;
-  if (box.bottom > 399) box.bottom = 399;
-  if (box.left < 0) box.left = 0;
-
+  if (box.right > 600)  box.right  = 600;
+  if (box.top < 0)      box.top    = 0;
+  if (box.bottom > 400) box.bottom = 400;
+  if (box.left < 0)     box.left   = 0;
 
   for (x1 = box.left; x1 < box.right; x1++)
     for (y1 = box.top; y1 < box.bottom; y1++)
       hm.x[x1].y[y1] = get_hard_map(0,x1,y1);
 }
-
 
 
 void add_exp(int num, int h)

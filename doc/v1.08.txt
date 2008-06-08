@@ -108,7 +108,9 @@ Fixes:
     => just playy = 400 instead of 399; fixed 2008-05-22
 [X] Scrolling now appears on 1-pixel rows and columns near status bar.
     => fixed 2008-06-08, in 'transition'.
-[ ] Dink can no longer walk around the edges of the screen during a screenlock.
+[X] Dink can no longer walk around the edges of the screen during a screenlock.
+    => fixed 2008-06-08, with stricter checks because it didn't work
+    in all cases.
 [X] Removed screenlock on restart game
     => fixed 2008-06-08, in DinkC binding for 'restart_game'.
 [ ] Time for save game correctly displayed (2:05 instead of 2:5).
