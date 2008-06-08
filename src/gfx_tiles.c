@@ -280,7 +280,7 @@ void process_animated_tiles(void)
 		
       for (x = 0; x < 96; x++)
 	{
-	  if (pam.t[x].num > 896 && pam.t[x].num < (896+128))
+	  if (pam.t[x].num >= 896 && pam.t[x].num < (896+128))
 	    {
 				      cool = pam.t[x].num / 128;
 				      pa = pam.t[x].num - (cool * 128);
@@ -337,7 +337,7 @@ void process_animated_tiles(void)
 		
     for (x = 0; x < 96; x++)
       {
-	if (pam.t[x].num > 2304 && pam.t[x].num < (2304+128))
+	if (pam.t[x].num >= 2304 && pam.t[x].num < (2304+128))
 				   {
 				
 				     cool = pam.t[x].num / 128;

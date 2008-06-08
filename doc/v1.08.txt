@@ -113,15 +113,16 @@ Fixes:
     in all cases.
 [X] Removed screenlock on restart game
     => fixed 2008-06-08, in DinkC binding for 'restart_game'.
+[ ] Dink's speed reset to normal (3) on load to prevent 'hyper-sword' bug.
 [ ] Time for save game correctly displayed (2:05 instead of 2:5).
-[ ] The first tile on the fire and water tile pages animate correctly.
+[X] The first tile on the fire and water tile pages animate correctly.
+    => fixed 2008-06-08, in 'process_animated_tiles'.
 [ ] Dink's map position appears correctly after warps.
 [X] Properly exits when closed with Alt-F4.
     => done as part of FreeDink v1.07 clean-up
 [ ] Level-up no longer lost if in inventory screen, fixed several other
     experience count issues.
 [ ] Status is drawn on load so the magic-level is always displayed.
-[ ] Dink's speed reset to normal (3) on load to prevent 'hyper-sword' bug.
 [ ] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
 [ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
     infinite loop of hard-drive punishment).

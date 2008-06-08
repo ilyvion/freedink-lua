@@ -1065,7 +1065,7 @@ void save_info(void)
       
       attach();
       Msg("Attached vars.");
-      
+      dinkspeed = 3;
       
       if (*pcur_weapon != 0)
 	{
