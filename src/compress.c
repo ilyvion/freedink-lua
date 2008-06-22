@@ -1,5 +1,8 @@
 /* compress.c -- Byte Pair Encoding compression */
 /* Copyright 1996 Philip Gage */
+/* Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson */
+/* Unclear copyright from Philip Gage: this file could be rewritten -
+   or simply removed */
 
 #include <stdio.h>
 #include <stdlib.h>
