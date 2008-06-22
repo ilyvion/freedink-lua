@@ -26,7 +26,7 @@ Apparently there are 2 patches set worthy to mention:
 
   There is a copy in the NetBSD package:
   ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/audio/eawpatches/README.html
-  ftp://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/alpha/2.1_2006Q3/All/eawpatches-12nb1.tgz
+  ftp://ftp.netbsd.org/pub/pkgsrc/packages/SunOS/i386/5.11_head/All/eawpatches-12nb3.tgz
 
   SDL_Mixer also has a copy: http://www.libsdl.org/projects/SDL_mixer/
   http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
@@ -49,12 +49,13 @@ Apparently there are 2 patches set worthy to mention:
   know what it's based on really. dance.mid plays fine so it's not
   just plain freepats.
 
+
 Here is what I did to install the eawpatches from the NetBSD port to
 Debian GNU/Linux Etch. First I installed the patch in the
 FHS-compliant location (I checked where freepats was installed using
 dpkg -L freepats):
 
-  tar xzf eawpatches-12nb1.tgz
+  tar xzf eawpatches-12nb3.tgz
   mv share/eawpatches/ /usr/share/midi/
 
 I then edited /etc/timidity/timidity.cfg:
@@ -64,6 +65,15 @@ and /usr/share/midi/eawpatches/timidity.cfg:
 
 Now you can play your favorite MIDIs decently :)
   timidity dink/Sound/dance.mid
+
+
+With the Gentoo archive:
+  tar zf eawpats12_full.tar.gz
+  mv eawpats /usr/share/midi/
+I then edited /etc/timidity/timidity.cfg:
+  source /usr/share/midi/eawpats/linuxconfig/timidity.cfg
+then /usr/share/midi/eawpats/linuxconfig/timidity.cfg:
+  dir /usr/share/midi/eawpatches
 
 
 The NetBSD documentation (in file '+DISPLAY') mentions you can test
