@@ -132,6 +132,9 @@ Fixes:
     (before the animation would be 'corrupt')
     => See for further explanation http://www.dinknetwork.com/forum.cgi?MID=92733
     => fixed 2008-05-22, but differently (clean sequence reload)
+[ ] Corpses appear as the same size as the living sprite.
+    => that is, if an ennemy has a size of 50%, its dead body will
+    also have a size of 50% (previously it was 100%)
 
 [X] Dinkedit: several spelling/grammar fixes
 [X] Removed extra space in "I'm gesturing wildly to  no avail!"
@@ -163,9 +166,6 @@ Improvements that potentially break backward compatibility:
     function (built-in or custom).
 [ ] Custom functions can have up to 9 arguments, stored in the built-in variables
     &arg1 through &arg9.
-
-???
-[ ] Corpses appear as the same size as the living sprite.
 
 
 DinkC changes:

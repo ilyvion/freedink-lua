@@ -3,10 +3,11 @@
 # Dink Smallwood installer extractor
 # Released into the public domain by its creator,
 #     Alexander Krivács Schrøder
+# Fixes by Sylvain Beucler  2008
 #
 # Prerequisites:
 # * 7-Zip command line tool (7z) installed on system (Package called
-#   p7zip on my system)
+#   p7zip on Gentoo, p7zip-full under Debian)
 #
 # Parameters:
 # 1. The Dink Smallwood installer file (dinksmallwood108.exe)
@@ -27,6 +28,11 @@ fi
 # Check if parameters are valid
 if [ ! -e $PACKAGENAME ]; then
 	echo "Error: installer does not exist"
+	exit
+fi
+
+if ! which 7z > /dev/null; then
+	echo "You need to install 7z"
 	exit
 fi
 

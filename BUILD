@@ -34,13 +34,16 @@ sh bootstrap
 # Base: GCC, make & al.
 aptitude install build-essential
 # Required: SDL, libzip | zziplib
+# Note: if you're under Etch, you need to use newer versions of
+# FreeType and SDL_ttf from here:
+#deb http://www.freedink.org/snapshots/debian/etch-backports/ ./
 aptitude install libsdl1.2-dev libsdl-gfx1.2-dev libsdl-ttf2.0-dev \
   libsdl-image1.2-dev libsdl-mixer1.2-dev libzzip-dev zip
 # | aptitude install libzip-dev
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
-aptitude install upx bzip2
+aptitude install upx-ucl bzip2
 
 ## Compilation
 ./configure
@@ -52,7 +55,7 @@ make dist
 make distcheck
 
 ## Optional: software MIDI support, used by SDL_mixer
-# Check doc/sound.txt for details
+# Check doc/midi.txt for details
 aptitude install timidity freepats
 
 # :)
