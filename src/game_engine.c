@@ -57,8 +57,8 @@ struct wait_for_button wait4b;
 
 
 
-int dversion = 107;
-char dversion_string[7] = "v1.07";
+int dversion = 108;
+char *dversion_string = "v1.08--";
 
 int last_saved_game = 0;
 

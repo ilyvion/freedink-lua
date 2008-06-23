@@ -251,7 +251,7 @@ extern struct wait_for_button wait4b;
 
 extern int last_saved_game;
 
-extern char dversion_string[7];
+extern char *dversion_string;
 extern int dversion;
 
 extern time_t time_start;

@@ -46,6 +46,10 @@
 #include "update_frame.h"
 
 enum speed_type { v107, v108 };
+/* v107 speed type is way too fast on recent computers, v108 is the
+   only one that makes sense now. However, since the v108 code
+   introduces arbitrary computations, we'll keep the v107 code for
+   reference. */
 enum speed_type game_speed_type = v108;
 
 void updateFrame( void )

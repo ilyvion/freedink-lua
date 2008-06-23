@@ -1,9 +1,9 @@
 This is GNU FreeDink, a portable and enhanced version of the Dink
 Smallwood game engine.
 
-FreeDink is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+FreeDink is free software, and you are welcome to redistribute it
+under certain conditions; see the GNU GPL for details.
+( cf. COPYING and http://gnu.org/licenses/gpl.html )
 
 
 GNU FreeDink v1.07
@@ -21,7 +21,7 @@ later improvements.
 GNU FreeDink v1.08
 ------------------
 
-This version, not started yet, is the next step. The plan is to start
+This version, in progress, is the next step. The plan is to start
 improving the game engine, possibly breaking backward compatibility
 (such as fixing bugs in the script engine or palette manager). It will
 not be meant to play every old D-Mods perfectly, it will be meant to

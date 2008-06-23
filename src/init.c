@@ -70,12 +70,12 @@ void init_set_error_msg(char *fmt, ...)
 void
 print_version ()
 {
-  printf ("%s %s\n", PACKAGE_NAME, VERSION);
-  printf ("Copyright (C) 2007 by contributors\n");
-  printf ("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n");
-  printf ("This is free software: you are free to change and redistribute it.\n");
-  printf ("There is NO WARRANTY, to the extent permitted by law.\n");
-  exit (EXIT_SUCCESS);
+  printf("%s %s\n", PACKAGE_NAME, VERSION);
+  printf("FreeDink is free software, and you are welcome to redistribute it\n");
+  printf("under certain conditions; see the GNU GPL for details.\n");
+  printf("http://gnu.org/licenses/gpl.html\n");
+  printf("There is NO WARRANTY, to the extent permitted by law.\n");
+  exit(EXIT_SUCCESS);
 }
 
 
@@ -100,6 +100,7 @@ print_help (int argc, char *argv[])
   printf("-j, --nojoy           Do not attempt to use joystick\n");
   printf("-s, --nosound         Do not play sound\n");
   printf("-w, --window          Use windowed mode instead of screen mode\n");
+  printf("-7, --v1.07           Enable v1.07 compatibility mode\n");
   printf("\n");
 
   /* printf ("Type 'info freedink' for more information\n"); */
@@ -199,10 +200,11 @@ static int check_arg(int argc, char *argv[])
       {"nosound", no_argument,       NULL, 's'},
       {"version", no_argument,       NULL, 'v'},
       {"window",  no_argument,       NULL, 'w'},
+      {"v1.07",   no_argument,       NULL, '7'},
       {0, 0, 0, 0}
     };
   
-  char short_options[] = "dr:g:hijsvw";
+  char short_options[] = "dr:g:hijsvw7";
 
   /* Loop through each argument */
   while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
@@ -238,10 +240,14 @@ static int check_arg(int argc, char *argv[])
 	print_version();
 	break;
       case 'w':
-	  windowed = 1;
-	  // Beuc: enabling transition is more fun :)
-	  //no_transition = true;
-	  break;	
+	windowed = 1;
+	// Beuc: enabling transition is more fun :)
+	//no_transition = true;
+	break;
+      case '7':
+	dversion = 107;
+	dversion_string = "v1.07";
+	break;
       default:
 	exit(EXIT_FAILURE);
       }
