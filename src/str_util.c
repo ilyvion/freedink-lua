@@ -170,6 +170,11 @@ done:
   return /*true*/1;
 }
 
+
+/**
+ * Return whether 'orig' and 'comp' are the same string
+ * (case-insensitive comparison)
+ */
 /*bool*/int compare(char *orig, char *comp)
 {
 

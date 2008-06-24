@@ -14,6 +14,12 @@ Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
 2003-07-16: source code release (packaging and documentation)
 
 
+Dan Walma wrote improvements to the original engine as version
+"1.08". Some of these changes are included.
+2005, 2006: first alpha versions, followed by beta versions (binary only)
+2006-03-10: official release with source code
+
+
 Shawn Betts wrote the first version of fastfile.c. Moreover, code from
 his contribution to "The Dink Project" was reused, namely from
 load_palette_from_bmp(), setup_palette(), load_sprite_pak(),

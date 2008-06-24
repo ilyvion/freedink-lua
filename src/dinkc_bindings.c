@@ -2,6 +2,7 @@
  * Link game engine and DinkC script engine
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
+ * Copyright (C) 2005, 2006  Dan Walma
  * Copyright (C) 2005, 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
@@ -25,6 +26,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 #include "game_engine.h"
 #include "dinkvar.h"
@@ -3368,6 +3370,233 @@ pass:
                                                                 }
 
 
+
+  /*********************************/
+  /** New DinkC commands in v1.08 **/
+  /**                             **/
+  /*********************************/
+
+  if (dversion >= 108)
+    {
+    //redink1 added
+    if (compare (ev[1], "sp_freeze"))
+
+      {
+	h = &h[strlen (ev[1])];
+
+	// Msg("Running busy, h is %s", h);    
+	int
+	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+
+	    // Set the value
+	    if (nlist[1] == 0)
+
+	      {
+		spr[nlist[0]].freeze = 0;
+	      }
+
+	    else if (nlist[1] == 1)
+
+	      {
+		spr[nlist[0]].freeze = script;
+	      }
+
+	    // Return the value
+	    if (spr[nlist[0]].freeze > 0)
+
+	      {
+		returnint = 1;
+	      }
+
+	    else
+
+	      {
+		returnint = 0;
+	      }
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "get_time_game"))
+
+      {
+	h = &h[strlen (ev[1])];
+	time_t ct;
+	time (&ct);
+	returnint = play.minutes + (difftime (ct, time_start) / 60);
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "get_time_real"))
+
+      {
+	h = &h[strlen (ev[1])];
+	char
+	  mytime[5];
+	time_t ct;
+	struct tm *
+	  time_now;
+	time (&ct);
+	time_now = localtime (&ct);
+	strftime (mytime, 5, "%M", time_now);
+	returnint = atoi (mytime);
+	strftime (mytime, 5, "%H", time_now);
+	returnint += 60 * atoi (mytime);
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "get_date_year"))
+
+      {
+	h = &h[strlen (ev[1])];
+	char
+	  mytime[5];
+	time_t ct;
+	struct tm *
+	  time_now;
+	time (&ct);
+	time_now = localtime (&ct);
+	strftime (mytime, 5, "%Y", time_now);
+	returnint = atoi (mytime);
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "get_date_month"))
+
+      {
+	h = &h[strlen (ev[1])];
+	char
+	  mytime[5];
+	time_t ct;
+	struct tm *
+	  time_now;
+	time (&ct);
+	time_now = localtime (&ct);
+	strftime (mytime, 5, "%m", time_now);
+	returnint = atoi (mytime);
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "get_date_day"))
+
+      {
+	h = &h[strlen (ev[1])];
+	char
+	  mytime[5];
+	time_t ct;
+	struct tm *
+	  time_now;
+	time (&ct);
+	time_now = localtime (&ct);
+	strftime (mytime, 5, "%d", time_now);
+	returnint = atoi (mytime);
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "math_abs"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    returnint = abs (nlist[0]);
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    /*if (compare(ev[1], "math_sin"))
+       {
+       h = &h[strlen(ev[1])];
+       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
+       if (get_parms(ev[1], script, h, p))
+       {
+       returnint = sin((double)nlist[0]);
+       }
+       strcpy(s, h);  
+       return(0);
+       }
+
+       //redink1 added this function
+       if (compare(ev[1], "math_cos"))
+       {
+       h = &h[strlen(ev[1])];
+       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
+       if (get_parms(ev[1], script, h, p))
+       {
+       returnint = cos((double)nlist[0]);
+       }
+       strcpy(s, h);  
+       return(0);
+       }
+
+       //redink1 added this function
+       if (compare(ev[1], "math_tan"))
+       {
+       h = &h[strlen(ev[1])];
+       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
+       if (get_parms(ev[1], script, h, p))
+       {
+       returnint = tan((double)nlist[0]);
+       }
+       strcpy(s, h);  
+       return(0);
+       } */
+
+    //redink1 added this function
+    if (compare (ev[1], "math_sqrt"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    returnint = sqrt ((double) abs (nlist[0]));
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added this function
+    if (compare (ev[1], "math_mod"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    returnint = (nlist[0] % nlist[1]);
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+
+    }
+
+
                                                                 if (strchr(h, '(') != NULL)
                                                                 {
 
@@ -3394,11 +3623,6 @@ pass:
                                                                         return(0);
 
                                                                 }
-
-
-
-
-
 
                                                                 Msg("MERROR: \"%s\" unknown in %s, offset %d.",ev[1], rinfo[script]->name,rinfo[script]->current);
 

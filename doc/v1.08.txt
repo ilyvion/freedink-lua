@@ -193,11 +193,11 @@ Backward-incompatible fixes:
 New functions:
 [ ] clear_editor_info()
     Removes the editor_seq and editor_frame for all sprites on the map.
-[ ] get_date_day()
+[X] get_date_day()
     Returns the current day.
-[ ] get_date_month()
+[X] get_date_month()
     Returns the current month.
-[ ] get_date_year()
+[X] get_date_year()
     Returns the current year.
 [ ] get_item(str item)
     Returns first slot of this item.
@@ -205,9 +205,9 @@ New functions:
     Returns first slot of this magic.
 [ ] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
     Begins searching for brains of type 'brain' starting with 'spritestart'.
-[ ] get_time_game()
+[X] get_time_game()
     Returns the number of minutes the player has been playing the game (total).
-[ ] get_time_real()
+[X] get_time_real()
     Returns the number of minutes in the day (900 = 3 pm).
 [ ] get_truecolor()
     Returns true if the game is in true-color mode.
@@ -224,9 +224,9 @@ New functions:
 [ ] make_global_function(str script, str function)
     Allows you to use the specified function in DinkC without the use of
     external.
-[ ] math_abs(int num)
-[ ] math_mod(int num1, int num2)
-[ ] math_sqrt(int num1)
+[X] math_abs(int num)
+[X] math_mod(int num1, int num2)
+[X] math_sqrt(int num1)
 [ ] map_hard_tile(int maptile, int hardtileindex)
     Gets or sets the hard tiles on the current map screen.  'maptile' refers to
     the tiles on the current screen from 1 (upper-left corner) to 96
@@ -256,7 +256,7 @@ New functions:
 [ ] sp_clip_left(int sprite, int pixels)
 [ ] sp_clip_right(int sprite, int pixels)
 [ ] sp_clip_top(int sprite, int pixels)
-[ ] sp_freeze(int sprite, bool freeze (-1 to return))
+[X] sp_freeze(int sprite, bool freeze (-1 to return))
     If 1, acts like freeze.  If 0, acts like unfreeze.  -1 will return whether
     the given sprite is frozen or not (basically a better 'busy' function).
 [ ] var_used()
