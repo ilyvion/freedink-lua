@@ -60,6 +60,7 @@
 #include "SDL_rotozoom.h"
 
 #include "game_engine.h"
+#include "dinkini.h"
 
 /* #include "ddutil.h" */
 #include "fastfile.h"
@@ -98,7 +99,6 @@ void draw_status_all(void);
 void check_seq_status(int h);
 
 void add_text(char *tex ,char *filename);
-void program_idata(void);
 int map_vision = 0;
 int realhard(int tile);
 int flub_mode = -500;
@@ -125,19 +125,6 @@ int screenlock = 0;
 struct talk_struct talk;
 
 int mbase_timing;
-#define MAX_IDATA 600
-enum idata_type { IDATA_EMPTY=0, IDATA_SPRITE_INFO, IDATA_FRAME_SPECIAL,
-		  IDATA_FRAME_DELAY, IDATA_FRAME_FRAME };
-struct idata
-{
-  enum idata_type type;
-  int seq;
-  int frame;
-  int xoffset, yoffset;
-  rect hardbox;
-};
-struct idata id[MAX_IDATA];
-
 unsigned long mold;
 
 int item_timer;
@@ -1538,68 +1525,6 @@ void figure_out(char line[255], int load_seq)
     }
 }
 
-/* Interpret/execute sprite instructions */
-void program_idata(void)
-{
-  int i;
-  for (i = 1; i < MAX_IDATA; i++)
-    {
-      if (id[i].type == IDATA_EMPTY)
-	return;
-
-      if (id[i].type == IDATA_SPRITE_INFO)
-	{
-	  k[seq[id[i].seq].frame[id[i].frame]].xoffset = id[i].xoffset;
-	  k[seq[id[i].seq].frame[id[i].frame]].yoffset = id[i].yoffset;
-	  rect_copy(&k[seq[id[i].seq].frame[id[i].frame]].hardbox, &id[i].hardbox);
-	  
-	  // Msg("Programming idata type %d in %d...Seq %d Frame %d (Hardbox is %d %d %d %d)", id[i].type, i,
-	  //     id[i].seq, id[i].frame, id[i].hardbox.left,id[i].hardbox.right, id[i].hardbox.top, id[i].hardbox.bottom);
-	}
-      
-      if (id[i].type == IDATA_FRAME_SPECIAL)
-	{
-	  //set special
-	  seq[id[i].seq].special[id[i].frame] = id[i].xoffset;
-	}
-      if (id[i].type == IDATA_FRAME_DELAY)
-	{
-	  //set delay
-	  seq[id[i].seq].delay[id[i].frame] = id[i].xoffset;
-	}
-      
-      if (id[i].type == IDATA_FRAME_FRAME)
-	{
-	  if (id[i].xoffset == -1)
-	    seq[id[i].seq].frame[id[i].frame] = -1;
-	  else
-	    seq[id[i].seq].frame[id[i].frame] = seq[id[i].xoffset].frame[id[i].yoffset];
-	}
-    }
-}
-
-/* Store sprite instructions from dink.ini */
-void make_idata(enum idata_type type, int myseq, int myframe, int xoffset, int yoffset, rect crect)
-{
-  int i;
-  for (i = 1; i < MAX_IDATA; i++)
-    {
-      if (id[i].type == IDATA_EMPTY)
-	{
-	  //found empty one
-	  id[i].type = type;
-	  id[i].seq = myseq;
-	  id[i].frame = myframe;
-	  id[i].xoffset = xoffset;
-	  id[i].yoffset = yoffset;
-	  rect_copy(&id[i].hardbox, &crect);
-	  
-	  return;
-	}
-    }
-  
-  Msg("Out of idata spots (max is %d), no more sprite corrections can be allowed.", MAX_IDATA);
-}
 
 /**
  * Parse a dink.ini line, and store instructions for later processing

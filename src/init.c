@@ -38,6 +38,7 @@
 #include "progname.h"
 /* Msg */
 #include "game_engine.h"
+#include "dinkini.h"
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
@@ -146,6 +147,8 @@ void finiObjects()
 	
 	kill_all_scripts_for_real();
 	FastFileFini();
+
+	dinkini_quit();
 
 	g_b_kill_app = 1;
 /* 	ShowWindow(hWndMain, SW_HIDE); */
@@ -327,6 +330,7 @@ int init(int argc, char *argv[])
 
   memset(&hmap, 0, sizeof(hmap));
   memset(&pam, 0, sizeof(pam));
+  dinkini_init();
 
   return 1;
 }
