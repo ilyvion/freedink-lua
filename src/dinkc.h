@@ -73,7 +73,7 @@ extern void process_callbacks(void);
 extern void init_scripts(void);
 extern int var_exists(char name[20], int scope);
 extern void make_int(char name[80], int value, int scope, int script);
-extern int var_equals(char name[20], char newname[20], char math, int script, char rest[200]);
+extern void var_equals(char name[20], char newname[20], char math, int script, char rest[200]);
 extern void kill_scripts_owned_by(int sprite);
 extern void kill_returning_stuff(int script);
 extern void run_script(int script);

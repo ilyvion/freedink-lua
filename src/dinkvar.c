@@ -192,11 +192,6 @@ char dir[80];
 
 
 
-int process_line (int script, char *s, /*bool*/int doelse);
-
-
-
-
 int  show_dot = /*FALSE*/0;
 int  plane_process = /*TRUE*/1;
 struct hit_map hm;

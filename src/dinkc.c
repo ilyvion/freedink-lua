@@ -136,49 +136,18 @@ void decompress(FILE *in)
     }
 }
 
-
 void decompress_nocomp(FILE *in)
 {
-        //let's do it, only this time decompile OUR style
-
-        unsigned char stack[16], pair[128][2];
-        short c, top = 0;
-
-        /* Check for optional pair count and pair table */
-        if ((c = getc(in)) > 255)
-                fread(pair,2,c-128,in);
-        else
-        {
-                if (c == '\r') c = '\n';
-                if (c == 9) c = ' ';
-
-                strchar(cbuf,c);
-        }
-        //        putc(c,out);
-
-        for (;;) {
-
-                /* Pop byte from stack or read byte from file */
-                if (top)
-                        c = stack[--top];
-                else if ((c = getc(in)) == EOF)
-                        break;
-
-                /* Push pair on stack or output byte to file */
-                if (c > 255) {
-                        stack[top++] = pair[c-128][1];
-                        stack[top++] = pair[c-128][0];
-                }
-                else
-                {
-                        if (c == '\r') c = '\n';
-                        if (c == 9) c = ' ';
-
-                        strchar(cbuf,c);//     putc(c,out);
-                }
-        }
+  int c;
+  
+  /* Check for optional pair count and pair table */
+  while ((c = getc(in)) != EOF)
+    {
+      if (c == '\r') c = '\n';
+      if (c == 9) c = ' ';
+      strchar(cbuf,c);
+    }
 }
-
 
 
 struct player_short_info
@@ -1062,7 +1031,7 @@ void make_int(char name[80], int value, int scope, int script)
 
         if (dupe > 0)
         {
-                if (scope != 0)
+                if (scope != DINKC_GLOBAL_SCOPE)
                 {
                         Msg("Local var %s already used in this procedure in script %s.",name, rinfo[script]->name);
 
@@ -1095,108 +1064,96 @@ void make_int(char name[80], int value, int scope, int script)
         Msg("ERROR: Out of var space, all %d used.", MAX_VARS);
 }
 
-int var_equals(char name[20], char newname[20], char math, int script, char rest[200])
+/**
+ * (re)Define variable
+ *
+ * name: variable name
+ * newname: new value (unless that's a function call, cf. 'rest')
+ * math: operator (one of '=', '+', '-', '*', '/')
+ * script: in-memory script identifier
+ * rest: text of the script after the operator (left-trimmed)
+ */
+void var_equals(char name[20], char newname[20], char math, int script, char rest[200])
 {
-        int k;
-    int newret;
+  int k;
+  int newval = 0;
+  struct varman *rhs_var = NULL;
+  
+  /** Ensure left-hand side is an existing variable **/
+  if (name[0] != '&')
+    {
+      Msg("ERROR (var equals): Unknown var %s in %s offset %d.",
+	  name, rinfo[script]->name, rinfo[script]->current);
+      return;
+    }
 
-        int newval = 0;
+  for (k = 1; k < MAX_VARS; k++)
+    if (play.var[k].active == 1)
+      if ((play.var[k].scope == DINKC_GLOBAL_SCOPE) || (play.var[k].scope == script))
+	if (compare(name, play.var[k].name))
+	  {
+	    rhs_var = &(play.var[k]);
+	    break;
+	  }
 
-
-        if (name[0] != '&')
-        {
-                Msg("ERROR (var equals): Unknown var %s in %s offset %d.",name, rinfo[script]->name, rinfo[script]->current);
-                return(0);
-        }
-
-        int i = 1;
-        for (; i < MAX_VARS; i++)
-        {
-                if  (play.var[i].active == /*true*/1)
-                {
-
-                        if ( (play.var[i].scope == 0) | (play.var[i].scope == script))
-                                if (compare(name, play.var[i].name))
-                                {
-                                        //found var
-                                        goto next;
-                                }
-
-
-
-                }
-        }
+  if (rhs_var == NULL) /* not found */
+    {
+      Msg("ERROR: (var equals2) Unknown var %s in %s offset %d.",
+	  name, rinfo[script]->name, rinfo[script]->current);
+      return;
+    }
 
 
+  /** Analyse right-hand side **/
+  /* check if right-hand side is a function */
+  if (strchr(rest, '(') != NULL)
+    {
+      process_line(script, rest, /*false*/0);
+      newval = returnint;
+      goto next2;
+    }
 
+  /* check if right-hand side is a variable to copy */
+  /* remove trailing ';' */
+  if (strchr(newname, ';') != NULL)
+    replace(";", "", newname);
+  /* look for existing variable */
+  for (k = 1; k < MAX_VARS; k++)
+    if (play.var[k].active == /*true*/1)
+      if (compare(newname, play.var[k].name))
+	{
+	  newval = play.var[k].var;
+	  //found var
+	  goto next2;
+	}
+  /* also check special variables */
+  if (compare(newname, "&current_sprite"))
+    {
+      newval = rinfo[script]->sprite;
+      goto next2;
+    }
+  if (compare(newname, "&current_script"))
+    {
+      newval = script;
+      goto next2;
+    }
 
+  /* otherwise, assume right-hand side is an integer */
+  newval = atol(newname);
 
-        Msg("ERROR: (var equals2) Unknown var %s in %s offset %d.",name, rinfo[script]->name, rinfo[script]->current);
-        return(0);
-
-next:
-
-
-
-        if (strchr(rest, '(') != NULL)
-
-        {
-                newret = process_line(script, rest, /*false*/0);
-                newval = returnint;
-                goto next2;
-        }
-
-
-        if (strchr(newname, ';') != NULL) replace(";", "", newname);
-        for (k = 1; k < MAX_VARS; k++)
-        {
-                if (play.var[k].active == /*true*/1)
-                {
-                        if ( (play.var[i].scope == 0) | (play.var[i].scope == script))
-                                if (compare(newname, play.var[k].name))
-                                {
-                                        newval = play.var[k].var;
-                                        //found var
-                                        goto next2;
-                                }
-                }
-        }
-
-        if (compare(newname, "&current_sprite"))
-        {
-                newval = rinfo[script]->sprite;
-                goto next2;
-        }
-
-        if (compare(newname, "&current_script"))
-        {
-                newval = script;
-                goto next2;
-
-        }
-
-
-
-        newval = atol(newname);
 
 next2:
-
-        if (math == '=')
-                play.var[i].var = newval;
-
-        if (math == '+')
-                play.var[i].var += newval;
-
-        if (math == '-')
-                play.var[i].var -= newval;
-
-        if (math == '/')
-                play.var[i].var = play.var[i].var / newval;
-
-        if (math == '*')
-                play.var[i].var = play.var[i].var * newval;
-
-        return(newret);
+  /* Apply the right operation */
+  if (math == '=')
+    rhs_var->var = newval;
+  if (math == '+')
+    rhs_var->var += newval;
+  if (math == '-')
+    rhs_var->var -= newval;
+  if (math == '/')
+    rhs_var->var = rhs_var->var / newval;
+  if (math == '*')
+    rhs_var->var = rhs_var->var * newval;
 }
 
 

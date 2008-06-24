@@ -269,23 +269,23 @@ morestuff:
  *
  * proc_name: named of the called function
  * script: script id
- * h: string to parse
- * p: describe the function's parameters:
+ * str_params: string to parse (what was after the function name)
+ * spec: describe the function's parameters:
  *    1=int
  *    2=string
  *    0=no more args (10 args max)
  *
  * Return: 0 if parse error, 1 if success
  */
-int get_parms(char proc_name[20], int script, char *h, int p[10])
+int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 {
   char crap[1024];
 
-  strip_beginning_spaces(h);
-  if (h[0] == '(')
+  strip_beginning_spaces(str_params);
+  if (str_params[0] == '(')
     {
       //Msg("Found first (.");
-      h++;
+      str_params++;
     }
   else
     {
@@ -296,18 +296,18 @@ int get_parms(char proc_name[20], int script, char *h, int p[10])
   int i;
   for (i = 0; i < 10; i++)
     {
-      strip_beginning_spaces(h);
+      strip_beginning_spaces(str_params);
       
-      if (p[i] == 1) // type=int
+      if (spec[i] == 1) // type=int
 	{
 	  // Get next parameter (until ',' or ')' is reached)
-	  if (strchr(h, ',') != NULL)
-	    separate_string(h, 1, ',', crap);
-	  else if (strchr(h, ')') != NULL)
-	    separate_string(h, 1, ')', crap);
+	  if (strchr(str_params, ',') != NULL)
+	    separate_string(str_params, 1, ',', crap);
+	  else if (strchr(str_params, ')') != NULL)
+	    separate_string(str_params, 1, ')', crap);
 
 	  // move to next param
-	  h += strlen(crap);
+	  str_params += strlen(crap);
 	  
 	  if (crap[0] == '&')
 	    {
@@ -318,58 +318,58 @@ int get_parms(char proc_name[20], int script, char *h, int p[10])
 	  // store parameter of type 'int'
 	  nlist[i] = atol(crap);
 	}
-      else if (p[i] == 2) // type=string
+      else if (spec[i] == 2) // type=string
 	{
 	  // Msg("Checking for string..");
-	  separate_string(h, 2, '"', crap);
+	  separate_string(str_params, 2, '"', crap);
 	  // move to next param
-	  h += strlen(crap)+2;
+	  str_params += strlen(crap)+2;
 
 	  // store parameter of type 'string'
 	  strcpy(slist[i], crap);
 	}
 
-      if ((i+1) == 10 || p[i+1] == 0) // this was the last arg
+      if ((i+1) == 10 || spec[i+1] == 0) // this was the last arg
 	{
 	  //finish
-	  strip_beginning_spaces(h);
+	  strip_beginning_spaces(str_params);
 	  
-	  if (h[0] == ')')
+	  if (str_params[0] == ')')
 	    {
-	      h++;
+	      str_params++;
 	    }
 	  else
 	    {
 	      Msg("Missing ')' in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-	      h++;
+	      str_params++;
 	      return 0;
 	    }
-	  strip_beginning_spaces(h);
+	  strip_beginning_spaces(str_params);
 
-	  if (h[0] == ';')
+	  if (str_params[0] == ';')
 	    {
 	      //  Msg("Found ending ;");
-	      h++;
+	      str_params++;
 	    }
 	  else
 	    {
 	      //Msg("Missing ; in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-	      //      h = &h[1];
+	      //      str_params = &str_params[1];
 	      return 1;
 	    }
 	  return 1;
 	}
 
       //got a parm, but there is more to get, lets make sure there is a comma there
-      strip_beginning_spaces(h);
+      strip_beginning_spaces(str_params);
 
-      if (h[0] == ',')
+      if (str_params[0] == ',')
 	{
-	  h++;
+	  str_params++;
 	}
       else
 	{
-	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, h);
+	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, str_params);
 	  return 0;
 	}
     }
@@ -694,6 +694,9 @@ pass:
                         return(1);
 
                 }
+
+
+
 
                 if (compare(ev[1], "unfreeze"))
                 {

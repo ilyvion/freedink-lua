@@ -119,7 +119,8 @@ a single character, updating the null at the end. */
 
 /**
  * Split 'str' in words separated by 'liney', and copy the #'num' one
- * to 'return1'. The function does not alter 'str'.
+ * to 'return1'. The function does not alter 'str'. Return 1 if field
+ * #'num' was present, 0 otherwise.
  */
 /*bool*/int separate_string (char str[255], int num, char sep, char *return1)
 {
@@ -131,16 +132,14 @@ a single character, updating the null at the end. */
   l = 1;
   strcpy(return1, "");
 
-  for (k = 0; k <= len; k++)
+  for (k = 0; k < len; k++)
     {
       if (str[k] == sep)
 	{
+	  if (l == num)
+	    break;
 	  l++;
-	  if (l == num+1)
-	    goto done;
-
-	  if (k < len)
-	    strcpy(return1, "");
+	  strcpy(return1, ""); /* reset */
 	}
       else /* (str[k] != sep) */
 	{
@@ -151,23 +150,17 @@ a single character, updating the null at the end. */
 	}
     }
 
-  if (l < num)
-    strcpy(return1, "");
-
-  replace("\r", "", return1); //Take the /r off it.
-  replace("\n", "", return1); //Take the /n off it.
-
-  return /*false*/0;
-
-done:
-  if (l < num)
-    strcpy(return1, "");
-
-  replace("\r", "", return1); //Take the /r off it.
-  replace("\n", "", return1); //Take the /n off it.
-
-  //Msg("Took %s and turned it to %s.",str, return1);
-  return /*true*/1;
+  if (l >= num)
+    {
+      replace("\r", "", return1); //Take the /r off it.
+      replace("\n", "", return1); //Take the /n off it.
+      return 1;
+    }
+  else /* less than 'num' tokens */
+    {
+      strcpy(return1, "");
+      return 0;
+    }
 }
 
 
