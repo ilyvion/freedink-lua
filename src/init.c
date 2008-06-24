@@ -36,7 +36,6 @@
 #include "SDL_framerate.h"
 #include "binreloc.h"
 #include "progname.h"
-/* Msg */
 #include "game_engine.h"
 #include "dinkini.h"
 #include "dinkvar.h"
@@ -255,6 +254,15 @@ static int check_arg(int argc, char *argv[])
 	exit(EXIT_FAILURE);
       }
     }
+  
+  if (optind < argc) {
+    fprintf(stderr, "Invalid additional argument: ");
+    while (optind < argc)
+      fprintf(stderr, "%s ", argv[optind++]);
+    printf(" (did you forget '--game'?)\n");
+    exit(EXIT_FAILURE);
+  }
+
   
   paths_init(argv[0], refdir_opt, dmoddir_opt);
 
