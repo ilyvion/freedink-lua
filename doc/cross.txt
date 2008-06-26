@@ -444,3 +444,13 @@ Some problems need to be fixed:
 
 See:
 http://lists.gnu.org/archive/html/bug-guile/2008-05/msg00016.html
+
+## libffi
+VERSION=3.0.5
+wget ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
+tar xzf libffi-$VERSION.tar.gz
+cd libffi-$VERSION
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install
+#i586-mingw32msvc-gcc test.c `/usr/local/cross-tools/i386-mingw32/bin/pkg-config --cflags --libs libffi`
