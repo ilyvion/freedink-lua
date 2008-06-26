@@ -1,0 +1,1623 @@
+--- d_canonical	2008-06-26 09:24:48.000000000 +0200
++++ d2_canonical	2008-06-26 09:24:51.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*========================================================================== Dink Smallwood Source Code: Copyright (C) Seth A. Robinson, 1997-2003 www.rtsoft.com This software is provided "as is" without express or implied warranties. You may freely use, modify and distribute this source provided that the copyright text below is included in the resulting source code, for example: "Portions Copyright (C) Seth A. Robinson, 1997-2003 If you use any of this source in a commercial product, you are gently asked to donate a few bucks to Seth. Check www.codedojo.com for info on how to do that. Donations: If you find this source helpful in some way and use it in a product you are selling, you are gently asked to donate a couple bucks via codedojo.com. This cash will be used to maintain the site and hopefully inspire me to get off my duff and release more source. Check the license.txt for more info. */
+-#define NAME "Dink Smallwood"
+-#define TITLE "Dink Smallwood"
++#define NAME "Dink Smallwood v1.08"
++#define TITLE "Dink Smallwood v1.08"
+ #include <dsound.h>
+ 
+ //#define INITGUID
+@@ -22,7 +22,7 @@
+ int check_if_move_is_legal (int u);
+ void change_dir_to_diag (int *dir);
+ int hurt_thing (int h, int damage, int special);
+-int but_timer;
++int but_timer = 0;
+ int water_timer;
+ bool fire_forward;
+ int fire_flip;
+@@ -54,7 +54,11 @@
+   int color = 0;
+   if (spr[h].damage == -1)
+     {
+-      sprintf (crap, "%s", spr[h].text);
++//redink1 fix for : and '%deee bugs?
++
++      strcpy (crap, spr[h].text);
++//sprintf(crap, "%s", spr[h].text);
++
+       cr = &crap[0];
+       color = 14;
+       while (cr[0] == '`')
+@@ -85,6 +89,12 @@
+ 	    color = 14;
+ 	  if (cr[1] == '%')
+ 	    color = 15;
++//redink1 support for additional colors
++
++	  if (cr[1] == '@')
++	    color = 12;
++	  if (cr[1] == '!')
++	    color = 11;
+ 	  if (cr[1] == '4')
+ 	    color = 4;
+ 	  cr = &cr[2];
+@@ -116,6 +126,8 @@
+ 	spr[h].y = 0;
+       SetRect (&rcRect, spr[h].x, spr[h].y, spr[h].x + 50, spr[h].y + 50);
+     }
++  if (truecolor && (bFadedDown || process_downcycle))
++    color = 15;
+   SetTextColor (hdc, RGB (8, 14, 21));
+   if (spr[h].owner == 1200)
+     {
+@@ -140,34 +152,18 @@
+       DrawText (hdc, cr, strlen (cr), &rcRect, DT_CENTER | DT_WORDBREAK);
+     }
+   OffsetRect (&rcRect, 0, 1);
+-  if (color == 1)
+-    SetTextColor (hdc, RGB (255, 198, 255));
+-  else if (color == 2)
+-    SetTextColor (hdc, RGB (131, 181, 74));
+-  else if (color == 3)
+-    SetTextColor (hdc, RGB (99, 242, 247));
+-  else if (color == 4)
+-    SetTextColor (hdc, RGB (255, 156, 74));	//right
+-  else if (color == 5)
+-    SetTextColor (hdc, RGB (222, 173, 255));
+-  else if (color == 6)
+-    SetTextColor (hdc, RGB (244, 188, 73));	//right
+-  else if (color == 7)
+-    SetTextColor (hdc, RGB (173, 173, 173));	//right
+-  else if (color == 8)
+-    SetTextColor (hdc, RGB (85, 85, 85));	//right
+-  else if (color == 9)
+-    SetTextColor (hdc, RGB (148, 198, 255));	//right
+-  else if (color == 10)
+-    SetTextColor (hdc, RGB (0, 255, 0));
+-  else if (color == 13)
+-    SetTextColor (hdc, RGB (255, 132, 132));
+-  else if (color == 14)
+-    SetTextColor (hdc, RGB (255, 255, 2));
+-  else if (color == 15)
+-    SetTextColor (hdc, RGB (255, 255, 255));
++//redink1 support for custom colors
++
++  if (color >= 1 && color <= 15)
++    {
++      SetTextColor (hdc,
++		    RGB (font_colors[color].red, font_colors[color].green,
++			 font_colors[color].blue));
++    }
+   else
++    {
+     SetTextColor (hdc, RGB (255, 255, 255));
++    }
+   if (spr[h].owner == 1200)
+     DrawText (hdc, cr, strlen (cr), &rcRect, DT_WORDBREAK);
+   else
+@@ -198,10 +194,14 @@
+       Msg ("Drew map.");
+       if (mode > 2)
+ 	{
++	  fill_screen (0);
+ 	  draw_map_game_background ();
++	  if (*pupdate_status == 1)
++	    {
+ 	  draw_status_all ();
+ 	}
+     }
++    }
+   return ddrval;
+ }				/* restoreAll */
+ 
+@@ -352,7 +352,12 @@
+       if (jinfo.dwYpos < 17000)
+ 	sjoy.up = TRUE;
+     }
+-pass:if (GetKeyboard (17))
++pass:
++//redink1 Only accept keyboard input when console is not active.
++
++  if (mConsoleActive == false)
++    {
++      if (GetKeyboard (17))
+     sjoy.joybit[1] = TRUE;
+   if (GetKeyboard (32))
+     sjoy.joybit[2] = TRUE;
+@@ -364,8 +369,11 @@
+     sjoy.joybit[5] = TRUE;
+   if (GetKeyboard (54))
+     sjoy.joybit[6] = TRUE;
++      if (GetKeyboard (77))
++	sjoy.joybit[6] = TRUE;
+   if (GetKeyboard (55))
+     sjoy.joybit[7] = TRUE;
++    }
+   for (int x5 = 1; x5 <= 10; x5++)
+     sjoy.button[x5] = FALSE;
+   for (int x = 1; x <= 10; x++)
+@@ -379,6 +387,10 @@
+ 	    }
+ 	}
+     }
++//redink1 Only accept keyboard input when console is not active.
++
++  if (mConsoleActive == false)
++    {
+   if (GetKeyboard (39))
+     sjoy.right = TRUE;
+   if (GetKeyboard (37))
+@@ -387,6 +399,7 @@
+     sjoy.down = TRUE;
+   if (GetKeyboard (38))
+     sjoy.up = TRUE;
++    }
+   for (int x2 = 1; x2 <= 10; x2++)
+     {
+       if (sjoy.joybit[x2])
+@@ -659,6 +672,9 @@
+ 	    add_sprite (spr[h].x, spr[h].y, 5, spr[h].base_walk + 5, 1);
+ 	  spr[crap2].speed = 0;
+ 	  spr[crap2].seq = spr[h].base_walk + 5;
++//redink1 added this so corpses are the same size
++
++	  spr[crap2].size = spr[h].size;
+ 	  return;
+ 	}
+       else
+@@ -716,17 +732,116 @@
+ int
+ get_distance_and_dir (int h, int h1, int *dir)
+ {
++  if (smooth_follow)
++    {
++      unsigned int x_diff (abs (spr[h].x - spr[h1].x));
++      unsigned int y_diff (abs (spr[h].y - spr[h1].y));
++      if (spr[h].x < spr[h1].x)
++	{
++	  if (spr[h].y < spr[h1].y)
++	    {
++// 6, 3, 2
++
++	      if (y_diff * 4 < x_diff)
++		{
++		  *dir = 6;
++		}
++	      else if (x_diff * 4 < y_diff)
++		{
++		  *dir = 2;
++		}
++	      else
++		{
++		  *dir = 3;
++		}
++	    }
++	  else if (spr[h].y > spr[h1].y)
++	    {
++// 4, 9, 8
++
++	      if (y_diff * 4 < x_diff)
++		{
++		  *dir = 6;
++		}
++	      else if (x_diff * 4 < y_diff)
++		{
++		  *dir = 8;
++		}
++	      else
++		{
++		  *dir = 9;
++		}
++	    }
++	  else
++	    {
++	      *dir = 6;
++	    }
++	}
++      else if (spr[h].x > spr[h1].x)
++	{
++	  if (spr[h].y < spr[h1].y)
++	    {
++// 4, 1, 2
++
++	      if (y_diff * 4 < x_diff)
++		{
++		  *dir = 4;
++		}
++	      else if (x_diff * 4 < y_diff)
++		{
++		  *dir = 2;
++		}
++	      else
++		{
++		  *dir = 1;
++		}
++	    }
++	  else if (spr[h].y > spr[h1].y)
++	    {
++// 4, 7, 8
++
++	      if (y_diff * 4 < x_diff)
++		{
++		  *dir = 4;
++		}
++	      else if (x_diff * 4 < y_diff)
++		{
++		  *dir = 8;
++		}
++	      else
++		{
++		  *dir = 7;
++		}
++	    }
++	  else
++	    {
++	      *dir = 4;
++	    }
++	}
++      else
++	{
++	  if (spr[h].y < spr[h1].y)
++	    {
++	      *dir = 2;
++	    }
++	  else if (spr[h].y > spr[h1].y)
++	    {
++	      *dir = 8;
++	    }
++	}
++      return max (x_diff, y_diff);
++    }
+   int distancex = 5000;
+   int distancey = 5000;
+-  int dirx;
+-  int diry;
++  int dirx = *dir;
++  int diry = *dir;
+   if (spr[h].x > spr[h1].x)
+     if ((spr[h].x - spr[h1].x) < distancex)
+       {
+ 	distancex = (spr[h].x - spr[h1].x);
+ 	dirx = 4;
+       }
+-  if (spr[h].x < spr[h1].x)
++  if (spr[h].x <= spr[h1].x)
+     if ((spr[h1].x - spr[h].x) < distancex)
+       {
+ 	distancex = (spr[h1].x - spr[h].x);
+@@ -738,7 +853,7 @@
+ 	distancey = (spr[h].y - spr[h1].y);
+ 	diry = 8;
+       }
+-  if (spr[h].y < spr[h1].y)
++  if (spr[h].y <= spr[h1].y)
+     if ((spr[h1].y - spr[h].y) < distancey)
+       {
+ 	distancey = (spr[h1].y - spr[h].y);
+@@ -1099,9 +1214,14 @@
+ 
+ 	    if (spr[h].base_attack != -1)
+ 	      {
++		int attackdir;
++		bool old_smooth_follow = smooth_follow;
++		smooth_follow = false;
++		get_distance_and_dir (h, spr[h].target, &attackdir);
++		smooth_follow = old_smooth_follow;
+ //Msg("attacking with %d..", spr[h].base_attack+dir);
+ 
+-		spr[h].dir = dir;
++		spr[h].dir = attackdir;
+ 		spr[h].seq = spr[h].base_attack + spr[h].dir;
+ 		spr[h].frame = 0;
+ 		if (spr[h].script != 0)
+@@ -1566,11 +1686,14 @@
+ int
+ check_if_move_is_legal (int u)
+ {
+-  if (spr[u].move_active)
++//redink1 removed so move_nohard is active for all movements, not just active moves.
++
++//if (spr[u].move_active)
++
+     if (spr[u].move_nohard == 1)
+       return (0);
+   if (u == 1)
+-    if (in_this_base (spr[u].seq, 310))
++    if (in_this_base (spr[u].seq, mDinkBasePush))
+       return (0);
+   if (u == 1)
+     if (!no_cheat)
+@@ -1586,7 +1709,9 @@
+ 	    if (spr[u].flying)
+ 	      {
+ 		spr[u].moveman = 0;
+-		return (2);
++// redink1 changed so flying works properly
++
++		return (0);
+ 	      }
+ 	  if (hardness > 0)
+ 	    {
+@@ -1716,8 +1841,10 @@
+     }
+   rcRect.left = playl;
+   rcRect.top = 0;
+-  rcRect.right = 619;
+-  rcRect.bottom = 399;
++//redink1 fix so scroll works for entire screen
++
++  rcRect.right = 620;
++  rcRect.bottom = 400;
+   ddrval =
+     lpDDSTrick->BltFast (0, 0, lpDDSBack, &rcRect,
+ 			 DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+@@ -2387,7 +2514,7 @@
+   if (play.push_active)
+     if (play.push_timer + 600 < thisTickCount)
+       {
+-	spr[h].seq = 310 + spr[h].dir;
++	spr[h].seq = mDinkBasePush + spr[h].dir;
+ 	spr[h].frame = 1;
+ 	spr[h].nocontrol = true;
+ //play.push_active = false;
+@@ -2399,6 +2526,15 @@
+     {
+       if (!run_through_tag_list_talk (h))
+ 	{
++//redink1 addition of 'not talking to anything' script
++
++	  int sc = load_script ("DNOTALK", 0, false);
++	  if (sc != 0 && locate (sc, "MAIN"))
++	    {
++	      run_script (sc);
++	    }
++	  else
++	    {
+ 	  kill_text_owned_by (h);
+ 	  int randy = (rand () % 6) + 1;
+ #ifdef __GERMAN
+@@ -2423,7 +2559,8 @@
+ 	  if (randy == 2)
+ 	    say_text ("`$Huh?", h, 0);
+ 	  if (randy == 3)
+-	    say_text ("`$I'm fairly sure I can't talk to or use that.", h, 0);
++		say_text ("`$I'm fairly sure I can't talk to or use that.", h,
++			  0);
+ 	  if (randy == 4)
+ 	    say_text ("`$What?", h, 0);
+ 	  if (randy == 5)
+@@ -2433,6 +2570,7 @@
+ #endif
+ 	}
+     }
++    }
+   if ((sjoy.button[1] == TRUE) && (weapon_script != 0))
+     {
+       if (spr[h].base_hit > 0)
+@@ -2448,7 +2586,11 @@
+ 
+   if (but_timer < thisTickCount)
+     {
+-      for (x5 = 29; x5 < 256; x5++)
++//redink1 Only accept keyboard input when console is not active.
++
++      if (mConsoleActive == false)
++	{
++	  for (x5 = 29; x5 < 255; x5++)
+ 	{
+ 	  if (x5 == 32)
+ 	    x5++;
+@@ -2480,15 +2622,42 @@
+ 	    }
+ 	}
+     }
+-  if ((sjoy.button[6] == TRUE)
+-      || ((GetKeyboard (77)) && (but_timer < thisTickCount)))
++    }
++  if (sjoy.button[6] == TRUE)
+     {
+-      but_timer = thisTickCount + 200;
+       int mycrap = load_script ("BUTTON6", 1, false);
+       if (locate (mycrap, "MAIN"))
+ 	run_script (mycrap);
+       goto b1end;
+     }
++  if (sjoy.button[7] == TRUE)
++    {
++      int mycrap = load_script ("BUTTON7", 1, false);
++      if (locate (mycrap, "MAIN"))
++	run_script (mycrap);
++      goto b1end;
++    }
++  if (sjoy.button[8] == TRUE)
++    {
++      int mycrap = load_script ("BUTTON8", 1, false);
++      if (locate (mycrap, "MAIN"))
++	run_script (mycrap);
++      goto b1end;
++    }
++  if (sjoy.button[9] == TRUE)
++    {
++      int mycrap = load_script ("BUTTON9", 1, false);
++      if (locate (mycrap, "MAIN"))
++	run_script (mycrap);
++      goto b1end;
++    }
++  if (sjoy.button[10] == TRUE)
++    {
++      int mycrap = load_script ("BUTTON10", 1, false);
++      if (locate (mycrap, "MAIN"))
++	run_script (mycrap);
++      goto b1end;
++    }
+   if (magic_script != 0)
+     if (sjoy.joybit[3])
+       goto shootm;
+@@ -2496,10 +2665,21 @@
+     {
+       if (magic_script == 0)
+ 	{
++//redink1 addition of 'no magic' script
++
++	  int sc = load_script ("DNOMAGIC", 0, false);
++	  if (sc != 0 && locate (sc, "MAIN"))
++	    {
++	      run_script (sc);
++	    }
++	  else
++	    {
+ 	  int randy = (rand () % 6) + 1;
+ 	  kill_text_owned_by (h);
+ #ifdef __GERMAN
+-	  if (randy == 3)
++
++//if (randy == 3) 
++
+ 	    if (randy == 1)
+ 	      say_text
+ 		("`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann..",
+@@ -2521,14 +2701,16 @@
+ 	  if (randy == 2)
+ 	    say_text ("`$I'm no wizard!", h, 0);
+ 	  if (randy == 3)
+-	    say_text ("`$I need to learn magic before trying this.", h, 0);
++		say_text ("`$I need to learn magic before trying this.", h,
++			  0);
+ 	  if (randy == 4)
+-	    say_text ("`$I'm gesturing wildly to no avail!", h, 0);
++		say_text ("`$I'm gesturing wildly to no avail!", h, 0);	//redink1 removed an extra space
+ 	  if (randy == 5)
+ 	    say_text ("`$Nothing happened.", h, 0);
+ 	  if (randy == 6)
+ 	    say_text ("`$Hocus pocus!", h, 0);
+ #endif
++	    }
+ 	  goto b1end;
+ 	}
+ //player pressed 1
+@@ -2544,25 +2726,26 @@
+     }
+   if (sjoy.button[4])
+     {
++//redink1 addition of 'enter key/inventory' script
++
++      int sc = load_script ("BUTTON4", 0, false);
++      if (sc != 0)
++	{
++	  if (locate (sc, "MAIN"))
++	    {
++	      run_script (sc);
++	      return;
++	    }
++	}
+       item_screen = true;
+       SoundPlayEffect (18, 22050, 0, 0, 0);
+       return;
+-    }
+-  if (GetKeyboard (50))
+-    {
+-      if (!no_cheat)
+-	{
++    }				/*if ( GetKeyboard(50) ) { if (!no_cheat) { 
+ //player pressed 2
+ 
+ //lets add a duck with brain 2
+ 
+-	  crap = add_sprite (spr[h].x - 20, spr[h].y - 50, 3, 26, 1);
+-	  spr[crap].speed = 1;
+-	  spr[crap].base_walk = 20;
+-	  spr[crap].exp = 11;
+-	  spr[crap].hitpoints = 5;
+-	}
+-    }
++				   crap = add_sprite(spr[h].x-20,spr[h].y-50,3,26,1); spr[crap].speed = 1; spr[crap].base_walk = 20; spr[crap].exp = 11; spr[crap].hitpoints = 5; } } */
+   if ((sjoy.button[5] == TRUE))
+     {
+       if (!showb.active)
+@@ -2576,6 +2759,10 @@
+ 	      return;
+ 	    }
+     }
++//redink1 Only accept keyboard input when console is not active.
++
++  if (mConsoleActive == false)
++    {
+   if (GetKeyboard (66))
+     {
+       ResumeMidi ();
+@@ -2584,6 +2771,7 @@
+     {
+       PauseMidi ();
+     }
++    }
+   if (spr[h].skip > 0)
+     if (spr[h].skip <= spr[h].skiptimer)
+       {
+@@ -2960,9 +3148,9 @@
+       if (move_counter > 598)
+ 	move_counter = 598;
+       rcRect.left = move_counter;
+-      rcRect.right = 599;
++      rcRect.right = 600;	//redink1 fix so entire screen scrolls 
+       rcRect.top = 0;
+-      rcRect.bottom = 399;
++      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
+       ddrval =
+ 	lpDDSBack->BltFast (20, 0, lpDDSTrick, &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+@@ -2971,7 +3159,7 @@
+       rcRect.left = 0;
+       rcRect.right = move_counter;
+       rcRect.top = 0;
+-      rcRect.bottom = 399;
++      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
+       ddrval =
+ 	lpDDSBack->BltFast (620 - move_counter, 0, lpDDSTrick2, &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+@@ -2996,18 +3184,18 @@
+       if (move_counter > 398)
+ 	move_counter = 398;
+       rcRect.left = 0;
+-      rcRect.right = 599;
++      rcRect.right = 600;	//redink1 fix so entire screen scrolls
+       rcRect.top = 0;
+-      rcRect.bottom = 399 - move_counter;
++      rcRect.bottom = 400 - move_counter;	//redink1 fix so entire screen scrolls
+       ddrval =
+ 	lpDDSBack->BltFast (20, move_counter, lpDDSTrick, &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+       if (ddrval != DD_OK)
+ 	dderror (ddrval);
+       rcRect.left = 0;
+-      rcRect.right = 599;
+-      rcRect.top = 399 - move_counter;;
+-      rcRect.bottom = 399;
++      rcRect.right = 600;	//redink1 fix so entire screen scrolls
++      rcRect.top = 400 - move_counter;;	//redink1 fix so entire screen scrolls
++      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
+       ddrval =
+ 	lpDDSBack->BltFast (20, 0, lpDDSTrick2, &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+@@ -3032,20 +3220,20 @@
+       if (move_counter > 398)
+ 	move_counter = 398;
+       rcRect.left = 0;
+-      rcRect.right = 599;
++      rcRect.right = 600;	//redink1 fix so entire screen scrolls
+       rcRect.top = move_counter;
+-      rcRect.bottom = 399;
++      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
+       ddrval =
+ 	lpDDSBack->BltFast (20, 0, lpDDSTrick, &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+       if (ddrval != DD_OK)
+ 	dderror (ddrval);
+       rcRect.left = 0;
+-      rcRect.right = 599;
++      rcRect.right = 600;	//redink1 fix so entire screen scrolls
+       rcRect.top = 0;
+       rcRect.bottom = move_counter;
+-      ddrval =
+-	lpDDSBack->BltFast (20, 399 - move_counter, lpDDSTrick2, &rcRect,
++      ddrval = lpDDSBack->BltFast (20, 400 - move_counter, lpDDSTrick2,	//redink1 fix so entire screen scrolls
++				   &rcRect,
+ 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+       if (ddrval != DD_OK)
+ 	dderror (ddrval);
+@@ -3109,6 +3297,14 @@
+ void
+ CyclePalette ()
+ {
++//redink1 truecolor fadedown...
++
++  if (truecolor)
++    {
++      process_downcycle = true;
++    }
++  else
++    {
+   int reg[15];
+   int k;
+   bool done_this_time = true;
+@@ -3117,31 +3313,32 @@
+       Msg ("error with getting entries");
+       return;
+     }
++      int lValue = (thisTickCount - lastTickCount) / 2;
+   for (int kk = 1; kk < 256; kk++)
+     {
+       if (pe[kk].peBlue != 0)
+ 	{
+ 	  done_this_time = false;
+-	  if (pe[kk].peBlue > 10)
+-	    pe[kk].peBlue -= 10;
++	      if (pe[kk].peBlue > lValue)
++		pe[kk].peBlue -= lValue;
+ 	  else
+-	    pe[kk].peBlue--;
++		pe[kk].peBlue = 0;
+ 	}
+       if (pe[kk].peGreen != 0)
+ 	{
+ 	  done_this_time = false;
+-	  if (pe[kk].peGreen > 10)
+-	    pe[kk].peGreen -= 10;
++	      if (pe[kk].peGreen > lValue)
++		pe[kk].peGreen -= lValue;
+ 	  else
+-	    pe[kk].peGreen--;
++		pe[kk].peGreen = 0;
+ 	}
+       if (pe[kk].peRed != 0)
+ 	{
+ 	  done_this_time = false;
+-	  if (pe[kk].peRed > 10)
+-	    pe[kk].peRed -= 10;
++	      if (pe[kk].peRed > lValue)
++		pe[kk].peRed -= lValue;
+ 	  else
+-	    pe[kk].peRed--;
++		pe[kk].peRed = 0;
+ 	}
+     }
+   lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
+@@ -3163,17 +3360,27 @@
+ 	    }
+ 	}
+     }
+-} void
++}} void
+ 
+ up_cycle (void)
+ {
++//redink1 added this for true-color fade support
++
++  if (truecolor)
++    {
++      process_upcycle = true;
++    }
++  else
++    {
+   bool donethistime = true;
+   if (lpDDPal->GetEntries (0, 0, 256, pe) != DD_OK)
+     {
+       Msg ("error with getting entries");
+       return;
+     }
+-  for (int kk = 1; kk <= 256; kk++)
++//redink1 changed <= to < so it doesn't modify stuff it should not (i.e. fgold, somehow!?)
++
++      for (int kk = 1; kk < 256; kk++)
+     {
+       if (pe[kk].peBlue != real_pal[kk].peBlue)
+ 	{
+@@ -3224,7 +3431,7 @@
+ 	    run_script (junk);
+ 	  }
+       }
+-} void
++}} void
+ 
+ draw_box (RECT box, int color)
+ {
+@@ -3235,6 +3442,117 @@
+     lpDDSBack->Blt (&box, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+ }
+ 
++//redink1 added for true-color fade...
++
++WORD
++GetMaskPos (DWORD dwMask)
++{
++  WORD wPos = 0;
++  while (!(dwMask & (1 << wPos)))
++    wPos++;
++  return wPos;
++}
++
++//redink1 added for true-color fade...
++
++WORD
++GetNumberOfBits (DWORD dwMask)
++{
++  WORD wBits = 0;
++  while (dwMask)
++    {
++      dwMask = dwMask & (dwMask - 1);
++      wBits++;
++    }
++  return wBits;
++}
++
++//redink1 added for true-color fade...
++
++DDSURFACEDESC sdBack;
++void
++ApplyFade16 (unsigned short aValue, unsigned short *aBuffer,
++	     unsigned int aPitch)
++{
++  unsigned int lJump (aPitch - 640 * 2);
++  for (unsigned short lYCoordinate (0); lYCoordinate < 480; lYCoordinate++)
++    {
++      for (unsigned short lXCoordinate (0); lXCoordinate < 640;
++	   lXCoordinate++)
++	{
++	  *aBuffer = m16BitFadeValues[*aBuffer][aValue];
++	  aBuffer += 1;
++	} aBuffer += lJump;
++    } return;
++}
++
++void
++ApplyFade24 (unsigned char aValue, unsigned char *aBuffer,
++	     unsigned int aPitch)
++{
++  unsigned int lJump (aPitch - 640 * 3);
++  for (unsigned short lYCoordinate (0); lYCoordinate < 480; lYCoordinate++)
++    {
++      for (unsigned short lXCoordinate (0); lXCoordinate < 640;
++	   lXCoordinate++)
++	{
++	  if (*((DWORD *) aBuffer) != 0xFFFFFF)
++	    {
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 1;
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 1;
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 1;
++	    }
++	  else
++	    {
++	      aBuffer += 3;
++	    }
++	}
++      aBuffer += lJump;
++    }
++  return;
++}
++
++void
++ApplyFade32 (register unsigned char aValue, register unsigned char *aBuffer,
++	     unsigned int aPitch)
++{
++  unsigned int lJump (aPitch - 640 * 4);
++  for (register unsigned short lYCoordinate (0); lYCoordinate < 480;
++       lYCoordinate++)
++    {
++      for (register unsigned short lXCoordinate (0); lXCoordinate < 640;
++	   lXCoordinate++)
++	{
++	  if (*((DWORD *) aBuffer) != 0xFFFFFF)
++	    {
++// Blue
++
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 1;
++// Green
++
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 1;
++// Red
++
++	      *aBuffer = m8BitFadeValues[*aBuffer][aValue];
++	      aBuffer += 2;
++	    }
++	  else
++	    {
++	      aBuffer += 4;
++	    }
++	}
++      aBuffer += lJump;
++    }
++  return;
++}
++
++//redink1 and Invertigo fix for windowed/high color mode
++
+ void
+ flip_it (void)
+ {
+@@ -3242,6 +3560,134 @@
+   RECT rcRectSrc;
+   RECT rcRectDest;
+   POINT p;			/*int timer = GetTickCount() + 50; while(GetTickCount() < timer) { } */
++//redink1 fix for true-color transition
++
++//The idea is to apply the fade to the backbuffer right before the main flip/blt.
++
++  if (truecolor && (process_downcycle || process_upcycle || bFadedDown))
++    {
++      RECT r;
++      r.bottom = 480;
++      r.left = 0;
++      r.right = 640;
++      r.top = 0;
++//Make sure we're not 'stuck'... i.e. fade down when already black, or fade up when not black
++
++      if (process_downcycle && bFadedDown || process_upcycle && !bFadedDown)
++	{
++	  if (process_downcycle)
++	    process_downcycle = false;
++	  if (process_upcycle)
++	    {
++	      process_upcycle = false;
++	      if (mSwapped)
++		{
++// if ( windowed )
++
++// {
++
++		  lpDDSFade->BltFast (0, 0, lpDDSBack, &r,
++				      DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
++		  LPDIRECTDRAWSURFACE lTemp;
++		  lTemp = lpDDSBack;
++		  lpDDSBack = lpDDSFade;
++		  lpDDSFade = lTemp;	/* } else { DDSURFACEDESC ddsd; lpDDSBack->GetSurfaceDesc( &ddsd ); ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER; LPDIRECTDRAWSURFACE lTemp; ddrval = lpDDSPrimary->GetAttachedSurface( &ddsd.ddsCaps, &lTemp ); lTemp->BltFast( 0, 0, lpDDSBack, &r, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); lpDDSBack->Release(); lpDDSBack = lTemp; } */
++		  mSwapped = false;
++		}
++	    }
++	  if (cycle_script != 0)
++	    {
++	      int junk = cycle_script;
++	      cycle_script = 0;
++	      run_script (junk);
++	    }
++	}
++      if (process_downcycle || bFadedDown || process_upcycle)
++	{
++	  if (mSwapped == false)
++	    {
++// if ( windowed )
++
++// {
++
++	      lpDDSFade->BltFast (0, 0, lpDDSBack, &r,
++				  DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
++	      LPDIRECTDRAWSURFACE lTemp;
++	      lTemp = lpDDSBack;
++	      lpDDSBack = lpDDSFade;
++	      lpDDSFade = lTemp;	/* } else { DDSURFACEDESC ddsd; lpDDSBack->GetSurfaceDesc( &ddsd ); ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_SYSTEMMEMORY; lpDDSBack->Release(); LPDIRECTDRAWSURFACE lTemp; ddrval = lpDDSPrimary->GetAttachedSurface( &ddsd.ddsCaps, &lTemp ); lTemp->BltFast( 0, 0, lpDDSBack, &r, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT); lpDDSBack->Release(); lpDDSBack = lTemp; } */
++	      mSwapped = true;
++	    }
++	  unsigned char lFadeValue =
++	    static_cast <
++	    unsigned char >(30.0f *
++			    (static_cast <
++			     float >(iTrueColorFadeTime) / 400.0f));
++	  if (lFadeValue >= 30)
++	    {
++	      iTrueColorFadeTime = 0;
++	      if (process_downcycle == true)
++		{
++		  bFadedDown = true;
++		}
++	      else if (process_upcycle == true)
++		{
++		  bFadedDown = false;
++		}
++	      lFadeValue = 29;
++	    }
++	  if (process_upcycle == true)
++	    {
++	      lFadeValue = 29 - lFadeValue;
++	    }
++	  else if (bFadedDown == true)
++	    {
++	      lFadeValue = 29;
++	    }
++//Setup surface description data-structure
++
++	  memset (&sdBack, 0, sizeof (DDSURFACEDESC));
++	  sdBack.dwSize = sizeof (DDSURFACEDESC);
++//Lock our surfaces
++
++	  lpDDSBack->Lock (NULL, &sdBack, DDLOCK_DONOTWAIT, NULL);
++//Copy backbuffer to fade surface
++
++// HRESULT h = lpDDSFade->BltFast( 0, 0, lpDDSBack, &r, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
++
++//Lock our surfaces
++
++// lpDDSFade->Lock(NULL, &sdBack, DDLOCK_WAIT | DDLOCK_NOSYSLOCK, NULL);
++
++	  if (mColorDepth == ColorDepth16Bit_565
++	      || mColorDepth == ColorDepth16Bit_555)
++	    {
++	      unsigned short *lBuffer = (unsigned short *) sdBack.lpSurface;
++	      ApplyFade16 (lFadeValue, lBuffer, sdBack.lPitch);
++	    }
++	  else if (mColorDepth == ColorDepth24Bit)
++	    {
++	      unsigned char *lBuffer = (unsigned char *) sdBack.lpSurface;
++	      ApplyFade24 (lFadeValue, lBuffer, sdBack.lPitch);
++	    }
++	  else if (mColorDepth == ColorDepth32Bit)
++	    {
++	      unsigned char *lBuffer = (unsigned char *) sdBack.lpSurface;
++	      ApplyFade32 (lFadeValue, lBuffer, sdBack.lPitch);
++	    }
++	  iTrueColorFadeTime += fps_final;
++	  lpDDSBack->Unlock (NULL);
++	  if (!windowed)
++	    {
++	      lpDDSFade->BltFast (0, 0, lpDDSBack, &r,
++				  DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
++	    }
++// lpDDSFade->Unlock( NULL );
++
++// h = lpDDSBack->BltFast( 0, 0, lpDDSFade, &r, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
++
++	}
++    }
+   if (!windowed)
+     {
+       while (1)
+@@ -3280,6 +3726,7 @@
+       SetRect (&rcRectSrc, 0, 0, 640, 480);
+       ddbltfx.dwSize = sizeof (ddbltfx);
+       ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
++      lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
+       ddrval =
+ 	lpDDSPrimary->Blt (&rcRectDest, lpDDSBack, &rcRectSrc,
+ 			   DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
+@@ -3358,6 +3805,9 @@
+ 		draw_box (box, 33);
+ 	      if (inside_box (spr[h].x, spr[h].y, box))
+ 		{
++//redink1 addition for fixing missle_source problems
++
++		  *pmissle_source = h;
+ 		  if (spr[i].nohit == 1)
+ 		    {
+ 		      if (spr[i].script > 0)
+@@ -3405,7 +3855,7 @@
+ 				   (spr[h].strength / 2) +
+ 				   ((rand () % ((spr[h].strength + 1) / 2)) +
+ 				    1), 0) > 0)
+-				random_blood (spr[i].x, spr[i].y - 40, h);
++				random_blood (spr[i].x, spr[i].y - 40, i);	//redink1
+ 			    }
+ 			}
+ 		      if (spr[i].script > 0)
+@@ -3524,8 +3974,9 @@
+   if (spr[sprite].seq == 0)
+     {
+       process_count++;
++      if (!truecolor || truecolor && process_count == 1)	//redink1 Limit palette cycles for true color mode
+       CyclePalette ();
+-      if (process_count > 5)
++      if (process_count > 5 && !truecolor || truecolor && process_downcycle == false)	//redink1 more limits for fade down stuff
+ 	{
+ 	  ddbltfx.dwSize = sizeof (ddbltfx);
+ 	  ddbltfx.dwFillColor = 0;
+@@ -3540,6 +3991,10 @@
+ 	  spr[1].x = pam.sprite[block].warp_x;
+ 	  spr[1].y = pam.sprite[block].warp_y;
+ 	  *pmap = pam.sprite[block].warp_map;
++//redink1 change so map indicator is correct on warp.
++
++	  if (map.indoor[pam.sprite[block].warp_map] == 0)
++	    play.last_map = pam.sprite[block].warp_map;
+ 	  load_map (map.loc[pam.sprite[block].warp_map]);
+ 	  draw_map_game ();
+ 	  process_upcycle = true;
+@@ -3762,34 +4217,22 @@
+ 	  SetTextColor (hdc, RGB (8, 14, 21));
+ 	  DrawText (hdc, talk.buffer, strlen (talk.buffer), &rcRect,
+ 		    DT_VCENTER | DT_CENTER | DT_WORDBREAK);
+-	  if (talk.color == 1)
+-	    SetTextColor (hdc, RGB (49, 90, 140));
+-	  else if (talk.color == 2)
+-	    SetTextColor (hdc, RGB (131, 181, 74));
+-	  else if (talk.color == 3)
+-	    SetTextColor (hdc, RGB (99, 242, 247));
+-	  else if (talk.color == 4)
+-	    SetTextColor (hdc, RGB (255, 156, 74));	//right
+-	  else if (talk.color == 5)
+-	    SetTextColor (hdc, RGB (222, 173, 255));
+-	  else if (talk.color == 6)
+-	    SetTextColor (hdc, RGB (244, 188, 73));	//right
+-	  else if (talk.color == 7)
+-	    SetTextColor (hdc, RGB (173, 173, 173));	//right
+-	  else if (talk.color == 8)
+-	    SetTextColor (hdc, RGB (85, 85, 85));	//right
+-	  else if (talk.color == 9)
+-	    SetTextColor (hdc, RGB (148, 198, 255));	//right
+-	  else if (talk.color == 10)
+-	    SetTextColor (hdc, RGB (0, 255, 0));
+-	  else if (talk.color == 13)
+-	    SetTextColor (hdc, RGB (255, 132, 132));
+-	  else if (talk.color == 14)
+-	    SetTextColor (hdc, RGB (255, 255, 2));
+-	  else if (talk.color == 15)
+-	    SetTextColor (hdc, RGB (255, 255, 255));
++	  if (talk.color >= 1 && talk.color <= 15)
++	    {
++	      SetTextColor (hdc,
++			    RGB (font_colors[talk.color].red,
++				 font_colors[talk.color].green,
++				 font_colors[talk.color].blue));
++	    }
+ 	  else
+-	    SetTextColor (hdc, RGB (255, 255, 2));
++	    {
++	      SetTextColor (hdc, RGB (255, 255, 255));
++	    }			/*if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)); else if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)); else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)); else if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
++				   else if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)); else if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
++				   else if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
++				   else if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
++				   else if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
++				   else if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)); else if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)); else if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)); else if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)); else SetTextColor(hdc,RGB(255,255,2)); */
+ 	  OffsetRect (&rcRect, 1, 1);
+ 	  DrawText (hdc, talk.buffer, strlen (talk.buffer), &rcRect,
+ 		    DT_VCENTER | DT_CENTER | DT_WORDBREAK);
+@@ -4369,7 +4812,9 @@
+       flip = ((rand () % 2) + 1);
+       for (int x = 0; x < 96; x++)
+ 	{
+-	  if (pam.t[x].num > 896)
++//redink1 fix for first broken water tile
++
++	  if (pam.t[x].num >= 896)
+ 	    if (pam.t[x].num < (896 + 128))
+ 	      {
+ 		cool = pam.t[x].num / 128;
+@@ -4412,7 +4857,9 @@
+ 
+     for (int x = 0; x < 96; x++)
+       {
+-	if (pam.t[x].num > 2304)
++//redink1 fix for first broken fire tile
++
++	if (pam.t[x].num >= 2304)
+ 	  if (pam.t[x].num < (2304 + 128))
+ 	    {
+ 	      cool = pam.t[x].num / 128;
+@@ -4446,20 +4893,19 @@
+     {
+ //let's display a nice dot to mark where they are on the map
+ 
+-      int x = play.last_map;
++      int x = play.last_map - 1;
+       int mseq = 165;
+       showb.picframe++;
+       if (showb.picframe > index[mseq].last)
+ 	showb.picframe = 1;
+       int mframe = showb.picframe;
+-      lpDDSBack->BltFast (((x) * 20 - ((x / 32) * 640)) - 20, (x / 32) * 20,
++      lpDDSBack->BltFast ((x % 32) * 20, (x / 32) * 20,
+ 			  k[seq[mseq].frame[mframe]].k,
+ 			  &k[seq[mseq].frame[mframe]].box,
+ 			  DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
+     }
+   if ((sjoy.button[1]) || (sjoy.button[2]) || (sjoy.button[3])
+-      || (sjoy.button[4]) || (sjoy.button[5]) || (sjoy.button[6])
+-      || ((GetKeyboard (77)) && (but_timer < thisTickCount)))
++      || (sjoy.button[4]) || (sjoy.button[5]) || (sjoy.button[6]))
+     {
+       showb.active = false;
+       if (showb.script != 0)
+@@ -4601,7 +5047,10 @@
+       bActive = wParam;
+       break;
+     case WM_SETCURSOR:
++      if (!windowed)
++	{
+       SetCursor (NULL);
++	}
+       return TRUE;
+     case WM_CREATE:
+       break;
+@@ -4610,22 +5059,115 @@
+       PostQuitMessage (0);
+       break;
+     case WM_KEYDOWN:
++      if (mConsoleActive)
++	{
+       switch (wParam)
+ 	{			/*case VK_F1: { Msg("F1 pressed"); 
+ 				   //g_pMouse->Unacquire();
+ 
+ 	     int crap; } break; case VK_F3: { fill_whole_hard(); fill_hard_sprites(); fill_back_sprites(); } break; *//*case VK_F4: { process_downcycle = true; cycle_clock = thisTickCount; } */
++	    case VK_UP:
++	      if (mConsoleHistoryIndex > 0)
++		{
++		  mConsoleHistoryIndex -= 1;
++		  mConsoleLine = mConsoleLineHistory[mConsoleHistoryIndex];
++		}
+ 	  break;
++	    case VK_DOWN:
++	      mConsoleHistoryIndex += 1;
++	      if (mConsoleHistoryIndex < mConsoleLineHistory.size ())
++		{
++		  mConsoleLine = mConsoleLineHistory[mConsoleHistoryIndex];
++		}
++	      else
++		{
++		  mConsoleHistoryIndex = mConsoleLineHistory.size ();
++		  mConsoleLine = "";
+ 	}
+       break;
+-// case WM_DESTROY:
+-
+-// finiObjects();
++	    default:
++	      break;
++	    }
++	}
++      break;
++// redink1 addition of console
+ 
+-// PostQuitMessage( 0 );
++    case WM_CHAR:
++      if (mConsoleActive)
++	{
++	  switch (wParam)
++	    {
++	    case 0x08:		// Process a backspace.
++	      if (mConsoleLine.length () > 0)
++		{
++		  mConsoleLine =
++		    mConsoleLine.substr (0, mConsoleLine.length () - 1);
++		}
++	      break;
++	    case 0x0A:		// Process a linefeed
++	      break;
++	    case 0x1B:		// Process an escape. 
++	      mConsoleActive = false;
++	      mConsoleLine = "";
++	      break;
++	    case 0x09:		// Process a tab. 
++	      break;
++	    case 0x0D:		// Process a carriage return, try to parse the string.
++	      if (mConsoleScript == 0 || rbuf[mConsoleScript] == NULL)
++		{
++		  mConsoleScript = 0;
++		  for (int k = 1; k < max_scripts; k++)
++		    {
++		      if (rbuf[k] == NULL)
++			{
++			  mConsoleScript = k;
++			  rinfo[mConsoleScript] =
++			    (struct refinfo *)
++			    malloc (sizeof (struct refinfo));
++			  memset (rinfo[mConsoleScript], 0,
++				  sizeof (struct refinfo));
++			  rinfo[mConsoleScript]->sprite = 1000;
++			  rinfo[mConsoleScript]->level = 1;
++			  rbuf[mConsoleScript] = (char *) malloc (255);
++			  break;
++			}
++		    }
++		}
++	      if (mConsoleScript != 0)
++		{
++		  strncpy (rbuf[mConsoleScript], mConsoleLine.c_str (), 254);
++		  process_line (mConsoleScript, rbuf[mConsoleScript], false);
++		  mConsoleReturnValue = returnint;
++		  mConsoleLineHistory.push_back (mConsoleLine);
++		  if (mConsoleLineHistory.size () > 20)
++		    {
++		      mConsoleLineHistory.erase (mConsoleLineHistory.
++						 begin ());
++		    }
++		  mConsoleHistoryIndex = mConsoleLineHistory.size ();
++		}
++	      mConsoleLine = "";
++	      break;
++	    default:		// Process displayable characters.
++	      mConsoleLine += static_cast < char >(wParam);
++	      break;
++	    }
++// clear keyboard buffer
+ 
+-// break;
++	  for (int x = 0; x < 256; x++)
++	    {
++	      if (GetKeyboard (x))
++		{
++		}
++	    }
++	}
++      break;
++//redink1 and Invertigo fix for Alt-F4/X button exiting problem
+ 
++    case WM_CLOSE:
++      finiObjects ();
++      PostQuitMessage (0);
++      break;
+     }
+ //cycle through keys
+ 
+@@ -4693,9 +5235,12 @@
+   program_idata ();
+ }
+ 
++//redink1 and Invertigo fix for windowed/high color mode
++
+ bool
+ check_arg (char crap[255])
+ {
++  truecolor = false;
+   char shit[200];
+ // strupr(crap);
+ 
+@@ -4706,7 +5251,17 @@
+       if (strnicmp (shit, "-window", strlen ("-window")) == 0)
+ 	{
+ 	  windowed = true;
+-	  no_transition = true;
++	  truecolor = true;
++// no_transition = true; 
++
++	}
++      if (strnicmp (shit, "-dinkpal", strlen ("-dinkpal")) == 0)
++	{
++	  dinkpal = true;
++	}
++      if (strnicmp (shit, "-truecolor", strlen ("-truecolor")) == 0)
++	{
++	  truecolor = true;
+ 	}
+       if (strnicmp (shit, "-debug", strlen ("-debug")) == 0)
+ 	{
+@@ -4715,7 +5270,7 @@
+ 	}
+       if (strnicmp (shit, "-nojoy", strlen ("-nojoy")) == 0)
+ 	{
+-	  joystick = false;
++	  disablejoystick = TRUE;
+ 	}
+       if (strnicmp (shit, "-noini", strlen ("-noini")) == 0)
+ 	{
+@@ -4749,6 +5304,11 @@
+       if (strnicmp (shit, "-nosound", strlen ("-nosound")) == 0)
+ 	sound_on = false;
+     }
++//redink1 code so DMOD version can't run D-Mods
++
++#ifdef DMOD
++  strcpy (dir, ".");
++#endif
+   if (chdir (dir) == -1)
+     {
+ #ifdef __ENGLISH
+@@ -4758,16 +5318,19 @@
+       sprintf (shit, "Spiele-direktory \"%s\" nicht gefunden!", dir);
+ #endif
+       initFail (hWndMain, shit);
++      exit (0);
+       return (0);
+     }
+   Msg ("Dir is now %s.", dir);
+   return (true);
+ }				/* * doInit - do work required for every instance of the application: * create the window, initialize data */
+ 
++//redink1 and invertigo fix for windowed/high color mode
++
+ static BOOL
+ doInit (HINSTANCE hInstance, int nCmdShow)
+ {
+-  HWND hwnd;
++  memset (id, '\0', sizeof (id));
+ // HRESULT dsrval;
+ 
+ // BOOL bUseDSound;
+@@ -4803,11 +5366,21 @@
+ 
+     }
+   if (windowed)
+-    {
++    {				/*hwnd = CreateWindowEx( 0, NAME, TITLE, 
++				   // WS_POPUP,
++
++				   WS_SYSMENU|WS_CAPTION, 0, 0, 640, 480, 
++				   //GetSystemMetrics(SM_CXSCREEN),
++
++				   //GetSystemMetrics(SM_CYSCREEN),
++
++				   NULL, NULL, hInstance, NULL ); if( !hwnd ) { return FALSE; } 
++				   // Now check actual size of client area
++
++				   RECT check; GetClientRect(hwnd, &check); int ExtendWidth = 640 - (check.right - check.left); int ExtendHeight = 480 - (check.bottom - check.top); DestroyWindow(hwnd); */
+       hwnd = CreateWindowEx (0, NAME, TITLE,
+ // WS_POPUP,
+-			     WS_SYSMENU | WS_CAPTION, 0, 0, 640 + winoffsetx,
+-			     480 + winoffset,
++			     WS_SYSMENU | WS_CAPTION, 0, 0, 640, 480,
+ // GetSystemMetrics(SM_CXSCREEN),
+ // GetSystemMetrics(SM_CYSCREEN),
+ 			     NULL, NULL, hInstance, NULL);
+@@ -4816,6 +5389,12 @@
+ 	{
+ 	  return FALSE;
+ 	}
++      RECT check;
++      GetClientRect (hwnd, &check);
++      int ExtendWidth = 640 - (check.right - check.left);
++      int ExtendHeight = 480 - (check.bottom - check.top);
++      MoveWindow (hWndMain, check.left, check.top, 640 + ExtendWidth,
++		  480 + ExtendHeight, TRUE);
+       ShowWindow (hwnd, nCmdShow);
+       UpdateWindow (hwnd);
+       SetFocus (hwnd);		/* * create the main DirectDraw object */
+@@ -4850,7 +5429,9 @@
+       memset (&ddsd, 0, sizeof (ddsd));
+       ddsd.dwSize = sizeof (ddsd);
+       ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+-      ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
++//redink1 added SYSTEMMEMORY to speed things up
++
++      ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
+       ddsd.dwWidth = 640;
+       ddsd.dwHeight = 480;	// create the backbuffer separately
+       ddrval = lpDD->CreateSurface (&ddsd, &lpDDSBack, NULL);
+@@ -4924,17 +5505,39 @@
+ 	{
+ 	  return initFail (hwnd, "SetCooperative level failed.");
+ 	}
+-// Set the video mode to 640x480x8
++// Set the video mode to 640x480xX
+ 
+-      ddrval = lpDD->SetDisplayMode (x, y, 8);
+-// finiObjects(); 
+-
+-// return false;
++      if (truecolor == true)
++	{
++// Keep trying until one works, or not. There should be a way to see what DirectX supports... hrm
+ 
++	  ddrval = lpDD->SetDisplayMode (x, y, 32);
++	  if (ddrval != DD_OK)
++	    {
++	      ddrval = lpDD->SetDisplayMode (x, y, 24);
++	      if (ddrval != DD_OK)
++		{
++		  ddrval = lpDD->SetDisplayMode (x, y, 16);
++		  if (ddrval != DD_OK)
++		    {
++		      return initFail (hwnd,
++				       "640 X 480, true color mode not supported.");
++		    }
++		}
++	    }
++	}
++      else
++	{
++	  ddrval = lpDD->SetDisplayMode (x, y, 8);
+       if (ddrval != DD_OK)
+ 	{
+ 	  return initFail (hwnd, "640 X 480, 8 bit not supported.");
+ 	}
++	}
++// finiObjects(); 
++
++// return false;
++
+       ZeroMemory (&hm, sizeof (hit_map));
+ // Create the primary surface with 1 back buffer
+ 
+@@ -4955,6 +5558,146 @@
+ 	  return initFail (hwnd, "Could not create backbuffer,");
+ 	}
+     }
++//redink1 init for color depth information
++
++  if (truecolor)
++    {
++      DDSURFACEDESC dds;
++      memset (&dds, 0, sizeof (DDSURFACEDESC));
++      dds.dwSize = sizeof (DDSURFACEDESC);
++      lpDDSBack->GetSurfaceDesc (&dds);
++      if (dds.ddpfPixelFormat.dwGBitMask == 0x07E0)
++	{
++// 565
++
++	  mColorDepth = ColorDepth16Bit_565;
++	  m16BitFadeValues = new unsigned short[65536][30];
++	  for (unsigned short lFade (0); lFade < 30; lFade++)
++	    {
++	      float lFadeAdjustment ((30.0f - static_cast < float >(lFade))
++				     /30.0f);
++	      for (unsigned short lRed (0); lRed < 32; lRed++)
++		{
++		  unsigned short lRedFadeValue =
++		    static_cast < unsigned short >(static_cast <
++						   float >(lRed) *
++						   lFadeAdjustment) <<11;
++		  for (unsigned short lGreen (0); lGreen < 64; lGreen++)
++		    {
++		      unsigned short lGreenFadeValue =
++			static_cast < unsigned short >(static_cast <
++						       float >(lGreen) *
++						       lFadeAdjustment) <<5;
++		      for (unsigned short lBlue (0); lBlue < 32; lBlue++)
++			{
++			  unsigned short lBlueFadeValue =
++			    static_cast < unsigned short >(static_cast <
++							   float >(lBlue) *
++							   lFadeAdjustment);
++			  if ((lRed << 11 | lGreen << 5 | lBlue) == 0xFFFF)
++			    {
++			      lRedFadeValue = lRed << 11;
++			      lGreenFadeValue = lGreen << 5;
++			      lBlueFadeValue = lBlue;
++			    }
++			  m16BitFadeValues[lRed << 11 | lGreen << 5 |
++					   lBlue][lFade] =
++			    lRedFadeValue | lGreenFadeValue | lBlueFadeValue;
++			}
++		    }
++		}
++	    }
++	}
++      else if (dds.ddpfPixelFormat.dwGBitMask == 0x03E0)
++	{
++// 555
++
++	  mColorDepth = ColorDepth16Bit_555;
++	  m16BitFadeValues = new unsigned short[65536][30];
++	  for (unsigned short lFade (0); lFade < 30; lFade++)
++	    {
++	      float lFadeAdjustment ((30.0f - static_cast < float >(lFade))
++				     /30.0f);
++	      for (unsigned short lRed (0); lRed < 32; lRed++)
++		{
++		  unsigned short lRedFadeValue =
++		    static_cast < unsigned short >(static_cast <
++						   float >(lRed) *
++						   lFadeAdjustment) <<10;
++		  for (unsigned short lGreen (0); lGreen < 32; lGreen++)
++		    {
++		      unsigned short lGreenFadeValue =
++			static_cast < unsigned short >(static_cast <
++						       float >(lGreen) *
++						       lFadeAdjustment) <<5;
++		      for (unsigned short lBlue (0); lBlue < 32; lBlue++)
++			{
++			  unsigned short lBlueFadeValue =
++			    static_cast < unsigned short >(static_cast <
++							   float >(lBlue) *
++							   lFadeAdjustment);
++			  if ((lRed << 10 | lGreen << 5 | lBlue) == 0xFFFF)
++			    {
++			      lRedFadeValue = lRed << 10;
++			      lGreenFadeValue = lGreen << 5;
++			      lBlueFadeValue = lBlue;
++			    }
++			  m16BitFadeValues[lRed << 10 | lGreen << 5 |
++					   lBlue][lFade] =
++			    lRedFadeValue | lGreenFadeValue | lBlueFadeValue;
++			}
++		    }
++		}
++	    }
++	}
++      else if (dds.ddpfPixelFormat.dwRGBBitCount == 32
++	       || dds.ddpfPixelFormat.dwRGBBitCount == 24)
++	{
++// 32 & 24
++
++	  if (dds.ddpfPixelFormat.dwRGBBitCount == 32)
++	    {
++	      mColorDepth = ColorDepth32Bit;
++	    }
++	  else
++	    {
++	      mColorDepth = ColorDepth24Bit;
++	    }
++	  m8BitFadeValues = new unsigned char[256][30];
++	  for (unsigned char lFade (0); lFade < 30; lFade++)
++	    {
++	      double lFadeAdjustment ((30.0 - static_cast < double >(lFade))
++				      /30.0);
++	      for (unsigned short lValue (0); lValue <= 255; lValue++)
++		{
++		  m8BitFadeValues[lValue][lFade] =
++		    static_cast < unsigned char >(static_cast <
++						  double >(lValue) *
++						  lFadeAdjustment);
++	}}}
++      else
++	{
++	  mColorDepth = ColorDepthNotRecognized;
++// No fade
++
++	}
++      dwRMask = dds.ddpfPixelFormat.dwRBitMask;
++      dwGMask = dds.ddpfPixelFormat.dwGBitMask;
++      dwBMask = dds.ddpfPixelFormat.dwBBitMask;
++      wRBits = GetNumberOfBits (dwRMask);
++      wGBits = GetNumberOfBits (dwGMask);
++      wBBits = GetNumberOfBits (dwBMask);
++      wRPos = GetMaskPos (dwRMask);
++      wGPos = GetMaskPos (dwGMask);
++      wBPos = GetMaskPos (dwBMask);
++      memset (&ddsd, 0, sizeof (ddsd));
++      ddsd.dwSize = sizeof (ddsd);
++      ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
++      ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_SYSTEMMEMORY;
++      ddsd.dwWidth = 640;
++      ddsd.dwHeight = 480;
++      ddrval = lpDD->CreateSurface (&ddsd, &lpDDSFade, NULL);
++    }
+ //init is finished, now lets load some more junk
+ 
+ //return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
+@@ -4973,6 +5716,9 @@
+     {
+       Msg ("error with getting entries in beginning");
+     }
++//redink1 Faster true-color fades
++
++  /*if ( truecolor ) { mPrecalculatedFadeValues = new std::map<DWORD, FadeValues>; DWORD dwWhite = dwRMask | dwGMask | dwBMask; PALETTEENTRY lPaletteEntries[256]; lpDDPal->GetEntries( 0, 0, 256, lPaletteEntries ); for ( int lPaletteEntry = 0; lPaletteEntry < 256; lPaletteEntry++ ) { DWORD lColor = ( lPaletteEntries[lPaletteEntry].peRed >> (8 - wRBits) << wRPos | lPaletteEntries[lPaletteEntry].peGreen >> (8 - wGBits) << wGPos | lPaletteEntries[lPaletteEntry].peBlue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues->[lColor].reserve(256); for ( int lFadeValue = 0; lFadeValue < 256; lFadeValue += 1 ) { DWORD red = (lColor & dwRMask) << (8 - wRBits) >> wRPos; red = (red >= lFadeValue ? red - lFadeValue : 0); DWORD green = (lColor & dwGMask) << (8 - wGBits) >> wGPos; green = (green >= lFadeValue ? green - lFadeValue : 0); DWORD blue = (lColor & dwBMask) << (8 - wBBits) >> wBPos; blue = (blue >= lFadeValue ? blue - lFadeValue : 0); DWORD lResult = ( red >> (8 - wRBits) << wRPos | green >> (8 - wGBits) << wGPos | blue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues[lColor].push_back( lResult ); } } } */
+   if (exist ("tiles\\splash.bmp"))
+     lpDDPal = DDLoadPalette (lpDD, "tiles\\SPLASH.BMP");
+   else
+@@ -5029,6 +5775,8 @@
+   if (cd_inserted)
+     PlayCD (g_hWnd, 7);
+ #endif
++  if (disablejoystick == FALSE)
++    {
+   if (CheckJoyStickPresent () == FALSE)
+     {
+ // return initFail(hwnd, "Could not init the joystick.");
+@@ -5039,6 +5787,7 @@
+     {
+       joystick = TRUE;
+     }
++    }
+   rcRect.left = 0;
+   rcRect.top = 0;
+   rcRect.right = x;
+@@ -5158,6 +5907,8 @@
+   attach ();
+ //init_mouse(hwnd);
+ 
++  memset (&spr, NULL, sizeof (spr));
++  init_font_colors ();
+   initfonts ("Arial");
+ //g_pMouse->Acquire();
+ 
+@@ -5346,6 +6097,7 @@
+ 	{
+ 	  if (g_b_kill_app == false)
+ 	    {
++	      SetFocus (hwnd);
+ 	      updateFrame ();
+ 	    }
+ //WaitMessage();
+@@ -5355,6 +6107,8 @@
+ 	{
+ // make sure we go to sleep if we have nothing else to do
+ 
++	  Sleep (1);
++	  SetFocus (NULL);
+ 	  WaitMessage ();
+ 	}
+     }

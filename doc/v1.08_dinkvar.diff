@@ -1,0 +1,7883 @@
+--- dv_canonical	2008-06-26 09:24:25.000000000 +0200
++++ dv2_canonical	2008-06-26 09:24:29.000000000 +0200
+@@ -32,16 +32,35 @@
+ #include <dsound.h>
+ #include "dsutil.h"
+ #include "fastfile.h"
++#include <string>
++#include <vector>
++#include <map>
+ 
+ //#include "midi.h"
+ 
+ #include <fcntl.h>
+ #include <malloc.h>
++
++//redink1 added this so his spiffy math stuff could work
++
++#include <math.h>
++
++//redink1 moves this here so could ignore keystrokes
++
++HWND hwnd;
+ void check_midi (void);
+ UINT midi_id;
++//redink1 code so dink will not write to the ini when in DMOD mode
++
++#ifdef DMOD
++bool g_b_no_write_ini = true;
++#else
+ bool g_b_no_write_ini = false;
++#endif
+ bool no_cheat = true;
+-const dversion = 107;
++//redink1 Updated for v1.08
++
++const dversion = 108;
+ int last_saved_game = 0;
+ bool g_b_kill_app = false;	//if true, will close app as soon as the message pump is
+ 
+@@ -49,432 +68,949 @@
+ 
+ int dinkspeed = 3;
+ int last_cd;
+-char current_map[255] = "MAP.DAT";
++//redink1... uh... increased these to 255? I'm honestly not quite sure. It has been a while. They might have been hard-coded, and I created char strings for them?
++
++char current_map[50] = "MAP.DAT";
++char current_dat[50] = "DINK.DAT";
+ int regcode, mycode;
+ time_t time_start;
+ bool item_screen = false;
+ bool midi_active = true;
+-char dversion_string[7] = "v1.07";
+-void init_scripts (void);
+-int load_script (char filename[15], int sprite, bool set_sprite);
+-void strchar (char *string, char ch);
+-char dinkpath[200];
+-UINT CD_ID;
+-DWORD PlayCD (HWND hWndNotify, BYTE bTrack);
+-DWORD killcd (HWND hWndNotify, BYTE bTrack);
+-void update_status_all (void);
+-int add_sprite (int x1, int y, int brain, int pseq, int pframe);
+-void add_exp (int num, int h);
+-bool locate (int script, char proc[20]);
+-bool exist (char name[255]);
+-BOOL SoundStopEffect (int sound);
+-void draw_status_all (void);
+-BOOL SoundDestroyEffect (int sound);
+-int SoundPlayEffect (int sound, int min, int plus, int sound3d, bool repeat);
+-void SoundLoadBanks (void);
+-BOOL StopMidi (void);
+-void check_seq_status (int h);
+-BOOL PlayMidi (char *sFileName);
+-void get_word (char line[300], int word, char *crap);
+-void Msg (LPSTR fmt, ...);
+-void run_script (int script);
+-void add_text (char *tex, char *filename);
+-void program_idata (void);
+-int map_vision = 0;
+-void draw_map_game (void);
+-int realhard (int tile);
+-int flub_mode = -500;
+-unsigned short decipher_savegame = 0;
+-int draw_map_tiny = -1;
+-const num_soundbanks = 20;
+-LPDIRECTSOUNDBUFFER soundbank[num_soundbanks + 1];
+-LPDIRECTSOUNDBUFFER bowsound;
+-char last_debug[200];
+-int walk_off_screen = false;
+-char cbuf[64000];
+-bool cd_inserted;
+-const old_burn = 0;
+-int burn_revision = 0;
+-bool abort_this_flip = false;
++//redink1 code for version change
++
++char dversion_string[6] = "v1.08";
++//redink1 lets make a new save info thing
++
++char save_game_info[200] = "Level &level";
++//redink1 added this prototype to fix this save info declaration error thing
++
++void decipher_string (char line[200], int script);
++//redink1 and invertigo tags for windowed/high color mode
++
++bool truecolor = false;
++bool dinkpal = false;
++//redink1 int for truecolor transition
++
++int iTrueColorFadeTime = 0;
++bool bFadedDown = false;
++bool smooth_follow = false;
++unsigned short (*m16BitFadeValues)[30];
++unsigned char (*m8BitFadeValues)[30];
++enum ColorDepth
++{ ColorDepth16Bit_565, ColorDepth16Bit_555, ColorDepth24Bit, ColorDepth32Bit,
++    ColorDepthNotRecognized };
++ColorDepth mColorDepth = ColorDepthNotRecognized;
++bool mSwapped = false;
++//unsigned int mTotalTime = 0;
++
++//unsigned int mTotalCount = 0;
++
++ /*typedef std::vector<DWORD> FadeValues; std::map<DWORD, FadeValues>* mPrecalculatedFadeValues; */
++//redink1 added for midi looping
++
++bool mLoopMidi = false;
++//redink1 added for base push
++
++unsigned int mDinkBasePush = 310;
++//redink1 added for true-color fade, amoung other things
++
++DWORD dwRMask;
++DWORD dwGMask;
++DWORD dwBMask;
++WORD wRBits;
++WORD wGBits;
++WORD wBBits;
++WORD wRPos;
++WORD wGPos;
++WORD wBPos;
++//redink1 added for recursive scope checking
++
++int get_var (int script, char *name);
++//redink1 added for console
++
++bool mConsoleActive = false;
++std::string mConsoleLine;
++unsigned int mConsoleScript = 0;
++std::vector < std::string > mConsoleLineHistory;
++unsigned short int
++  mConsoleHistoryIndex = 0;
++unsigned int
++  mConsoleReturnValue = 0;
++void
++init_scripts (void);
++int
++load_script (char filename[15], int sprite, bool set_sprite);
++void
++strchar (char *string, char ch);
++char
++  dinkpath[200];
++UINT
++  CD_ID;
++DWORD
++PlayCD (HWND hWndNotify, BYTE bTrack);
++DWORD
++killcd (HWND hWndNotify, BYTE bTrack);
++void
++update_status_all (void);
++int
++add_sprite (int x1, int y, int brain, int pseq, int pframe);
++void
++load_info ();			//redink1
++void
++add_exp (int num, int h, bool addEvenIfNotLastSpriteHit = false);
++bool
++locate (int script, char proc[20]);
++bool
++exist (char name[255]);
++BOOL
++SoundStopEffect (int sound);
++void
++draw_status_all (void);
++BOOL
++SoundDestroyEffect (int sound);
++int
++SoundPlayEffect (int sound, int min, int plus, int sound3d, bool repeat);
++void
++SoundLoadBanks (void);
++BOOL
++StopMidi (void);
++void
++check_seq_status (int h);
++BOOL
++PlayMidi (char *sFileName);
++void
++get_word (char line[300], int word, char *crap);
++void
++Msg (LPSTR fmt, ...);
++void
++run_script (int script);
++void
++add_text (char *tex, char *filename);
++void
++program_idata (void);
++int
++  map_vision = 0;
++void
++draw_map_game (void);
++int
++realhard (int tile);
++int
++  flub_mode = -500;
++unsigned short
++  decipher_savegame = 0;
++int
++  draw_map_tiny = -1;
++const
++  num_soundbanks = 20;
++LPDIRECTSOUNDBUFFER
++  soundbank[num_soundbanks + 1];
++LPDIRECTSOUNDBUFFER
++  bowsound;
++char
++  last_debug[200];
++int
++  walk_off_screen = false;
++char
++  cbuf[64000];
++bool
++  cd_inserted;
++const
++  old_burn = 0;
++int
++  burn_revision = 0;
++bool
++  abort_this_flip = false;
++//redink1 added for font colors
++
++struct font_color
++{
++  int
++    red;
++  int
++    green;
++  int
++    blue;
++};
++font_color
++  font_colors[16];
+ struct soundstruct
+ {
+-  bool repeat;
+-  int owner;
+-  int survive;
+-  int vol;
++  bool
++    repeat;
++  int
++    owner;
++  int
++    survive;
++  int
++    vol;
+ };
+ struct show_bmp
+ {
+-  bool active;
+-  bool showdot;
+-  int reserved;
+-  int script;
+-  int stime;
+-  int picframe;
++  bool
++    active;
++  bool
++    showdot;
++  int
++    reserved;
++  int
++    script;
++  int
++    stime;
++  int
++    picframe;
+ };
+-show_bmp showb;
+-int keep_mouse = 0;
++show_bmp
++  showb;
++int
++  keep_mouse = 0;
+ struct attackinfo_struct
+ {
+-  int time;
+-  bool active;
+-  int script;
+-  bool hitme;
+-  int last_power;
+-  int wait;
+-  int pull_wait;
++  int
++    time;
++  bool
++    active;
++  int
++    script;
++  bool
++    hitme;
++  int
++    last_power;
++  int
++    wait;
++  int
++    pull_wait;
+ };
+ struct wait_for_button
+ {
+-  int script;
+-  int button;
+-  bool active;
++  int
++    script;
++  int
++    button;
++  bool
++    active;
+ } wait;
+-int mcc, sound_support;
+-attackinfo_struct bow;
+-soundstruct soundinfo[num_soundbanks + 1];
+-int screenlock = 0;
++int
++  mcc,
++  sound_support;
++attackinfo_struct
++  bow;
++soundstruct
++  soundinfo[num_soundbanks + 1];
++int
++  screenlock = 0;
+ struct talk_struct
+ {
+-  char line[21][101];
+-  int line_return[21];
+-  char buffer[3000];
+-  int cur;
+-  int last;
+-  bool active;
+-  int cur_view;
+-  int cur_view_end;
+-  int page;
+-  int script;
+-  int offset;
+-  int newy;
+-  int color;
+-  int curf;
+-  int timer;
++  char
++    line[21][101];
++  int
++    line_return[21];
++  char
++    buffer[3000];
++  int
++    cur;
++  int
++    last;
++  bool
++    active;
++  int
++    cur_view;
++  int
++    cur_view_end;
++  int
++    page;
++  int
++    script;
++  int
++    offset;
++  int
++    newy;
++  int
++    color;
++  int
++    curf;
++  int
++    timer;
+ };
+-talk_struct talk;
+-char last_midi[15];
++talk_struct
++  talk;
++char
++  last_midi[15] = "";
+ struct idata
+ {
+-  int type;
+-  int seq;
+-  int frame;
+-  int xoffset, yoffset;
+-  RECT hardbox;
++  int
++    type;
++  int
++    seq;
++  int
++    frame;
++  int
++    xoffset,
++    yoffset;
++  RECT
++    hardbox;
+ };
+-char midi_cur[20];
+-char midi_last[20];
+-int *pvision, *plife, *presult, *pspeed, *ptiming, *plifemax, *pexper, *pmap,
+-  *pstrength, *pcur_weapon, *pcur_magic, *pdefense, *pgold, *pmagic, *plevel,
+-  *plast_text, *pmagic_level;
+-int *pupdate_status, *pmissile_target, *penemy_sprite, *pmagic_cost,
+-  *pmissle_source;
+-int flife, fexp, fstrength, fdefense, fgold, fmagic, fmagic_level, flifemax,
+-  fraise, last_magic_draw;
+-int fcur_weapon, fcur_magic;
+-const max_idata = 600;
+-int mbase_timing;
+-idata id[max_idata];
+-DWORD mold;
+-int item_timer;
+-int item_pic;
+-int mbase_count;
+-bool no_transition = false;
++char
++  midi_cur[20];
++char
++  midi_last[20];
++int *
++pvision, *
++plife, *
++presult, *
++pspeed, *
++ptiming, *
++plifemax, *
++pexper, *
++pmap, *
++pstrength, *
++pcur_weapon, *
++pcur_magic, *
++pdefense, *
++pgold, *
++pmagic, *
++plevel, *
++plast_text, *
++  pmagic_level;
++int *
++pupdate_status, *
++pmissile_target, *
++penemy_sprite, *
++pmagic_cost, *
++  pmissle_source;
++int
++  flife,
++  fexp,
++  fstrength,
++  fdefense,
++  fgold,
++  fmagic,
++  fmagic_level,
++  flifemax,
++  fraise,
++  last_magic_draw;
++int
++  fcur_weapon,
++  fcur_magic;
++const
++  max_idata = 1000;		//redink1
++int
++  mbase_timing;
++idata
++  id[max_idata];
++DWORD
++  mold;
++int
++  item_timer;
++int
++  item_pic;
++int
++  mbase_count;
++bool
++  no_transition = false;
+ struct mydata
+ {
+-  unsigned char type[100];
+-  unsigned short seq[100];
+-  unsigned char frame[100];
+-  int last_time;
++  unsigned char
++    type[100];
++  unsigned short
++    seq[100];
++  unsigned char
++    frame[100];
++  int
++    last_time;
+ };
+ struct varman
+ {
+-  int var;
+-  char name[20];
+-  int scope;
+-  bool active;
++  int
++    var;
++  char
++    name[20];
++  int
++    scope;
++  bool
++    active;
+ };
+-const max_sounds = 100;
++const
++  max_sounds = 100;
+ struct seth_sound
+ {
+-  LPDIRECTSOUNDBUFFER sound;
++  LPDIRECTSOUNDBUFFER
++    sound;
+ };
+-seth_sound ssound[max_sounds];
++seth_sound
++  ssound[max_sounds];
+ struct WaveHeader
+ {
+-  BYTE RIFF[4];			// "RIFF"
+-  DWORD dwSize;			// Size of data to follow
+-  BYTE WAVE[4];			// "WAVE"
+-  BYTE fmt_[4];			// "fmt "
+-  DWORD dw16;			// 16
+-  WORD wOne_0;			// 1
+-  WORD wChnls;			// Number of Channels
+-  DWORD dwSRate;		// Sample Rate
+-  DWORD BytesPerSec;		// Sample Rate
+-  WORD wBlkAlign;		// 1
+-  WORD BitsPerSample;		// Sample size
+-  BYTE DATA[4];			// "DATA"
+-  DWORD dwDSize;		// Number of Samples
++  BYTE
++    RIFF[4];			// "RIFF"
++  DWORD
++    dwSize;			// Size of data to follow
++  BYTE
++    WAVE[4];			// "WAVE"
++  BYTE
++    fmt_[4];			// "fmt "
++  DWORD
++    dw16;			// 16
++  WORD
++    wOne_0;			// 1
++  WORD
++    wChnls;			// Number of Channels
++  DWORD
++    dwSRate;			// Sample Rate
++  DWORD
++    BytesPerSec;		// Sample Rate
++  WORD
++    wBlkAlign;			// 1
++  WORD
++    BitsPerSample;		// Sample size
++  BYTE
++    DATA[4];			// "DATA"
++  DWORD
++    dwDSize;			// Number of Samples
+ };
+-LPDIRECTSOUND lpDS;
+-const max_vars = 250;
++LPDIRECTSOUND
++  lpDS;
++const
++  max_vars = 250;
+ struct player_short_info
+ {
+-  int version;
+-  char gameinfo[196];
+-  int minutes;
++  int
++    version;
++  char
++    gameinfo[196];
++  int
++    minutes;
+ };
+-player_short_info short_play;
++player_short_info
++  short_play;
+ struct item_struct
+ {
+-  bool active;
+-  char name[10];
+-  int seq;
+-  int frame;
+-};
+-struct player_info
+-{
+-  int version;
+-  char gameinfo[196];
+-  int minutes;
+-  int x, y, die, size, defense, dir, pframe, pseq, seq, frame, strength,
+-    base_walk, base_idle, base_hit, que;
+-  item_struct mitem[9];		//added one to these, because I don't like referring to a 0 item
+-  item_struct item[17];
+-  int curitem, unused;
+-  int counter;
+-  bool idle;
+-  mydata spmap[769];
+-  int button[10];
+-  varman var[max_vars];
+-  bool push_active;
+-  int push_dir;
+-  DWORD push_timer;
+-  int last_talk;
+-  int mouse;
+-  bool item_magic;
+-  int last_map;
+-  int crap;
+-  int buff[95];
+-  DWORD dbuff[20];
+-  long lbuff[10];
+-  char cbuff[6000];
++  bool
++    active;
++  char
++    name[10];
++  int
++    seq;
++  int
++    frame;
+ };
+-int push_active = 1;
+-LOGFONT lf = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "" };
++//redink1... for storing current tiles in save game
+ 
+-bool turn_on_plane = FALSE;
+-HFONT hfont = NULL;
+-HFONT hfont_small = NULL;
+-const text_timer = 77;
+-const text_min = 2700;
+-const max_sprites = 4000;
+-int stop_entire_game;
+-const max_sprites_at_once = 300;
+-const max_callbacks = 100;
+-const max_scripts = 200;
+-const max_sequences = 1000;	//Max # of sprite animations
+-const max_game = 20;
+-bool in_enabled = false;
+-char *in_string;
+-struct refinfo
+-{
+-  char name[10];
+-  long location;
+-  long current;
+-  int level;
+-  long end;
+-  int sprite;			//if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
+-  bool skipnext;
+-  int onlevel;
+-  int proc_return;
+-};
+-bool first_frame = false;
+-bool no_running_main = false;
+-struct call_back
++struct player_info_tile
+ {
+-  int owner;
+-  bool active;
+-  int type;
+-  char name[20];
+-  int offset;
+-  long min, max;
+-  int lifespan;
+-  DWORD timer;
++  char
++    file[50];
+ };
+-call_back callback[max_callbacks];
+-char *rbuf[max_scripts];	//pointers to buffers we may need
+-refinfo *rinfo[max_scripts];
+-int process_warp = 0;
+-bool process_upcycle = false;
+-bool process_downcycle = false;
+-DWORD cycle_clock = 0;
+-int cycle_script = 0;
+-int *in_int;
+-int in_x, in_y;
+-int sp_brain = 0;
+-int returnint = 0;
+-char returnstring[200];
+-int sp_speed = 0;
+-char slist[10][200];
+-long nlist[10];
+-int process_count = 0;
+-RECT sp_alt;
+-int hard_tile = 0;
+-bool sp_screenmatch = 0;
+-char in_temp[200];
+-int in_command;
+-int in_finish;
+-int in_onflag;
+-int in_max = 10;
+-int in_huh = 0;
+-char in_default[200];
+-int in_master = 0;
+-bool sound_on = true;
+-char dir[80];
+-//defaults
++//redink1 added for storing global functions
+ 
+-struct sequence
+-{
+-  int frame[51];
+-  int delay[51];
+-  unsigned char special[51];
+-  char data[80];
+-  bool active;
+-};
+-struct sp
+-{
+-  int x, moveman;
+-  int y;
+-  int mx, my;
+-  int lpx[51], lpy[51];
+-  int speed;
+-  int brain;
+-  int seq_orig, dir;
+-  int seq;
+-  int frame;
+-  DWORD delay;
+-  int pseq;
+-  int pframe;
+-  BOOL active;
+-  int attrib;
+-  DWORD wait;
+-  int timer;
+-  int skip;
+-  int skiptimer;
+-  int size;
+-  int que;
+-  int base_walk;
+-  int base_idle;
+-  int base_attack;
+-  int base_hit;
+-  int last_sound;
+-  int hard;
+-  RECT alt;
+-  int althard;
+-  int sp_index;
+-  BOOL nocontrol;
+-  int idle;
+-  int strength;
+-  int damage;
+-  int defense;
+-  int hitpoints;
+-  int exp;
+-  int gold;
+-  int base_die;
+-  int kill;
+-  int kill_timer;
+-  int script_num;
+-  char text[200];
+-  int owner;
+-  int script;
+-  int sound;
+-  int callback;
+-  int freeze;
+-  bool move_active;
+-  int move_script;
+-  int move_dir;
+-  int move_num;
+-  BOOL move_nohard;
+-  int follow;
+-  int nohit;
+-  BOOL notouch;
+-  DWORD notouch_timer;
+-  BOOL flying;
+-  int touch_damage;
+-  int brain_parm;
+-  int brain_parm2;
+-  BOOL noclip;
+-  BOOL reverse;
+-  BOOL disabled;
+-  int target;
+-  int attack_wait;
+-  int move_wait;
+-  int distance;
+-  int last_hit;
+-  BOOL live;
+-  int range;
+-  int attack_hit_sound;
+-  int attack_hit_sound_speed;
+-  int action;
+-  int nodraw;
+-  int frame_delay;
+-  int picfreeze;
+-};
+-struct seth_joy
++struct global_function
+ {
+-  BOOL joybit[17];		//is button held down?
+-  BOOL letgo[17];		//copy of old above
+-  BOOL button[17];		//has button been pressed recently?
+-  BOOL key[256];
+-  BOOL kletgo[256];
+-  bool realkey[256];
+-  BOOL right, left, up, down;
+-  BOOL rightd, leftd, upd, downd;
+-  BOOL rightold, leftold, upold, downold;
++  char
++    file[10];
++  char
++    func[20];
+ };
+-void kill_repeat_sounds_all (void);
+-//sub struct for hardness map
+-
+-struct mega_y
++struct player_info
+ {
+-  byte y[401];
+-};
+-//struct for hardness map
++  int
++    version;
++  char
++    gameinfo[196];
++  int
++    minutes;
++  int
++    x,
++    y,
++    die,
++    size,
++    defense,
++    dir,
++    pframe,
++    pseq,
++    seq,
++    frame,
++    strength,
++    base_walk,
++    base_idle,
++    base_hit,
++    que;
++  item_struct
++    mitem[9];			//added one to these, because I don't like referring to a 0 item
++  item_struct
++    item[17];
++  int
++    curitem,
++    unused;
++  int
++    counter;
++  bool
++    idle;
++  mydata
++    spmap[769];
++  int
++    button[10];
++  varman
++    var[max_vars];
++  bool
++    push_active;
++  int
++    push_dir;
++  DWORD
++    push_timer;
++  int
++    last_talk;
++  int
++    mouse;
++  bool
++    item_magic;
++  int
++    last_map;
++  int
++    crap;
++  int
++    buff[95];
++  DWORD
++    dbuff[20];
++  long
++    lbuff[10];
++//redink1... use wasted space for storing file location of map.dat, dink.dat, palette, and tiles
+ 
+-struct hit_map
+-{
+-  mega_y x[601];
++  char
++    mapdat[50];
++  char
++    dinkdat[50];
++  char
++    palette[50];
++  player_info_tile
++    tile[42];
++  global_function
++    func[100];
++  char
++    cbuff[750];
+ };
+-//sub struct for tile hardness
++int
++  push_active = 1;
++LOGFONT
++lf = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "" };
+ 
+-struct block_y
++bool
++  turn_on_plane = FALSE;
++HFONT
++  hfont = NULL;
++HFONT
++  hfont_small = NULL;
++const
++  text_timer = 77;
++const
++  text_min = 2700;
++const
++  max_sprites = 4000;
++int
++  stop_entire_game;
++const
++  max_sprites_at_once = 300;
++const
++  max_callbacks = 100;
++const
++  max_scripts = 200;
++const
++  max_sequences = 1000;		//Max # of sprite animations
++const
++  max_game = 20;
++bool
++  in_enabled = false;
++char *
++  in_string;
++struct refinfo
+ {
+-  byte y[51];
++  char
++    name[10];
++  long
++    location;
++  long
++    current;
++  int
++    level;
++  long
++    end;
++  int
++    sprite;			//if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
++  bool
++    skipnext;
++  int
++    onlevel;
++  int
++    proc_return;
++  int
++    arg1;
++  int
++    arg2;
++  int
++    arg3;
++  int
++    arg4;
++  int
++    arg5;
++  int
++    arg6;
++  int
++    arg7;
++  int
++    arg8;
++  int
++    arg9;
+ };
+-struct ts_block
++bool
++  first_frame = false;
++bool
++  no_running_main = false;
++struct call_back
+ {
+-  block_y x[51];
+-  bool used;
+-  int hold;
++  int
++    owner;
++  bool
++    active;
++  int
++    type;
++  char
++    name[20];
++  int
++    offset;
++  long
++    min,
++    max;
++  int
++    lifespan;
++  DWORD
++    timer;
+ };
+-//struct for hardness info, INDEX controls which hardness each block has. 800 max
+-
+-//types available.
++call_back
++  callback[max_callbacks];
++char *
++  rbuf[max_scripts];		//pointers to buffers we may need
++refinfo *
++  rinfo[max_scripts];
++int
++  process_warp = 0;
++bool
++  process_upcycle = false;
++bool
++  process_downcycle = false;
++DWORD
++  cycle_clock = 0;
++int
++  cycle_script = 0;
++int *
++  in_int;
++int
++  in_x,
++  in_y;
++int
++  sp_brain = 0;
++int
++  returnint = 0;
++bool
++  bKeepReturnInt = false;
++char
++  returnstring[200];
++int
++  sp_speed = 0;
++char
++  slist[10][200];
++long
++  nlist[10];
++int
++  process_count = 0;
++RECT
++  sp_alt;
++int
++  hard_tile = 0;
++bool
++  sp_screenmatch = 0;
++char
++  in_temp[200];
++int
++  in_command;
++int
++  in_finish;
++int
++  in_onflag;
++int
++  in_max = 10;
++int
++  in_huh = 0;
++char
++  in_default[200];
++int
++  in_master = 0;
++bool
++  sound_on = true;
++char
++  dir[80];
++//defaults
+ 
+-struct hardness
++struct sequence
+ {
+-  ts_block tile[800];
+-  int index[8000];
++  int
++    frame[51];
++  int
++    delay[51];
++  unsigned char
++    special[51];
++  char
++    data[80];
++  bool
++    active;
+ };
+-void
+-SoundLoadBanks (void)
+-{
+-  HRESULT ddsound;
+-  lpDS->DuplicateSoundBuffer (ssound[1].sound, &bowsound);
+-  for (int i = 1; i <= num_soundbanks; i++)
++struct sp
+     {
+-      if (lpDS && soundbank[i] == NULL)
++  int
++    x,
++    moveman;
++  int
++    y;
++  int
++    mx,
++    my;
++  int
++    lpx[51],
++    lpy[51];
++  int
++    speed;
++  int
++    brain;
++  int
++    seq_orig,
++    dir;
++  int
++    seq;
++  int
++    frame;
++  DWORD
++    delay;
++  int
++    pseq;
++  int
++    pframe;
++  BOOL
++    active;
++  int
++    attrib;
++  DWORD
++    wait;
++  int
++    timer;
++  int
++    skip;
++  int
++    skiptimer;
++  int
++    size;
++  int
++    que;
++  int
++    base_walk;
++  int
++    base_idle;
++  int
++    base_attack;
++  int
++    base_hit;
++  int
++    last_sound;
++  int
++    hard;
++  RECT
++    alt;
++  int
++    althard;
++  int
++    sp_index;
++  BOOL
++    nocontrol;
++  int
++    idle;
++  int
++    strength;
++  int
++    damage;
++  int
++    defense;
++  int
++    hitpoints;
++  int
++    exp;
++  int
++    gold;
++  int
++    base_die;
++  int
++    kill;
++  int
++    kill_timer;
++  int
++    script_num;
++  char
++    text[200];
++  int
++    owner;
++  int
++    script;
++  int
++    sound;
++  int
++    callback;
++  int
++    freeze;
++  bool
++    move_active;
++  int
++    move_script;
++  int
++    move_dir;
++  int
++    move_num;
++  BOOL
++    move_nohard;
++  int
++    follow;
++  int
++    nohit;
++  BOOL
++    notouch;
++  DWORD
++    notouch_timer;
++  BOOL
++    flying;
++  int
++    touch_damage;
++  int
++    brain_parm;
++  int
++    brain_parm2;
++  BOOL
++    noclip;
++  BOOL
++    reverse;
++  BOOL
++    disabled;
++  int
++    target;
++  int
++    attack_wait;
++  int
++    move_wait;
++  int
++    distance;
++  int
++    last_hit;
++  BOOL
++    live;
++  int
++    range;
++  int
++    attack_hit_sound;
++  int
++    attack_hit_sound_speed;
++  int
++    action;
++  int
++    nodraw;
++  int
++    frame_delay;
++  int
++    picfreeze;
++//redink1
++
++  int
++    bloodseq;
++  int
++    bloodnum;
++  std::map <
++  std::string, int >*
++    custom;
++};
++struct seth_joy
++{
++  BOOL
++    joybit[17];			//is button held down?
++  BOOL
++    letgo[17];			//copy of old above
++  BOOL
++    button[17];			//has button been pressed recently?
++  BOOL
++    key[256];
++  BOOL
++    kletgo[256];
++  bool
++    realkey[256];
++  BOOL
++    right,
++    left,
++    up,
++    down;
++  BOOL
++    rightd,
++    leftd,
++    upd,
++    downd;
++  BOOL
++    rightold,
++    leftold,
++    upold,
++    downold;
++};
++void
++kill_repeat_sounds_all (void);
++//sub struct for hardness map
++
++struct mega_y
++{
++  byte
++    y[401];
++};
++//struct for hardness map
++
++struct hit_map
++{
++  mega_y
++    x[601];
++};
++//sub struct for tile hardness
++
++struct block_y
++{
++  byte
++    y[51];
++};
++struct ts_block
++{
++  block_y
++    x[51];
++  bool
++    used;
++  int
++    hold;
++};
++//struct for hardness info, INDEX controls which hardness each block has. 800 max
++
++//types available.
++
++struct hardness
++{
++  ts_block
++    tile[800];
++  int
++    index[8000];
++};
++void
++SoundLoadBanks (void)
++{
++  HRESULT
++    ddsound;
++  lpDS->DuplicateSoundBuffer (ssound[1].sound, &bowsound);
++  for (int i = 1; i <= num_soundbanks; i++)
++    {
++      if (lpDS && soundbank[i] == NULL)
+ 	{
+ //
+ 
+@@ -494,157 +1030,318 @@
+ 
+ struct map_info
+ {
+-  char name[20];
+-  int loc[769];
+-  int music[769];
+-  int indoor[769];
+-  int v[40];
+-  char s[80];
+-  char buffer[2000];
++  char
++    name[20];
++  int
++    loc[769];
++  int
++    music[769];
++  int
++    indoor[769];
++  int
++    v[40];
++  char
++    s[80];
++  char
++    buffer[2000];
+ };
+ struct tile
+ {
+-  int num, property, althard, more2;
+-  byte more3, more4;
+-  int buff[15];
++  int
++    num,
++    property,
++    althard,
++    more2;
++  byte
++    more3,
++    more4;
++  int
++    buff[15];
+ };
+ struct sprite_placement
+ {
+-  int x, y, seq, frame, type, size;
+-  bool active;
+-  int rotation, special, brain;
+-  char script[13];
+-  char hit[13];
+-  char die[13];
+-  char talk[13];
+-  int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
+-  int hard;
+-  RECT alt;
+-  int prop;
+-  int warp_map;
+-  int warp_x;
+-  int warp_y;
+-  int parm_seq;
+-  int base_die, gold, hitpoints, strength, defense, exp, sound, vision, nohit,
++  int
++    x,
++    y,
++    seq,
++    frame,
++    type,
++    size;
++  bool
++    active;
++  int
++    rotation,
++    special,
++    brain;
++  char
++    script[13];
++  char
++    hit[13];
++  char
++    die[13];
++  char
++    talk[13];
++  int
++    speed,
++    base_walk,
++    base_idle,
++    base_attack,
++    base_hit,
++    timer,
++    que;
++  int
++    hard;
++  RECT
++    alt;
++  int
++    prop;
++  int
++    warp_map;
++  int
++    warp_x;
++  int
++    warp_y;
++  int
++    parm_seq;
++  int
++    base_die,
++    gold,
++    hitpoints,
++    strength,
++    defense,
++    exp,
++    sound,
++    vision,
++    nohit,
+     touch_damage;
+-  int buff[5];
++  int
++    buff[5];
+ };
+ struct small_map
+ {
+-  char name[20];
+-  tile t[97];
+-  int v[40];
+-  char s[80];
+-  sprite_placement sprite[101];
+-  char script[13];
+-  char random[13];
+-  char load[13];
+-  char buffer[1000];
++  char
++    name[20];
++  tile
++    t[97];
++  int
++    v[40];
++  char
++    s[80];
++  sprite_placement
++    sprite[101];
++  char
++    script[13];
++  char
++    random[13];
++  char
++    load[13];
++  char
++    buffer[1000];
+ };
+ //BOOL PlayMidi(char *sFileName);
+ 
+ struct sprite_index
+ {
+-  int x, y;
+-  int s;
+-  int last;
++  int
++    x,
++    y;
++  int
++    s;
++  int
++    last;
+ };
+-int process_line (int script, char *s, bool doelse);
++int
++process_line (int script, char *s, bool doelse);
+ struct pic_info
+ {
+-  LPDIRECTDRAWSURFACE k;	// Sprites
+-  RECT box, hardbox;
+-  int yoffset;
+-  int xoffset;
++  LPDIRECTDRAWSURFACE
++    k;				// Sprites
++  RECT
++    box,
++    hardbox;
++  int
++    yoffset;
++  int
++    xoffset;
+ };
+-bool please_wait = false;
+-const tile_screens = 41 + 1;
+-int show_dot = FALSE;
+-int plane_process = TRUE;
+-hit_map hm;
+-HWND g_hWnd;
++bool
++  please_wait = false;
++const
++  tile_screens = 41 + 1;
++int
++  show_dot = FALSE;
++int
++  plane_process = TRUE;
++hit_map
++  hm;
++HWND
++  g_hWnd;
+ #define ODS OutputDebugString
+-sprite_index index[max_sequences];
+-int last_sprite_added = 0;
+-DWORD timer = 0;
+-LPSTR command_line;
+-bool dinkedit = false;
+-int base_timing;
+-int weapon_script = 0;
+-int magic_script = 0;
+-int sp_mode = 0;
+-int fps, fps_final = 0;
+-int last_sprite_created;
+-int move_screen = 0;
+-bool move_gonna = false;
+-int move_counter = 0;
+-int m1x, m1y;
+-int m2x, m2y;
+-int m3x, m3y;
+-int playx = 620;
+-bool windowed = false;
+-int playl = 20;
+-HINSTANCE MyhInstance = NULL;
+-bool mouse1 = false;
+-int cur_sprite = 1;
+-int playy = 399;
+-int cur_map, cur_tile;
+-seth_joy sjoy;
+-DWORD thisTickCount, lastTickCount;
+-DWORD timecrap;
+-RECT math, box_crap, box_real;
+-HRESULT ddrval;
+-int sz, sy, x_offset, y_offset;
+-DDBLTFX ddbltfx;
+-int mode;
+-sequence seq[max_sequences];
+-map_info map;
+-small_map pam;
+-LPDIRECTDRAW lpDD = NULL;	// DirectDraw object
++sprite_index
++  index[max_sequences];
++int
++  last_sprite_added = 0;
++DWORD
++  timer = 0;
++LPSTR
++  command_line;
++bool
++  dinkedit = false;
++int
++  base_timing;
++int
++  weapon_script = 0;
++int
++  magic_script = 0;
++int
++  sp_mode = 0;
++int
++  fps,
++  fps_final = 0;
++int
++  last_sprite_created;
++int
++  move_screen = 0;
++bool
++  move_gonna = false;
++int
++  move_counter = 0;
++int
++  m1x,
++  m1y;
++int
++  m2x,
++  m2y;
++int
++  m3x,
++  m3y;
++int
++  playx = 620;
++bool
++  windowed = false;
++int
++  playl = 20;
++HINSTANCE
++  MyhInstance = NULL;
++bool
++  mouse1 = false;
++int
++  cur_sprite = 1;
++int
++  playy = 400;			//redink1's fix for the 'no sprites on pixel line above status bar' bug
++int
++  cur_map,
++  cur_tile;
++seth_joy
++  sjoy;
++DWORD
++  thisTickCount,
++  lastTickCount;
++DWORD
++  timecrap;
++RECT
++  math,
++  box_crap,
++  box_real;
++HRESULT
++  ddrval;
++int
++  sz,
++  sy,
++  x_offset,
++  y_offset;
++DDBLTFX
++  ddbltfx;
++int
++  mode;
++sequence
++  seq[max_sequences];
++map_info
++  map;
++small_map
++  pam;
++LPDIRECTDRAW
++  lpDD = NULL;			// DirectDraw object
+ 
+ //LPDIRECTDRAWSURFACE lpDDSOne; // Offscreen surface 1
+ 
+-LPDIRECTDRAWSURFACE lpDDSTwo = NULL;	// Offscreen surface 2
+-LPDIRECTDRAWSURFACE lpDDSTrick = NULL;	// Offscreen surface 2
+-LPDIRECTDRAWSURFACE lpDDSTrick2 = NULL;	// Offscreen surface 2
+-bool trig_man = false;
+-bool total_trigger = false;
+-bool debug_mode = false;
+-pic_info k[max_sprites];	// Sprite data
+-player_info play;
+-LPDIRECTDRAWSURFACE lpDDSPrimary = NULL;	// DirectDraw primary surface
+-LPDIRECTDRAWSURFACE lpDDSBack = NULL;	// DirectDraw back surface
+-LPDIRECTDRAWSURFACE tiles[tile_screens];	// Game pieces
+-LPDIRECTDRAWSURFACE game[max_game];	// Game pieces
+-sp spr[max_sprites_at_once];	//max sprite control systems at once
+-LPDIRECTDRAWPALETTE lpDDPal = NULL;	// The primary surface palette
+-PALETTEENTRY pe[256];
+-PALETTEENTRY real_pal[256];
+-BOOL bActive = false;		// is application active?
++LPDIRECTDRAWSURFACE
++  lpDDSTwo = NULL;		// Offscreen surface 2
++LPDIRECTDRAWSURFACE
++  lpDDSTrick = NULL;		// Offscreen surface 2
++LPDIRECTDRAWSURFACE
++  lpDDSTrick2 = NULL;		// Offscreen surface 2
++LPDIRECTDRAWSURFACE
++  lpDDSFade = NULL;		//redink1 surface for true-color fade-downs
++bool
++  trig_man = false;
++bool
++  total_trigger = false;
++bool
++  debug_mode = false;
++pic_info
++  k[max_sprites];		// Sprite data
++player_info
++  play;
++LPDIRECTDRAWSURFACE
++  lpDDSPrimary = NULL;		// DirectDraw primary surface
++LPDIRECTDRAWSURFACE
++  lpDDSBack = NULL;		// DirectDraw back surface
++LPDIRECTDRAWSURFACE
++  tiles[tile_screens];		// Game pieces
++LPDIRECTDRAWSURFACE
++  game[max_game];		// Game pieces
++sp
++  spr[max_sprites_at_once];	//max sprite control systems at once
++LPDIRECTDRAWPALETTE
++  lpDDPal = NULL;		// The primary surface palette
++PALETTEENTRY
++  pe[256];
++PALETTEENTRY
++  real_pal[256];
++BOOL
++  bActive = false;		// is application active?
+ 
+ //LPDIRECTINPUT lpDI;
+ 
+ //direct input stuff for mouse reading
+ 
+-LPDIRECTINPUT g_pdi = NULL;
+-LPDIRECTINPUTDEVICE g_pMouse = NULL;
++LPDIRECTINPUT
++  g_pdi = NULL;
++LPDIRECTINPUTDEVICE
++  g_pMouse = NULL;
+ #define DINPUT_BUFFERSIZE 16
+-HANDLE g_hevtMouse = NULL;
++HANDLE
++  g_hevtMouse = NULL;
+ //LPCDIDATAFORMAT lpc;
+ 
+-BYTE torusColors[256];		// Marks the colors used in the torus
+-HWND hWndMain = NULL;
+-JOYINFOEX jinfo;		//joystick info
+-BOOL joystick = false;
+-hardness hmap;
+-RECT tilerect[tile_screens];
++BYTE
++  torusColors[256];		// Marks the colors used in the torus
++HWND
++  hWndMain = NULL;
++JOYINFOEX
++  jinfo;			//joystick info
++BOOL
++  joystick = FALSE;
++BOOL
++  disablejoystick = FALSE;
++hardness
++  hmap;
++RECT
++  tilerect[tile_screens];
+ void
+ replace (const char *this1, char *that, char *line)
+ {
+-  char hold[500];
+-  char thisup[200], lineup[500];
+-  int u, i;
+-  int checker;
++  char
++    hold[500];
++  char
++    thisup[200],
++    lineup[500];
++  int
++    u,
++    i;
++  int
++    checker;
+ start:strcpy (hold, "");
+   strcpy (lineup, line);
+   strcpy (thisup, this1);
+@@ -702,8 +1399,10 @@
+ bool
+ seperate_string (char str[255], int num, char liney, char *return1)
+ {
+-  int l;
+-  int k;
++  int
++    l;
++  int
++    k;
+   l = 1;
+   strcpy (return1, "");
+   for (k = 0; k <= strlen (str); k++)
+@@ -742,8 +1441,11 @@
+ void
+ reverse (char *st)
+ {
+-  int i, ii;
+-  char don[255];
++  int
++    i,
++    ii;
++  char
++    don[255];
+   don[0] = 0;
+   ii = strlen (st);
+   for (i = ii; i > -1; i--)
+@@ -756,11 +1458,17 @@
+ char *
+ lmon (long money, char *dest)
+ {
+-  char ho[30];
+-  int k, c;
+-  char lmon1[30];
+-  char buffer[30];
+-  BOOL quit1;
++  char
++    ho[30];
++  int
++    k,
++    c;
++  char
++    lmon1[30];
++  char
++    buffer[30];
++  BOOL
++    quit1;
+   quit1 = FALSE;
+   strcpy (lmon1, ltoa (money, buffer, 10));
+ // prf("ORG IS '%s'",lmon1);
+@@ -1111,7 +1819,8 @@
+ bool
+ compare (char *orig, char *comp)
+ {
+-  int len;
++  int
++    len;
+ //strcpy(comp, _strupr(comp));
+ 
+ //strcpy(orig, _strupr(orig));
+@@ -1148,8 +1857,10 @@
+ {
+   if (!sound_on)
+     return (false);
+-  PCMWAVEFORMAT pcmwf;
+-  DSBUFFERDESC dsbdesc;
++  PCMWAVEFORMAT
++    pcmwf;
++  DSBUFFERDESC
++    dsbdesc;
+ // Set up wave format structure.
+ 
+   memset (&pcmwf, 0, sizeof (PCMWAVEFORMAT));
+@@ -1198,8 +1909,10 @@
+ {
+   if (g_b_no_write_ini)
+     return;			//fix problem with NT security if -noini is set
+-  char dumb[100];
+-  char dumb2[256];
++  char
++    dumb[100];
++  char
++    dumb2[256];
+   GetWindowsDirectory (&dumb[0], 256);
+   sprintf (dumb2, "%s\\dinksmallwood.ini", dumb);
+   unlink (dumb2);
+@@ -1227,11 +1940,16 @@
+     }
+ // Lock data in buffer for writing
+ 
+-  LPVOID pData1;
+-  DWORD dwData1Size;
+-  LPVOID pData2;
+-  DWORD dwData2Size;
+-  HRESULT rval;
++  LPVOID
++    pData1;
++  DWORD
++    dwData1Size;
++  LPVOID
++    pData2;
++  DWORD
++    dwData2Size;
++  HRESULT
++    rval;
+   rval =
+     lpDSB->Lock (0, dwSize, &pData1, &dwData1Size, &pData2, &dwData2Size,
+ 		 DSBLOCK_FROMWRITECURSOR);
+@@ -1245,7 +1963,8 @@
+     {
+       if (fread (pData1, dwData1Size, 1, pFile) != 1)
+ 	{
+-	  char holder[256];
++	  char
++	    holder[256];
+ 	  wsprintf (holder, "Error reading .wav: %d, dwdata: %d, pFile: %d",
+ 		    pData1, dwData1Size, pFile);
+ 	  OutputDebugString (holder);
+@@ -1281,7 +2000,8 @@
+       Msg ("Mouse already initted? what the?");
+       return true;
+     }
+-  HRESULT hr;			/* * Register with DirectInput and get an IDirectInput to play with. */
++  HRESULT
++    hr;				/* * Register with DirectInput and get an IDirectInput to play with. */
+   hr = DirectInputCreate (MyhInstance, DIRECTINPUT_VERSION, &g_pdi, NULL);
+   if (FAILED (hr))
+     {
+@@ -1307,7 +2027,8 @@
+       Msg ("Error: SetCooperativeLevel(SysMouse)");
+       return FALSE;
+     }				/* * Set the buffer size to DINPUT_BUFFERSIZE elements. * The buffer size is a DWORD property associated with the device. */
+-  DIPROPDWORD dipdw = { {sizeof (DIPROPDWORD),	// diph.dwSize
++  DIPROPDWORD
++    dipdw = { {sizeof (DIPROPDWORD),	// diph.dwSize
+ 			 sizeof (DIPROPHEADER),	// diph.dwHeaderSize
+ 			 0,	// diph.dwObj
+ 			 DIPH_DEVICE,	// diph.dwHow
+@@ -1342,11 +2063,13 @@
+ {
+ // Open the wave file 
+ 
+-  char crap[150];
++  char
++    crap[150];
+   sprintf (crap, "sound\\%s", FileName);
+   if (!exist (crap))
+     sprintf (crap, "..\\dink\\sound\\%s", FileName);
+-  FILE *pFile = fopen (crap, "rb");
++  FILE *
++    pFile = fopen (crap, "rb");
+   if (pFile == NULL)
+     {
+       Msg ("Error, cannot load sound file %s, tried two dirs even!",
+@@ -1355,7 +2078,8 @@
+     }
+ // Read in the wave header 
+ 
+-  WaveHeader wavHdr;
++  WaveHeader
++    wavHdr;
+   if (fread (&wavHdr, sizeof (wavHdr), 1, pFile) != 1)
+     {
+       fclose (pFile);
+@@ -1363,10 +2087,12 @@
+     }
+ // Figure out the size of the data region
+ 
+-  DWORD dwSize = wavHdr.dwDSize;
++  DWORD
++    dwSize = wavHdr.dwDSize;
+ // Is this a stereo or mono file?
+ 
+-  BOOL bStereo = wavHdr.wChnls > 1 ? TRUE : FALSE;
++  BOOL
++    bStereo = wavHdr.wChnls > 1 ? TRUE : FALSE;
+ // Create the sound buffer for the wave file
+ 
+   if (!CreateSoundBuffer
+@@ -1414,8 +2140,10 @@
+ void
+ Msg (LPSTR fmt, ...)
+ {
+-  char buff[350];
+-  va_list va;
++  char
++    buff[350];
++  va_list
++    va;
+   va_start (va, fmt);
+ //
+ 
+@@ -1441,8 +2169,10 @@
+ void
+ TRACE (LPSTR fmt, ...)
+ {
+-  char buff[350];
+-  va_list va;
++  char
++    buff[350];
++  va_list
++    va;
+   va_start (va, fmt);
+ //
+ 
+@@ -1465,13 +2195,19 @@
+     add_text (buff, "DEBUG.TXT");
+ }				/* Msg */
+ 
+-extern "C" IDirectDrawSurface *
++extern
++  "C"
++  IDirectDrawSurface *
+ DDSethLoad (IDirectDraw * pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
+ {
+-  HBITMAP hbm;
+-  BITMAP bm;
+-  DDSURFACEDESC ddsd;
+-  IDirectDrawSurface *pdds;
++  HBITMAP
++    hbm;
++  BITMAP
++    bm;
++  DDSURFACEDESC
++    ddsd;
++  IDirectDrawSurface *
++    pdds;
+ //
+ 
+ // try to load the bitmap as a resource, if that fails, try it as a file
+@@ -1602,10 +2338,14 @@
+ void
+ SaySmall (char thing[500], int px, int py, int r, int g, int b)
+ {
+-  RECT rcRect;
+-  HDC hdc;
+-  int dum;
+-  char shit[200];
++  RECT
++    rcRect;
++  HDC
++    hdc;
++  int
++    dum;
++  char
++    shit[200];
+   if (lpDDSBack->GetDC (&hdc) == DD_OK)
+     {
+       SetBkMode (hdc, TRANSPARENT);
+@@ -1630,10 +2370,14 @@
+ void
+ Say (char thing[500], int px, int py)
+ {
+-  RECT rcRect;
+-  HDC hdc;
+-  int dum;
+-  char shit[200];
++  RECT
++    rcRect;
++  HDC
++    hdc;
++  int
++    dum;
++  char
++    shit[200];
+   if (lpDDSBack->GetDC (&hdc) == DD_OK)
+     {
+       SetBkMode (hdc, TRANSPARENT);
+@@ -1656,10 +2400,14 @@
+ void
+ Saytiny (char thing[2000], int px, int py, int r, int g, int b)
+ {
+-  RECT rcRect;
+-  HDC hdc;
+-  char shit[200];
+-  int dum;
++  RECT
++    rcRect;
++  HDC
++    hdc;
++  char
++    shit[200];
++  int
++    dum;
+   if (lpDDSBack->GetDC (&hdc) == DD_OK)
+     {
+       SetBkMode (hdc, TRANSPARENT);
+@@ -1674,10 +2422,14 @@
+ void
+ flip_it_second (void)
+ {
+-  DDBLTFX ddbltfx;
+-  RECT rcRectSrc;
+-  RECT rcRectDest;
+-  POINT p;
++  DDBLTFX
++    ddbltfx;
++  RECT
++    rcRectSrc;
++  RECT
++    rcRectDest;
++  POINT
++    p;
+   if (!windowed)
+     {
+       while (1)
+@@ -1724,7 +2476,8 @@
+ bool
+ exist (char name[255])
+ {
+-  FILE *fp;
++  FILE *
++    fp;
+   fp = fopen (name, "rb");
+   if (!fp)
+     {
+@@ -1739,7 +2492,8 @@
+ void
+ add_text (char *tex, char *filename)
+ {
+-  FILE *fp;
++  FILE *
++    fp;
+   if (strlen (tex) < 1)
+     return;
+   if (exist (filename) == FALSE)
+@@ -1800,14 +2554,20 @@
+       seq[fr].frame[o] = index[start].s + o;
+       seq[fr].delay[o] = delay;
+     } seq[fr].frame[index[start].last + 1] = 0;
+-} extern "C" IDirectDrawSurface *
++} extern
+ 
++  "C"
++  IDirectDrawSurface *
+ DDTileLoad (IDirectDraw * pdd, LPCSTR szBitmap, int dx, int dy, int sprite)
+ {
+-  HBITMAP hbm;
+-  BITMAP bm;
+-  DDSURFACEDESC ddsd;
+-  IDirectDrawSurface *pdds;
++  HBITMAP
++    hbm;
++  BITMAP
++    bm;
++  DDSURFACEDESC
++    ddsd;
++  IDirectDrawSurface *
++    pdds;
+ //
+ 
+ // try to load the bitmap as a resource, if that fails, try it as a file
+@@ -1867,28 +2627,48 @@
+ byte
+ get_hard (int h, int x1, int y1)
+ {
+-  int value;
+-  if ((x1 < 0) || (y1 < 0))
+-    return (false);
+-  if ((x1 > 599))
+-    return (false);
+-  if (y1 > 399)
+-    return (false);
+-  value = hm.x[x1].y[y1];
+-  return (value);
+-}
++  int
++    value;
++//redink1 fix for screenlock bug
++
++  if (screenlock)
++    {
++      if (x1 < 0 && x1 > -5)
++	x1 = 0;
++      else if (x1 > 599 && x1 < 605)
++	x1 = 599;
++      if (y1 < 0 && y1 > -5)
++	y1 = 0;
++      else if (y1 > 399 && x1 < 405)
++	y1 = 399;
++    }
++  if (x1 < 0 || y1 < 0 || x1 > 599 || y1 > 399)
++    return (0);
++  value = hm.x[x1].y[y1];
++  return (value);
++}
+ 
+ byte
+ get_hard_play (int h, int x1, int y1)
+ {
+-  int value;
++  int
++    value;
+   x1 -= 20;
+-  if ((x1 < 0) || (y1 < 0))
+-    return (false);
+-  if ((x1 > 599))
+-    return (false);
+-  if (y1 > 399)
+-    return (false);
++//redink1 fix for screenlock bug
++
++  if (screenlock)
++    {
++      if (x1 < 0 && x1 > -5)
++	x1 = 0;
++      else if (x1 > 599 && x1 < 605)
++	x1 = 599;
++      if (y1 < 0 && y1 > -5)
++	y1 = 0;
++      else if (y1 > 399 && x1 < 405)
++	y1 = 399;
++    }
++  if (x1 < 0 || y1 < 0 || x1 > 599 || y1 > 399)
++    return (0);
+   value = hm.x[x1].y[y1];
+   if (value > 100)
+     {
+@@ -1910,11 +2690,14 @@
+     return (0);
+   if (y1 > 399)
+     return (0);
+-  int til = (x1 / 50) + (((y1 / 50)) * 12);
++  int
++    til = (x1 / 50) + (((y1 / 50)) * 12);
+ //til++;
+ 
+-  int offx = x1 - ((x1 / 50) * 50);
+-  int offy = y1 - ((y1 / 50) * 50);
++  int
++    offx = x1 - ((x1 / 50) * 50);
++  int
++    offy = y1 - ((y1 / 50) * 50);
+ //Msg("tile %d ",til);
+ 
+   return (hmap.tile[realhard (til)].x[offx].y[offy]);
+@@ -1926,11 +2709,11 @@
+ //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
+ 
+   if (box.right > 599)
+-    box.right = 599;
++    box.right = 600;		//redink1 screenlock bug
+   if (box.top < 0)
+     box.top = 0;
+   if (box.bottom > 399)
+-    box.bottom = 399;
++    box.bottom = 400;		//redink1 screenlock bug
+   if (box.left < 0)
+     box.left = 0;
+   for (int x1 = box.left; x1 < box.right; x1++)
+@@ -1940,16 +2723,22 @@
+ 	  hm.x[x1].y[y1] = get_hard_map (0, x1, y1);
+ }}} void
+ 
+-add_exp (int num, int h)
++add_exp (int num, int h, bool addEvenIfNotLastSpriteHit)
++{
++//redink1 fix - made work with all sprites when using add_exp DinkC command
++
++  if (addEvenIfNotLastSpriteHit == false)
+ {
+   if (spr[h].last_hit != 1)
+     return;
++    }
+   if (num > 0)
+     {
+ //add experience
+ 
+       *pexper += num;
+-      int crap2 = add_sprite (spr[h].x, spr[h].y, 8, 0, 0);
++      int
++	crap2 = add_sprite (spr[h].x, spr[h].y, 8, 0, 0);
+       spr[crap2].y -= k[seq[spr[h].pseq].frame[spr[h].pframe]].yoffset;
+       spr[crap2].x -= k[seq[spr[h].pseq].frame[spr[h].pframe]].xoffset;
+       spr[crap2].y -= k[seq[spr[h].pseq].frame[spr[h].pframe]].box.bottom / 3;
+@@ -1983,8 +2772,10 @@
+ {
+   for (int til = 0; til < 96; til++)
+     {
+-      int offx = (til * 50 - ((til / 12) * 600));
+-      int offy = (til / 12) * 50;
++      int
++	offx = (til * 50 - ((til / 12) * 600));
++      int
++	offy = (til / 12) * 50;
+       for (int x = 0; x < 50; x++)
+ 	{
+ 	  for (int y = 0; y < 50; y++)
+@@ -1995,9 +2786,12 @@
+ 
+ drawallhard (void)
+ {
+-  RECT box_crap;
+-  int ddrval;
+-  DDBLTFX ddbltfx;
++  RECT
++    box_crap;
++  int
++    ddrval;
++  DDBLTFX
++    ddbltfx;
+   for (int x1 = 0; x1 < 600; x1++)
+     for (int y1 = 0; y1 < 400; y1++)
+       {
+@@ -2123,8 +2917,11 @@
+ void
+ load_map (const int num)
+ {
+-  FILE *fp;
+-  long holdme, lsize;
++  FILE *
++    fp;
++  long
++    holdme,
++    lsize;
+ //RECT box;
+ 
+ // play.map = num;
+@@ -2137,18 +2934,28 @@
+       Msg ("Cannot find %s file!!!", current_map);
+       return;
+     }
++//redink1 set correctly so Dink appears on mini-map for warps and such
++
++//doesn't work, because 'num' is actually the offset in map.dat, not the map screen number
++
++//if (map.indoor[num] == 0)
++
++// play.last_map = num;
++
+   lsize = sizeof (struct small_map);
+   holdme = (lsize * (num - 1));
+   fseek (fp, holdme, SEEK_SET);
+ //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
+ 
+-  int shit = fread (&pam, lsize, 1, fp);	/* current player */
++  int
++    shit = fread (&pam, lsize, 1, fp);	/* current player */
+ // Msg("Read %d bytes.",shit);
+ 
+   if (shit == 0)
+     Msg ("ERROR: Couldn't read map %d?!?", num);
+   fclose (fp);
+   spr[1].move_active = false;
++  spr[1].move_nohard = false;
+   spr[1].freeze = false;
+   screenlock = 0;
+   fill_whole_hard ();
+@@ -2162,9 +2969,13 @@
+ void
+ save_map (const int num)
+ {
+-  FILE *fp;
+-  long holdme, lsize;
+-  char crap[80];
++  FILE *
++    fp;
++  long
++    holdme,
++    lsize;
++  char
++    crap[80];
+   Msg ("Saving map data..");
+   strcpy (crap, current_map);
+   if (num > 0)
+@@ -2181,9 +2992,13 @@
+ 
+ save_info (void)
+ {
+-  FILE *fp;
+-  char crap[80];
+-  sprintf (crap, "DINK.DAT");
++  FILE *
++    fp;
++  char
++    crap[80];
++//redink1
++
++  sprintf (crap, current_dat);
+   fp = fopen (crap, "wb");
+   fwrite (&map, sizeof (struct map_info), 1, fp);
+   fclose (fp);
+@@ -2191,8 +3006,14 @@
+ 
+ save_game (int num)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
++//redink1 created this
++
++  char
++    info_temp[200];
+ //lets set some vars first
+ 
+   play.x = spr[1].x;
+@@ -2207,7 +3028,8 @@
+   play.strength = spr[1].strength;
+   play.defense = spr[1].defense;
+   play.que = spr[1].que;
+-  time_t ct;
++  time_t
++    ct;
+   time (&ct);
+   play.minutes += (difftime (ct, time_start) / 60);
+ //reset timer
+@@ -2216,7 +3038,17 @@
+   play.base_idle = spr[1].base_idle;
+   play.base_walk = spr[1].base_walk;
+   play.base_hit = spr[1].base_hit;
+-  sprintf (play.gameinfo, "Level %d", *plevel);
++//redink1 - save game things for storing new map, palette, and tile information
++
++  strncpy (play.mapdat, current_map, 50);
++  strncpy (play.dinkdat, current_dat, 50);
++//redink1 code for custom save game names
++
++  strcpy (info_temp, save_game_info);
++  decipher_string (info_temp, 0);
++  strncpy (play.gameinfo, info_temp, 77);
++//sprintf(play.gameinfo, "Level %d",*plevel);
++
+   last_saved_game = num;
+   sprintf (crap, "SAVE%d.DAT", num);
+   fp = fopen (crap, "wb");
+@@ -2297,8 +3129,10 @@
+ bool
+ add_time_to_saved_game (int num)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
+   sprintf (crap, "SAVE%d.DAT", num);
+   fp = fopen (crap, "rb");
+   if (!fp)
+@@ -2314,7 +3148,8 @@
+ //great, now let's resave it with added time
+ 
+   Msg ("Ok, adding time.");
+-  time_t ct;
++  time_t
++    ct;
+   time (&ct);
+   play.minutes += (difftime (ct, time_start) / 60);
+   sprintf (crap, "SAVE%d.DAT", num);
+@@ -2331,8 +3166,10 @@
+ bool
+ load_game (int num)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
+ //lets get rid of our magic and weapon scripts
+ 
+   if (weapon_script != 0)
+@@ -2370,6 +3207,60 @@
+     {
+       fread (&play, sizeof (play), 1, fp);
+       fclose (fp);
++//redink1 - new map, if exist
++
++      if (strlen (play.mapdat) > 0 && strlen (play.dinkdat) > 0)
++	{
++	  strcpy (current_map, play.mapdat);
++	  strcpy (current_dat, play.dinkdat);
++	  load_info ();
++	}
++//redink1 - load palette
++
++      if (strlen (play.palette) > 0)
++	{
++	  LPDIRECTDRAWSURFACE
++	    oldTrick = DDLoadBitmap (lpDD, play.palette, 0, 0);
++	  lpDDPal = DDLoadPalette (lpDD, play.palette);
++	  if (lpDDPal)
++	    {
++	      lpDDSPrimary->SetPalette (lpDDPal);
++	      lpDDPal->GetEntries (0, 0, 256, pe);
++	      lpDDPal->GetEntries (0, 0, 256, real_pal);
++	    }
++	  oldTrick->Release ();
++	}
++//redink1 - reload tiles
++
++      char
++	tile[50];
++      for (int i = 1; i <= 41; i++)
++	{
++//Need to unload old tiles...
++
++	  tiles[i]->Release ();
++//Which tiles are we loading, new or default?
++
++	  if (strlen (play.tile[i].file) > 0)
++	    {
++//Check the original directory
++
++	      if (!exist (play.tile[i].file))
++		sprintf (tile, "..\\DINK\\%s", play.tile[i].file);
++	      else
++		strcpy (tile, play.tile[i].file);
++	    }
++	  else
++	    {
++	      sprintf (tile, "tiles\\TS%02d.bmp", i);
++	      if (!exist (tile))
++		sprintf (tile, "..\\dink\\tiles\\TS%02d.BMP", i);
++	    }
++//Load in the tiles...
++
++	  tiles[i] = DDTileLoad (lpDD, tile, 0, 0, i);
++	  DDSetColorKey (tiles[i], RGB (0, 0, 0));
++	}
+       spr[1].damage = 0;
+       spr[1].x = play.x;
+       spr[1].y = play.y;
+@@ -2389,13 +3280,17 @@
+       spr[1].base_idle = play.base_idle;
+       spr[1].base_walk = play.base_walk;
+       spr[1].base_hit = play.base_hit;
+-      int script = load_script ("main", 0, true);
++      int
++	script = load_script ("main", 0, true);
+       locate (script, "main");
+       run_script (script);
+ //lets attach our vars to the scripts
+ 
+       attach ();
+       Msg ("Attached vars.");
++//redink1 fixes
++
++      dinkspeed = 3;
+       if (*pcur_weapon != 0)
+ 	{
+ 	  if (play.item[*pcur_weapon].active == false)
+@@ -2443,6 +3338,11 @@
+       Msg ("Loaded map.");
+       draw_map_game ();
+       Msg ("Map drawn.");
++//redink1 fixes
++
++      fexp = *pexper;
++      draw_status_all ();
++      Msg ("Status drawn.");
+       last_saved_game = num;
+       return (true);
+     }
+@@ -2480,7 +3380,8 @@
+ void
+ kill_cur_item_script (char name[20])
+ {
+-  int select = 0;
++  int
++    select = 0;
+   for (int i = 1; i < 17; i++)
+     {
+       if (play.item[i].active)
+@@ -2502,7 +3403,8 @@
+       *pcur_weapon = 0;
+       weapon_script = 0;
+     }
+-  int script = load_script (play.item[select].name, 0, false);
++  int
++    script = load_script (play.item[select].name, 0, false);
+   play.item[select].active = false;
+   if (locate (script, "DROP"))
+     run_script (script);
+@@ -2512,7 +3414,8 @@
+ void
+ kill_cur_magic_script (char name[20])
+ {
+-  int select = 0;
++  int
++    select = 0;
+   for (int i = 1; i < 9; i++)
+     {
+       if (play.mitem[i].active)
+@@ -2534,7 +3437,8 @@
+       *pcur_weapon = 0;
+       magic_script = 0;
+     }
+-  int script = load_script (play.mitem[select].name, 0, false);
++  int
++    script = load_script (play.mitem[select].name, 0, false);
+   play.mitem[select].active = false;
+   if (locate (script, "DROP"))
+     run_script (script);
+@@ -2583,8 +3487,10 @@
+ 
+ load_game_small (int num, char *line, int *mytime)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
+   sprintf (crap, "SAVE%d.DAT", num);
+   fp = fopen (crap, "rb");
+   if (!fp)
+@@ -2605,15 +3511,16 @@
+ void
+ load_info (void)
+ {
+-  FILE *fp;
+-  char crap[80];
+-  sprintf (crap, "DINK.DAT");
+-  fp = fopen (crap, "rb");
++  FILE *
++    fp;
++//redink1 changed 'crap' to 'current_dat'
++
++  fp = fopen (current_dat, "rb");
+   if (!fp)
+     {
+ //fclose(fp);
+ 
+-      fp = fopen (crap, "wb");
++      fp = fopen (current_dat, "wb");
+ //make new data file
+ 
+       strcpy (map.name, "Smallwood");
+@@ -2629,8 +3536,10 @@
+ 
+ save_hard (void)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
+   sprintf (crap, "HARD.DAT");
+   fp = fopen (crap, "wb");
+   if (!fp)
+@@ -2643,8 +3552,10 @@
+ 
+ load_hard (void)
+ {
+-  FILE *fp;
+-  char crap[80];
++  FILE *
++    fp;
++  char
++    crap[80];
+   sprintf (crap, "HARD.DAT");
+   if (!dinkedit)
+     {
+@@ -2671,7 +3582,8 @@
+ 
+ blit_background (void)
+ {
+-  RECT rcRect;
++  RECT
++    rcRect;
+   SetRect (&rcRect, 0, 0, 640, 480);
+   lpDDSBack->BltFast (0, 0, lpDDSTwo, &rcRect, DDBLTFAST_NOCOLORKEY);
+ } void
+@@ -2702,9 +3614,12 @@
+ LPDIRECTDRAWSURFACE
+ DDCreateSurface (DWORD width, DWORD height, BOOL sysmem, BOOL trans)
+ {
+-  DDSURFACEDESC ddsd;
+-  HRESULT ddrval;
+-  LPDIRECTDRAWSURFACE psurf;	/* * fill in surface desc */
++  DDSURFACEDESC
++    ddsd;
++  HRESULT
++    ddrval;
++  LPDIRECTDRAWSURFACE
++    psurf;			/* * fill in surface desc */
+   memset (&ddsd, 0, sizeof (ddsd));
+   ddsd.dwSize = sizeof (ddsd);
+   ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+@@ -2723,31 +3638,57 @@
+   return psurf;
+ }				/* DDCreateSurface */
+ 
++//redink1 and Invertigo fix for windowed/true color mode
++
+ void
+ load_sprite_pak (char org[100], int nummy, int speed, int xoffset,
+ 		 int yoffset, RECT hardbox, bool notanim, bool black,
+ 		 bool leftalign, bool samedir)
+ {
+-  int work;
+-  HFASTFILE pfile;
+-  BITMAPFILEHEADER UNALIGNED *pbf;
+-  BITMAPINFOHEADER UNALIGNED *pbi;
+-  DDSURFACEDESC ddsd;
+-  HBITMAP hbm;
+-  BITMAP bm;
+-  DDCOLORKEY ddck;
+-  int x, y, dib_pitch;
+-  BYTE *src, *dst;
+-  char fname[20];
+-  LPTSTR dump;
++  int
++    work;
++  HFASTFILE
++    pfile;
++  BITMAPFILEHEADER UNALIGNED *
++    pbf;
++  BITMAPINFOHEADER UNALIGNED *
++    pbi;
++  DDSURFACEDESC
++    ddsd;
++  HBITMAP
++    hbm;
++  BITMAP
++    bm;
++  DDCOLORKEY
++    ddck;
++  int
++    x,
++    y,
++    dib_pitch;
++  BYTE *
++  src, *
++    dst;
++  DWORD
++    ddst;
++  char
++    fname[20];
++  LPTSTR
++    dump;
+ //IDirectDrawSurface *pdds;
+ 
+-  int sprite = 71;
+-  BOOL trans = FALSE;
+-  bool reload = false;
+-  PALETTEENTRY holdpal[256];
+-  char crap[200], hold[5];
+-  int save_cur = cur_sprite;
++  int
++    sprite = 71;
++  BOOL
++    trans = FALSE;
++  bool
++    reload = false;
++  PALETTEENTRY
++    holdpal[256];
++  char
++    crap[200],
++    hold[5];
++  int
++    save_cur = cur_sprite;
+   if (index[nummy].last != 0)
+     {
+ // Msg("Saving sprite %d", save_cur);
+@@ -2760,14 +3701,16 @@
+   index[nummy].s = cur_sprite - 1;
+   if (no_running_main)
+     draw_wait ();
+-  char crap2[200];
++  char
++    crap2[200];
+   strcpy (crap2, org);
+   while (crap2[strlen (crap2) - 1] != '\\')
+     {
+       crap2[strlen (crap2) - 1] = 0;
+     }
+   crap2[strlen (crap2) - 1] = 0;
+-  int num = strlen (org) - strlen (crap2) - 1;
++  int
++    num = strlen (org) - strlen (crap2) - 1;
+   strcpy (fname, &org[strlen (org) - num]);
+   if (samedir)
+     sprintf (crap, "%s\\dir.ff", crap2);
+@@ -2784,7 +3727,8 @@
+     {
+ //load sprite
+ 
+-      char dumb[100];
++      char
++	dumb[100];
+       sprite = cur_sprite;
+ //if (reload) Msg("Ok, programming sprite %d", sprite); 
+ 
+@@ -2829,16 +3773,57 @@
+ 
+ 	      return;
+ 	    }
+-	  byte *pic;
++//redink1 modified this to work with every color depth
++
++//Ok, what we do here is take each color, shift it right to get rid of any
++
++//lower-order bits that we don't use, then shift it left to go to the correct
++
++//position. Should work fine with 16-24-32 bit color depth.
++
++#define _RGBXBIT(r, g, b) ( (r >> (8 - wRBits) << wRPos) | (g >> (8 - wGBits) << wGPos) | (b >> (8 - wBBits) << wBPos) )
++	  PALETTEENTRY
++	    ape[256];
++	  DWORD
++	    dwBlack;
++	  DWORD
++	    dwNearBlack;
++	  DWORD
++	    dwWhite;
++	  DWORD
++	    dwNearWhite;
++	  if (truecolor)
++	    {
++	      if (dinkpal)
++		{
++		  memcpy (ape, real_pal, sizeof (PALETTEENTRY) * 256);
++		}
++	      else
++		{
++		  byte *
++		    palzor = (byte *) pbf + 54;
++		  for (int pcount = 0; pcount < 256; pcount++)
++		    {
++		      ape[pcount].peRed = palzor[pcount * 4 + 2];
++		      ape[pcount].peGreen = palzor[pcount * 4 + 1];
++		      ape[pcount].peBlue = palzor[pcount * 4];
++		}} dwBlack =
++		_RGBXBIT (ape[255].peRed, ape[255].peGreen, ape[255].peBlue);
++	      dwNearBlack =
++		_RGBXBIT (ape[249].peRed, ape[255].peGreen, ape[255].peBlue);
++	      dwWhite =
++		_RGBXBIT (ape[0].peRed, ape[0].peGreen, ape[0].peBlue);
++	      dwNearWhite =
++		_RGBXBIT (ape[30].peRed, ape[30].peGreen, ape[30].peBlue);
++	    }
++	  byte *
++	    pic;
+ 	  pic = (byte *) pbf + 1078;
+ //Msg("Pic's size is now %d.",sizeof(pic));
+ 
+-	  bm.bmWidth = pbi->biWidth;
+-	  bm.bmHeight = pbi->biHeight;
+-	  bm.bmWidthBytes = 32;
+-	  bm.bmPlanes = pbi->biPlanes;
+-	  bm.bmBitsPixel = pbi->biBitCount;
+-	  bm.bmBits = pic;
++//redink1 THIS DOESN'T DO ANYTHING!!!! ARGHAGHARHA!
++
++	  /*bm.bmWidth = pbi->biWidth; bm.bmHeight = pbi->biHeight; bm.bmWidthBytes = 32; bm.bmPlanes = pbi->biPlanes; bm.bmBitsPixel = pbi->biBitCount; bm.bmBits = pic; */
+ //
+ 
+ // create a DirectDrawSurface for this bitmap
+@@ -2850,7 +3835,7 @@
+ 	  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+ 	  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+ 	  ddsd.dwWidth = pbi->biWidth;
+-	  ddsd.dwHeight = pbi->biHeight;
++	  ddsd.dwHeight = pbi->biHeight;	// + 1; //redink1 fixed crashing in 16-bit mode... would overflow by a byte or two by writing dwords, really weird bug. Eh, actually moved solution to everywhere we update a DWORD, include any trailing bits that were there before. Saves memory.
+ 	  if (k[sprite].k != NULL)
+ 	    k[sprite].k->Release ();
+ 	  if (lpDD->CreateSurface (&ddsd, &k[sprite].k, NULL) != DD_OK)
+@@ -2868,6 +3853,11 @@
+ 		  dib_pitch = (pbi->biWidth + 3) & ~3;
+ 		  src = (BYTE *) pic + dib_pitch * (pbi->biHeight - 1);
+ 		  dst = (BYTE *) ddsd.lpSurface;
++		  ddst = (DWORD) ddsd.lpSurface;
++		  int
++		    bytesPerPixel = ddsd.ddpfPixelFormat.dwRGBBitCount >> 3;	//Divide by 8, basically
++		  DWORD
++		    dwPixel;
+ 		  if (leftalign)
+ 		    {
+ //Msg("left aligning..");
+@@ -2876,6 +3866,30 @@
+ 			{
+ 			  for (x = 0; x < (int) pbi->biWidth; x++)
+ 			    {
++			      if (truecolor)
++				{
++				  dwPixel =
++				    _RGBXBIT (ape[src[x]].peRed,
++					      ape[src[x]].peGreen,
++					      ape[src[x]].peBlue);
++				  if (dwPixel == dwBlack)
++				    {
++// Msg("Found a 255...");
++
++				      dwPixel = dwNearBlack;
++				    }
++				  else if (dwPixel == dwWhite)
++				    {
++				      dwPixel = dwNearWhite;
++				    }
++//Make sure to or it with the rest of the DWORD present, just in case it overflows the buffer
++
++				  *((DWORD *) ddst) =
++				    dwPixel | *((DWORD *) ddst) & ~dwWhite;
++				  ddst += bytesPerPixel;
++				}
++			      else
++				{
+ 			      dst[x] = src[x];
+ 			      if (dst[x] == 0)
+ 				{
+@@ -2888,26 +3902,57 @@
+ 				  dst[x] = 249;
+ 				}
+ 			    }
++			    }
++//redink1 switched to 'better' version
++
++			  ((DWORD) ddst) += ddsd.lPitch - ((int) pbi->biWidth) * bytesPerPixel;	//ddst += ddsd.lPitch / 4;
+ 			  dst += ddsd.lPitch;
+ 			  src -= dib_pitch;
+-			}
+-		    }
++		    }}
+ 		  else if (black)
+ 		    {
+ 		      for (y = 0; y < (int) pbi->biHeight; y++)
+ 			{
+ 			  for (x = 0; x < (int) pbi->biWidth; x++)
+ 			    {
++			      if (truecolor)
++				{
++				  dwPixel =
++				    _RGBXBIT (ape[src[x]].peRed,
++					      ape[src[x]].peGreen,
++					      ape[src[x]].peBlue);
++				  if (dwPixel == dwWhite)
++				    {
++// Msg("Found a 255...");
++
++				      dwPixel = dwNearWhite;
++				    }
++				  else if (dwPixel == dwBlack)
++				    {
++				      dwPixel = dwWhite;
++				    }
++				  *((DWORD *) ddst) =
++				    dwPixel | *((DWORD *) ddst) & ~dwWhite;;
++				  ddst += bytesPerPixel;	/*ddst[x] = _RGB24BIT(ape[src[x]].peRed, ape[src[x]].peGreen, ape[src[x]].peBlue); if (ddst[x] == _RGB24BIT(ape[0].peRed, ape[0].peGreen, ape[0].peBlue)) { 
++								   // Msg("Found a 255...");
++
++								   ddst[x] = _RGB24BIT(ape[30].peRed, ape[30].peGreen, ape[30].peBlue); } if (!dinkpal) { if (ddst[x] == _RGB24BIT(ape[255].peRed, ape[255].peGreen, ape[255].peBlue)) { ddst[x] = _RGB24BIT(ape[0].peRed, ape[0].peGreen, ape[0].peBlue); } } */
++				}
++			      else
++				{
+ 			      dst[x] = src[x];
+ 			      if (dst[x] == 0)
+ 				{
+ 				  dst[x] = 30;
+ 				}
+ 			    }
++			    }
++//redink1 switched to 'better' version
++
++			  ((DWORD) ddst) += ddsd.lPitch - ((int) pbi->biWidth) * bytesPerPixel;	//
+ 			  dst += ddsd.lPitch;
+ 			  src -= dib_pitch;
+-			}
+-		    }
++		    }}
+ 		  else
+ 		    {
+ //doing white
+@@ -2916,6 +3961,28 @@
+ 			{
+ 			  for (x = 0; x < (int) pbi->biWidth; x++)
+ 			    {
++			      if (truecolor)
++				{
++				  dwPixel =
++				    _RGBXBIT (ape[src[x]].peRed,
++					      ape[src[x]].peGreen,
++					      ape[src[x]].peBlue);
++				  if (dwPixel == dwBlack)
++				    {
++// Msg("Found a 255...");
++
++				      dwPixel = dwNearBlack;
++				    }
++				  else if (dwPixel == dwWhite)
++				    {
++				      dwPixel = dwBlack;
++				    }
++				  *((DWORD *) ddst) =
++				    dwPixel | *((DWORD *) ddst) & ~dwWhite;;
++				  ddst += bytesPerPixel;	/*ddst[x] = _RGB24BIT(ape[src[x]].peRed, ape[src[x]].peGreen, ape[src[x]].peBlue); if (ddst[x] == _RGB24BIT(ape[255].peRed, ape[255].peGreen, ape[255].peBlue)) { ddst[x] = _RGB24BIT(ape[249].peRed, ape[249].peGreen, ape[249].peBlue); } if (!dinkpal) { if (ddst[x] == _RGB24BIT(ape[0].peRed, ape[0].peGreen, ape[0].peBlue)) { ddst[x] = _RGB24BIT(ape[255].peRed, ape[255].peGreen, ape[255].peBlue); } } */
++				}
++			      else
++				{
+ 			      dst[x] = src[x];
+ 			      if (dst[x] == 255)
+ 				{
+@@ -2924,11 +3991,13 @@
+ 				  dst[x] = 249;
+ 				}
+ 			    }
++			    }
++//redink1 switched to 'better' version
++
++			  ((DWORD) ddst) += ddsd.lPitch - ((int) pbi->biWidth) * bytesPerPixel;	//ddst += ddsd.lPitch / 4;
+ 			  dst += ddsd.lPitch;
+ 			  src -= dib_pitch;
+-			}
+-		    }
+-		  IDirectDrawSurface_Unlock (k[sprite].k, NULL);
++		    }} IDirectDrawSurface_Unlock (k[sprite].k, NULL);
+ 		}
+ 	      else
+ 		{
+@@ -3033,12 +4102,17 @@
+ load_sprites (char org[100], int nummy, int speed, int xoffset, int yoffset,
+ 	      RECT hardbox, bool notanim, bool black, bool leftalign)
+ {
+-  int work;
+-  PALETTEENTRY holdpal[256];
+-  char crap[200], hold[5];
++  int
++    work;
++  PALETTEENTRY
++    holdpal[256];
++  char
++    crap[200],
++    hold[5];
+   if (no_running_main)
+     draw_wait ();
+-  char crap2[200];
++  char
++    crap2[200];
+   strcpy (crap2, org);
+   while (crap2[strlen (crap2) - 1] != '\\')
+     {
+@@ -3071,6 +4145,21 @@
+       sprintf (crap, "..\\dink\\%s", org);
+       strcpy (org, crap);
+     }
++// redink1 added to fix bug where loading sequences over others wouldn't work quite right.
++
++  int
++    save_cur = cur_sprite;
++  bool
++    reload = false;
++  if (index[nummy].last != 0)
++    {
++// Msg("Saving sprite %d", save_cur);
++
++      cur_sprite = index[nummy].s + 1;
++//Msg("Temp cur_sprite is %d", cur_sprite);
++
++      reload = true;
++    }
+   index[nummy].s = cur_sprite - 1;
+   if (!windowed)
+     {
+@@ -3169,6 +4258,7 @@
+ 	  setup_anim (nummy, nummy, speed);
+ 	  if (!windowed)
+ 	    lpDDPal->SetEntries (0, 0, 256, holdpal);
++	  cur_sprite = save_cur;
+ 	  return;
+ 	}
+ //if (show_dot) Msg( "%s", crap);
+@@ -3178,20 +4268,28 @@
+       else
+ 	DDSetColorKey (k[cur_sprite].k, RGB (255, 255, 255));
+       cur_sprite++;
++      if (!reload)
++	save_cur++;
+ //if (first_frame) if (oo == 1) return;
+ 
+     }
++  cur_sprite = save_cur;
+ }
+ 
+ void
+ figure_out (char line[255], int load_seq)
+ {
+-  char ev[15][100];
+-  RECT hardbox;
++  char
++    ev[15][100];
++  RECT
++    hardbox;
+   ZeroMemory (&ev, sizeof (ev));
+-  int myseq = 0, myframe = 0;
+-  int special = 0;
+-  int special2 = 0;
++  int
++    myseq = 0, myframe = 0;
++  int
++    special = 0;
++  int
++    special2 = 0;
+   for (int i = 1; i <= 14; i++)
+     {
+       seperate_string (line, i, ' ', ev[i]);
+@@ -3373,12 +4471,25 @@
+ void
+ pre_figure_out (char line[255], int load_seq)
+ {
+-  char ev[15][100];
+-  RECT hardbox;
++  char
++    ev[15][100];
++  RECT
++    hardbox;
++//redink1 set hardbox to zero memory by default... fixed some weird compiler warnings in debug mode. Might screw up default hard box?
++
++  hardbox.bottom = 0;
++  hardbox.left = 0;
++  hardbox.right = 0;
++  hardbox.top = 0;
++//ZeroMemory(&hardbox, sizeof(RECT));
++
+   ZeroMemory (&ev, sizeof (ev));
+-  int myseq = 0, myframe = 0;
+-  int special = 0;
+-  int special2 = 0;
++  int
++    myseq = 0, myframe = 0;
++  int
++    special = 0;
++  int
++    special2 = 0;
+   for (int i = 1; i <= 14; i++)
+     {
+       seperate_string (line, i, ' ', ev[i]);
+@@ -3573,9 +4684,12 @@
+ int
+ draw_num (int mseq, char nums[50], int mx, int my)
+ {
+-  int length = 0;
+-  HRESULT ddrval;
+-  int rnum = 0;
++  int
++    length = 0;
++  HRESULT
++    ddrval;
++  int
++    rnum = 0;
+   for (int i = 0; i < strlen (nums); i++)
+     {
+       if (nums[i] == '0')
+@@ -3628,8 +4742,10 @@
+ int
+ next_raise (void)
+ {
+-  int crap = *plevel;
+-  int num = ((100 * crap) * crap);
++  int
++    crap = *plevel;
++  int
++    num = ((100 * crap) * crap);
+   if (num > 99999)
+     num = 99999;
+   return (num);
+@@ -3638,10 +4754,14 @@
+ void
+ draw_exp ()
+ {
+-  char buffer[30];
+-  char nums[30];
+-  char buf[30];
+-  char final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
++  char
++    buf[30];
++  char
++    final[30];
+ //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
+ 
+   strcpy (final, "");
+@@ -3661,9 +4781,12 @@
+ 
+ draw_strength ()
+ {
+-  char final[30];
+-  char buffer[30];
+-  char nums[30];
++  char
++    final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
+ //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
+ 
+   strcpy (final, "");
+@@ -3679,9 +4802,12 @@
+ 
+ draw_defense ()
+ {
+-  char final[30];
+-  char buffer[30];
+-  char nums[30];
++  char
++    final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
+ //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
+ 
+   strcpy (final, "");
+@@ -3695,9 +4821,12 @@
+ 
+ draw_magic ()
+ {
+-  char final[30];
+-  char buffer[30];
+-  char nums[30];
++  char
++    final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
+ //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
+ 
+   strcpy (final, "");
+@@ -3711,9 +4840,12 @@
+ 
+ draw_level ()
+ {
+-  char final[30];
+-  char buffer[30];
+-  char nums[30];
++  char
++    final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
+ //*plevel = 15;
+ 
+ //Msg("Drawing level.. which is %d ",*plevel);
+@@ -3728,9 +4860,12 @@
+ void
+ draw_gold ()
+ {
+-  char final[30];
+-  char buffer[30];
+-  char nums[30];
++  char
++    final[30];
++  char
++    buffer[30];
++  char
++    nums[30];
+ //Msg("Drawing exp.. which is %d and %d",fexp, *pexp);
+ 
+   strcpy (final, "");
+@@ -3744,19 +4879,26 @@
+ 
+ draw_bar (int life, int seqman)
+ {
+-  int cur = 0;
+-  int curx = 284;
+-  int cury = 412;
+-  int rnum = 3;
+-  int curx_start = curx;
+-  RECT box;
++  int
++    cur = 0;
++  int
++    curx = 284;
++  int
++    cury = 412;
++  int
++    rnum = 3;
++  int
++    curx_start = curx;
++  RECT
++    box;
+   while (1)
+     {
+       cur++;
+       if (cur > life)
+ 	{
+ 	  cur--;
+-	  int rem = (cur) - (cur / 10) * 10;
++	  int
++	    rem = (cur) - (cur / 10) * 10;
+ 	  if (rem != 0)
+ 	    {
+ 	      CopyRect (&box, &k[seq[seqman].frame[rnum]].box);
+@@ -3854,13 +4996,16 @@
+ void
+ draw_virtical (int percent, int mx, int my, int mseq, int mframe)
+ {
+-  int cut;
++  int
++    cut;
+   if (percent > 25)
+     percent = 25;
+   percent = (percent * 4);
+-  RECT myrect;
++  RECT
++    myrect;
+   CopyRect (&myrect, &k[seq[mseq].frame[mframe]].box);
+-  int full = myrect.bottom;
++  int
++    full = myrect.bottom;
+   cut = (full * percent) / 100;
+   myrect.bottom = cut;
+   my += (full - cut);
+@@ -3871,13 +5016,16 @@
+ 
+ draw_virt2 (int percent, int mx, int my, int mseq, int mframe)
+ {
+-  int cut;
++  int
++    cut;
+   if (percent > 25)
+     percent = 25;
+   percent = (percent * 4);
+-  RECT myrect;
++  RECT
++    myrect;
+   CopyRect (&myrect, &k[seq[mseq].frame[mframe]].box);
+-  int full = myrect.bottom;
++  int
++    full = myrect.bottom;
+   cut = (full * percent) / 100;
+   myrect.bottom = cut;
+ again:ddrval =
+@@ -3890,13 +5038,16 @@
+ void
+ draw_hor (int percent, int mx, int my, int mseq, int mframe)
+ {
+-  int cut;
++  int
++    cut;
+   if (percent > 25)
+     percent = 25;
+   percent = (percent * 4);
+-  RECT myrect;
++  RECT
++    myrect;
+   CopyRect (&myrect, &k[seq[mseq].frame[mframe]].box);
+-  int full = myrect.right;
++  int
++    full = myrect.right;
+   cut = (full * percent) / 100;
+   full = cut;
+   myrect.right = full;
+@@ -3910,13 +5061,16 @@
+ void
+ draw_hor2 (int percent, int mx, int my, int mseq, int mframe)
+ {
+-  int cut;
++  int
++    cut;
+   if (percent > 25)
+     percent = 25;
+   percent = (percent * 4);
+-  RECT myrect;
++  RECT
++    myrect;
+   CopyRect (&myrect, &k[seq[mseq].frame[mframe]].box);
+-  int full = myrect.right;
++  int
++    full = myrect.right;
+   cut = (full * percent) / 100;
+   myrect.right = cut;
+   mx += (full - cut);
+@@ -3932,9 +5086,12 @@
+ {
+ //if (*pmagic_level < 1) return;
+ 
+-  int mseq = 180;
+-  int bary = 6;
+-  int barx = 7;
++  int
++    mseq = 180;
++  int
++    bary = 6;
++  int
++    barx = 7;
+   if (percent > 0)
+     draw_virtical (percent, 149, 411, mseq, bary);
+   percent -= 25;
+@@ -3951,7 +5108,8 @@
+ void
+ draw_status_all (void)
+ {
+-  RECT rcRect;
++  RECT
++    rcRect;
+   rcRect.left = 0;
+   rcRect.top = 0;
+   rcRect.right = 640;
+@@ -3976,7 +5134,14 @@
+   if (ddrval == DDERR_WASSTILLDRAWING)
+     goto again3;
+   fraise = next_raise ();
++  if (*pexper < fraise)
++    {
+   fexp = *pexper;
++    }
++  else
++    {
++      fexp = fraise - 1;
++    }
+   fstrength = *pstrength;
+   fmagic = *pmagic;
+   fgold = *pgold;
+@@ -3992,10 +5157,10 @@
+   draw_icons ();
+   if (*pmagic_cost > 0)
+     if (*pmagic_level > 0)
+-      draw_mlevel (*pmagic_level / (*pmagic_cost / 100));
+-}
++      draw_mlevel (*pmagic_level / static_cast <
++		   double >(*pmagic_cost) / 100.0);
++} bool
+ 
+-bool
+ inside_box (int x1, int y1, RECT box)
+ {
+   if (x1 > box.right)
+@@ -4054,6 +5219,14 @@
+ 	  spr[x].strength = 0;
+ 	  spr[x].damage = 0;
+ 	  spr[x].defense = 0;
++	  if (spr[x].custom == NULL)
++	    {
++	      spr[x].custom = new std::map < std::string, int >;
++	    }
++	  else
++	    {
++	      spr[x].custom->clear ();
++	    }
+ 	  return (x);
+ 	}
+     }
+@@ -4063,20 +5236,27 @@
+ bool
+ get_box (int h, RECT * box_crap, RECT * box_real)
+ {
+-  RECT math;
+-  int sz, sy, x_offset, y_offset;
+-  int txoffset = k[getpic (h)].xoffset;
+-  int tyoffset = k[getpic (h)].yoffset;
+-  int mplayx = playx;
+-  int mplayl = playl;
+-  int mplayy = playy;
++  RECT
++    math;
++  int
++    sz,
++    sy,
++    x_offset,
++    y_offset;
++  int
++    mplayx = playx;
++  int
++    mplayl = playl;
++  int
++    mplayy = playy;
+   if (spr[h].noclip)
+     {
+       mplayx = 640;
+       mplayl = 0;
+       mplayy = 480;
+     }
+-  RECT krect;
++  RECT
++    krect;
+   if (getpic (h) < 1)
+     {
+       if (dinkedit)
+@@ -4085,9 +5265,17 @@
+       else
+ 	Msg ("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d", h,
+ 	     *pmap, spr[h].pseq, spr[h].pframe);
++//redink1 added to fix frame-not-in-memory immediately
++
++      if (spr[h].pseq != 0)
++	check_seq_status (spr[h].pseq);
+ //spr[h].pic = 44;
+ 
+     }
++  int
++    txoffset = k[getpic (h)].xoffset;
++  int
++    tyoffset = k[getpic (h)].yoffset;
+   *box_real = k[getpic (h)].box;
+   CopyRect (&krect, &k[getpic (h)].box);
+   if (spr[h].size != 100)
+@@ -4117,6 +5305,24 @@
+ 							  0) | (spr[h].alt.
+ 								right != 0))
+     {
++//redink1 checks for correct box stuff
++
++      if (spr[h].alt.left < 0)
++	spr[h].alt.left = 0;
++      if (spr[h].alt.left > k[getpic (h)].box.right)
++	spr[h].alt.left = k[getpic (h)].box.right;
++      if (spr[h].alt.top < 0)
++	spr[h].alt.top = 0;
++      if (spr[h].alt.top > k[getpic (h)].box.bottom)
++	spr[h].alt.top = k[getpic (h)].box.bottom;
++      if (spr[h].alt.right < 0)
++	spr[h].alt.right = 0;
++      if (spr[h].alt.right > k[getpic (h)].box.right)
++	spr[h].alt.right = k[getpic (h)].box.right;
++      if (spr[h].alt.bottom < 0)
++	spr[h].alt.bottom = 0;
++      if (spr[h].alt.bottom > k[getpic (h)].box.bottom)
++	spr[h].alt.bottom = k[getpic (h)].box.bottom;
+ //spr[h].alt.bottom = 10; 
+ 
+       box_crap->left = box_crap->left + spr[h].alt.left;
+@@ -4196,11 +5402,16 @@
+ void
+ reload_sprites (char name[100], int nummy, int junk)
+ {
+-  HRESULT ddrval;
+-  PALETTEENTRY holdpal[256];
+-  char crap[100], hold[10];
+-  int n;
+-  n = 0;
++  HRESULT
++    ddrval;
++  PALETTEENTRY
++    holdpal[256];
++  char
++    crap[100],
++    hold[10];
++  int
++    n;
++  n = 0;
+   lpDDPal->GetEntries (0, 0, 256, holdpal);
+   lpDDPal->SetEntries (0, 0, 256, real_pal);
+   for (int oo = index[nummy].s + 1; oo <= index[nummy].s + index[nummy].last;
+@@ -4230,10 +5441,13 @@
+ void
+ refigure_out (char line[255])
+ {
+-  char ev[15][100];
+-  RECT hardbox;
++  char
++    ev[15][100];
++  RECT
++    hardbox;
+   ZeroMemory (&ev, sizeof (ev));
+-  int myseq = 0, myframe = 0;
++  int
++    myseq = 0, myframe = 0;
+   for (int i = 1; i <= 14; i++)
+     {
+       seperate_string (line, i, ' ', ev[i]);
+@@ -4251,9 +5465,12 @@
+ void
+ reload_batch (void)
+ {
+-  int crapint;
+-  FILE *stream;
+-  char line[255];
++  int
++    crapint;
++  FILE *
++    stream;
++  char
++    line[255];
+   Msg ("reoading .ini");
+   if (!exist ("dink.ini"))
+     {
+@@ -4286,7 +5503,8 @@
+ void
+ strchar (char *string, char ch) /* This acts in the same way as strcat except it combines a string and a single character, updating the null at the end. */
+ {
+-  int last;
++  int
++    last;
+   last = strlen (string);
+   string[last] = ch;
+   string[last + 1] = 0;
+@@ -4311,7 +5529,8 @@
+ void
+ kill_script (int k)
+ {
+-  int i;
++  int
++    i;
+   if (rinfo[k] != NULL)
+     {
+       kill_callbacks_owned_by_script (k);
+@@ -4413,8 +5632,12 @@
+ void
+ decompress (FILE * in)
+ {
+-  unsigned char stack[16], pair[128][2];
+-  short c, top = 0;		/* Check for optional pair count and pair table */
++  unsigned char
++    stack[16],
++    pair[128][2];
++  short
++    c,
++    top = 0;			/* Check for optional pair count and pair table */
+   if ((c = getc (in)) > 127)
+     fread (pair, 2, c - 128, in);
+   else
+@@ -4454,8 +5677,12 @@
+ {
+ //let's do it, only this time decompile OUR style
+ 
+-  unsigned char stack[16], pair[128][2];
+-  short c, top = 0;		/* Check for optional pair count and pair table */
++  unsigned char
++    stack[16],
++    pair[128][2];
++  short
++    c,
++    top = 0;			/* Check for optional pair count and pair table */
+   if ((c = getc (in)) > 255)
+     fread (pair, 2, c - 128, in);
+   else
+@@ -4493,13 +5720,20 @@
+ int
+ load_script (char filename[15], int sprite, bool set_sprite)
+ {
+-  char temp[100];
+-  int script;
+-  FILE *stream;
+-  int fh;
+-  bool comp = false;
+-  char tab[10];
+-  char line[500];
++  char
++    temp[100];
++  int
++    script;
++  FILE *
++    stream;
++  int
++    fh;
++  bool
++    comp = false;
++  char
++    tab[10];
++  char
++    line[500];
+   Msg ("LOADING %s", filename);
+   sprintf (tab, "%c", 9);
+   sprintf (temp, "story\\%s.d", filename);
+@@ -4604,7 +5838,8 @@
+ void
+ strip_beginning_spaces (char *s)
+ {
+-  char *h;
++  char *
++    h;
+   h = s;
+   if (s[0] != 32)
+     {
+@@ -4624,11 +5859,15 @@
+     {
+       return (false);
+     }
+-  int saveme = rinfo[script]->current;
++  int
++    saveme = rinfo[script]->current;
+   rinfo[script]->current = 0;
+-  char line[200];
+-  char ev[3][100];
+-  char temp[100];
++  char
++    line[200];
++  char
++    ev[3][100];
++  char
++    temp[100];
+ //Msg("locate is looking for %s in %s", proc, rinfo[script]->name);
+ 
+   while (read_next_line (script, line))
+@@ -4651,6 +5890,7 @@
+ 	      if (rinfo[script]->sprite != 1000)
+ 		{
+ 		  spr[rinfo[script]->sprite].move_active = false;
++		  spr[rinfo[script]->sprite].move_nohard = false;
+ 		}
+ 	      rinfo[script]->skipnext = false;
+ 	      rinfo[script]->onlevel = 0;
+@@ -4671,9 +5911,12 @@
+ locate_goto (char proc[50], int script)
+ {
+   rinfo[script]->current = 0;
+-  char line[200];
+-  char ev[3][100];
+-  char temp[100];
++  char
++    line[200];
++  char
++    ev[3][100];
++  char
++    temp[100];
+   replace (";", "", proc);
+   strchar (proc, ':');
+ // Msg("locate is looking for %s", proc);
+@@ -4714,10 +5957,62 @@
+       sprintf (crap, "%d", script);
+       return;
+     }
++//v1.08 special variables.
++
++  if (compare (crap, "&return"))
++    {
++      sprintf (crap, "%d", returnint);
++      return;
++    }
++  if (compare (crap, "&arg1"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg1);
++      return;
++    }
++  if (compare (crap, "&arg2"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg2);
++      return;
++    }
++  if (compare (crap, "&arg3"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg3);
++      return;
++    }
++  if (compare (crap, "&arg4"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg4);
++      return;
++    }
++  if (compare (crap, "&arg5"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg5);
++      return;
++    }
++  if (compare (crap, "&arg6"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg6);
++      return;
++    }
++  if (compare (crap, "&arg7"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg7);
++      return;
++    }
++  if (compare (crap, "&arg8"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg8);
++      return;
++    }
++  if (compare (crap, "&arg9"))
++    {
++      sprintf (crap, "%d", rinfo[script]->arg9);
++      return;
++    }
+   for (int i = 1; i < max_vars; i++)
+     {
+       if (play.var[i].active == true)
+-	if ((play.var[i].scope == 0) | (play.var[i].scope == script))
++	if (i == get_var (script, play.var[i].name))	//redink1 changed for recursive scoping
+ 	  if (compare (play.var[i].name, crap))
+ 	    {
+ 	      sprintf (crap, "%d", play.var[i].var);
+@@ -4728,29 +6023,148 @@
+     }
+ }
+ 
+-void
+-decipher_string (char line[200], int script)
++//redink1 added to recursively check scope
++
++ /*bool recurse_scope(int var, int script) { 
++    //if the script matches, return true!
++
++    if (play.var[var].scope == script) return true; 
++    //If it doesn't match, and we have a proc return, go down the rabbit hole
++
++    if (rinfo[script] && rinfo[script]->proc_return != 0) return recurse_scope(var, rinfo[script]->proc_return); 
++    //Otherwise, return false
++
++    return false; } */
++//redink1 added, grabs the var index matching 'name' with the shortest scope. Basically iterates for each scope seperate until it finds a match.
++
++int
++get_var (int script, char *name)
+ {
+-  char crap[20];
+-  char buffer[20];
+-  char crab[100];
+-  int mytime;
+-  for (int i = 1; i < max_vars; i++)
++//Can optimize here, by searching through variable array for start and end limits
++
++//Loop forever...
++
++  while (1)
+     {
+-      if (play.var[i].active == true)
+-	if ((play.var[i].scope == 0) | (play.var[i].scope == script))
++//We'll start going through every var, starting at one
++
++      int
++	var = 1;
++      while (var < max_vars)
++	{
++//Okay... make sure the var is active,
++
++//The scope should match the script,
++
++//Then make sure the name is the same.
++
++	  if (play.var[var].active && play.var[var].scope == script
++	      && compare (play.var[var].name, name))
++	    return var;
++//Otherwise, go to the next var.
++
++	  var++;
++	}
++//If we just went through the global list, let's return
++
++      if (script <= 0)
++	break;
++//Bugfix... if there is no rinfo[script] entry (like if kill this task was used), we go directly to the globals.
++
++//Thanks Tal!
++
++//if (!rinfo[script])
++
++// script = 0;
++
++//Go into the next proc from the script. If there are no parent procs, it should be 0, which is global.
++
++//else
++
++// script = rinfo[script]->proc_return;
++
++//Changed to not reference the parent procedure's variable list at all... just go on to globals.
++
++      script = 0;
++    }
++  return 0;
++}
++
++//redink1 changes for replacing var in string
++
++bool
++recurse_var_replace (int i, int script, char *line, char *prevar)
++{
++  while (i < max_vars)
++    {
++//First, make sure the variable is active.
++
++//Then, make sure it is in scope,
++
++//Then, see if the variable name is in the line
++
++//Then, prevar is null, or if prevar isn't null, see if current variable starts with prevar
++
++      if (play.var[i].active && i == get_var (script, play.var[i].name)
++	  && strstr (line, play.var[i].name) && (prevar == NULL
++						 || prevar != NULL
++						 && strstr (play.var[i].name,
++							    prevar)))
++	{
++//Look for shorter variables
++
++	  if (!recurse_var_replace (i + 1, script, line, play.var[i].name))
+ 	  {
++//we didn't find any, so we replace!
++
++	      char
++		crap[20];
+ 	    sprintf (crap, "%d", play.var[i].var);
+ 	    replace (play.var[i].name, crap, line);
+-// check_for_real_vars(crap, i);
++//return true;
+ 
+ 	  }
+     }
++      i++;
++    } return false;
++}
++
++void
++decipher_string (char line[200], int script)
++{
++  char
++    crap[20];
++  char
++    buffer[20];
++  char
++    crab[100];
++  int
++    mytime;
++//redink1 replaced with recursive function for finding longest variable
++
++  recurse_var_replace (1, script, line, NULL);	/*for (int i = 1; i < max_vars; i ++) { if (play.var[i].active == true) if ( (play.var[i].scope == 0) || recurse_scope(play.var[i].scope, script) ) { sprintf(crap, "%d", play.var[i].var); replace(play.var[i].name, crap, line); 
++						   // check_for_real_vars(crap, i);
++
++						   //break;
++
++						   } } */
+   if ((strchr (line, '&') != NULL) && (script != 0))
+     {
+       replace ("&current_sprite", ltoa (rinfo[script]->sprite, buffer, 10),
+ 	       line);
+       replace ("&current_script", ltoa (script, buffer, 10), line);
++//v1.08 special variables.
++
++      replace ("&return", ltoa (returnint, buffer, 10), line);
++      replace ("&arg1", ltoa (rinfo[script]->arg1, buffer, 10), line);
++      replace ("&arg2", ltoa (rinfo[script]->arg2, buffer, 10), line);
++      replace ("&arg3", ltoa (rinfo[script]->arg3, buffer, 10), line);
++      replace ("&arg4", ltoa (rinfo[script]->arg4, buffer, 10), line);
++      replace ("&arg5", ltoa (rinfo[script]->arg5, buffer, 10), line);
++      replace ("&arg6", ltoa (rinfo[script]->arg6, buffer, 10), line);
++      replace ("&arg7", ltoa (rinfo[script]->arg7, buffer, 10), line);
++      replace ("&arg8", ltoa (rinfo[script]->arg8, buffer, 10), line);
++      replace ("&arg9", ltoa (rinfo[script]->arg9, buffer, 10), line);
+       if (decipher_savegame != 0)
+ 	{
+ 	  if (play.button[decipher_savegame] == 1)
+@@ -4782,7 +6196,9 @@
+ 	if (exist (crap))
+ 	  {
+ 	    load_game_small (decipher_savegame, crab, &mytime);
+-	    sprintf (line, "Slot %d - %d:%d - %s", decipher_savegame,
++//redink1 fix for savegame time bug
++
++	    sprintf (line, "Slot %d - %d:%02d - %s", decipher_savegame,
+ 		     (mytime / 60), mytime - ((mytime / 60) * 60), crab);
+ //sprintf(line, "In Use"); 
+ 
+@@ -4802,7 +6218,9 @@
+ bool
+ get_parms (char proc_name[20], int script, char *h, int p[10])
+ {
+-  char crap[100];
++  memset (nlist, 0, 10 * sizeof (int));
++  char
++    crap[100];
+   strip_beginning_spaces (h);
+   if (h[0] == '(')
+     {
+@@ -4812,7 +6230,7 @@
+     }
+   else
+     {
+-      Msg ("Missing ( in %s, offset %s.", rinfo[script]->name,
++      Msg ("Missing ( in %s, offset %d.", rinfo[script]->name,
+ 	   rinfo[script]->current);
+       return (false);
+     }
+@@ -4954,6 +6372,14 @@
+ 	  spr[x].damage = 0;
+ 	  spr[x].defense = 0;
+ 	  spr[x].hard = 1;
++	  if (spr[x].custom == NULL)
++	    {
++	      spr[x].custom = new std::map < std::string, int >;
++	    }
++	  else
++	    {
++	      spr[x].custom->clear ();
++	    }
+ 	  return (x);
+ 	}
+     }
+@@ -4963,8 +6389,10 @@
+ void
+ check_sprite_status (int h)
+ {
+-  HRESULT dderror;
+-  char word1[80];
++  HRESULT
++    dderror;
++  char
++    word1[80];
+ //is sprite in memory?
+ 
+   if (spr[h].pseq > 0)
+@@ -4996,8 +6424,10 @@
+ void
+ check_frame_status (int h, int frame)
+ {
+-  HRESULT dderror;
+-  char word1[80];
++  HRESULT
++    dderror;
++  char
++    word1[80];
+   if (seq[h].active == false)
+     return;
+   if (h > 0)
+@@ -5016,8 +6446,11 @@
+ 
+ //Msg("Sprite %d's seq is %d",h,spr[h].seq);
+ 
+-	  dderror = k[seq[h].frame[1]].k->IsLost ();
+-	  if (dderror == DDERR_SURFACELOST)
++	  if (k[seq[h].frame[1]].k == NULL)
++	    {
++	      figure_out (seq[h].data, 0);
++	    }
++	  else if (k[seq[h].frame[1]].k->IsLost () == DDERR_SURFACELOST)
+ 	    {
+ 	      get_word (seq[h].data, 2, word1);
+ 	      reload_sprites (word1, h, 0);
+@@ -5031,8 +6464,10 @@
+ void
+ check_seq_status (int h)
+ {
+-  HRESULT dderror;
+-  char word1[80];
++  HRESULT
++    dderror;
++  char
++    word1[80];
+   if (seq[h].active == false)
+     return;
+   if (h > 0)
+@@ -5040,7 +6475,7 @@
+       {
+ // Msg("Smartload: Loading seq %d..", spr[h].seq);
+ 
+-	if (seq[h].frame[1] == 0)
++	if (seq[h].frame[1] == 0 || k[seq[h].frame[1]].k == NULL)
+ 	  {
+ 	    figure_out (seq[h].data, 0);
+ 	  }
+@@ -5050,8 +6485,7 @@
+ 
+ //Msg("Sprite %d's seq is %d",h,spr[h].seq);
+ 
+-	    dderror = k[seq[h].frame[1]].k->IsLost ();
+-	    if (dderror == DDERR_SURFACELOST)
++	    if (k[seq[h].frame[1]].k->IsLost () == DDERR_SURFACELOST)
+ 	      {
+ 		get_word (seq[h].data, 2, word1);
+ 		reload_sprites (word1, h, 0);
+@@ -5075,8 +6509,10 @@
+ void
+ check_sprite_status_full (int h)
+ {
+-  HRESULT dderror;
+-  char word1[80];
++  HRESULT
++    dderror;
++  char
++    word1[80];
+ //same as above but checks for all seq's used by the (base) commands
+ 
+ //is sprite in memory?
+@@ -5089,7 +6525,8 @@
+ int
+ say_text (char text[200], int h, int script)
+ {
+-  int crap2;
++  int
++    crap2;
+ //Msg("Creating new sprite with %s connect to %d.",text, h);
+ 
+   if (h == 1000)
+@@ -5128,7 +6565,8 @@
+ int
+ say_text_xy (char text[200], int mx, int my, int script)
+ {
+-  int crap2;
++  int
++    crap2;
+ //Msg("Creating new sprite with %s connect to %d.",text, h);
+ 
+   crap2 = add_sprite (mx, my, 8, 0, 0);
+@@ -5178,7 +6616,7 @@
+ 	{
+ 	  if (compare (play.var[i].name, name))
+ 	    {
+-	      if (scope == play.var[i].scope)
++	      if (play.var[i].scope == scope)	//redink1 changed to check recursively... then changed back. Hrm.
+ 		{
+ //Msg("Found match for %s.", name);
+ 
+@@ -5190,10 +6628,41 @@
+   return (0);
+ }
+ 
++//redink1 added this to make new global functions
++
++void
++make_function (char file[10], char func[20])
++{
++//See if it already exists
++
++  bool
++    exists = false;
++  int
++    i;
++  for (i = 0; strlen (play.func[i].func) > 0 && i < 100; i++)
++    {
++      if (compare (func, play.func[i].func))
++	{
++	  exists = true;
++	  break;
++	}
++    }
++  if (exists)
++    {
++      strncpy (play.func[i].file, file, 10);
++    }
++  else
++    {
++      strncpy (play.func[0].file, file, 10);
++      strncpy (play.func[0].func, func, 20);
++    }
++}
++
+ void
+ make_int (char name[80], int value, int scope, int script)
+ {
+-  int dupe;
++  int
++    dupe;
+   if (strlen (name) > 19)
+     {
+       Msg ("ERROR: Varname %s is too long in script %s.", name,
+@@ -5235,31 +6704,33 @@
+ var_equals (char name[20], char newname[20], char math, int script,
+ 	    char rest[200])
+ {
+-  int k;
+-  int newret;
++  int
++    k;
++//redink1 set newret to NULL so debug errors did not appear.
++
++  int
++    newret = NULL;		// = NULL;
+   if (name[0] != '&')
+     {
+       Msg ("ERROR (var equals): Unknown var %s in %s offset %d.", name,
+ 	   rinfo[script]->name, rinfo[script]->current);
+       return (0);
+     }
+-  for (int i = 1; i < max_vars; i++)
+-    {
+-      if (play.var[i].active == true)
+-	{
+-	  if ((play.var[i].scope == 0) | (play.var[i].scope == script))
+-	    if (compare (name, play.var[i].name))
++  int
++    i = get_var (script, name);
++  if (i > 0)
+ 	      {
++      goto next;
++    }				/*for (int i = 1; i < max_vars; i++) { if (play.var[i].active == true) { if (i == 71) { i = 71; } if ( (play.var[i].scope == 0 || recurse_scope(i, script)) && compare(name, play.var[i].name) ) //redink1 changed to check recursive scope
++
+ //found var
+ 
+-		goto next;
+-	      }
+-	}
+-    }
++				   goto next; } } */
+   Msg ("ERROR: (var equals2) Unknown var %s in %s offset %d.", name,
+        rinfo[script]->name, rinfo[script]->current);
+   return (0);
+-next:int newval = 0;
++next:int
++    newval = 0;
+   if (strchr (rest, '(') != NULL)
+     {
+       newret = process_line (script, rest, false);
+@@ -5268,20 +6739,18 @@
+     }
+   if (strchr (newname, ';') != NULL)
+     replace (";", "", newname);
+-  for (k = 1; k < max_vars; k++)
+-    {
+-      if (play.var[k].active == true)
+-	{
+-	  if ((play.var[i].scope == 0) | (play.var[i].scope == script))
+-	    if (compare (newname, play.var[k].name))
++//redink1 fixed for scope and such
++
++  k = get_var (script, newname);
++  if (k > 0)
+ 	      {
+ 		newval = play.var[k].var;
++      goto next2;
++    }				/*for (k = 1; k < max_vars; k++) { if (play.var[k].active == true) { if ( (play.var[k].scope == 0) || recurse_scope(k, script) ) //redink1 changed i to k, made it so can set the parent proc's local variables.
++				   if (compare(newname, play.var[k].name)) { newval = play.var[k].var; 
+ //found var
+ 
+-		goto next2;
+-	      }
+-	}
+-    }
++				   goto next2; } } } */
+   if (compare (newname, "&current_sprite"))
+     {
+       newval = rinfo[script]->sprite;
+@@ -5292,6 +6761,58 @@
+       newval = script;
+       goto next2;
+     }
++//v1.08 special variables.
++
++  if (compare (newname, "&return"))
++    {
++      newval = returnint;
++      goto next2;
++    }
++  if (compare (newname, "&arg1"))
++    {
++      newval = rinfo[script]->arg1;
++      goto next2;
++    }
++  if (compare (newname, "&arg2"))
++    {
++      newval = rinfo[script]->arg2;
++      goto next2;
++    }
++  if (compare (newname, "&arg3"))
++    {
++      newval = rinfo[script]->arg3;
++      goto next2;
++    }
++  if (compare (newname, "&arg4"))
++    {
++      newval = rinfo[script]->arg4;
++      goto next2;
++    }
++  if (compare (newname, "&arg5"))
++    {
++      newval = rinfo[script]->arg5;
++      goto next2;
++    }
++  if (compare (newname, "&arg6"))
++    {
++      newval = rinfo[script]->arg6;
++      goto next2;
++    }
++  if (compare (newname, "&arg7"))
++    {
++      newval = rinfo[script]->arg7;
++      goto next2;
++    }
++  if (compare (newname, "&arg8"))
++    {
++      newval = rinfo[script]->arg8;
++      goto next2;
++    }
++  if (compare (newname, "&arg9"))
++    {
++      newval = rinfo[script]->arg9;
++      goto next2;
++    }
+   newval = atol (newname);
+ next2:if (math == '=')
+     play.var[i].var = newval;
+@@ -5309,9 +6830,12 @@
+ void
+ get_word (char line[300], int word, char *crap)
+ {
+-  int cur = 0;
+-  bool space_mode = false;
+-  char save_word[100];
++  int
++    cur = 0;
++  bool
++    space_mode = false;
++  char
++    save_word[100];
+   save_word[0] = 0;
+   for (int k = 0; k < strlen (line); k++)
+     {
+@@ -5354,9 +6878,12 @@
+ int
+ var_figure (char h[200], int script)
+ {
+-  char crap[200];
+-  int ret = 0;
+-  int n1 = 0, n2 = 0;
++  char
++    crap[200];
++  int
++    ret = 0;
++  int
++    n1 = 0, n2 = 0;
+ //Msg("Figuring out %s...", h);
+ 
+   get_word (h, 2, crap);
+@@ -5546,11 +7073,18 @@
+ bool
+ talk_get (int script)
+ {
+-  char line[200], check[200], checker[200];
+-  int cur = 1;
+-  char *p;
+-  int num;
+-  int retnum = 0;
++  char
++    line[200],
++    check[200],
++    checker[200];
++  int
++    cur = 1;
++  char *
++    p;
++  int
++    num;
++  int
++    retnum = 0;
+   clear_talk ();
+   talk.newy = -5000;
+   while (1)
+@@ -5688,11 +7222,16 @@
+ 
+ //int crap = (mciSendString("play MUSIC from 0", NULL, 0, g_hWnd));
+ 
+-  DWORD dwReturn;
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_PLAY_PARMS mciPlayParms;
+-  MCI_STATUS_PARMS mciStatusParms;
+-  MCI_SEQ_SET_PARMS mciSeqSetParms;
++  DWORD
++    dwReturn;
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_PLAY_PARMS
++    mciPlayParms;
++  MCI_STATUS_PARMS
++    mciStatusParms;
++  MCI_SEQ_SET_PARMS
++    mciSeqSetParms;
+ // Open the device by specifying the device and filename.
+ 
+ // MCI will attempt to choose the MIDI mapper as the output port.
+@@ -5724,11 +7263,16 @@
+ 
+ //int crap = (mciSendString("play MUSIC from 0", NULL, 0, g_hWnd));
+ 
+-  DWORD dwReturn;
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_PLAY_PARMS mciPlayParms;
+-  MCI_STATUS_PARMS mciStatusParms;
+-  MCI_SEQ_SET_PARMS mciSeqSetParms;
++  DWORD
++    dwReturn;
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_PLAY_PARMS
++    mciPlayParms;
++  MCI_STATUS_PARMS
++    mciStatusParms;
++  MCI_SEQ_SET_PARMS
++    mciSeqSetParms;
+ // Open the device by specifying the device and filename.
+ 
+ // MCI will attempt to choose the MIDI mapper as the output port.
+@@ -5769,11 +7313,16 @@
+ // StopMidi();
+ 
+   Msg ("Attempting to play midi %s.", lpszMIDIFileName);
+-  DWORD dwReturn;
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_PLAY_PARMS mciPlayParms;
+-  MCI_STATUS_PARMS mciStatusParms;
+-  MCI_SEQ_SET_PARMS mciSeqSetParms;
++  DWORD
++    dwReturn;
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_PLAY_PARMS
++    mciPlayParms;
++  MCI_STATUS_PARMS
++    mciStatusParms;
++  MCI_SEQ_SET_PARMS
++    mciSeqSetParms;
+ // Open the device by specifying the device and filename.
+ 
+ // MCI will attempt to choose the MIDI mapper as the output port.
+@@ -5781,12 +7330,13 @@
+   mciOpenParms.lpstrDeviceType = "sequencer";
+   mciOpenParms.lpstrElementName = lpszMIDIFileName;
+   if (dwReturn =
+-      mciSendCommand (NULL, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT,
++      mciSendCommand (0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT,
+ 		      (DWORD) (LPVOID) & mciOpenParms))
+     {
+ // Failed to open device. Don't close it; just return error.
+ 
+-      char ermess[129];
++      char
++	ermess[129];
+ //let's get the error message
+ 
+       mciGetErrorString (dwReturn, ermess, 128);
+@@ -5842,13 +7392,15 @@
+ 
+   if (::sound_on == false)
+     return true;
+-  char buf[256];
+-  char crap[256];
++  char
++    buf[256];
++  char
++    crap[256];
+   if (compare (last_midi, sFileName))
+     {
+       if (nothing_playing ())
+ 	{
+-	  Msg ("I think %s is already playing, I should skip it it...",
++	  Msg ("I think %s is already playing, I should skip it...",
+ 	       sFileName);
+ 	  return (false);
+ 	}
+@@ -5897,7 +7449,8 @@
+ void
+ check_midi (void)
+ {
+-  char hold[20];
++  char
++    hold[20];
+   if (!midi_active)
+     return;
+   if (map.music[*pmap] != 0)
+@@ -5936,10 +7489,14 @@
+ DWORD
+ killcd (HWND hWndNotify, BYTE bTrack)
+ {
+-  DWORD dwReturn;
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_SET_PARMS mciSetParms;
+-  MCI_PLAY_PARMS mciPlayParms;
++  DWORD
++    dwReturn;
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_SET_PARMS
++    mciSetParms;
++  MCI_PLAY_PARMS
++    mciPlayParms;
+ // Open the CD audio device by specifying the device name.
+ 
+   mciOpenParms.lpstrDeviceType = "cdaudio";
+@@ -5991,10 +7548,14 @@
+ DWORD
+ PlayCD (HWND hWndNotify, BYTE bTrack)
+ {
+-  DWORD dwReturn;
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_SET_PARMS mciSetParms;
+-  MCI_PLAY_PARMS mciPlayParms;
++  DWORD
++    dwReturn;
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_SET_PARMS
++    mciSetParms;
++  MCI_PLAY_PARMS
++    mciPlayParms;
+ // killcd(g_hWnd, 1); 
+ 
+ // Open the CD audio device by specifying the device name.
+@@ -6058,17 +7619,28 @@
+ DWORD
+ getCDTrackStartTimes (VOID)
+ {
+-  UINT wDeviceID;
+-  int i, iNumTracks;
++  UINT
++    wDeviceID;
++  int
++    i,
++    iNumTracks;
+   cd_inserted = false;
+-  DWORD dwReturn;
+-  DWORD dwPosition;
+-  DWORD *pMem;
+-  char szTempString[64];
+-  char szTimeString[512] = "\0";	// room for 20 tracks
+-  MCI_OPEN_PARMS mciOpenParms;
+-  MCI_SET_PARMS mciSetParms;
+-  MCI_STATUS_PARMS mciStatusParms;
++  DWORD
++    dwReturn;
++  DWORD
++    dwPosition;
++  DWORD *
++    pMem;
++  char
++    szTempString[64];
++  char
++    szTimeString[512] = "\0";	// room for 20 tracks
++  MCI_OPEN_PARMS
++    mciOpenParms;
++  MCI_SET_PARMS
++    mciSetParms;
++  MCI_STATUS_PARMS
++    mciStatusParms;
+ // Open the device by specifying the device name.
+ 
+   Msg ("Opening cd..");
+@@ -6081,7 +7653,8 @@
+ 
+ // Don't close device; just return error. 
+ 
+-      char error[200];
++      char
++	error[200];
+       mciGetErrorString (dwReturn, error, 200);
+       Msg (": %s", error);
+       return (dwReturn);
+@@ -6301,8 +7874,10 @@
+ void
+ get_right (char line[200], char thing[100], char *ret)
+ {
+-  char *dumb;
+-  int pos = strcspn (line, thing);
++  char *
++    dumb;
++  int
++    pos = strcspn (line, thing);
+   if (pos == NULL)
+     {
+       strcpy (ret, "");
+@@ -6315,11 +7890,15 @@
+ void
+ int_prepare (char line[100], int script)
+ {
+-  int def = 0;
+-  char hold[100];
++  int
++    def = 0;
++  char
++    hold[100];
+   strcpy (hold, line);
+-  char name[100];
+-  char crap[100];
++  char
++    name[100];
++  char
++    crap[100];
+   replace ("=", " ", line);
+   strcpy (crap, line);
+   seperate_string (crap, 1, ';', line);
+@@ -6352,7 +7931,14 @@
+   return (*change);
+ }
+ 
+-int
++//redink1 added for long values
++
++long
++change_sprite (int h, int val, long *change)
++{
++  return (long) change_sprite (h, val, (int *) change);
++} int
++
+ change_edit (int h, int val, unsigned short *change)
+ {
+ //Msg("Searching sprite %s with val %d. Cur is %d", h, val, *change);
+@@ -6408,12 +7994,24 @@
+     return;
+   if (spr[h].nodraw == 1)
+     return;
+-  RECT box_crap, box_real;
+-  HRESULT ddrval;
+-  DDBLTFX ddbltfx;
++  RECT
++    box_crap,
++    box_real;
++  HRESULT
++    ddrval;
++  DDBLTFX
++    ddbltfx;
+   ddbltfx.dwSize = sizeof (ddbltfx);
+   ddbltfx.dwFillColor = 0;
+   if (get_box (h, &box_crap, &box_real))
++    {
++//redink1 error checking for invalid rectangle
++
++      if (box_crap.left >= box_crap.right || box_crap.top >= box_crap.bottom)
++	return;
++//redink1 error checking for out-of-bounds clipping
++
++      /*if (box_crap.left < 0) box_crap.left = 0; if (box_crap.top < box_real.top) box_crap.top = box_crap.top; if (box_crap.right > box_real.right) box_crap.right = box_real.right; if (box_crap.bottom > box_real.bottom) box_crap.bottom = box_real.bottom; */
+     while (1)
+       {
+ // Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
+@@ -6433,9 +8031,9 @@
+ 	    Msg ("MainSpriteDraw(): Could not draw sprite %d, pic %d.", h,
+ 		 getpic (h));
+ 	    Msg ("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",
+-		 box_crap.left, box_crap.top, box_crap.right, box_crap.bottom,
+-		 box_real.left, box_real.top, box_real.right,
+-		 box_real.bottom);
++		   box_crap.left, box_crap.top, box_crap.right,
++		   box_crap.bottom, box_real.left, box_real.top,
++		   box_real.right, box_real.bottom);
+ 	    if (spr[h].pseq != 0)
+ 	      check_seq_status (spr[h].pseq);
+ 	    break;
+@@ -6446,12 +8044,15 @@
+ 	  }
+       }
+ }
++}
+ 
+ void
+ changedir (int dir1, int k, int base)
+ {
+-  int hspeed;
+-  int speed_hold = spr[k].speed;
++  int
++    hspeed;
++  int
++    speed_hold = spr[k].speed;
+   if (k > 1)
+     if (spr[k].brain != 9)
+       if (spr[k].brain != 10)
+@@ -6469,7 +8070,8 @@
+ 	  else
+ 	    spr[k].speed = hspeed;
+ 	}
+-  int old_seq = spr[k].seq;
++  int
++    old_seq = spr[k].seq;
+   spr[k].dir = dir1;
+   if (dir1 == 1)
+     {
+@@ -6668,11 +8270,14 @@
+ void
+ update_status_all (void)
+ {
+-  bool drawexp = false;
+-  int next = next_raise ();
+-  int script;
+-  if (next != fraise)
+-    {
++  bool
++    drawexp = false;
++  int
++    next = next_raise ();
++  int
++    script;
++  if (next != fraise)
++    {
+       fraise += next / 40;
+       if (fraise > next)
+ 	fraise = next;
+@@ -6683,6 +8288,9 @@
+     }
+   if (*pexper != fexp)
+     {
++      if ((talk.active == false && item_screen == false && spr[1].freeze == 0)
++	  || fexp + 10 < fraise)
++	{
+ //update screen experience
+ 
+       fexp += 10;
+@@ -6701,6 +8309,7 @@
+ 	    run_script (script);
+ 	}
+     }
++    }
+   if (drawexp)
+     {
+       draw_exp ();
+@@ -6776,7 +8385,14 @@
+   if (*pmagic_cost > 0)
+     if (*pmagic_level > 0)
+       {
+-	int mnum = *pmagic_level / (*pmagic_cost / 100);
++	double
++	  mnumd = *pmagic_level;
++	mnumd *= 100;
++	mnumd /= *pmagic_cost;
++	int
++	  mnum = static_cast < int >(mnumd);
++//int mnum = *pmagic_level / (*pmagic_cost / 100);
++
+ 	if (mnum != last_magic_draw)
+ 	  {
+ 	    draw_mlevel (mnum);
+@@ -6798,13 +8414,19 @@
+ void
+ place_sprites_game (void)
+ {
+-  int sprite;
+-  BOOL bs[max_sprites_at_once];
+-  int rank[max_sprites_at_once];
+-  int highest_sprite;
++  int
++    sprite;
++  BOOL
++    bs[max_sprites_at_once];
++  int
++    rank[max_sprites_at_once];
++  int
++    highest_sprite;
+   update_play_changes ();
+   memset (&bs, 0, sizeof (bs));
+-  int hs;
++  memset (&rank, 0, sizeof (rank));
++  int
++    hs;
+   for (int r1 = 1; r1 < 100; r1++)
+     {
+       highest_sprite = 20000;	//more than it could ever be
+@@ -6830,7 +8452,8 @@
+       if (rank[r1] != 0)
+ 	bs[rank[r1]] = TRUE;
+     }
+-  int j;
++  int
++    j;
+   for (int oo = 1; rank[oo] > 0; oo++)
+     {
+ //Msg("Ok, rank[%d] is %d.",oo,rank[oo]); 
+@@ -6944,9 +8567,11 @@
+ bool
+ kill_last_sprite (void)
+ {
+-  int found;
++  int
++    found;
+   found = 0;
+-  bool nosetlast = false;
++  bool
++    nosetlast = false;
+   for (int k = 1; k < max_sprites_at_once; k++)
+     if (spr[k].active)
+       {
+@@ -6987,10 +8612,13 @@
+   showb.showdot = showdot;
+   showb.script = script;
+   abort_this_flip = true;
+-  RECT rcRect;
++  RECT
++    rcRect;
+   SetRect (&rcRect, 0, 0, 640, 480);
+-  HDC hdc;
+-  char msg[200];
++  HDC
++    hdc;
++  char
++    msg[200];
+ again:ddrval =
+     lpDDSBack->BltFast (0, 0, lpDDSTrick, &rcRect,
+ 			DDBLTFAST_NOCOLORKEY);
+@@ -7013,10 +8641,13 @@
+     lpDDSPrimary->SetPalette (lpDDPal);
+   lpDDSTrick = DDLoadBitmap (lpDD, name, 0, 0);
+   abort_this_flip = true;
+-  RECT rcRect;
++  RECT
++    rcRect;
+   SetRect (&rcRect, 0, 0, 640, 480);
+-  HDC hdc;
+-  char msg[200];
++  HDC
++    hdc;
++  char
++    msg[200];
+ again:ddrval =
+     lpDDSBack->BltFast (0, 0, lpDDSTrick, &rcRect,
+ 			DDBLTFAST_NOCOLORKEY);
+@@ -7033,10 +8664,14 @@
+ BOOL
+ playing (int sound)
+ {
+-  unsigned long crap;
+-  HRESULT ddsound;
+-  HRESULT dsrval;
+-  IDirectSoundBuffer *pdsb = ssound[sound].sound;
++  unsigned long
++    crap;
++  HRESULT
++    ddsound;
++  HRESULT
++    dsrval;
++  IDirectSoundBuffer *
++    pdsb = ssound[sound].sound;
+   if (!lpDS || !pdsb)
+     {
+       return FALSE;
+@@ -7051,8 +8686,10 @@
+ int
+ get_pan (int h)
+ {
+-  int pan = 0;
+-  int x1 = 320;
++  int
++    pan = 0;
++  int
++    x1 = 320;
+ //uncomment to allow math to be done from Dink's current location
+ 
+ //x1 = spr[1].x;
+@@ -7074,8 +8711,10 @@
+ int
+ get_vol (int h)
+ {
+-  int pan = 0;
+-  int pan2 = 0;
++  int
++    pan = 0;
++  int
++    pan2 = 0;
+   if (spr[h].active)
+     {
+       if (spr[h].x > spr[1].x)
+@@ -7140,7 +8779,8 @@
+ void
+ update_sound (void)
+ {
+-  unsigned long crap;
++  unsigned long
++    crap;
+   if (!sound_on)
+     return;
+   for (int i = 1; i <= num_soundbanks; i++)
+@@ -7194,9 +8834,12 @@
+ int
+ playbank (int sound, int min, int plus, int sound3d, bool repeat)
+ {
+-  HRESULT dsrval;
+-  unsigned long crap;
+-  HRESULT ddsound;
++  HRESULT
++    dsrval;
++  unsigned long
++    crap;
++  HRESULT
++    ddsound;
+ //Msg("Playing bank %d..", sound);
+ 
+   for (int i = 1; i <= num_soundbanks; i++)
+@@ -7276,13 +8919,16 @@
+ int
+ SoundPlayEffect (int sound, int min, int plus, int sound3d, bool repeat)
+ {
+-  HRESULT dsrval;
+-  IDirectSoundBuffer *pdsb = ssound[sound].sound;
++  HRESULT
++    dsrval;
++  IDirectSoundBuffer *
++    pdsb = ssound[sound].sound;
+ // if (playing(sound))
+ 
+ //main mixing buffer is busy, lets use a 'bank' instead.
+ 
+-  int bank = playbank (sound, min, plus, sound3d, repeat);
++  int
++    bank = playbank (sound, min, plus, sound3d, repeat);
+   if (!bank)
+     {
+       Msg ("Ran out of banks.");
+@@ -7298,7 +8944,8 @@
+ 
+   if (damage < 1)
+     return (0);
+-  int num = damage - spr[h].defense;
++  int
++    num = damage - spr[h].defense;
+ // Msg("num is %d.. defense was %d.of sprite %d", num, spr[h].defense, h);
+ 
+   if (num < 1)
+@@ -7317,12 +8964,27 @@
+ void
+ random_blood (int mx, int my, int h)
+ {
+-  int myseq;
+-  if ((rand () % 2) == 1)
+-    myseq = 188;
++//if ((rand() % 2) == 1) myseq = 188; else myseq = 187;
++
++//redink1 - customizable blood depending on what sprite we hit!!
++
++  int
++    myseq;
++  int
++    randy;
++  if (spr[h].bloodseq > 0 && spr[h].bloodnum > 0)
++    {
++      myseq = spr[h].bloodseq;
++      randy = spr[h].bloodnum;
++    }
+   else
++    {
+     myseq = 187;
+-  int crap2 = add_sprite (mx, my, 5, myseq, 1);
++      randy = 3;
++    }
++  myseq += (rand () % randy);
++  int
++    crap2 = add_sprite (mx, my, 5, myseq, 1);
+   spr[crap2].speed = 0;
+   spr[crap2].base_walk = -1;
+   spr[crap2].nohit = 1;
+@@ -7334,7 +8996,8 @@
+ BOOL
+ SoundStopEffect (int sound)
+ {
+-  HRESULT dsrval;
++  HRESULT
++    dsrval;
+   if (!lpDS || !ssound[sound].sound)
+     {
+       return FALSE;
+@@ -7346,8 +9009,10 @@
+ BOOL
+ DSEnable (HWND hwnd)
+ {
+-  HRESULT dsrval;
+-  BOOL bUseDSound;
++  HRESULT
++    dsrval;
++  BOOL
++    bUseDSound;
+   bUseDSound = TRUE;
+ //GetProfileInt("FoxBear", "use_dsound", bWantSound);
+ 
+@@ -7389,10 +9054,13 @@
+ BOOL
+ InitSound (HWND hwndOwner)
+ {
+-  int idx;
++  int
++    idx;
+   Msg ("initting sound");
+-  DSBUFFERDESC dsBD;
+-  IDirectSoundBuffer *lpPrimary;
++  DSBUFFERDESC
++    dsBD;
++  IDirectSoundBuffer *
++    lpPrimary;
+   DSEnable (hwndOwner);
+   if (lpDS == NULL)
+     {
+@@ -7427,8 +9095,12 @@
+ void
+ draw_map_game (void)
+ {
+-  RECT rcRect;
+-  int pa, cool, crap;
++  RECT
++    rcRect;
++  int
++    pa,
++    cool,
++    crap;
+   *pvision = 0;
+   while (kill_last_sprite ());
+   kill_repeat_sounds ();
+@@ -7446,7 +9118,8 @@
+ 			 DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+   } if (strlen (pam.script) > 1)
+     {
+-      int ms = load_script (pam.script, 0, true);
++      int
++	ms = load_script (pam.script, 0, true);
+       if (ms > 0)
+ 	{
+ 	  locate (ms, "main");
+@@ -7469,12 +9142,17 @@
+ void
+ place_sprites_game_background (void)
+ {
+-  int sprite;
+-  BOOL bs[max_sprites_at_once];
+-  int rank[max_sprites_at_once];
+-  int highest_sprite;
++  int
++    sprite;
++  BOOL
++    bs[max_sprites_at_once];
++  int
++    rank[max_sprites_at_once];
++  int
++    highest_sprite;
+   memset (&bs, 0, sizeof (bs));
+-  int hs;
++  int
++    hs;
+   for (int r1 = 1; r1 < 100; r1++)
+     {
+       highest_sprite = 20000;	//more than it could ever be
+@@ -7501,7 +9179,8 @@
+       if (rank[r1] != 0)
+ 	bs[rank[r1]] = TRUE;
+     }
+-  int j;
++  int
++    j;
+   for (int oo = 1; rank[oo] > 0; oo++)
+     {
+ //Msg("Ok, rank[%d] is %d.",oo,rank[oo]); 
+@@ -7534,8 +9213,12 @@
+ void
+ draw_map_game_background (void)
+ {
+-  RECT rcRect;
+-  int pa, cool, crap;
++  RECT
++    rcRect;
++  int
++    pa,
++    cool,
++    crap;
+   for (int x = 0; x < 96; x++)
+     {
+       cool = pam.t[x].num / 128;
+@@ -7552,12 +9235,17 @@
+ 
+ fill_back_sprites (void)
+ {
+-  int sprite;
+-  BOOL bs[max_sprites_at_once];
+-  int rank[max_sprites_at_once];
+-  int highest_sprite;
++  int
++    sprite;
++  BOOL
++    bs[max_sprites_at_once];
++  int
++    rank[max_sprites_at_once];
++  int
++    highest_sprite;
+   memset (&bs, 0, sizeof (bs));
+-  int hs;
++  int
++    hs;
+   for (int r1 = 1; r1 < 100; r1++)
+     {
+       highest_sprite = 20000;	//more than it could ever be
+@@ -7585,7 +9273,8 @@
+       if (rank[r1] != 0)
+ 	bs[rank[r1]] = TRUE;
+     }
+-  int j;
++  int
++    j;
+   for (int oo = 1; rank[oo] > 0; oo++)
+     {
+ //Msg("Ok, rank[%d] is %d.",oo,rank[oo]); 
+@@ -7632,7 +9321,8 @@
+ 	      play.item[i].frame = mframe;
+ 	      strcpy (play.item[i].name, name);
+ 	      play.item[i].active = true;
+-	      int crap1 = load_script (play.item[i].name, 1000, false);
++	      int
++		crap1 = load_script (play.item[i].name, 1000, false);
+ 	      if (locate (crap1, "PICKUP"))
+ 		run_script (crap1);
+ 	      return;
+@@ -7653,7 +9343,8 @@
+ 	      play.mitem[i].frame = mframe;
+ 	      strcpy (play.mitem[i].name, name);
+ 	      play.mitem[i].active = true;
+-	      int crap = load_script (play.mitem[i].name, 1000, false);
++	      int
++		crap = load_script (play.mitem[i].name, 1000, false);
+ 	      if (locate (crap, "PICKUP"))
+ 		run_script (crap);
+ 	      return;
+@@ -7665,10 +9356,22 @@
+ void
+ fill_screen (int num)
+ {
+-  int crap;
+-  DDBLTFX ddbltfx;
++  int
++    crap;
++  DDBLTFX
++    ddbltfx;
+   ZeroMemory (&ddbltfx, sizeof (ddbltfx));
+   ddbltfx.dwSize = sizeof (ddbltfx);
++//redink1 fix for correct fill_screen colors in truecolor mode
++
++  if (truecolor)
++    {
++      lpDDPal->GetEntries (0, 0, 256, pe);
++      ddbltfx.dwFillColor =
++	pe[num].peBlue << wBPos | pe[num].peGreen << wGPos | pe[num].
++	peRed << wRPos;
++    }
++  else
+   ddbltfx.dwFillColor = num;
+   crap =
+     lpDDSTwo->Blt (NULL, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+@@ -7677,17 +9380,25 @@
+ void
+ fill_hard_sprites (void)
+ {
+-  int sprite;
+-  BOOL bs[max_sprites_at_once];
+-  int rank[max_sprites_at_once];
+-  int highest_sprite;
+-  int h;
++  int
++    sprite;
++  BOOL
++    bs[max_sprites_at_once];
++  int
++    rank[max_sprites_at_once];
++  int
++    highest_sprite;
++  int
++    h;
+   memset (&bs, 0, sizeof (bs));
+-  int hs;
++  int
++    hs;
+ //Msg("filling sprite hardness...");
+ 
+-  int max_s = last_sprite_created;
+-  int height;
++  int
++    max_s = last_sprite_created;
++  int
++    height;
+   for (int r1 = 1; r1 <= max_s; r1++)
+     {
+       highest_sprite = 22024;	//more than it could ever be
+@@ -7750,20 +9461,31 @@
+ int
+ process_line (int script, char *s, bool doelse)
+ {
+-  char *h, *p;
+-  int i;
+-  char line[200];
+-  char ev[15][100];
+-  char temp[100];
+-  char first[2];
+-  char rstring[200];
+-  int rint;
+-  int sprite = 0;
++  char *
++  h, *
++    p;
++  int
++    i;
++  char
++    line[200];
++  char
++    ev[15][100];
++  char
++    temp[100];
++  char
++    first[2];
++  char
++    rstring[200];
++  int
++    rint;
++  int
++    sprite = 0;
+   if (rinfo[script]->level < 1)
+     rinfo[script]->level = 1;
+   for (int kk = 1; kk < 15; kk++)
+     ev[kk][0] = 0;
+-  refinfo save_rinfo;
++  refinfo
++    save_rinfo;
+   h = s;
+   if (h[0] == 0)
+     return (0);
+@@ -7796,6 +9518,7 @@
+ 
+   if (ev[1][strlen (ev[1]) - 1] == ':')
+     if (strlen (ev[2]) < 2)
++      if (strncmp (ev[1], "say", 3) != 0)
+       {
+ // Msg("Found label %s..",ev[1]); 
+ 
+@@ -7820,6 +9543,8 @@
+ 
+ //Msg("We found %s, woah!", temp);
+ 
++//These are used for conditionals??
++
+       if (strchr (temp, '=') != NULL)
+ 	{
+ 	  h = &h[1];
+@@ -7855,174 +9580,715 @@
+ 	}
+       if (strchr (temp, '<=') != NULL)
+ 	{
+-	  h = &h[1];
+-	  strip_beginning_spaces (h);
+-	  process_line (script, h, false);
+-	  replace ("==", "", temp);
+-	  sprintf (line, "%d <= %s", returnint, temp);
+-	  returnint = var_figure (line, script);
+-	  strcpy (h, "\n");
++	  h = &h[1];
++	  strip_beginning_spaces (h);
++	  process_line (script, h, false);
++	  replace ("==", "", temp);
++	  sprintf (line, "%d <= %s", returnint, temp);
++	  returnint = var_figure (line, script);
++	  strcpy (h, "\n");
++	  return (0);
++	}
++      if (strchr (temp, '>=') != NULL)
++	{
++	  h = &h[1];
++	  strip_beginning_spaces (h);
++	  process_line (script, h, false);
++	  replace ("==", "", temp);
++	  sprintf (line, "%d >= %s", returnint, temp);
++	  returnint = var_figure (line, script);
++	  strcpy (h, "\n");
++	  return (0);
++	}
++      if (strchr (temp, '!=') != NULL)
++	{
++	  h = &h[1];
++	  strip_beginning_spaces (h);
++	  process_line (script, h, false);
++	  replace ("==", "", temp);
++	  sprintf (line, "%d != %s", returnint, temp);
++	  returnint = var_figure (line, script);
++	  strcpy (h, "\n");
++	  return (0);
++	}
++      if (p[0] == ')')
++	{
++//its a procedure in the if statement!!! 
++
++	  h = &h[1];
++	  p = &p[1];
++	  strcpy (line, p);
++	  process_line (script, h, false);
++//8
++
++	  Msg ("Returned %d for the returnint", returnint);
++	  h = s;
++	  strcpy (s, line);
++// Msg("Returing %s..", s);
++
++	  return (0);
++	}
++      else
++	{
++	  h = &h[1];
++	  seperate_string (h, 1, ')', line);
++	  h = &h[strlen (line) + 1];
++	  returnint = var_figure (line, script);
++	  strcpy (s, h);
++	  return (0);
++	}
++      strip_beginning_spaces (h);
++      strip_beginning_spaces (ev[1]);
++      s = h;
++    }
++  else
++    {
++    }
++  if (strchr (ev[1], '(') != NULL)
++    {
++//Msg("Has a (, lets change it");
++
++      seperate_string (h, 1, '(', ev[1]);
++//Msg("Ok, first is now %s",ev[1]);
++
++    }
++  sprintf (first, "%c", ev[1][0]);
++  if (compare (first, "{"))
++    {
++      rinfo[script]->level++;
++//Msg("Went up level, now at %d.", rinfo[script]->level);
++
++      h = &h[1];
++      if (rinfo[script]->skipnext)
++	{
++	  rinfo[script]->skipnext = false;
++	  rinfo[script]->onlevel = (rinfo[script]->level - 1);
++//Msg("Skipping until level %d is met..", rinfo[script]->onlevel);
++
++	}
++      goto good;
++    }
++  if (compare (first, "}"))
++    {
++      rinfo[script]->level--;
++//Msg("Went down a level, now at %d.", rinfo[script]->level);
++
++      h = &h[1];
++      if (rinfo[script]->onlevel > 0)
++	if (rinfo[script]->level == rinfo[script]->onlevel)
++	  {
++	    strip_beginning_spaces (h);
++	    strcpy (s, h);
++	    return (4);
++	  }
++      goto good;
++    }
++  if (rinfo[script]->level < 0)
++    {
++      rinfo[script]->level = 0;
++    }
++  if (compare (ev[1], "void"))
++    {
++// Msg("Next procedure starting, lets quit");
++
++      strcpy (s, h);
++      if (rinfo[script]->proc_return != 0)
++	{
++	  run_script (rinfo[script]->proc_return);
++	  kill_script (script);
++	}
++      return (2);
++    }
++  {				//used to be an if..
++    if (rinfo[script]->onlevel > 0)
++      {
++	if (rinfo[script]->level > rinfo[script]->onlevel)
++	  return (0);
++      }
++    rinfo[script]->onlevel = 0;
++    if (rinfo[script]->skipnext)
++      {
++//sorry, can't do it, you were told to skip the next thing
++
++	rinfo[script]->skipnext = false;
++	strcpy (s, h);
++	return (3);
++      }
++//if (debug_mode) Msg("%s",s);
++
++    if (compare (ev[1], "void"))
++      {
++	Msg ("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,
++	     rinfo[script]->current);
++	strcpy (s, h);
++	return (2);
++      }
++    if (compare (ev[1], "else"))
++      {
++//Msg("Found else!");
++
++	h = &h[strlen (ev[1])];
++	if (doelse)
++	  {
++//Msg("Yes to else...");
++
++	  }
++	else
++	  {
++//they shouldn't run the next thing
++
++	    rinfo[script]->skipnext = true;
++//Msg("No to else...");
++
++	  }
++	strcpy (s, h);
++	return (1);
++      }
++    if (compare (ev[1], "show_console"))
++      {
++	h = &h[strlen (ev[1])];
++	mConsoleActive = true;	/*int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { if ( nlist[0] >= 1 ) { mConsoleActive = true; } else { mConsoleActive = false; } } returnint = 0; if ( mConsoleActive ) { returnint = 1; } */
++      }
++//redink1 - sets font color
++
++    if (compare (ev[1], "set_font_color"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    if (nlist[0] >= 1 && nlist[0] <= 15 && nlist[1] >= 0
++		&& nlist[1] <= 255 && nlist[2] >= 0 && nlist[2] <= 255
++		&& nlist[3] >= 0 && nlist[3] <= 255)
++	      {
++		font_colors[nlist[0]].red = nlist[1];
++		font_colors[nlist[0]].green = nlist[2];
++		font_colors[nlist[0]].blue = nlist[3];
++	      }
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 - clears the editor information, useful for save games and such
++
++    if (compare (ev[1], "clear_editor_info"))
++      {
++	h = &h[strlen (ev[1])];
++	for (int i = 0; i < 769; i++)
++	  {
++	    for (int j = 0; j < 100; j++)
++	      {
++		play.spmap[i].seq[j] = 0;
++		play.spmap[i].frame[j] = 0;
++		play.spmap[i].type[j] = 0;
++		play.spmap[i].last_time = 0;
++	  }} returnint = 1;
++	return (0);
++      }
++//redink1 - returns the number of variables used
++
++    if (compare (ev[1], "var_used"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	  m = 0;
++	for (int i = 1; i < max_vars; i++)
++	  if (play.var[i].active == true)
++	    m++;
++	returnint = m;
++	return (0);
++      }
++//redink1 added this function to load a new map/dink.dat
++
++    if (compare (ev[1], "load_map"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    strcpy (current_map, slist[0]);
++	    strcpy (current_dat, slist[1]);
++	    load_info ();
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function to load a pallete from any bmp
++
++    if (compare (ev[1], "load_palette"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    if (exist (slist[0]))
++	      {
++		LPDIRECTDRAWSURFACE
++		  oldTrick = DDLoadBitmap (lpDD, slist[0], 0, 0);
++		lpDDPal = DDLoadPalette (lpDD, slist[0]);
++		if (lpDDPal)
++		  {
++		    lpDDSPrimary->SetPalette (lpDDPal);
++		    lpDDPal->GetEntries (0, 0, 256, pe);
++		    lpDDPal->GetEntries (0, 0, 256, real_pal);
++//Store in save game
++
++		    strncpy (play.palette, slist[0], 50);
++		  }
++		oldTrick->Release ();
++	      }
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function to load new tiles, because he is a l33t guy
++
++    if (compare (ev[1], "load_tile"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    if (!exist (slist[0]))
++	      {
++		sprintf (slist[0], "..\\DINK\\%s", slist[0]);
++	      }
++	    if (exist (slist[0]) && nlist[1] > 0 && nlist[1] < tile_screens)
++	      {
++//Need to unload old tiles...
++
++		tiles[nlist[1]]->Release ();
++//Load in the new tiles...
++
++		tiles[nlist[1]] = DDTileLoad (lpDD, slist[0], 0, 0, nlist[1]);
++		DDSetColorKey (tiles[nlist[1]], RGB (0, 0, 0));
++//Store in save game
++
++		strncpy (play.tile[nlist[1]].file, slist[0], 50);
++	      }
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function to change the save game 'info'
++
++    if (compare (ev[1], "set_save_game_info"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    strcpy (save_game_info, slist[0]);
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function to show the item screen
++
++    if (compare (ev[1], "show_inventory"))
++      {
++	h = &h[strlen (ev[1])];
++	item_screen = true;
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function,, and took it away.
++
++    /*if (compare(ev[1], "get_compatibility")) { returnint = 0; h = &h[strlen(ev[1])]; int p[20] = {2,1,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { if (compare(slist[0],"get_compatibility")) { if (nlist[1] <= 1) { returnint = 1; } } } strcpy(s, h); return(0); } */
++//redink1 added this function
++
++    if (compare (ev[1], "get_time_game"))
++      {
++	h = &h[strlen (ev[1])];
++	time_t
++	  ct;
++	time (&ct);
++	returnint = play.minutes + (difftime (ct, time_start) / 60);
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "get_time_real"))
++      {
++	h = &h[strlen (ev[1])];
++	char
++	  mytime[5];
++	time_t
++	  ct;
++	struct tm *
++	  time_now;
++	time (&ct);
++	time_now = localtime (&ct);
++	strftime (mytime, 5, "%M", time_now);
++	returnint = atoi (mytime);
++	strftime (mytime, 5, "%H", time_now);
++	returnint += 60 * atoi (mytime);
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "get_date_year"))
++      {
++	h = &h[strlen (ev[1])];
++	char
++	  mytime[5];
++	time_t
++	  ct;
++	struct tm *
++	  time_now;
++	time (&ct);
++	time_now = localtime (&ct);
++	strftime (mytime, 5, "%Y", time_now);
++	returnint = atoi (mytime);
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "get_date_month"))
++      {
++	h = &h[strlen (ev[1])];
++	char
++	  mytime[5];
++	time_t
++	  ct;
++	struct tm *
++	  time_now;
++	time (&ct);
++	time_now = localtime (&ct);
++	strftime (mytime, 5, "%m", time_now);
++	returnint = atoi (mytime);
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "get_date_day"))
++      {
++	h = &h[strlen (ev[1])];
++	char
++	  mytime[5];
++	time_t
++	  ct;
++	struct tm *
++	  time_now;
++	time (&ct);
++	time_now = localtime (&ct);
++	strftime (mytime, 5, "%d", time_now);
++	returnint = atoi (mytime);
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "math_abs"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    returnint = abs (nlist[0]);
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    /*if (compare(ev[1], "math_sin")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = sin((double)nlist[0]); } strcpy(s, h); return(0); } 
++       //redink1 added this function
++
++       if (compare(ev[1], "math_cos")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = cos((double)nlist[0]); } strcpy(s, h); return(0); } 
++       //redink1 added this function
++
++       if (compare(ev[1], "math_tan")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = tan((double)nlist[0]); } strcpy(s, h); return(0); } */
++//redink1 added this function
++
++    if (compare (ev[1], "math_sqrt"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    returnint = sqrt ((double) abs (nlist[0]));
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1 added this function
++
++    if (compare (ev[1], "math_mod"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    returnint = (nlist[0] % nlist[1]);
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++//redink1
++
++    if (compare (ev[1], "sp_custom"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p) && spr[nlist[1]].active == TRUE)
++	  {
++	    if (nlist[1] < 1 || spr[nlist[1]].active == false)
++	      {
++		returnint = -1;
++	      }
++	    else
++	      {
++// If key doesn't exist, create it.
++
++		if (spr[nlist[1]].custom->find (slist[0]) ==
++		    spr[nlist[1]].custom->end ())
++		  {
++		    spr[nlist[1]].custom->
++		      insert (std::make_pair (slist[0], 0));
++		  }
++// Set the value
++
++		if (nlist[2] != -1)
++		  {
++		    spr[nlist[1]].custom->erase (slist[0]);
++		    spr[nlist[1]].custom->
++		      insert (std::make_pair (slist[0], nlist[2]));
++		  }
++		returnint = spr[nlist[1]].custom->find (slist[0])->second;
++	      }
++	    return (0);
++	  }
++	returnint = -1;
++	return (0);
++      }
++//redink1
++
++    if (compare (ev[1], "sp_blood_seq"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodseq);
++	    returnint = spr[nlist[0]].bloodseq;
++	    return (0);
++	  }
++	returnint = -1;
++	return (0);
++      }
++//redink1
++
++    if (compare (ev[1], "sp_blood_num"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodnum);
++	    returnint = spr[nlist[0]].bloodseq;
++	    return (0);
++	  }
++	returnint = -1;
++	return (0);
++      }
++//redink1 added to get index of specified item
++
++    if (compare (ev[1], "get_item"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    returnint = 0;
++	    for (int i = 1; i < 17; i++)
++	      {
++		if (play.item[i].active)
++		  {
++		    if (compare (play.item[i].name, slist[0]))
++		      {
++			returnint = i;
++			break;
++		      }
++		  }
++	      }
++	    return (0);
++	  }
++	returnint = -1;
++	return (0);
++      }
++//redink1 added to get index of specified magic spell
++
++    if (compare (ev[1], "get_magic"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    returnint = 0;
++	    for (int i = 1; i < 9; i++)
++	      {
++		if (play.mitem[i].active)
++		  {
++		    if (compare (play.mitem[i].name, slist[0]))
++		      {
++			returnint = i;
++			break;
++		      }
++		  }
++	      }
+ 	  return (0);
+ 	}
+-      if (strchr (temp, '>=') != NULL)
+-	{
+-	  h = &h[1];
+-	  strip_beginning_spaces (h);
+-	  process_line (script, h, false);
+-	  replace ("==", "", temp);
+-	  sprintf (line, "%d >= %s", returnint, temp);
+-	  returnint = var_figure (line, script);
+-	  strcpy (h, "\n");
++	returnint = -1;
+ 	  return (0);
+ 	}
+-      if (strchr (temp, '!=') != NULL)
++//redink1 clip stuff
++
++    if (compare (ev[1], "sp_clip_left"))
+ 	{
+-	  h = &h[1];
+-	  strip_beginning_spaces (h);
+-	  process_line (script, h, false);
+-	  replace ("==", "", temp);
+-	  sprintf (line, "%d != %s", returnint, temp);
+-	  returnint = var_figure (line, script);
+-	  strcpy (h, "\n");
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.left);
++	    returnint = spr[nlist[0]].alt.left;
+ 	  return (0);
+ 	}
+-      if (p[0] == ')')
+-	{
+-//its a procedure in the if statement!!! 
+-
+-	  h = &h[1];
+-	  p = &p[1];
+-	  strcpy (line, p);
+-	  process_line (script, h, false);
+-//8
+-
+-	  Msg ("Returned %d for the returnint", returnint);
+-	  h = s;
+-	  strcpy (s, line);
+-// Msg("Returing %s..", s);
+-
++	returnint = -1;
+ 	  return (0);
+ 	}
+-      else
++//redink1 clip stuff
++
++    if (compare (ev[1], "sp_clip_top"))
+ 	{
+-	  h = &h[1];
+-	  seperate_string (h, 1, ')', line);
+-	  h = &h[strlen (line) + 1];
+-	  returnint = var_figure (line, script);
+-	  strcpy (s, h);
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.top);
++	    returnint = spr[nlist[0]].alt.top;
+ 	  return (0);
+ 	}
+-      strip_beginning_spaces (h);
+-      strip_beginning_spaces (ev[1]);
+-      s = h;
++	returnint = -1;
++	return (0);
+     }
+-  else
++//redink1 clip stuff
++
++    if (compare (ev[1], "sp_clip_right"))
+     {
+-    }
+-  if (strchr (ev[1], '(') != NULL)
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
+     {
+-//Msg("Has a (, lets change it");
+-
+-      seperate_string (h, 1, '(', ev[1]);
+-//Msg("Ok, first is now %s",ev[1]);
+-
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.right);
++	    returnint = spr[nlist[0]].alt.right;
++	    return (0);
+     }
+-  sprintf (first, "%c", ev[1][0]);
+-  if (compare (first, "{"))
+-    {
+-      rinfo[script]->level++;
+-//Msg("Went up level, now at %d.", rinfo[script]->level);
++	returnint = -1;
++	return (0);
++      }
++//redink1 clip stuff
+ 
+-      h = &h[1];
+-      if (rinfo[script]->skipnext)
++    if (compare (ev[1], "sp_clip_bottom"))
+ 	{
+-	  rinfo[script]->skipnext = false;
+-	  rinfo[script]->onlevel = (rinfo[script]->level - 1);
+-//Msg("Skipping until level %d is met..", rinfo[script]->onlevel);
+-
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.bottom);
++	    returnint = spr[nlist[0]].alt.bottom;
++	    return (0);
+ 	}
+-      goto good;
++	returnint = -1;
++	return (0);
+     }
+-  if (compare (first, "}"))
+-    {
+-      rinfo[script]->level--;
+-//Msg("Went down a level, now at %d.", rinfo[script]->level);
++//redink1 added so users can check truecolor or not
+ 
+-      h = &h[1];
+-      if (rinfo[script]->onlevel > 0)
+-	if (rinfo[script]->level == rinfo[script]->onlevel)
++    if (compare (ev[1], "get_truecolor"))
+ 	  {
+-	    strip_beginning_spaces (h);
++	h = &h[strlen (ev[1])];
++	returnint = truecolor;
+ 	    strcpy (s, h);
+-	    return (4);
+-	  }
+-      goto good;
++	return (0);
+     }
+-  if (rinfo[script]->level < 0)
++//redink1 added so developers can change or see what tile is at any given position
++
++    if (compare (ev[1], "map_tile"))
+     {
+-      rinfo[script]->level = 0;
+-    }
+-  if (compare (ev[1], "void"))
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
+     {
+-// Msg("Next procedure starting, lets quit");
++//Yeah... they can only modify valid tiles
+ 
+-      strcpy (s, h);
+-      if (rinfo[script]->proc_return != 0)
++	    if (nlist[0] > 0 && nlist[0] <= 96)
+ 	{
+-	  run_script (rinfo[script]->proc_return);
+-	  kill_script (script);
+-	}
+-      return (2);
+-    }
+-  {				//used to be an if..
+-    if (rinfo[script]->onlevel > 0)
++//Only change the value if it is greater than 0...
++
++		if (nlist[1] > 0)
+       {
+-	if (rinfo[script]->level > rinfo[script]->onlevel)
++		    pam.t[nlist[0] - 1].num = nlist[1];
++		  }
++		returnint = pam.t[nlist[0] - 1].num;
+ 	  return (0);
+       }
+-    rinfo[script]->onlevel = 0;
+-    if (rinfo[script]->skipnext)
+-      {
+-//sorry, can't do it, you were told to skip the next thing
+-
+-	rinfo[script]->skipnext = false;
+-	strcpy (s, h);
+-	return (3);
+       }
+-//if (debug_mode) Msg("%s",s);
+-
+-    if (compare (ev[1], "void"))
+-      {
+-	Msg ("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,
+-	     rinfo[script]->current);
+-	strcpy (s, h);
+-	return (2);
++	returnint = -1;
++	return (0);
+       }
+-    if (compare (ev[1], "else"))
+-      {
+-//Msg("Found else!");
++//redink1 added so a developer can retrieve/modify a hard tile
+ 
++    if (compare (ev[1], "map_hard_tile"))
++      {
+ 	h = &h[strlen (ev[1])];
+-	if (doelse)
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
+ 	  {
+-//Msg("Yes to else...");
++//Yeah... they can only modify valid tiles
+ 
+-	  }
+-	else
++	    if (nlist[0] > 0 && nlist[0] <= 96)
+ 	  {
+-//they shouldn't run the next thing
+-
+-	    rinfo[script]->skipnext = true;
+-//Msg("No to else...");
++//Only change the value if it is greater than 0...
+ 
++		if (nlist[1] > 0)
++		  {
++		    pam.t[nlist[0] - 1].althard = nlist[1];
+ 	  }
+-	strcpy (s, h);
+-	return (1);
++		returnint = pam.t[nlist[0] - 1].althard;
++		return (0);
++	      }
++	  }
++	returnint = -1;
++	return (0);
+       }
+     if (compare (ev[1], "unfreeze"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ //Msg("UnFreeze called for %d.", nlist[0]);
+@@ -8042,7 +10308,8 @@
+ //Msg("Freeze called (%s)", h); 
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (spr[nlist[0]].active)
+@@ -8059,28 +10326,65 @@
+       {
+ 	Msg ("setting callback random");
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    int cb = add_callback (slist[0], nlist[1], nlist[2], script);
++	    int
++	      cb = add_callback (slist[0], nlist[1], nlist[2], script);
+ //got all parms, let do it
+ 
++	    returnint = cb;
+ 	  }
+ 	strcpy (s, h);
+ 	return (0);
+       }
+-    if (compare (ev[1], "set_dink_speed"))
++// redink1 added
++
++    if (compare (ev[1], "callback_kill"))
+       {
+ 	Msg ("setting callback random");
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
++	    if (nlist[0] >= 0 && nlist[0] <= 99)
++	      {
++		callback[nlist[0]].active = false;
++	      }
++	  }
++	strcpy (s, h);
++	return (0);
++      }
++    if (compare (ev[1], "set_dink_speed"))
++      {
++	Msg ("setting callback random");
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p) && nlist[0] != 0)
++	  {
+ 	    dinkspeed = nlist[0];
+ 	  }
+ 	strcpy (s, h);
+ 	return (0);
+       }
++//redink1
++
++    if (compare (ev[1], "set_dink_base_push"))
++      {
++	Msg ("setting callback random");
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    mDinkBasePush = nlist[0];
++	  }
++	strcpy (s, h);
++	return (0);
++      }
+     if (compare (ev[1], "reset_timer"))
+       {
+ 	h = &h[strlen (ev[1])];
+@@ -8093,7 +10397,8 @@
+       {
+ 	Msg ("setting callback random");
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    keep_mouse = nlist[0];
+@@ -8104,7 +10409,8 @@
+     if (compare (ev[1], "add_item"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    add_item (slist[0], nlist[1], nlist[2], false);
+@@ -8115,10 +10421,11 @@
+     if (compare (ev[1], "add_exp"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    add_exp (nlist[0], nlist[1]);
++	    add_exp (nlist[0], nlist[1], true);
+ 	  }
+ 	strcpy (s, h);
+ 	return (0);
+@@ -8126,7 +10433,8 @@
+     if (compare (ev[1], "add_magic"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    add_item (slist[0], nlist[1], nlist[2], true);
+@@ -8137,7 +10445,8 @@
+     if (compare (ev[1], "kill_this_item"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    kill_cur_item_script (slist[0]);
+@@ -8148,7 +10457,8 @@
+     if (compare (ev[1], "kill_this_magic"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    kill_cur_magic_script (slist[0]);
+@@ -8160,7 +10470,8 @@
+       {
+ 	Msg ("showing BMP");
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    wait.active = false;
+@@ -8188,7 +10499,8 @@
+       {
+ 	Msg ("copying BMP");
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    copy_bmp (slist[0]);
+@@ -8199,7 +10511,8 @@
+     if (compare (ev[1], "say"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (nlist[1] == 0)
+@@ -8297,6 +10610,10 @@
+ 
+ 	update_screen_time ();
+ 	load_map (map.loc[*pmap]);
++//redink1 fix for correct indicator on mini-map
++
++	if (map.indoor[*pmap] == 0)
++	  play.last_map = *pmap;
+ 	return (0);
+       }
+     if (compare (ev[1], "choice_start"))
+@@ -8313,7 +10630,8 @@
+     if (compare (ev[1], "say_stop"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (nlist[1] == 0)
+@@ -8341,7 +10659,8 @@
+     if (compare (ev[1], "say_stop_npc"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (text_owned_by (nlist[1]))
+@@ -8363,7 +10682,8 @@
+     if (compare (ev[1], "say_stop_xy"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    Msg ("Say_stop_xy: Adding %s", slist[0]);
+@@ -8382,7 +10702,8 @@
+     if (compare (ev[1], "say_xy"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    kill_returning_stuff (script);
+@@ -8401,11 +10722,13 @@
+ 	kill_repeat_sounds_all ();
+ 	kill_all_scripts_for_real ();
+ 	mode = 0;
++	screenlock = 0;
+ 	kill_all_vars ();
+ 	FillMemory (&hm, sizeof (hm), 0);
+ 	for (int u = 1; u <= 10; u++)
+ 	  play.button[u] = u;
+-	int script = load_script ("main", 0, true);
++	int
++	  script = load_script ("main", 0, true);
+ 	locate (script, "main");
+ 	run_script (script);
+ //lets attach our vars to the scripts
+@@ -8416,14 +10739,16 @@
+     if (compare (ev[1], "wait"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ // Msg("Wait called for %d.", nlist[0]);
+ 
+ 	    strcpy (s, h);
+ 	    kill_returning_stuff (script);
+-	    int cb1 = add_callback ("", nlist[0], 0, script);
++	    int
++	      cb1 = add_callback ("", nlist[0], 0, script);
+ 	    return (2);
+ 	  }
+ 	strcpy (s, h);
+@@ -8432,7 +10757,8 @@
+     if (compare (ev[1], "preload_seq"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    check_seq_status (nlist[0]);
+@@ -8443,7 +10769,8 @@
+     if (compare (ev[1], "script_attach"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    rinfo[script]->sprite = nlist[0];
+@@ -8454,12 +10781,15 @@
+     if (compare (ev[1], "draw_hard_sprite"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    update_play_changes ();
+-	    int l = nlist[0];
+-	    RECT mhard;
++	    int
++	      l = nlist[0];
++	    RECT
++	      mhard;
+ 	    CopyRect (&mhard,
+ 		      &k[seq[spr[l].pseq].frame[spr[l].pframe]].hardbox);
+ 	    OffsetRect (&mhard, (spr[l].x - 20), spr[l].y);
+@@ -8475,7 +10805,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    spr[nlist[0]].move_active = true;
+@@ -8495,7 +10826,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (nlist[0] == 0)
+@@ -8514,7 +10846,8 @@
+ 		   rinfo[spr[nlist[0]].script]->name);
+ 	    if (no_running_main == false)
+ 	      locate (spr[nlist[0]].script, "MAIN");
+-	    int tempreturn = spr[nlist[0]].script;
++	    int
++	      tempreturn = spr[nlist[0]].script;
+ 	    if (no_running_main == false)
+ 	      run_script (spr[nlist[0]].script);
+ 	    returnint = tempreturn;
+@@ -8527,17 +10860,20 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    int mysc = load_script (slist[0], 1000, true);
++	    int
++	      mysc = load_script (slist[0], 1000, true);
+ 	    if (mysc == 0)
+ 	      {
+ 		returnint = 0;
+ 		return (0);
+ 	      }
+ 	    locate (mysc, "MAIN");
+-	    int tempreturn = mysc;
++	    int
++	      tempreturn = mysc;
+ 	    run_script (mysc);
+ 	    returnint = tempreturn;
+ 	  }
+@@ -8549,12 +10885,15 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    locate (nlist[0], slist[1]);
++	    if (locate (nlist[0], slist[1]))
++	      {
+ 	    run_script (nlist[0]);
+ 	  }
++	  }
+ 	strcpy (s, h);
+ 	return (0);
+       }
+@@ -8585,6 +10924,7 @@
+ 	process_downcycle = true;
+ 	cycle_clock = thisTickCount + 1000;
+ 	cycle_script = script;
++	strcpy (s, h);
+ 	return (2);
+       }
+     if (compare (ev[1], "fade_up"))
+@@ -8617,44 +10957,55 @@
+ 
+ 	finiObjects ();
+ 	return (2);
+-      }
+-    if (compare (ev[1], "playavi"))
+-      {
++      }				/*if (compare(ev[1], "playavi")) { 
+ // (sprite, direction, until, nohard);
+ 
+-	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+-	if (get_parms (ev[1], script, h, p))
+-	  {
++				   h = &h[strlen(ev[1])]; int p[20] = {2,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { 
+ //DSDisable();
+ 
+ //ShowWindow(hWndMain, SW_MINIMIZE);
+ 
+-	    int myreturn =
+-	      _spawnl (_P_WAIT, "..\\dplay.exe", "..\\dplay.exe", slist[0],
+-		       NULL);
+-	    Msg ("Return is %d", myreturn);
++				   int myreturn = _spawnl(_P_WAIT, "..\\dplay.exe","..\\dplay.exe",slist[0], NULL ); Msg("Return is %d", myreturn); 
+ //ShowWindow(hWndMain, SW_MAXIMIZE);
+ 
+ //SetFocus(hWndMain);
+ 
+ 	  }
+-//InitSound(hWndMain);
+-
+-	strcpy (s, h);
+-	return (2);
++				   //InitSound(hWndMain);
++
++				   strcpy(s, h); return(2); } */
++//redink1 added
++
++    if (compare (ev[1], "loopmidi"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    if (nlist[0] > 0)
++	      {
++		mLoopMidi = true;
++	      }
++	    else
++	      {
++		mLoopMidi = false;
++	      }
++	  }
+       }
+     if (compare (ev[1], "playmidi"))
+       {
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ //StopMidi();
+ 
+-	    int regm = atol (slist[0]);
++	    int
++	      regm = atol (slist[0]);
+ 	    Msg ("Processing playmidi command.");
+ 	    if (regm > 1000)
+ 	      {
+@@ -8673,7 +11024,8 @@
+ 		  }
+ 		else
+ 		  {
+-		    char hold[255];
++		    char
++		      hold[255];
+ //cd isn't instered, can't play CD song!!!
+ 
+ 		    sprintf (hold, "%d.mid", regm - 1000);
+@@ -8716,7 +11068,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (sound_on)
+@@ -8736,7 +11089,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (sound_on)
+@@ -8755,7 +11109,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (sound_on)
+@@ -8777,7 +11132,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (sound_on)
+@@ -8796,7 +11152,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    save_game (nlist[0]);
+@@ -8809,7 +11166,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    *pvision = nlist[0];
+@@ -8825,7 +11183,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    fill_screen (nlist[0]);
+@@ -8838,7 +11197,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    kill_all_scripts_for_real ();
+@@ -8858,7 +11218,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    sprintf (temp, "save%d.dat", nlist[0]);
+@@ -8875,7 +11236,8 @@
+ // (sprite, direction, until, nohard);
+ 
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ //Msg("Move stop running %d to %d..", nlist[0], nlist[0]); 
+@@ -8897,7 +11259,8 @@
+     if (compare (ev[1], "load_sound"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (sound_on)
+@@ -8912,7 +11275,8 @@
+     if (compare (ev[1], "debug"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    decipher_string (slist[0], script);
+@@ -8926,10 +11290,27 @@
+ 	locate_goto (ev[2], script);
+ 	return (0);
+       }
++//redink1 added for global functions
++
++    if (compare (ev[1], "make_global_function"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    make_function (slist[0], slist[1]);
++//Msg(slist[0]);
++
++	  }
++	strcpy (s, h);
++	return (0);
++      }
+     if (compare (ev[1], "make_global_int"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    make_int (slist[0], nlist[1], 0, script);
+@@ -8962,7 +11343,8 @@
+ 	h = &h[strlen (ev[1])];
+ // Msg("Running busy, h is %s", h); 
+ 
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    if (nlist[0] == 0)
+@@ -8980,14 +11362,51 @@
+ 	strcpy (s, h);
+ 	return (0);
+       }
++//redink1 added
++
++    if (compare (ev[1], "sp_freeze"))
++      {
++	h = &h[strlen (ev[1])];
++// Msg("Running busy, h is %s", h); 
++
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++// Set the value
++
++	    if (nlist[1] == 0)
++	      {
++		spr[nlist[0]].freeze = 0;
++	      }
++	    else if (nlist[1] == 1)
++	      {
++		spr[nlist[0]].freeze = script;
++	      }
++// Return the value
++
++	    if (spr[nlist[0]].freeze > 0)
++	      {
++		returnint = 1;
++	      }
++	    else
++	      {
++		returnint = 0;
++	      }
++	  }
++	strcpy (s, h);
++	return (0);
++      }
+     if (compare (ev[1], "inside_box"))
+       {
+ 	h = &h[strlen (ev[1])];
+ 	Msg ("Running pigs with h", h);
+-	int p[20] = { 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    RECT myrect;
++	    RECT
++	      myrect;
+ 	    SetRect (&myrect, nlist[2], nlist[3], nlist[4], nlist[5]);
+ 	    returnint = inside_box (nlist[0], nlist[1], myrect);
+ 	    if (debug_mode)
+@@ -9002,7 +11421,8 @@
+     if (compare (ev[1], "random"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = (rand () % nlist[0]) + nlist[1];
+@@ -9015,7 +11435,8 @@
+     if (compare (ev[1], "initfont"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    initfonts (slist[0]);
+@@ -9043,7 +11464,8 @@
+     if (compare (ev[1], "set_mode"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    mode = nlist[0];
+@@ -9057,7 +11479,8 @@
+     if (compare (ev[1], "kill_shadow"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    for (int jj = 1; jj <= last_sprite_created; jj++)
+@@ -9075,7 +11498,8 @@
+     if (compare (ev[1], "create_sprite"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9089,7 +11513,8 @@
+     if (compare (ev[1], "sp"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    for (int ii = 1; ii <= last_sprite_created; ii++)
+@@ -9114,7 +11539,8 @@
+     if (compare (ev[1], "is_script_attached"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = spr[nlist[0]].script;
+@@ -9124,7 +11550,8 @@
+     if (compare (ev[1], "sp_speed"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9140,7 +11567,8 @@
+     if (compare (ev[1], "sp_range"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9153,7 +11581,8 @@
+     if (compare (ev[1], "sp_nocontrol"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9166,7 +11595,8 @@
+     if (compare (ev[1], "sp_nodraw"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9179,7 +11609,8 @@
+     if (compare (ev[1], "sp_picfreeze"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9192,7 +11623,8 @@
+     if (compare (ev[1], "get_sprite_with_this_brain"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    for (int i = 1; i <= last_sprite_created; i++)
+@@ -9210,13 +11642,39 @@
+ 	returnint = 0;
+ 	return (0);
+       }
++//redink1 added this to make Paul Pliska's life more fulfilling
++
++    if (compare (ev[1], "get_next_sprite_with_this_brain"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    for (int i = nlist[2]; i <= last_sprite_created; i++)
++	      {
++		if ((spr[i].brain == nlist[0]) && (i != nlist[1]))
++		  if (spr[i].active == 1)
++		    {
++		      Msg ("Ok, sprite with brain %d is %d", nlist[0], i);
++		      returnint = i;
++		      return (0);
++		    }
++	      }
++	  }
++	Msg ("Ok, sprite with brain %d is 0", nlist[0], i);
++	returnint = 0;
++	return (0);
++      }
+     if (compare (ev[1], "get_rand_sprite_with_this_brain"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+-	    int cter = 0;
++	    int
++	      cter = 0;
+ 	    for (int i = 1; i <= last_sprite_created; i++)
+ 	      {
+ 		if ((spr[i].brain == nlist[0]) && (i != nlist[1]))
+@@ -9232,7 +11690,8 @@
+ 		returnint = 0;
+ 		return (0);
+ 	      }
+-	    int mypick = (rand () % cter) + 1;
++	    int
++	      mypick = (rand () % cter) + 1;
+ 	    cter = 0;
+ 	    for (int ii = 1; ii <= last_sprite_created; ii++)
+ 	      {
+@@ -9254,12 +11713,13 @@
+     if (compare (ev[1], "sp_sound"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+ 	      change_sprite (nlist[0], nlist[1], &spr[nlist[0]].sound);
+-	    if (nlist[1] != 0)
++	    if (nlist[1] > 0)
+ 	      {
+ 		SoundPlayEffect (spr[nlist[0]].sound, 22050, 0, nlist[0], 1);
+ 	      }
+@@ -9271,7 +11731,8 @@
+     if (compare (ev[1], "sp_attack_wait"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9285,7 +11746,8 @@
+     if (compare (ev[1], "sp_active"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9298,7 +11760,8 @@
+     if (compare (ev[1], "sp_disabled"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9311,7 +11774,8 @@
+     if (compare (ev[1], "sp_size"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9340,7 +11804,8 @@
+     if (compare (ev[1], "sp_que"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9353,7 +11818,8 @@
+     if (compare (ev[1], "sp_gold"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9366,7 +11832,8 @@
+     if (compare (ev[1], "sp_base_walk"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9380,7 +11847,8 @@
+     if (compare (ev[1], "sp_target"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9400,7 +11868,8 @@
+     if (compare (ev[1], "sp_base_hit"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9414,7 +11883,8 @@
+     if (compare (ev[1], "sp_base_attack"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9428,7 +11898,8 @@
+     if (compare (ev[1], "sp_base_idle"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9443,7 +11914,8 @@
+ 	|| (compare (ev[1], "sp_base_death")))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9471,7 +11943,8 @@
+     if (compare (ev[1], "sp_pseq"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9484,7 +11957,8 @@
+     if (compare (ev[1], "sp_pframe"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9497,7 +11971,8 @@
+     if (compare (ev[1], "sp_seq"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9510,7 +11985,8 @@
+     if (compare (ev[1], "editor_type"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ //Msg("Setting editor_type..");
+@@ -9526,7 +12002,8 @@
+     if (compare (ev[1], "editor_seq"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9540,7 +12017,8 @@
+     if (compare (ev[1], "editor_frame"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9554,7 +12032,8 @@
+     if (compare (ev[1], "sp_editor_num"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = spr[nlist[0]].sp_index;
+@@ -9566,7 +12045,8 @@
+     if (compare (ev[1], "sp_brain"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9579,7 +12059,8 @@
+     if (compare (ev[1], "sp_exp"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9592,7 +12073,8 @@
+     if (compare (ev[1], "set_button"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    play.button[nlist[0]] = nlist[1];
+@@ -9604,7 +12086,8 @@
+     if (compare (ev[1], "sp_reverse"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9617,7 +12100,8 @@
+     if (compare (ev[1], "sp_noclip"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9630,7 +12114,8 @@
+     if (compare (ev[1], "sp_touch_damage"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9644,7 +12129,8 @@
+     if (compare (ev[1], "sp_brain_parm"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9657,7 +12143,8 @@
+     if (compare (ev[1], "sp_brain_parm2"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9670,7 +12157,8 @@
+     if (compare (ev[1], "sp_follow"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9680,10 +12168,31 @@
+ 	returnint = -1;
+ 	return (0);
+       }
++    if (compare (ev[1], "set_smooth_follow"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    if (nlist[0] == 0)
++	      {
++		smooth_follow = false;
++	      }
++	    else if (nlist[0] == 1)
++	      {
++		smooth_follow = true;
++	      }
++	    return (0);
++	  }
++	returnint = -1;
++	return (0);
++      }
+     if (compare (ev[1], "sp_frame"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9696,7 +12205,8 @@
+     if (compare (ev[1], "sp_frame_delay"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9709,9 +12219,14 @@
+     if (compare (ev[1], "hurt"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
++//redink1 fix for freeze if hurt value is less than 0
++
++	    if (nlist[1] < 0)
++	      return (0);
+ 	    if (hurt_thing (nlist[0], nlist[1], 0) > 0)
+ 	      random_blood (spr[nlist[0]].x, spr[nlist[0]].y - 40, nlist[0]);
+ 	    if (spr[nlist[0]].nohit != 1)
+@@ -9719,7 +12234,12 @@
+ 		if (locate (spr[nlist[0]].script, "HIT"))
+ 		  {
+ 		    if (rinfo[script]->sprite != 1000)
++		      {
+ 		      *penemy_sprite = rinfo[script]->sprite;
++//redink1 addition of missle_source stuff
++
++			*pmissle_source = rinfo[script]->sprite;
++		      }
+ 		    kill_returning_stuff (spr[nlist[0]].script);
+ 		    run_script (spr[nlist[0]].script);
+ 		  }
+@@ -9731,7 +12251,8 @@
+     if (compare (ev[1], "sp_hard"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9749,7 +12270,8 @@
+     if (compare (ev[1], "sp_move_nohard"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9762,7 +12284,8 @@
+     if (compare (ev[1], "sp_flying"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9775,7 +12298,8 @@
+     if (compare (ev[1], "sp_kill_wait"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    spr[nlist[0]].wait = 0;
+@@ -9787,7 +12311,8 @@
+     if (compare (ev[1], "sp_kill"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    spr[nlist[0]].kill = nlist[1];
+@@ -9799,25 +12324,32 @@
+     if (compare (ev[1], "screenlock"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
++	    if (nlist[0] == 0 || nlist[0] == 1)
++	      {
+ 	    screenlock = nlist[0];
+-	    return (0);
+ 	  }
+-	returnint = -1;
++	  }
++//redink1 - set screenlock() to return the screenlock value
++
++	returnint = screenlock;
+ 	return (0);
+       }
+     if (compare (ev[1], "stop_entire_game"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    stop_entire_game = nlist[0];
+ 	    while (1)
+ 	      {
+-		RECT rcRect;
++		RECT
++		  rcRect;
+ 		SetRect (&rcRect, 0, 0, 640, 480);
+ 		ddrval =
+ 		  lpDDSTwo->BltFast (0, 0, lpDDSBack, &rcRect,
+@@ -9840,7 +12372,8 @@
+     if (compare (ev[1], "dink_can_walk_off_screen"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    walk_off_screen = nlist[0];
+@@ -9852,7 +12385,8 @@
+     if (compare (ev[1], "push_active"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    push_active = nlist[0];
+@@ -9864,7 +12398,8 @@
+     if (compare (ev[1], "sp_x"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = change_sprite (nlist[0], nlist[1], &spr[nlist[0]].x);
+@@ -9876,7 +12411,8 @@
+     if (compare (ev[1], "count_item"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = 0;
+@@ -9896,7 +12432,8 @@
+     if (compare (ev[1], "count_magic"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = 0;
+@@ -9916,7 +12453,8 @@
+     if (compare (ev[1], "sp_mx"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = change_sprite (nlist[0], nlist[1], &spr[nlist[0]].mx);
+@@ -9925,10 +12463,23 @@
+ 	returnint = -1;
+ 	return (0);
+       }
++    if (compare (ev[1], "sp_move_x"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].mx);
++	    return (0);
++	  }
++	return (0);
++      }
+     if (compare (ev[1], "sp_my"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = change_sprite (nlist[0], nlist[1], &spr[nlist[0]].my);
+@@ -9937,10 +12488,23 @@
+ 	returnint = -1;
+ 	return (0);
+       }
++    if (compare (ev[1], "sp_move_y"))
++      {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	if (get_parms (ev[1], script, h, p))
++	  {
++	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].my);
++	    return (0);
++	  }
++	return (0);
++      }
+     if (compare (ev[1], "scripts_used"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int m = 0;
++	int
++	  m = 0;
+ 	for (int i = 1; i < max_scripts; i++)
+ 	  if (rinfo[i] != NULL)
+ 	    m++;
+@@ -9950,7 +12514,8 @@
+     if (compare (ev[1], "sp_dir"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9966,7 +12531,8 @@
+     if (compare (ev[1], "sp_hitpoints"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9979,7 +12545,8 @@
+     if (compare (ev[1], "sp_attack_hit_sound"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -9993,7 +12560,8 @@
+     if (compare (ev[1], "sp_attack_hit_sound_speed"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10007,7 +12575,8 @@
+     if (compare (ev[1], "sp_strength"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10020,7 +12589,8 @@
+     if (compare (ev[1], "sp_defense"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10033,7 +12603,8 @@
+     if (compare (ev[1], "init"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    figure_out (slist[0], 0);
+@@ -10045,7 +12616,8 @@
+     if (compare (ev[1], "sp_distance"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10058,7 +12630,8 @@
+     if (compare (ev[1], "sp_nohit"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10071,7 +12644,8 @@
+     if (compare (ev[1], "sp_notouch"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10084,7 +12658,8 @@
+     if (compare (ev[1], "compare_weapon"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = 0;
+@@ -10103,7 +12678,8 @@
+     if (compare (ev[1], "compare_magic"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = 0;
+@@ -10111,7 +12687,9 @@
+ 	      {
+ 		return (0);
+ 	      }
+-	    if (compare (play.item[*pcur_magic].name, slist[0]))
++//redink1 fix so compare_magic works!
++
++	    if (compare (play.mitem[*pcur_magic].name, slist[0]))
+ 	      {
+ 		returnint = 1;
+ 	      }
+@@ -10122,7 +12700,8 @@
+     if (compare (ev[1], "compare_sprite_script"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = 0;
+@@ -10157,7 +12736,8 @@
+     if (compare (ev[1], "sp_y"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint = change_sprite (nlist[0], nlist[1], &spr[nlist[0]].y);
+@@ -10169,7 +12749,8 @@
+     if (compare (ev[1], "sp_timing"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
++	int
++	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+ 	if (get_parms (ev[1], script, h, p))
+ 	  {
+ 	    returnint =
+@@ -10185,6 +12766,24 @@
+ 	  Msg ("Found return; statement");
+ 	if (rinfo[script]->proc_return != 0)
+ 	  {
++	    bKeepReturnInt = true;
++	    run_script (rinfo[script]->proc_return);
++	    kill_script (script);
++	  }
++	return (2);
++      }
++//redink1 added so we can have return values and crap.
++
++    if (compare (ev[1], "return"))
++      {
++	if (debug_mode)
++	  Msg ("Found return; statement");
++	h = &h[strlen (ev[1])];
++	strip_beginning_spaces (h);
++	process_line (script, h, false);
++	if (rinfo[script]->proc_return != 0)
++	  {
++	    bKeepReturnInt = true;
+ 	    run_script (rinfo[script]->proc_return);
+ 	    kill_script (script);
+ 	  }
+@@ -10259,7 +12858,7 @@
+ 	strcpy (s, h);
+ 	return (0);
+       }
+-    if (compare (ev[2], "/"))
++    if (compare (ev[2], "/") || compare (ev[2], "/="))
+       {
+ 	h = &h[strlen (ev[1])];
+ 	strip_beginning_spaces (h);
+@@ -10269,7 +12868,7 @@
+ 	strcpy (s, h);
+ 	return (0);
+       }
+-    if (compare (ev[2], "*"))
++    if (compare (ev[2], "*") || compare (ev[2], "*="))
+       {
+ 	h = &h[strlen (ev[1])];
+ 	strip_beginning_spaces (h);
+@@ -10282,10 +12881,14 @@
+     if (compare (ev[1], "external"))
+       {
+ 	h = &h[strlen (ev[1])];
+-	int p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+-	if (get_parms (ev[1], script, h, p))
++	int
++	p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
++	memset (slist, 0, 10 * 200);
++	get_parms (ev[1], script, h, p);
++	if (strlen (slist[0]) > 0 && strlen (slist[1]) > 0)
+ 	  {
+-	    int myscript1 =
++	    int
++	      myscript1 =
+ 	      load_script (slist[0], rinfo[script]->sprite, false);
+ 	    if (myscript1 == 0)
+ 	      {
+@@ -10293,6 +12896,14 @@
+ 		     slist[1]);
+ 		return (0);
+ 	      }
++	    rinfo[myscript1]->arg1 = nlist[2];
++	    rinfo[myscript1]->arg2 = nlist[3];
++	    rinfo[myscript1]->arg3 = nlist[4];
++	    rinfo[myscript1]->arg4 = nlist[5];
++	    rinfo[myscript1]->arg5 = nlist[6];
++	    rinfo[myscript1]->arg6 = nlist[7];
++	    rinfo[myscript1]->arg7 = nlist[8];
++	    rinfo[myscript1]->arg8 = nlist[9];
+ 	    if (locate (myscript1, slist[1]))
+ 	      {
+ 		rinfo[myscript1]->proc_return = script;
+@@ -10313,22 +12924,60 @@
+       {
+ //lets attempt to run a procedure
+ 
+-	seperate_string (h, 1, '(', line);
+-	int myscript =
++	int
++	  myscript =
+ 	  load_script (rinfo[script]->name, rinfo[script]->sprite, false);
+-	if (locate (myscript, line))
+-	  {
++	h = &h[strlen (ev[1])];
++	int
++	p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
++	get_parms (ev[1], script, h, p);
++	if (locate (myscript, ev[1]))
++	  {
++	    rinfo[myscript]->arg1 = nlist[0];
++	    rinfo[myscript]->arg2 = nlist[1];
++	    rinfo[myscript]->arg3 = nlist[2];
++	    rinfo[myscript]->arg4 = nlist[3];
++	    rinfo[myscript]->arg5 = nlist[4];
++	    rinfo[myscript]->arg6 = nlist[5];
++	    rinfo[myscript]->arg7 = nlist[6];
++	    rinfo[myscript]->arg8 = nlist[7];
++	    rinfo[myscript]->arg9 = nlist[8];
+ 	    rinfo[myscript]->proc_return = script;
+ 	    run_script (myscript);
+ 	    return (2);
+ 	  }
+ 	else
+ 	  {
++	    for (int i = 0; strlen (play.func[i].func) > 0 && i < 100; i++)
++	      {
++		if (compare (play.func[i].func, ev[1]))
++		  {
++		    myscript =
++		      load_script (play.func[i].file, rinfo[script]->sprite,
++				   false);
++		    rinfo[myscript]->arg1 = nlist[0];
++		    rinfo[myscript]->arg2 = nlist[1];
++		    rinfo[myscript]->arg3 = nlist[2];
++		    rinfo[myscript]->arg4 = nlist[3];
++		    rinfo[myscript]->arg5 = nlist[4];
++		    rinfo[myscript]->arg6 = nlist[5];
++		    rinfo[myscript]->arg7 = nlist[6];
++		    rinfo[myscript]->arg8 = nlist[7];
++		    rinfo[myscript]->arg9 = nlist[8];
++		    if (locate (myscript, ev[1]))
++		      {
++			rinfo[myscript]->proc_return = script;
++			run_script (myscript);
++			return (2);
++		      }
++		    break;
++		  }
++	      }
+ 	    Msg
+ 	      ("ERROR: Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
+ 	       line, ev[2], rinfo[myscript]->name);
+ 	    kill_script (myscript);
+-	  }
++	  }			/*seperate_string(h, 1,'(',line); int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false); if (locate( myscript, line)) { rinfo[myscript]->proc_return = script; run_script(myscript); return(2); } else { Msg("ERROR: Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line, ev[2], rinfo[myscript]->name); kill_script(myscript); } */
+ 	return (0);
+       }
+     Msg ("MERROR: \"%s\" unknown in %s, offset %d.", ev[1],
+@@ -10349,9 +12998,18 @@
+ void
+ run_script (int script)
+ {
+-  int result;
+-  char line[200];
++  int
++    result;
++  char
++    line[200];
++  if (bKeepReturnInt)
++    {
++      bKeepReturnInt = false;
++    }
++  else
++    {
+   returnint = 0;
++    }
+   returnstring[0] = 0;
+   if (rinfo[script] != NULL)
+     {
+@@ -10442,7 +13100,8 @@
+ void
+ process_callbacks (void)
+ {
+-  int thist = GetTickCount ();
++  int
++    thist = GetTickCount ();
+   for (int i = 1; i < max_scripts; i++)
+     {
+       if (rinfo[i] != NULL)
+@@ -10531,9 +13190,8 @@
+ {
+   for (int k = 1; k < max_scripts; k++)
+     {
+-      if (rinfo[k] != NULL)
+-	if (rinfo[k]->sprite != 0)
+-	  if (spr[rinfo[k]->sprite].active)
++      if (rinfo[k] != NULL && rinfo[k]->sprite != 0 && rinfo[k]->sprite < 300
++	  && spr[rinfo[k]->sprite].active)
+ 	    {
+ 	      if (locate (k, "main"))
+ 		{
+@@ -10545,4 +13203,86 @@
+ 	    }
+     }
+ }
++
++//redink1 added for font colors
++
++void
++init_font_colors (void)
++{
++//Light Magenta
++
++  font_colors[1].red = 255;
++  font_colors[1].green = 198;
++  font_colors[1].blue = 255;
++//Dark Green
++
++  font_colors[2].red = 131;
++  font_colors[2].green = 181;
++  font_colors[2].blue = 74;
++//Bold Cyan
++
++  font_colors[3].red = 99;
++  font_colors[3].green = 242;
++  font_colors[3].blue = 247;
++//Orange
++
++  font_colors[4].red = 255;
++  font_colors[4].green = 156;
++  font_colors[4].blue = 74;
++//Magenta
++
++  font_colors[5].red = 222;
++  font_colors[5].green = 173;
++  font_colors[5].blue = 255;
++//Brown Orange
++
++  font_colors[6].red = 244;
++  font_colors[6].green = 188;
++  font_colors[6].blue = 73;
++//Light Gray
++
++  font_colors[7].red = 173;
++  font_colors[7].green = 173;
++  font_colors[7].blue = 173;
++//Dark Gray
++
++  font_colors[8].red = 85;
++  font_colors[8].green = 85;
++  font_colors[8].blue = 85;
++//Sky Blue
++
++  font_colors[9].red = 148;
++  font_colors[9].green = 198;
++  font_colors[9].blue = 255;
++//Bright Green
++
++  font_colors[10].red = 0;
++  font_colors[10].green = 255;
++  font_colors[10].blue = 0;
++//Yellow
++
++  font_colors[11].red = 255;
++  font_colors[11].green = 255;
++  font_colors[11].blue = 2;
++//Yellow
++
++  font_colors[12].red = 255;
++  font_colors[12].green = 255;
++  font_colors[12].blue = 2;
++//Hot Pink
++
++  font_colors[13].red = 255;
++  font_colors[13].green = 132;
++  font_colors[13].blue = 132;
++//Yellow
++
++  font_colors[14].red = 255;
++  font_colors[14].green = 255;
++  font_colors[14].blue = 2;
++//White
++
++  font_colors[15].red = 255;
++  font_colors[15].green = 255;
++  font_colors[15].blue = 255;
++}
+ #endif
