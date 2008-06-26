@@ -74,6 +74,7 @@ extern void init_scripts(void);
 extern int var_exists(char name[20], int scope);
 extern void make_int(char name[80], int value, int scope, int script);
 extern void var_equals(char name[20], char newname[20], char math, int script, char rest[200]);
+extern int var_figure(char h[200], int script);
 extern void kill_scripts_owned_by(int sprite);
 extern void kill_returning_stuff(int script);
 extern void run_script(int script);

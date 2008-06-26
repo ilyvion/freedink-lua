@@ -365,7 +365,6 @@ extern void init_scripts(void);
 
 /* Used by dinkc_bindings.c only */
 extern void clear_talk(void);
-extern int var_figure(char h[200], int script);
 extern void add_item(char name[10], int mseq, int mframe, /*bool*/int magic);
 extern void kill_cur_item_script( char name[20]);
 extern void kill_cur_magic_script( char name[20]);
