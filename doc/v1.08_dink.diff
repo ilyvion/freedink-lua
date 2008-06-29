@@ -1,5 +1,5 @@
 --- d_canonical	2008-06-26 09:24:48.000000000 +0200
-+++ d2_canonical	2008-06-26 09:24:51.000000000 +0200
++++ d2_canonical	2008-06-29 19:45:03.000000000 +0200
 @@ -1,6 +1,6 @@
  /*========================================================================== Dink Smallwood Source Code: Copyright (C) Seth A. Robinson, 1997-2003 www.rtsoft.com This software is provided "as is" without express or implied warranties. You may freely use, modify and distribute this source provided that the copyright text below is included in the resulting source code, for example: "Portions Copyright (C) Seth A. Robinson, 1997-2003 If you use any of this source in a commercial product, you are gently asked to donate a few bucks to Seth. Check www.codedojo.com for info on how to do that. Donations: If you find this source helpful in some way and use it in a product you are selling, you are gently asked to donate a couple bucks via codedojo.com. This cash will be used to maintain the site and hopefully inspire me to get off my duff and release more source. Check the license.txt for more info. */
 -#define NAME "Dink Smallwood"
@@ -1121,6 +1121,24 @@
      {
        showb.active = false;
        if (showb.script != 0)
+@@ -4514,7 +4960,7 @@
+       if (!add_time_to_saved_game (last_saved_game))
+ 	Msg ("Error modifying saved game.");
+     }
+-  if (::sound_on)
++  if (sound_on)
+     {
+       mciSendCommand (CD_ID, MCI_CLOSE, 0, NULL);
+       Msg ("Shutting down CD stuff.");
+@@ -4561,7 +5007,7 @@
+     }
+   if (sound_on)
+     DestroySound ();
+-  if (::sound_on)
++  if (sound_on)
+     {
+ //lets kill the cdaudio too
+ 
 @@ -4601,7 +5047,10 @@
        bActive = wParam;
        break;
@@ -1568,17 +1586,20 @@
  //init is finished, now lets load some more junk
  
  //return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
-@@ -4973,6 +5716,9 @@
+@@ -4973,6 +5716,12 @@
      {
        Msg ("error with getting entries in beginning");
      }
 +//redink1 Faster true-color fades
 +
-+  /*if ( truecolor ) { mPrecalculatedFadeValues = new std::map<DWORD, FadeValues>; DWORD dwWhite = dwRMask | dwGMask | dwBMask; PALETTEENTRY lPaletteEntries[256]; lpDDPal->GetEntries( 0, 0, 256, lPaletteEntries ); for ( int lPaletteEntry = 0; lPaletteEntry < 256; lPaletteEntry++ ) { DWORD lColor = ( lPaletteEntries[lPaletteEntry].peRed >> (8 - wRBits) << wRPos | lPaletteEntries[lPaletteEntry].peGreen >> (8 - wGBits) << wGPos | lPaletteEntries[lPaletteEntry].peBlue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues->[lColor].reserve(256); for ( int lFadeValue = 0; lFadeValue < 256; lFadeValue += 1 ) { DWORD red = (lColor & dwRMask) << (8 - wRBits) >> wRPos; red = (red >= lFadeValue ? red - lFadeValue : 0); DWORD green = (lColor & dwGMask) << (8 - wGBits) >> wGPos; green = (green >= lFadeValue ? green - lFadeValue : 0); DWORD blue = (lColor & dwBMask) << (8 - wBBits) >> wBPos; blue = (blue >= lFadeValue ? blue - lFadeValue : 0); DWORD lResult = ( red >> (8 - wRBits) << wRPos | green >> (8 - wGBits) << wGPos | blue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues[lColor].push_back( lResult ); } } } */
++  /*if ( truecolor ) { 
++     // mPrecalculatedFadeValues = new std::map<DWORD, FadeValues>;
++
++     DWORD dwWhite = dwRMask | dwGMask | dwBMask; PALETTEENTRY lPaletteEntries[256]; lpDDPal->GetEntries( 0, 0, 256, lPaletteEntries ); for ( int lPaletteEntry = 0; lPaletteEntry < 256; lPaletteEntry++ ) { DWORD lColor = ( lPaletteEntries[lPaletteEntry].peRed >> (8 - wRBits) << wRPos | lPaletteEntries[lPaletteEntry].peGreen >> (8 - wGBits) << wGPos | lPaletteEntries[lPaletteEntry].peBlue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues->[lColor].reserve(256); for ( int lFadeValue = 0; lFadeValue < 256; lFadeValue += 1 ) { DWORD red = (lColor & dwRMask) << (8 - wRBits) >> wRPos; red = (red >= lFadeValue ? red - lFadeValue : 0); DWORD green = (lColor & dwGMask) << (8 - wGBits) >> wGPos; green = (green >= lFadeValue ? green - lFadeValue : 0); DWORD blue = (lColor & dwBMask) << (8 - wBBits) >> wBPos; blue = (blue >= lFadeValue ? blue - lFadeValue : 0); DWORD lResult = ( red >> (8 - wRBits) << wRPos | green >> (8 - wGBits) << wGPos | blue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues[lColor].push_back( lResult ); } } } */
    if (exist ("tiles\\splash.bmp"))
      lpDDPal = DDLoadPalette (lpDD, "tiles\\SPLASH.BMP");
    else
-@@ -5029,6 +5775,8 @@
+@@ -5029,6 +5778,8 @@
    if (cd_inserted)
      PlayCD (g_hWnd, 7);
  #endif
@@ -1587,7 +1608,7 @@
    if (CheckJoyStickPresent () == FALSE)
      {
  // return initFail(hwnd, "Could not init the joystick.");
-@@ -5039,6 +5787,7 @@
+@@ -5039,6 +5790,7 @@
      {
        joystick = TRUE;
      }
@@ -1595,7 +1616,7 @@
    rcRect.left = 0;
    rcRect.top = 0;
    rcRect.right = x;
-@@ -5158,6 +5907,8 @@
+@@ -5158,6 +5910,8 @@
    attach ();
  //init_mouse(hwnd);
  
@@ -1604,7 +1625,7 @@
    initfonts ("Arial");
  //g_pMouse->Acquire();
  
-@@ -5346,6 +6097,7 @@
+@@ -5346,6 +6100,7 @@
  	{
  	  if (g_b_kill_app == false)
  	    {
@@ -1612,7 +1633,7 @@
  	      updateFrame ();
  	    }
  //WaitMessage();
-@@ -5355,6 +6107,8 @@
+@@ -5355,6 +6110,8 @@
  	{
  // make sure we go to sleep if we have nothing else to do
  
