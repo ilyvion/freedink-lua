@@ -1,14 +1,5 @@
 --- d_canonical	2008-06-26 09:24:48.000000000 +0200
 +++ d2_canonical	2008-06-29 19:45:03.000000000 +0200
-@@ -1,6 +1,6 @@
- /*========================================================================== Dink Smallwood Source Code: Copyright (C) Seth A. Robinson, 1997-2003 www.rtsoft.com This software is provided "as is" without express or implied warranties. You may freely use, modify and distribute this source provided that the copyright text below is included in the resulting source code, for example: "Portions Copyright (C) Seth A. Robinson, 1997-2003 If you use any of this source in a commercial product, you are gently asked to donate a few bucks to Seth. Check www.codedojo.com for info on how to do that. Donations: If you find this source helpful in some way and use it in a product you are selling, you are gently asked to donate a couple bucks via codedojo.com. This cash will be used to maintain the site and hopefully inspire me to get off my duff and release more source. Check the license.txt for more info. */
--#define NAME "Dink Smallwood"
--#define TITLE "Dink Smallwood"
-+#define NAME "Dink Smallwood v1.08"
-+#define TITLE "Dink Smallwood v1.08"
- #include <dsound.h>
- 
- //#define INITGUID
 @@ -22,7 +22,7 @@
  int check_if_move_is_legal (int u);
  void change_dir_to_diag (int *dir);
@@ -341,19 +332,6 @@
  	      }
  	  if (hardness > 0)
  	    {
-@@ -1716,8 +1841,10 @@
-     }
-   rcRect.left = playl;
-   rcRect.top = 0;
--  rcRect.right = 619;
--  rcRect.bottom = 399;
-+//redink1 fix so scroll works for entire screen
-+
-+  rcRect.right = 620;
-+  rcRect.bottom = 400;
-   ddrval =
-     lpDDSTrick->BltFast (0, 0, lpDDSBack, &rcRect,
- 			 DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 @@ -2387,7 +2514,7 @@
    if (play.push_active)
      if (play.push_timer + 600 < thisTickCount)
@@ -379,16 +357,6 @@
  	  kill_text_owned_by (h);
  	  int randy = (rand () % 6) + 1;
  #ifdef __GERMAN
-@@ -2423,7 +2559,8 @@
- 	  if (randy == 2)
- 	    say_text ("`$Huh?", h, 0);
- 	  if (randy == 3)
--	    say_text ("`$I'm fairly sure I can't talk to or use that.", h, 0);
-+		say_text ("`$I'm fairly sure I can't talk to or use that.", h,
-+			  0);
- 	  if (randy == 4)
- 	    say_text ("`$What?", h, 0);
- 	  if (randy == 5)
 @@ -2433,6 +2570,7 @@
  #endif
  	}
@@ -479,16 +447,7 @@
  	    if (randy == 1)
  	      say_text
  		("`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann..",
-@@ -2521,14 +2701,16 @@
- 	  if (randy == 2)
- 	    say_text ("`$I'm no wizard!", h, 0);
- 	  if (randy == 3)
--	    say_text ("`$I need to learn magic before trying this.", h, 0);
-+		say_text ("`$I need to learn magic before trying this.", h,
-+			  0);
- 	  if (randy == 4)
--	    say_text ("`$I'm gesturing wildly to no avail!", h, 0);
-+		say_text ("`$I'm gesturing wildly to no avail!", h, 0);	//redink1 removed an extra space
+@@ -2521,8 +2701,9 @@
  	  if (randy == 5)
  	    say_text ("`$Nothing happened.", h, 0);
  	  if (randy == 6)
@@ -556,77 +515,6 @@
    if (spr[h].skip > 0)
      if (spr[h].skip <= spr[h].skiptimer)
        {
-@@ -2960,9 +3148,9 @@
-       if (move_counter > 598)
- 	move_counter = 598;
-       rcRect.left = move_counter;
--      rcRect.right = 599;
-+      rcRect.right = 600;	//redink1 fix so entire screen scrolls 
-       rcRect.top = 0;
--      rcRect.bottom = 399;
-+      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
-       ddrval =
- 	lpDDSBack->BltFast (20, 0, lpDDSTrick, &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-@@ -2971,7 +3159,7 @@
-       rcRect.left = 0;
-       rcRect.right = move_counter;
-       rcRect.top = 0;
--      rcRect.bottom = 399;
-+      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
-       ddrval =
- 	lpDDSBack->BltFast (620 - move_counter, 0, lpDDSTrick2, &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-@@ -2996,18 +3184,18 @@
-       if (move_counter > 398)
- 	move_counter = 398;
-       rcRect.left = 0;
--      rcRect.right = 599;
-+      rcRect.right = 600;	//redink1 fix so entire screen scrolls
-       rcRect.top = 0;
--      rcRect.bottom = 399 - move_counter;
-+      rcRect.bottom = 400 - move_counter;	//redink1 fix so entire screen scrolls
-       ddrval =
- 	lpDDSBack->BltFast (20, move_counter, lpDDSTrick, &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-       if (ddrval != DD_OK)
- 	dderror (ddrval);
-       rcRect.left = 0;
--      rcRect.right = 599;
--      rcRect.top = 399 - move_counter;;
--      rcRect.bottom = 399;
-+      rcRect.right = 600;	//redink1 fix so entire screen scrolls
-+      rcRect.top = 400 - move_counter;;	//redink1 fix so entire screen scrolls
-+      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
-       ddrval =
- 	lpDDSBack->BltFast (20, 0, lpDDSTrick2, &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-@@ -3032,20 +3220,20 @@
-       if (move_counter > 398)
- 	move_counter = 398;
-       rcRect.left = 0;
--      rcRect.right = 599;
-+      rcRect.right = 600;	//redink1 fix so entire screen scrolls
-       rcRect.top = move_counter;
--      rcRect.bottom = 399;
-+      rcRect.bottom = 400;	//redink1 fix so entire screen scrolls
-       ddrval =
- 	lpDDSBack->BltFast (20, 0, lpDDSTrick, &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-       if (ddrval != DD_OK)
- 	dderror (ddrval);
-       rcRect.left = 0;
--      rcRect.right = 599;
-+      rcRect.right = 600;	//redink1 fix so entire screen scrolls
-       rcRect.top = 0;
-       rcRect.bottom = move_counter;
--      ddrval =
--	lpDDSBack->BltFast (20, 399 - move_counter, lpDDSTrick2, &rcRect,
-+      ddrval = lpDDSBack->BltFast (20, 400 - move_counter, lpDDSTrick2,	//redink1 fix so entire screen scrolls
-+				   &rcRect,
- 			    DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-       if (ddrval != DD_OK)
- 	dderror (ddrval);
 @@ -3109,6 +3297,14 @@
  void
  CyclePalette ()
@@ -684,7 +572,7 @@
  	}
      }
    lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
-@@ -3163,17 +3360,27 @@
+@@ -3163,13 +3360,21 @@
  	    }
  	}
      }
@@ -707,13 +595,6 @@
        Msg ("error with getting entries");
        return;
      }
--  for (int kk = 1; kk <= 256; kk++)
-+//redink1 changed <= to < so it doesn't modify stuff it should not (i.e. fgold, somehow!?)
-+
-+      for (int kk = 1; kk < 256; kk++)
-     {
-       if (pe[kk].peBlue != real_pal[kk].peBlue)
- 	{
 @@ -3224,7 +3431,7 @@
  	    run_script (junk);
  	  }
@@ -1121,24 +1002,6 @@
      {
        showb.active = false;
        if (showb.script != 0)
-@@ -4514,7 +4960,7 @@
-       if (!add_time_to_saved_game (last_saved_game))
- 	Msg ("Error modifying saved game.");
-     }
--  if (::sound_on)
-+  if (sound_on)
-     {
-       mciSendCommand (CD_ID, MCI_CLOSE, 0, NULL);
-       Msg ("Shutting down CD stuff.");
-@@ -4561,7 +5007,7 @@
-     }
-   if (sound_on)
-     DestroySound ();
--  if (::sound_on)
-+  if (sound_on)
-     {
- //lets kill the cdaudio too
- 
 @@ -4601,7 +5047,10 @@
        bActive = wParam;
        break;

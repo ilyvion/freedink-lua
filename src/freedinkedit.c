@@ -54,9 +54,6 @@
 #define INPUT_SCREEN_MIDI   33
 #define INPUT_SCREEN_TYPE   34
 
-#define NAME "DinkEdit"
-#define TITLE "DinkEdit"
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

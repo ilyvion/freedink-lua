@@ -1,43 +1,18 @@
 --- dv_canonical	2008-06-26 09:24:25.000000000 +0200
 +++ dv2_canonical	2008-06-29 19:45:08.000000000 +0200
-@@ -32,16 +32,35 @@
- #include <dsound.h>
- #include "dsutil.h"
- #include "fastfile.h"
-+#include <string>
-+#include <vector>
-+#include <map>
- 
+@@ -32,7 +32,11 @@
  //#include "midi.h"
  
  #include <fcntl.h>
  #include <malloc.h>
-+
-+//redink1 added this so his spiffy math stuff could work
-+
-+#include <math.h>
 +
 +//redink1 moves this here so could ignore keystrokes
 +
 +HWND hwnd;
  void check_midi (void);
  UINT midi_id;
-+//redink1 code so dink will not write to the ini when in DMOD mode
-+
-+#ifdef DMOD
-+bool g_b_no_write_ini = true;
-+#else
- bool g_b_no_write_ini = false;
-+#endif
- bool no_cheat = true;
--const dversion = 107;
-+//redink1 Updated for v1.08
-+
-+const dversion = 108;
- int last_saved_game = 0;
- bool g_b_kill_app = false;	//if true, will close app as soon as the message pump is
  
-@@ -49,12 +68,76 @@
+@@ -49,11 +68,73 @@
  
  int dinkspeed = 3;
  int last_cd;
@@ -50,10 +25,6 @@
  time_t time_start;
  bool item_screen = false;
  bool midi_active = true;
--char dversion_string[7] = "v1.07";
-+//redink1 code for version change
-+
-+char dversion_string[6] = "v1.08";
 +//redink1 lets make a new save info thing
 +
 +char save_game_info[200] = "Level &level";
@@ -260,76 +231,6 @@
  hardness hmap;
  RECT tilerect[tile_screens];
  void
-@@ -1868,12 +1999,21 @@
- get_hard (int h, int x1, int y1)
- {
-   int value;
--  if ((x1 < 0) || (y1 < 0))
--    return (false);
--  if ((x1 > 599))
--    return (false);
--  if (y1 > 399)
--    return (false);
-+//redink1 fix for screenlock bug
-+
-+  if (screenlock)
-+    {
-+      if (x1 < 0 && x1 > -5)
-+	x1 = 0;
-+      else if (x1 > 599 && x1 < 605)
-+	x1 = 599;
-+      if (y1 < 0 && y1 > -5)
-+	y1 = 0;
-+      else if (y1 > 399 && x1 < 405)
-+	y1 = 399;
-+    }
-+  if (x1 < 0 || y1 < 0 || x1 > 599 || y1 > 399)
-+    return (0);
-   value = hm.x[x1].y[y1];
-   return (value);
- }
-@@ -1883,12 +2023,21 @@
- {
-   int value;
-   x1 -= 20;
--  if ((x1 < 0) || (y1 < 0))
--    return (false);
--  if ((x1 > 599))
--    return (false);
--  if (y1 > 399)
--    return (false);
-+//redink1 fix for screenlock bug
-+
-+  if (screenlock)
-+    {
-+      if (x1 < 0 && x1 > -5)
-+	x1 = 0;
-+      else if (x1 > 599 && x1 < 605)
-+	x1 = 599;
-+      if (y1 < 0 && y1 > -5)
-+	y1 = 0;
-+      else if (y1 > 399 && x1 < 405)
-+	y1 = 399;
-+    }
-+  if (x1 < 0 || y1 < 0 || x1 > 599 || y1 > 399)
-+    return (0);
-   value = hm.x[x1].y[y1];
-   if (value > 100)
-     {
-@@ -1926,11 +2075,11 @@
- //Msg("filling hard of %d %d %d %d", box.top, box.left, box.right, box.bottom);
- 
-   if (box.right > 599)
--    box.right = 599;
-+    box.right = 600;		//redink1 screenlock bug
-   if (box.top < 0)
-     box.top = 0;
-   if (box.bottom > 399)
--    box.bottom = 399;
-+    box.bottom = 400;		//redink1 screenlock bug
-   if (box.left < 0)
-     box.left = 0;
-   for (int x1 = box.left; x1 < box.right; x1++)
 @@ -1940,10 +2089,15 @@
  	  hm.x[x1].y[y1] = get_hard_map (0, x1, y1);
  }}} void
@@ -470,16 +371,6 @@
        spr[1].damage = 0;
        spr[1].x = play.x;
        spr[1].y = play.y;
-@@ -2396,6 +2627,9 @@
- 
-       attach ();
-       Msg ("Attached vars.");
-+//redink1 fixes
-+
-+      dinkspeed = 3;
-       if (*pcur_weapon != 0)
- 	{
- 	  if (play.item[*pcur_weapon].active == false)
 @@ -2443,6 +2677,11 @@
        Msg ("Loaded map.");
        draw_map_game ();
@@ -743,62 +634,6 @@
  		}
  	      else
  		{
-@@ -3071,6 +3429,19 @@
-       sprintf (crap, "..\\dink\\%s", org);
-       strcpy (org, crap);
-     }
-+// redink1 added to fix bug where loading sequences over others wouldn't work quite right.
-+
-+  int save_cur = cur_sprite;
-+  bool reload = false;
-+  if (index[nummy].last != 0)
-+    {
-+// Msg("Saving sprite %d", save_cur);
-+
-+      cur_sprite = index[nummy].s + 1;
-+//Msg("Temp cur_sprite is %d", cur_sprite);
-+
-+      reload = true;
-+    }
-   index[nummy].s = cur_sprite - 1;
-   if (!windowed)
-     {
-@@ -3169,6 +3540,7 @@
- 	  setup_anim (nummy, nummy, speed);
- 	  if (!windowed)
- 	    lpDDPal->SetEntries (0, 0, 256, holdpal);
-+	  cur_sprite = save_cur;
- 	  return;
- 	}
- //if (show_dot) Msg( "%s", crap);
-@@ -3178,9 +3550,12 @@
-       else
- 	DDSetColorKey (k[cur_sprite].k, RGB (255, 255, 255));
-       cur_sprite++;
-+      if (!reload)
-+	save_cur++;
- //if (first_frame) if (oo == 1) return;
- 
-     }
-+  cur_sprite = save_cur;
- }
- 
- void
-@@ -3375,6 +3750,14 @@
- {
-   char ev[15][100];
-   RECT hardbox;
-+//redink1 set hardbox to zero memory by default... fixed some weird compiler warnings in debug mode. Might screw up default hard box?
-+
-+  hardbox.bottom = 0;
-+  hardbox.left = 0;
-+  hardbox.right = 0;
-+  hardbox.top = 0;
-+//ZeroMemory(&hardbox, sizeof(RECT));
-+
-   ZeroMemory (&ev, sizeof (ev));
-   int myseq = 0, myframe = 0;
-   int special = 0;
 @@ -3976,7 +4359,14 @@
    if (ddrval == DDERR_WASSTILLDRAWING)
      goto again3;
@@ -2333,14 +2168,6 @@
  	return (0);
        }
      if (compare (ev[1], "choice_start"))
-@@ -8401,6 +9672,7 @@
- 	kill_repeat_sounds_all ();
- 	kill_all_scripts_for_real ();
- 	mode = 0;
-+	screenlock = 0;
- 	kill_all_vars ();
- 	FillMemory (&hm, sizeof (hm), 0);
- 	for (int u = 1; u <= 10; u++)
 @@ -8552,9 +9824,11 @@
  	int p[20] = { 1, 2, 0, 0, 0, 0, 0, 0, 0 };
  	if (get_parms (ev[1], script, h, p))
@@ -2362,33 +2189,6 @@
  	return (2);
        }
      if (compare (ev[1], "fade_up"))
-@@ -8617,23 +9892,15 @@
- 
- 	finiObjects ();
- 	return (2);
--      }
--    if (compare (ev[1], "playavi"))
--      {
-+      }				/*if (compare(ev[1], "playavi")) { 
- // (sprite, direction, until, nohard);
- 
--	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
--	if (get_parms (ev[1], script, h, p))
--	  {
-+				   h = &h[strlen(ev[1])]; int p[20] = {2,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { 
- //DSDisable();
- 
- //ShowWindow(hWndMain, SW_MINIMIZE);
- 
--	    int myreturn =
--	      _spawnl (_P_WAIT, "..\\dplay.exe", "..\\dplay.exe", slist[0],
--		       NULL);
--	    Msg ("Return is %d", myreturn);
-+				   int myreturn = _spawnl(_P_WAIT, "..\\dplay.exe","..\\dplay.exe",slist[0], NULL ); Msg("Return is %d", myreturn); 
- //ShowWindow(hWndMain, SW_MAXIMIZE);
- 
- //SetFocus(hWndMain);
 @@ -8641,8 +9908,24 @@
  	  }
  //InitSound(hWndMain);
@@ -2436,47 +2236,6 @@
 +	return (0);
 +      }
      if (compare (ev[1], "make_global_int"))
-       {
- 	h = &h[strlen (ev[1])];
-@@ -8980,6 +10278,40 @@
- 	strcpy (s, h);
- 	return (0);
-       }
-+//redink1 added
-+
-+    if (compare (ev[1], "sp_freeze"))
-+      {
-+	h = &h[strlen (ev[1])];
-+// Msg("Running busy, h is %s", h); 
-+
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+// Set the value
-+
-+	    if (nlist[1] == 0)
-+	      {
-+		spr[nlist[0]].freeze = 0;
-+	      }
-+	    else if (nlist[1] == 1)
-+	      {
-+		spr[nlist[0]].freeze = script;
-+	      }
-+// Return the value
-+
-+	    if (spr[nlist[0]].freeze > 0)
-+	      {
-+		returnint = 1;
-+	      }
-+	    else
-+	      {
-+		returnint = 0;
-+	      }
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-     if (compare (ev[1], "inside_box"))
        {
  	h = &h[strlen (ev[1])];
 @@ -9210,6 +10542,29 @@

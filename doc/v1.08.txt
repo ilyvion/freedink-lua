@@ -113,7 +113,8 @@ Fixes:
     in all cases.
 [X] Removed screenlock on restart game
     => fixed 2008-06-08, in DinkC binding for 'restart_game'.
-[ ] Dink's speed reset to normal (3) on load to prevent 'hyper-sword' bug.
+[X] Dink's speed reset to normal (3) on load to prevent 'hyper-sword' bug.
+    => fixed 2008-06-08, in 'load_game'.
 [X] Time for save game correctly displayed (2:05 instead of 2:5).
     => fixed 2008-06-08, in 'decipher_string'.
 [X] The first tile on the fire and water tile pages animate correctly.
