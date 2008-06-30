@@ -5,7 +5,8 @@ ACLOCAL_AMFLAGS = -I gnulib/m4
 SUBDIRS = autopackage gnulib/lib src share
 
 # Copy those directly and recursively:
-EXTRA_DIST = bootstrap debian doc test contrib
+EXTRA_DIST = bootstrap debian doc test contrib	\
+	gnulib/m4/gnulib-cache.m4
 
 dist-hook:
 	find $(distdir) -name '*~' | xargs -r rm -f
