@@ -5,8 +5,8 @@
 - result == 1
 - result == 3 and there's an error in read_next_line (either script was killed or EOF)
 'line' is ignored when
-- result == 0
-- result == 2
+- result == 0 [skip to next line]
+- result == 2 [yield]
 
 When process_line returns 3, 4 or 5:
 4:
@@ -48,3 +48,5 @@ after
 4 => doelse once
 3 => doelse while (return == 3 or return == 5)
 5 => 
+
+1 => continue processing this line (!= process next line, as '0' does)

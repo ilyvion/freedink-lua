@@ -341,22 +341,9 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 	  else
 	    {
 	      Msg("Missing ')' in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-	      str_params++;
 	      return 0;
 	    }
 	  strip_beginning_spaces(str_params);
-
-	  if (str_params[0] == ';')
-	    {
-	      //  Msg("Found ending ;");
-	      str_params++;
-	    }
-	  else
-	    {
-	      //Msg("Missing ; in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
-	      //      str_params = &str_params[1];
-	      return 1;
-	    }
 	  return 1;
 	}
 
@@ -2168,7 +2155,7 @@ pass:
                         {
                                 returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].sound);
 
-                                if (nlist[1] != 0)
+                                if (nlist[1] > 0)
                                 {
                                         SoundPlayEffect( spr[nlist[0]].sound,22050, 0,nlist[0], 1);
 

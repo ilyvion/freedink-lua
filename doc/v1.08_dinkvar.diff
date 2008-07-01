@@ -204,15 +204,6 @@
  };
  struct seth_joy
  {
-@@ -587,7 +716,7 @@
- HINSTANCE MyhInstance = NULL;
- bool mouse1 = false;
- int cur_sprite = 1;
--int playy = 399;
-+int playy = 400;		//redink1's fix for the 'no sprites on pixel line above status bar' bug
- int cur_map, cur_tile;
- seth_joy sjoy;
- DWORD thisTickCount, lastTickCount;
 @@ -607,6 +736,7 @@
  LPDIRECTDRAWSURFACE lpDDSTwo = NULL;	// Offscreen surface 2
  LPDIRECTDRAWSURFACE lpDDSTrick = NULL;	// Offscreen surface 2
@@ -959,17 +950,6 @@
        if (decipher_savegame != 0)
  	{
  	  if (play.button[decipher_savegame] == 1)
-@@ -4782,7 +5369,9 @@
- 	if (exist (crap))
- 	  {
- 	    load_game_small (decipher_savegame, crab, &mytime);
--	    sprintf (line, "Slot %d - %d:%d - %s", decipher_savegame,
-+//redink1 fix for savegame time bug
-+
-+	    sprintf (line, "Slot %d - %d:%02d - %s", decipher_savegame,
- 		     (mytime / 60), mytime - ((mytime / 60) * 60), crab);
- //sprintf(line, "In Use"); 
- 
 @@ -4802,6 +5391,7 @@
  bool
  get_parms (char proc_name[20], int script, char *h, int p[10])
@@ -978,15 +958,6 @@
    char crap[100];
    strip_beginning_spaces (h);
    if (h[0] == '(')
-@@ -4812,7 +5402,7 @@
-     }
-   else
-     {
--      Msg ("Missing ( in %s, offset %s.", rinfo[script]->name,
-+      Msg ("Missing ( in %s, offset %d.", rinfo[script]->name,
- 	   rinfo[script]->current);
-       return (false);
-     }
 @@ -4954,6 +5544,15 @@
  	  spr[x].damage = 0;
  	  spr[x].defense = 0;
@@ -1204,33 +1175,6 @@
    newval = atol (newname);
  next2:if (math == '=')
      play.var[i].var = newval;
-@@ -5781,7 +6458,7 @@
-   mciOpenParms.lpstrDeviceType = "sequencer";
-   mciOpenParms.lpstrElementName = lpszMIDIFileName;
-   if (dwReturn =
--      mciSendCommand (NULL, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT,
-+      mciSendCommand (0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT,
- 		      (DWORD) (LPVOID) & mciOpenParms))
-     {
- // Failed to open device. Don't close it; just return error.
-@@ -5840,7 +6517,7 @@
- {
- //no midi stuff right now
- 
--  if (::sound_on == false)
-+  if (sound_on == false)
-     return true;
-   char buf[256];
-   char crap[256];
-@@ -5848,7 +6525,7 @@
-     {
-       if (nothing_playing ())
- 	{
--	  Msg ("I think %s is already playing, I should skip it it...",
-+	  Msg ("I think %s is already playing, I should skip it...",
- 	       sFileName);
- 	  return (false);
- 	}
 @@ -6352,7 +7029,14 @@
    return (*change);
  }
@@ -1247,15 +1191,6 @@
  change_edit (int h, int val, unsigned short *change)
  {
  //Msg("Searching sprite %s with val %d. Cur is %d", h, val, *change);
-@@ -6402,7 +7086,7 @@
- void
- draw_sprite_game (LPDIRECTDRAWSURFACE lpdest, int h)
- {
--  if (::g_b_kill_app)
-+  if (g_b_kill_app)
-     return;			//don't try, we're quitting
-   if (spr[h].brain == 8)
-     return;
 @@ -6414,6 +7098,14 @@
    ddbltfx.dwSize = sizeof (ddbltfx);
    ddbltfx.dwFillColor = 0;
@@ -1324,14 +1259,6 @@
  	if (mnum != last_magic_draw)
  	  {
  	    draw_mlevel (mnum);
-@@ -6804,6 +7506,7 @@
-   int highest_sprite;
-   update_play_changes ();
-   memset (&bs, 0, sizeof (bs));
-+  memset (&rank, 0, sizeof (rank));
-   int hs;
-   for (int r1 = 1; r1 < 100; r1++)
-     {
 @@ -7317,11 +8020,23 @@
  void
  random_blood (int mx, int my, int h)
@@ -1392,7 +1319,7 @@
        if (strchr (temp, '=') != NULL)
  	{
  	  h = &h[1];
-@@ -8019,148 +8747,687 @@
+@@ -8019,129 +8747,150 @@
  	strcpy (s, h);
  	return (1);
        }
@@ -1611,139 +1538,7 @@
  	strcpy (s, h);
  	return (0);
        }
--    if (compare (ev[1], "kill_this_magic"))
-+//redink1 added this function,, and took it away.
-+
-+    /*if (compare(ev[1], "get_compatibility")) { returnint = 0; h = &h[strlen(ev[1])]; int p[20] = {2,1,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { if (compare(slist[0],"get_compatibility")) { if (nlist[1] <= 1) { returnint = 1; } } } strcpy(s, h); return(0); } */
-+//redink1 added this function
-+
-+    if (compare (ev[1], "get_time_game"))
-       {
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
--	if (get_parms (ev[1], script, h, p))
--	  {
--	    kill_cur_magic_script (slist[0]);
--	  }
-+	time_t ct;
-+	time (&ct);
-+	returnint = play.minutes + (difftime (ct, time_start) / 60);
- 	strcpy (s, h);
- 	return (0);
-       }
--    if (compare (ev[1], "show_bmp"))
-+//redink1 added this function
-+
-+    if (compare (ev[1], "get_time_real"))
-       {
--	Msg ("showing BMP");
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	char mytime[5];
-+	time_t ct;
-+	struct tm *time_now;
-+	time (&ct);
-+	time_now = localtime (&ct);
-+	strftime (mytime, 5, "%M", time_now);
-+	returnint = atoi (mytime);
-+	strftime (mytime, 5, "%H", time_now);
-+	returnint += 60 * atoi (mytime);
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    if (compare (ev[1], "get_date_year"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	char mytime[5];
-+	time_t ct;
-+	struct tm *time_now;
-+	time (&ct);
-+	time_now = localtime (&ct);
-+	strftime (mytime, 5, "%Y", time_now);
-+	returnint = atoi (mytime);
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    if (compare (ev[1], "get_date_month"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	char mytime[5];
-+	time_t ct;
-+	struct tm *time_now;
-+	time (&ct);
-+	time_now = localtime (&ct);
-+	strftime (mytime, 5, "%m", time_now);
-+	returnint = atoi (mytime);
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    if (compare (ev[1], "get_date_day"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	char mytime[5];
-+	time_t ct;
-+	struct tm *time_now;
-+	time (&ct);
-+	time_now = localtime (&ct);
-+	strftime (mytime, 5, "%d", time_now);
-+	returnint = atoi (mytime);
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    if (compare (ev[1], "math_abs"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    returnint = abs (nlist[0]);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    /*if (compare(ev[1], "math_sin")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = sin((double)nlist[0]); } strcpy(s, h); return(0); } 
-+       //redink1 added this function
-+
-+       if (compare(ev[1], "math_cos")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = cos((double)nlist[0]); } strcpy(s, h); return(0); } 
-+       //redink1 added this function
-+
-+       if (compare(ev[1], "math_tan")) { h = &h[strlen(ev[1])]; int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { returnint = tan((double)nlist[0]); } strcpy(s, h); return(0); } */
-+//redink1 added this function
-+
-+    if (compare (ev[1], "math_sqrt"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    returnint = sqrt ((double) abs (nlist[0]));
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added this function
-+
-+    if (compare (ev[1], "math_mod"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    returnint = (nlist[0] % nlist[1]);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
+[...]
 +//redink1
 +
 +    if (compare (ev[1], "sp_custom"))
@@ -1980,42 +1775,7 @@
 +	returnint = -1;
 +	return (0);
 +      }
-+    if (compare (ev[1], "unfreeze"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+//Msg("UnFreeze called for %d.", nlist[0]);
-+
-+	    if (spr[nlist[0]].active)
-+	      spr[nlist[0]].freeze = 0;
-+	    else
-+	      Msg
-+		("Couldn't unfreeze sprite %d in script %d, it doesn't exist.",
-+		 nlist[0], script);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "freeze"))
-+      {
-+//Msg("Freeze called (%s)", h); 
-+
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    if (spr[nlist[0]].active)
-+	      spr[nlist[0]].freeze = script;
-+	    else
-+	      Msg
-+		("Couldn't freeze sprite %d in script %d, it doesn't exist.",
-+		 nlist[0], script);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
+[...]
 +    if (compare (ev[1], "set_callback_random"))
 +      {
 +	Msg ("setting callback random");
@@ -2181,21 +1941,7 @@
  	strcpy (s, h);
  	return (0);
        }
-@@ -8585,6 +9859,7 @@
- 	process_downcycle = true;
- 	cycle_clock = thisTickCount + 1000;
- 	cycle_script = script;
-+	strcpy (s, h);
- 	return (2);
-       }
-     if (compare (ev[1], "fade_up"))
-@@ -8641,8 +9908,24 @@
- 	  }
- //InitSound(hWndMain);
- 
--	strcpy (s, h);
--	return (2);
-+				   strcpy(s, h); return(2); } */
+@@ -8641,3 +9908,20 @@
 +//redink1 added
 +
 +    if (compare (ev[1], "loopmidi"))
@@ -2268,15 +2014,6 @@
      if (compare (ev[1], "get_rand_sprite_with_this_brain"))
        {
  	h = &h[strlen (ev[1])];
-@@ -9259,7 +10614,7 @@
- 	  {
- 	    returnint =
- 	      change_sprite (nlist[0], nlist[1], &spr[nlist[0]].sound);
--	    if (nlist[1] != 0)
-+	    if (nlist[1] > 0)
- 	      {
- 		SoundPlayEffect (spr[nlist[0]].sound, 22050, 0, nlist[0], 1);
- 	      }
 @@ -9680,6 +11035,25 @@
  	returnint = -1;
  	return (0);
@@ -2462,7 +2199,7 @@
  	    if (locate (myscript1, slist[1]))
  	      {
  		rinfo[myscript1]->proc_return = script;
-@@ -10313,22 +11752,58 @@
+@@ -10313,18 +11752,54 @@
        {
  //lets attempt to run a procedure
  
@@ -2520,11 +2257,6 @@
  	      ("ERROR: Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
  	       line, ev[2], rinfo[myscript]->name);
  	    kill_script (myscript);
--	  }
-+	  }			/*seperate_string(h, 1,'(',line); int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false); if (locate( myscript, line)) { rinfo[myscript]->proc_return = script; run_script(myscript); return(2); } else { Msg("ERROR: Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line, ev[2], rinfo[myscript]->name); kill_script(myscript); } */
- 	return (0);
-       }
-     Msg ("MERROR: \"%s\" unknown in %s, offset %d.", ev[1],
 @@ -10351,7 +11826,14 @@
  {
    int result;

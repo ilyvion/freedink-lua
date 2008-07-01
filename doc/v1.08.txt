@@ -177,8 +177,9 @@ Fixes:
     => applied unconditionaly 2008-03-09
 [ ] run_script_by_number(int script, "proc");
     No longer runs a random procedure if it cannot locate proc specified.
-[ ] sp_sound(int sprite, int value)
+[X] sp_sound(int sprite, int value)
     Passing a -1 will no longer crash the game.
+    => Fixed 2008-07-01
 
 Backward-incompatible fixes:
 [ ] compare_magic(str magicitem)
@@ -266,6 +267,16 @@ New functions:
 
 dinkc.chm
 ---------
+
+[ ] entry for hurt():
+
+"In 1.07 and earlier, a negative damage value would cause the game to
+freeze.  1.08 and later will ignore the command safely."
+
+=> Actually, I couldn't reproduce the freeze, so v1.08 is essentially
+   changing DinkC's behavior: with v1.07 hurt(&sthing, -1) would run
+   hit(), with v1.08 it doesn't.
+
 
 - entry for say():
 "Also in 1.07 and earlier, Dink would not interpret lines with a colon

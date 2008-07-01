@@ -128,7 +128,7 @@ int PlayMidi(char *sFileName)
   if (last_midi != NULL && compare(last_midi, sFileName)
       && something_playing())
     {
-      Msg("I think %s is already playing, I should skip it it...",
+      Msg("I think %s is already playing, I should skip it...",
 	  sFileName);
       return 0;
     }
