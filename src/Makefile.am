@@ -64,15 +64,13 @@ if HAVE_UPX
 endif
 if HAVE_ZIP
 # Bundle resources
-	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf	\
-		$(resdir)/vgasys.fon
+	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf
 	cat res.zip >> "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 	rm -f res.zip
 	zip -A "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 
 	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf	\
-		$(resdir)/vgasys.fon $(resdir)/stop.wav		\
-		$(resdir)/jump.wav
+		$(resdir)/stop.wav $(resdir)/jump.wav
 	cat res.zip >> "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 	rm -f res.zip
 	zip -A "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
