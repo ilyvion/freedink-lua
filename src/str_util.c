@@ -166,7 +166,7 @@ a single character, updating the null at the end. */
 
 /**
  * Return whether 'orig' and 'comp' are the same string
- * (case-insensitive comparison)
+ * (case-insensitive comparison).
  */
 /*bool*/int compare(char *orig, char *comp)
 {

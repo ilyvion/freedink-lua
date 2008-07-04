@@ -420,7 +420,8 @@ void strip_beginning_spaces(char *str)
 }
 
 /**
- * v1.07-style scope: first memory slot wins.
+ * v1.07-style scope. This function is buggy: the first memory slot
+ * has precedence (independently of local/global scope).
  * 
  * Return -1 if not found, slot index >1 if found. Slot 0 isn't
  * currently used by the engine.
@@ -480,7 +481,7 @@ int search_var_with_this_scope(char* variable, int scope)
 
 /**
  * Expand 'variable' in the scope of 'script'; the result is placed
- * back in 'variable'
+ * back in 'variable'. Only used in function 'get_parms'.
  */
 void decipher(char *variable, int script)
 {
@@ -625,8 +626,10 @@ void var_replace(char* line, int scope)
 
 
 /**
- * Similar to decipher, plus expand special choice variables
- * &savegameinfo and &buttoninfo
+ * Similar to decipher, plus:
+ * - expand special choice variables &savegameinfo and &buttoninfo
+ * - it can replace several variables in the same string
+ * - with v1.07 it has a prefix bug (see var_replace_107)
  */
 void decipher_string(char line[200], int script)
 {
