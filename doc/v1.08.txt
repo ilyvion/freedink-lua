@@ -346,6 +346,7 @@ Changes not documented in whatsnew.txt
     data during dink.ini initial loading. Some 1.08 D-Mods such as
     "City of Dead" require more than 600 idata, and v1.07 ignores part
     of them, resulting in misplaced sprites.
+    => Implemented conditionally 04-07-2008
 
 [ ] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
@@ -364,6 +365,7 @@ Changes not documented in whatsnew.txt
     "*="). "*=" is also added in the v1.08 patch, except that it was
     already present in v1.07 and checked before in the code, so this
     doesn't have any effect.
+    => Implemented conditionally 04-07-2008
 
 
 Compilation
