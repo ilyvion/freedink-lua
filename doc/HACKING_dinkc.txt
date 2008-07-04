@@ -50,3 +50,21 @@ after
 5 => 
 
 1 => continue processing this line (!= process next line, as '0' does)
+
+
+
+=====
+
+Changes in v1.08 - variables and scope:
+
+- decipher_string -> replace longest variables first
+- scope check:
+  before: scope == DINKC_GLOBAL_SCOPE || scope == cur_script
+  => FIFO (overrides are possible, but first memory slot always wins)
+  after:  get_var(script, var)
+  => local then global
+
+  [X] var_equals -> search for LHS, search for RHS if variable
+  [X] decipher -> search for a given variable
+  [X] decipher_string -> recurse_var_replace -> replace all vars in a
+      string, longest first

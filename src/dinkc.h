@@ -40,17 +40,34 @@ struct varman
 /* Named index for varman.scope */
 #define DINKC_GLOBAL_SCOPE 0
 
+// global functions (v1.08)
+struct global_function
+{
+  char file[10];
+  char func[20];
+};
+
 struct refinfo
 {
-        char name[10];
-        long location;
-        long current;
-        int level;
-        long end;
-        int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
-        /*bool*/int skipnext;
-        int onlevel;
-        int proc_return;
+  char name[10];
+  long location;
+  long current;
+  int level;
+  long end;
+  int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
+  /*bool*/int skipnext;
+  int onlevel;
+  int proc_return;
+  /* v1.08 arguments for user-defined functions */
+  int arg1;
+  int arg2;
+  int arg3;
+  int arg4;
+  int arg5;
+  int arg6;
+  int arg7;
+  int arg8;
+  int arg9;
 };
 extern struct refinfo *rinfo[];
 
@@ -81,8 +98,10 @@ extern void run_script(int script);
 extern void get_word(char line[300], int word, char *crap);
 extern void attach(void);
 extern void int_prepare(char line[100], int script);
+extern void make_function(char file[10], char func[20]);
 
 extern int returnint;
+extern int bKeepReturnInt; /* v1.08 */
 extern char returnstring[];
 extern unsigned short decipher_savegame;
 

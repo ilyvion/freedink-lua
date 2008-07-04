@@ -419,11 +419,20 @@ pass:
                         return(2);
                 }
                 //replace("\n","",ev[1]);
-                if (ev[1][strlen(ev[1]) -1] == ':') if (strlen(ev[2]) < 2)
-
+                if (ev[1][strlen(ev[1]) -1] == ':' && strlen(ev[2]) < 2)
                 {
-                        //      Msg("Found label %s..",ev[1]);
-                        return(0); //its a label
+		  if (dversion >= 108)
+		    {
+		      /* Attempt to avoid considering:
+			   say("bonus: 5 points", 1); // would not display any text at all!
+			 as a label */
+		      if (strncmp (ev[1], "say", 3) != 0)
+			return(0); //its a label
+		    }
+		  else
+		    {
+		      return(0); //its a label
+		    }
                 }
                 if (ev[1][0] == '(')
                 {
@@ -1349,10 +1358,8 @@ pass:
                         int p[20] = {1,2,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                locate(nlist[0], slist[1]);
-
-                                run_script(nlist[0]);
-
+			  if (locate (nlist[0], slist[1]))
+			    run_script (nlist[0]);
                         }
 
                         strcpy_nooverlap(s, h);
@@ -3213,6 +3220,7 @@ pass:
 
                                                                         if (rinfo[script]->proc_return != 0)
                                                                         {
+                                                                                bKeepReturnInt = 1; /* v1.08 */
                                                                                 run_script(rinfo[script]->proc_return);
                                                                                 kill_script(script);
                                                                         }
@@ -3305,7 +3313,8 @@ pass:
                                                                 }
 
 
-                                                                if (compare(ev[2], "/"))
+                                                                if (compare(ev[2], "/")
+								    || (dversion >= 108 && compare(ev[2], "/=")))
                                                                 {
                                                                         h = &h[strlen(ev[1])];
                                                                         strip_beginning_spaces(h);
@@ -3330,35 +3339,6 @@ pass:
                                                                         strcpy_nooverlap(s, h);
                                                                         return(0);
                                                                 }
-                                                                if (compare(ev[1], "external"))
-                                                                {
-
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {2,2,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
-                                                                                if (myscript1 == 0)
-                                                                                {
-                                                                                        Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
-                                                                                        return(0);
-                                                                                }
-                                                                                if (locate( myscript1, slist[1]))
-                                                                                {
-                                                                                        rinfo[myscript1]->proc_return = script;
-                                                                                        run_script(myscript1);
-
-                                                                                        return(2);
-                                                                                } else
-                                                                                {
-                                                                                        Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
-                                                                                        kill_script(myscript1);
-                                                                                }
-                                                                        }
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
 
 
   /*********************************/
@@ -3584,8 +3564,201 @@ pass:
 	return (0);
       }
 
+    //redink1 added for global functions
+    if (compare (ev[1], "make_global_function"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    make_function (slist[0], slist[1]);
+
+	    //Msg(slist[0]);
+	  }
+	strcpy (s, h);
+	return (0);
+      }
     }
 
+
+  /*********************************/
+  /** New DinkC custom procedures **/
+  /**                             **/
+  /*********************************/
+  if (dversion >= 108)
+    {
+
+    /* added so we can have return values and crap. */
+    /* see also "return;" above */
+    if (compare (ev[1], "return"))
+
+      {
+	if (debug_mode)
+	  Msg ("Found return; statement");
+	h = &h[strlen (ev[1])];
+	strip_beginning_spaces (h);
+	process_line (script, h, 0);
+	if (rinfo[script]->proc_return != 0)
+
+	  {
+	    bKeepReturnInt = 1;
+	    run_script (rinfo[script]->proc_return);
+	    kill_script (script);
+	  }
+	return (2);
+      }
+
+    if (compare (ev[1], "external"))
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
+	memset (slist, 0, 10 * 200);
+	get_parms (ev[1], script, h, p);
+	if (strlen (slist[0]) > 0 && strlen (slist[1]) > 0)
+	  {
+	    int
+	      myscript1 =
+	      load_script (slist[0], rinfo[script]->sprite, 0);
+	    if (myscript1 == 0)
+	      {
+		Msg ("Error:  Couldn't find %s.c (for procedure %s)",
+		     slist[0], slist[1]);
+		return (0);
+	      }
+	    rinfo[myscript1]->arg1 = nlist[2];
+	    rinfo[myscript1]->arg2 = nlist[3];
+	    rinfo[myscript1]->arg3 = nlist[4];
+	    rinfo[myscript1]->arg4 = nlist[5];
+	    rinfo[myscript1]->arg5 = nlist[6];
+	    rinfo[myscript1]->arg6 = nlist[7];
+	    rinfo[myscript1]->arg7 = nlist[8];
+	    rinfo[myscript1]->arg8 = nlist[9];
+	    if (locate (myscript1, slist[1]))
+	      {
+		rinfo[myscript1]->proc_return = script;
+		run_script (myscript1);
+		return (2);
+	      }
+	    else
+	      {
+		Msg ("Error:  Couldn't find procedure %s in %s.", slist[1],
+		     slist[0]);
+		kill_script (myscript1);
+	      }
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+    if (strchr (h, '(') != NULL)
+      {
+	//lets attempt to run a procedure
+	int
+	  myscript =
+	  load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	get_parms (ev[1], script, h, p);
+	if (locate (myscript, ev[1]))
+	  {
+	    rinfo[myscript]->arg1 = nlist[0];
+	    rinfo[myscript]->arg2 = nlist[1];
+	    rinfo[myscript]->arg3 = nlist[2];
+	    rinfo[myscript]->arg4 = nlist[3];
+	    rinfo[myscript]->arg5 = nlist[4];
+	    rinfo[myscript]->arg6 = nlist[5];
+	    rinfo[myscript]->arg7 = nlist[6];
+	    rinfo[myscript]->arg8 = nlist[7];
+	    rinfo[myscript]->arg9 = nlist[8];
+	    rinfo[myscript]->proc_return = script;
+	    run_script (myscript);
+	    return (2);
+	  }
+	else
+	  {
+	    for (int i = 0; strlen (play.func[i].func) > 0 && i < 100; i++)
+	      {
+		if (compare (play.func[i].func, ev[1]))
+		  {
+		    myscript = load_script (play.func[i].file, rinfo[script]->sprite, 0);
+		    rinfo[myscript]->arg1 = nlist[0];
+		    rinfo[myscript]->arg2 = nlist[1];
+		    rinfo[myscript]->arg3 = nlist[2];
+		    rinfo[myscript]->arg4 = nlist[3];
+		    rinfo[myscript]->arg5 = nlist[4];
+		    rinfo[myscript]->arg6 = nlist[5];
+		    rinfo[myscript]->arg7 = nlist[6];
+		    rinfo[myscript]->arg8 = nlist[7];
+		    rinfo[myscript]->arg9 = nlist[8];
+		    if (locate (myscript, ev[1]))
+		      {
+			rinfo[myscript]->proc_return = script;
+			run_script (myscript);
+			return (2);
+		      }
+		    break;
+		  }
+	      }
+	    Msg
+	      ("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
+	       line, ev[2], rinfo[myscript]->name);
+	    kill_script (myscript);
+	  }
+
+	/*seperate_string(h, 1,'(',line);
+
+	   int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);
+
+	   if (locate( myscript, line))
+	   {
+	   rinfo[myscript]->proc_return = script;
+	   run_script(myscript);    
+	   return(2);
+	   } else
+	   {
+	   Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
+	   ev[2], rinfo[myscript]->name); 
+	   kill_script(myscript);          
+	   } */
+	return (0);
+      }
+    }
+  else
+    {
+      /* v1.07 function that are implemented differently than in v1.08 */
+
+                                                                if (compare(ev[1], "external"))
+                                                                {
+
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {2,2,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
+                                                                                if (myscript1 == 0)
+                                                                                {
+                                                                                        Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
+                                                                                        return(0);
+                                                                                }
+                                                                                if (locate( myscript1, slist[1]))
+                                                                                {
+                                                                                        rinfo[myscript1]->proc_return = script;
+                                                                                        run_script(myscript1);
+
+                                                                                        return(2);
+                                                                                } else
+                                                                                {
+                                                                                        Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
+                                                                                        kill_script(myscript1);
+                                                                                }
+                                                                        }
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
 
                                                                 if (strchr(h, '(') != NULL)
                                                                 {
@@ -3618,7 +3791,7 @@ pass:
 
 
                                                                 //in a thingie, ready to go
-
+    }
         }
 
 bad:

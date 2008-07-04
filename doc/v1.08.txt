@@ -11,6 +11,9 @@ Comprehensive links chronology in the Dink Network message board
 Development - Dink Smallwood v1.08 - Suggestions
 http://www.dinknetwork.com/forum.cgi?MID=48641
 
+Development - The Three Pillars of Dink v1.08
+http://www.dinknetwork.com/forum.cgi?MID=52195
+
 General Dink Discussion - Help Test Dink Smallwood v1.08 - Alpha 1 -> 5
 http://www.dinknetwork.com/forum.cgi?MID=50116
 
@@ -63,8 +66,8 @@ with a "v1.08+" entry, describing all added DinkC commands.
 
 Grep //redink1 in the 1.08 source code.
 
-Paul Jewsbury posted a list of v1.08 bugs he ran into:
-http://www.dinknetwork.com/forum.cgi?MID=89849
+[ ] Paul Jewsbury posted a list of v1.08 bugs he ran into:
+    http://www.dinknetwork.com/forum.cgi?MID=89849
 
 
 Incorporating changes in FreeDink
@@ -89,6 +92,7 @@ I suggest different approaches depending on the kind of fix:
 - DinkC changes: offer 2 versions of the engine (1.07 and 1.08) as
   well as a new DinkC with a clean syntax, a different file extension,
   and UTF-8 support.
+
 
 List of changes
 ===============
@@ -159,15 +163,16 @@ Improvements that potentially break backward compatibility:
     button4, interfering with the Enter key's ability to
     work. Therefore, Secret of Parizaya is currently incompatible with
     1.08. Tada." (http://www.dinknetwork.com/forum.cgi?MID=59442)
-[ ] Variables are no longer shared between two instances of the same script.
-[ ] Variables can begin with another variable stub (i.e. &goldtemp will work with
+[X] Variables can begin with another variable stub (i.e. &goldtemp will work with
     &gold).
+    => Implemented conditionally 04-07-2008
 [ ] &missle_source is defined for all attacks, not just missiles.
-[ ] &return is a built-in variable that stores the last return value of any
+[X] &return is a built-in variable that stores the last return value of any
     function (built-in or custom).
-[ ] Custom functions can have up to 9 arguments, stored in the built-in variables
+    => Implemented conditionally 04-07-2008
+[X] Custom functions can have up to 9 arguments, stored in the built-in variables
     &arg1 through &arg9.
-
+    => Implemented conditionally 04-07-2008
 
 DinkC changes:
 
@@ -175,8 +180,9 @@ Fixes:
 [X] playavi(str avifile)
     Removed command.
     => applied unconditionaly 2008-03-09
-[ ] run_script_by_number(int script, "proc");
+[X] run_script_by_number(int script, "proc");
     No longer runs a random procedure if it cannot locate proc specified.
+    => Fixed 04-07-2008
 [X] sp_sound(int sprite, int value)
     Passing a -1 will no longer crash the game.
     => Fixed 2008-07-01
@@ -336,7 +342,7 @@ Diff overview
 Changes not documented in whatsnew.txt
 --------------------------------------
 
-[ ] max_idata changed from 600 to 1000; idata store additional sprite
+[X] max_idata changed from 600 to 1000; idata store additional sprite
     data during dink.ini initial loading. Some 1.08 D-Mods such as
     "City of Dead" require more than 600 idata, and v1.07 ignores part
     of them, resulting in misplaced sprites.
@@ -345,6 +351,19 @@ Changes not documented in whatsnew.txt
     %WINDIR%/dinksmallwood.ini overwrite.
 
 [ ] New DinkC function: set_smooth_follow
+
+[X] Cleaner but backward-incompatible DinkC scope: before, when there
+    were 2 identical variables in different scopes (local/global), the
+    first memory slot had priority; now, local variables always have
+    priority over global variables.
+    => Implemented conditionally 04-07-2008
+
+[X] DinkC: Added "/=" alternative to "/". However, there's a potential
+    bug there, because the script cursor is moved 1 character forward
+    in both case, instead of 2 for "/=" (that's what's done for
+    "*="). "*=" is also added in the v1.08 patch, except that it was
+    already present in v1.07 and checked before in the code, so this
+    doesn't have any effect.
 
 
 Compilation
@@ -357,3 +376,19 @@ applications (eg. it's doesn't provide windows.h).
 Trying to compile with VC++6 triggers lots of C++ template errors and
 one undefined DDLOCK_DONOTWAIT symbol, plus loads of warnings about
 truncated mangled names. I haven't put much work into it.
+
+
+Forsaken changes
+================
+
+* Dynamic (shell- and Perl4-style) scope in DinkC (referenced in "The
+  Three Pillars of Dink v1.08" link above)
+
+
+Non-changes
+===========
+
+[?] Variables are no longer shared between two instances of the same
+    script.
+    => Unless I'm mistaken, this is already the case in v1.07.
+    Local ones, at least.

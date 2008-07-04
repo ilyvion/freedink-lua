@@ -2,6 +2,7 @@
  * DinkC script engine
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
+ * Copyright (C) 2005, 2006  Dan Walma
  * Copyright (C) 2005, 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
@@ -34,6 +35,7 @@
 #include "log.h"
 
 int returnint = 0;
+int bKeepReturnInt = 0;
 char returnstring[200];
 /* Used to tell decipher_string about the currently selected savegame
    in a choice menu; also abuse to tell which key is selected in
@@ -417,9 +419,68 @@ void strip_beginning_spaces(char *str)
   return /*false*/0;
 }
 
+/**
+ * v1.07-style scope: first memory slot wins.
+ * 
+ * Return -1 if not found, slot index >1 if found. Slot 0 isn't
+ * currently used by the engine.
+ */
+int search_var_with_this_scope_107(char* variable, int var_scope)
+{
+  int i;
+  for (i = 1; i < MAX_VARS; i ++)
+    if (play.var[i].active == 1
+	&& ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == var_scope))
+	&& (compare(play.var[i].name, variable)))
+      return i;
+  return -1; /* not found */
+}
 
 /**
- * Expand 'variable' in the scope of 'script'
+ * v1.08-style scope: local variables are search before global
+ * variables.
+ *
+ * Return -1 if not found, slot index >1 if found. Slot 0 isn't
+ * currently used by the engine.
+ */
+int search_var_with_this_scope_108(char* variable, int var_scope)
+{
+  int search_scope[2];
+  search_scope[0] = var_scope; /* first local scope */
+  search_scope[1] = DINKC_GLOBAL_SCOPE; /* then global scope */
+
+  int i;
+  for (i = 0; i < 2; i++)
+    {
+      //We'll start going through every var, starting at one
+      int v;
+      for (v = 1; v < MAX_VARS; v++)
+	{
+	  //Okay... make sure the var is active,
+	  //The scope should match the script,
+	  //Then make sure the name is the same.
+	  if (play.var[v].active
+	      && play.var[v].scope == search_scope[i]
+	      && compare (play.var[v].name, variable))
+	    return v;
+	}
+    }
+  return -1;
+}
+
+/**
+ * 
+ */
+int search_var_with_this_scope(char* variable, int scope)
+{
+  if (dversion >= 108)
+    return search_var_with_this_scope_108(variable, scope);
+  return search_var_with_this_scope_107(variable, scope);      
+}
+
+/**
+ * Expand 'variable' in the scope of 'script'; the result is placed
+ * back in 'variable'
  */
 void decipher(char *variable, int script)
 {
@@ -435,19 +496,133 @@ void decipher(char *variable, int script)
       return;
     }
 
-  // Check in local and global variables
-  int i;
-  for (i = 1; i < MAX_VARS; i ++)
+  //v1.08 special variables.
+  if (dversion >= 108)
     {
-      if (play.var[i].active == 1
-	  && ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == script))
-	  && (compare(play.var[i].name, variable)))
+      if (compare(variable, "&return")) 
 	{
-	  sprintf(variable, "%d",play.var[i].var);
+	  sprintf(variable, "%d", returnint);
+	  return;
+	}
+      if (compare(variable, "&arg1")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg1);
+	  return;
+	}
+      if (compare(variable, "&arg2")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg2);
+	  return;
+	}
+      if (compare(variable, "&arg3")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg3);
+	  return;
+	}
+      if (compare(variable, "&arg4")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg4);
+	  return;
+	}
+      if (compare(variable, "&arg5"))
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg5);
+	  return;
+	}
+      if (compare(variable, "&arg6")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg6);
+	  return;
+	}
+      if (compare(variable, "&arg7")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg7);
+	  return;
+	}
+      if (compare(variable, "&arg8"))
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg8);
+	  return;
+	}
+      if (compare(variable, "&arg9")) 
+	{
+	  sprintf(variable, "%d", rinfo[script]->arg9);
 	  return;
 	}
     }
+
+  // Check in local and global variables
+  int i = search_var_with_this_scope(variable, script);
+  if (i != -1)
+    sprintf(variable, "%d", play.var[i].var);
 }
+
+
+/**
+ * Replace all variables in a string; try longest variables
+ * first. Known bug: may replace shorter variables (e.g. &gold instead
+ * of &golden).
+ */
+void var_replace_107(char* line, int scope)
+{
+  char crap[20];
+  int i;
+  for (i = 1; i < MAX_VARS; i ++)
+    if ((play.var[i].active == 1)
+	&& ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == scope)))
+      {
+	sprintf(crap, "%d", play.var[i].var);
+	replace(play.var[i].name, crap, line);
+      }
+}
+
+/**
+ * Replace all variables in a string; try longest variables first.
+ *
+ * Possible improvements:
+ * 
+ * - Copy play.var[] and sort it by variable length (and avoid the
+ *   recursion)
+ *
+ * - find vars in the string and replace them as-needed (requires
+ *   understanding what exactly is an end-of-variable delimiter, if
+ *   such a thing exists)
+ */
+void var_replace_108(int i, int script, char *line, char *prevar)
+{
+  while (i < MAX_VARS)
+    {
+      //First, make sure the variable is active.
+      //Then, make sure it is in scope,
+      //Then, see if the variable name is in the line
+      //Then, prevar is null, or if prevar isn't null, see if current variable starts with prevar
+      if (play.var[i].active
+	  && i == search_var_with_this_scope_108(play.var[i].name, script)
+	  && strstr (line, play.var[i].name)
+	  && (prevar == NULL || (prevar != NULL && strstr (play.var[i].name, prevar))))
+	{
+	  //Look for shorter variables
+	  var_replace_108(i + 1, script, line, play.var[i].name);
+	  //we didn't find any, so we replace!
+	  char crap[20];
+	  sprintf (crap, "%d", play.var[i].var);
+	  replace (play.var[i].name, crap, line);
+	}
+      i++;
+    }
+}
+
+/**
+ * Replace all variables (&something) in 'line', with scope 'scope'
+ */
+void var_replace(char* line, int scope)
+{
+  if (dversion >= 108)
+    var_replace_108(1, scope, line, NULL);
+  else
+    var_replace_107(line, scope);
+}
+
 
 /**
  * Similar to decipher, plus expand special choice variables
@@ -455,28 +630,32 @@ void decipher(char *variable, int script)
  */
 void decipher_string(char line[200], int script)
 {
-  char crap[20];
   char buffer[20];
   char crab[100];
   int mytime;
-  int i;
   
-  for (i = 1; i < MAX_VARS; i ++)
-    {
-      if ((play.var[i].active == 1)
-	  && ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == script)))
-	{
-	  sprintf(crap, "%d", play.var[i].var);
-	  replace(play.var[i].name, crap, line);
-	}
-    }
+  /* Replace all valid variables in 'line' */
+  var_replace(line, script);
   
   if ((strchr(line, '&') != NULL) && (script != 0))
     {
-      sprintf(buffer, "%d", rinfo[script]->sprite);
-      replace("&current_sprite", buffer, line);
-      sprintf(buffer, "%d", script);
-      replace("&current_script", buffer, line);
+      sprintf(buffer, "%d", rinfo[script]->sprite); replace("&current_sprite", buffer, line);
+      sprintf(buffer, "%d", script);                replace("&current_script", buffer, line);
+
+      if (dversion >= 108)
+	{
+	  //v1.08 special variables.
+	  sprintf(buffer, "%d", returnint);           replace("&return", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg1); replace("&arg1", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg2); replace("&arg2", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg3); replace("&arg3", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg4); replace("&arg4", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg5); replace("&arg5", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg6); replace("&arg6", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg7); replace("&arg7", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg8); replace("&arg8", buffer, line);
+	  sprintf(buffer, "%d", rinfo[script]->arg9); replace("&arg9", buffer, line);
+	}
 
       if (decipher_savegame != 0)
 	{
@@ -495,6 +674,7 @@ void decipher_string(char line[200], int script)
 
   if ((decipher_savegame != 0) && compare(line, "&savegameinfo"))
     {
+      char crap[20];
       sprintf(crap, "save%d.dat", decipher_savegame);
       if (load_game_small(decipher_savegame, crab, &mytime) == 1)
 	{
@@ -777,7 +957,8 @@ void init_scripts(void)
   for (k = 1; k < MAX_SCRIPTS; k++)
     {
       if (rinfo[k] != NULL && rinfo[k]->sprite != 0
-	  && rinfo[k]->sprite != 1000 /* don't go out of bounds in spr[300] */
+	  /* don't go out of bounds in spr[300], e.g. when sprite == 1000: */
+	  && rinfo[k]->sprite < MAX_SPRITES_AT_ONCE
 	  && spr[rinfo[k]->sprite].active)
 	{
 	  if (locate(k,"main"))
@@ -844,8 +1025,24 @@ void run_script(int script)
   int result;
   char line[200];
 
-  returnint = 0;
+  /* keep 'return' value? */
+  if (dversion >= 108)
+    {
+      if (bKeepReturnInt == 1)
+	{
+	  bKeepReturnInt = 0;
+	}
+      else
+	{
+	  returnint = 0;
+	}
+    }
+  else
+    {
+      returnint = 0;
+    }
   returnstring[0] = 0;
+
 
   if (rinfo[script] != NULL)
     {
@@ -1016,6 +1213,34 @@ int var_exists(char name[20], int scope)
         return(0);
 }
 
+/**
+ * Make new global functions (v1.08)
+ */
+void make_function (char file[10], char func[20])
+{
+  //See if it already exists
+
+  int exists = 0;
+  int i;
+  for (i = 0; strlen (play.func[i].func) > 0 && i < 100; i++)
+    {
+      if (compare (func, play.func[i].func))
+	{
+	  exists = 1;
+	  break;
+	}
+    }
+  if (exists == 1)
+    {
+      strncpy (play.func[i].file, file, 10);
+    }
+  else
+    {
+      strncpy (play.func[0].file, file, 10);
+      strncpy (play.func[0].func, func, 20);
+    }
+}
+
 
 void make_int(char name[80], int value, int scope, int script)
 {
@@ -1075,9 +1300,8 @@ void make_int(char name[80], int value, int scope, int script)
  */
 void var_equals(char name[20], char newname[20], char math, int script, char rest[200])
 {
-  int k;
   int newval = 0;
-  struct varman *rhs_var = NULL;
+  struct varman *lhs_var = NULL;
   
   /** Ensure left-hand side is an existing variable **/
   if (name[0] != '&')
@@ -1086,23 +1310,19 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
 	  name, rinfo[script]->name, rinfo[script]->current);
       return;
     }
-
-  for (k = 1; k < MAX_VARS; k++)
-    if (play.var[k].active == 1)
-      if ((play.var[k].scope == DINKC_GLOBAL_SCOPE) || (play.var[k].scope == script))
-	if (compare(name, play.var[k].name))
-	  {
-	    rhs_var = &(play.var[k]);
-	    break;
-	  }
-
-  if (rhs_var == NULL) /* not found */
-    {
-      Msg("ERROR: (var equals2) Unknown var %s in %s offset %d.",
-	  name, rinfo[script]->name, rinfo[script]->current);
-      return;
-    }
-
+  /* Find the variable slot */
+  {
+    int k = search_var_with_this_scope(name, script);
+    if (k != -1)
+      lhs_var = &(play.var[k]);
+    
+    if (lhs_var == NULL) /* not found */
+      {
+	Msg("ERROR: (var equals2) Unknown var %s in %s offset %d.",
+	    name, rinfo[script]->name, rinfo[script]->current);
+	return;
+      }
+  }
 
   /** Analyse right-hand side **/
   /* check if right-hand side is a function */
@@ -1118,14 +1338,15 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   if (strchr(newname, ';') != NULL)
     replace(";", "", newname);
   /* look for existing variable */
-  for (k = 1; k < MAX_VARS; k++)
-    if (play.var[k].active == /*true*/1)
-      if (compare(newname, play.var[k].name))
-	{
-	  newval = play.var[k].var;
-	  //found var
-	  goto next2;
-	}
+  {
+    int k2 = search_var_with_this_scope(newname, script);
+    if (k2 != -1)
+      {
+	newval = play.var[k2].var;
+	//found var
+	goto next2;
+      }
+  }
   /* also check special variables */
   if (compare(newname, "&current_sprite"))
     {
@@ -1137,7 +1358,60 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
       newval = script;
       goto next2;
     }
-
+  if (dversion >= 108)
+    {
+      //v1.08 special variables.
+      if (compare (newname, "&return"))
+	{
+	  newval = returnint;
+	  goto next2;
+	}
+      if (compare (newname, "&arg1"))
+	{
+	  newval = rinfo[script]->arg1;
+	  goto next2;
+	}
+      if (compare (newname, "&arg2"))
+	{
+	  newval = rinfo[script]->arg2;
+	  goto next2;
+	}
+      if (compare (newname, "&arg3"))
+	{
+	  newval = rinfo[script]->arg3;
+	  goto next2;
+	}
+      if (compare (newname, "&arg4"))
+	{
+	  newval = rinfo[script]->arg4;
+	  goto next2;
+	}
+      if (compare (newname, "&arg5"))
+	{
+	  newval = rinfo[script]->arg5;
+	  goto next2;
+	}
+      if (compare (newname, "&arg6"))
+	{
+	  newval = rinfo[script]->arg6;
+	  goto next2;
+	}
+      if (compare (newname, "&arg7"))
+	{
+	  newval = rinfo[script]->arg7;
+	  goto next2;
+	}
+      if (compare (newname, "&arg8"))
+	{
+	  newval = rinfo[script]->arg8;
+	  goto next2;
+	}
+      if (compare (newname, "&arg9"))
+	{
+	  newval = rinfo[script]->arg9;
+	  goto next2;
+	}
+    }
   /* otherwise, assume right-hand side is an integer */
   newval = atol(newname);
 
@@ -1145,15 +1419,15 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
 next2:
   /* Apply the right operation */
   if (math == '=')
-    rhs_var->var = newval;
+    lhs_var->var = newval;
   if (math == '+')
-    rhs_var->var += newval;
+    lhs_var->var += newval;
   if (math == '-')
-    rhs_var->var -= newval;
+    lhs_var->var -= newval;
   if (math == '/')
-    rhs_var->var = rhs_var->var / newval;
+    lhs_var->var = lhs_var->var / newval;
   if (math == '*')
-    rhs_var->var = rhs_var->var * newval;
+    lhs_var->var = lhs_var->var * newval;
 }
 
 
