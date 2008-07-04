@@ -136,6 +136,10 @@ struct sp
   int nodraw;
   int frame_delay;
   int picfreeze;
+  /* v1.08 */
+  int bloodseq;
+  int bloodnum;
+  // sp_custom
 };
 
 struct item_struct

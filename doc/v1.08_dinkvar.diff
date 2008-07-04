@@ -129,14 +129,14 @@
  int mbase_timing;
  idata id[max_idata];
  DWORD mold;
-@@ -420,6 +543,12 @@
+@@ -420,10 +543,12 @@
    int nodraw;
    int frame_delay;
    int picfreeze;
-+//redink1
-+
-+  int bloodseq;
-+  int bloodnum;
+ //redink1
+ 
+   int bloodseq;
+   int bloodnum;
 +// std::map<std::string, int>* custom;
 +
  };
@@ -798,32 +798,6 @@
  	if (mnum != last_magic_draw)
  	  {
  	    draw_mlevel (mnum);
-@@ -7317,11 +8020,23 @@
- void
- random_blood (int mx, int my, int h)
- {
-+//if ((rand() % 2) == 1) myseq = 188; else myseq = 187;
-+
-+//redink1 - customizable blood depending on what sprite we hit!!
-+
-   int myseq;
--  if ((rand () % 2) == 1)
--    myseq = 188;
-+  int randy;
-+  if (spr[h].bloodseq > 0 && spr[h].bloodnum > 0)
-+    {
-+      myseq = spr[h].bloodseq;
-+      randy = spr[h].bloodnum;
-+    }
-   else
-+    {
-     myseq = 187;
-+      randy = 3;
-+    }
-+  myseq += (rand () % randy);
-   int crap2 = add_sprite (mx, my, 5, myseq, 1);
-   spr[crap2].speed = 0;
-   spr[crap2].base_walk = -1;
 @@ -7669,6 +8384,16 @@
    DDBLTFX ddbltfx;
    ZeroMemory (&ddbltfx, sizeof (ddbltfx));
@@ -1098,36 +1072,7 @@
 +	returnint = -1;
 +	return (0);
 +      }
-+//redink1
-+
-+    if (compare (ev[1], "sp_blood_seq"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodseq);
-+	    returnint = spr[nlist[0]].bloodseq;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1
-+
-+    if (compare (ev[1], "sp_blood_num"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodnum);
-+	    returnint = spr[nlist[0]].bloodseq;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
+[...]
 +//redink1 added to get index of specified item
 +
 +    if (compare (ev[1], "get_item"))

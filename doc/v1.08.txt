@@ -229,9 +229,10 @@ New functions:
     game.
 [ ] loopmidi(bool loop)
     If 1, all midis will automatically loop.  If 0, midis will not loop.
-[ ] make_global_function(str script, str function)
+[X] make_global_function(str script, str function)
     Allows you to use the specified function in DinkC without the use of
     external.
+    => Implemented conditionally 04-07-2008
 [X] math_abs(int num)
 [X] math_mod(int num1, int num2)
 [X] math_sqrt(int num1)
@@ -256,10 +257,12 @@ New functions:
     Shows the console, which accepts DinkC commands as input (Escape to cancel).
 [ ] show_inventory()
     Displays the inventory screen.
-[ ] sp_blood_seq(int sprite, int seq)
+[X] sp_blood_seq(int sprite, int seq)
     The start of the blood sequences.
-[ ] sp_blood_num(int sprite, int num)
+    => Implemented conditionally 04-07-2008
+[X] sp_blood_num(int sprite, int num)
     How many blood sequences follow sp_blood_seq.
+    => Implemented conditionally 04-07-2008
 [ ] sp_clip_bottom(int sprite, int pixels)
 [ ] sp_clip_left(int sprite, int pixels)
 [ ] sp_clip_right(int sprite, int pixels)

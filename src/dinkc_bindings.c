@@ -3581,6 +3581,43 @@ pass:
 	strcpy (s, h);
 	return (0);
       }
+
+    //redink1
+    if (compare (ev[1], "sp_blood_seq"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodseq);
+	    returnint = spr[nlist[0]].bloodseq;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1
+    if (compare (ev[1], "sp_blood_num"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodnum);
+	    returnint = spr[nlist[0]].bloodseq;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
     }
 
 
