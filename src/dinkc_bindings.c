@@ -3693,15 +3693,13 @@ pass:
     if (strchr (h, '(') != NULL)
       {
 	//lets attempt to run a procedure
-	int
-	  myscript =
-	  load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
+	int myscript = load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
 	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	int p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	get_parms (ev[1], script, h, p);
-	if (locate (myscript, ev[1]))
+	if (locate(myscript, ev[1]))
 	  {
+	    /* Custom procedure in the current script */
 	    rinfo[myscript]->arg1 = nlist[0];
 	    rinfo[myscript]->arg2 = nlist[1];
 	    rinfo[myscript]->arg3 = nlist[2];
@@ -3712,16 +3710,21 @@ pass:
 	    rinfo[myscript]->arg8 = nlist[7];
 	    rinfo[myscript]->arg9 = nlist[8];
 	    rinfo[myscript]->proc_return = script;
-	    run_script (myscript);
-	    return (2);
+	    run_script(myscript);
+	    return(2);
 	  }
 	else
 	  {
-	    for (int i = 0; strlen (play.func[i].func) > 0 && i < 100; i++)
+	    /* Try custom global procedure */
+	    for (int i = 0; i < 100; i++)
 	      {
-		if (compare (play.func[i].func, ev[1]))
+		/* Skip empty slots */
+		if (strlen (play.func[i].func) == 0)
+		  continue;
+
+		if (compare(play.func[i].func, ev[1]))
 		  {
-		    myscript = load_script (play.func[i].file, rinfo[script]->sprite, 0);
+		    myscript = load_script(play.func[i].file, rinfo[script]->sprite, 0);
 		    rinfo[myscript]->arg1 = nlist[0];
 		    rinfo[myscript]->arg2 = nlist[1];
 		    rinfo[myscript]->arg3 = nlist[2];
@@ -3731,18 +3734,18 @@ pass:
 		    rinfo[myscript]->arg7 = nlist[6];
 		    rinfo[myscript]->arg8 = nlist[7];
 		    rinfo[myscript]->arg9 = nlist[8];
-		    if (locate (myscript, ev[1]))
+		    if (locate(myscript, ev[1]))
 		      {
 			rinfo[myscript]->proc_return = script;
 			run_script (myscript);
-			return (2);
+			return(2);
 		      }
 		    break;
 		  }
 	      }
 	    Msg
 	      ("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
-	       line, ev[2], rinfo[myscript]->name);
+	       ev[1], ev[2], rinfo[myscript]->name);
 	    kill_script (myscript);
 	  }
 
