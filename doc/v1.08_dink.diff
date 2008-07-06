@@ -956,28 +956,6 @@
  	  OffsetRect (&rcRect, 1, 1);
  	  DrawText (hdc, talk.buffer, strlen (talk.buffer), &rcRect,
  		    DT_VCENTER | DT_CENTER | DT_WORDBREAK);
-@@ -4369,7 +4812,9 @@
-       flip = ((rand () % 2) + 1);
-       for (int x = 0; x < 96; x++)
- 	{
--	  if (pam.t[x].num > 896)
-+//redink1 fix for first broken water tile
-+
-+	  if (pam.t[x].num >= 896)
- 	    if (pam.t[x].num < (896 + 128))
- 	      {
- 		cool = pam.t[x].num / 128;
-@@ -4412,7 +4857,9 @@
- 
-     for (int x = 0; x < 96; x++)
-       {
--	if (pam.t[x].num > 2304)
-+//redink1 fix for first broken fire tile
-+
-+	if (pam.t[x].num >= 2304)
- 	  if (pam.t[x].num < (2304 + 128))
- 	    {
- 	      cool = pam.t[x].num / 128;
 @@ -4446,20 +4893,19 @@
      {
  //let's display a nice dot to mark where they are on the map
@@ -1175,25 +1153,7 @@
  	}
        if (strnicmp (shit, "-noini", strlen ("-noini")) == 0)
  	{
-@@ -4749,6 +5304,11 @@
-       if (strnicmp (shit, "-nosound", strlen ("-nosound")) == 0)
- 	sound_on = false;
-     }
-+//redink1 code so DMOD version can't run D-Mods
-+
-+#ifdef DMOD
-+  strcpy (dir, ".");
-+#endif
-   if (chdir (dir) == -1)
-     {
- #ifdef __ENGLISH
-@@ -4758,16 +5318,19 @@
-       sprintf (shit, "Spiele-direktory \"%s\" nicht gefunden!", dir);
- #endif
-       initFail (hWndMain, shit);
-+      exit (0);
-       return (0);
-     }
+@@ -4758,11 +5318,13 @@
    Msg ("Dir is now %s.", dir);
    return (true);
  }				/* * doInit - do work required for every instance of the application: * create the window, initialize data */
@@ -1233,30 +1193,6 @@
  // GetSystemMetrics(SM_CXSCREEN),
  // GetSystemMetrics(SM_CYSCREEN),
  			     NULL, NULL, hInstance, NULL);
-@@ -4816,6 +5389,12 @@
- 	{
- 	  return FALSE;
- 	}
-+      RECT check;
-+      GetClientRect (hwnd, &check);
-+      int ExtendWidth = 640 - (check.right - check.left);
-+      int ExtendHeight = 480 - (check.bottom - check.top);
-+      MoveWindow (hWndMain, check.left, check.top, 640 + ExtendWidth,
-+		  480 + ExtendHeight, TRUE);
-       ShowWindow (hwnd, nCmdShow);
-       UpdateWindow (hwnd);
-       SetFocus (hwnd);		/* * create the main DirectDraw object */
-@@ -4850,7 +5429,9 @@
-       memset (&ddsd, 0, sizeof (ddsd));
-       ddsd.dwSize = sizeof (ddsd);
-       ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
--      ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
-+//redink1 added SYSTEMMEMORY to speed things up
-+
-+      ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
-       ddsd.dwWidth = 640;
-       ddsd.dwHeight = 480;	// create the backbuffer separately
-       ddrval = lpDD->CreateSurface (&ddsd, &lpDDSBack, NULL);
 @@ -4924,17 +5505,39 @@
  	{
  	  return initFail (hwnd, "SetCooperative level failed.");
