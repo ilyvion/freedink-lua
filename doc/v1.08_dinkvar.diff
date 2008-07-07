@@ -763,25 +763,6 @@
 +	returnint = m;
  	return (0);
        }
--    if (compare (ev[1], "set_keep_mouse"))
-+//redink1 added this function to load a new map/dink.dat
-+
-+    if (compare (ev[1], "load_map"))
-       {
--	Msg ("setting callback random");
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	int p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
--	    keep_mouse = nlist[0];
-+	    strcpy (current_map, slist[0]);
-+	    strcpy (current_dat, slist[1]);
-+	    load_info ();
- 	  }
- 	strcpy (s, h);
- 	return (0);
-       }
 [...]
 -    if (compare (ev[1], "kill_this_item"))
 +//redink1 added this function to show the item screen
@@ -837,56 +818,6 @@
 +	return (0);
 +      }
 [...]
-+//redink1 added to get index of specified item
-+
-+    if (compare (ev[1], "get_item"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    returnint = 0;
-+	    for (int i = 1; i < 17; i++)
-+	      {
-+		if (play.item[i].active)
-+		  {
-+		    if (compare (play.item[i].name, slist[0]))
-+		      {
-+			returnint = i;
-+			break;
-+		      }
-+		  }
-+	      }
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1 added to get index of specified magic spell
-+
-+    if (compare (ev[1], "get_magic"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    returnint = 0;
-+	    for (int i = 1; i < 9; i++)
-+	      {
-+		if (play.mitem[i].active)
-+		  {
-+		    if (compare (play.mitem[i].name, slist[0]))
-+		      {
-+			returnint = i;
-+			break;
-+		      }
-+		  }
-+	      }
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
 +//redink1 clip stuff
 +
 +    if (compare (ev[1], "sp_clip_left"))

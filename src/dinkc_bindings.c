@@ -3652,6 +3652,21 @@ pass:
 	return(0);
       }
 
+    //redink1 added this function to load a new map/dink.dat
+    if (compare (ev[1], "load_map"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms(ev[1], script, h, p))
+	  {
+	    strcpy(current_map, slist[0]);
+	    strcpy(current_dat, slist[1]);
+	    load_info();
+	  }
+	strcpy(s, h);
+	return(0);
+      }
+
     //redink1 added this function to load new tiles, because he is a l33t guy
     if (compare (ev[1], "load_tile"))
       {
@@ -3746,6 +3761,57 @@ pass:
 	strcpy(s, h);
 	return(0);
       }
+
+    //redink1 added to get index of specified item
+    if (compare (ev[1], "get_item"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms(ev[1], script, h, p))
+	  {
+	    returnint = 0;
+	    for (int i = 1; i < 17; i++)
+	      {
+		if (play.item[i].active)
+		  {
+		    if (compare(play.item[i].name, slist[0]))
+		      {
+			returnint = i;
+			break;
+		      }
+		  }
+	      }
+	    return(0);
+	  }
+	returnint = -1;
+	return(0);
+      }
+
+    //redink1 added to get index of specified magic spell
+    if (compare (ev[1], "get_magic"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms(ev[1], script, h, p))
+	  {
+	    returnint = 0;
+	    for (int i = 1; i < 9; i++)
+	      {
+		if (play.mitem[i].active)
+		  {
+		    if (compare(play.mitem[i].name, slist[0]))
+		      {
+			returnint = i;
+			break;
+		      }
+		  }
+	      }
+	    return(0);
+	  }
+	returnint = -1;
+	return(0);
+      }
+
     }
 
 

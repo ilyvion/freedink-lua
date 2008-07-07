@@ -198,6 +198,8 @@ Backward-incompatible fixes:
 [ ] sp_move_nohard(int sprite, bool value)
     When activated, a sprite can move freely through all hardness.  Previously
     had no effect.
+[ ] screenlock(int value)
+    Returns the current screenlock value if value is -1.
 
 New functions:
 [X] clear_editor_info()
@@ -209,10 +211,12 @@ New functions:
     Returns the current month.
 [X] get_date_year()
     Returns the current year.
-[ ] get_item(str item)
+[X] get_item(str item)
     Returns first slot of this item.
-[ ] get_magic(str magicitem)
+    => Implemented conditionally 07-07-2008
+[X] get_magic(str magicitem)
     Returns first slot of this magic.
+    => Implemented conditionally 07-07-2008
 [ ] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
     Begins searching for brains of type 'brain' starting with 'spritestart'.
 [X] get_time_game()
@@ -221,8 +225,9 @@ New functions:
     Returns the number of minutes in the day (900 = 3 pm).
 [ ] get_truecolor()
     Returns true if the game is in true-color mode.
-[ ] load_map(str mapdat, str dinkdat)
+[X] load_map(str mapdat, str dinkdat)
     Loads a new map.dat/dink.dat.  Saved and loaded with the save game.
+    => Implemented conditionally 07-07-2008
 [X] load_palette(str palbmp)
     Loads a new global palette (only works in full screen 256 color mode). Saved
     and loaded with the save game.
@@ -250,8 +255,6 @@ New functions:
     tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
     corner).
     => Implemented conditionally 07-07-2008
-[ ] screenlock(int value)
-    Returns the current screenlock value if value is -1.
 [ ] set_dink_base_push(int dinkbasepush)
     Sets the base-push for Dink.  Default is 310.  Not saved with save games.
 [ ] set_font_color(int colorindex, int red, int green, int blue)
