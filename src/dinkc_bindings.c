@@ -3849,6 +3849,66 @@ pass:
 	return (0);
       }
 
+    //redink1 clip stuff
+    if (compare (ev[1], "sp_clip_left"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.left);
+	    returnint = spr[nlist[0]].alt.left;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1 clip stuff
+    if (compare (ev[1], "sp_clip_top"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.top);
+	    returnint = spr[nlist[0]].alt.top;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1 clip stuff
+    if (compare (ev[1], "sp_clip_right"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.right);
+	    returnint = spr[nlist[0]].alt.right;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1 clip stuff
+    if (compare (ev[1], "sp_clip_bottom"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.bottom);
+	    returnint = spr[nlist[0]].alt.bottom;
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
     }
 
 

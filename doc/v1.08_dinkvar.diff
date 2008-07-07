@@ -573,21 +573,6 @@
  change_edit (int h, int val, unsigned short *change)
  {
  //Msg("Searching sprite %s with val %d. Cur is %d", h, val, *change);
-@@ -6414,6 +7098,14 @@
-   ddbltfx.dwSize = sizeof (ddbltfx);
-   ddbltfx.dwFillColor = 0;
-   if (get_box (h, &box_crap, &box_real))
-+    {
-+//redink1 error checking for invalid rectangle
-+
-+      if (box_crap.left >= box_crap.right || box_crap.top >= box_crap.bottom)
-+	return;
-+//redink1 error checking for out-of-bounds clipping
-+
-+      /*if (box_crap.left < 0) box_crap.left = 0; if (box_crap.top < box_real.top) box_crap.top = box_crap.top; if (box_crap.right > box_real.right) box_crap.right = box_real.right; if (box_crap.bottom > box_real.bottom) box_crap.bottom = box_real.bottom; */
-     while (1)
-       {
- // Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
 @@ -6446,6 +7138,7 @@
  	  }
        }
@@ -741,66 +726,6 @@
 +	return (0);
 +      }
 [...]
-+//redink1 clip stuff
-+
-+    if (compare (ev[1], "sp_clip_left"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.left);
-+	    returnint = spr[nlist[0]].alt.left;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1 clip stuff
-+
-+    if (compare (ev[1], "sp_clip_top"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.top);
-+	    returnint = spr[nlist[0]].alt.top;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1 clip stuff
-+
-+    if (compare (ev[1], "sp_clip_right"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.right);
-+	    returnint = spr[nlist[0]].alt.right;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1 clip stuff
-+
-+    if (compare (ev[1], "sp_clip_bottom"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.bottom);
-+	    returnint = spr[nlist[0]].alt.bottom;
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
 +//redink1 added so users can check truecolor or not
 +
 +    if (compare (ev[1], "get_truecolor"))
@@ -984,36 +909,6 @@
        }
      if (compare (ev[1], "playmidi"))
        {
-@@ -9210,6 +10542,29 @@
- 	returnint = 0;
- 	return (0);
-       }
-+//redink1 added this to make Paul Pliska's life more fulfilling
-+
-+    if (compare (ev[1], "get_next_sprite_with_this_brain"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    for (int i = nlist[2]; i <= last_sprite_created; i++)
-+	      {
-+		if ((spr[i].brain == nlist[0]) && (i != nlist[1]))
-+		  if (spr[i].active == 1)
-+		    {
-+		      Msg ("Ok, sprite with brain %d is %d", nlist[0], i);
-+		      returnint = i;
-+		      return (0);
-+		    }
-+	      }
-+	  }
-+	Msg ("Ok, sprite with brain %d is 0", nlist[0], i);
-+	returnint = 0;
-+	return (0);
-+      }
-     if (compare (ev[1], "get_rand_sprite_with_this_brain"))
-       {
- 	h = &h[strlen (ev[1])];
 @@ -9680,6 +11035,25 @@
  	returnint = -1;
  	return (0);

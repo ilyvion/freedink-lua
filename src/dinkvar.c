@@ -2898,6 +2898,10 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 	   will slighly vary. Maybe we need to clip the source zone
 	   before scaling it.. */
 	{
+	  // error checking for invalid rectangle
+	  if (box_crap.left >= box_crap.right || box_crap.top >= box_crap.bottom)
+	    return;
+
 	  SDL_Rect src, dst;
 	  SDL_Surface *scaled;
 	  double sx, sy;
