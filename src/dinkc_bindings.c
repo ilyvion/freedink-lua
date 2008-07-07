@@ -3909,6 +3909,26 @@ pass:
 	return (0);
       }
 
+    if (compare (ev[1], "set_smooth_follow"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    if (nlist[0] == 0)
+	      {
+		smooth_follow = 0;
+	      }
+	    else if (nlist[0] == 1)
+	      {
+		smooth_follow = 1;
+	      }
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
     }
 
 

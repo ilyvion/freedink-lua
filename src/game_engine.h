@@ -276,6 +276,8 @@ extern char current_dat[50];
 
 extern time_t time_start;
 
+extern int smooth_follow;
+
 extern int get_pan(int h);
 extern int get_vol(int h);
 

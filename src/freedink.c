@@ -697,47 +697,125 @@ void done_moving(int h)
 	
 }
 
+int get_distance_and_dir_smooth(int h, int h1, int *dir)
+{
+  unsigned int x_diff = abs(spr[h].x - spr[h1].x);
+  unsigned int y_diff = abs(spr[h].y - spr[h1].y);
+
+  if (spr[h].x < spr[h1].x)
+    {
+      if (spr[h].y < spr[h1].y)
+	{
+	  // 6, 3, 2
+	  if (y_diff * 4 < x_diff)
+	    *dir = 6;
+	  else if (x_diff * 4 < y_diff)
+	    *dir = 2;
+	  else
+	    *dir = 3;
+	}
+      else if (spr[h].y > spr[h1].y)
+	{
+	  // 4, 9, 8
+	  if (y_diff * 4 < x_diff)
+	    *dir = 6;
+	  else if (x_diff * 4 < y_diff)
+	    *dir = 8;
+	  else
+	    *dir = 9;
+	}
+      else
+	{
+	  *dir = 6;
+	}
+    }
+  else if (spr[h].x > spr[h1].x)
+    {
+      if (spr[h].y < spr[h1].y)
+	{
+	  // 4, 1, 2
+	  if (y_diff * 4 < x_diff)
+	    *dir = 4;
+	  else if (x_diff * 4 < y_diff)
+	    *dir = 2;
+	  else
+	    *dir = 1;
+	}
+      else if (spr[h].y > spr[h1].y)
+	{
+	  // 4, 7, 8
+	  if (y_diff * 4 < x_diff)
+	    *dir = 4;
+	  else if (x_diff * 4 < y_diff)
+	    *dir = 8;
+	  else
+	    *dir = 7;
+	}
+      else
+	{
+	  *dir = 4;
+	}
+    }
+  else
+    {
+      if (spr[h].y < spr[h1].y)
+	*dir = 2;
+      else if (spr[h].y > spr[h1].y)
+	*dir = 8;
+    }
+
+  return (x_diff > y_diff) ? x_diff : y_diff;
+}
+int get_distance_and_dir_nosmooth(int h, int h1, int *dir)
+{
+  int distancex = 5000;
+  int distancey = 5000;
+  /* Arbitrarily set to 6 to avoid uninitialized values; don't set to
+     5, because *dir is added to e.g. base_attack to get the right
+     sequence - with 5, you get the dead/corpse sequence instead of an
+     attack sequence.. */
+  int dirx = 6;
+  int diry = 6;
+
+  if ((spr[h].x > spr[h1].x) && ((spr[h].x - spr[h1].x) < distancex))
+    {
+      distancex = spr[h].x - spr[h1].x;
+      dirx = 4;
+    }
+  if ((spr[h].x < spr[h1].x) && ((spr[h1].x - spr[h].x) < distancex))
+    {
+      distancex = spr[h1].x - spr[h].x;
+      dirx = 6;
+    }
+
+  if ((spr[h].y > spr[h1].y) && ((spr[h].y - spr[h1].y) < distancey))
+    {
+      distancey = spr[h].y - spr[h1].y;
+      diry = 8;
+    }
+  if ((spr[h].y < spr[h1].y) && ((spr[h1].y - spr[h].y) < distancey))
+    {
+      distancey = spr[h1].y - spr[h].y;
+      diry = 2;
+    }
+
+  if (distancex > distancey)
+    {
+      *dir = dirx;
+      return distancex;
+    }
+  else
+    {
+      *dir = diry;
+      return distancey;
+    }
+}
 int get_distance_and_dir(int h, int h1, int *dir)
 {
-	int distancex = 5000;
-	int distancey = 5000;
-	int dirx;
-	int diry;
-	if (spr[h].x > spr[h1].x) if ((spr[h].x - spr[h1].x) < distancex)
-	{
-		distancex = (spr[h].x - spr[h1].x);
-		dirx = 4;
-	}
-	
-	if (spr[h].x < spr[h1].x) if ((spr[h1].x - spr[h].x) < distancex)
-	{
-		distancex = (spr[h1].x - spr[h].x);
-		dirx = 6;
-	}
-	if (spr[h].y > spr[h1].y) if ((spr[h].y - spr[h1].y) < distancey)
-	{
-		distancey = (spr[h].y - spr[h1].y);
-		diry = 8;
-		
-	}
-	if (spr[h].y < spr[h1].y) if ((spr[h1].y - spr[h].y) < distancey)
-	{
-		distancey = (spr[h1].y - spr[h].y);
-		diry = 2;
-	}
-	if (distancex > distancey)
-	{
-		
-		*dir = dirx;
-		return(distancex);
-	}
-	else 
-	{
-		*dir = diry;
-		return(distancey);
-	}
-	
-	
+  if (smooth_follow == 1)
+    return get_distance_and_dir_smooth(h, h1, dir);
+  else
+    return get_distance_and_dir_nosmooth(h, h1, dir);
 }
 
 void process_follow(int h)
@@ -1160,10 +1238,13 @@ void pill_brain(int h)
 			//	Msg("base attack is %d.",spr[h].base_attack);
 			if (spr[h].base_attack != -1)
 			{
-				
-				//Msg("attacking with %d..", spr[h].base_attack+dir);
-				
-				spr[h].dir = dir;
+			  //Msg("attacking with %d..", spr[h].base_attack+dir);
+
+			  /* Enforce lateral (not diagonal) attack,
+			     even in smooth_follow mode */
+			  int attackdir = 6; // arbitrary initialized default
+			  get_distance_and_dir_nosmooth(h, spr[h].target, &attackdir);
+			  spr[h].dir = attackdir;
 				
 				spr[h].seq = spr[h].base_attack+spr[h].dir;
 				spr[h].frame = 0;

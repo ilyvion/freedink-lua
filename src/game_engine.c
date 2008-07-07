@@ -72,6 +72,9 @@ char current_dat[50] = "dink.dat";
 time_t time_start;
 
 
+int smooth_follow = 0;
+
+
 /* Sound - SFX */
         int get_pan(int h)
         {

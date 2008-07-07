@@ -166,14 +166,14 @@ Improvements that potentially break backward compatibility:
     1.08. Tada." (http://www.dinknetwork.com/forum.cgi?MID=59442)
 [X] Variables can begin with another variable stub (i.e. &goldtemp will work with
     &gold).
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [ ] &missle_source is defined for all attacks, not just missiles.
 [X] &return is a built-in variable that stores the last return value of any
     function (built-in or custom).
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [X] Custom functions can have up to 9 arguments, stored in the built-in variables
     &arg1 through &arg9.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 
 DinkC changes:
 
@@ -183,7 +183,7 @@ Fixes:
     => applied unconditionaly 2008-03-09
 [X] run_script_by_number(int script, "proc");
     No longer runs a random procedure if it cannot locate proc specified.
-    => Fixed 04-07-2008
+    => Fixed 2008-07-04
 [X] sp_sound(int sprite, int value)
     Passing a -1 will no longer crash the game.
     => Fixed 2008-07-01
@@ -200,7 +200,7 @@ Backward-incompatible fixes:
 New functions:
 [X] clear_editor_info()
     Removes the editor_seq and editor_frame for all sprites on the map.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] get_date_day()
     Returns the current day.
 [X] get_date_month()
@@ -209,10 +209,10 @@ New functions:
     Returns the current year.
 [X] get_item(str item)
     Returns first slot of this item.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] get_magic(str magicitem)
     Returns first slot of this magic.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
     Begins searching for brains of type 'brain' starting with 'spritestart'.
 [X] get_time_game()
@@ -223,21 +223,21 @@ New functions:
     Returns true if the game is in true-color mode.
 [X] load_map(str mapdat, str dinkdat)
     Loads a new map.dat/dink.dat.  Saved and loaded with the save game.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] load_palette(str palbmp)
     Loads a new global palette (only works in full screen 256 color mode). Saved
     and loaded with the save game.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] load_tile(str tilebmp, int index)
     Loads a new tile set for the given index.  Saved and loaded with the save
     game.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [ ] loopmidi(bool loop)
     If 1, all midis will automatically loop.  If 0, midis will not loop.
 [X] make_global_function(str script, str function)
     Allows you to use the specified function in DinkC without the use of
     external.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [X] math_abs(int num)
 [X] math_mod(int num1, int num2)
 [X] math_sqrt(int num1)
@@ -245,36 +245,36 @@ New functions:
     Gets or sets the hard tiles on the current map screen.  'maptile' refers to
     the tiles on the current screen from 1 (upper-left corner) to 96
     (lower-right corner).
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] map_tile(int maptile, int tileindex)
     Gets or sets the tiles on the current map screen.  'maptile' refers to the
     tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
     corner).
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [ ] set_dink_base_push(int dinkbasepush)
     Sets the base-push for Dink.  Default is 310.  Not saved with save games.
 [X] set_font_color(int colorindex, int red, int green, int blue)
     Changes the specified color index to the specified color.
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [X] set_save_game_info(str line)
     Sets the line of information to be displayed in the save game summary.  The
     default is "Level &level".
-    => Implemented conditionally 07-07-2008
+    => Implemented conditionally 2008-07-07
 [ ] show_console()
     Shows the console, which accepts DinkC commands as input (Escape to cancel).
 [ ] show_inventory()
     Displays the inventory screen.
 [X] sp_blood_seq(int sprite, int seq)
     The start of the blood sequences.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [X] sp_blood_num(int sprite, int num)
     How many blood sequences follow sp_blood_seq.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [X] sp_clip_bottom(int sprite, int pixels)
 [X] sp_clip_left(int sprite, int pixels)
 [X] sp_clip_right(int sprite, int pixels)
 [X] sp_clip_top(int sprite, int pixels)
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 [X] sp_freeze(int sprite, bool freeze (-1 to return))
     If 1, acts like freeze.  If 0, acts like unfreeze.  -1 will return whether
     the given sprite is frozen or not (basically a better 'busy' function).
@@ -361,18 +361,19 @@ Changes not documented in whatsnew.txt
     data during dink.ini initial loading. Some 1.08 D-Mods such as
     "City of Dead" require more than 600 idata, and v1.07 ignores part
     of them, resulting in misplaced sprites.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 
 [ ] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
 
-[ ] New DinkC function: set_smooth_follow
+[X] New DinkC function: set_smooth_follow
+    => Implemented conditionally 2008-07-08
 
 [X] Cleaner but backward-incompatible DinkC scope: before, when there
     were 2 identical variables in different scopes (local/global), the
     first memory slot had priority; now, local variables always have
     priority over global variables.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 
 [X] DinkC: Added "/=" alternative to "/". However, there's a potential
     bug there, because the script cursor is moved 1 character forward
@@ -380,7 +381,7 @@ Changes not documented in whatsnew.txt
     "*="). "*=" is also added in the v1.08 patch, except that it was
     already present in v1.07 and checked before in the code, so this
     doesn't have any effect.
-    => Implemented conditionally 04-07-2008
+    => Implemented conditionally 2008-07-04
 
 [X] When a sprite hits another, the reference sprite for the blood is
     now the sprite that _was_ hit, not the one who hits. This is most
