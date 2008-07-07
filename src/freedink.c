@@ -1839,8 +1839,11 @@ int check_if_move_is_legal(int u)
 	      hardness = get_hard(spr[u].lpx[i]-20, spr[u].lpy[i]);
 	      if (hardness == 2 && spr[u].flying) 
 		{
-		  spr[u].moveman = 0;			
-		  return(2);
+		  spr[u].moveman = 0;
+		  if (dversion >= 108)
+		    return 0;
+		  else
+		    return 2;
 		}
 	      if (hardness > 0)
 		{

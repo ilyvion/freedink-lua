@@ -388,6 +388,13 @@ Changes not documented in whatsnew.txt
     useful with v1.08 sprite-specific blood, it's not really
     noticeable in v1.07.
 
+[X] Entry for sp_flying: "In 1.07 and earlier, sp_flying would work
+    well for missile brains and poorly for the player brain.  In
+    1.08+, sp_flying will work properly for all brains."
+    => Implemented conditionally 2008-07-08. Not sure about
+    implementing it unconditionally. The snake boss from "I, Kara Gu"
+    (designed for v1.08) is stuck in a corner without this fix.
+
 
 Compilation
 ===========
