@@ -3825,6 +3825,30 @@ pass:
 	strcpy(s, h);
 	return(0);
       }
+
+    //redink1 added this to make Paul Pliska's life more fulfilling
+    if (compare (ev[1], "get_next_sprite_with_this_brain"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    for (int i = nlist[2]; i <= last_sprite_created; i++)
+	      {
+		if ((spr[i].brain == nlist[0]) && (i != nlist[1]))
+		  if (spr[i].active == 1)
+		    {
+		      Msg ("Ok, sprite with brain %d is %d", nlist[0], i);
+		      returnint = i;
+		      return (0);
+		    }
+	      }
+	  }
+	Msg ("Ok, sprite with brain %d is 0", nlist[0], i);
+	returnint = 0;
+	return (0);
+      }
+
     }
 
 

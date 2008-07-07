@@ -191,10 +191,6 @@ Fixes:
 Backward-incompatible fixes:
 [ ] compare_magic(str magicitem)
     Works correctly.
-[ ] sp_move_x(int sprite, int value)
-    Like sp_mx, but does not return a value.
-[ ] sp_move_y(int sprite, int value)
-    Like sp_my, but does not return a value.
 [ ] sp_move_nohard(int sprite, bool value)
     When activated, a sprite can move freely through all hardness.  Previously
     had no effect.
@@ -217,7 +213,7 @@ New functions:
 [X] get_magic(str magicitem)
     Returns first slot of this magic.
     => Implemented conditionally 07-07-2008
-[ ] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
+[X] get_next_sprite_with_this_brain(int brain, int spriteignore, int spritestart)
     Begins searching for brains of type 'brain' starting with 'spritestart'.
 [X] get_time_game()
     Returns the number of minutes the player has been playing the game (total).
@@ -283,6 +279,10 @@ New functions:
     the given sprite is frozen or not (basically a better 'busy' function).
 [ ] var_used()
     Returns the number of variables used.
+[ ] sp_move_x(int sprite, int value)
+    Like sp_mx, but does not return a value.
+[ ] sp_move_y(int sprite, int value)
+    Like sp_my, but does not return a value.
 
 
 dinkc.chm
