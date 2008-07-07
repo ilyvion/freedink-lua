@@ -1017,6 +1017,45 @@ void save_info(void)
       fread(&play,sizeof(play),1,fp);
       fclose(fp);
       
+
+      if (dversion >= 108)
+	{
+	  // new map, if exist
+	  if (strlen (play.mapdat) > 0 && strlen (play.dinkdat) > 0)
+	    {
+	      strcpy (current_map, play.mapdat);
+	      strcpy (current_dat, play.dinkdat);
+	      load_info();
+	    }
+
+	  // load palette
+	  if (strlen(play.palette) > 0)
+	    {
+	      char *name = play.palette;
+	      SDL_Surface* image = NULL;
+	      FILE *in = paths_dmodfile_fopen(name, "rb");
+	      if (in == NULL)
+		fprintf(stderr, "Error: Can't open palette '%s'.", name);
+	      else
+		/* Set palette */
+		image = load_bmp_setpal(in);
+
+	      if (image == NULL)
+		fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+	      else
+		SDL_FreeSurface(image);
+	    }
+
+	  /* Reload tiles */
+	  tiles_load_default();
+
+	  /* Replace with custom tiles if needed */
+	  for (int i = 1; i <= NB_TILE_SCREENS; i++)
+	    if (strlen(play.tile[i].file) > 0)
+	      tiles_load_slot(play.tile[i].file, i);
+	}
+
+
       spr[1].damage = 0;
       spr[1].x = play.x;
       spr[1].y = play.y;

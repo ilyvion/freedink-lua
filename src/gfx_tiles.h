@@ -26,12 +26,15 @@
 /* #include <ddraw.h> */
 #include "SDL.h"
 
+#define NB_TILE_SCREENS 41
+
 /* extern LPDIRECTDRAWSURFACE tiles[]; */
 /* extern RECT tilerect[]; */
 extern SDL_Surface *GFX_tiles[];
 
-extern void tiles_load(void);
-extern void tiles_unload(void);
+extern void tiles_load_default(void);
+extern void tiles_load_slot(char* relpath, int slot);
+extern void tiles_unload_all(void);
 extern void draw_map_game(void);
 extern void draw_map_game_background(void);
 extern void process_animated_tiles(void);

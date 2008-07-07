@@ -33,13 +33,9 @@
 #include "log.h"
 
 /* Tiles */
-#define NB_TILE_SCREENS 41+1 /* +1 to avoid the -1 in arrays.. */
-/* LPDIRECTDRAWSURFACE     tiles[NB_TILE_SCREENS];       // Game pieces // DELETEME */
-SDL_Surface             *GFX_tiles[NB_TILE_SCREENS];   // Game pieces (SDL)
-
-/* DX-specific, contain the dimensions of each tile; used in
-   freedinkedit.cpp; replaced by SDL_Surface->w&h */
-/* RECT tilerect[NB_TILE_SCREENS]; */
+/* Game pieces */
+/* +1 to avoid the -1 in arrays.. */
+SDL_Surface *GFX_tiles[NB_TILE_SCREENS+1];
 
 /* Animated tiles current status */
 int water_timer;
@@ -57,55 +53,54 @@ int fire_flip;
 
 
 // Load the tiles from the BMPs
-void tiles_load(void) {
+void tiles_load_default() {
   char crap[30];
   char crap1[10];
   int h;
 
   Msg("loading tilescreens...");
-  for (h=1; h < NB_TILE_SCREENS; h++)
+  for (h = 1; h <= NB_TILE_SCREENS; h++)
     {
-      FILE* in = NULL;
-
       if (h < 10)
 	strcpy(crap1,"0");
       else
-	strcpy(crap1, "");
-      
+	strcpy(crap1, "");      
       sprintf(crap, "tiles/Ts%s%d.BMP", crap1, h);
-      in = paths_dmodfile_fopen(crap, "rb");
 
-      if (in == NULL)
-	in = paths_fallbackfile_fopen(crap, "rb");
-      
-/*       tiles[h] = DDTileLoad(lpDD, crap, 0, 0,h);  */
-      // GFX
-      GFX_tiles[h] = load_bmp_from_fp(in);
+      tiles_load_slot(crap, h);
 
-      if(GFX_tiles[h] == NULL) {
-	fprintf(stderr, "Couldn't find tilescreen %s: %s\n", crap, SDL_GetError());
+      if (GFX_tiles[h] == NULL)
 	exit(0);
-      }
-      else {
-/* 	DDSetColorKey(tiles[h], RGB(0,0,0)); */
-	// GFX
-	// Set transparency to black
-	/* Disabled, there's no need for transparency in buffers (the
-	   DX version uses DDBLTFAST_NOCOLORKEY to avoid it). */
-	//SDL_SetColorKey(GFX_tiles[h], SDL_SRCCOLORKEY,
-	//		SDL_MapRGB(GFX_tiles[h]->format, 0, 0, 0));
-      }
     }
   
   Msg("Done with tilescreens...");
 }
 
+void tiles_load_slot(char* relpath, int slot)
+{
+  FILE* in = paths_dmodfile_fopen(relpath, "rb");
+  if (in == NULL)
+    in = paths_fallbackfile_fopen(relpath, "rb");
+  
+  if (GFX_tiles[slot] != NULL)
+    {
+      SDL_FreeSurface(GFX_tiles[slot]);
+      GFX_tiles[slot] = NULL;
+    }
+
+  GFX_tiles[slot] = load_bmp_from_fp(in);
+  
+  if (GFX_tiles[slot] == NULL) {
+    fprintf(stderr, "Couldn't find tilescreen %s: %s\n", relpath, SDL_GetError());
+  }
+}
+
 /**
  * Free memory used by tiles
  */
-void tiles_unload(void) {
+void tiles_unload_all(void) {
   int h = 0;
-  for (h=1; h < NB_TILE_SCREENS; h++)
+  for (h=1; h <= NB_TILE_SCREENS; h++)
     SDL_FreeSurface(GFX_tiles[h]);
 }
 

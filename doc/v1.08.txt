@@ -105,7 +105,8 @@ Fixes:
     => this refers to fixing the colors in windowed mode, which SDL
     already provided for us.
 [X] Dink moves at a normal (slower) speed on faster computers.
-[X] Framerate can no longer exceed 83 FPS (to fix problems with vsync disabled).
+[X] Framerate can no longer exceed 83 FPS (to fix problems with vsync
+    disabled).
     => See 2007-09-18 - 2007-09-20 commits; I also improved the code
     for better correctness. See framerate.txt.
 [X] The 1-pixel row above the status bar now draws sprite graphics.
@@ -221,12 +222,14 @@ New functions:
     Returns true if the game is in true-color mode.
 [ ] load_map(str mapdat, str dinkdat)
     Loads a new map.dat/dink.dat.  Saved and loaded with the save game.
-[ ] load_palette(str palbmp)
+[X] load_palette(str palbmp)
     Loads a new global palette (only works in full screen 256 color mode). Saved
     and loaded with the save game.
-[/] load_tile(str tilebmp, int index)
+    => Implemented conditionally 07-07-2008
+[X] load_tile(str tilebmp, int index)
     Loads a new tile set for the given index.  Saved and loaded with the save
     game.
+    => Implemented conditionally 07-07-2008
 [ ] loopmidi(bool loop)
     If 1, all midis will automatically loop.  If 0, midis will not loop.
 [X] make_global_function(str script, str function)
@@ -236,14 +239,16 @@ New functions:
 [X] math_abs(int num)
 [X] math_mod(int num1, int num2)
 [X] math_sqrt(int num1)
-[/] map_hard_tile(int maptile, int hardtileindex)
+[X] map_hard_tile(int maptile, int hardtileindex)
     Gets or sets the hard tiles on the current map screen.  'maptile' refers to
     the tiles on the current screen from 1 (upper-left corner) to 96
     (lower-right corner).
-[/] map_tile(int maptile, int tileindex)
+    => Implemented conditionally 07-07-2008
+[X] map_tile(int maptile, int tileindex)
     Gets or sets the tiles on the current map screen.  'maptile' refers to the
     tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
     corner).
+    => Implemented conditionally 07-07-2008
 [ ] screenlock(int value)
     Returns the current screenlock value if value is -1.
 [ ] set_dink_base_push(int dinkbasepush)
@@ -253,6 +258,7 @@ New functions:
 [X] set_save_game_info(str line)
     Sets the line of information to be displayed in the save game summary.  The
     default is "Level &level".
+    => Implemented conditionally 07-07-2008
 [ ] show_console()
     Shows the console, which accepts DinkC commands as input (Escape to cancel).
 [ ] show_inventory()

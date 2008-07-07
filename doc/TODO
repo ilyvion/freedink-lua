@@ -24,3 +24,6 @@ entered the screen. This can be a problem:
   reset. In the woe version, you needed to reboot the computer (not
   the game) to get the same effect. So maybe we can check if N minutes
   passed using a timestamp instead.
+
+
+Warn if a savegame appears to be v1.08 while running in v1.07 mode.

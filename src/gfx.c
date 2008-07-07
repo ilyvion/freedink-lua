@@ -264,7 +264,7 @@ void gfx_quit()
 
   gfx_fonts_quit();
 
-  tiles_unload();
+  tiles_unload_all();
   sprites_unload();
   
   if (GFX_lpDDSBack   != NULL) SDL_FreeSurface(GFX_lpDDSBack);

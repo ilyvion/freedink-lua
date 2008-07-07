@@ -5814,7 +5814,7 @@ load_hard();
 */
 
 // Load the tiles from the BMPs
- tiles_load();
+ tiles_load_default();
 
  {
    int i;

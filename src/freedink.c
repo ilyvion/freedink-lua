@@ -5162,7 +5162,7 @@ static int doInit(int argc, char *argv[])
     return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
 
   /* Load the tiles from the BMPs */
-  tiles_load();
+  tiles_load_default();
 
   srand((unsigned)time(NULL));
 

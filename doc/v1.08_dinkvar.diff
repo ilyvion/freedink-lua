@@ -183,66 +183,6 @@
    spr[1].freeze = false;
    screenlock = 0;
    fill_whole_hard ();
-@@ -2370,6 +2548,59 @@
-     {
-       fread (&play, sizeof (play), 1, fp);
-       fclose (fp);
-+//redink1 - new map, if exist
-+
-+      if (strlen (play.mapdat) > 0 && strlen (play.dinkdat) > 0)
-+	{
-+	  strcpy (current_map, play.mapdat);
-+	  strcpy (current_dat, play.dinkdat);
-+	  load_info ();
-+	}
-+//redink1 - load palette
-+
-+      if (strlen (play.palette) > 0)
-+	{
-+	  LPDIRECTDRAWSURFACE oldTrick =
-+	    DDLoadBitmap (lpDD, play.palette, 0, 0);
-+	  lpDDPal = DDLoadPalette (lpDD, play.palette);
-+	  if (lpDDPal)
-+	    {
-+	      lpDDSPrimary->SetPalette (lpDDPal);
-+	      lpDDPal->GetEntries (0, 0, 256, pe);
-+	      lpDDPal->GetEntries (0, 0, 256, real_pal);
-+	    }
-+	  oldTrick->Release ();
-+	}
-+//redink1 - reload tiles
-+
-+      char tile[50];
-+      for (int i = 1; i <= 41; i++)
-+	{
-+//Need to unload old tiles...
-+
-+	  tiles[i]->Release ();
-+//Which tiles are we loading, new or default?
-+
-+	  if (strlen (play.tile[i].file) > 0)
-+	    {
-+//Check the original directory
-+
-+	      if (!exist (play.tile[i].file))
-+		sprintf (tile, "..\\DINK\\%s", play.tile[i].file);
-+	      else
-+		strcpy (tile, play.tile[i].file);
-+	    }
-+	  else
-+	    {
-+	      sprintf (tile, "tiles\\TS%02d.bmp", i);
-+	      if (!exist (tile))
-+		sprintf (tile, "..\\dink\\tiles\\TS%02d.BMP", i);
-+	    }
-+//Load in the tiles...
-+
-+	  tiles[i] = DDTileLoad (lpDD, tile, 0, 0, i);
-+	  DDSetColorKey (tiles[i], RGB (0, 0, 0));
-+	}
-       spr[1].damage = 0;
-       spr[1].x = play.x;
-       spr[1].y = play.y;
 @@ -2443,6 +2677,11 @@
        Msg ("Loaded map.");
        draw_map_game ();
@@ -864,69 +804,6 @@
  	strcpy (s, h);
  	return (0);
        }
--    if (compare (ev[1], "add_item"))
-+//redink1 added this function to load a pallete from any bmp
-+
-+    if (compare (ev[1], "load_palette"))
-       {
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
--	    add_item (slist[0], nlist[1], nlist[2], false);
-+	    if (exist (slist[0]))
-+	      {
-+		LPDIRECTDRAWSURFACE oldTrick =
-+		  DDLoadBitmap (lpDD, slist[0], 0, 0);
-+		lpDDPal = DDLoadPalette (lpDD, slist[0]);
-+		if (lpDDPal)
-+		  {
-+		    lpDDSPrimary->SetPalette (lpDDPal);
-+		    lpDDPal->GetEntries (0, 0, 256, pe);
-+		    lpDDPal->GetEntries (0, 0, 256, real_pal);
-+//Store in save game
-+
-+		    strncpy (play.palette, slist[0], 50);
-+		  }
-+		oldTrick->Release ();
-+	      }
- 	  }
- 	strcpy (s, h);
- 	return (0);
-       }
--    if (compare (ev[1], "add_exp"))
-+//redink1 added this function to load new tiles, because he is a l33t guy
-+
-+    if (compare (ev[1], "load_tile"))
-       {
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
--	    add_exp (nlist[0], nlist[1]);
-+	    if (!exist (slist[0]))
-+	      {
-+		sprintf (slist[0], "..\\DINK\\%s", slist[0]);
-+	      }
-+	    if (exist (slist[0]) && nlist[1] > 0 && nlist[1] < tile_screens)
-+	      {
-+//Need to unload old tiles...
-+
-+		tiles[nlist[1]]->Release ();
-+//Load in the new tiles...
-+
-+		tiles[nlist[1]] = DDTileLoad (lpDD, slist[0], 0, 0, nlist[1]);
-+		DDSetColorKey (tiles[nlist[1]], RGB (0, 0, 0));
-+//Store in save game
-+
-+		strncpy (play.tile[nlist[1]].file, slist[0], 50);
-+	      }
- 	  }
- 	strcpy (s, h);
- 	return (0);
-       }
 [...]
 -    if (compare (ev[1], "kill_this_item"))
 +//redink1 added this function to show the item screen
@@ -1099,56 +976,6 @@
 +	h = &h[strlen (ev[1])];
 +	returnint = truecolor;
 +	strcpy (s, h);
-+	return (0);
-+      }
-+//redink1 added so developers can change or see what tile is at any given position
-+
-+    if (compare (ev[1], "map_tile"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+//Yeah... they can only modify valid tiles
-+
-+	    if (nlist[0] > 0 && nlist[0] <= 96)
-+	      {
-+//Only change the value if it is greater than 0...
-+
-+		if (nlist[1] > 0)
-+		  {
-+		    pam.t[nlist[0] - 1].num = nlist[1];
-+		  }
-+		returnint = pam.t[nlist[0] - 1].num;
-+		return (0);
-+	      }
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
-+//redink1 added so a developer can retrieve/modify a hard tile
-+
-+    if (compare (ev[1], "map_hard_tile"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+//Yeah... they can only modify valid tiles
-+
-+	    if (nlist[0] > 0 && nlist[0] <= 96)
-+	      {
-+//Only change the value if it is greater than 0...
-+
-+		if (nlist[1] > 0)
-+		  {
-+		    pam.t[nlist[0] - 1].althard = nlist[1];
-+		  }
-+		returnint = pam.t[nlist[0] - 1].althard;
-+		return (0);
-+	      }
-+	  }
-+	returnint = -1;
 +	return (0);
 +      }
 [...]

@@ -3633,6 +3633,101 @@ pass:
 	strcpy (s, h);
 	return (0);
       }
+
+    //redink1 added this function to load new tiles, because he is a l33t guy
+    if (compare (ev[1], "load_tile"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    if (nlist[1] >= 1 && nlist[1] <= NB_TILE_SCREENS)
+	      {
+		//Load in the new tiles...
+		tiles_load_slot(slist[0], nlist[1]);
+
+		//Store in save game
+		strncpy(play.tile[nlist[1]].file, slist[0], 50);
+	      }
+	  }
+	strcpy (s, h);
+	return (0);
+      }
+
+    //redink1 added so developers can change or see what tile is at any given position
+    if (compare (ev[1], "map_tile"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    //Yeah... they can only modify valid tiles
+	    if (nlist[0] > 0 && nlist[0] <= 96)
+	      {
+		//Only change the value if it is greater than 0...
+		if (nlist[1] > 0)
+		  {
+		    pam.t[nlist[0] - 1].num = nlist[1];
+		  }
+		returnint = pam.t[nlist[0] - 1].num;
+		return (0);
+	      }
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1 added so a developer can retrieve/modify a hard tile
+    if (compare (ev[1], "map_hard_tile"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    //Yeah... they can only modify valid tiles
+	    if (nlist[0] > 0 && nlist[0] <= 96)
+	      {
+		//Only change the value if it is greater than 0...
+		if (nlist[1] > 0)
+		  {
+		    pam.t[nlist[0] - 1].althard = nlist[1];
+		  }
+		returnint = pam.t[nlist[0] - 1].althard;
+		return (0);
+	      }
+	  }
+	returnint = -1;
+	return (0);
+      }
+
+    //redink1 added this function to load a pallete from any bmp
+    if (compare (ev[1], "load_palette"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    char *name = slist[0];
+	    SDL_Surface* image = NULL;
+	    FILE *in = paths_dmodfile_fopen(name, "rb");
+	    if (in == NULL)
+	      fprintf(stderr, "Error: Can't open palette '%s'.", name);
+	    else
+	      /* Set palette */
+	      image = load_bmp_setpal(in);
+	    
+	    if (image == NULL)
+	      fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+	    else
+	      {
+		//Store in save game
+		strncpy(play.palette, slist[0], 50);
+		SDL_FreeSurface(image);
+	      }
+	  }
+	strcpy(s, h);
+	return(0);
+      }
     }
 
 
