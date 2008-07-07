@@ -87,14 +87,15 @@ ciconvert (char *filename)
   /* Else, check each path element of the filename */
   /* No need to support volumes ("C:\"...) because this function
      already returned in case-insensitive environments (woe&dos) */
-  cur_dir = malloc(strlen("./") + strlen(filename) + 1);
   if (filename[0] == '/')
     {
+      cur_dir = malloc(strlen("/") + strlen(filename) + 1);
       strcpy(cur_dir, "/");
       pend_of_cur_dir = cur_dir + 1;
     }
   else
     {
+      cur_dir = malloc(strlen("./") + strlen(filename) + 1);
       strcpy(cur_dir, "./");
       pend_of_cur_dir = cur_dir + 2;
     }
@@ -140,20 +141,23 @@ ciconvert (char *filename)
       if (!found)
 	error = 1;
 
+      /* Prepare parsing next path element, unless the current element
+	 was the last one */
       if (end_of_elt_backup != '\0')
-	*pend_of_elt = '/'; /* restore */
+	{
+	  *pend_of_elt = '/'; /* restore */
 
-
-      /* Prepare next directory */
-      {
-	int cur_elt_len = pend_of_elt - pcur_elt;
-	strncpy(pend_of_cur_dir, pcur_elt, cur_elt_len + 1);
-	pend_of_cur_dir += cur_elt_len + 1;
-	*pend_of_cur_dir = '\0';
-      }
-
-      /* go to the next path element */
-      pcur_elt = pend_of_elt + 1;
+	  /* Prepare next directory */
+	  {
+	    int cur_elt_len = pend_of_elt - pcur_elt;
+	    strncpy(pend_of_cur_dir, pcur_elt, cur_elt_len + 1);
+	    pend_of_cur_dir += cur_elt_len + 1;
+	    *pend_of_cur_dir = '\0';
+	  }
+	  
+	  /* go to the next path element */
+	  pcur_elt = pend_of_elt + 1;
+	}
     }
   while(*pend_of_elt != '\0' && !error);
   free(cur_dir);
