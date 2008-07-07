@@ -875,15 +875,6 @@
  		  if (spr[i].nohit == 1)
  		    {
  		      if (spr[i].script > 0)
-@@ -3405,7 +3855,7 @@
- 				   (spr[h].strength / 2) +
- 				   ((rand () % ((spr[h].strength + 1) / 2)) +
- 				    1), 0) > 0)
--				random_blood (spr[i].x, spr[i].y - 40, h);
-+				random_blood (spr[i].x, spr[i].y - 40, i);	//redink1
- 			    }
- 			}
- 		      if (spr[i].script > 0)
 @@ -3524,8 +3974,9 @@
    if (spr[sprite].seq == 0)
      {

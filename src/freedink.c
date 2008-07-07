@@ -61,7 +61,6 @@ int fps_average;
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(rect box, int color);
 void run_through_tag_list_push(int h);
-void random_blood(int mx, int my, int h);
 int check_if_move_is_legal(int u);
 void change_dir_to_diag( int *dir);
 int hurt_thing(int h, int damage, int special);
@@ -3697,6 +3696,10 @@ void flip_it(void)
 }
 
 
+/**
+ * Check which sprites are affected by an attack from 'h', the
+ * attacker.
+ */
 	void run_through_tag_list(int h, int strength)
 	{
 		rect box;
@@ -3819,7 +3822,7 @@ void flip_it(void)
 								
 								spr[i].last_hit = h; 
 								if ( hurt_thing(i, (spr[h].strength / 2) + ((rand() % ((spr[h].strength+1) / 2))+1), 0) > 0)
-									random_blood(spr[i].x, spr[i].y-40, h);
+									random_blood(spr[i].x, spr[i].y-40, i);
 							}
 							
 						}

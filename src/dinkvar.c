@@ -3616,17 +3616,17 @@ void copy_bmp( char name[80])
                 //draw blood here
         }
 
-        void random_blood(int mx, int my, int h)
+        void random_blood(int mx, int my, int sprite)
         {
                 int myseq;
                 /* v1.08 introduces custom blood sequence, as well as
                    a slightly different default (select blood in range
                    187-189 included, instead of 187-188 included) */
                 int randy;
-                if (spr[h].bloodseq > 0 && spr[h].bloodnum > 0)
+                if (spr[sprite].bloodseq > 0 && spr[sprite].bloodnum > 0)
                   {
-                    myseq = spr[h].bloodseq;
-                    randy = spr[h].bloodnum;
+                    myseq = spr[sprite].bloodseq;
+                    randy = spr[sprite].bloodnum;
                   }
                 else
                   {
@@ -3643,8 +3643,8 @@ void copy_bmp( char name[80])
                 spr[crap2].base_walk = -1;
                 spr[crap2].nohit = 1;
                 spr[crap2].seq = myseq;
-                if (h > 0)
-                        spr[crap2].que = spr[h].y+1;
+                if (sprite > 0)
+                        spr[crap2].que = spr[sprite].y+1;
 
         }
 

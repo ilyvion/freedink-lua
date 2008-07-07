@@ -370,6 +370,11 @@ Changes not documented in whatsnew.txt
     doesn't have any effect.
     => Implemented conditionally 04-07-2008
 
+[X] When a sprite hits another, the reference sprite for the blood is
+    now the sprite that _was_ hit, not the one who hits. This is most
+    useful with v1.08 sprite-specific blood, it's not really
+    noticeable in v1.07.
+
 
 Compilation
 ===========
