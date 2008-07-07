@@ -3634,6 +3634,24 @@ pass:
 	return (0);
       }
 
+    //redink1 - clears the editor information, useful for save games and such
+    if (compare (ev[1], "clear_editor_info"))
+      {
+	h = &h[strlen (ev[1])];
+	for (int i = 0; i < 769; i++)
+	  {
+	    for (int j = 0; j < 100; j++)
+	      {
+		play.spmap[i].seq[j] = 0;
+		play.spmap[i].frame[j] = 0;
+		play.spmap[i].type[j] = 0;
+		play.spmap[i].last_time = 0;
+	      }
+	  }
+	returnint = 1;
+	return(0);
+      }
+
     //redink1 added this function to load new tiles, because he is a l33t guy
     if (compare (ev[1], "load_tile"))
       {

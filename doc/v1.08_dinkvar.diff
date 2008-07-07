@@ -679,7 +679,7 @@
    ddbltfx.dwFillColor = num;
    crap =
      lpDDSTwo->Blt (NULL, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-@@ -8019,119 +8747,138 @@
+@@ -8019,74 +8747,56 @@
  	strcpy (s, h);
  	return (1);
        }
@@ -746,29 +746,7 @@
  	strcpy (s, h);
  	return (0);
        }
--    if (compare (ev[1], "set_dink_speed"))
-+//redink1 - clears the editor information, useful for save games and such
-+
-+    if (compare (ev[1], "clear_editor_info"))
-       {
--	Msg ("setting callback random");
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
--	if (get_parms (ev[1], script, h, p))
-+	for (int i = 0; i < 769; i++)
- 	  {
--	    dinkspeed = nlist[0];
--	  }
--	strcpy (s, h);
-+	    for (int j = 0; j < 100; j++)
-+	      {
-+		play.spmap[i].seq[j] = 0;
-+		play.spmap[i].frame[j] = 0;
-+		play.spmap[i].type[j] = 0;
-+		play.spmap[i].last_time = 0;
-+	  }} returnint = 1;
- 	return (0);
-       }
+[...]
 -    if (compare (ev[1], "reset_timer"))
 +//redink1 - returns the number of variables used
 +

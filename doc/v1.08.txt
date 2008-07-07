@@ -200,8 +200,9 @@ Backward-incompatible fixes:
     had no effect.
 
 New functions:
-[ ] clear_editor_info()
+[X] clear_editor_info()
     Removes the editor_seq and editor_frame for all sprites on the map.
+    => Implemented conditionally 07-07-2008
 [X] get_date_day()
     Returns the current day.
 [X] get_date_month()
