@@ -88,7 +88,6 @@
 int g_b_kill_app = 0;
 
 int dinkspeed = 3;
-char current_map[255] = "MAP.DAT";
 /*bool*/int item_screen = /*false*/0;
 
 void update_status_all(void);
@@ -964,7 +963,7 @@ void save_map(const int num)
 
 void save_info(void)
 {
-  FILE *fp = paths_dmodfile_fopen("dink.dat", "wb");
+  FILE *fp = paths_dmodfile_fopen(current_dat, "wb");
   if (fp != NULL)
     {
       fwrite(&map, sizeof(struct map_info), 1, fp);
@@ -1160,8 +1159,18 @@ void save_game(int num)
   play.base_walk = spr[1].base_walk;
   play.base_hit = spr[1].base_hit;
   
-  sprintf(play.gameinfo, "Level %d",*plevel);
-  
+  // save game things for storing new map, palette, and tile
+  // information
+  strncpy (play.mapdat, current_map, 50);
+  strncpy (play.dinkdat, current_dat, 50);
+
+  // set_save_game_info() support:
+  {
+    char info_temp[200];
+    strcpy (info_temp, save_game_info);
+    decipher_string (info_temp, 0);
+    strncpy (play.gameinfo, info_temp, 77);
+  }
   
   last_saved_game = num;
   fp = paths_savegame_fopen(num, "wb");
@@ -1332,11 +1341,11 @@ void load_info(void)
 {
   FILE *fp;
 
-  fp = paths_dmodfile_fopen("dink.dat", "rb");
+  fp = paths_dmodfile_fopen(current_dat, "rb");
   if (!fp)
     {
       //make new data file
-      fp = paths_dmodfile_fopen("dink.dat", "wb");
+      fp = paths_dmodfile_fopen(current_dat, "wb");
       strcpy(map.name, "Smallwood");
       fwrite(&map,sizeof(struct map_info),1,fp);
       fclose(fp);

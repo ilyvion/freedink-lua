@@ -224,7 +224,7 @@ New functions:
 [ ] load_palette(str palbmp)
     Loads a new global palette (only works in full screen 256 color mode). Saved
     and loaded with the save game.
-[ ] load_tile(str tilebmp, int index)
+[/] load_tile(str tilebmp, int index)
     Loads a new tile set for the given index.  Saved and loaded with the save
     game.
 [ ] loopmidi(bool loop)
@@ -236,11 +236,11 @@ New functions:
 [X] math_abs(int num)
 [X] math_mod(int num1, int num2)
 [X] math_sqrt(int num1)
-[ ] map_hard_tile(int maptile, int hardtileindex)
+[/] map_hard_tile(int maptile, int hardtileindex)
     Gets or sets the hard tiles on the current map screen.  'maptile' refers to
     the tiles on the current screen from 1 (upper-left corner) to 96
     (lower-right corner).
-[ ] map_tile(int maptile, int tileindex)
+[/] map_tile(int maptile, int tileindex)
     Gets or sets the tiles on the current map screen.  'maptile' refers to the
     tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
     corner).
@@ -250,7 +250,7 @@ New functions:
     Sets the base-push for Dink.  Default is 310.  Not saved with save games.
 [ ] set_font_color(int colorindex, int red, int green, int blue)
     Changes the specified color index to the specified color.
-[ ] set_save_game_info(str line)
+[X] set_save_game_info(str line)
     Sets the line of information to be displayed in the save game summary.  The
     default is "Level &level".
 [ ] show_console()

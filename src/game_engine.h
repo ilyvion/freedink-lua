@@ -210,7 +210,7 @@ struct player_info
   char mapdat[50];
   char dinkdat[50];
   char palette[50];
-  struct player_info_tile tile[42];
+  struct player_info_tile tile[41+1];
   struct global_function func[100];
   char cbuff[750];
 };
@@ -270,6 +270,9 @@ extern int last_saved_game;
 
 extern char *dversion_string;
 extern int dversion;
+extern char save_game_info[200];
+extern char current_map[50];
+extern char current_dat[50];
 
 extern time_t time_start;
 

@@ -12,25 +12,8 @@
  void check_midi (void);
  UINT midi_id;
  
-@@ -49,11 +68,73 @@
- 
- int dinkspeed = 3;
- int last_cd;
--char current_map[255] = "MAP.DAT";
-+//redink1... uh... increased these to 255? I'm honestly not quite sure. It has been a while. They might have been hard-coded, and I created char strings for them?
-+
-+char current_map[50] = "MAP.DAT";
-+char current_dat[50] = "DINK.DAT";
- int regcode, mycode;
- time_t time_start;
- bool item_screen = false;
- bool midi_active = true;
-+//redink1 lets make a new save info thing
-+
-+char save_game_info[200] = "Level &level";
-+//redink1 added this prototype to fix this save info declaration error thing
-+
-+void decipher_string (char line[200], int script);
+@@ -49,0 +68,40 @@
+[...]
 +//redink1 and invertigo tags for windowed/high color mode
 +
 +bool truecolor = false;
@@ -200,46 +183,6 @@
    spr[1].freeze = false;
    screenlock = 0;
    fill_whole_hard ();
-@@ -2183,7 +2346,9 @@
- {
-   FILE *fp;
-   char crap[80];
--  sprintf (crap, "DINK.DAT");
-+//redink1
-+
-+  sprintf (crap, current_dat);
-   fp = fopen (crap, "wb");
-   fwrite (&map, sizeof (struct map_info), 1, fp);
-   fclose (fp);
-@@ -2193,6 +2358,9 @@
- {
-   FILE *fp;
-   char crap[80];
-+//redink1 created this
-+
-+  char info_temp[200];
- //lets set some vars first
- 
-   play.x = spr[1].x;
-@@ -2216,7 +2384,17 @@
-   play.base_idle = spr[1].base_idle;
-   play.base_walk = spr[1].base_walk;
-   play.base_hit = spr[1].base_hit;
--  sprintf (play.gameinfo, "Level %d", *plevel);
-+//redink1 - save game things for storing new map, palette, and tile information
-+
-+  strncpy (play.mapdat, current_map, 50);
-+  strncpy (play.dinkdat, current_dat, 50);
-+//redink1 code for custom save game names
-+
-+  strcpy (info_temp, save_game_info);
-+  decipher_string (info_temp, 0);
-+  strncpy (play.gameinfo, info_temp, 77);
-+//sprintf(play.gameinfo, "Level %d",*plevel);
-+
-   last_saved_game = num;
-   sprintf (crap, "SAVE%d.DAT", num);
-   fp = fopen (crap, "wb");
 @@ -2370,6 +2548,59 @@
      {
        fread (&play, sizeof (play), 1, fp);
@@ -312,25 +255,6 @@
        last_saved_game = num;
        return (true);
      }
-@@ -2606,14 +2845,14 @@
- load_info (void)
- {
-   FILE *fp;
--  char crap[80];
--  sprintf (crap, "DINK.DAT");
--  fp = fopen (crap, "rb");
-+//redink1 changed 'crap' to 'current_dat'
-+
-+  fp = fopen (current_dat, "rb");
-   if (!fp)
-     {
- //fclose(fp);
- 
--      fp = fopen (crap, "wb");
-+      fp = fopen (current_dat, "wb");
- //make new data file
- 
-       strcpy (map.name, "Smallwood");
 @@ -2723,6 +2962,8 @@
    return psurf;
  }				/* DDCreateSurface */
@@ -815,7 +739,7 @@
    ddbltfx.dwFillColor = num;
    crap =
      lpDDSTwo->Blt (NULL, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-@@ -8019,129 +8747,150 @@
+@@ -8019,119 +8747,138 @@
  	strcpy (s, h);
  	return (1);
        }
@@ -1003,22 +927,7 @@
  	strcpy (s, h);
  	return (0);
        }
--    if (compare (ev[1], "add_magic"))
-+//redink1 added this function to change the save game 'info'
-+
-+    if (compare (ev[1], "set_save_game_info"))
-       {
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
--	    add_item (slist[0], nlist[1], nlist[2], true);
-+	    strcpy (save_game_info, slist[0]);
- 	  }
- 	strcpy (s, h);
- 	return (0);
-       }
+[...]
 -    if (compare (ev[1], "kill_this_item"))
 +//redink1 added this function to show the item screen
 +

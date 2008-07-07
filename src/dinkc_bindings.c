@@ -3618,6 +3618,21 @@ pass:
 	return (0);
       }
 
+    //redink1 added this function to change the save game 'info'
+    if (compare (ev[1], "set_save_game_info"))
+
+      {
+	h = &h[strlen (ev[1])];
+	int
+	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+
+	  {
+	    strcpy (save_game_info, slist[0]);
+	  }
+	strcpy (s, h);
+	return (0);
+      }
     }
 
 
