@@ -3812,6 +3812,19 @@ pass:
 	return(0);
       }
 
+    //redink1 - sets font color
+    if (compare (ev[1], "set_font_color"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+	if (get_parms(ev[1], script, h, p))
+	  {
+	    set_font_color(nlist[0],
+			   nlist[1], nlist[2], nlist[3]);
+	  }
+	strcpy(s, h);
+	return(0);
+      }
     }
 
 

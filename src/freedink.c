@@ -287,6 +287,15 @@ void text_draw(int h)
 			if (cr[1] == '$') color = 14;
 			if (cr[1] == '%') color = 15;
 			
+			if (dversion >= 108)
+			  {
+			    //support for additional colors
+			    if (cr[1] == '@')
+			      color = 12;
+			    if (cr[1] == '!')
+			      color = 11;
+			  }
+
 			if (cr[1] == '4') color = 4;
 			cr = &cr[2];
 		}
@@ -377,25 +386,12 @@ void text_draw(int h)
 	   rect_offset(&rcRect,0,1);
 	   
 	   // FONTS:
-	   if (color == 1) FONTS_SetTextColor(255, 198, 255);
-	   else	if (color == 2) FONTS_SetTextColor(131, 181, 74);
-	   else if (color == 3) FONTS_SetTextColor(99, 242, 247);
-	   
-	   else	if (color == 4) FONTS_SetTextColor(255, 156, 74); //right
-	   
-	   
-	   else	if (color == 5) FONTS_SetTextColor(222, 173, 255);
-	   else	if (color == 6) FONTS_SetTextColor(244, 188, 73); //right
-	   else	if (color == 7) FONTS_SetTextColor(173, 173, 173); //right
-	   else	if (color == 8) FONTS_SetTextColor(85, 85, 85); //right
-	   else	if (color == 9) FONTS_SetTextColor(148, 198, 255); //right
-	   
-	   else	if (color == 10) FONTS_SetTextColor(0, 255, 0);
-	   else	if (color == 13) FONTS_SetTextColor(255, 132, 132);
-	   else	if (color == 14) FONTS_SetTextColor(255, 255, 2);
-	   else	if (color == 15) FONTS_SetTextColor(255, 255, 255);
+	   // support for custom colors
+	   if (color >= 1 && color <= 15)
+	     FONTS_SetTextColorIndex(color);
 	   else
-		   FONTS_SetTextColor(255, 255, 255);
+	     FONTS_SetTextColor(255, 255, 255);
+
 	   if (spr[h].owner == 1200)
 	     {
 /* 	       DrawText(hdc,cr,strlen(cr),&rcRect,DT_WORDBREAK); */
@@ -4295,26 +4291,16 @@ void process_talk()
 
 	   /* Same of in text_draw, except for #1 and default */
 	   // FONTS:
-	   if (talk.color == 1) FONTS_SetTextColor(49, 90, 140);
-	   else	if (talk.color == 2) FONTS_SetTextColor(131, 181, 74);
-	   else if (talk.color == 3) FONTS_SetTextColor(99, 242, 247);
-	   
-	   else	if (talk.color == 4) FONTS_SetTextColor(255, 156, 74); //right
-	   
-	   
-	   else	if (talk.color == 5) FONTS_SetTextColor(222, 173, 255);
-	   else	if (talk.color == 6) FONTS_SetTextColor(244, 188, 73); //right
-	   else	if (talk.color == 7) FONTS_SetTextColor(173, 173, 173); //right
-	   else	if (talk.color == 8) FONTS_SetTextColor(85, 85, 85); //right
-	   else	if (talk.color == 9) FONTS_SetTextColor(148, 198, 255); //right
-	   
-	   else	if (talk.color == 10) FONTS_SetTextColor(0, 255, 0);
-	   else	if (talk.color == 13) FONTS_SetTextColor(255, 132, 132);
-	   else	if (talk.color == 14) FONTS_SetTextColor(255, 255, 2);
-	   else	if (talk.color == 15) FONTS_SetTextColor(255, 255, 255);
+	   // support for custom colors
+	   if (talk.color >= 1 && talk.color <= 15)
+	     FONTS_SetTextColorIndex(talk.color);
 	   else
-	     FONTS_SetTextColor(255, 255, 2);
-
+	     {
+	       if (dversion >= 108)
+		 FONTS_SetTextColor(255, 255, 255);
+	       else
+		 FONTS_SetTextColor(255, 255, 2);
+	    }
 
 	  rect_offset(&rcRect, 1, 1);
 /* 	  DrawText(hdc,talk.buffer,strlen(talk.buffer),&rcRect,DT_VCENTER | DT_CENTER | DT_WORDBREAK);	 */

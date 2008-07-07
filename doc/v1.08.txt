@@ -257,8 +257,9 @@ New functions:
     => Implemented conditionally 07-07-2008
 [ ] set_dink_base_push(int dinkbasepush)
     Sets the base-push for Dink.  Default is 310.  Not saved with save games.
-[ ] set_font_color(int colorindex, int red, int green, int blue)
+[X] set_font_color(int colorindex, int red, int green, int blue)
     Changes the specified color index to the specified color.
+    => Implemented conditionally 07-07-2008
 [X] set_save_game_info(str line)
     Sets the line of information to be displayed in the save game summary.  The
     default is "Level &level".

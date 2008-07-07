@@ -56,6 +56,15 @@ static SDL_Color text_color;
 static TTF_Font *load_default_font(char *filename);
 static void setup_font(TTF_Font *font);
 
+// D-Mod-defined font colors
+struct font_color
+{
+  int red;
+  int green;
+  int blue;
+};
+static struct font_color font_colors[16];
+
 
 /**
  * Init font subsystem and one built-in font, so we can display error
@@ -104,6 +113,8 @@ int gfx_fonts_init()
   if (dialog_font == NULL)
     return -1; /* error message set by load_default_font */
   setup_font(dialog_font);
+
+  gfx_fonts_init_colors();
 
   return 0;
 }
@@ -196,6 +207,23 @@ int initfont(char* fontname) {
 }
 
 /**
+ * Change a font color (DinkC set_font_color() command)
+ */
+void set_font_color(int no, int red, int green, int blue)
+{
+  if (no >= 1 && no <= 15
+      && red   >= 0 && red   <= 255
+      && green >= 0 && green <= 255
+      && blue  >= 0 && blue  <= 255)
+    {
+      font_colors[no].red = red;
+      font_colors[no].green = green;
+      font_colors[no].blue = blue;
+    }
+}
+
+
+/**
  * Apply default style to the font
  * Plus some informative output
  */
@@ -227,6 +255,11 @@ void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b) {
   text_color.r = r;
   text_color.g = g;
   text_color.b = b;
+}
+void FONTS_SetTextColorIndex(int no) {
+  text_color.r = font_colors[no].red;
+  text_color.g = font_colors[no].green;
+  text_color.b = font_colors[no].blue;
 }
 
 
@@ -546,4 +579,83 @@ void Say(char thing[500], int px, int py)
       
 /*       lpDDSBack->ReleaseDC(hdc); */
 /*     }    */
+}
+
+
+void gfx_fonts_init_colors()
+{
+  //Light Magenta
+  font_colors[1].red = 255;
+  font_colors[1].green = 198;
+  font_colors[1].blue = 255;
+
+  //Dark Green
+  font_colors[2].red = 131;
+  font_colors[2].green = 181;
+  font_colors[2].blue = 74;
+
+  //Bold Cyan
+  font_colors[3].red = 99;
+  font_colors[3].green = 242;
+  font_colors[3].blue = 247;
+
+  //Orange
+  font_colors[4].red = 255;
+  font_colors[4].green = 156;
+  font_colors[4].blue = 74;
+
+  //Magenta
+  font_colors[5].red = 222;
+  font_colors[5].green = 173;
+  font_colors[5].blue = 255;
+
+  //Brown Orange
+  font_colors[6].red = 244;
+  font_colors[6].green = 188;
+  font_colors[6].blue = 73;
+
+  //Light Gray
+  font_colors[7].red = 173;
+  font_colors[7].green = 173;
+  font_colors[7].blue = 173;
+
+  //Dark Gray
+  font_colors[8].red = 85;
+  font_colors[8].green = 85;
+  font_colors[8].blue = 85;
+
+  //Sky Blue
+  font_colors[9].red = 148;
+  font_colors[9].green = 198;
+  font_colors[9].blue = 255;
+
+  //Bright Green
+  font_colors[10].red = 0;
+  font_colors[10].green = 255;
+  font_colors[10].blue = 0;
+
+  //Yellow
+  font_colors[11].red = 255;
+  font_colors[11].green = 255;
+  font_colors[11].blue = 2;
+
+  //Yellow
+  font_colors[12].red = 255;
+  font_colors[12].green = 255;
+  font_colors[12].blue = 2;
+
+  //Hot Pink
+  font_colors[13].red = 255;
+  font_colors[13].green = 132;
+  font_colors[13].blue = 132;
+
+  //Yellow
+  font_colors[14].red = 255;
+  font_colors[14].green = 255;
+  font_colors[14].blue = 2;
+
+  //White
+  font_colors[15].red = 255;
+  font_colors[15].green = 255;
+  font_colors[15].blue = 255;
 }

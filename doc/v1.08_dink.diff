@@ -22,73 +22,6 @@
        cr = &crap[0];
        color = 14;
        while (cr[0] == '`')
-@@ -85,6 +89,12 @@
- 	    color = 14;
- 	  if (cr[1] == '%')
- 	    color = 15;
-+//redink1 support for additional colors
-+
-+	  if (cr[1] == '@')
-+	    color = 12;
-+	  if (cr[1] == '!')
-+	    color = 11;
- 	  if (cr[1] == '4')
- 	    color = 4;
- 	  cr = &cr[2];
-@@ -116,6 +126,8 @@
- 	spr[h].y = 0;
-       SetRect (&rcRect, spr[h].x, spr[h].y, spr[h].x + 50, spr[h].y + 50);
-     }
-+  if (truecolor && (bFadedDown || process_downcycle))
-+    color = 15;
-   SetTextColor (hdc, RGB (8, 14, 21));
-   if (spr[h].owner == 1200)
-     {
-@@ -140,34 +152,18 @@
-       DrawText (hdc, cr, strlen (cr), &rcRect, DT_CENTER | DT_WORDBREAK);
-     }
-   OffsetRect (&rcRect, 0, 1);
--  if (color == 1)
--    SetTextColor (hdc, RGB (255, 198, 255));
--  else if (color == 2)
--    SetTextColor (hdc, RGB (131, 181, 74));
--  else if (color == 3)
--    SetTextColor (hdc, RGB (99, 242, 247));
--  else if (color == 4)
--    SetTextColor (hdc, RGB (255, 156, 74));	//right
--  else if (color == 5)
--    SetTextColor (hdc, RGB (222, 173, 255));
--  else if (color == 6)
--    SetTextColor (hdc, RGB (244, 188, 73));	//right
--  else if (color == 7)
--    SetTextColor (hdc, RGB (173, 173, 173));	//right
--  else if (color == 8)
--    SetTextColor (hdc, RGB (85, 85, 85));	//right
--  else if (color == 9)
--    SetTextColor (hdc, RGB (148, 198, 255));	//right
--  else if (color == 10)
--    SetTextColor (hdc, RGB (0, 255, 0));
--  else if (color == 13)
--    SetTextColor (hdc, RGB (255, 132, 132));
--  else if (color == 14)
--    SetTextColor (hdc, RGB (255, 255, 2));
--  else if (color == 15)
--    SetTextColor (hdc, RGB (255, 255, 255));
-+//redink1 support for custom colors
-+
-+  if (color >= 1 && color <= 15)
-+    {
-+      SetTextColor (hdc,
-+		    RGB (font_colors[color].red, font_colors[color].green,
-+			 font_colors[color].blue));
-+    }
-   else
-+    {
-     SetTextColor (hdc, RGB (255, 255, 255));
-+    }
-   if (spr[h].owner == 1200)
-     DrawText (hdc, cr, strlen (cr), &rcRect, DT_WORDBREAK);
-   else
 @@ -198,10 +194,14 @@
        Msg ("Drew map.");
        if (mode > 2)
@@ -897,56 +830,6 @@
  	  load_map (map.loc[pam.sprite[block].warp_map]);
  	  draw_map_game ();
  	  process_upcycle = true;
-@@ -3762,34 +4217,22 @@
- 	  SetTextColor (hdc, RGB (8, 14, 21));
- 	  DrawText (hdc, talk.buffer, strlen (talk.buffer), &rcRect,
- 		    DT_VCENTER | DT_CENTER | DT_WORDBREAK);
--	  if (talk.color == 1)
--	    SetTextColor (hdc, RGB (49, 90, 140));
--	  else if (talk.color == 2)
--	    SetTextColor (hdc, RGB (131, 181, 74));
--	  else if (talk.color == 3)
--	    SetTextColor (hdc, RGB (99, 242, 247));
--	  else if (talk.color == 4)
--	    SetTextColor (hdc, RGB (255, 156, 74));	//right
--	  else if (talk.color == 5)
--	    SetTextColor (hdc, RGB (222, 173, 255));
--	  else if (talk.color == 6)
--	    SetTextColor (hdc, RGB (244, 188, 73));	//right
--	  else if (talk.color == 7)
--	    SetTextColor (hdc, RGB (173, 173, 173));	//right
--	  else if (talk.color == 8)
--	    SetTextColor (hdc, RGB (85, 85, 85));	//right
--	  else if (talk.color == 9)
--	    SetTextColor (hdc, RGB (148, 198, 255));	//right
--	  else if (talk.color == 10)
--	    SetTextColor (hdc, RGB (0, 255, 0));
--	  else if (talk.color == 13)
--	    SetTextColor (hdc, RGB (255, 132, 132));
--	  else if (talk.color == 14)
--	    SetTextColor (hdc, RGB (255, 255, 2));
--	  else if (talk.color == 15)
--	    SetTextColor (hdc, RGB (255, 255, 255));
-+	  if (talk.color >= 1 && talk.color <= 15)
-+	    {
-+	      SetTextColor (hdc,
-+			    RGB (font_colors[talk.color].red,
-+				 font_colors[talk.color].green,
-+				 font_colors[talk.color].blue));
-+	    }
- 	  else
--	    SetTextColor (hdc, RGB (255, 255, 2));
-+	    {
-+	      SetTextColor (hdc, RGB (255, 255, 255));
-+	    }			/*if (talk.color == 1) SetTextColor(hdc,RGB(49,90,140)); else if (talk.color == 2) SetTextColor(hdc,RGB(131,181,74)); else if (talk.color == 3) SetTextColor(hdc,RGB(99,242,247)); else if (talk.color == 4) SetTextColor(hdc,RGB(255,156,74)); //right
-+				   else if (talk.color == 5) SetTextColor(hdc,RGB(222,173,255)); else if (talk.color == 6) SetTextColor(hdc,RGB(244,188,73)); //right
-+				   else if (talk.color == 7) SetTextColor(hdc,RGB(173,173,173)); //right
-+				   else if (talk.color == 8) SetTextColor(hdc,RGB(85,85,85)); //right
-+				   else if (talk.color == 9) SetTextColor(hdc,RGB(148,198,255)); //right
-+				   else if (talk.color == 10) SetTextColor(hdc,RGB(0,255,0)); else if (talk.color == 13) SetTextColor(hdc,RGB(255,132,132)); else if (talk.color == 14) SetTextColor(hdc,RGB(255,255,2)); else if (talk.color == 15) SetTextColor(hdc,RGB(255,255,255)); else SetTextColor(hdc,RGB(255,255,2)); */
- 	  OffsetRect (&rcRect, 1, 1);
- 	  DrawText (hdc, talk.buffer, strlen (talk.buffer), &rcRect,
- 		    DT_VCENTER | DT_CENTER | DT_WORDBREAK);
 @@ -4446,20 +4893,19 @@
      {
  //let's display a nice dot to mark where they are on the map
@@ -1411,10 +1294,6 @@
  //init_mouse(hwnd);
  
 +  memset (&spr, NULL, sizeof (spr));
-+  init_font_colors ();
-   initfonts ("Arial");
- //g_pMouse->Acquire();
- 
 @@ -5346,6 +6100,7 @@
  	{
  	  if (g_b_kill_app == false)

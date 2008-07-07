@@ -41,8 +41,10 @@ typedef enum enum_font
 
 extern int gfx_fonts_init(void);
 extern int gfx_fonts_init_failsafe(void);
+extern void gfx_fonts_init_colors(void);
 extern void gfx_fonts_quit(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
+extern void FONTS_SetTextColorIndex(int no);
 extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
 
 extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
@@ -50,5 +52,5 @@ extern void Say(char thing[500], int px, int py);
 
 /* DinkC binding */
 extern int initfont(char* fontname);
-
+extern void set_font_color(int no, int red, int green, int blue);
 #endif
