@@ -12,7 +12,21 @@
 # Parameters:
 # 1. The Dink Smallwood installer file (dinksmallwood108.exe)
 # 2. The location of the extracted files
-#
+
+# Note: for some reason, 7z (and 7-Zip generally) doesn't extract or
+# otherwise detect the following files:
+# 
+# dink/Sound/107.mid
+# dink/Sound/6.mid
+# dink/Sound/Battle.mid
+# dink/Sound/Caveexpl.mid
+# dink/Story/S7-SLAY.d
+# dink/Story/SC-LOCK.d
+# dink/Story/SC-PILL.d
+# island/sound/metopen.wav
+# 
+# So you might be better off using Wine.
+
 
 # Define globals
 PACKAGENAME=$1
