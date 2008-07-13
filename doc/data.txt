@@ -4,26 +4,38 @@ Data from the original game commonly needed by D-Mods
 Now that we have a working portable game engine, it would make sense
 to distribute it along with all data necessary to run D-Mods.
 
-Such a pack already exists: it's a repackaging of v1.06 made by Dan
-Walma and approved by Seth A. Robinson:
+Currently the most straightforward solution is to run the official
+installer through Wine and grab the data::
+
+  wget http://files.dinknetwork.com/dinksmallwood108.exe
+  wine dinksmallwood108.exe
+  mv ~/.wine/drive_c/Program\ Files/Dink\ Smallwood \
+    /usr/local/share/dink/
+
+It's also possible to extract the data using the '7z' extraction tool
+from http://files.dinknetwork.com/dinksmallwood108.exe (see
+contrib/dextract for an automated extraction script - though some
+files are skipped for unknown reason by 7-Zip)
+
+
+Last, there's a repackaging of v1.06 made by Dan Walma and approved by
+Seth A. Robinson::
+
   wget http://files.dinknetwork.com/dinksmallwood106.zip
   mkdir -p /usr/local/share
   unzip -d /usr/local/share -L dinksmallwood106.zip
 
-It's also possible to extract the data using the '7z' extraction tool
-from http://files.dinknetwork.com/dinksmallwood108.exe
-(see contrib/dextract for an automated extraction script)
 
 However, it's not free (as in freedom), thus it cannot be included in
-GNU/Linux distributions. Apparently, Seth want to keep control over
-Dink Smallwood: the character, the story, etc., which is why this data
-will probably stay non-free.
+GNU/Linux distributions. Seth is open to releasing most data files
+under a zlib-like license, except for sound which he doesn't own, and
+data which was never released such as the 3D models.
 
-The graphics pack, though, was released under a pretty lax license
-(free for D-Mods and freeware games). A compromise would be to extend
-this to a subset of the Dink Smallwood original story. This subset
-would not cover the original Dink Smallwood story, but would cover
-files commonly required by D-Mods.
+The graphics pack was released under a pretty lax license (free for
+D-Mods and freeware games). In the worst case we could extend this to
+a subset of the Dink Smallwood original story. This subset would not
+cover the original Dink Smallwood story, but would cover files
+commonly required by D-Mods.
 
 This way, FreeDink would ship with a free base data pack that could be
 included in distros and could run any D-Mod out of the box.
