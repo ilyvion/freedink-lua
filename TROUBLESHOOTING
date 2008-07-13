@@ -1,0 +1,11 @@
+Troubleshooting
+===============
+
+Q: FreeDink freezes when trying to play a sound or music.
+
+A: SDL is known to freeze in some situations when you have
+   /dev/sequencer available and /etc/timidity/timidity.cfg isn't
+   present. An easy fix is to install Timidity++ (see BUILD).
+
+   More information at
+   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=369670
