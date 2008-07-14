@@ -44,6 +44,11 @@ extern "C"
   extern int is_directory(char *name);
   extern char* pdirname(char *filename);
 
+  extern int read_lsb_int(FILE *f);
+  extern void write_lsb_int(int n, FILE *f);
+  extern short read_lsb_short(FILE *f);
+  extern void write_lsb_short(short n, FILE *f);
+
 #ifdef __cplusplus
 }
 #endif

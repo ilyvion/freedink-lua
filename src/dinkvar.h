@@ -51,23 +51,23 @@ struct attackinfo_struct
 
 struct tile
 {
-	int num, property, althard, more2;
-	unsigned char more3,more4;
-	
-	int buff[15];
+  int num, property, althard, more2;
+  unsigned char more3, more4;
+  
+  int buff[15];
 };
 
 struct sprite_placement
 {
-  int x,y,seq,frame, type,size;
+  int x, y, seq, frame, type, size;
   BOOL_1BYTE active;
-  int rotation, special,brain;
+  int rotation, special, brain;
   
   char script[13];
   char hit[13];
   char die[13];
   char talk[13];
-  int speed, base_walk,base_idle,base_attack,base_hit,timer,que;
+  int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
   int hard;
   rect alt;
   int prop;
@@ -76,7 +76,7 @@ struct sprite_placement
   int warp_y;
   int parm_seq;
   
-  int base_die, gold, hitpoints, strength, defense,exp, sound, vision, nohit, touch_damage;
+  int base_die, gold, hitpoints, strength, defense, exp, sound, vision, nohit, touch_damage;
   int buff[5];
 };
 
@@ -133,22 +133,22 @@ struct hit_map
 
 struct block_y
 {
-	unsigned char y[51];
+  unsigned char y[51];
 };
 
 struct ts_block
 {
-	struct block_y x[51];
-	BOOL_1BYTE used;
-	int hold;
+  struct block_y x[51];
+  BOOL_1BYTE used;
+  int hold;
 };
 
 //struct for hardness info, INDEX controls which hardness each block has.  800 max
 //types available.
 struct hardness
 {
-	struct ts_block tile[800];
-	int index[8000];
+  struct ts_block tile[800];
+  int index[8000];
 };
 
 extern int GetKeyboard(int key);

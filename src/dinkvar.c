@@ -934,25 +934,125 @@ void load_map(const int num)
   //   draw_map_game();
 }
 
+/**
+ * Save screen number 'num' in the map. Only used by the editor.
+ */
 void save_map(const int num)
 {
-  FILE *fp;
+  FILE *f = NULL;
   long holdme,lsize;
 
   Msg("Saving map data..");
   if (num > 0)
     {
-      fp = paths_dmodfile_fopen(current_map, "r+b");
-      if (fp == NULL)
+      f = paths_dmodfile_fopen(current_map, "r+b");
+      if (f == NULL)
 	{
 	  perror("Cannot save map");
 	  return;
 	}
-      lsize = sizeof(struct small_map);
+      lsize = 31280; // sizeof(struct small_map); // under ia32, not portable
       holdme = (lsize * (num-1));
-      fseek(fp, holdme, SEEK_SET);
-      fwrite(&pam, lsize, 1, fp);       /* current player */
-      fclose(fp);
+      fseek(f, holdme, SEEK_SET);
+
+
+      /* Portably dump map structure */
+      int i = 0;
+      fwrite(pam.name, 20, 1, f);
+      for (i = 0; i < 97; i++)
+	{
+	  write_lsb_int(pam.t[i].num, f);
+	  write_lsb_int(pam.t[i].property, f);
+	  write_lsb_int(pam.t[i].althard, f);
+	  write_lsb_int(pam.t[i].more2, f);
+	  fputc(pam.t[i].more3, f);
+	  fputc(pam.t[i].more4, f);
+	  fseek(f, 2, SEEK_CUR); // reproduce memory alignment
+	  int j = 0;
+	  for (j = 0; j < 15; j++)
+	    write_lsb_int(pam.t[i].buff[j], f);
+	}
+      // offset 7780
+
+      for (i = 0; i < 40; i++)
+	write_lsb_int(pam.v[i], f);
+      fwrite(pam.s, 80, 1, f);
+      // offset 8020
+
+      /* struct sprite_placement sprite[101]; */
+      /* size = 220 */
+      for (i = 0; i < 101; i++)
+	{
+	  write_lsb_int(pam.sprite[i].x, f);
+	  write_lsb_int(pam.sprite[i].y, f);
+	  write_lsb_int(pam.sprite[i].seq, f);
+	  write_lsb_int(pam.sprite[i].frame, f);
+	  write_lsb_int(pam.sprite[i].type, f);
+	  write_lsb_int(pam.sprite[i].size, f);
+
+	  fputc(pam.sprite[i].active, f);
+	  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+	  // offset 28
+	  
+	  write_lsb_int(pam.sprite[i].rotation, f);
+	  write_lsb_int(pam.sprite[i].special, f);
+	  write_lsb_int(pam.sprite[i].brain, f);
+
+	  fwrite(pam.sprite[i].script, 13, 1, f);
+	  fwrite(pam.sprite[i].hit,    13, 1, f);
+	  fwrite(pam.sprite[i].die,    13, 1, f);
+	  fwrite(pam.sprite[i].talk,   13, 1, f);
+	  // offset 92
+
+	  write_lsb_int(pam.sprite[i].speed, f);
+	  write_lsb_int(pam.sprite[i].base_walk, f);
+	  write_lsb_int(pam.sprite[i].base_idle, f);
+	  write_lsb_int(pam.sprite[i].base_attack, f);
+	  write_lsb_int(pam.sprite[i].base_hit, f);
+	  write_lsb_int(pam.sprite[i].timer, f);
+	  write_lsb_int(pam.sprite[i].que, f);
+	  write_lsb_int(pam.sprite[i].hard, f);
+	  // offset 124
+
+	  write_lsb_int(pam.sprite[i].alt.left, f);
+	  write_lsb_int(pam.sprite[i].alt.top, f);
+	  write_lsb_int(pam.sprite[i].alt.right, f);
+	  write_lsb_int(pam.sprite[i].alt.bottom, f);
+	  // offset 140
+
+	  write_lsb_int(pam.sprite[i].prop, f);
+	  write_lsb_int(pam.sprite[i].warp_map, f);
+	  write_lsb_int(pam.sprite[i].warp_x, f);
+	  write_lsb_int(pam.sprite[i].warp_y, f);
+	  write_lsb_int(pam.sprite[i].parm_seq, f);
+	  // offset 160
+  
+	  write_lsb_int(pam.sprite[i].base_die, f);
+	  write_lsb_int(pam.sprite[i].gold, f);
+	  write_lsb_int(pam.sprite[i].hitpoints, f);
+	  write_lsb_int(pam.sprite[i].strength, f);
+	  write_lsb_int(pam.sprite[i].defense, f);
+	  write_lsb_int(pam.sprite[i].exp, f);
+	  write_lsb_int(pam.sprite[i].sound, f);
+	  write_lsb_int(pam.sprite[i].vision, f);
+	  write_lsb_int(pam.sprite[i].nohit, f);
+	  write_lsb_int(pam.sprite[i].touch_damage, f);
+	  // offset 200
+
+	  int j = 0;
+	  for (j = 0; j < 5; j++)
+	    write_lsb_int(pam.sprite[i].buff[j], f);
+	}
+      // offset 30204
+      
+      fwrite(pam.script, 13, 1, f);
+      fwrite(pam.random, 13, 1, f);
+      fwrite(pam.load,   13, 1, f);
+      fwrite(pam.buffer, 1000, 1, f);
+      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      // offset 31280
+
+      fclose(f);
     }
 
   Msg("Done saving map data..");
@@ -960,19 +1060,29 @@ void save_map(const int num)
 
 
 
-
+/**
+ * Save dink.dat (index of map offsets + midi# + indoor/outdoor)
+ */
 void save_info(void)
 {
-  FILE *fp = paths_dmodfile_fopen(current_dat, "wb");
-  if (fp != NULL)
-    {
-      fwrite(&map, sizeof(struct map_info), 1, fp);
-      fclose(fp);
-    }
-  else
+  FILE *f = paths_dmodfile_fopen(current_dat, "wb");
+  if (f == NULL)
     {
       perror("Cannot save dink.dat");
+      return;
     }
+  
+  int i = 0;
+  fwrite(map.name, 20, 1, f);
+  for (i = 0; i < 769; i++)
+    write_lsb_int(map.loc[i],    f);
+  for (i = 0; i < 769; i++)
+    write_lsb_int(map.music[i],  f);
+  for (i = 0; i < 769; i++)
+    write_lsb_int(map.indoor[i], f);
+  fwrite(map.unused, 2240, 1, f);
+
+  fclose(f);
 }
 
 
@@ -1172,7 +1282,8 @@ void save_info(void)
 
 void save_game(int num)
 {
-  FILE *fp;
+  FILE *f;
+  int i = 0;
 
   //lets set some vars first
   play.x = spr[1].x;
@@ -1212,16 +1323,118 @@ void save_game(int num)
   }
   
   last_saved_game = num;
-  fp = paths_savegame_fopen(num, "wb");
-  if (fp != NULL)
-    {
-      fwrite(&play,sizeof(play),1,fp);
-      fclose(fp);
-    }
-  else
+  f = paths_savegame_fopen(num, "wb");
+  if (f == NULL)
     {
       perror("Cannot save game");
+      return;
     }
+
+  /* Portably dump struct player_info play to disk */
+  write_lsb_int(play.version, f);
+  fwrite(play.gameinfo, 196, 1, f);
+  // offset 200
+  write_lsb_int(play.minutes, f);
+  write_lsb_int(play.x, f);
+  write_lsb_int(play.y, f);
+  write_lsb_int(play.die, f);
+  write_lsb_int(play.size, f);
+  write_lsb_int(play.defense, f);
+  write_lsb_int(play.dir, f);
+  write_lsb_int(play.pframe, f);
+  write_lsb_int(play.pseq, f);
+  write_lsb_int(play.seq, f);
+  write_lsb_int(play.frame, f);
+  write_lsb_int(play.strength, f);
+  write_lsb_int(play.base_walk, f);
+  write_lsb_int(play.base_idle, f);
+  write_lsb_int(play.base_hit, f);
+  write_lsb_int(play.que, f);
+  // offset 264
+
+  for (i = 0; i < NB_MITEMS+1; i++)
+    {
+      fwrite(&play.mitem[i].active, 1, 1, f);
+      fwrite(play.mitem[i].name, 10, 1, f);
+      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      write_lsb_int(play.mitem[i].seq, f);
+      write_lsb_int(play.mitem[i].frame, f);
+    }
+  for (i = 0; i < NB_ITEMS+1; i++)
+    {
+      fwrite(&play.item[i].active, 1, 1, f);
+      fwrite(play.item[i].name, 10, 1, f);
+      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      write_lsb_int(play.item[i].seq, f);
+      write_lsb_int(play.item[i].frame, f);
+    }
+  // offset 784
+
+  write_lsb_int(play.curitem, f);
+  write_lsb_int(play.unused, f);
+  write_lsb_int(play.counter, f);
+  fputc(play.idle, f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  // offset 796
+
+  for (i = 0; i < 769; i++)
+    {
+      int j = 0;
+      fwrite(play.spmap[i].type, 100, 1, f);
+      for (j = 0; j < 100; j++)
+	write_lsb_short(play.spmap[i].seq[j], f);
+      fwrite(play.spmap[i].frame, 100, 1, f);
+      write_lsb_int(play.spmap[i].last_time, f);
+    }
+
+  for (i = 0; i < 10; i++)
+    write_lsb_int(play.button[i], f);
+
+  for (i = 0; i < MAX_VARS; i++)
+    {
+      write_lsb_int(play.var[i].var, f);
+      fwrite(play.var[i].name, 20, 1, f);
+      write_lsb_int(play.var[i].scope, f);
+      fputc(play.var[i].active, f);
+      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+    }
+
+  fputc(play.push_active, f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  write_lsb_int(play.push_dir, f);
+
+  write_lsb_int(play.push_timer, f);
+
+  write_lsb_int(play.last_talk, f);
+  write_lsb_int(play.mouse, f);
+  fputc(play.item_magic, f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  write_lsb_int(play.last_map, f);
+  write_lsb_int(play.crap, f);
+  for (i = 0; i < 95; i++)
+    write_lsb_int(play.buff[i], f);
+  for (i = 0; i < 20; i++)
+    write_lsb_int(play.dbuff[i], f);
+  for (i = 0; i < 10; i++)
+    write_lsb_int(play.lbuff[i], f);
+  
+  /* v1.08: use wasted space for storing file location of map.dat,
+     dink.dat, palette, and tiles */
+  /* char cbuff[6000];*/
+  fwrite(play.mapdat, 50, 1, f);
+  fwrite(play.dinkdat, 50, 1, f);
+  fwrite(play.palette, 50, 1, f);
+
+  for (i = 0; i < NB_TILE_SCREENS+1; i++)
+    fwrite(play.tile[i].file, 50, 1, f);
+  for (i = 0; i < 100; i++)
+    {
+      fwrite(play.func[i].file, 10, 1, f);
+      fwrite(play.func[i].func, 10, 1, f);
+    }
+  fwrite(play.cbuff, 750, 1, f);
+
+  fclose(f);
 }
 
 
@@ -1397,16 +1610,34 @@ void load_info(void)
     }
 }
 
+/***
+ * Saves hard.dat (only used from the editor)
+ */
 void save_hard(void)
 {
-  FILE *fp = paths_dmodfile_fopen("hard.dat", "wb");
-  if (!fp)
+  FILE *f = paths_dmodfile_fopen("hard.dat", "wb");
+  if (!f)
     {
       perror("Couldn't save hard.dat");
       return;
     }
-  fwrite(&hmap, sizeof(struct hardness), 1, fp);
-  fclose(fp);
+
+  /* Portably dump struct hardness hmap to disk */
+  int i = 0;
+  for (i = 0; i < 800; i++)
+    {
+      int j = 0;
+      for (j = 0; j < 51; j++)
+	fwrite(hmap.tile[i].x[j].y, 51, 1, f);
+      fputc(hmap.tile[i].used, f);
+      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
+
+      write_lsb_int(hmap.tile[i].hold, f);
+    }
+  for (i = 0; i < 8000; i++)
+    write_lsb_int(hmap.index[i], f);
+
+  fclose(f);
 }
 
 

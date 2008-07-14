@@ -28,6 +28,7 @@
 #include "rect.h"
 #include "io_util.h"
 #include "dinkc.h"
+#include "gfx_tiles.h"
 
 #define MAX_SPRITES_AT_ONCE 300
 
@@ -144,11 +145,10 @@ struct sp
 
 struct item_struct
 {
-	BOOL_1BYTE active;
-	char name[10];
-    int seq;
-	int frame;
-	
+  BOOL_1BYTE active;
+  char name[10];
+  int seq;
+  int frame;
 };
 
 struct mydata
@@ -167,6 +167,8 @@ struct player_info_tile
 {
   char file[50];
 };
+#define NB_MITEMS 8
+#define NB_ITEMS 16
 struct player_info
 {
   int version;
@@ -174,10 +176,10 @@ struct player_info
   int minutes;
   int x, y,
     die, size, defense, dir, pframe, pseq, seq, frame, strength,
-    base_walk, base_idle, base_hit,que;
+    base_walk, base_idle, base_hit, que;
   
-  struct item_struct mitem[9]; //added one to these, because I don't like referring to a 0 item
-  struct item_struct item[17];
+  struct item_struct mitem[NB_MITEMS+1]; //added one to these, because I don't like referring to a 0 item
+  struct item_struct item[NB_ITEMS+1];
   
   int curitem, unused;
   int counter;
@@ -192,7 +194,7 @@ struct player_info
   
   BOOL_1BYTE push_active;
   int push_dir;
-  unsigned long push_timer;
+  unsigned int push_timer;
   int last_talk;
   int mouse; /* vertical position of the mouse when selecting a dialog
 		option */
@@ -200,9 +202,9 @@ struct player_info
   int last_map;
   int crap;
   int buff[95];
-  unsigned long dbuff[20];
+  unsigned int dbuff[20];
   
-  long lbuff[10];
+  int lbuff[10];
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
@@ -210,7 +212,7 @@ struct player_info
   char mapdat[50];
   char dinkdat[50];
   char palette[50];
-  struct player_info_tile tile[41+1];
+  struct player_info_tile tile[NB_TILE_SCREENS+1];
   struct global_function func[100];
   char cbuff[750];
 };
@@ -246,9 +248,7 @@ struct map_info
   int loc[769];
   int music[769];
   int indoor[769];
-  int v[40];         // unused
-  char s[80];        // unused
-  char buffer[2000]; // unused
+  char unused[2240];
 };
 extern struct map_info map;
 

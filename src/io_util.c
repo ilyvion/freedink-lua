@@ -256,6 +256,57 @@ SDL_RWops* find_resource_as_rwops(char *name)
 }
 
 
+/**
+ * Read integer portably (same result with MSB and LSB
+ * endianness). Source data is a file with little-endian data.
+ */
+int read_lsb_int(FILE *f)
+{
+  unsigned char buf[4];
+  fread(buf, 4, 1, f);
+  return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
+}
+
+
+/**
+ * Write integer portably (same result with MSB and LSB
+ * endianness). Will write little-endian data to file.
+ */
+void write_lsb_int(int n, FILE *f)
+{
+  unsigned char buf[4];
+  buf[0] = n & 0xFF;
+  buf[1] = (n >> (1*8)) & 0xFF;
+  buf[2] = (n >> (2*8)) & 0xFF;
+  buf[3] = (n >> (3*8)) & 0xFF;
+  fwrite(buf, 4, 1, f);
+}
+
+/**
+ * Read short portably (same result with MSB and LSB
+ * endianness). Source data is a file with little-endian data.
+ */
+short read_lsb_short(FILE *f)
+{
+  unsigned char buf[2];
+  fread(buf, 2, 1, f);
+  return (buf[1] << 8) | (buf[0]);
+}
+
+
+/**
+ * Write short portably (same result with MSB and LSB
+ * endianness). Will write little-endian data to file.
+ */
+void write_lsb_short(short n, FILE *f)
+{
+  unsigned char buf[2];
+  buf[0] = n & 0xFF;
+  buf[1] = (n >> (1*8)) & 0xFF;
+  fwrite(buf, 2, 1, f);
+}
+
+
 #ifdef TEST
 /* find ../.. -print0 | tr a-z A-Z | xargs -0 ./a.out */
 int
@@ -289,4 +340,5 @@ main (int argc, char *argv[])
        directory: currently we don't support that, as it's not
        portable anyway */
 }
+
 #endif
