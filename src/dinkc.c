@@ -152,32 +152,30 @@ void decompress_nocomp(FILE *in)
 }
 
 
-struct player_short_info
-{
-  int version;
-  char gameinfo[196];
-  int minutes;
-};
-struct player_short_info short_play;
-
 /**
  * Only load game metadata (timetime). Used when displaying the list
  * of saved games (see decipher_string).
  */
 static /*bool*/int load_game_small(int num, char *line, int *mytime)
 {
-  FILE *fp = paths_savegame_fopen(num, "rb");
-  if (fp == NULL)
+  FILE *f = paths_savegame_fopen(num, "rb");
+  if (f == NULL)
     {
       Msg("Couldn't quickload save game %d", num);
       return(/*false*/0);
     }
   else
     {
-      fread(&short_play, sizeof(struct player_short_info), 1, fp);
-      fclose(fp);
-      *mytime = short_play.minutes;
-      strcpy(line, short_play.gameinfo);
+      //int version = read_lsb_int(f);
+      read_lsb_int(f); // avoid compiler warning
+
+      char gameinfo[196];
+      fread(gameinfo, 196, 1, f);
+      int minutes = read_lsb_int(f);
+      fclose(f);
+
+      *mytime = minutes;
+      strcpy(line, gameinfo);
       return(/*true*/1);
     }
 }

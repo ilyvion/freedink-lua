@@ -904,23 +904,117 @@ void fix_dead_sprites()
  */
 void load_map(const int num)
 {
-  FILE *fp;
+  FILE *f = NULL;
   long holdme,lsize;
-  fp = paths_dmodfile_fopen(current_map, "rb");
-  if (!fp)
+  f = paths_dmodfile_fopen(current_map, "rb");
+  if (!f)
     {
       Msg("Cannot find %s file!!!",current_map);
       return;
     }
-  lsize = sizeof(struct small_map);
+  lsize = 31280; // sizeof(struct small_map); // under ia32, not portable
   holdme = (lsize * (num-1));
-  fseek(fp, holdme, SEEK_SET);
+  fseek(f, holdme, SEEK_SET);
   //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
-  int shit = fread(&pam, lsize, 1, fp);       /* current player */
-  //              Msg("Read %d bytes.",shit);
-  if (shit == 0)
-    Msg("ERROR:  Couldn't read map %d?!?", num);
-  fclose(fp);
+
+  /* Portably load map structure from disk */
+  int i = 0;
+  fread(pam.name, 20, 1, f);
+  for (i = 0; i < 97; i++)
+    {
+      pam.t[i].num = read_lsb_int(f);
+      pam.t[i].property = read_lsb_int(f);
+      pam.t[i].althard = read_lsb_int(f);
+      pam.t[i].more2 = read_lsb_int(f);
+      pam.t[i].more3 = fgetc(f);
+      pam.t[i].more4 = fgetc(f);
+      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
+      int j = 0;
+      for (j = 0; j < 15; j++)
+	pam.t[i].buff[j] = read_lsb_int(f);
+    }
+  // offset 7780
+  
+  for (i = 0; i < 40; i++)
+    pam.v[i] = read_lsb_int(f);
+  fread(pam.s, 80, 1, f);
+  // offset 8020
+  
+  /* struct sprite_placement sprite[101]; */
+  /* size = 220 */
+  for (i = 0; i < 101; i++)
+    {
+      pam.sprite[i].x = read_lsb_int(f);
+      pam.sprite[i].y = read_lsb_int(f);
+      pam.sprite[i].seq = read_lsb_int(f);
+      pam.sprite[i].frame = read_lsb_int(f);
+      pam.sprite[i].type = read_lsb_int(f);
+      pam.sprite[i].size = read_lsb_int(f);
+      
+      pam.sprite[i].active = fgetc(f);
+      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+      // offset 28
+      
+      pam.sprite[i].rotation = read_lsb_int(f);
+      pam.sprite[i].special = read_lsb_int(f);
+      pam.sprite[i].brain = read_lsb_int(f);
+      
+      fread(pam.sprite[i].script, 13, 1, f);
+      fread(pam.sprite[i].hit,    13, 1, f);
+      fread(pam.sprite[i].die,    13, 1, f);
+      fread(pam.sprite[i].talk,   13, 1, f);
+      // offset 92
+      
+      pam.sprite[i].speed = read_lsb_int(f);
+      pam.sprite[i].base_walk = read_lsb_int(f);
+      pam.sprite[i].base_idle = read_lsb_int(f);
+      pam.sprite[i].base_attack = read_lsb_int(f);
+      pam.sprite[i].base_hit = read_lsb_int(f);
+      pam.sprite[i].timer = read_lsb_int(f);
+      pam.sprite[i].que = read_lsb_int(f);
+      pam.sprite[i].hard = read_lsb_int(f);
+      // offset 124
+      
+      pam.sprite[i].alt.left = read_lsb_int(f);
+      pam.sprite[i].alt.top = read_lsb_int(f);
+      pam.sprite[i].alt.right = read_lsb_int(f);
+      pam.sprite[i].alt.bottom = read_lsb_int(f);
+      // offset 140
+      
+      pam.sprite[i].prop = read_lsb_int(f);
+      pam.sprite[i].warp_map = read_lsb_int(f);
+      pam.sprite[i].warp_x = read_lsb_int(f);
+      pam.sprite[i].warp_y = read_lsb_int(f);
+      pam.sprite[i].parm_seq = read_lsb_int(f);
+      // offset 160
+      
+      pam.sprite[i].base_die = read_lsb_int(f);
+      pam.sprite[i].gold = read_lsb_int(f);
+      pam.sprite[i].hitpoints = read_lsb_int(f);
+      pam.sprite[i].strength = read_lsb_int(f);
+      pam.sprite[i].defense = read_lsb_int(f);
+      pam.sprite[i].exp = read_lsb_int(f);
+      pam.sprite[i].sound = read_lsb_int(f);
+      pam.sprite[i].vision = read_lsb_int(f);
+      pam.sprite[i].nohit = read_lsb_int(f);
+      pam.sprite[i].touch_damage = read_lsb_int(f);
+      // offset 200
+      
+      int j = 0;
+      for (j = 0; j < 5; j++)
+	pam.sprite[i].buff[j] = read_lsb_int(f);
+    }
+  // offset 30204
+  
+  fread(pam.script, 13, 1, f);
+  fread(pam.random, 13, 1, f);
+  fread(pam.load,   13, 1, f);
+  fread(pam.buffer, 1000, 1, f);
+  fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+  // offset 31280
+  
+  fclose(f);
+
   
   spr[1].move_active = /*false*/0;
   spr[1].freeze = /*false*/0;
@@ -1073,6 +1167,7 @@ void save_info(void)
     }
   
   int i = 0;
+  strcpy(map.name, "Smallwood");
   fwrite(map.name, 20, 1, f);
   for (i = 0; i < 769; i++)
     write_lsb_int(map.loc[i],    f);
@@ -1089,7 +1184,7 @@ void save_info(void)
 
 /*bool*/int load_game(int num)
 {
-  FILE *fp;
+  FILE *f = NULL;
   
   //lets get rid of our magic and weapon scripts
   if (weapon_script != 0)
@@ -1116,174 +1211,278 @@ void save_info(void)
     }
   StopMidi();
   
-  fp = paths_savegame_fopen(num, "rb");
-  if (!fp)
+  f = paths_savegame_fopen(num, "rb");
+  if (!f)
     {
       Msg("Couldn't load save game %d", num);
-      return(/*false*/0);
+      return /*false*/0;
     }
-  else
+
+
+  /* Portably load struct player_info play from disk */
+  int i = 0;
+  play.version = read_lsb_int(f);
+  fread(play.gameinfo, 196, 1, f);
+  // offset 200
+  play.minutes = read_lsb_int(f);
+  play.x = read_lsb_int(f);
+  play.y = read_lsb_int(f);
+  play.die = read_lsb_int(f);
+  play.size = read_lsb_int(f);
+  play.defense = read_lsb_int(f);
+  play.dir = read_lsb_int(f);
+  play.pframe = read_lsb_int(f);
+  play.pseq = read_lsb_int(f);
+  play.seq = read_lsb_int(f);
+  play.frame = read_lsb_int(f);
+  play.strength = read_lsb_int(f);
+  play.base_walk = read_lsb_int(f);
+  play.base_idle = read_lsb_int(f);
+  play.base_hit = read_lsb_int(f);
+  play.que = read_lsb_int(f);
+  // offset 264
+
+  for (i = 0; i < NB_MITEMS+1; i++)
     {
-      fread(&play,sizeof(play),1,fp);
-      fclose(fp);
-      
-
-      if (dversion >= 108)
-	{
-	  // new map, if exist
-	  if (strlen (play.mapdat) > 0 && strlen (play.dinkdat) > 0)
-	    {
-	      strcpy (current_map, play.mapdat);
-	      strcpy (current_dat, play.dinkdat);
-	      load_info();
-	    }
-
-	  // load palette
-	  if (strlen(play.palette) > 0)
-	    {
-	      char *name = play.palette;
-	      SDL_Surface* image = NULL;
-	      FILE *in = paths_dmodfile_fopen(name, "rb");
-	      if (in == NULL)
-		fprintf(stderr, "Error: Can't open palette '%s'.", name);
-	      else
-		/* Set palette */
-		image = load_bmp_setpal(in);
-
-	      if (image == NULL)
-		fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
-	      else
-		SDL_FreeSurface(image);
-	    }
-
-	  /* Reload tiles */
-	  tiles_load_default();
-
-	  /* Replace with custom tiles if needed */
-	  for (int i = 1; i <= NB_TILE_SCREENS; i++)
-	    if (strlen(play.tile[i].file) > 0)
-	      tiles_load_slot(play.tile[i].file, i);
-	}
-
-
-      spr[1].damage = 0;
-      spr[1].x = play.x;
-      spr[1].y = play.y;
-      walk_off_screen = 0;
-      spr[1].nodraw = 0;
-      push_active = 1;
-      spr[1].pseq = play.pseq;
-      spr[1].pframe = play.pframe;
-      spr[1].size = play.size;
-      spr[1].seq = play.seq;
-      spr[1].frame = play.frame;
-      spr[1].dir = play.dir;
-      spr[1].strength = play.strength;
-      spr[1].defense = play.defense;
-      spr[1].que = play.que;
-      
-      time(&time_start);
-      
-      spr[1].base_idle = play.base_idle;
-      spr[1].base_walk = play.base_walk;
-      spr[1].base_hit = play.base_hit;
-      
-      int script = load_script("main", 0, /*true*/1);
-      locate(script, "main");
-      run_script(script);
-      //lets attach our vars to the scripts
-      
-      attach();
-      Msg("Attached vars.");
-      dinkspeed = 3;
-      
-      if (*pcur_weapon != 0)
-	{
-	  if (play.item[*pcur_weapon].active == /*false*/0)
-	    {
-	      *pcur_weapon = 1;
-	      weapon_script = 0;
-	      Msg("Loadgame error: Player doesn't have armed weapon - changed to 1.");
-	    }
-	  else
-	    {
-	      weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-	      if (locate(weapon_script, "DISARM"))
-		run_script(weapon_script);
-	      weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-	      if (locate(weapon_script, "ARM"))
-		run_script(weapon_script);
-	    }
-	}
-      if (*pcur_magic != 0)
-	{
-	  if (play.item[*pcur_magic].active == /*false*/0)
-	    {
-	      *pcur_magic = 0;
-	      magic_script = 0;
-	      Msg("Loadgame error: Player doesn't have armed magic - changed to 0.");
-	    }
-	  else
-	    {
-	      
-	      magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-	      if (locate(magic_script, "DISARM"))
-		run_script(magic_script);
-	      magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-	      if (locate(magic_script, "ARM"))
-		run_script(magic_script);
-	    }
-	}
-      kill_repeat_sounds_all();
-      load_map(map.loc[*pmap]);
-      Msg("Loaded map.");
-      draw_map_game();
-      Msg("Map drawn.");
-      
-      last_saved_game = num;
-      
-      return(/*true*/1);
+      play.mitem[i].active = fgetc(f);
+      fread(play.mitem[i].name, 10, 1, f);
+      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      play.mitem[i].seq = read_lsb_int(f);
+      play.mitem[i].frame = read_lsb_int(f);
     }
+  for (i = 0; i < NB_ITEMS+1; i++)
+    {
+      play.item[i].active = fgetc(f);
+      fread(play.item[i].name, 10, 1, f);
+      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      play.item[i].seq = read_lsb_int(f);
+      play.item[i].frame = read_lsb_int(f);
+    }
+  // offset 784
+
+  play.curitem = read_lsb_int(f);
+  play.unused = read_lsb_int(f);
+  play.counter = read_lsb_int(f);
+  play.idle = fgetc(f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  // offset 796
+
+  for (i = 0; i < 769; i++)
+    {
+      int j = 0;
+      fread(play.spmap[i].type, 100, 1, f);
+      for (j = 0; j < 100; j++)
+	play.spmap[i].seq[j] = read_lsb_short(f);
+      fread(play.spmap[i].frame, 100, 1, f);
+      play.spmap[i].last_time = read_lsb_int(f);
+    }
+
+  for (i = 0; i < 10; i++)
+    play.button[i] = read_lsb_int(f);
+
+  for (i = 0; i < MAX_VARS; i++)
+    {
+      play.var[i].var = read_lsb_int(f);
+      fread(play.var[i].name, 20, 1, f);
+      play.var[i].scope = read_lsb_int(f);
+      play.var[i].active = fgetc(f);
+      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+    }
+
+  play.push_active = fgetc(f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  play.push_dir = read_lsb_int(f);
+
+  play.push_timer = read_lsb_int(f);
+
+  play.last_talk = read_lsb_int(f);
+  play.mouse = read_lsb_int(f);
+  play.item_magic = fgetc(f);
+  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  play.last_map = read_lsb_int(f);
+  play.crap = read_lsb_int(f);
+  for (i = 0; i < 95; i++)
+    play.buff[i] = read_lsb_int(f);
+  for (i = 0; i < 20; i++)
+    play.dbuff[i] = read_lsb_int(f);
+  for (i = 0; i < 10; i++)
+    play.lbuff[i] = read_lsb_int(f);
+  
+  /* v1.08: use wasted space for storing file location of map.dat,
+     dink.dat, palette, and tiles */
+  /* char cbuff[6000];*/
+  fread(play.mapdat, 50, 1, f);
+  fread(play.dinkdat, 50, 1, f);
+  fread(play.palette, 50, 1, f);
+
+  for (i = 0; i < NB_TILE_SCREENS+1; i++)
+    fread(play.tile[i].file, 50, 1, f);
+  for (i = 0; i < 100; i++)
+    {
+      fread(play.func[i].file, 10, 1, f);
+      fread(play.func[i].func, 20, 1, f);
+    }
+  fread(play.cbuff, 750, 1, f);
+
+  fclose(f);
+      
+  
+  if (dversion >= 108)
+    {
+      // new map, if exist
+      if (strlen (play.mapdat) > 0 && strlen (play.dinkdat) > 0)
+	{
+	  strcpy (current_map, play.mapdat);
+	  strcpy (current_dat, play.dinkdat);
+	  load_info();
+	}
+      
+      // load palette
+      if (strlen(play.palette) > 0)
+	{
+	  char *name = play.palette;
+	  SDL_Surface* image = NULL;
+	  FILE *in = paths_dmodfile_fopen(name, "rb");
+	  if (in == NULL)
+	    fprintf(stderr, "Error: Can't open palette '%s'.", name);
+	  else
+	    /* Set palette */
+	    image = load_bmp_setpal(in);
+	  
+	  if (image == NULL)
+	    fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+	  else
+	    SDL_FreeSurface(image);
+	}
+      
+      /* Reload tiles */
+      tiles_load_default();
+      
+      /* Replace with custom tiles if needed */
+      for (int i = 1; i <= NB_TILE_SCREENS; i++)
+	if (strlen(play.tile[i].file) > 0)
+	  tiles_load_slot(play.tile[i].file, i);
+    }
+  
+  
+  spr[1].damage = 0;
+  spr[1].x = play.x;
+  spr[1].y = play.y;
+  walk_off_screen = 0;
+  spr[1].nodraw = 0;
+  push_active = 1;
+  spr[1].pseq = play.pseq;
+  spr[1].pframe = play.pframe;
+  spr[1].size = play.size;
+  spr[1].seq = play.seq;
+  spr[1].frame = play.frame;
+  spr[1].dir = play.dir;
+  spr[1].strength = play.strength;
+  spr[1].defense = play.defense;
+  spr[1].que = play.que;
+  
+  time(&time_start);
+  
+  spr[1].base_idle = play.base_idle;
+  spr[1].base_walk = play.base_walk;
+  spr[1].base_hit = play.base_hit;
+  
+  int script = load_script("main", 0, /*true*/1);
+  locate(script, "main");
+  run_script(script);
+  //lets attach our vars to the scripts
+  
+  attach();
+  Msg("Attached vars.");
+  dinkspeed = 3;
+  
+  if (*pcur_weapon != 0)
+    {
+      if (play.item[*pcur_weapon].active == /*false*/0)
+	{
+	  *pcur_weapon = 1;
+	  weapon_script = 0;
+	  Msg("Loadgame error: Player doesn't have armed weapon - changed to 1.");
+	}
+      else
+	{
+	  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	  if (locate(weapon_script, "DISARM"))
+	    run_script(weapon_script);
+	  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	  if (locate(weapon_script, "ARM"))
+	    run_script(weapon_script);
+	}
+    }
+  if (*pcur_magic != 0)
+    {
+      if (play.item[*pcur_magic].active == /*false*/0)
+	{
+	  *pcur_magic = 0;
+	  magic_script = 0;
+	  Msg("Loadgame error: Player doesn't have armed magic - changed to 0.");
+	}
+      else
+	{
+	  
+	  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	  if (locate(magic_script, "DISARM"))
+	    run_script(magic_script);
+	  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	  if (locate(magic_script, "ARM"))
+	    run_script(magic_script);
+	}
+    }
+  kill_repeat_sounds_all();
+  load_map(map.loc[*pmap]);
+  Msg("Loaded map.");
+  draw_map_game();
+  Msg("Map drawn.");
+  
+  last_saved_game = num;
+  
+  return /*true*/1;
 }
 
 /*bool*/int add_time_to_saved_game(int num)
 {
-  FILE *fp;
+  FILE *f = NULL;
 
-  fp = paths_savegame_fopen(num, "rb");
-  if (!fp)
+  f = paths_savegame_fopen(num, "rb");
+  if (!f)
     {
       Msg("Couldn't load save game %d", num);
-      return(/*false*/0);
+      return /*false*/0;
     }
-  else
-    {
-      fread(&play,sizeof(play),1,fp);
-      fclose(fp);
-    }
+
+  int minutes = 0;
+  int minutes_offset = 200;
+  fseek(f, minutes_offset, SEEK_SET);
+  minutes = read_lsb_int(f);
+  fclose(f);
   
   //great, now let's resave it with added time
   Msg("Ok, adding time.");
   time_t ct;
   
   time(&ct);
-  play.minutes += (int) (difftime(ct,time_start) / 60);
+  minutes += (int) (difftime(ct,time_start) / 60);
   
-  fp = paths_savegame_fopen(num, "wb");
-  if (fp)
+  f = paths_savegame_fopen(num, "rb+");
+  if (f)
     {
-      fwrite(&play,sizeof(play),1,fp);
-      fclose(fp);
+      fseek(f, minutes_offset, SEEK_SET);
+      write_lsb_int(minutes, f);
+      fclose(f);
     }
-  Msg("Wrote it.(%d of time)", play.minutes);
+  Msg("Wrote it.(%d of time)", minutes);
   
-  return(/*true*/1);
+  return /*true*/1;
 }
 
 void save_game(int num)
 {
   FILE *f;
-  int i = 0;
 
   //lets set some vars first
   play.x = spr[1].x;
@@ -1331,6 +1530,7 @@ void save_game(int num)
     }
 
   /* Portably dump struct player_info play to disk */
+  int i = 0;
   write_lsb_int(play.version, f);
   fwrite(play.gameinfo, 196, 1, f);
   // offset 200
@@ -1354,7 +1554,7 @@ void save_game(int num)
 
   for (i = 0; i < NB_MITEMS+1; i++)
     {
-      fwrite(&play.mitem[i].active, 1, 1, f);
+      fputc(play.mitem[i].active, f);
       fwrite(play.mitem[i].name, 10, 1, f);
       fseek(f, 1, SEEK_CUR); // reproduce memory alignment
       write_lsb_int(play.mitem[i].seq, f);
@@ -1362,7 +1562,7 @@ void save_game(int num)
     }
   for (i = 0; i < NB_ITEMS+1; i++)
     {
-      fwrite(&play.item[i].active, 1, 1, f);
+      fputc(play.item[i].active, f);
       fwrite(play.item[i].name, 10, 1, f);
       fseek(f, 1, SEEK_CUR); // reproduce memory alignment
       write_lsb_int(play.item[i].seq, f);
@@ -1430,7 +1630,7 @@ void save_game(int num)
   for (i = 0; i < 100; i++)
     {
       fwrite(play.func[i].file, 10, 1, f);
-      fwrite(play.func[i].func, 10, 1, f);
+      fwrite(play.func[i].func, 20, 1, f);
     }
   fwrite(play.cbuff, 750, 1, f);
 
@@ -1591,23 +1791,30 @@ void update_screen_time()
 
 void load_info(void)
 {
-  FILE *fp;
+  FILE *f = NULL;
 
-  fp = paths_dmodfile_fopen(current_dat, "rb");
-  if (!fp)
+  f = paths_dmodfile_fopen(current_dat, "rb");
+  if (!f)
     {
       //make new data file
-      fp = paths_dmodfile_fopen(current_dat, "wb");
-      strcpy(map.name, "Smallwood");
-      fwrite(&map,sizeof(struct map_info),1,fp);
-      fclose(fp);
+      save_info();
+      return;
     }
-  else
-    {
-      Msg("World data loaded.");
-      fread(&map,sizeof(struct map_info),1,fp);
-      fclose(fp);
-    }
+
+  Msg("World data loaded.");
+
+  /* Portably load struct small_map from disk */
+  int i = 0;
+  fread(map.name, 20, 1, f);
+  for (i = 0; i < 769; i++)
+    map.loc[i]    = read_lsb_int(f);
+  for (i = 0; i < 769; i++)
+    map.music[i]  = read_lsb_int(f);
+  for (i = 0; i < 769; i++)
+    map.indoor[i] = read_lsb_int(f);
+  fread(map.unused, 2240, 1, f);
+
+  fclose(f);
 }
 
 /***
@@ -1646,33 +1853,40 @@ void save_hard(void)
  */
 void load_hard(void)
 {
-  FILE *fp = NULL;
+  FILE *f = NULL;
 
   /* Try loading the D-Mod hard.dat */
-  fp = paths_dmodfile_fopen("hard.dat", "rb");
+  f = paths_dmodfile_fopen("hard.dat", "rb");
 
   /* If running the game, fallback to the default hard.dat, but if
      running the editor, recreate it in all cases. */
-  if (fp == NULL && !dinkedit)
-    fp = paths_fallbackfile_fopen("hard.dat", "rb");
+  if (f == NULL && !dinkedit)
+    f = paths_fallbackfile_fopen("hard.dat", "rb");
 
-
-  if (fp != NULL)
-    {
-      fread(&hmap,sizeof(struct hardness), 1, fp);
-      fclose(fp);
-    }
-  else
+  if (f == NULL)
     {
       //make new data file
       memset(&hmap, 0, sizeof(struct hardness));
-      fp = paths_dmodfile_fopen("hard.dat", "wb");
-      if (fp != NULL)
-	{
-	  fwrite(&hmap, sizeof(struct hardness), 1, fp);
-	  fclose(fp);
-	}
+      save_hard();
+      return;
     }
+
+  /* Portably load struct hardness hmap from disk */
+  int i = 0;
+  for (i = 0; i < 800; i++)
+    {
+      int j = 0;
+      for (j = 0; j < 51; j++)
+	fread(hmap.tile[i].x[j].y, 51, 1, f);
+      hmap.tile[i].used = fgetc(f);
+      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
+
+      hmap.tile[i].hold = read_lsb_int(f);
+    }
+  for (i = 0; i < 8000; i++)
+    hmap.index[i] = read_lsb_int(f);
+
+  fclose(f);
 }
 
 
