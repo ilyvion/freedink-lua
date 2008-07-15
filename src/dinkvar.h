@@ -212,9 +212,7 @@ extern int mbase_timing;
 extern int mcc;
 extern int mode;
 extern unsigned long mold;
-extern /*bool*/int process_downcycle;
-extern /*bool*/int process_upcycle;
-extern int process_warp;
+
 extern int *pupdate_status;
 extern /*bool*/int no_cheat;
 extern /*bool*/int no_transition;
@@ -251,8 +249,7 @@ extern int move_screen;
 extern int move_counter;
 extern int weapon_script;
 extern int magic_script;
-extern unsigned long cycle_clock;
-extern int cycle_script;
+
 extern int process_count;
 extern int item_timer;
 extern int item_pic;

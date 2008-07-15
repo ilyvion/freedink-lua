@@ -75,6 +75,25 @@ time_t time_start;
 int smooth_follow = 0;
 
 
+
+/** Fadedown / fadeup **/
+/* Tell the engine that we're warping */
+/* (quick fadedown + black + fadeup) */
+int process_warp = 0;
+/* Tell the engine that we're fading down */
+/* or fading up */
+int process_downcycle = 0;
+int process_upcycle = 0;
+/* When the fadedown must finish: */
+unsigned long cycle_clock = 0;
+/* What script to resume after fade: */
+int cycle_script = 0;
+/* True color fade in [0,1]; 1 is completely dark, 0 is unaltered */
+double truecolor_fade_darkness = 0;
+/* Time elapsed since last fade computation; -1 is disabled */
+Uint32 truecolor_fade_lasttick = -1;
+
+
 /* Sound - SFX */
         int get_pan(int h)
         {

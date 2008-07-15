@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 /* for time(): */
 #include <time.h>
@@ -53,11 +54,6 @@
 #include "game_engine.h"
 #include "dinkvar.h"
 
-/* const int WM_IMDONE = WM_USER+110; */
-
-int fps_average;
-
-
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(rect box, int color);
 void run_through_tag_list_push(int h);
@@ -69,7 +65,7 @@ int hurt_thing(int h, int damage, int special);
 int but_timer;
 
 int fps_show = 0;
-
+int fps_average;
 
 int drawthistime = /*true*/1;
 int x = 640;
@@ -331,7 +327,11 @@ void text_draw(int h)
 		
 		
 	}       
-	
+
+
+	/* During a fadedown/fadeup, use white text to mimic v1.07 */
+	if (truecolor_fade_darkness > 0.8)
+	  color = 15;
 	
 	
 /* 	SetTextColor(hdc,RGB(8,14,21)); */
@@ -3533,93 +3533,72 @@ smoothend:;
 /* fade_down() - fade to black */
 void CyclePalette()
 {
-/*   /\*bool*\/int done_this_time = /\*true*\/1; */
-  SDL_Color palette[256];
-  int kk;
-
-/*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
-/*     { */
-/*       Msg("error with getting entries"); */
-/*       return; */
-/*     } */
-  // GFX
-  memcpy(palette, cur_screen_palette, sizeof(palette));
-
-  for (kk = 1; kk < 256; kk++)
-  // skipping index 0 because it's already (and always) black ;)
+  if (!truecolor)
     {
-/*       if (pe[kk].peBlue != 0) */
-/* 	{ */
-/* 	  done_this_time = false; */
-/* 	  if (pe[kk].peBlue > 10) */
-/* 	    pe[kk].peBlue -= 10; else pe[kk].peBlue--; */
-/* 	} */
-      // GFX
-      if (palette[kk].b != 0)
+      SDL_Color palette[256];
+      int kk;
+
+      memcpy(palette, cur_screen_palette, sizeof(palette));
+
+      for (kk = 1; kk < 256; kk++)
+	// skipping index 0 because it's already (and always) black ;)
 	{
-	  //done_this_time = false;
-	  if (palette[kk].b > 10)
-	    palette[kk].b -= 10;
-	  else
-	    palette[kk].b--;
-	}
+	  if (palette[kk].b != 0)
+	    {
+	      //done_this_time = false;
+	      if (palette[kk].b > 10)
+		palette[kk].b -= 10;
+	      else
+		palette[kk].b--;
+	    }
       
-/*       if (pe[kk].peGreen != 0) */
-/* 	{ */
-/* 	  done_this_time = false; */
-/* 	  if (pe[kk].peGreen > 10) */
-/* 	    pe[kk].peGreen -= 10; else pe[kk].peGreen--; */
-/* 	} */
-      // GFX
-      if (palette[kk].g != 0)
-	{
-	  //done_this_time = false;
-	  if (palette[kk].g > 10)
-	    palette[kk].g -= 10;
-	  else
-	    palette[kk].g--;
-	}
+	  if (palette[kk].g != 0)
+	    {
+	      //done_this_time = false;
+	      if (palette[kk].g > 10)
+		palette[kk].g -= 10;
+	      else
+		palette[kk].g--;
+	    }
 
-/*       if (pe[kk].peRed != 0) */
-/* 	{ */
-/* 	  done_this_time = false; */
-/* 	  if (pe[kk].peRed > 10) */
-/* 	    pe[kk].peRed -= 10; else pe[kk].peRed--; */
-/* 	} */
-      // GFX
-      if (palette[kk].r != 0)
-	{
-	  //done_this_time = false;
-	  if (palette[kk].r > 10)
-	    palette[kk].r -= 10;
-	  else
-	    palette[kk].r--;
+	  if (palette[kk].r != 0)
+	    {
+	      //done_this_time = false;
+	      if (palette[kk].r > 10)
+		palette[kk].r -= 10;
+	      else
+		palette[kk].r--;
+	    }
 	}
+  
+      change_screen_palette(palette);
     }
-  
-/*   lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL); */
-
-//   printf("pe[0] = (%d, %d, %d))\n", pe[0].peRed, pe[0].peGreen, pe[0].peBlue);
-//   printf("pa[0] = (%d, %d, %d))\n", palette[0].r, palette[0].g, palette[0].b);
-//   printf("pe[136] = (%d, %d, %d))\n", pe[136].peRed, pe[136].peGreen, pe[136].peBlue);
-//   printf("pa[136] = (%d, %d, %d))\n", palette[136].r, palette[136].g, palette[136].b);
-//   printf("pe[255] = (%d, %d, %d))\n", pe[255].peRed, pe[255].peGreen, pe[255].peBlue);
-//   printf("pa[255] = (%d, %d, %d))\n", palette[255].r, palette[255].g, palette[255].b);
-//   fflush(stdout);
-  
-/*   if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK) */
-/*     { */
-/*       Msg("error with setting entries"); */
-/*       return; */
-/*     } */
-
-  change_screen_palette(palette);
+  else
+    {
+      /* truecolor */
+      if (truecolor_fade_lasttick == -1)
+	{
+	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_darkness += .3;
+	}
+      else
+	{
+	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
+	  /* Complete fade in 400ms */
+	  truecolor_fade_darkness += delta/400.0;
+	  truecolor_fade_lasttick = SDL_GetTicks();
+	}
+      if (truecolor_fade_darkness > 1)
+	truecolor_fade_darkness = 1;
+      
+    }
 
   if (process_downcycle) 
     {
-      if  (thisTickCount > cycle_clock)
+      if (thisTickCount > cycle_clock)
 	{
 	  process_downcycle = /*false*/0;
+	  truecolor_fade_lasttick = -1;
 				
 	  if (cycle_script != 0)
 	    {
@@ -3634,98 +3613,81 @@ void CyclePalette()
 /* fade_up() */	
 void up_cycle(void)
 {
-  /*bool*/int donethistime = /*true*/1;
-  SDL_Color palette[256];
-  int kk;
-	
-/*   if(lpDDPal->GetEntries(0,0,256,pe)!=DD_OK) */
-/*     { */
-/*       Msg("error with getting entries"); */
-/*       return; */
-/*     } */
-/*   // GFX */
-  memcpy(palette, cur_screen_palette, sizeof(palette));
+  int donethistime = 1;
 
-  //for (int kk = 1; kk <= 256; kk++)
-  // (fixing memory issue, index 256 is outside the array)
-  for (kk = 1; kk < 256; kk++)
+  if (!truecolor)
     {
-/*       if (pe[kk].peBlue != real_pal[kk].peBlue) */
-/* 	{ */
-/* 	  if (pe[kk].peBlue > 246) pe[kk].peBlue++; else */
-/* 	    pe[kk].peBlue += 10; */
-/* 	  donethistime = false; */
-/* 	} */
-/*       if (pe[kk].peBlue > real_pal[kk].peBlue) pe[kk].peBlue = real_pal[kk].peBlue; */
-      // GFX
-      if (palette[kk].b != GFX_real_pal[kk].b)
-	{
-	  donethistime = /*false*/0;
-	  if (palette[kk].b > 246)
-	    palette[kk].b++;
-	  else
-	    palette[kk].b += 10;
-	}
-      if (palette[kk].b > GFX_real_pal[kk].b)
-	palette[kk].b = GFX_real_pal[kk].b;
-      
-/*       if (pe[kk].peGreen != real_pal[kk].peGreen) */
-/* 	{ */
-/* 	  if (pe[kk].peGreen > 246) pe[kk].peGreen++; else */
-/* 	    pe[kk].peGreen += 10; */
-/* 	  donethistime = false; */
-/* 	} */
-/*       if (pe[kk].peGreen > real_pal[kk].peGreen) pe[kk].peGreen = real_pal[kk].peGreen; */
-      // GFX
-      if (palette[kk].g != GFX_real_pal[kk].g)
-	{
-	  donethistime = /*false*/0;
-	  if (palette[kk].g > 246)
-	    palette[kk].g++;
-	  else
-	    palette[kk].g += 10;
-	}
-      if (palette[kk].g > GFX_real_pal[kk].g)
-	palette[kk].g = GFX_real_pal[kk].g;
-      
-/*       if (pe[kk].peRed != real_pal[kk].peRed) */
-/* 	{ */
-/* 	  if (pe[kk].peRed> 246) pe[kk].peRed++; else */
-/* 	    pe[kk].peRed += 10; */
-/* 	  donethistime = false; */
-/* 	} */
-/*       if (pe[kk].peRed > real_pal[kk].peRed) pe[kk].peRed = real_pal[kk].peRed; */
-      // GFX
-      if (palette[kk].r != GFX_real_pal[kk].r)
-	{
-	  donethistime = /*false*/0;
-	  if (palette[kk].r > 246)
-	    palette[kk].r++;
-	  else
-	    palette[kk].r += 10;
-	}
-      if (palette[kk].r > GFX_real_pal[kk].r)
-	palette[kk].r = GFX_real_pal[kk].r;
-    }
-  
-/*   lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN,NULL); */
-		
-/*   if(lpDDPal->SetEntries(0,0,256,pe) !=DD_OK) */
-/*     { */
-/*       Msg("error with setting entries"); */
-/*       //     return; */
-/*     } */
-  // Beuc: as far as I understand, it's not possible to alter the
-  // index in window mode with DX; the physical screen must be 32bits
-  // without palette emulation. So no fade_down().
+      SDL_Color palette[256];
+      int kk;
 
-  // GFX
-  change_screen_palette(palette);
+      memcpy(palette, cur_screen_palette, sizeof(palette));
+
+      for (kk = 1; kk < 256; kk++)
+	{
+	  if (palette[kk].b != GFX_real_pal[kk].b)
+	    {
+	      donethistime = 0;
+	      if (palette[kk].b > 246)
+		palette[kk].b++;
+	      else
+		palette[kk].b += 10;
+	    }
+	  if (palette[kk].b > GFX_real_pal[kk].b)
+	    palette[kk].b = GFX_real_pal[kk].b;
+      
+	  if (palette[kk].g != GFX_real_pal[kk].g)
+	    {
+	      donethistime = 0;
+	      if (palette[kk].g > 246)
+		palette[kk].g++;
+	      else
+		palette[kk].g += 10;
+	    }
+	  if (palette[kk].g > GFX_real_pal[kk].g)
+	    palette[kk].g = GFX_real_pal[kk].g;
+      
+	  if (palette[kk].r != GFX_real_pal[kk].r)
+	    {
+	      donethistime = 0;
+	      if (palette[kk].r > 246)
+		palette[kk].r++;
+	      else
+		palette[kk].r += 10;
+	    }
+	  if (palette[kk].r > GFX_real_pal[kk].r)
+	    palette[kk].r = GFX_real_pal[kk].r;
+	}
+  
+      change_screen_palette(palette);
+    }
+  else
+    {
+      /* truecolor */
+      donethistime = 0;
+      if (truecolor_fade_lasttick == -1)
+	{
+	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_darkness -= .3;
+	}
+      else
+	{
+	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
+	  /* Complete fade in x=400ms */
+	  truecolor_fade_darkness -= delta/400.0;
+	  truecolor_fade_lasttick = SDL_GetTicks();
+	}
+      if (truecolor_fade_darkness < 0)
+	{
+	  truecolor_fade_darkness = 0;
+	  donethistime = 1;
+	}
+    }
 		
   if (process_upcycle)
-    if (donethistime)
+    if (donethistime == 1)
       {
-	process_upcycle = /*false*/0;
+	process_upcycle = 0;
+	truecolor_fade_lasttick = -1;
 	
 	if (cycle_script != 0)
 	  {
@@ -4043,57 +4005,36 @@ void run_through_touch_damage_list(int h)
 
 void process_warp_man(void)
 {
-/* 	RECT box_crap; */
-/* 	DDBLTFX     ddbltfx; */
-    
-	int sprite = find_sprite(process_warp);
-	
-	
-	if (spr[sprite].seq == 0)
+  int sprite = find_sprite(process_warp);
+  
+  if (spr[sprite].seq == 0)
+    {
+      process_count++;
+      CyclePalette();
+      if (process_count > 5)
 	{
-		
-		process_count++;
-		CyclePalette();
-		if (process_count > 5)
-		{
+	  SDL_FillRect(GFX_lpDDSBack, NULL,
+		       SDL_MapRGB(GFX_lpDDSBack->format, 0, 0, 0));
+	  flip_it();
 			
-			
-			
-/* 			ddbltfx.dwSize = sizeof(ddbltfx); */
-			
-/* 			ddbltfx.dwFillColor = 0; */
-/* 			SetRect(&box_crap, 0,0,640,480); */
-			
-/* 			ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
-			// GFX
-			// TODO: merge with fill_screen()? (doesn't work on the same buffer)
-			SDL_FillRect(GFX_lpDDSBack, NULL,
-			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[0].r,
-				      cur_screen_palette[0].g,
-				      cur_screen_palette[0].b));
-			flip_it();
-			
-			process_count = 0;
-			int block = process_warp;
-			update_screen_time();
-			spr[1].x = pam.sprite[block].warp_x;
-			spr[1].y = pam.sprite[block].warp_y;
-			*pmap = pam.sprite[block].warp_map;	
-			
-			load_map(map.loc[pam.sprite[block].warp_map]);
-			draw_map_game();
-			
-			process_upcycle = /*true*/1;
-			process_warp = 0;
-		}
-		
-	} else
-	{
-		process_count = 0;		
-		
+	  process_count = 0;
+	  int block = process_warp;
+	  update_screen_time();
+	  spr[1].x = pam.sprite[block].warp_x;
+	  spr[1].y = pam.sprite[block].warp_y;
+	  *pmap = pam.sprite[block].warp_map;	
+	  
+	  load_map(map.loc[pam.sprite[block].warp_map]);
+	  draw_map_game();
+	  
+	  process_upcycle = 1;
+	  process_warp = 0;
 	}
-	
+    }
+  else
+    {
+      process_count = 0;		
+    }
 }
 
 void one_time_brain(int h)

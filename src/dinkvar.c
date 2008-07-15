@@ -158,14 +158,6 @@ char *in_string;
    animation. */
 /*bool*/int no_running_main = /*false*/0;
 
-int process_warp = 0;
-/* Tell the engine that we're fading down */
-/*bool*/int process_downcycle = /*false*/0;
-/* or fading up */
-/*bool*/int process_upcycle = /*false*/0;
-unsigned long cycle_clock = 0;
-int cycle_script = 0;
-
 int *in_int;
 int in_x, in_y;
 int sp_brain = 0;

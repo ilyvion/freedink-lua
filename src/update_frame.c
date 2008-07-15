@@ -1027,6 +1027,21 @@ past:
 		//FONTS_SetFont(FONTS_hfont_small);
 /* 		SetBkMode(hdc, TRANSPARENT);  */
 		
+
+		/* True color fade, need to be done just before the
+		   flip, since palette tricks can't work in
+		   truecolor. */
+		if (truecolor_fade_darkness > 0)
+		  {
+		    int dark = 255 * truecolor_fade_darkness;
+		    
+		    /* Apply shadow on the main screen: low alpha ->
+		       more opaque black -> darker screen. This
+		       reverses the meaning of the 'alpha' argument
+		       ;) */
+		    SDL_SetAlpha(GFX_lpDDSTrueColorFade, SDL_SRCALPHA, dark);
+		    SDL_BlitSurface(GFX_lpDDSTrueColorFade, NULL, GFX_lpDDSBack, NULL);
+		  }
 		
 		
 		for ( j = 1; j < max_s+1; j++)

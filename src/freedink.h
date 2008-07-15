@@ -29,7 +29,11 @@
 #ifndef _FREEDINK_H
 #define _FREEDINK_H
 
-/* #include <windows.h> */
+#include "SDL.h"
+
+extern int drawthistime;
+extern int fps_average;
+extern int fps_show;
 
 extern void CyclePalette();
 extern void Scrawl_OnMouseInput(void);
@@ -72,9 +76,5 @@ extern void text_draw(int h);
 extern /*bool*/int transition(void);
 extern void up_cycle(void);
 extern void finiObjects();
-
-extern int drawthistime;
-extern int fps_average;
-extern int fps_show;
 
 #endif

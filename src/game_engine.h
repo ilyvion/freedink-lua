@@ -282,4 +282,13 @@ extern int get_pan(int h);
 extern int get_vol(int h);
 
 
+extern int process_warp;
+extern int process_downcycle;
+extern int process_upcycle;
+extern unsigned long cycle_clock;
+extern int cycle_script;
+extern double truecolor_fade_darkness;
+extern Uint32 truecolor_fade_lasttick;
+
+
 #endif

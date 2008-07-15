@@ -83,6 +83,9 @@ SDL_Surface *GFX_lpDDSTrick = NULL;
 /* Used in freedink.cpp and update_frame.cpp */
 SDL_Surface *GFX_lpDDSTrick2 = NULL;
 
+/* Used in CyclePalette and up_cycle */
+SDL_Surface *GFX_lpDDSTrueColorFade = NULL;
+
 
 /* Reference palette: this is the canonical Dink palette, loaded from
    TS01.bmp (for freedink) and esplash.bmp (for freedinkedit). The
@@ -207,6 +210,13 @@ int gfx_init(enum gfx_windowed_state windowed)
   GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
+  if (truecolor)
+    {
+      GFX_lpDDSTrueColorFade = SDL_DisplayFormat(GFX_lpDDSBack);
+      /* always black */
+      SDL_FillRect(GFX_lpDDSTrueColorFade, NULL,
+		   SDL_MapRGB(GFX_lpDDSTrueColorFade->format, 0, 0, 0));
+    }
 
 
   /* Fonts system, default fonts */
