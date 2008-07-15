@@ -265,7 +265,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       k[myslot].box.right = GFX_k[myslot].k->w;
       k[myslot].box.bottom = GFX_k[myslot].k->h;
       
-      if ( (oo > 1) & (notanim) )
+      if ( (oo > 1) && (notanim) )
 	{
 	  k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
 	}
@@ -279,7 +279,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	    }
 	}
       
-      if ( (oo > 1 ) & (notanim))
+      if ( (oo > 1 ) && (notanim))
 	{
 	  k[myslot].xoffset =  k[seq[seq_no].frame[1]].xoffset;
 	}

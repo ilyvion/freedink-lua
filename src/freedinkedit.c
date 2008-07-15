@@ -2796,7 +2796,7 @@ void updateFrame(void)
 			    if (sjoy.key['w' /* 87 */])
 			      {
 				//pressed W
-				if (((spr[1].pseq == 10) & (spr[1].pframe == 8)))
+				if (((spr[1].pseq == 10) && (spr[1].pframe == 8)))
 				  {
                                     //a sprite is not chosen
 				    hold_warp_map = cur_map;
@@ -2817,7 +2817,7 @@ void updateFrame(void)
 			/**
 			 * Edit sprite properties
 			 */
-			if (!((spr[1].pseq == 10) & (spr[1].pframe == 8)))
+			if (!((spr[1].pseq == 10) && (spr[1].pframe == 8)))
 			  {
 			    //they are wheeling around a sprite
 			    if (spr[1].x > 1500) spr[1].x = 1500;
@@ -3147,7 +3147,7 @@ void updateFrame(void)
 
 			if ( (sjoy.realkey['z']) | (sjoy.realkey['x']) )
 			  {
-			    if (  (spr[h].alt.right == 0) & (spr[h].alt.left == 0) & (spr[h].alt.top == 0) &
+			    if (  (spr[h].alt.right == 0) && (spr[h].alt.left == 0) && (spr[h].alt.top == 0) &
 				  (spr[h].alt.bottom == 0) ) rect_copy(&spr[h].alt, &k[getpic(h)].box);
 			  }
 
@@ -3302,7 +3302,7 @@ void updateFrame(void)
 			if (  (sjoy.button[1]) )
 			  {
 			    //return to edit mode or drop sprite, depending..
-			    if (((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			    if (((spr[1].pseq == 10) && (spr[1].pframe == 8))  )
 
 			      {
 
@@ -3350,7 +3350,7 @@ void updateFrame(void)
 			if (sjoy.button[5])
 			  {
 			    //they hit tab, return to tile edit mode
-			    if (    !((spr[1].pseq == 10) & (spr[1].pframe == 8))  )
+			    if (    !((spr[1].pseq == 10) && (spr[1].pframe == 8))  )
 
 			      {
 				smart_add();
@@ -3376,7 +3376,7 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (mode == MODE_SCREEN_TILES) & (sjoy.button[5]))
+		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.button[5]))
 		      {
 
 			//they chose sprite picker mode
@@ -3718,7 +3718,7 @@ void updateFrame(void)
 			  }
 
 
-			if ( (GetKeyboard('a')) & (SDL_GetModState()&KMOD_ALT ) )
+			if ( (GetKeyboard('a')) && (SDL_GetModState()&KMOD_ALT ) )
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 2);
@@ -3727,7 +3727,7 @@ void updateFrame(void)
 			    return;
 			  }
 
-			if ( (GetKeyboard('s')) & (SDL_GetModState()&KMOD_ALT ) )
+			if ( (GetKeyboard('s')) && (SDL_GetModState()&KMOD_ALT ) )
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 3);
@@ -3735,7 +3735,7 @@ void updateFrame(void)
 
 			    return;
 			  }
-			if ( (GetKeyboard('x')) & (SDL_GetModState()&KMOD_ALT ) )
+			if ( (GetKeyboard('x')) && (SDL_GetModState()&KMOD_ALT ) )
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 1);
@@ -4677,7 +4677,7 @@ void updateFrame(void)
 	      }
 
 	    //		if (  !(( h == 1) & (mode == 9)) )
-	    if (  !(( h == 1) & (mode == MODE_UNKNOWN)) )
+	    if (  !(( h == 1) && (mode == MODE_UNKNOWN)) )
 
 	      {
 

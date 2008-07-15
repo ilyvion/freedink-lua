@@ -1894,7 +1894,7 @@ void move(int u, int amount, char kind,  char kindy)
 		if (mx >= spr[u].mx) clearx = /*true*/1;
 		if (my >= spr[u].my) clearx = /*true*/1;
 		
-		if ((clearx) & (cleary))
+		if ((clearx) && (cleary))
 		{
 			mx = 0;
 			my = 0;
@@ -2486,28 +2486,28 @@ void mouse_brain(int h)
 	if (diag > 1)
 	{
 								
-								if ( (sjoy.up) & (sjoy.left) ) 
+								if ( (sjoy.up) && (sjoy.left) ) 
 								{
 									changedir(7,h,spr[h].base_walk);
 									move(h,spr[h].speed - (spr[h].speed / 3),'-','-');
 									
 								}
 								
-								if ( (sjoy.down) & (sjoy.left))
+								if ( (sjoy.down) && (sjoy.left))
 								{
 									changedir(1,h,spr[h].base_walk);
 									move(h,spr[h].speed - (spr[h].speed / 3),'-','+');
 									
 								}
 								
-								if ( (sjoy.down) & (sjoy.right))
+								if ( (sjoy.down) && (sjoy.right))
 								{
 									changedir(3,h,spr[h].base_walk);
 									move(h,spr[h].speed - (spr[h].speed / 3),'+','+');
 								}
 								
 								
-								if ( (sjoy.up) & (sjoy.right))
+								if ( (sjoy.up) && (sjoy.right))
 								{
 									changedir(9,h,spr[h].base_walk);
 									move(h,spr[h].speed - (spr[h].speed / 3),'+','-');
@@ -2989,28 +2989,28 @@ shootm:
 		if (diag > 1) if (diag < 3)
 		{
 			
-			if ( (sjoy.up) & (sjoy.left) ) 
+			if ( (sjoy.up) && (sjoy.left) ) 
 			{
 				changedir(7,h,spr[h].base_walk);
 				move(h,spr[h].speed - (spr[h].speed / 3),'-','-');
 				
 			}
 			
-			if ( (sjoy.down) & (sjoy.left))
+			if ( (sjoy.down) && (sjoy.left))
 			{
 				changedir(1,h,spr[h].base_walk);
 				move(h,spr[h].speed - (spr[h].speed / 3),'-','+');
 				
 			}
 			
-			if ( (sjoy.down) & (sjoy.right))
+			if ( (sjoy.down) && (sjoy.right))
 			{
 				changedir(3,h,spr[h].base_walk);
 				move(h,spr[h].speed - (spr[h].speed / 3),'+','+');
 			}
 			
 			
-			if ( (sjoy.up) & (sjoy.right))
+			if ( (sjoy.up) && (sjoy.right))
 			{
 				changedir(9,h,spr[h].base_walk);
 				move(h,spr[h].speed - (spr[h].speed / 3),'+','-');
