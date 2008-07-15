@@ -1,0 +1,148 @@
+--- u_canonical	2008-07-15 17:09:13.000000000 +0200
++++ u2_canonical	2008-07-15 17:09:19.000000000 +0200
+@@ -24,6 +24,10 @@
+       get_frame = true;
+     }
+   check_joystick ();
++//redink1 Only accept keyboard input when console is not active.
++
++  if (mConsoleActive == false)
++    {
+   if ((GetKeyboard (77)) && (GetKeyboard (18)))
+     {
+ //shutdown music
+@@ -43,6 +47,7 @@
+ 	  debug_mode = true;
+ 	}
+     }
++    }
+   if ((GetKeyboard (81)) && (GetKeyboard (18)))
+     {
+ //shutdown game
+@@ -67,9 +72,22 @@
+ 
+ 				   } */ lastTickCount = thisTickCount;
+   thisTickCount = GetTickCount ();
++//Use to test at 30 fps
++
++//Sleep(66);
++
++//redink1 - 'lock the framerate to 83 FPS'... Seth told me to.
++
++  while (thisTickCount - lastTickCount < 12)
++    {
++      Sleep (1);
++      thisTickCount = GetTickCount ();
++    }
+   fps_final = thisTickCount - lastTickCount;
+-  if (fps_final < 10)
+-    fps_final = 15;
++//redink1 changed to 12-12 from 10-15... maybe work better on faster computers?
++
++  if (fps_final < 12)
++    fps_final = 12;
+   if (fps_final > 68)
+     fps_final = 68;
+   base_timing = fps_final / 3;
+@@ -81,7 +99,27 @@
+       fps_average = ((fps_average + fps_final) / 2);
+     }
+   int junk3;
+-  junk3 = (fps_average / dinkspeed) - (fps_average / 8);
++//redink1 added these changes to set Dink's speed correctly, even on fast machines.
++
++//junk3 = (fps_average / dinkspeed) - (fps_average / 8);
++
++  if (dinkspeed <= 0)
++    junk3 = 0;
++  else if (dinkspeed == 1)
++    junk3 = 12;
++  else if (dinkspeed == 2)
++    junk3 = 6;
++  else if (dinkspeed == 3)
++    junk3 = 3;
++  else
++    junk3 = 1;
++//redink1... weird bug, only do this for normal mode, as it breaks mouse support
++
++//if (mode == 2)
++
++  {
++    junk3 *= (base_timing / 4);
++  }
+   spr[1].speed = junk3;
+   if (debug_mode)
+     if (!no_cheat)
+@@ -107,6 +145,10 @@
+     regcode = mycode;
+     sound_support = mcc;
+   }
++  if (mLoopMidi && !nothing_playing () && strlen (last_midi) > 0)
++    {
++      PlayMidi (last_midi);
++    }
+   if (showb.active)
+     {
+ //grab main loop and divert it to show a bmp instead
+@@ -227,7 +269,9 @@
+   if (stop_entire_game == 1)
+     {
+       if (talk.active)
++	{
+ 	process_talk ();
++	}
+       else
+ 	{
+ 	  stop_entire_game = 0;
+@@ -405,7 +449,8 @@
+ 				spr[h].seq = 0;
+ 				spr[h].nocontrol = false;
+ 				if (h == 1)
+-				  if (in_this_base (spr[h].seq_orig, 310))
++				  if (in_this_base
++				      (spr[h].seq_orig, mDinkBasePush))
+ 				    {
+ 				      play.push_active = false;
+ 				      if (play.push_dir == 2)
+@@ -494,7 +539,8 @@
+ 				  spr[h].seq = 0;
+ 				  spr[h].nocontrol = false;
+ 				  if (h == 1)
+-				    if (in_this_base (spr[h].seq_orig, 310))
++				    if (in_this_base
++					(spr[h].seq_orig, mDinkBasePush))
+ 				      {
+ 					play.push_active = false;
+ 					if (play.push_dir == 2)
+@@ -758,6 +804,31 @@
+ 	      DrawText (hdc, msg, lstrlen (msg), &rcRect, DT_WORDBREAK);
+ 	    }
+ 	}
++// Console
++
++      if (mConsoleActive == true)
++	{
++	  SetBkMode (hdc, OPAQUE);
++	  RECT lConsoleRectangle;
++	  lConsoleRectangle.top = 380;
++	  lConsoleRectangle.left = 20;
++	  lConsoleRectangle.right = 620;
++	  lConsoleRectangle.bottom = 400;
++	  char lLine[255];
++	  strncpy (lLine, mConsoleLine.c_str (), 254);
++	  replace ("&", "~~", lLine);
++	  replace ("~~", "&&", lLine);
++	  SetBkColor (hdc, RGB (255, 255, 255));
++	  SetTextColor (hdc, RGB (0, 0, 0));
++	  DrawText (hdc, lLine, lstrlen (lLine), &lConsoleRectangle,
++		    DT_WORDBREAK);
++	  lConsoleRectangle.top = 360;
++	  lConsoleRectangle.bottom = 380;
++	  sprintf (lLine, "%d", mConsoleReturnValue);
++	  SetTextColor (hdc, RGB (255, 0, 0));
++	  DrawText (hdc, lLine, lstrlen (lLine), &lConsoleRectangle,
++		    DT_WORDBREAK);
++	}
+       SelectObject (hdc, hfont_small);
+       SetBkMode (hdc, TRANSPARENT);
+       for (j = 1; j < max_s + 1; j++)
