@@ -3751,7 +3751,11 @@ void draw_box(rect box, int color)
     dst.x = box.left; dst.y = box.top;
     dst.w = box.right - box.left;
     dst.h = box.bottom - box.top;
-    SDL_FillRect(GFX_lpDDSBack, &dst, color);
+    SDL_FillRect(GFX_lpDDSBack, &dst,
+		 SDL_MapRGB(GFX_lpDDSBack->format,
+			    cur_screen_palette[color].r,
+			    cur_screen_palette[color].g,
+			    cur_screen_palette[color].b));
   }
 }
 	
@@ -4063,7 +4067,11 @@ void process_warp_man(void)
 /* 			ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 			// GFX
 			// TODO: merge with fill_screen()? (doesn't work on the same buffer)
-			SDL_FillRect(GFX_lpDDSBack, NULL, 0);
+			SDL_FillRect(GFX_lpDDSBack, NULL,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[0].r,
+				      cur_screen_palette[0].g,
+				      cur_screen_palette[0].b));
 			flip_it();
 			
 			process_count = 0;

@@ -387,11 +387,12 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 	    if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 	      {
 		scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
-		/* Disable transparency if it wasn't active in the
-		   source surface (SDL_gfx bug, report submitted to
-		   the author) */
-		if ((GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY) == 0)
-		  SDL_SetColorKey(scaled, 0, 0);
+		/* Keep the same transparency / alpha parameters
+		   (SDL_gfx bug, report submitted to the author) */
+		SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
+				GFX_k[getpic(h)].k->format->colorkey);
+		SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
+			     GFX_k[getpic(h)].k->format->alpha);
 		src.x = (int) round(src.x * sx);
 		src.y = (int) round(src.y * sy);
 		src.w = (int) round(src.w * sx);
@@ -1046,7 +1047,7 @@ void loadtile(int tileset)
 /*   ddbltfx.dwSize = sizeof(ddbltfx); */
 /*   lpDDSTwo->Blt(NULL,NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
-  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
 
   spr[1].seq = 3; spr[1].seq_orig = 3;
   //  if (mode == 3)
@@ -1132,7 +1133,7 @@ static void draw_sprite_picker_grid(void)
 	SDL_Rect dst = {12345, 0, 12345, 400};
 	dst.x = x2*50 - 1;
 	dst.w = 1;
-	SDL_FillRect(GFX_lpDDSTwo, &dst, 120);
+	SDL_FillRect(GFX_lpDDSTwo, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 123, 132, 99));
       }
     }
 
@@ -1152,7 +1153,7 @@ static void draw_sprite_picker_grid(void)
 	SDL_Rect dst = {0, 12345, 600, 12345};
 	dst.y = x3*50 - 1;
 	dst.h = 1;
-	SDL_FillRect(GFX_lpDDSTwo, &dst, 120);
+	SDL_FillRect(GFX_lpDDSTwo, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 123, 132, 99));
       }
     }
 }
@@ -1179,7 +1180,7 @@ void draw15(int num)
 /*   ddbltfx.dwFillColor = 0; */
 /*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
-  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
 
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
@@ -1227,6 +1228,13 @@ void draw15(int num)
 		if (sx != 1 || sy != 1)
 		  {
 		    scaled = zoomSurface(GFX_k[seq[se].frame[frame]].k, sx, sy, SMOOTHING_OFF);
+		    /* Keep the same transparency / alpha parameters
+		       (SDL_gfx bug, report submitted to the
+		       author) */
+		    SDL_SetColorKey(scaled, GFX_k[seq[se].frame[frame]].k->flags & SDL_SRCCOLORKEY,
+				    GFX_k[seq[se].frame[frame]].k->format->colorkey);
+		    SDL_SetAlpha(scaled, GFX_k[seq[se].frame[frame]].k->flags & SDL_SRCALPHA,
+				 GFX_k[seq[se].frame[frame]].k->format->alpha);
 		    SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
 		    SDL_FreeSurface(scaled);
 		  }
@@ -1268,7 +1276,7 @@ void draw96(int def)
 /*   ddbltfx.dwFillColor = 0; */
 /*   crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
   // GFX
-  SDL_FillRect(GFX_lpDDSTwo, NULL, 0);
+  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format, 0, 0, 0));
 
 /*   ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /*   ddbltfx.dwSize = sizeof( ddbltfx); */
@@ -1318,6 +1326,12 @@ void draw96(int def)
 	    if (sx != 1 || sy != 1)
 	      {
 		scaled = zoomSurface(GFX_k[seq[se].frame[num]].k, sx, sy, SMOOTHING_OFF);
+		/* Keep the same transparency / alpha parameters
+		   (SDL_gfx bug, report submitted to the author) */
+		SDL_SetColorKey(scaled, GFX_k[seq[se].frame[num]].k->flags & SDL_SRCCOLORKEY,
+				GFX_k[seq[se].frame[num]].k->format->colorkey);
+		SDL_SetAlpha(scaled, GFX_k[seq[se].frame[num]].k->flags & SDL_SRCALPHA,
+			     GFX_k[seq[se].frame[num]].k->format->alpha);
 		SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
 		SDL_FreeSurface(scaled);
 	      }
@@ -1972,8 +1986,7 @@ void shrink_screen_to_these_cords(int x1, int y1)
 /* 		 &crapRec, DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 
   // GFX
-  /* Generic scaling - except no transparency (plus I'm sure scaling
-     is necessary) */
+  /* Generic scaling - except no transparency */
   {
     SDL_Rect src, dst;
     SDL_Surface *scaled;
@@ -1989,12 +2002,12 @@ void shrink_screen_to_these_cords(int x1, int y1)
     sx = 1.0 * dst.w / src.w;
     sy = 1.0 * dst.h / src.h;
 
-    /* TODO: switch to shrinkSurface() */
     scaled = zoomSurface(GFX_lpDDSTwo, sx, sy, SMOOTHING_OFF);
-    /* Disable transparency if it wasn't active in the source surface
-       (SDL_gfx bug, report submitted to the author) */
-    if ((GFX_lpDDSTwo->flags & SDL_SRCCOLORKEY) == 0)
-      SDL_SetColorKey(scaled, 0, 0);
+    /* Don't introduce transparencey (SDL_gfx bug, report submitted to
+       the author) */
+    SDL_SetColorKey(scaled, 0, 0);
+    SDL_SetAlpha(scaled, 0, 0);
+
     src.x = (int) round(src.x * sx);
     src.y = 0; /* (int) round(src.y * sy); */
     src.w = (int) round(src.w * sx);
@@ -2998,7 +3011,7 @@ void updateFrame(void)
 				  dst.y = box_crap.top;
 				  dst.w = box_crap.right - box_crap.left;
 				  dst.h = 5;
-				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				  SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 33, 41, 16));
 				}
 
 				get_box(sprite, &box_crap, &box_real);
@@ -3011,7 +3024,7 @@ void updateFrame(void)
 				  dst.y = box_crap.top;
 				  dst.w = 5;
 				  dst.h = box_crap.bottom - box_crap.top;
-				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				  SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 33, 41, 16));
 				}
 
 				get_box(sprite, &box_crap, &box_real);
@@ -3024,7 +3037,7 @@ void updateFrame(void)
 				  dst.y = box_crap.top;
 				  dst.w = 5;
 				  dst.h = box_crap.bottom - box_crap.top;
-				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				  SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 33, 41, 16));
 				}
 
 				get_box(sprite, &box_crap, &box_real);
@@ -3037,7 +3050,7 @@ void updateFrame(void)
 				  dst.y = box_crap.bottom - 5;
 				  dst.w = box_crap.right - box_crap.left;
 				  dst.h = 5;
-				  SDL_FillRect(GFX_lpDDSBack, &dst, 235);
+				  SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 33, 41, 16));
 				}
 
 				//	if (ddrval != DD_OK) dderror(ddrval);
@@ -3426,7 +3439,7 @@ void updateFrame(void)
 /* 				  ddbltfx.dwFillColor = 255; */
 /* 				  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
 				  // GFX
-				  SDL_FillRect(GFX_lpDDSTwo, NULL, 255);
+				  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format, 255, 255, 255));
 
 				  holdx = (spr[1].x / 50);
 				  int holdy = (spr[1].y / 50)+1;
@@ -3933,10 +3946,14 @@ void updateFrame(void)
 			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 				{
 				  scaled = zoomSurface(GFX_tiles[cool+1], sx, sy, SMOOTHING_OFF);
-				  /* Disable transparency if it wasn't active in the source surface
-				     (SDL_gfx bug, report submitted to the author) */
-				  if ((GFX_tiles[cool+1]->flags & SDL_SRCCOLORKEY) == 0)
-				    SDL_SetColorKey(scaled, 0, 0);
+				  /* Keep the same transparency /
+				     alpha parameters (SDL_gfx bug,
+				     report submitted to the
+				     author) */
+				  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
+						  GFX_k[getpic(h)].k->format->colorkey);
+				  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
+					       GFX_k[getpic(h)].k->format->alpha);
 				  src.x = (int) round(src.x * sx);
 				  src.y = (int) round(src.y * sy);
 				  src.w = (int) round(src.w * sx);
@@ -4416,10 +4433,14 @@ void updateFrame(void)
 			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 				{
 				  scaled = zoomSurface(GFX_lpDDSBack, sx, sy, SMOOTHING_OFF);
-				  /* Disable transparency if it wasn't active in the source surface
-				     (SDL_gfx bug, report submitted to the author) */
-				  if ((GFX_lpDDSBack->flags & SDL_SRCCOLORKEY) == 0)
-				    SDL_SetColorKey(scaled, 0, 0);
+				  /* Keep the same transparency /
+				     alpha parameters (SDL_gfx bug,
+				     report submitted to the
+				     author) */
+				  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
+						  GFX_k[getpic(h)].k->format->colorkey);
+				  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
+					       GFX_k[getpic(h)].k->format->alpha);
 				  src.x = (int) round(src.x * sx);
 				  src.y = (int) round(src.y * sy);
 				  src.w = (int) round(src.w * sx);
@@ -5072,7 +5093,7 @@ void updateFrame(void)
 	    dst.y = spr[2].y;
 	    dst.w = 40;
 	    dst.h = 1;
-	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	    SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 41, 0, 49));
 	  }
 
 /* 	  box_crap.top = spr[2].y-20; */
@@ -5090,7 +5111,7 @@ void updateFrame(void)
 	    dst.y = spr[2].y - 20;
 	    dst.w = 1;
 	    dst.h = 40;
-	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	    SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 41, 0, 49));
 	  }
 	}
 
@@ -5112,7 +5133,7 @@ void updateFrame(void)
 	    dst.y = k[seq[sp_seq].frame[sp_frame]].hardbox.top + 200;
 	    dst.w = k[seq[sp_seq].frame[sp_frame]].hardbox.right - k[seq[sp_seq].frame[sp_frame]].hardbox.left;
 	    dst.h = k[seq[sp_seq].frame[sp_frame]].hardbox.bottom - k[seq[sp_seq].frame[sp_frame]].hardbox.top;
-	    SDL_FillRect(GFX_lpDDSBack, &dst, 230);
+	    SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSTwo->format, 41, 0, 49));
 	  }
 	}
     }
@@ -5424,7 +5445,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 /* 	  char crap1[50]; */
 /* 	  rect rcRectSrc;    rect rcRectDest; */
 /* 	  POINT p; */
-       char tdir[100];
        char *fullpath = NULL;
 	  /*
 	  * set up and register window class

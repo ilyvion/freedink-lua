@@ -751,7 +751,11 @@ past:
 						
 /* 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, &box_real, DDBLT_COLORFILL| DDBLT_WAIT, &ddbltfx); */
 						// GFX
-						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 100);
+						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+							     SDL_MapRGB(GFX_lpDDSBack->format,
+									cur_screen_palette[100].r,
+									cur_screen_palette[100].g,
+									cur_screen_palette[100].b));
 
 						
 						for (oo=0; oo <  spr[h].moveman+1; oo++)
@@ -770,7 +774,11 @@ past:
 							
 /* 							ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
 							// GFX
-							SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 50);
+							SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+								     SDL_MapRGB(GFX_lpDDSBack->format,
+										cur_screen_palette[50].r,
+										cur_screen_palette[50].g,
+										cur_screen_palette[50].b));
 							
 						}
 /* 						ddbltfx.dwFillColor = 1; */
@@ -787,8 +795,11 @@ past:
 						
 /* 						ddrval = lpDDSBack->Blt(&box_crap ,NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &ddbltfx); */
 						// GFX
-						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 1);
-						
+						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+							     SDL_MapRGB(GFX_lpDDSBack->format,
+									cur_screen_palette[1].r,
+									cur_screen_palette[1].g,
+									cur_screen_palette[1].b));
 					}
 				}         
 }

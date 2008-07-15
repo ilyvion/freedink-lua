@@ -756,7 +756,11 @@ void drawallhard( void)
 	      GFX_box_crap.y = y1;
 	      GFX_box_crap.w = 1;
 	      GFX_box_crap.h = 1;
-	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 1);
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[1].r,
+				      cur_screen_palette[1].g,
+				      cur_screen_palette[1].b));
 	    }
 	  }
 
@@ -777,7 +781,11 @@ void drawallhard( void)
 	      GFX_box_crap.y = y1;
 	      GFX_box_crap.w = 1;
 	      GFX_box_crap.h = 1;
-	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 128);
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[128].r,
+				      cur_screen_palette[128].g,
+				      cur_screen_palette[128].b));
 	    }
 	  }
 
@@ -798,7 +806,11 @@ void drawallhard( void)
 	      GFX_box_crap.y = y1;
 	      GFX_box_crap.w = 1;
 	      GFX_box_crap.h = 1;
-	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 45);
+	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[45].r,
+				      cur_screen_palette[45].g,
+				      cur_screen_palette[45].b));
 	    }
 	  }
 
@@ -823,7 +835,11 @@ void drawallhard( void)
 		  GFX_box_crap.y = y1;
 		  GFX_box_crap.w = 1;
 		  GFX_box_crap.h = 1;
-		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 20);
+		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[20].r,
+				      cur_screen_palette[20].g,
+				      cur_screen_palette[20].b));
 		}
 	      }
 	    else
@@ -844,7 +860,11 @@ void drawallhard( void)
 		  GFX_box_crap.y = y1;
 		  GFX_box_crap.w = 1;
 		  GFX_box_crap.h = 1;
-		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap, 23);
+		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
+			   SDL_MapRGB(GFX_lpDDSBack->format,
+				      cur_screen_palette[23].r,
+				      cur_screen_palette[23].g,
+				      cur_screen_palette[23].b));
 		}
 	      }
 	  }
@@ -4381,23 +4401,15 @@ void copy_bmp( char name[80])
                 }
         }
 
-        void fill_screen(int num)
-        {
-/*                 int crap;    */
-/*                 DDBLTFX     ddbltfx; */
-/*                 ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
-/*                 ddbltfx.dwSize = sizeof( ddbltfx); */
-/*                 ddbltfx.dwFillColor = num; */
-/*                 crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
-                // GFX
-		{
-		  /* Warning: palette indexes 0 and 255 are hard-coded
-		     to black and white (change_screen_palette). */
- 		  SDL_FillRect(GFX_lpDDSTwo, NULL, num);
-		  // TODO: when using fill_screen() while the main palette was changed, which color index is used?
-		}
-        }
-
+void fill_screen(int num)
+{
+  /* Warning: palette indexes 0 and 255 are hard-coded
+     to black and white (change_screen_palette). */
+  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
+					      cur_screen_palette[num].r,
+					      cur_screen_palette[num].g,
+					      cur_screen_palette[num].b));
+}
 
         void fill_hard_sprites(void )
         {
