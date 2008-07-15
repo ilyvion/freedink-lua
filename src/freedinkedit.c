@@ -3133,7 +3133,7 @@ void updateFrame(void)
 			      }
 
 
-			    if ((SDL_GetModState()&KMOD_ALT) & (GetKeyboard(SDLK_DELETE /* 46 */)))
+			    if ((SDL_GetModState()&KMOD_ALT) && (GetKeyboard(SDLK_DELETE /* 46 */)))
 			      {
 				int ll;
 				for (ll = 1; ll < 100; ll++)
