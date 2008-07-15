@@ -35,7 +35,7 @@ void load_batch(void)
   FILE *in = NULL;
   char line[255];
   
-  printf("Loading dink.ini");
+  printf("Loading dink.ini\n");
 
   /* Open the text file in binary mode, so it's read the same way
      under different OSes (Unix has no text mode) */

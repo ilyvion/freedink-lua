@@ -789,29 +789,12 @@ void draw_minimap(void)
 
 /*bool*/int load_map_buf(const int num)
 {
-  FILE *fp;
-  long holdme,lsize;
   char crap[120];
-  //RECT box;
-  // play.map = num;
-  //Msg("Loading map %d...",num);
-  sprintf(crap, "%sMAP.DAT", buf_path);
   /* TODO: Dinkedit historically loads map with a filename relative to
      the current D-Mod directory. Maybe change that to handle absolute
      paths and paths relative to the refdir. */
-  fp = paths_dmodfile_fopen(crap, "rb");
-  if (fp == NULL)
-    {
-      Msg("Cannot find MAP.DAT file!!!");
-      return /*false*/0;
-    }
-  lsize = sizeof(struct small_map);
-  holdme = (lsize * (num-1));
-  fseek( fp, holdme, SEEK_SET);
-  //Msg("Trying to read %d bytes with offset of %d",lsize,holdme);
-  fread( &pam, lsize, 1, fp);       /* current player */
-  //Msg("Read %d bytes.",shit);
-  fclose(fp);
+  sprintf(crap, "%sMAP.DAT", buf_path);
+  load_map_to(crap, num, &pam);
   
   return /*true*/1;
 }
@@ -823,17 +806,16 @@ void load_info_buff(void)
 
   sprintf(crap, "%sDINK.DAT", buf_path);
   fp = paths_dmodfile_fopen(crap, "rb");
-  if (fp != NULL)
-    {
-      Msg("World data loaded.");
-      fread(&buffmap, sizeof(struct map_info), 1, fp);
-      fclose(fp);
-      buf_mode = /*true*/1;
-    }
-  else
+
+  if (load_info_to(crap, &buffmap) < 0)
     {
       Msg("World not found in %s.", buf_path);
       buf_mode = /*false*/0;
+    }
+  else
+    {
+      Msg("World data loaded.");
+      buf_mode = /*true*/1;
     }
 }
 

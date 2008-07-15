@@ -34,6 +34,7 @@
 
 #include "SDL.h"
 #include "SDL_framerate.h"
+#include "game_engine.h"
 #include "rect.h"
 #include "dinkc.h"
 
@@ -161,6 +162,7 @@ extern void draw_status_all(void);
 extern void drawallhard( void);
 extern void duck_brain(int h);
 extern /*BOOL*/int init_mouse();
+extern void load_map_to(char* path, const int num, struct small_map* screen);
 extern void load_map(const int num);
 extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 extern /*bool*/int locate(int script, char proc[20]);
@@ -281,6 +283,7 @@ extern int say_text(char text[200], int h, int script);
 extern unsigned char get_hard(int x1, int y1);
 extern unsigned char get_hard_play(int h, int x1, int y1);
 extern void load_hard(void);
+extern int load_info_to(char* path, struct map_info *mymap);
 extern void load_info(void);
 
 extern struct hit_map hm;

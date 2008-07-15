@@ -898,18 +898,17 @@ void fix_dead_sprites()
     }
 }
 
-
 /**
- * Load 1 screen from map.dat, which contains all 768 game screens
+ * Load 1 screen from specified map.dat in specified memory buffer
  */
-void load_map(const int num)
+void load_map_to(char* path, const int num, struct small_map* screen)
 {
   FILE *f = NULL;
   long holdme,lsize;
-  f = paths_dmodfile_fopen(current_map, "rb");
+  f = paths_dmodfile_fopen(path, "rb");
   if (!f)
     {
-      Msg("Cannot find %s file!!!",current_map);
+      Msg("Cannot find %s file!!!", path);
       return;
     }
   lsize = 31280; // sizeof(struct small_map); // under ia32, not portable
@@ -919,102 +918,109 @@ void load_map(const int num)
 
   /* Portably load map structure from disk */
   int i = 0;
-  fread(pam.name, 20, 1, f);
+  fread(screen->name, 20, 1, f);
   for (i = 0; i < 97; i++)
     {
-      pam.t[i].num = read_lsb_int(f);
-      pam.t[i].property = read_lsb_int(f);
-      pam.t[i].althard = read_lsb_int(f);
-      pam.t[i].more2 = read_lsb_int(f);
-      pam.t[i].more3 = fgetc(f);
-      pam.t[i].more4 = fgetc(f);
+      screen->t[i].num = read_lsb_int(f);
+      screen->t[i].property = read_lsb_int(f);
+      screen->t[i].althard = read_lsb_int(f);
+      screen->t[i].more2 = read_lsb_int(f);
+      screen->t[i].more3 = fgetc(f);
+      screen->t[i].more4 = fgetc(f);
       fseek(f, 2, SEEK_CUR); // reproduce memory alignment
       int j = 0;
       for (j = 0; j < 15; j++)
-	pam.t[i].buff[j] = read_lsb_int(f);
+	screen->t[i].buff[j] = read_lsb_int(f);
     }
   // offset 7780
   
   for (i = 0; i < 40; i++)
-    pam.v[i] = read_lsb_int(f);
-  fread(pam.s, 80, 1, f);
+    screen->v[i] = read_lsb_int(f);
+  fread(screen->s, 80, 1, f);
   // offset 8020
   
   /* struct sprite_placement sprite[101]; */
   /* size = 220 */
   for (i = 0; i < 101; i++)
     {
-      pam.sprite[i].x = read_lsb_int(f);
-      pam.sprite[i].y = read_lsb_int(f);
-      pam.sprite[i].seq = read_lsb_int(f);
-      pam.sprite[i].frame = read_lsb_int(f);
-      pam.sprite[i].type = read_lsb_int(f);
-      pam.sprite[i].size = read_lsb_int(f);
+      screen->sprite[i].x = read_lsb_int(f);
+      screen->sprite[i].y = read_lsb_int(f);
+      screen->sprite[i].seq = read_lsb_int(f);
+      screen->sprite[i].frame = read_lsb_int(f);
+      screen->sprite[i].type = read_lsb_int(f);
+      screen->sprite[i].size = read_lsb_int(f);
       
-      pam.sprite[i].active = fgetc(f);
+      screen->sprite[i].active = fgetc(f);
       fseek(f, 3, SEEK_CUR); // reproduce memory alignment
       // offset 28
       
-      pam.sprite[i].rotation = read_lsb_int(f);
-      pam.sprite[i].special = read_lsb_int(f);
-      pam.sprite[i].brain = read_lsb_int(f);
+      screen->sprite[i].rotation = read_lsb_int(f);
+      screen->sprite[i].special = read_lsb_int(f);
+      screen->sprite[i].brain = read_lsb_int(f);
       
-      fread(pam.sprite[i].script, 13, 1, f);
-      fread(pam.sprite[i].hit,    13, 1, f);
-      fread(pam.sprite[i].die,    13, 1, f);
-      fread(pam.sprite[i].talk,   13, 1, f);
+      fread(screen->sprite[i].script, 13, 1, f);
+      fread(screen->sprite[i].hit,    13, 1, f);
+      fread(screen->sprite[i].die,    13, 1, f);
+      fread(screen->sprite[i].talk,   13, 1, f);
       // offset 92
       
-      pam.sprite[i].speed = read_lsb_int(f);
-      pam.sprite[i].base_walk = read_lsb_int(f);
-      pam.sprite[i].base_idle = read_lsb_int(f);
-      pam.sprite[i].base_attack = read_lsb_int(f);
-      pam.sprite[i].base_hit = read_lsb_int(f);
-      pam.sprite[i].timer = read_lsb_int(f);
-      pam.sprite[i].que = read_lsb_int(f);
-      pam.sprite[i].hard = read_lsb_int(f);
+      screen->sprite[i].speed = read_lsb_int(f);
+      screen->sprite[i].base_walk = read_lsb_int(f);
+      screen->sprite[i].base_idle = read_lsb_int(f);
+      screen->sprite[i].base_attack = read_lsb_int(f);
+      screen->sprite[i].base_hit = read_lsb_int(f);
+      screen->sprite[i].timer = read_lsb_int(f);
+      screen->sprite[i].que = read_lsb_int(f);
+      screen->sprite[i].hard = read_lsb_int(f);
       // offset 124
       
-      pam.sprite[i].alt.left = read_lsb_int(f);
-      pam.sprite[i].alt.top = read_lsb_int(f);
-      pam.sprite[i].alt.right = read_lsb_int(f);
-      pam.sprite[i].alt.bottom = read_lsb_int(f);
+      screen->sprite[i].alt.left = read_lsb_int(f);
+      screen->sprite[i].alt.top = read_lsb_int(f);
+      screen->sprite[i].alt.right = read_lsb_int(f);
+      screen->sprite[i].alt.bottom = read_lsb_int(f);
       // offset 140
       
-      pam.sprite[i].prop = read_lsb_int(f);
-      pam.sprite[i].warp_map = read_lsb_int(f);
-      pam.sprite[i].warp_x = read_lsb_int(f);
-      pam.sprite[i].warp_y = read_lsb_int(f);
-      pam.sprite[i].parm_seq = read_lsb_int(f);
+      screen->sprite[i].prop = read_lsb_int(f);
+      screen->sprite[i].warp_map = read_lsb_int(f);
+      screen->sprite[i].warp_x = read_lsb_int(f);
+      screen->sprite[i].warp_y = read_lsb_int(f);
+      screen->sprite[i].parm_seq = read_lsb_int(f);
       // offset 160
       
-      pam.sprite[i].base_die = read_lsb_int(f);
-      pam.sprite[i].gold = read_lsb_int(f);
-      pam.sprite[i].hitpoints = read_lsb_int(f);
-      pam.sprite[i].strength = read_lsb_int(f);
-      pam.sprite[i].defense = read_lsb_int(f);
-      pam.sprite[i].exp = read_lsb_int(f);
-      pam.sprite[i].sound = read_lsb_int(f);
-      pam.sprite[i].vision = read_lsb_int(f);
-      pam.sprite[i].nohit = read_lsb_int(f);
-      pam.sprite[i].touch_damage = read_lsb_int(f);
+      screen->sprite[i].base_die = read_lsb_int(f);
+      screen->sprite[i].gold = read_lsb_int(f);
+      screen->sprite[i].hitpoints = read_lsb_int(f);
+      screen->sprite[i].strength = read_lsb_int(f);
+      screen->sprite[i].defense = read_lsb_int(f);
+      screen->sprite[i].exp = read_lsb_int(f);
+      screen->sprite[i].sound = read_lsb_int(f);
+      screen->sprite[i].vision = read_lsb_int(f);
+      screen->sprite[i].nohit = read_lsb_int(f);
+      screen->sprite[i].touch_damage = read_lsb_int(f);
       // offset 200
       
       int j = 0;
       for (j = 0; j < 5; j++)
-	pam.sprite[i].buff[j] = read_lsb_int(f);
+	screen->sprite[i].buff[j] = read_lsb_int(f);
     }
   // offset 30204
   
-  fread(pam.script, 13, 1, f);
-  fread(pam.random, 13, 1, f);
-  fread(pam.load,   13, 1, f);
-  fread(pam.buffer, 1000, 1, f);
+  fread(screen->script, 13, 1, f);
+  fread(screen->random, 13, 1, f);
+  fread(screen->load,   13, 1, f);
+  fread(screen->buffer, 1000, 1, f);
   fseek(f, 1, SEEK_CUR); // reproduce memory alignment
   // offset 31280
   
   fclose(f);
+}
 
+/**
+ * Load 1 screen from map.dat, which contains all 768 game screens
+ */
+void load_map(const int num)
+{
+  load_map_to(current_map, num, &pam);
   
   spr[1].move_active = /*false*/0;
   spr[1].freeze = /*false*/0;
@@ -1166,6 +1172,7 @@ void save_info(void)
       return;
     }
   
+  /* Portably dump struct map_info to disk */
   int i = 0;
   strcpy(map.name, "Smallwood");
   fwrite(map.name, 20, 1, f);
@@ -1789,32 +1796,48 @@ void update_screen_time()
 }
 
 
-void load_info(void)
+/**
+ * Load dink.dat to specified memory buffer
+ */
+int load_info_to(char* path, struct map_info *mymap)
 {
   FILE *f = NULL;
 
-  f = paths_dmodfile_fopen(current_dat, "rb");
+  f = paths_dmodfile_fopen(path, "rb");
   if (!f)
+    return -1;
+
+  Msg("World data loaded.");
+
+  /* Portably load struct map_info from disk */
+  int i = 0;
+  fread(mymap->name, 20, 1, f);
+  for (i = 0; i < 769; i++)
+    mymap->loc[i]    = read_lsb_int(f);
+  for (i = 0; i < 769; i++)
+    mymap->music[i]  = read_lsb_int(f);
+  for (i = 0; i < 769; i++)
+    mymap->indoor[i] = read_lsb_int(f);
+  fread(mymap->unused, 2240, 1, f);
+
+  fclose(f);
+
+  return 0;
+}
+
+/**
+ * Load dink.dat, an offsets index to screens stored in map.dat, with
+ * some metadata (midi #, indoor/outdoor)
+ */
+void load_info(void)
+{
+  int result = load_info_to(current_dat, &map);
+  if (result < 0)
     {
       //make new data file
       save_info();
       return;
     }
-
-  Msg("World data loaded.");
-
-  /* Portably load struct small_map from disk */
-  int i = 0;
-  fread(map.name, 20, 1, f);
-  for (i = 0; i < 769; i++)
-    map.loc[i]    = read_lsb_int(f);
-  for (i = 0; i < 769; i++)
-    map.music[i]  = read_lsb_int(f);
-  for (i = 0; i < 769; i++)
-    map.indoor[i] = read_lsb_int(f);
-  fread(map.unused, 2240, 1, f);
-
-  fclose(f);
 }
 
 /***
