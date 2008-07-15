@@ -709,7 +709,7 @@
        return TRUE;
      case WM_CREATE:
        break;
-@@ -4610,22 +5059,115 @@
+@@ -4610,18 +5059,106 @@
        PostQuitMessage (0);
        break;
      case WM_KEYDOWN:
@@ -821,47 +821,6 @@
 +	    }
 +	}
 +      break;
-+//redink1 and Invertigo fix for Alt-F4/X button exiting problem
- 
-+    case WM_CLOSE:
-+      finiObjects ();
-+      PostQuitMessage (0);
-+      break;
-     }
- //cycle through keys
- 
-@@ -4693,9 +5235,12 @@
-   program_idata ();
- }
- 
-+//redink1 and Invertigo fix for windowed/high color mode
-+
- bool
- check_arg (char crap[255])
- {
-+  truecolor = false;
-   char shit[200];
- // strupr(crap);
- 
-@@ -4706,7 +5251,17 @@
-       if (strnicmp (shit, "-window", strlen ("-window")) == 0)
- 	{
- 	  windowed = true;
--	  no_transition = true;
-+	  truecolor = true;
-+// no_transition = true; 
-+
-+	}
-+      if (strnicmp (shit, "-dinkpal", strlen ("-dinkpal")) == 0)
-+	{
-+	  dinkpal = true;
-+	}
-+      if (strnicmp (shit, "-truecolor", strlen ("-truecolor")) == 0)
-+	{
-+	  truecolor = true;
- 	}
-       if (strnicmp (shit, "-debug", strlen ("-debug")) == 0)
- 	{
 @@ -4715,7 +5270,7 @@
  	}
        if (strnicmp (shit, "-nojoy", strlen ("-nojoy")) == 0)
@@ -871,91 +830,6 @@
  	}
        if (strnicmp (shit, "-noini", strlen ("-noini")) == 0)
  	{
-@@ -4758,11 +5318,13 @@
-   Msg ("Dir is now %s.", dir);
-   return (true);
- }				/* * doInit - do work required for every instance of the application: * create the window, initialize data */
- 
-+//redink1 and invertigo fix for windowed/high color mode
-+
- static BOOL
- doInit (HINSTANCE hInstance, int nCmdShow)
- {
--  HWND hwnd;
-+  memset (id, '\0', sizeof (id));
- // HRESULT dsrval;
- 
- // BOOL bUseDSound;
-@@ -4803,11 +5366,21 @@
- 
-     }
-   if (windowed)
--    {
-+    {				/*hwnd = CreateWindowEx( 0, NAME, TITLE, 
-+				   // WS_POPUP,
-+
-+				   WS_SYSMENU|WS_CAPTION, 0, 0, 640, 480, 
-+				   //GetSystemMetrics(SM_CXSCREEN),
-+
-+				   //GetSystemMetrics(SM_CYSCREEN),
-+
-+				   NULL, NULL, hInstance, NULL ); if( !hwnd ) { return FALSE; } 
-+				   // Now check actual size of client area
-+
-+				   RECT check; GetClientRect(hwnd, &check); int ExtendWidth = 640 - (check.right - check.left); int ExtendHeight = 480 - (check.bottom - check.top); DestroyWindow(hwnd); */
-       hwnd = CreateWindowEx (0, NAME, TITLE,
- // WS_POPUP,
--			     WS_SYSMENU | WS_CAPTION, 0, 0, 640 + winoffsetx,
--			     480 + winoffset,
-+			     WS_SYSMENU | WS_CAPTION, 0, 0, 640, 480,
- // GetSystemMetrics(SM_CXSCREEN),
- // GetSystemMetrics(SM_CYSCREEN),
- 			     NULL, NULL, hInstance, NULL);
-@@ -4924,17 +5505,39 @@
- 	{
- 	  return initFail (hwnd, "SetCooperative level failed.");
- 	}
--// Set the video mode to 640x480x8
-+// Set the video mode to 640x480xX
- 
--      ddrval = lpDD->SetDisplayMode (x, y, 8);
--// finiObjects(); 
--
--// return false;
-+      if (truecolor == true)
-+	{
-+// Keep trying until one works, or not. There should be a way to see what DirectX supports... hrm
- 
-+	  ddrval = lpDD->SetDisplayMode (x, y, 32);
-+	  if (ddrval != DD_OK)
-+	    {
-+	      ddrval = lpDD->SetDisplayMode (x, y, 24);
-+	      if (ddrval != DD_OK)
-+		{
-+		  ddrval = lpDD->SetDisplayMode (x, y, 16);
-+		  if (ddrval != DD_OK)
-+		    {
-+		      return initFail (hwnd,
-+				       "640 X 480, true color mode not supported.");
-+		    }
-+		}
-+	    }
-+	}
-+      else
-+	{
-+	  ddrval = lpDD->SetDisplayMode (x, y, 8);
-       if (ddrval != DD_OK)
- 	{
- 	  return initFail (hwnd, "640 X 480, 8 bit not supported.");
- 	}
-+	}
-+// finiObjects(); 
-+
-+// return false;
-+
-       ZeroMemory (&hm, sizeof (hit_map));
- // Create the primary surface with 1 back buffer
- 
 @@ -4955,6 +5558,146 @@
  	  return initFail (hwnd, "Could not create backbuffer,");
  	}
@@ -1103,19 +977,6 @@
  //init is finished, now lets load some more junk
  
  //return initFail(hwnd, "Couldn't make a Clipper object, god knows why.");
-@@ -4973,6 +5716,12 @@
-     {
-       Msg ("error with getting entries in beginning");
-     }
-+//redink1 Faster true-color fades
-+
-+  /*if ( truecolor ) { 
-+     // mPrecalculatedFadeValues = new std::map<DWORD, FadeValues>;
-+
-+     DWORD dwWhite = dwRMask | dwGMask | dwBMask; PALETTEENTRY lPaletteEntries[256]; lpDDPal->GetEntries( 0, 0, 256, lPaletteEntries ); for ( int lPaletteEntry = 0; lPaletteEntry < 256; lPaletteEntry++ ) { DWORD lColor = ( lPaletteEntries[lPaletteEntry].peRed >> (8 - wRBits) << wRPos | lPaletteEntries[lPaletteEntry].peGreen >> (8 - wGBits) << wGPos | lPaletteEntries[lPaletteEntry].peBlue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues->[lColor].reserve(256); for ( int lFadeValue = 0; lFadeValue < 256; lFadeValue += 1 ) { DWORD red = (lColor & dwRMask) << (8 - wRBits) >> wRPos; red = (red >= lFadeValue ? red - lFadeValue : 0); DWORD green = (lColor & dwGMask) << (8 - wGBits) >> wGPos; green = (green >= lFadeValue ? green - lFadeValue : 0); DWORD blue = (lColor & dwBMask) << (8 - wBBits) >> wBPos; blue = (blue >= lFadeValue ? blue - lFadeValue : 0); DWORD lResult = ( red >> (8 - wRBits) << wRPos | green >> (8 - wGBits) << wGPos | blue >> (8 - wBBits) << wBPos ); mPrecalculatedFadeValues[lColor].push_back( lResult ); } } } */
-   if (exist ("tiles\\splash.bmp"))
-     lpDDPal = DDLoadPalette (lpDD, "tiles\\SPLASH.BMP");
-   else
 @@ -5029,6 +5778,8 @@
    if (cd_inserted)
      PlayCD (g_hWnd, 7);

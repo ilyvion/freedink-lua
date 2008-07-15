@@ -147,13 +147,13 @@ Fixes:
     => Fixed 2008-06-08
 
 Improvements:
-[ ] Support for high-color (-truecolor parameter).
+[/] Support for high-color (-truecolor parameter).
+
+Improvements that potentially break backward compatibility:
 [ ] "dnotalk" script is run if no sprites are around when Dink talks (not
     required).
 [ ] "dnomagic" script is run if Dink tries to use magic without arming any (not
     required).
-
-Improvements that potentially break backward compatibility:
 [ ] "button4" script is run when the user hits the enter key (not required).
 [ ] "button7" through "button10" scripts will be run when extra gamepad buttons
     are pressed.

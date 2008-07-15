@@ -215,50 +215,75 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	 transparent. */
       /* v1.08 does a similar job for true color mode; I believe this
 	 is pointless in such case. */
-      Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
-      Uint8 *last = p + GFX_k[myslot].k->h * GFX_k[myslot].k->pitch;
+      if (!truecolor)
+	{
+	  Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
+	  Uint8 *last = p + GFX_k[myslot].k->h * GFX_k[myslot].k->pitch;
 
-      /* Note that graphics are already converted to the system
-	 palette (with reproduced fixed indexes) at this point in
-	 FreeDink. Hence, the color index we use will be different
-	 than in the original source code. */
-      if (leftalign)
-	{
-	// brighten black and darken white
-	while (p < last)
-	  {
-	    if (*p == 0)   // black
-	      *p = 249;    // brighter black
-	    if (*p == 255) // white
-	      *p = 30;     // darker white
-	    p++;
-	  }
-	}
-      else if (black)
-	{
-	  // darken white and set black as transparent
-	  while (p < last)
+	  /* Note that graphics are already converted to the system
+	     palette (with reproduced fixed indexes) at this point in
+	     FreeDink. Hence, the color index we use will be different
+	     than in the original source code. */
+	  if (leftalign)
 	    {
-	      if (*p == 255) // white
-		*p = 30;     // darker white
-	      p++;
+	      // brighten black and darken white
+	      while (p < last)
+		{
+		  if (*p == 0)   // black
+		    *p = 249;    // brighter black
+		  if (*p == 255) // white
+		    *p = 30;     // darker white
+		  p++;
+		}
 	    }
-	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
-	}
+	  else if (black)
+	    {
+	      // darken white and set black as transparent
+	      while (p < last)
+		{
+		  if (*p == 255) // white
+		    *p = 30;     // darker white
+		  p++;
+		}
+	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+	      /* Force RLE encoding now to save memory space */
+	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	    }
+	  else
+	    {
+	      // brighten black and set white as transparent
+	      while (p < last)
+		{
+		  if (*p == 0) // white in Dink palette
+		    *p = 249;  // darker white
+		  p++;
+		}
+	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
+	      /* Force RLE encoding now to save memory space */
+	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	    }
+      	}
       else
 	{
-	  // brighten black and set white as transparent
-	  while (p < last)
+	  if (leftalign)
 	    {
-	      if (*p == 0) // white in Dink palette
-		*p = 249;  // darker white
-	      p++;
+	      ; // no transparent color
 	    }
-	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
+	  else if (black)
+	    {
+	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
+			      SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
+	      /* Force RLE encoding now to save memory space */
+	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	    }
+	  else
+	    {
+	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
+			      SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
+	      /* Force RLE encoding now to save memory space */
+	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	    }
 	}
-      
-      /* Force RLE encoding now to save memory space */
-      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
 
       k[myslot].box.top = 0;
       k[myslot].box.left = 0;
@@ -444,6 +469,9 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       
       /* Force RLE encoding now to save memory space */
       SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+      /* Note: there is definitely a performance improvement when
+	 using RLEACCEL under truecolor mode (~80%CPU -> 70%CPU) */
+
 
       /* Fill in .box; this was previously done in DDSethLoad; in
 	 the future we could get rid of the .box field and rely

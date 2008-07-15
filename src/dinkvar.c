@@ -3388,10 +3388,14 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 	  if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 	    {
 	      scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
-	      /* Disable transparency if it wasn't active in the source surface
+
+	      /* Keep the same transparency / alpha parameters
 		 (SDL_gfx bug, report submitted to the author) */
-	      if ((GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY) == 0)
-		SDL_SetColorKey(scaled, 0, 0);
+	      SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
+			      GFX_k[getpic(h)].k->format->colorkey);
+	      SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
+			   GFX_k[getpic(h)].k->format->alpha);
+
 	      src.x = (int) round(src.x * sx);
 	      src.y = (int) round(src.y * sy);
 	      src.w = (int) round(src.w * sx);

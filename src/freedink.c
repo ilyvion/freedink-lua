@@ -5227,48 +5227,33 @@ static int doInit(int argc, char *argv[])
   if (init(argc, argv) == 0)
     exit(1);
 
-  /* Create and set the reference palette */
-  if (load_palette_from_bmp("tiles/TS01.bmp", GFX_real_pal) < 0)
-    return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
-
   /* Load the tiles from the BMPs */
   tiles_load_default();
 
   srand((unsigned)time(NULL));
-
-  /* Initialize graphic buffers */
-  /* When a new image is loaded in DX, it's color-converted using
-     the main palette (possibly altering the colors to match the
-     palette); currently we emulate that by wrapping SDL_LoadBMP,
-	 converting image to the internal palette at load time - and
-	 we never change the buffer's palette again, so we're sure
-	 there isn't any conversion even if we change the screen
-	 palette: */
-  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
   
-  char *base_bmp = "tiles/splash.bmp";
+  char *base_bmp = "Tiles/Splash.bmp";
   fullpath = paths_dmodfile(base_bmp);
   if (!exist(fullpath))
     {
       free(fullpath);
       fullpath = paths_fallbackfile(base_bmp);
     }
-  
-  GFX_lpDDSTwo = load_bmp(fullpath);
-  GFX_lpDDSTrick = load_bmp(fullpath);
-  GFX_lpDDSTrick2 = load_bmp(fullpath);
+  SDL_Surface* splash = load_bmp(fullpath);
   free(fullpath);
-  
-  if (GFX_lpDDSTwo == NULL)
+  if (splash == NULL)
     {
-      return initFail("Cannot load base graphics splash.bmp\n");
+      fprintf(stderr, "Cannot load base graphics splash.bmp\n");
+    }
+  else
+    {
+      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
+      SDL_FreeSurface(splash);
     }
   
   /* Copy splash screen to the screen during loading time */
   SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
   
-  /* Physical palette (the one we can change to make visual effects) */
-  change_screen_palette(GFX_real_pal);
   flip_it();
 
   if (cd_inserted)

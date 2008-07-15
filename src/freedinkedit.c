@@ -5690,31 +5690,8 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 
   memset(&hm, 0, sizeof(struct hit_map));
 
-
-		//return initFail(hwnd, "CHEESEBURGERS RULE!");
-
-	  // create and set the palette
-
-  sprintf(tdir, "TILES/ESPLASH.BMP");
-
-/* 	  lpDDPal = DDLoadPalette(lpDD, tdir); */
-	  // GFX
-  if (load_palette_from_bmp(tdir, GFX_real_pal) < 0)
-    return initFail("Did you enter a bad -game command?  Dir doesn't exist or is missing files.");
-
-/* 	  if (lpDDPal) */
-/* 	    { */
-/* 	      lpDDSPrimary->SetPalette(lpDDPal); */
-/* 	    } */
-	  // Create the offscreen surface, by loading our bitmap.
 	  srand( (unsigned)time( NULL ) );
-/* 	  if(lpDDPal->GetEntries(0,0,256,real_pal)!=DD_OK) */
-/*     { */
-/*    Msg("error with getting entries in beginning"); */
-/*     } */
 
-
-/* 	  lpDDSTwo = DDLoadBitmap(lpDD, tdir, 0, 0); */
 	  // GFX
 	  char *base_bmp = "tiles/esplash.bmp";
 	  fullpath = paths_dmodfile(base_bmp);
@@ -5723,44 +5700,25 @@ static /*BOOL*/int doInit(int argc, char *argv[])
 	      free(fullpath);
 	      fullpath = paths_fallbackfile(base_bmp);
 	    }
-      
-	  GFX_lpDDSTwo = load_bmp(fullpath);
+	  SDL_Surface* splash = load_bmp(fullpath);
 	  free(fullpath);
 	  if (!GFX_lpDDSTwo)
-	    return initFail("Couldn't load esplash.bmp.");
-
-/* 	  DDSetColorKey(lpDDSTwo, RGB(0,0,0)); */
-	  // GFX
-	  // needed?
-
+	    {
+	      fprintf(stderr, "Couldn't load esplash.bmp\n");
+	    }
+	  else
+	    {
+	      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
+	      SDL_FreeSurface(splash);
+	    }
 
 	  rcRect.left = 0;
 	  rcRect.top = 0;
 	  rcRect.right = x;
 	  rcRect.bottom = y;
 
-	  //if (lpDDSBack->GetBltStatus( DDGBS_ISBLTDONE) == DD_OK)
-
-/* 	    ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
-/* 					 &rcRect, DDBLTFAST_NOCOLORKEY); */
-
-
-	  // GFX
-	  {
-	    change_screen_palette(GFX_real_pal);
-
-	    /* When a new image is loaded in DX, it's color-converted
-	       using the main palette (possibly altering the colors to
-	       match the palette); currently we emulate that by
-	       wrapping SDL_LoadBMP, converting image to the internal
-	       palette at load time - and we never change the buffer's
-	       palette again, so we're sure there isn't any conversion
-	       even if we change the screen palette: */
-	    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
-
-	    /* Copy splash screen to the screen during loading time */
-	    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-	  }
+	  /* Copy splash screen to the screen during loading time */
+	  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
 	  flip_it_second();
 

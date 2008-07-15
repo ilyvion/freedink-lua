@@ -3928,14 +3928,23 @@ pass:
 	returnint = -1;
 	return (0);
       }
+    
+    //redink1 added so users can check truecolor or not
+    if (compare (ev[1], "get_truecolor"))
+      {
+	h = &h[strlen (ev[1])];
+	returnint = truecolor;
+	strcpy (s, h);
+	return (0);
+      }
 
     }
 
 
-  /*********************************/
-  /** New DinkC custom procedures **/
-  /**                             **/
-  /*********************************/
+  /***************************************/
+  /** New DinkC user-defined procedures **/
+  /**                                   **/
+  /***************************************/
   if (dversion >= 108)
     {
 

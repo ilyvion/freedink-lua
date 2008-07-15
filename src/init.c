@@ -193,20 +193,21 @@ static int check_arg(int argc, char *argv[])
      backward compatibility with the original game */
   struct option long_options[] = 
     {
-      {"debug",   no_argument,       NULL, 'd'},
-      {"refdir",  required_argument, NULL, 'r'},
-      {"game",    required_argument, NULL, 'g'},
-      {"help",    no_argument,       NULL, 'h'},
-      {"noini",   no_argument,       NULL, 'i'},
-      {"nojoy",   no_argument,       NULL, 'j'},
-      {"nosound", no_argument,       NULL, 's'},
-      {"version", no_argument,       NULL, 'v'},
-      {"window",  no_argument,       NULL, 'w'},
-      {"v1.07",   no_argument,       NULL, '7'},
+      {"debug",     no_argument,       NULL, 'd'},
+      {"refdir",    required_argument, NULL, 'r'},
+      {"game",      required_argument, NULL, 'g'},
+      {"help",      no_argument,       NULL, 'h'},
+      {"noini",     no_argument,       NULL, 'i'},
+      {"nojoy",     no_argument,       NULL, 'j'},
+      {"nosound",   no_argument,       NULL, 's'},
+      {"version",   no_argument,       NULL, 'v'},
+      {"window",    no_argument,       NULL, 'w'},
+      {"v1.07",     no_argument,       NULL, '7'},
+      {"truecolor", no_argument,       NULL, 't'},
       {0, 0, 0, 0}
     };
   
-  char short_options[] = "dr:g:hijsvw7";
+  char short_options[] = "dr:g:hijsvw7t";
 
   /* Loop through each argument */
   while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
@@ -249,6 +250,9 @@ static int check_arg(int argc, char *argv[])
       case '7':
 	dversion = 107;
 	dversion_string = "v1.07";
+	break;
+      case 't':
+	truecolor = 1;
 	break;
       default:
 	exit(EXIT_FAILURE);

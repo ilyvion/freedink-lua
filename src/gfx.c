@@ -38,6 +38,10 @@
 #include "gfx_utils.h"
 #include "init.h"
 
+
+/* Is the screen depth more than 8bit? */
+int truecolor = 0;
+
 // // DELETEME
 // LPDIRECTDRAW            lpDD = NULL;           // DirectDraw object
 // //LPDIxRECTDRAWSURFACE     lpDDSOne;       // Offscreen surface 1
@@ -150,10 +154,17 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
      and is a pre-requisite for SDL_Flip to use hardware, see
      http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
-  if (windowed == GFX_WINDOWED)
-    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
-  else
-    GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+  int flags = SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
+  if (windowed != GFX_WINDOWED)
+    flags |= SDL_FULLSCREEN;
+
+  int bits_per_pixel = 8;
+  if (truecolor)
+    bits_per_pixel = 32; // let SDL fall back to another mode if needed
+
+  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
+  /* 				       0, 0, 0, 0); */
+  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
   if (GFX_lpDDSBack == NULL)
     {
       init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
@@ -164,12 +175,6 @@ int gfx_init(enum gfx_windowed_state windowed)
   else
     printf("INFO: Not using a hardware video mode.\n");
 
-  // GFX
-  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
-  /* 				       0, 0, 0, 0); */
-
-  // lpDDSTwo/Trick/Trick2 are initialized by loading SPLASH.BMP in
-  // doInit()
 
   /* Hide mouse */
   SDL_ShowCursor(SDL_DISABLE);
@@ -182,6 +187,26 @@ int gfx_init(enum gfx_windowed_state windowed)
   setup_palette(cur_screen_palette);
   setup_palette(GFX_real_pal);
   SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+
+
+  /* Create and set the reference palette */
+  if (load_palette_from_bmp("Tiles/Ts01.bmp", GFX_real_pal) < 0)
+    fprintf(stderr, "Failed to load default palette from Tiles/Ts01.bmp\n");
+
+  /* Physical palette (the one we can change to make visual effects) */
+  change_screen_palette(GFX_real_pal);
+
+  /* Initialize graphic buffers */
+  /* When a new image is loaded in DX, it's color-converted using the
+     main palette (possibly altering the colors to match the palette);
+     currently we emulate that by wrapping SDL_LoadBMP, converting
+     image to the internal palette at load time - and we never change
+     the buffer's palette again, so we're sure there isn't any
+     conversion even if we change the screen palette: */
+  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
+  GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
+  GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
+  GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
 
 
   /* Fonts system, default fonts */
@@ -336,45 +361,48 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
      particular: same color depth) */
   converted = SDL_DisplayFormat(image);
 
-  int palette_is_applied = 0;
-  if (setpal == 1)
+  if (!truecolor)
     {
-      SDL_Color palette[256];
-      if (!(load_palette_from_surface(image, palette) < 0))
+      int palette_is_applied = 0;
+      if (setpal == 1)
 	{
-	  change_screen_palette(palette);
-	  /* Pretend that the image uses the current screen and
-	     buffers palette, to avoid color conversion to the
-	     reference palette (maintain palette indexes). We maintain
-	     palette indexes so that they will match the physical
-	     screen's palette, which we just change. */
-	  /* Note: cur_screen_palette is not exactly the same as
-	     palette, because DX reserves some indexes, and FreeDink
-	     reimplement this limitation for compatibility. So we
-	     still need a blit with color convertion to take reserved
-	     indexes into account. Typically skipping this step will
-	     reverse black and white (with Dink palette indexes: 255
-	     and 0; with DX reserved indexes: 0 and 255). */
-	  SDL_SetPalette(converted, SDL_LOGPAL, cur_screen_palette, 0, 256);
-	  palette_is_applied = 1;
+	  SDL_Color palette[256];
+	  if (!(load_palette_from_surface(image, palette) < 0))
+	    {
+	      change_screen_palette(palette);
+	      /* Pretend that the image uses the current screen and
+		 buffers palette, to avoid color conversion to the
+		 reference palette (maintain palette indexes). We maintain
+		 palette indexes so that they will match the physical
+		 screen's palette, which we just change. */
+	      /* Note: cur_screen_palette is not exactly the same as
+		 palette, because DX reserves some indexes, and FreeDink
+		 reimplement this limitation for compatibility. So we
+		 still need a blit with color convertion to take reserved
+		 indexes into account. Typically skipping this step will
+		 reverse black and white (with Dink palette indexes: 255
+		 and 0; with DX reserved indexes: 0 and 255). */
+	      SDL_SetPalette(converted, SDL_LOGPAL, cur_screen_palette, 0, 256);
+	      palette_is_applied = 1;
+	    }
 	}
-    }
-  if (!palette_is_applied)
-    {
-      /* Prepare a color conversion to the reference palette */
+      if (!palette_is_applied)
+	{
+	  /* Prepare a color conversion to the reference palette */
+	  SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
+	}
+
+      /* Blit the copy back to the original, with a potentially different
+	 palette, which triggers color conversion to image's palette. */
+      SDL_BlitSurface(image, NULL, converted, NULL);
+      SDL_FreeSurface(image);
+      image = NULL;
+  
+      /* In the end, the image must use the reference palette: that way no
+	 mistaken color conversion will occur during blits to other
+	 surfaces/buffers. Blits should also be faster(?). */
       SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
     }
-
-  /* Blit the copy back to the original, with a potentially different
-     palette, which triggers color conversion to image's palette. */
-  SDL_BlitSurface(image, NULL, converted, NULL);
-  SDL_FreeSurface(image);
-  image = NULL;
-  
-  /* In the end, the image must use the reference palette: that way no
-     mistaken color conversion will occur during blits to other
-     surfaces/buffers. Blits should also be faster(?). */
-  SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
 
   return converted;
 }

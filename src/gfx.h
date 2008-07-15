@@ -40,18 +40,21 @@ enum gfx_windowed_state
     GFX_FULLSCREEN,
 };
 
+extern int truecolor;
 extern SDL_Surface *GFX_lpDDSBack;
 extern SDL_Surface *GFX_lpDDSTrick;
 extern SDL_Surface *GFX_lpDDSTrick2;
 extern SDL_Surface *GFX_lpDDSTwo;
 
+extern int trigger_palette_change;
+extern SDL_Color GFX_real_pal[256];
+extern SDL_Color cur_screen_palette[256];
+
+extern enum gfx_init_state gfx_get_init_state(void);
+
 extern int gfx_init(enum gfx_windowed_state);
 extern int gfx_init_failsafe();
 extern void gfx_quit(void);
-extern enum gfx_init_state gfx_get_init_state(void);
-extern SDL_Color GFX_real_pal[256];
-extern int trigger_palette_change;
-extern SDL_Color cur_screen_palette[256];
 extern void change_screen_palette(SDL_Color* new_palette);
 extern SDL_Surface* load_bmp(char *filename);
 extern SDL_Surface* load_bmp_from_fp(FILE* in);
