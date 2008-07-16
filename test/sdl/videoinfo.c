@@ -40,6 +40,11 @@ int main(void)
   info = SDL_GetVideoInfo();
   print_info(info);
 
+  SDL_SetVideoMode(800, 600, 16, SDL_FULLSCREEN);
+
+  info = SDL_GetVideoInfo();
+  print_info(info);
+
   SDL_Quit();
   return 0;
 }
