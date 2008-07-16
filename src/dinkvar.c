@@ -532,17 +532,22 @@ char * lmon(long money, char *dest)
 
 //add hardness from a sprite
 
-int getpic(int h)
+/**
+ * Get the current graphic (current sequence/current frame) for sprite
+ * 'sprite_no'
+ */
+int getpic(int sprite_no)
 {
-        if (spr[h].pseq == 0) return(0);
-        if (spr[h].pseq >= MAX_SEQUENCES)
-        {
+  if (spr[sprite_no].pseq == 0)
+    return 0;
+  
+  if (spr[sprite_no].pseq >= MAX_SEQUENCES)
+    {
+      Msg("Sequence %d?  But max is %d!", spr[sprite_no].pseq, MAX_SEQUENCES);
+      return 0;
+    }
 
-                Msg("Sequence %d?  But max is %d!", spr[h].pseq, MAX_SEQUENCES);
-                return(0);
-        }
-        return(seq[spr[h].pseq].frame[spr[h].pframe]);
-
+  return seq[spr[sprite_no].pseq].frame[spr[sprite_no].pframe];
 }
 
 
@@ -1378,7 +1383,7 @@ void save_info(void)
       tiles_load_default();
       
       /* Replace with custom tiles if needed */
-      for (int i = 1; i <= NB_TILE_SCREENS; i++)
+      for (i = 1; i <= NB_TILE_SCREENS; i++)
 	if (strlen(play.tile[i].file) > 0)
 	  tiles_load_slot(play.tile[i].file, i);
     }
@@ -2793,9 +2798,6 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
   rect math;
   int sz,sy,x_offset,y_offset;
 
-  int txoffset = k[getpic(h)].xoffset;
-  int tyoffset = k[getpic(h)].yoffset;
-
   int mplayx = playx;
   int mplayl = playl;
   int mplayy = playy;
@@ -2811,11 +2813,22 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 
   if (getpic(h) < 1)
     {
-      if (dinkedit) Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,cur_map, spr[h].pseq, spr[h].pframe);
-      else
-	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h,*pmap, spr[h].pseq, spr[h].pframe);
-      //spr[h].pic = 44;
+      // added to fix frame-not-in-memory immediately
+      if (spr[h].pseq != 0)
+	check_seq_status(spr[h].pseq);
     }
+
+  if (getpic(h) < 1)
+    {
+      if (dinkedit)
+	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h, cur_map, spr[h].pseq, spr[h].pframe);
+      else
+	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h, *pmap, spr[h].pseq, spr[h].pframe);
+      goto nodraw;
+    }
+
+  int txoffset = k[getpic(h)].xoffset;
+  int tyoffset = k[getpic(h)].yoffset;
 
   *box_real = k[getpic(h)].box;
   rect_copy(&krect, &k[getpic(h)].box);
@@ -3084,42 +3097,27 @@ void check_frame_status(int h, int frame)
 
 }
 
-void check_seq_status(int h)
-
+/**
+ * Load sequence in memory if not already, using cached dink.ini info
+ */
+void check_seq_status(int seq_no)
 {
-/*         HRESULT dderror; */
-/*         char word1[80]; */
+  /* Skip empty/unused sequences */
+  if (!seq[seq_no].is_active)
+    return;
 
-        if (!seq[h].is_active) return;
-        if (h > 0) if (h < MAX_SEQUENCES)
-        {
-                // Msg("Smartload: Loading seq %d..", spr[h].seq);
-
-                if (seq[h].frame[1] == 0)
-                {
-                        figure_out(seq[h].ini, 0);
-                }
-                else
-                {
-                        //it's been loaded before.. is it lost or still there?
-                        //Msg("Sprite %d's seq is %d",h,spr[h].seq);
-
-/*                         dderror = k[seq[h].frame[1]].k->IsLost(); */
-
-/*                         if (dderror == DDERR_SURFACELOST) */
-/*                         { */
-/*                                 get_word(seq[h].data, 2, word1); */
-
-/*                                 reload_sprites(word1, h,0); */
-/*                                 //Msg("Reloaded seq %d with path of %s should be %s", spr[h].seq, word1,seq[spr[h].seq].data ); */
-/*                         } */
-                }
-        }
-
-
+  if ((seq_no > 0)
+      && (seq_no < MAX_SEQUENCES)
+      && (seq[seq_no].frame[1] == 0))
+    {
+      figure_out(seq[seq_no].ini, 0);
+    }
 }
 
-
+/**
+ * Load all +1->+9 sequences from base sequence 'base' in memory,
+ * useful to load all of a moving sprite sequences
+ */
 void check_base(int base)
 {
   int i;
@@ -3128,18 +3126,18 @@ void check_base(int base)
       check_seq_status(base+i);
 }
 
-void check_sprite_status_full(int h)
+/**
+ * Checks for all seq's used by the (base) commands
+ */
+void check_sprite_status_full(int sprite_no)
 {
-        //same as above but checks for all seq's used by the (base) commands
+  //is sprite in memory?
+  check_seq_status(spr[sprite_no].pseq);
 
-        //is sprite in memory?
-
-        check_seq_status(spr[h].pseq);
-
-        if (spr[h].base_walk > -1) check_base(spr[h].base_walk);
-
-
+  if (spr[sprite_no].base_walk > -1)
+    check_base(spr[sprite_no].base_walk);
 }
+
 
 /* say_text, say_text_xy: used by the game only (not the editor) */
 int say_text(char text[200], int h, int script)
@@ -3348,104 +3346,76 @@ void get_right(char line[200], char thing[100], char *ret)
 
 void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 {
-  if (g_b_kill_app) return; //don't try, we're quitting
-  if (spr[h].brain == 8) return;
+  if (g_b_kill_app)
+    return; //don't try, we're quitting
+  if (spr[h].brain == 8)
+    return; // text
+  if (spr[h].nodraw == 1)
+    return; // invisible
 
-  if (spr[h].nodraw == 1) return;
   rect box_crap,box_real;
 
-/*   HRESULT             ddrval; */
-
-/*   DDBLTFX     ddbltfx; */
-/*   ddbltfx.dwSize = sizeof( ddbltfx); */
-/*   ddbltfx.dwFillColor = 0; */
-
   if (get_box(h, &box_crap, &box_real))
-/*     while( 1) */
-/*       { */
-	//      Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top,
-	//              box_crap.right, box_crap.bottom,box_real.left,box_real.top,
-	//              box_real.right, box_real.bottom);
-
-/*       again: */
-/* 	ddrval = lpdest->Blt(&box_crap, k[getpic(h)].k, */
-/* 			     &box_real  , DDBLT_KEYSRC ,&ddbltfx ); */
-/* 	if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
-	// GFX
-	/* Generic scaling */
-	/* Not perfectly accurate yet: move a 200% sprite to the
-	   border of the screen to it is clipped: it's scaled size
-	   will slighly vary. Maybe we need to clip the source zone
-	   before scaling it.. */
+    {
+      /* Generic scaling */
+      /* Not perfectly accurate yet: move a 200% sprite to the border
+	 of the screen to it is clipped: it's scaled size will slighly
+	 vary. Maybe we need to clip the source zone before scaling
+	 it.. */
+      // error checking for invalid rectangle
+      if (box_crap.left >= box_crap.right || box_crap.top >= box_crap.bottom)
+	return;
+      
+      SDL_Rect src, dst;
+      SDL_Surface *scaled;
+      double sx, sy;
+      int retval = 0;
+      src.x = box_real.left;
+      src.y = box_real.top;
+      src.w = box_real.right - box_real.left;
+      src.h = box_real.bottom - box_real.top;
+      dst.x = box_crap.left;
+      dst.y = box_crap.top;
+      dst.w = box_crap.right - box_crap.left;
+      dst.h = box_crap.bottom - box_crap.top;
+      sx = 1.0 * dst.w / src.w;
+      sy = 1.0 * dst.h / src.h;
+      /* In principle, double's are precised up to 15 decimal
+	 digits */
+      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
 	{
-	  // error checking for invalid rectangle
-	  if (box_crap.left >= box_crap.right || box_crap.top >= box_crap.bottom)
-	    return;
-
-	  SDL_Rect src, dst;
-	  SDL_Surface *scaled;
-	  double sx, sy;
-	  src.x = box_real.left;
-	  src.y = box_real.top;
-	  src.w = box_real.right - box_real.left;
-	  src.h = box_real.bottom - box_real.top;
-	  dst.x = box_crap.left;
-	  dst.y = box_crap.top;
-	  dst.w = box_crap.right - box_crap.left;
-	  dst.h = box_crap.bottom - box_crap.top;
-	  sx = 1.0 * dst.w / src.w;
-	  sy = 1.0 * dst.h / src.h;
-	  /* In principle, double's are precised up to 15 decimal
-	     digits */
-	  if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
-	    {
-	      scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
-
-	      /* Keep the same transparency / alpha parameters
-		 (SDL_gfx bug, report submitted to the author) */
-	      SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
-			      GFX_k[getpic(h)].k->format->colorkey);
-	      SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
-			   GFX_k[getpic(h)].k->format->alpha);
-
-	      src.x = (int) round(src.x * sx);
-	      src.y = (int) round(src.y * sy);
-	      src.w = (int) round(src.w * sx);
-	      src.h = (int) round(src.h * sy);
-	      if (SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst) < 0)
-		fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
-	      SDL_FreeSurface(scaled);
-	    }
-	  else
-	    {
-	      /* No scaling */
-	      if (SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst) < 0) {
-		fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
-		/* If we failed, then maybe the sprite was actually
-		   loaded yet, let's try now */
-		if (spr[h].pseq != 0)
-		  check_seq_status(spr[h].pseq);
-	      }
-	    }
+	  scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
+	  
+	  /* Keep the same transparency / alpha parameters
+	     (SDL_gfx bug, report submitted to the author) */
+	  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
+			  GFX_k[getpic(h)].k->format->colorkey);
+	  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
+		       GFX_k[getpic(h)].k->format->alpha);
+	  
+	  src.x = (int) round(src.x * sx);
+	  src.y = (int) round(src.y * sy);
+	  src.w = (int) round(src.w * sx);
+	  src.h = (int) round(src.h * sy);
+	  retval = SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
+	  SDL_FreeSurface(scaled);
 	}
-
-/* 	if (ddrval != DD_OK) */
-/* 	  { */
-/* 	    dderror(ddrval); */
-
-/* 	    Msg("MainSpriteDraw(): Could not draw sprite %d, pic %d.",h,getpic(h)); */
-/* 	    Msg("Box_crap: %d %d %d %d, Box_real: %d %d %d %d",box_crap.left,box_crap.top, */
-/* 		box_crap.right, box_crap.bottom,box_real.left,box_real.top, */
-/* 		box_real.right, box_real.bottom); */
-/* 	    if (spr[h].pseq != 0) check_seq_status(spr[h].pseq); */
-/* 	    break; */
-/* 	  } */
-/* 	else */
-/* 	  { */
-/* 	    break; */
-/* 	  } */
-/*       } */
+      else
+	{
+	  /* No scaling */
+	  retval = SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+	}
+  
+      if (retval < 0) {
+	fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
+	/* If we failed, then maybe the sprite was actually loaded
+	   yet, let's try now */
+	if (spr[h].pseq != 0)
+	  check_seq_status(spr[h].pseq);
+    }
+  }
 }
+
 
         void changedir( int dir1, int k,int base)
         {

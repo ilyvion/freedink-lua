@@ -219,31 +219,6 @@
  	  return (x);
  	}
      }
-@@ -4065,8 +4464,6 @@
- {
-   RECT math;
-   int sz, sy, x_offset, y_offset;
--  int txoffset = k[getpic (h)].xoffset;
--  int tyoffset = k[getpic (h)].yoffset;
-   int mplayx = playx;
-   int mplayl = playl;
-   int mplayy = playy;
-@@ -4085,9 +4482,15 @@
-       else
- 	Msg ("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d", h,
- 	     *pmap, spr[h].pseq, spr[h].pframe);
-+//redink1 added to fix frame-not-in-memory immediately
-+
-+      if (spr[h].pseq != 0)
-+	check_seq_status (spr[h].pseq);
- //spr[h].pic = 44;
- 
-     }
-+  int txoffset = k[getpic (h)].xoffset;
-+  int tyoffset = k[getpic (h)].yoffset;
-   *box_real = k[getpic (h)].box;
-   CopyRect (&krect, &k[getpic (h)].box);
-   if (spr[h].size != 100)
 @@ -4117,6 +4520,24 @@
  							  0) | (spr[h].alt.
  								right != 0))
