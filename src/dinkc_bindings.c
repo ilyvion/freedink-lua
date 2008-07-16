@@ -3746,8 +3746,11 @@ pass:
 	    if (in == NULL)
 	      fprintf(stderr, "Error: Can't open palette '%s'.", name);
 	    else
-	      /* Set palette */
-	      image = load_bmp_setpal(in);
+	      {
+		/* Set palette */
+		image = load_bmp_setpal(in);
+		memcpy(GFX_real_pal, cur_screen_palette, 256);
+	      }
 	    
 	    if (image == NULL)
 	      fprintf(stderr, "Couldn't load palette from '%s'.\n", name);

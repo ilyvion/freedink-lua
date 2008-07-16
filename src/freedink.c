@@ -3738,6 +3738,18 @@ void flip_it(void)
 		     cur_screen_palette, 0, 256);
       trigger_palette_change = 0;
     }
+  if (truecolor_fade_darkness > 0)
+    {
+      int dark = 255 * truecolor_fade_darkness;
+      
+      /* Apply shadow on the main screen: low alpha ->
+	 more opaque black -> darker screen. This
+	 reverses the meaning of the 'alpha' argument
+	 ;) */
+      SDL_SetAlpha(GFX_lpDDSTrueColorFade, SDL_SRCALPHA, dark);
+      SDL_BlitSurface(GFX_lpDDSTrueColorFade, NULL, GFX_lpDDSBack, NULL);
+    }
+
   SDL_Flip(GFX_lpDDSBack);
 }
 

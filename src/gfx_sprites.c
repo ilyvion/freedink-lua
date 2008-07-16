@@ -23,6 +23,8 @@
 
 #include "gfx_sprites.h"
 
+#include "SDL_image.h"
+
 #include "gfx.h"
 #include "dinkvar.h"
 
@@ -179,13 +181,20 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
       rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
       
-      GFX_k[myslot].k = load_bmp_from_mem(rw); // auto free()
+      GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
       // bmp_surf = IMG_Load_RW (rw, 0);
       if (GFX_k[myslot].k == NULL)
 	{
 	  fprintf(stderr, "Failed to load %s from fastfile\n", crap);
 	  FastFileClose(pfile);
 	  break;
+	}
+      if (GFX_k[myslot].k->format->BitsPerPixel != 8)
+	{
+	  fprintf(stderr, "Failed to load %s from fastfile:"
+		  " only 8bit paletted bitmaps are supported in dir.ff archives.\n", crap);
+	  SDL_FreeSurface(GFX_k[myslot].k);
+	  continue;
 	}
       
       // Palettes and transparency
@@ -213,77 +222,63 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	 sure a dir.ff LEFTALIGN has no transparency, otherwise the
 	 experience counter digits in the status bar will become
 	 transparent. */
-      /* v1.08 does a similar job for true color mode; I believe this
-	 is pointless in such case. */
-      if (!truecolor)
-	{
-	  Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
-	  Uint8 *last = p + GFX_k[myslot].k->h * GFX_k[myslot].k->pitch;
 
-	  /* Note that graphics are already converted to the system
-	     palette (with reproduced fixed indexes) at this point in
-	     FreeDink. Hence, the color index we use will be different
-	     than in the original source code. */
-	  if (leftalign)
-	    {
-	      // brighten black and darken white
-	      while (p < last)
-		{
-		  if (*p == 0)   // black
-		    *p = 249;    // brighter black
-		  if (*p == 255) // white
-		    *p = 30;     // darker white
-		  p++;
-		}
-	    }
-	  else if (black)
-	    {
-	      // darken white and set black as transparent
-	      while (p < last)
-		{
-		  if (*p == 255) // white
-		    *p = 30;     // darker white
-		  p++;
-		}
-	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
-	      /* Force RLE encoding now to save memory space */
-	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
-	    }
-	  else
-	    {
-	      // brighten black and set white as transparent
-	      while (p < last)
-		{
-		  if (*p == 0) // white in Dink palette
-		    *p = 249;  // darker white
-		  p++;
-		}
-	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
-	      /* Force RLE encoding now to save memory space */
-	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
-	    }
-      	}
-      else
+      SDL_SetPalette(GFX_k[myslot].k, SDL_LOGPAL, GFX_real_pal, 0, 256);
+
+      Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
+      Uint8 *last = p + GFX_k[myslot].k->h * GFX_k[myslot].k->pitch;
+
+      if (leftalign)
 	{
-	  if (leftalign)
+	  // brighten black and darken white
+	  while (p < last)
 	    {
-	      ; // no transparent color
-	    }
-	  else if (black)
-	    {
-	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
-			      SDL_MapRGB(GFX_k[myslot].k->format, 0, 0, 0));
-	      /* Force RLE encoding now to save memory space */
-	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
-	    }
-	  else
-	    {
-	      SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
-			      SDL_MapRGB(GFX_k[myslot].k->format, 255, 255, 255));
-	      /* Force RLE encoding now to save memory space */
-	      SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	      if (*p == 0)        // white
+		*p = 30;          // darker white
+	      else if (*p == 255) // black
+		*p = 249;         // brighter black
+	      p++;
 	    }
 	}
+      else if (black)
+	{
+	  // darken white and set black as transparent
+	  while (p < last)
+	    {
+	      if (*p == 0) // white
+		*p = 30;   // darker white
+	      p++;
+	    }
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
+	  /* Force RLE encoding now to save memory space */
+	  SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	}
+      else
+	{
+	  // brighten black and set white as transparent
+	  while (p < last)
+	    {
+	      if (*p == 255) // black in Dink palette
+		*p = 249;    // brighter black
+	      p++;
+	    }
+	  SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+	  /* Force RLE encoding now to save memory space */
+	  SDL_BlitSurface(GFX_k[myslot].k, NULL, GFX_lpDDSTrick2, NULL);
+	}
+      
+      if (truecolor)
+	{
+	  /* We may want to convert to truecolor for possibly faster
+	     blits. However I didn't notice a significant increase or
+	     decrease in performances, but there's a higher memory
+	     usage (+10MB for base Dink, more for D-Mods), so let's
+	     not do it. */
+	  /* 	  SDL_Surface *temp = SDL_DisplayFormat(GFX_k[myslot].k); */
+	  /* 	  SDL_FreeSurface(GFX_k[myslot].k); */
+	  /* 	  GFX_k[myslot].k = temp; */
+	}
+
 
       k[myslot].box.top = 0;
       k[myslot].box.left = 0;

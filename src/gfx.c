@@ -306,6 +306,7 @@ void gfx_quit()
   if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
   if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
   if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
+  if (GFX_lpDDSTrueColorFade != NULL) SDL_FreeSurface(GFX_lpDDSTrueColorFade);
 
   init_state = GFX_NOT_INITIALIZED;
 }
@@ -405,14 +406,14 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       /* Blit the copy back to the original, with a potentially different
 	 palette, which triggers color conversion to image's palette. */
       SDL_BlitSurface(image, NULL, converted, NULL);
-      SDL_FreeSurface(image);
-      image = NULL;
   
       /* In the end, the image must use the reference palette: that way no
 	 mistaken color conversion will occur during blits to other
 	 surfaces/buffers. Blits should also be faster(?). */
       SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
     }
+  SDL_FreeSurface(image);
+  image = NULL;
 
   return converted;
 }
