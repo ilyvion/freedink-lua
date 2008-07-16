@@ -349,7 +349,7 @@ void change_screen_palette(SDL_Color* new_palette)
    convertion is avoided) - although the initial loading time will be
    somewhat longer. */
 static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int setpal) {
-  SDL_Surface *image, *converted;
+  SDL_Surface *image;
 
   if (from_mem == 1)
     {
@@ -368,12 +368,14 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       return NULL;
     }
 
-  /* Make a copy of the surface using the screen format (in
-     particular: same color depth) */
-  converted = SDL_DisplayFormat(image);
-
   if (!truecolor)
     {
+      /* Make a copy of the surface using the screen format (in
+	 particular: same color depth, which is needed when importing
+	 24bit graphics in 8bit mode) */
+      /* converted = SDL_ConvertSurface(image, image->format, image->flags); */
+      SDL_Surface *converted = SDL_DisplayFormat(image);
+
       int palette_is_applied = 0;
       if (setpal == 1)
 	{
@@ -411,11 +413,22 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
 	 mistaken color conversion will occur during blits to other
 	 surfaces/buffers. Blits should also be faster(?). */
       SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
-    }
-  SDL_FreeSurface(image);
-  image = NULL;
 
-  return converted;
+
+      SDL_FreeSurface(image);
+      image = NULL;
+
+      return converted;
+    }
+  else
+    {
+      /* Attempting to convert to the truecolor display does not bring
+	 noticeable performance increase or decrease, but does
+	 increase memory usage by at least 10MB so let's use the
+	 loaded image as-is. No need for palette conversion either. */
+      return image;
+    }
+
 }
 
 /* LoadBMP wrapper, from file */

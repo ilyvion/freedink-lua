@@ -51,9 +51,20 @@ enum speed_type { v107, v108 };
    introduces arbitrary computations, we'll keep the v107 code for
    reference. */
 enum speed_type game_speed_type = v108;
+static Uint32 fps_lasttick = 0;
+static int frames = 0;
+static int fps = 0;
 
 void updateFrame( void )
 {
+  if ((SDL_GetTicks() - fps_lasttick) > 500)
+    {
+      fps = frames * (1000/500);
+      frames = 0;
+      fps_lasttick = SDL_GetTicks();
+    }
+  frames++;
+  
     unsigned char state[256]; 
 /*     RECT                rcRect,box_crap,box_real; */
     rect rcRect; /* for FONTS */
@@ -987,7 +998,7 @@ past:
 				
 				
 				sprintf(msg, "Sprites: %d  FPS: %d  Show_dot: %d Plane_process: %d Moveman X%d X%d: %d Y%d Y%d Map %d",
-					last_sprite_created,fps_show,show_dot,plane_process,spr[1].lpx[0],spr[1].lpy[0],spr[1].moveman,spr[1].lpx[1],
+					last_sprite_created,fps/*_show*/,show_dot,plane_process,spr[1].lpx[0],spr[1].lpy[0],spr[1].moveman,spr[1].lpx[1],
 					spr[1].lpy[1], *pmap);
 				
 			}
