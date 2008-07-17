@@ -122,21 +122,6 @@
    if (num > 0)
      {
  //add experience
-@@ -2137,6 +2291,14 @@
-       Msg ("Cannot find %s file!!!", current_map);
-       return;
-     }
-+//redink1 set correctly so Dink appears on mini-map for warps and such
-+
-+//doesn't work, because 'num' is actually the offset in map.dat, not the map screen number
-+
-+//if (map.indoor[num] == 0)
-+
-+// play.last_map = num;
-+
-   lsize = sizeof (struct small_map);
-   holdme = (lsize * (num - 1));
-   fseek (fp, holdme, SEEK_SET);
 @@ -2149,6 +2311,7 @@
      Msg ("ERROR: Couldn't read map %d?!?", num);
    fclose (fp);

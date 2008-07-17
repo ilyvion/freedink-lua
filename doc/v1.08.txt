@@ -124,7 +124,8 @@ Fixes:
     => fixed 2008-06-08, in 'decipher_string'.
 [X] The first tile on the fire and water tile pages animate correctly.
     => fixed 2008-06-08, in 'process_animated_tiles'.
-[ ] Dink's map position appears correctly after warps.
+[X] Dink's map position appears correctly after warps.
+    => fixed 2008-07-17, in 'process_warp_man'.
 [X] Properly exits when closed with Alt-F4.
     => done as part of FreeDink v1.07 clean-up
 [ ] Level-up no longer lost if in inventory screen, fixed several other

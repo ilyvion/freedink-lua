@@ -4035,6 +4035,10 @@ void process_warp_man(void)
 	  spr[1].x = pam.sprite[block].warp_x;
 	  spr[1].y = pam.sprite[block].warp_y;
 	  *pmap = pam.sprite[block].warp_map;	
+
+	  // update map indicator
+	  if (map.indoor[pam.sprite[block].warp_map] == 0)
+	    play.last_map = pam.sprite[block].warp_map;
 	  
 	  load_map(map.loc[pam.sprite[block].warp_map]);
 	  draw_map_game();

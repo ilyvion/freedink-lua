@@ -19,17 +19,6 @@
    if ((GetKeyboard (81)) && (GetKeyboard (18)))
      {
  //shutdown game
-@@ -107,6 +145,10 @@
-     regcode = mycode;
-     sound_support = mcc;
-   }
-+  if (mLoopMidi && !nothing_playing () && strlen (last_midi) > 0)
-+    {
-+      PlayMidi (last_midi);
-+    }
-   if (showb.active)
-     {
- //grab main loop and divert it to show a bmp instead
 @@ -405,7 +449,8 @@
  				spr[h].seq = 0;
  				spr[h].nocontrol = false;

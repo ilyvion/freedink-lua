@@ -399,17 +399,6 @@
  		  if (spr[i].nohit == 1)
  		    {
  		      if (spr[i].script > 0)
-@@ -3540,6 +3991,10 @@
- 	  spr[1].x = pam.sprite[block].warp_x;
- 	  spr[1].y = pam.sprite[block].warp_y;
- 	  *pmap = pam.sprite[block].warp_map;
-+//redink1 change so map indicator is correct on warp.
-+
-+	  if (map.indoor[pam.sprite[block].warp_map] == 0)
-+	    play.last_map = pam.sprite[block].warp_map;
- 	  load_map (map.loc[pam.sprite[block].warp_map]);
- 	  draw_map_game ();
- 	  process_upcycle = true;
 @@ -4446,20 +4893,19 @@
      {
  //let's display a nice dot to mark where they are on the map
