@@ -232,8 +232,9 @@ New functions:
     Loads a new tile set for the given index.  Saved and loaded with the save
     game.
     => Implemented conditionally 2008-07-07
-[ ] loopmidi(bool loop)
+[X] loopmidi(bool loop)
     If 1, all midis will automatically loop.  If 0, midis will not loop.
+    => Implemented conditionally 2008-07-17
 [X] make_global_function(str script, str function)
     Allows you to use the specified function in DinkC without the use of
     external.

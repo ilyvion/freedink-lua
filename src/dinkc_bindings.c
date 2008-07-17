@@ -3943,6 +3943,14 @@ pass:
 	return (0);
       }
 
+    //redink1 added
+    if (compare(ev[1], "loopmidi"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = {1,0,0,0,0,0,0,0,0,0};  
+	if (get_parms(ev[1], script, h, p))
+	  loopmidi(nlist[0]);
+      }
     }
 
 

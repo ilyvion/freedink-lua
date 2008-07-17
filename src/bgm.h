@@ -15,5 +15,6 @@ extern int ReplayMidi();
 extern void check_midi();
 extern void bgm_init(void);
 extern void bgm_quit(void);
+extern void loopmidi(int loop_midi);
 
 #endif

@@ -47,6 +47,7 @@ static SDL_CD *cdrom = NULL;
 static Mix_Music *music_data = NULL;
 static char* last_midi = NULL;
 int last_cd_track = 0;
+static int loop_midi = 0;
 
 /*
  * Audio CD Functions
@@ -171,7 +172,7 @@ int PlayMidi(char *sFileName)
 
   /* Play it */
   Mix_HookMusicFinished(callback_HookMusicFinished);
-  Mix_PlayMusic (music_data, 1);
+  Mix_PlayMusic (music_data, (loop_midi == 1) ? -1 : 1);
 
   free(fullpath);
   return 1;
@@ -303,4 +304,15 @@ void bgm_quit(void)
   if (cdrom != NULL)
     SDL_CDClose(cdrom);
   SDL_QuitSubSystem(SDL_INIT_CDROM);
+}
+
+
+
+/** DinkC procedures **/
+void loopmidi(int arg_loop_midi)
+{
+  if (arg_loop_midi > 0)
+    loop_midi = 1;
+  else
+    loop_midi = 0;
 }
