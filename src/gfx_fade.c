@@ -37,9 +37,9 @@ void gfx_fade_init()
       && screen->format->BitsPerPixel != 16)
     return;
 
-/* For each discrete fade value, try to make cache values contiguous,
-     so [32][65536] rather than [65536][32] */
-  unsigned short **cache = malloc(32*sizeof(unsigned short*));
+  /* For each discrete fade value, try to make cache values
+     contiguous, so [32][65536] rather than [65536][32] */
+  cache = malloc(32*sizeof(unsigned short*));
 
   int i, j;
   for (i = 0; i < 32; i++)

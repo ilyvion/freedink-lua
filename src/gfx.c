@@ -176,9 +176,6 @@ int gfx_init(enum gfx_windowed_state windowed)
 	}
     }
 
-  /* test */
-	  bits_per_pixel = 15;
-
   /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
   /* 				       0, 0, 0, 0); */
   printf("Requesting depth %d\n", bits_per_pixel);

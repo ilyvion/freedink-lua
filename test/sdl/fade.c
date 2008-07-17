@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include "SDL.h"
 
+unsigned short **cache = NULL;
+
 int main(void)
 {
   SDL_Init(SDL_INIT_VIDEO);
@@ -100,7 +102,7 @@ cache [65536][32+1]: 118
      contiguous */
   /* 32 _+1_ because in this test we deal with full brightness (in the
      game, we just avoid fading entirely in that case. */
-  unsigned short **cache = malloc((32+1)*sizeof(unsigned short*));
+  cache = malloc((32+1)*sizeof(unsigned short*));
   int i, j;
   for (i = 0; i <= 32; i++)
     {
