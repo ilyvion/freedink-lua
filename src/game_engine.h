@@ -287,7 +287,7 @@ extern int process_downcycle;
 extern int process_upcycle;
 extern unsigned long cycle_clock;
 extern int cycle_script;
-extern double truecolor_fade_darkness;
+extern double truecolor_fade_brightness;
 extern Uint32 truecolor_fade_lasttick;
 
 

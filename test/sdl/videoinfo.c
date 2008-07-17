@@ -30,17 +30,25 @@ int main(void)
   info = SDL_GetVideoInfo();
   print_info(info);
 
-  SDL_SetVideoMode(0, 0, info->vfmt->BitsPerPixel, SDL_FULLSCREEN);
+  SDL_SetVideoMode(0, 0, info->vfmt->BitsPerPixel, 0);
 
   info = SDL_GetVideoInfo();
   print_info(info);
 
-  SDL_SetVideoMode(800, 600, 8, SDL_FULLSCREEN);
+  printf("Requesting 8bit:\n");
+  SDL_SetVideoMode(800, 600, 8, 0);
 
   info = SDL_GetVideoInfo();
   print_info(info);
 
-  SDL_SetVideoMode(800, 600, 16, SDL_FULLSCREEN);
+  printf("Requesting 16bit:\n");
+  SDL_SetVideoMode(800, 600, 16, 0);
+
+  info = SDL_GetVideoInfo();
+  print_info(info);
+
+  printf("Requesting 32bit:\n");
+  SDL_SetVideoMode(800, 600, 32, 0);
 
   info = SDL_GetVideoInfo();
   print_info(info);

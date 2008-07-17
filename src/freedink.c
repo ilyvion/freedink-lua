@@ -42,6 +42,7 @@
 #include "gfx_fonts.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
+#include "gfx_fade.h"
 #include "bgm.h"
 #include "sfx.h"
 #include "update_frame.h"
@@ -330,7 +331,7 @@ void text_draw(int h)
 
 
 	/* During a fadedown/fadeup, use white text to mimic v1.07 */
-	if (truecolor_fade_darkness > 0.8)
+	if (truecolor_fade_brightness < 256)
 	  color = 15;
 	
 	
@@ -3579,17 +3580,17 @@ void CyclePalette()
       if (truecolor_fade_lasttick == -1)
 	{
 	  truecolor_fade_lasttick = SDL_GetTicks();
-	  truecolor_fade_darkness += .3;
+	  //truecolor_fade_brightness -= 256*.3;
 	}
       else
 	{
 	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
 	  /* Complete fade in 400ms */
-	  truecolor_fade_darkness += delta/400.0;
 	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_brightness -= delta * 256 / 400.0;
 	}
-      if (truecolor_fade_darkness > 1)
-	truecolor_fade_darkness = 1;
+      if (truecolor_fade_brightness <= 0)
+	truecolor_fade_brightness = 0;
       
     }
 
@@ -3667,18 +3668,18 @@ void up_cycle(void)
       if (truecolor_fade_lasttick == -1)
 	{
 	  truecolor_fade_lasttick = SDL_GetTicks();
-	  truecolor_fade_darkness -= .3;
+	  //truecolor_fade_brightness += 256*.3;
 	}
       else
 	{
 	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
-	  /* Complete fade in x=400ms */
-	  truecolor_fade_darkness -= delta/400.0;
+	  /* Complete fade in 400ms */
 	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_brightness += delta * 256 / 400.0;
 	}
-      if (truecolor_fade_darkness < 0)
+      if (truecolor_fade_brightness >= 256)
 	{
-	  truecolor_fade_darkness = 0;
+	  truecolor_fade_brightness = 256;
 	  donethistime = 1;
 	}
     }
@@ -3738,16 +3739,9 @@ void flip_it(void)
 		     cur_screen_palette, 0, 256);
       trigger_palette_change = 0;
     }
-  if (truecolor_fade_darkness > 0)
+  if (truecolor_fade_brightness < 256)
     {
-      int dark = 255 * truecolor_fade_darkness;
-      
-      /* Apply shadow on the main screen: low alpha ->
-	 more opaque black -> darker screen. This
-	 reverses the meaning of the 'alpha' argument
-	 ;) */
-      SDL_SetAlpha(GFX_lpDDSTrueColorFade, SDL_SRCALPHA, dark);
-      SDL_BlitSurface(GFX_lpDDSTrueColorFade, NULL, GFX_lpDDSBack, NULL);
+      gfx_fade_apply(truecolor_fade_brightness);
     }
 
   SDL_Flip(GFX_lpDDSBack);

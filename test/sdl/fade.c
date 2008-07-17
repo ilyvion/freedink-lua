@@ -26,7 +26,7 @@
 int main(void)
 {
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_Surface *screen = SDL_SetVideoMode(640, 480, 32, SDL_NOFRAME);
+  SDL_Surface *screen = SDL_SetVideoMode(640, 480, 16, SDL_NOFRAME);
   SDL_Surface *trick2 = SDL_DisplayFormat(screen);
 
   Uint32
@@ -98,31 +98,42 @@ cache [65536][32+1]: 118
   int cstart = SDL_GetTicks();
   /* For each discrete fade value, try to make cache values
      contiguous */
-  unsigned short cache[32+1][65536];
+  /* 32 _+1_ because in this test we deal with full brightness (in the
+     game, we just avoid fading entirely in that case. */
+  unsigned short **cache = malloc((32+1)*sizeof(unsigned short*));
   int i, j;
   for (i = 0; i <= 32; i++)
     {
-      for (j = 0; j < 65536-1; j++)
+      cache[i] = malloc(65536*sizeof(unsigned short));
+      switch(screen->format->BitsPerPixel)
 	{
-	  Uint8 r, g, b;
-	  switch(screen->format->BitsPerPixel)
+	case 16: /* RGB565 */
+	  cache[i] = malloc(65536*sizeof(unsigned short));
+	  for (j = 0; j < 65536-1; j++)
 	    {
-	    case 16: /* RGB565 */
+	      Uint8 r, g, b;
 	      r = (((j&0xF800)>>11)<<3) * i / 32;
 	      g = (((j&0x07E0)>>5)<<2) * i / 32;
 	      b = ((j&0x001F)<<3) * i / 32;
 	      cache[i][j] = ((r>>3)<<11)|((g>>2)<<5)|(b>>3);
-	      break;
-	    case 15: /* RGB555 */
+      	    }
+	  // keep white; 0xFFFF = 11111 111111 11111 = 65535
+	  cache[i][0xFFFF] = 0xFFFF;
+	  break;
+	case 15: /* RGB555 */
+	  cache[i] = malloc(32768*sizeof(unsigned short));
+	  for (j = 0; j < 32768-1; j++)
+	    {
+	      Uint8 r, g, b;
 	      r = (((j&0x7C00)>>10)<<3) * i / 32;
 	      g = (((j&0x03E0)>>5)<<3) * i / 32;
 	      b = ((j&0x001F)<<3) * i / 32;
 	      cache[i][j] = ((r>>3)<<10)|((g>>3)<<5)|(b>>3);
-	      break;
 	    }
+	  // keep white; 0x7FFF = 0 11111 11111 11111 = 32767
+	  cache[i][0x7FFF] = 0x7FFF;
+	  break;
 	}
-      // keep white; 0xFFFF = 65535
-      cache[i][0xFFFF] = 0xFFFF;
     }
 /*   unsigned short cache[(32+1)*65536]; */
 /*   int i, j; */
@@ -318,6 +329,7 @@ cache [65536][32+1]: 118
 	    Uint16 *p_screen = screen->pixels;
 	    int height = screen->h;
 	    brightness /= 256/32; /* cached units of 32th rather than computed 256th */
+	    unsigned short* cur_cache = cache[brightness];
 	    while (height--)
 	      {
 		int x;
@@ -341,7 +353,7 @@ cache [65536][32+1]: 118
 /* 		      *p_screen = ((r * brightness >> 8>>3)<<11)|((g * brightness >> 8>>2)<<5)|(b * brightness >> 8>>3); */
 
 /* 		    *p_screen = cache[brightness<<16|*p_screen]; */
-		    *p_screen = cache[brightness][*p_screen];
+		    *p_screen = cur_cache[*p_screen];
 
 
 		    p_screen ++;

@@ -36,6 +36,7 @@
 #include "gfx_tiles.h"
 #include "gfx_sprites.h"
 #include "gfx_utils.h"
+#include "gfx_fade.h"
 #include "init.h"
 
 
@@ -82,9 +83,6 @@ SDL_Surface *GFX_lpDDSTwo = NULL;
 SDL_Surface *GFX_lpDDSTrick = NULL;
 /* Used in freedink.cpp and update_frame.cpp */
 SDL_Surface *GFX_lpDDSTrick2 = NULL;
-
-/* Used in CyclePalette and up_cycle */
-SDL_Surface *GFX_lpDDSTrueColorFade = NULL;
 
 
 /* Reference palette: this is the canonical Dink palette, loaded from
@@ -163,10 +161,27 @@ int gfx_init(enum gfx_windowed_state windowed)
 
   int bits_per_pixel = 8;
   if (truecolor)
-    bits_per_pixel = 32; // let SDL fall back to another mode if needed
+    {
+      /* Recommended depth: */
+      const SDL_VideoInfo* info = SDL_GetVideoInfo();
+      printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
+      bits_per_pixel = info->vfmt->BitsPerPixel;
+
+      if (bits_per_pixel < 15)
+	{
+	  /* Running truecolor mode in 8bit resolution? Let's emulate,
+	     the user must know what he's doing. */
+	  bits_per_pixel = 15;
+	  printf("Notice: emulating truecolor mode\n");
+	}
+    }
+
+  /* test */
+	  bits_per_pixel = 15;
 
   /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
   /* 				       0, 0, 0, 0); */
+  printf("Requesting depth %d\n", bits_per_pixel);
   GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
   if (GFX_lpDDSBack == NULL)
     {
@@ -177,6 +192,7 @@ int gfx_init(enum gfx_windowed_state windowed)
     printf("INFO: Using hardware video mode.\n");
   else
     printf("INFO: Not using a hardware video mode.\n");
+  printf("INFO: SDL depth is %d\n", bits_per_pixel);
 
 
   /* Hide mouse */
@@ -210,13 +226,6 @@ int gfx_init(enum gfx_windowed_state windowed)
   GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
-  if (truecolor)
-    {
-      GFX_lpDDSTrueColorFade = SDL_DisplayFormat(GFX_lpDDSBack);
-      /* always black */
-      SDL_FillRect(GFX_lpDDSTrueColorFade, NULL,
-		   SDL_MapRGB(GFX_lpDDSTrueColorFade->format, 0, 0, 0));
-    }
 
 
   /* Fonts system, default fonts */
@@ -224,6 +233,7 @@ int gfx_init(enum gfx_windowed_state windowed)
   if (gfx_fonts_init() < 0)
     return -1; /* error message set in gfx_fonts_init */
 
+  gfx_fade_init();
 
   /* Mouse */
   /* Center mouse and reset relative positionning */
@@ -297,6 +307,8 @@ void gfx_quit()
 {
   init_state = GFX_QUITTING;
 
+  gfx_fade_quit();
+
   gfx_fonts_quit();
 
   tiles_unload_all();
@@ -306,7 +318,6 @@ void gfx_quit()
   if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
   if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
   if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
-  if (GFX_lpDDSTrueColorFade != NULL) SDL_FreeSurface(GFX_lpDDSTrueColorFade);
 
   init_state = GFX_NOT_INITIALIZED;
 }

@@ -3638,9 +3638,11 @@ pass:
     if (compare (ev[1], "clear_editor_info"))
       {
 	h = &h[strlen (ev[1])];
-	for (int i = 0; i < 769; i++)
+	int i;
+	for (i = 0; i < 769; i++)
 	  {
-	    for (int j = 0; j < 100; j++)
+	    int j;
+	    for (j = 0; j < 100; j++)
 	      {
 		play.spmap[i].seq[j] = 0;
 		play.spmap[i].frame[j] = 0;

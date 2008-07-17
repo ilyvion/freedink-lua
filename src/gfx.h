@@ -45,7 +45,6 @@ extern SDL_Surface *GFX_lpDDSBack;
 extern SDL_Surface *GFX_lpDDSTrick;
 extern SDL_Surface *GFX_lpDDSTrick2;
 extern SDL_Surface *GFX_lpDDSTwo;
-extern SDL_Surface *GFX_lpDDSTrueColorFade;
 
 extern int trigger_palette_change;
 extern SDL_Color GFX_real_pal[256];

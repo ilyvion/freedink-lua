@@ -33,11 +33,11 @@ COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkc.c dinkc.h		\
 	dinkc_bindings.c dinkc_bindings.h dinkvar.c dinkvar.h		\
 	fastfile.c fastfile.h game_engine.c game_engine.h str_util.c	\
 	str_util.h io_util.c io_util.h sfx.c sfx.h gfx.c gfx.h		\
-	gfx_tiles.c gfx_tiles.h gfx_utils.c gfx_utils.h gfx_fonts.c	\
-	gfx_fonts.h init.c init.h rect.c rect.h input.c input.h		\
-	binreloc.c binreloc.h freedink_xpm.c freedink_xpm.h paths.c	\
-	paths.h log.c log.h gfx_sprites.c gfx_sprites.h vgasys_fon.c	\
-	vgasys_fon.h msgbox.c msgbox.h
+	gfx_fade.c gfx_fade.h gfx_tiles.c gfx_tiles.h gfx_utils.c	\
+	gfx_utils.h gfx_fonts.c gfx_fonts.h init.c init.h rect.c	\
+	rect.h input.c input.h binreloc.c binreloc.h freedink_xpm.c	\
+	freedink_xpm.h paths.c paths.h log.c log.h gfx_sprites.c	\
+	gfx_sprites.h vgasys_fon.c vgasys_fon.h msgbox.c msgbox.h
 
 if HAVE_ZZIPLIB
 COMMON_OBJS+=SDL_rwops_zzip.c SDL_rwops_zzip.h
@@ -48,7 +48,7 @@ endif
 
 bin_PROGRAMS = freedink freedinkedit
 freedink_SOURCES = $(COMMON_OBJS) freedink.c freedink.h update_frame.c	\
-	update_frame.h
+update_frame.h
 freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c
 nodist_freedink_SOURCES = $(WOERES)
 nodist_freedinkedit_SOURCES = $(WOERES)

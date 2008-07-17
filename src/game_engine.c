@@ -88,8 +88,8 @@ int process_upcycle = 0;
 unsigned long cycle_clock = 0;
 /* What script to resume after fade: */
 int cycle_script = 0;
-/* True color fade in [0,1]; 1 is completely dark, 0 is unaltered */
-double truecolor_fade_darkness = 0;
+/* True color fade in [0,256]; 0 is completely dark, 256 is unaltered */
+double truecolor_fade_brightness = 256;
 /* Time elapsed since last fade computation; -1 is disabled */
 Uint32 truecolor_fade_lasttick = -1;
 
