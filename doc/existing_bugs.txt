@@ -29,14 +29,3 @@ Bugs that existed in v1.07 and needs to be fixed:
   (http://www.dinknetwork.com/forum.cgi?MID=59442)
 
 For fixed bugs, see changes.txt.
-
-
-Bugs that existed in v1.07 and can't be easily fixed:
-
-- If a sequence is replaced by another sequence, but longer (more
-  frames), and through a dir.ff archive, then additional frames will
-  overwrite frames in other sequences. It is not easy to decide
-  whether some existing D-Mods rely on this (e.g. the author
-  inadvertently overwrote a sequence, but used it nonetheless, and now
-  the D-Mod expect that sequence to have the overwritten content
-  instead of the original one).

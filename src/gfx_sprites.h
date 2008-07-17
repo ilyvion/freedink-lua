@@ -34,6 +34,8 @@ extern "C"
 /* Max number of sprites, minus 1 (GFX_k is indexed from 1) */
 #define MAX_SPRITES 4000
 #define MAX_FRAMES_PER_SEQUENCE 50
+/* Max number of sequences the engine could be abused to load */
+#define MAX_FRAMES_PER_ABUSED_SEQUENCE 1000
   
   /* Store sprites info */
   struct pic_info
@@ -61,9 +63,14 @@ extern "C"
     char* ini;      // matching dink.ini (or init()) line
     int len;        // number of initial frames in this sequence
                     // - inaccurate if the sequence is modified by 'set_frame_frame'
-    int frame[MAX_FRAMES_PER_SEQUENCE+1+1]; // index in GFX_k for the each frame, indexed from 1, ended by '0'
-                                            // if -1, loop from beginning
-    int delay[MAX_FRAMES_PER_SEQUENCE+1]; // frame duration, indexed from 1
+    /* frame: index in GFX_k for the each frame, indexed from 1, ended
+       by '0' if -1, loop from beginning. Now this one is tricky: the
+       original engine's load_sprite() can load non-animated sequences
+       of more than MAX_FRAMES_PER_SEQUENCE (up to 1000) at the
+       expense of a non-critical buffer overflow in 'delay' and
+       'special'.  */
+    int frame[MAX_FRAMES_PER_ABUSED_SEQUENCE+1+1]; 
+    int delay[MAX_FRAMES_PER_ABUSED_SEQUENCE+1]; // frame duration, indexed from 1
     unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
   };
 

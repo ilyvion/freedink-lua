@@ -100,6 +100,15 @@ FreeDink, sequences are never overwritten.
 In addition, reloading a BMP sequence in 1.07 was not freeing the
 existing sequence slots. This is fixed too.
 
+Some D-Mods have sequences with more than 50 frames. This triggers a
+buffer overflow in the original game BUT the overwritten data is the
+animation metadata ('delay' and 'special' fields), which is not
+critical for non-animated sprite sequences. Example: "The Green Voice
+in my Head - Part 1 - Hangover & Agony", first save game then east
+then house on the right: it shows a shelf with broken vases with is
+seq 66 frame 65 (> 50). FreeDink reproduces this behavior by allowing
+up to 1000 frames in a sequence but without the buffer overflow part.
+
 
 The engine now can switch between fullscreen and window mode at
 run-time, using the Ctrl+Enter shortcut.

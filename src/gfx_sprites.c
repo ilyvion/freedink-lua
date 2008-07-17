@@ -423,7 +423,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 
   /* Load the whole sequence (prefix-01.bmp, prefix-02.bmp, ...) */
   int oo;
-  for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
+  for (oo = 1; oo <= MAX_FRAMES_PER_ABUSED_SEQUENCE; oo++)
     {
       int myslot = next_slot();
       if (myslot >= MAX_SPRITES)
