@@ -4017,7 +4017,13 @@ void process_warp_man(void)
     {
       process_count++;
       CyclePalette();
-      if (process_count > 5)
+      /* Wait 5 CyclePalette before blanking the screen and
+	 warp. Truecolor more: the fade algorithm is a bit different
+	 and requires a few more cycles to get the same effect; unlike
+	 v1.08, we don't wait for a full fadedown, which is long and
+	 can be not very smooth on old computers. */
+      if ((!truecolor && process_count > 5)
+	  || (truecolor && truecolor_fade_brightness <= 180))
 	{
 	  SDL_FillRect(GFX_lpDDSBack, NULL,
 		       SDL_MapRGB(GFX_lpDDSBack->format, 0, 0, 0));
