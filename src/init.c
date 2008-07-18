@@ -244,8 +244,6 @@ static int check_arg(int argc, char *argv[])
 	break;
       case 'w':
 	windowed = 1;
-	// Beuc: enabling transition is more fun :)
-	//no_transition = true;
 	break;
       case '7':
 	dversion = 107;

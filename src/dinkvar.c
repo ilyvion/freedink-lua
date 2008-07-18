@@ -130,10 +130,6 @@ int item_timer;
 int item_pic;
 
 int mbase_count;
-/*bool*/int no_transition = /*false*/0;
-
-
-
 
 
 int push_active = 1;

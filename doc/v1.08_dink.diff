@@ -234,7 +234,7 @@
  	  goto b1end;
  	}
  //player pressed 1
-@@ -2544,25 +2726,26 @@
+@@ -2544,6 +2726,17 @@
      }
    if (sjoy.button[4])
      {
@@ -252,27 +252,6 @@
        item_screen = true;
        SoundPlayEffect (18, 22050, 0, 0, 0);
        return;
--    }
--  if (GetKeyboard (50))
--    {
--      if (!no_cheat)
--	{
-+    }				/*if ( GetKeyboard(50) ) { if (!no_cheat) { 
- //player pressed 2
- 
- //lets add a duck with brain 2
- 
--	  crap = add_sprite (spr[h].x - 20, spr[h].y - 50, 3, 26, 1);
--	  spr[crap].speed = 1;
--	  spr[crap].base_walk = 20;
--	  spr[crap].exp = 11;
--	  spr[crap].hitpoints = 5;
--	}
--    }
-+				   crap = add_sprite(spr[h].x-20,spr[h].y-50,3,26,1); spr[crap].speed = 1; spr[crap].base_walk = 20; spr[crap].exp = 11; spr[crap].hitpoints = 5; } } */
-   if ((sjoy.button[5] == TRUE))
-     {
-       if (!showb.active)
 @@ -2576,6 +2759,10 @@
  	      return;
  	    }

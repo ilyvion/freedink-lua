@@ -249,15 +249,6 @@ trigger_start:
 	spr[1].speed = junk3;
       }
 	
-
-	if (debug_mode) if (!no_cheat)
-	{
-		spr[1].speed = 20;
-	}
-	//junk3;
-	
-	//force free mode
-	//if (!no_cheat) 
 	
 	if (showb.active)
 	{
@@ -815,16 +806,7 @@ past:
 				}         
 }
  }								
- 
- if ( (sjoy.joybit[7] == /*TRUE*/1) )
-	 
- {
-	 //space is pressed, lets draw the hitmap, why not?
-	 
-					if (!no_cheat) drawallhard();
- }
- 
- 
+
  
 	if (mode == 0)
 	{
@@ -936,7 +918,6 @@ past:
 /* 		rcRect1.top = 0; */
 /* 		rcRect1.right = 620; */
 /* 		rcRect1.bottom = 400; */
-		if (no_transition) return;
 		//return;
 		
 /* 		ddrval = lpDDSTrick2->BltFast( 0, 0, lpDDSBack, */

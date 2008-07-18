@@ -65,10 +65,6 @@ char save_game_info[200] = "Level &level";
 char current_map[50] = "map.dat";
 char current_dat[50] = "dink.dat";
 
-
-/* TODO: test how this can be used for debugging, if set to 0 */
-/*bool*/int no_cheat = /*true*/1;
-
 time_t time_start;
 
 

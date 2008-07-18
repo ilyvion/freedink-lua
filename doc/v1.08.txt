@@ -139,16 +139,14 @@ Fixes:
     (before the animation would be 'corrupt')
     => See for further explanation http://www.dinknetwork.com/forum.cgi?MID=92733
     => fixed 2008-05-22, but differently (clean sequence reload)
-[ ] Corpses appear as the same size as the living sprite.
-    => that is, if an ennemy has a size of 50%, its dead body will
-    also have a size of 50% (previously it was 100%)
 
 [X] Dinkedit: several spelling/grammar fixes
 [X] Removed extra space in "I'm gesturing wildly to  no avail!"
     => Fixed 2008-06-08
 
 Improvements:
-[/] Support for high-color (-truecolor parameter).
+[X] Support for high-color (-truecolor parameter).
+    => Implemented conditionally 2008-07-15 -> 2008-07-17
 
 Improvements that potentially break backward compatibility:
 [ ] "dnotalk" script is run if no sprites are around when Dink talks (not
@@ -175,13 +173,16 @@ Improvements that potentially break backward compatibility:
 [X] Custom functions can have up to 9 arguments, stored in the built-in variables
     &arg1 through &arg9.
     => Implemented conditionally 2008-07-04
+[ ] Corpses appear as the same size as the living sprite.
+    => that is, if an ennemy has a size of 50%, its dead body will
+    also have a size of 50% (previously it was 100%)
 
 DinkC changes:
 
 Fixes:
 [X] playavi(str avifile)
     Removed command.
-    => applied unconditionaly 2008-03-09
+    => Implemented unconditionaly 2008-03-09
 [X] run_script_by_number(int script, "proc");
     No longer runs a random procedure if it cannot locate proc specified.
     => Fixed 2008-07-04
@@ -220,7 +221,7 @@ New functions:
     Returns the number of minutes the player has been playing the game (total).
 [X] get_time_real()
     Returns the number of minutes in the day (900 = 3 pm).
-[ ] get_truecolor()
+[X] get_truecolor()
     Returns true if the game is in true-color mode.
 [X] load_map(str mapdat, str dinkdat)
     Loads a new map.dat/dink.dat.  Saved and loaded with the save game.
@@ -398,6 +399,19 @@ Changes not documented in whatsnew.txt
     => Implemented conditionally 2008-07-08. Not sure about
     implementing it unconditionally. The snake boss from "I, Kara Gu"
     (designed for v1.08) is stuck in a corner without this fix.
+
+[ ] Entry for set_callback_random: "In 1.08+, set_callback_random
+    returns a callback number, which can be used to kill the callback
+    later in the script using callback_kill."
+
+[ ] Entry for callback_kill: "callback_kill kills the callback_number
+    returned by set_callback_random."
+
+[ ] Entry for set_dink_speed: "1.07 and earlier had timing issues that
+    would cause Dink's speed to change rather noticeably in comparison
+    to monsters, and his sp_speed return value could vary wildly. 
+    1.08+ locks Dink's speed value to the sp_speed equivalents in the
+    table."
 
 
 Compilation

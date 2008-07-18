@@ -214,8 +214,6 @@ extern int mode;
 extern unsigned long mold;
 
 extern int *pupdate_status;
-extern /*bool*/int no_cheat;
-extern /*bool*/int no_transition;
 extern struct small_map pam;
 extern int plane_process;
 extern int playl;

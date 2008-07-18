@@ -1830,7 +1830,6 @@ int check_if_move_is_legal(int u)
 	if (spr[u].move_active) if (spr[u].move_nohard == 1) return(0);
 	if (u == 1) if (in_this_base(spr[u].seq, 310)) return(0);
 	
-	if (u == 1) if (!no_cheat) if (debug_mode) return(0);
 	int hardness = 0;
 	if (spr[u].moveman > 0)
 	{
@@ -1978,17 +1977,6 @@ void bounce_brain(int h)
 
 void grab_trick(int trick)
 {
-  //Msg("making trick.");
-  
-  if (no_transition)
-    {
-      move_screen = trick;			
-      trig_man = /*true*/1;
-      
-      move_counter = 0;
-      return;
-    }
-
   /* Capture the current game zone from the backbuffer */
   SDL_Rect src, dst;
   src.x = playl;
@@ -2894,24 +2882,6 @@ shootm:
 	}
 	
 	
-	
-	if ( GetKeyboard('2') )
-	{
-		
-								if (!no_cheat) 
-								{
-									//player pressed 2
-									//lets add a duck with brain 2
-									
-									crap = add_sprite(spr[h].x-20,spr[h].y-50,3,26,1);
-									spr[crap].speed = 1;
-									spr[crap].base_walk = 20;
-									spr[crap].exp = 11;
-									spr[crap].hitpoints = 5;
-								}
-	}
-	
-	
 	if ( (sjoy.button[5] == /*TRUE*/1) )
 	{
 		
@@ -3322,19 +3292,6 @@ smoothend:;
   
   move_counter += dumb;
   
-  if (no_transition)
-    {    
-      total_trigger = /*false*/0;
-      move_screen = 0;
-      move_counter = 0;
-      trig_man = 0;
-      //draw_map();
-      return /*false*/0;
-    }
-  
-  //total_trigger = /*false*/0;
-  //return(/*false*/0);
-
   
   if (move_screen == 4)
     {

@@ -12,44 +12,7 @@
  void check_midi (void);
  UINT midi_id;
  
-@@ -49,0 +68,40 @@
-[...]
-+//redink1 int for truecolor transition
-+
-+int iTrueColorFadeTime = 0;
-+bool bFadedDown = false;
-[...]
-+unsigned short (*m16BitFadeValues)[30];
-+unsigned char (*m8BitFadeValues)[30];
-+enum ColorDepth
-+{ ColorDepth16Bit_565, ColorDepth16Bit_555, ColorDepth24Bit, ColorDepth32Bit,
-+    ColorDepthNotRecognized };
-+ColorDepth mColorDepth = ColorDepthNotRecognized;
-+bool mSwapped = false;
-+//unsigned int mTotalTime = 0;
-+
-+//unsigned int mTotalCount = 0;
-+
-+ /*typedef std::vector<DWORD> FadeValues; 
-+    //std::map<DWORD, FadeValues>* mPrecalculatedFadeValues; */
-+
-+//redink1 added for midi looping
-+
-+bool mLoopMidi = false;
-+//redink1 added for base push
-+
-+unsigned int mDinkBasePush = 310;
-+//redink1 added for true-color fade, amoung other things
-+
-+DWORD dwRMask;
-+DWORD dwGMask;
-+DWORD dwBMask;
-+WORD wRBits;
-+WORD wGBits;
-+WORD wBBits;
-+WORD wRPos;
-+WORD wGPos;
-+WORD wBPos;
+@@ -49,0 +68,0 @@
 [...]
 +//redink1 added for console
 +
@@ -87,14 +50,6 @@
  };
  struct seth_joy
  {
-@@ -607,6 +736,7 @@
- LPDIRECTDRAWSURFACE lpDDSTwo = NULL;	// Offscreen surface 2
- LPDIRECTDRAWSURFACE lpDDSTrick = NULL;	// Offscreen surface 2
- LPDIRECTDRAWSURFACE lpDDSTrick2 = NULL;	// Offscreen surface 2
-+LPDIRECTDRAWSURFACE lpDDSFade = NULL;	//redink1 surface for true-color fade-downs
- bool trig_man = false;
- bool total_trigger = false;
- bool debug_mode = false;
 @@ -635,7 +765,8 @@
  BYTE torusColors[256];		// Marks the colors used in the torus
  HWND hWndMain = NULL;
@@ -142,23 +97,6 @@
        last_saved_game = num;
        return (true);
      }
-@@ -2723,6 +2962,8 @@
-   return psurf;
- }				/* DDCreateSurface */
- 
-+//redink1 and Invertigo fix for windowed/true color mode
-+
- void
- load_sprite_pak (char org[100], int nummy, int speed, int xoffset,
- 		 int yoffset, RECT hardbox, bool notanim, bool black,
-@@ -2738,6 +2979,7 @@
-   DDCOLORKEY ddck;
-   int x, y, dib_pitch;
-   BYTE *src, *dst;
-+  DWORD ddst;
-   char fname[20];
-   LPTSTR dump;
- //IDirectDrawSurface *pdds;
 @@ -3976,7 +4359,14 @@
    if (ddrval == DDERR_WASSTILLDRAWING)
      goto again3;
@@ -288,16 +226,6 @@
  	  {
  	    figure_out (seq[h].data, 0);
  	  }
-@@ -5050,8 +5652,7 @@
- 
- //Msg("Sprite %d's seq is %d",h,spr[h].seq);
- 
--	    dderror = k[seq[h].frame[1]].k->IsLost ();
--	    if (dderror == DDERR_SURFACELOST)
-+	    if (k[seq[h].frame[1]].k->IsLost () == DDERR_SURFACELOST)
- 	      {
- 		get_word (seq[h].data, 2, word1);
- 		reload_sprites (word1, h, 0);
 @@ -6352,7 +7029,14 @@
    return (*change);
  }
@@ -354,24 +282,7 @@
  	if (mnum != last_magic_draw)
  	  {
  	    draw_mlevel (mnum);
-@@ -7669,6 +8384,16 @@
-   DDBLTFX ddbltfx;
-   ZeroMemory (&ddbltfx, sizeof (ddbltfx));
-   ddbltfx.dwSize = sizeof (ddbltfx);
-+//redink1 fix for correct fill_screen colors in truecolor mode
-+
-+  if (truecolor)
-+    {
-+      lpDDPal->GetEntries (0, 0, 256, pe);
-+      ddbltfx.dwFillColor =
-+	pe[num].peBlue << wBPos | pe[num].peGreen << wGPos | pe[num].
-+	peRed << wRPos;
-+    }
-+  else
-   ddbltfx.dwFillColor = num;
-   crap =
-     lpDDSTwo->Blt (NULL, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-@@ -8019,74 +8747,56 @@
+@@ -8019,21 +8747,8 @@
  	strcpy (s, h);
  	return (1);
        }
@@ -586,27 +497,6 @@
  	return (0);
        }
      if (compare (ev[1], "choice_start"))
-@@ -8641,3 +9908,20 @@
-+//redink1 added
-+
-+    if (compare (ev[1], "loopmidi"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    if (nlist[0] > 0)
-+	      {
-+		mLoopMidi = true;
-+	      }
-+	    else
-+	      {
-+		mLoopMidi = false;
-+	      }
-+	  }
-       }
-     if (compare (ev[1], "playmidi"))
-       {
 @@ -9712,6 +11086,10 @@
  	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
  	if (get_parms (ev[1], script, h, p))
