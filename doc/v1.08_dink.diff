@@ -187,7 +187,7 @@
    if (magic_script != 0)
      if (sjoy.joybit[3])
        goto shootm;
-@@ -2496,10 +2665,21 @@
+@@ -2496,6 +2665,15 @@
      {
        if (magic_script == 0)
  	{
@@ -203,13 +203,6 @@
  	  int randy = (rand () % 6) + 1;
  	  kill_text_owned_by (h);
  #ifdef __GERMAN
--	  if (randy == 3)
-+
-+//if (randy == 3) 
-+
- 	    if (randy == 1)
- 	      say_text
- 		("`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann..",
 @@ -2521,8 +2701,9 @@
  	  if (randy == 5)
  	    say_text ("`$Nothing happened.", h, 0);
@@ -257,21 +250,6 @@
    if (spr[h].skip > 0)
      if (spr[h].skip <= spr[h].skiptimer)
        {
-@@ -3109,6 +3297,14 @@
- void
- CyclePalette ()
- {
-+//redink1 truecolor fadedown...
-+
-+  if (truecolor)
-+    {
-+      process_downcycle = true;
-+    }
-+  else
-+    {
-   int reg[15];
-   int k;
-   bool done_this_time = true;
 @@ -3117,31 +3313,32 @@
        Msg ("error with getting entries");
        return;
@@ -314,46 +292,6 @@
  	}
      }
    lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
-@@ -3163,13 +3360,21 @@
- 	    }
- 	}
-     }
--} void
-+}} void
- 
- up_cycle (void)
- {
-+//redink1 added this for true-color fade support
-+
-+  if (truecolor)
-+    {
-+      process_upcycle = true;
-+    }
-+  else
-+    {
-   bool donethistime = true;
-   if (lpDDPal->GetEntries (0, 0, 256, pe) != DD_OK)
-     {
-       Msg ("error with getting entries");
-       return;
-     }
-@@ -3224,7 +3431,7 @@
- 	    run_script (junk);
- 	  }
-       }
--} void
-+}} void
- 
- draw_box (RECT box, int color)
- {
-@@ -3280,6 +3726,7 @@
-       SetRect (&rcRectSrc, 0, 0, 640, 480);
-       ddbltfx.dwSize = sizeof (ddbltfx);
-       ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
-+      lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
-       ddrval =
- 	lpDDSPrimary->Blt (&rcRectDest, lpDDSBack, &rcRectSrc,
- 			   DDBLT_DDFX | DDBLT_WAIT, &ddbltfx);
 @@ -3358,6 +3805,9 @@
  		draw_box (box, 33);
  	      if (inside_box (spr[h].x, spr[h].y, box))

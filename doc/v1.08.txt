@@ -148,6 +148,9 @@ Fixes:
 Improvements:
 [X] Support for high-color (-truecolor parameter).
     => Implemented conditionally 2008-07-15 -> 2008-07-17
+[ ] Change the fade_down (but not fade_up) palette-mode algorithm to
+    use time-based rather than absolute increments. Should avoid
+    incomplete fades on slow computers.
 
 Improvements that potentially break backward compatibility:
 [ ] "dnotalk" script is run if no sprites are around when Dink talks (not
