@@ -570,7 +570,7 @@ animate:
 									spr[h].nocontrol = /*false*/0;
 									
 									
-									if (h == 1) if (in_this_base(spr[h].seq_orig,310))
+									if (h == 1) if (in_this_base(spr[h].seq_orig, dink_base_push))
 										
 									{
 										
@@ -658,7 +658,7 @@ animate:
 									spr[h].nocontrol = /*false*/0;
 									
 									
-									if (h == 1) if (in_this_base(spr[h].seq_orig,310))
+									if (h == 1) if (in_this_base(spr[h].seq_orig, dink_base_push))
 										
 									{
 										

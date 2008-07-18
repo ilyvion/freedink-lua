@@ -3979,6 +3979,17 @@ pass:
 	return(0);
       }
 
+    //redink1
+    if (compare(ev[1], "set_dink_base_push"))
+      {
+	h = &h[strlen(ev[1])];
+	int p[20] = {1,0,0,0,0,0,0,0,0,0};  
+	if (get_parms(ev[1], script, h, p))
+	  dink_base_push = nlist[0];
+	strcpy(s, h);  
+	return(0);
+      }
+
     }
 
 

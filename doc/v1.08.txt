@@ -255,8 +255,9 @@ New functions:
     tiles on the current screen from 1 (upper-left corner) to 96 (lower-right
     corner).
     => Implemented conditionally 2008-07-07
-[ ] set_dink_base_push(int dinkbasepush)
+[X] set_dink_base_push(int dinkbasepush)
     Sets the base-push for Dink.  Default is 310.  Not saved with save games.
+    => Implemented conditionally 2008-07-18
 [X] set_font_color(int colorindex, int red, int green, int blue)
     Changes the specified color index to the specified color.
     => Implemented conditionally 2008-07-07

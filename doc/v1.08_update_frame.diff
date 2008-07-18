@@ -19,26 +19,6 @@
    if ((GetKeyboard (81)) && (GetKeyboard (18)))
      {
  //shutdown game
-@@ -405,7 +449,8 @@
- 				spr[h].seq = 0;
- 				spr[h].nocontrol = false;
- 				if (h == 1)
--				  if (in_this_base (spr[h].seq_orig, 310))
-+				  if (in_this_base
-+				      (spr[h].seq_orig, mDinkBasePush))
- 				    {
- 				      play.push_active = false;
- 				      if (play.push_dir == 2)
-@@ -494,7 +539,8 @@
- 				  spr[h].seq = 0;
- 				  spr[h].nocontrol = false;
- 				  if (h == 1)
--				    if (in_this_base (spr[h].seq_orig, 310))
-+				    if (in_this_base
-+					(spr[h].seq_orig, mDinkBasePush))
- 				      {
- 					play.push_active = false;
- 					if (play.push_dir == 2)
 @@ -758,6 +804,31 @@
  	      DrawText (hdc, msg, lstrlen (msg), &rcRect, DT_WORDBREAK);
  	    }

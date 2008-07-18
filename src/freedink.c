@@ -1828,7 +1828,7 @@ int check_if_move_is_legal(int u)
 
 {
 	if (spr[u].move_active) if (spr[u].move_nohard == 1) return(0);
-	if (u == 1) if (in_this_base(spr[u].seq, 310)) return(0);
+	if (u == 1) if (in_this_base(spr[u].seq, dink_base_push)) return(0);
 	
 	int hardness = 0;
 	if (spr[u].moveman > 0)
@@ -2709,7 +2709,7 @@ void human_brain(int h)
 	
 	if (play.push_active) if (play.push_timer + 600 < thisTickCount)
 	{
-		spr[h].seq = 310+spr[h].dir;
+		spr[h].seq = dink_base_push + spr[h].dir;
 		spr[h].frame = 1;
 		spr[h].nocontrol = /*true*/1;
 		//play.push_active = /*false*/0;

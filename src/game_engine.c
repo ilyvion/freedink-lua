@@ -89,6 +89,8 @@ double truecolor_fade_brightness = 256;
 /* Time elapsed since last fade computation; -1 is disabled */
 Uint32 truecolor_fade_lasttick = -1;
 
+/* Base for Dink's push sequences */
+extern unsigned int dink_base_push = 310;
 
 /* Sound - SFX */
         int get_pan(int h)
