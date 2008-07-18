@@ -486,17 +486,6 @@
  	if (get_parms (ev[1], script, h, p))
  	  {
  	    wait.active = false;
-@@ -8297,6 +9564,10 @@
- 
- 	update_screen_time ();
- 	load_map (map.loc[*pmap]);
-+//redink1 fix for correct indicator on mini-map
-+
-+	if (map.indoor[*pmap] == 0)
-+	  play.last_map = *pmap;
- 	return (0);
-       }
-     if (compare (ev[1], "choice_start"))
 @@ -9712,6 +11086,10 @@
  	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
  	if (get_parms (ev[1], script, h, p))

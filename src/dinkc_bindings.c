@@ -1039,6 +1039,11 @@ pass:
                         //Msg("Loading map %d..",*pmap);
                         update_screen_time();
                         load_map(map.loc[*pmap]);
+
+			// update indicator on mini-map
+			if (map.indoor[*pmap] == 0)
+			  play.last_map = *pmap;
+
                         return(0);
                 }
 
