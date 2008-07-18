@@ -3951,6 +3951,16 @@ pass:
 	if (get_parms(ev[1], script, h, p))
 	  loopmidi(nlist[0]);
       }
+
+    //redink1 added this function to show the item screen
+    if (compare(ev[1], "show_inventory"))
+      {
+	h = &h[strlen(ev[1])];
+	item_screen = 1;
+	strcpy(s, h);  
+	return(0);
+      }
+
     }
 
 

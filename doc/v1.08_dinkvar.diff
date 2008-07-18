@@ -413,22 +413,6 @@
  	return (0);
        }
 [...]
--    if (compare (ev[1], "kill_this_item"))
-+//redink1 added this function to show the item screen
-+
-+    if (compare (ev[1], "show_inventory"))
-       {
- 	h = &h[strlen (ev[1])];
--	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
--	if (get_parms (ev[1], script, h, p))
--	  {
--	    kill_cur_item_script (slist[0]);
--	  }
-+	item_screen = true;
- 	strcpy (s, h);
- 	return (0);
-       }
-[...]
 +//redink1
 +
 +    if (compare (ev[1], "sp_custom"))

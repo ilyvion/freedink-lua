@@ -264,8 +264,9 @@ New functions:
     => Implemented conditionally 2008-07-07
 [ ] show_console()
     Shows the console, which accepts DinkC commands as input (Escape to cancel).
-[ ] show_inventory()
+[X] show_inventory()
     Displays the inventory screen.
+    => Implemented conditionally 2008-07-18
 [X] sp_blood_seq(int sprite, int seq)
     The start of the blood sequences.
     => Implemented conditionally 2008-07-04
