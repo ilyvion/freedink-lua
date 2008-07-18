@@ -5055,7 +5055,7 @@ void process_show_bmp( void )
   if (showb.showdot)
     {
       //let's display a nice dot to mark where they are on the map
-      int x = play.last_map;
+      int x = play.last_map - 1;
       int mseq = 165;
       
       showb.picframe++;
@@ -5068,8 +5068,8 @@ void process_show_bmp( void )
       {
 	SDL_Rect dst;
 	// convert map# to a (x,y) position on a FreeDinkEdit minimap
-	dst.x = x * 20 - x/32 * 640 - 20;
-	dst.y = x/32 * 20;
+	dst.x = (x % 32) * 20;
+	dst.y = (x / 32) * 20;
 	SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
       }
     }

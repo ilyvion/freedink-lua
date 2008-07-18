@@ -302,19 +302,7 @@
  		  if (spr[i].nohit == 1)
  		    {
  		      if (spr[i].script > 0)
-@@ -4446,20 +4893,19 @@
-     {
- //let's display a nice dot to mark where they are on the map
- 
--      int x = play.last_map;
-+      int x = play.last_map - 1;
-       int mseq = 165;
-       showb.picframe++;
-       if (showb.picframe > index[mseq].last)
- 	showb.picframe = 1;
-       int mframe = showb.picframe;
--      lpDDSBack->BltFast (((x) * 20 - ((x / 32) * 640)) - 20, (x / 32) * 20,
-+      lpDDSBack->BltFast ((x % 32) * 20, (x / 32) * 20,
+@@ -4446,10 +4893,9 @@
  			  k[seq[mseq].frame[mframe]].k,
  			  &k[seq[mseq].frame[mframe]].box,
  			  DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);

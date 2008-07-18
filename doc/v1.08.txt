@@ -133,8 +133,6 @@ Fixes:
     experience count issues.
 [ ] Status is drawn on load so the magic-level is always displayed.
 [ ] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
-[ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
-    infinite loop of hard-drive punishment).
 [ ] Restoring game will not redraw status bar if it wasn't drawn.
 [X] Fixed issue of loading regular bmp sequences over top of previous sequences
     (before the animation would be 'corrupt')
@@ -145,12 +143,12 @@ Fixes:
 [X] Removed extra space in "I'm gesturing wildly to  no avail!"
     => Fixed 2008-06-08
 
+[ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
+    infinite loop of hard-drive punishment).
+
 Improvements:
 [X] Support for high-color (-truecolor parameter).
     => Implemented conditionally 2008-07-15 -> 2008-07-17
-[ ] Change the fade_down (but not fade_up) palette-mode algorithm to
-    use time-based rather than absolute increments. Should avoid
-    incomplete fades on slow computers.
 
 Improvements that potentially break backward compatibility:
 [ ] "dnotalk" script is run if no sprites are around when Dink talks (not
@@ -186,6 +184,7 @@ DinkC changes:
 Fixes:
 [X] playavi(str avifile)
     Removed command.
+    => Cf. dinkc.chm entry
     => Implemented unconditionaly 2008-03-09
 [X] run_script_by_number(int script, "proc");
     No longer runs a random procedure if it cannot locate proc specified.
@@ -295,74 +294,11 @@ New functions:
 [ ] sp_move_y(int sprite, int value)
     Like sp_my, but does not return a value.
 
-
-dinkc.chm
----------
-
-[ ] entry for hurt():
-
-"In 1.07 and earlier, a negative damage value would cause the game to
-freeze.  1.08 and later will ignore the command safely."
-
-=> Actually, I couldn't reproduce the freeze, so v1.08 is essentially
-   changing DinkC's behavior: with v1.07 hurt(&sthing, -1) would run
-   hit(), with v1.08 it doesn't.
-
-
-- entry for say():
-"Also in 1.07 and earlier, Dink would not interpret lines with a colon
-correctly, like so:say("bonus: 5 points", 1); // would not display any
-text at all!This issue has also been fixed in 1.08."
-
-- entry for sp_move_nohard():
-"In 1.07 and earlier, the move_no_hard value only had an effect when
-the active_sprite was actively moving (through move and move_stop
-commands). In 1.08+, the move_no_hard value should take effect at all
-times."
-
-- entry for show_bmp():
-"1.07 had a couple bugs displaying the map dot: it would not be
-displayed properly if Dink was warped using DinkC or if he was on the
-32nd screen of any row. This has been fixed in 1.08+."
-
-- entry for playavi():
-"playavi was removed from 1.08+.  In early development versions of
-Dink Smallwood, this command was used to call an external dplay.exe
-file to play avi movies. However, this was not implemented in the
-final game as it didn't work very well. Before the Dink Smallwood
-source code was released, Dan Walma used this command to add
-additional features, like changing maps. He released dPlay, a
-replacement for dplay.exe. No D-Mods were released that took advantage
-of this functionality."
-
-
-Diffing
--------
-
-Files cannot be diffed directly because the indentation changed.
-
-The best way to get rid of identation differences is to transform
-source files into canonical forms and indent them:
-
-# Remove the few lines containing to std::*, which confuse 'indent'
-./c_canonicalize.sh a
-./c_canonicalize.sh b
-diff -u -Bbw a_canonical b_canonical
-
-
-Diff overview
--------------
-
-- dink.cpp: ~75kB. Numerous references to the console mode, which
-  needs to take over input at several points in the code.
-
-- dinkedit.cpp: only a few grammar changes.
-
-- update_frame.cpp: ~7kB. mconsole, framerate, one thing about MIDI,
-  and a couple clean-up.
-
-- dinkvar.h: ~190kB. TrueColor mode, scope?, ...
-
+Non-changes:
+[?] Variables are no longer shared between two instances of the same
+    script.
+    => Unless I'm mistaken, this is already the case in v1.07.
+    Local ones, at least.
 
 Changes not documented in whatsnew.txt
 --------------------------------------
@@ -375,6 +311,10 @@ Changes not documented in whatsnew.txt
 
 [ ] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
+
+[ ] Change the fade_down (but not fade_up) palette-mode algorithm to
+    use time-based rather than absolute increments. Should avoid
+    incomplete fades on slow computers.
 
 [X] New DinkC function: set_smooth_follow
     => Implemented conditionally 2008-07-08
@@ -418,6 +358,62 @@ Changes not documented in whatsnew.txt
     1.08+ locks Dink's speed value to the sp_speed equivalents in the
     table."
 
+[X] entry for say(): "Also in 1.07 and earlier, Dink would not
+    interpret lines with a colon correctly, like so: say("bonus: 5
+    points", 1); // would not display any text at all! This issue has
+    also been fixed in 1.08."
+
+[ ] entry for hurt(): "In 1.07 and earlier, a negative damage value
+    would cause the game to freeze.  1.08 and later will ignore the
+    command safely."
+
+    => Actually, I couldn't reproduce the freeze, so v1.08 is
+       essentially changing DinkC's behavior: with v1.07 hurt(&sthing,
+       -1) would run hit(), with v1.08 it doesn't.
+
+[X] entry for show_bmp(): "1.07 had a couple bugs displaying the map
+    dot: it would not be displayed properly if Dink was warped using
+    DinkC or if he was on the 32nd screen of any row. This has been
+    fixed in 1.08+."
+    => Fixed unconditionaly 2007-07-18
+
+Changes eventually not implemented
+----------------------------------
+
+* Dynamic (shell- and Perl4-style) scope in DinkC (referenced in "The
+  Three Pillars of Dink v1.08" link above). Good ridance ;)
+
+dinkc.chm (additional information)
+----------------------------------
+
+- entry for playavi(): "playavi was removed from 1.08+.  In early
+development versions of Dink Smallwood, this command was used to call
+an external dplay.exe file to play avi movies. However, this was not
+implemented in the final game as it didn't work very well. Before the
+Dink Smallwood source code was released, Dan Walma used this command
+to add additional features, like changing maps. He released dPlay, a
+replacement for dplay.exe. No D-Mods were released that took advantage
+of this functionality."
+
+- entry for sp_move_nohard(): "In 1.07 and earlier, the move_no_hard
+value only had an effect when the active_sprite was actively moving
+(through move and move_stop commands). In 1.08+, the move_no_hard
+value should take effect at all times."
+
+
+Diffing
+=======
+
+Files cannot be diffed directly because the indentation changed.
+
+The best way to get rid of identation differences is to transform
+source files into canonical forms and indent them:
+
+# Remove the few lines containing to std::*, which confuse 'indent'
+./c_canonicalize.sh a
+./c_canonicalize.sh b
+diff -u -Bbw a_canonical b_canonical
+
 
 Compilation
 ===========
@@ -429,19 +425,3 @@ applications (eg. it's doesn't provide windows.h).
 Trying to compile with VC++6 triggers lots of C++ template errors and
 one undefined DDLOCK_DONOTWAIT symbol, plus loads of warnings about
 truncated mangled names. I haven't put much work into it.
-
-
-Forsaken changes
-================
-
-* Dynamic (shell- and Perl4-style) scope in DinkC (referenced in "The
-  Three Pillars of Dink v1.08" link above)
-
-
-Non-changes
-===========
-
-[?] Variables are no longer shared between two instances of the same
-    script.
-    => Unless I'm mistaken, this is already the case in v1.07.
-    Local ones, at least.
