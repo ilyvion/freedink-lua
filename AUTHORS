@@ -15,7 +15,7 @@ Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
 
 
 Dan Walma wrote improvements to the original engine as version
-"1.08". Some of these changes are included.
+"1.08". Some of these changes are included (see doc/v1.08.txt).
 2005, 2006: first alpha versions, followed by beta versions (binary only)
 2006-03-10: official release with source code
 
@@ -27,8 +27,8 @@ print_text(), print_text_wrap(), font_len(),
 process_text_for_wrapping(), strupper() -> strupr().
 
 
-Sylvain Beucler started from the v1.07 source code release and, except
-the code from Shawn Betts, wrote it all.
+Sylvain Beucler started from the v1.07 source code release and coded
+all the other changes.
 
 ---
 Copying and distribution of this file, with or without modification,
