@@ -3961,6 +3961,19 @@ pass:
 	return(0);
       }
 
+    //redink1 - returns the number of variables used
+    if (compare(ev[1], "var_used"))
+      {
+	h = &h[strlen(ev[1])];
+	int m = 0;
+	int i;
+	for (i = 1; i < MAX_VARS; i++)
+	  if (play.var[i].active == 1)
+	    m++;
+	returnint = m;
+	return(0);
+      }
+
     }
 
 

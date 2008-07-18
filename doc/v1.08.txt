@@ -281,8 +281,9 @@ New functions:
 [X] sp_freeze(int sprite, bool freeze (-1 to return))
     If 1, acts like freeze.  If 0, acts like unfreeze.  -1 will return whether
     the given sprite is frozen or not (basically a better 'busy' function).
-[ ] var_used()
+[X] var_used()
     Returns the number of variables used.
+    => Implemented conditionally 2008-07-18
 [ ] sp_move_x(int sprite, int value)
     Like sp_mx, but does not return a value.
 [ ] sp_move_y(int sprite, int value)

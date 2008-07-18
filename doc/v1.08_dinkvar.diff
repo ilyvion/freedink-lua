@@ -396,23 +396,6 @@
 +	mConsoleActive = true;	/*int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { if ( nlist[0] >= 1 ) { mConsoleActive = true; } else { mConsoleActive = false; } } returnint = 0; if ( mConsoleActive ) { returnint = 1; } */
        }
 [...]
--    if (compare (ev[1], "reset_timer"))
-+//redink1 - returns the number of variables used
-+
-+    if (compare (ev[1], "var_used"))
-       {
- 	h = &h[strlen (ev[1])];
--	time (&time_start);
--	play.minutes = 0;
--	strcpy (s, h);
-+	int m = 0;
-+	for (int i = 1; i < max_vars; i++)
-+	  if (play.var[i].active == true)
-+	    m++;
-+	returnint = m;
- 	return (0);
-       }
-[...]
 +//redink1
 +
 +    if (compare (ev[1], "sp_custom"))
