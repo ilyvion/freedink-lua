@@ -51,12 +51,7 @@
      sjoy.joybit[1] = TRUE;
    if (GetKeyboard (32))
      sjoy.joybit[2] = TRUE;
-@@ -364,8 +369,11 @@
-     sjoy.joybit[5] = TRUE;
-   if (GetKeyboard (54))
-     sjoy.joybit[6] = TRUE;
-+      if (GetKeyboard (77))
-+	sjoy.joybit[6] = TRUE;
+@@ -364,5 +369,6 @@
    if (GetKeyboard (55))
      sjoy.joybit[7] = TRUE;
 +    }
@@ -141,16 +136,7 @@
  	{
  	  if (x5 == 32)
  	    x5++;
-@@ -2480,15 +2622,42 @@
- 	    }
- 	}
-     }
--  if ((sjoy.button[6] == TRUE)
--      || ((GetKeyboard (77)) && (but_timer < thisTickCount)))
-+    }
-+  if (sjoy.button[6] == TRUE)
-     {
--      but_timer = thisTickCount + 200;
+@@ -2480,8 +2622,36 @@
        int mycrap = load_script ("BUTTON6", 1, false);
        if (locate (mycrap, "MAIN"))
  	run_script (mycrap);
@@ -302,18 +288,6 @@
  		  if (spr[i].nohit == 1)
  		    {
  		      if (spr[i].script > 0)
-@@ -4446,10 +4893,9 @@
- 			  k[seq[mseq].frame[mframe]].k,
- 			  &k[seq[mseq].frame[mframe]].box,
- 			  DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT);
-     }
-   if ((sjoy.button[1]) || (sjoy.button[2]) || (sjoy.button[3])
--      || (sjoy.button[4]) || (sjoy.button[5]) || (sjoy.button[6])
--      || ((GetKeyboard (77)) && (but_timer < thisTickCount)))
-+      || (sjoy.button[4]) || (sjoy.button[5]) || (sjoy.button[6]))
-     {
-       showb.active = false;
-       if (showb.script != 0)
 @@ -4601,7 +5047,10 @@
        bActive = wParam;
        break;

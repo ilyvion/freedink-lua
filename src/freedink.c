@@ -135,6 +135,7 @@ void check_joystick(void)
   if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = 1;
   if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = 1;
   if (GetKeyboard('6')) sjoy.joybit[6] = 1;
+  if (GetKeyboard('m')) sjoy.joybit[6] = 1;
   if (GetKeyboard('7')) sjoy.joybit[7] = 1;
   
   {
@@ -2812,11 +2813,8 @@ void human_brain(int h)
 	}
 	
 	
-	if ( (sjoy.button[6] == /*TRUE*/1)  || ( (GetKeyboard('m')) && (but_timer < thisTickCount)   )   )
+	if (sjoy.button[6] == 1)
 	{
-		
-		but_timer = thisTickCount+200;
-		
 		int mycrap = load_script("BUTTON6", 1, /*false*/0);
 		if (locate(mycrap, "MAIN")) run_script(mycrap);
 		goto b1end;
@@ -5080,8 +5078,7 @@ void process_show_bmp( void )
       || (sjoy.button[3])
       || (sjoy.button[4])
       || (sjoy.button[5])
-      || (sjoy.button[6]) 
-      || ((GetKeyboard('m')) && ( but_timer < thisTickCount)))
+      || (sjoy.button[6]))
     {
       showb.active = /*false*/0;
       if (showb.script != 0)

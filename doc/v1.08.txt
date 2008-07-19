@@ -132,7 +132,8 @@ Fixes:
 [ ] Level-up no longer lost if in inventory screen, fixed several other
     experience count issues.
 [ ] Status is drawn on load so the magic-level is always displayed.
-[ ] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
+[X] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
+    => Implemented unconditionaly 2008-07-19
 [ ] Restoring game will not redraw status bar if it wasn't drawn.
 [X] Fixed issue of loading regular bmp sequences over top of previous sequences
     (before the animation would be 'corrupt')
