@@ -285,6 +285,18 @@ int init(int argc, char *argv[])
   if (!check_arg(argc, argv))
     return 0;
 
+  /* Engine */
+  /* Start with this initialization as it resets structures that are
+     filled in other subsystems initialization */
+  /* Clean the game state structure - done by C++ but not
+     automatically done by C, and this causes errors. TODO: fix the
+     errors properly instead of using this dirty trick. */
+  memset(&play, 0, sizeof(play));
+
+  memset(&hmap, 0, sizeof(hmap));
+  memset(&pam, 0, sizeof(pam));
+  dinkini_init();
+
 
   if (sound_on) 
     {
@@ -330,17 +342,6 @@ int init(int argc, char *argv[])
 
   /* Maybe use SDL_QuitSubSystem instead */
   atexit(SDL_Quit);
-
-
-  /* Engine */
-  /* Clean the game state structure - done by C++ but not
-     automatically done by C, and this causes errors. TODO: fix the
-     errors properly instead of using this dirty trick. */
-  memset(&play, 0, sizeof(play));
-
-  memset(&hmap, 0, sizeof(hmap));
-  memset(&pam, 0, sizeof(pam));
-  dinkini_init();
 
   return 1;
 }

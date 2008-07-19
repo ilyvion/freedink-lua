@@ -670,6 +670,7 @@ void decipher_string(char line[200], int script)
 	  else if (play.button[decipher_savegame] == 8)   replace("&buttoninfo", "Unused", line);
 	  else if (play.button[decipher_savegame] == 9)   replace("&buttoninfo", "Unused", line);
 	  else if (play.button[decipher_savegame] == 10)  replace("&buttoninfo", "Unused", line);
+	  else replace("&buttoninfo", "Error: not mapped", line);
 	}
     }
 
