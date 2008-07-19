@@ -46,6 +46,7 @@ int main(void)
     Gloss = screen->format->Gloss,
     Bloss = screen->format->Bloss,
     Aloss = screen->format->Bloss;
+  printf("SDL depth: %d\n", screen->format->BitsPerPixel);
   printf("%x %x %x %x\n", Rmask, Gmask, Bmask, Amask);
   printf("%d %d %d %d\n", Rshift, Gshift, Bshift, Ashift);
   printf("%d %d %d %d\n", Rloss, Gloss, Bloss, Aloss);
@@ -107,9 +108,9 @@ cache [65536][32+1]: 118
   for (i = 0; i <= 32; i++)
     {
       cache[i] = malloc(65536*sizeof(unsigned short));
-      switch(screen->format->BitsPerPixel)
+      if (screen->format->BitsPerPixel == 16
+	   && screen->format->Gmask == 0x07E0)
 	{
-	case 16: /* RGB565 */
 	  cache[i] = malloc(65536*sizeof(unsigned short));
 	  for (j = 0; j < 65536-1; j++)
 	    {
@@ -121,8 +122,11 @@ cache [65536][32+1]: 118
       	    }
 	  // keep white; 0xFFFF = 11111 111111 11111 = 65535
 	  cache[i][0xFFFF] = 0xFFFF;
-	  break;
-	case 15: /* RGB555 */
+	}
+      else if ((screen->format->BitsPerPixel == 15)
+	       || (screen->format->BitsPerPixel == 16
+		   && screen->format->Gmask == 0x03E0))
+	{
 	  cache[i] = malloc(32768*sizeof(unsigned short));
 	  for (j = 0; j < 32768-1; j++)
 	    {
@@ -134,7 +138,6 @@ cache [65536][32+1]: 118
 	    }
 	  // keep white; 0x7FFF = 0 11111 11111 11111 = 32767
 	  cache[i][0x7FFF] = 0x7FFF;
-	  break;
 	}
     }
 /*   unsigned short cache[(32+1)*65536]; */
