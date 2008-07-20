@@ -2586,687 +2586,628 @@ void process_bow( int h)
 
 
 
-
+/**
+ * Player
+ */
 void human_brain(int h)
-
 {
+  int diag, x5;
+  int crap;
+  /*BOOL*/int bad;
+  
+  if (mode == 0)
+    goto b1end;
+  
+  if (spr[h].move_active)
+    {
+      process_move(h);
+      return;
+    }
 	
-	int diag, x5;
-	int crap;
-	/*BOOL*/int bad;
-	
-	if (mode == 0) goto b1end;			
-	
-	
-	if (spr[h].move_active) 
+  if (spr[h].damage > 0)
+    {
+      draw_damage(h);
+      
+      *plife -= spr[h].damage;
+      
+      spr[h].damage = 0;
+      if (*plife < 0)
+	*plife = 0;
+		
+      int hurt = (rand() % 2)+1;
+		
+      if (hurt == 1)
+	SoundPlayEffect(15, 25050, 2000, 0,0);
+      if (hurt == 2)
+	SoundPlayEffect(16, 25050, 2000, 0,0);
+		
+      //draw blood
+    }
+  
+  if (play.push_active)
+    {
+      if (play.push_dir == 2 && !sjoy.down) 
 	{
-		process_move(h);
-		return;
+	  spr[h].nocontrol = /*false*/0;
+	  play.push_active = /*false*/0;
 	}
-	
-	
-	if (spr[h].damage > 0)
+      
+      if (play.push_dir == 4 && !sjoy.left) 
 	{
-		
-		draw_damage(h);
-		
-		*plife -= spr[h].damage;
-		
-		spr[h].damage = 0;
-		if (*plife < 0) *plife = 0;
-		
-		int hurt = (rand() % 2)+1;
-		
-		if (hurt == 1) SoundPlayEffect( 15,25050, 2000 ,0,0);
-		if (hurt == 2) SoundPlayEffect( 16,25050, 2000 ,0,0);
-		
-		
-		//draw blood
-		
+	  spr[h].nocontrol = /*false*/0;
+	  play.push_active = /*false*/0;
 	}
-	
-	
-	if (play.push_active)
+      if (play.push_dir == 6 && !sjoy.right) 
 	{
-		
-		if (play.push_dir == 2) if (!sjoy.down) 
+	  spr[h].nocontrol = /*false*/0;
+	  play.push_active = /*false*/0;
+	}
+      
+      if (play.push_dir == 8 && !sjoy.up) 
+	{
+	  spr[h].nocontrol = /*false*/0;
+	  play.push_active = /*false*/0;
+	}
+    }
+  
+  if (spr[h].nocontrol)
+    return;
+	
+  if (talk.active)
+    goto freeze;
+	
+  if (spr[h].freeze)
+    {
+      //they are frozen
+      if (sjoy.button[2] == 1 || sjoy.key[SDLK_SPACE])
+	{
+	  //they hit the talk button while frozen, lets hurry up the process
+	  int jj;
+	  for (jj = 1; jj <= last_sprite_created; jj++)
+	    {
+	      // Msg("Checking %d, brain %d, script %d, my freeze is %d",jj, spr[jj].brain, spr[jj].script, spr[h].freeze);
+	      if (spr[jj].brain == 8 && spr[jj].script == play.last_talk)
 		{
-			spr[h].nocontrol = /*false*/0;
-			play.push_active = /*false*/0;
+		  //this sprite owns its freeze
+		  spr[jj].kill_timer = 1;
+		  //force the message to be over
 		}
-		
-		if (play.push_dir == 4) if (!sjoy.left) 
-		{
-			spr[h].nocontrol = /*false*/0;
-			play.push_active = /*false*/0;
-		}
-		if (play.push_dir == 6) if (!sjoy.right) 
-		{
-			spr[h].nocontrol = /*false*/0;
-			play.push_active = /*false*/0;
-		}
-		
-		if (play.push_dir == 8) if (!sjoy.up) 
-		{
-			spr[h].nocontrol = /*false*/0;
-			play.push_active = /*false*/0;
-		}
-		
-		
+	    }
 	}
-	
-	if (spr[h].nocontrol) return;					
-	
-	if (talk.active) goto freeze;
-	
-	
-	if ( spr[h].freeze)
-		
-	{
-		//they are frozen
-		
-	  if ( (sjoy.button[2] == /*TRUE*/1) || (sjoy.key[SDLK_SPACE /* 32 */]))
-		{
-			//they hit the talk button while frozen, lets hurry up the process
-		  int jj;
-			for (jj = 1; jj <=  last_sprite_created; jj++)
-			{
-                
-				//							Msg("Checking %d, brain %d, script %d, my freeze is %d",jj, spr[jj].brain, spr[jj].script, spr[h].freeze);
-				if (spr[jj].brain == 8) if (spr[jj].script == play.last_talk)
-				{
-					//this sprite owns its freeze
-					
-					spr[jj].kill_timer = 1;
-					//force the message to be over
-				}
-				
-			}
-			
-			
-			
-			
-		}
-		
-		
-		
-		
-		goto freeze;
-	}
-	//******************************  KEYS THAT CAN BE PRESSED AT ANY TIME **************
-	
-	//if (GetKeyboard(127) PostMessage(hWnd, WM_CLOSE, 0, 0);
-	
-	
-	if (bow.active)
-	{
-		
-		//bow is active!!
-		process_bow(h);
-		return;
-	}
-	
-	
-	
-	if (play.push_active) if (play.push_timer + 600 < thisTickCount)
-	{
-		spr[h].seq = dink_base_push + spr[h].dir;
-		spr[h].frame = 1;
-		spr[h].nocontrol = /*true*/1;
-		//play.push_active = /*false*/0;
-		run_through_tag_list_push(h);
-		
-		return;
-	}
-	
-	
-	
-	if ( (sjoy.button[2] == /*TRUE*/1) )
-	{
-		
-		if (!run_through_tag_list_talk(h))
-		{
-			kill_text_owned_by(h);	
-			int randy = (rand() % 6)+1;
-			
-			
-#ifdef __GERMAN
-			if (randy == 1) say_text("`$Hier ist nichts.",h,0);
-			if (randy == 2) say_text("`$Huh?",h,0);
-			if (randy == 3) say_text("`$Ich bin mir ziemlich sicher ich kann dies weder ansprechen, noch benutzen.",h,0);
-			if (randy == 4) say_text("`$Was?",h,0);
-			if (randy == 5) say_text("`$Bah, LANGWEILIG.",h,0);
-			if (randy == 6) say_text("`$Hier passiert nichts.",h,0);
-			
-#endif
-			
-#ifdef __ENGLISH
-			if (randy == 1) say_text("`$I don't see anything here.",h,0);
-			if (randy == 2) say_text("`$Huh?",h,0);
-			if (randy == 3) say_text("`$I'm fairly sure I can't talk to or use that.",h,0);
-			if (randy == 4) say_text("`$What?",h,0);
-			if (randy == 5) say_text("`$I'm bored.",h,0);
-			if (randy == 6) say_text("`$Not much happening here.",h,0);
-#endif	
-		}	
-		
-		
-	}
-	
-	
-	if ( (sjoy.button[1] == /*TRUE*/1) && (weapon_script != 0) )
-	{
-		
-		
-		
-		if (spr[h].base_hit > 0)
-		{
-			
-			
-			if (locate(weapon_script, "USE")) run_script(weapon_script);
-			
-			goto b1end;
-			
-		}
-		
-	}
-	
-	
-	//added AGAIN 10-19-99
-	//Let's check keys for getting hit
-	if (thisTickCount > but_timer)  
-	{
-		for (x5=29; x5<256; x5++)
-		{ 
-			if (x5 == SDLK_SPACE) continue;
-			if (x5 == '6') continue;
-			if (x5 == '7') continue;
-			if (x5 == SDLK_LEFT) continue;
-			if (x5 == SDLK_UP) continue;
-			if (x5 == SDLK_RIGHT) continue;
-			if (x5 == SDLK_DOWN) continue;
-			if (x5 == 'm') continue;
-			/* Conflicts with remapped 'a'-'z' SDL
-			   keycodes: */
-			if (x5 >= 'A' && x5 <= 'Z') continue;
-			
-			char msg[30];
-			if (GetKeyboard(x5))
-			{
-			  int keycode = x5;
-			  // Get the same keycodes than the original
-			  // Dink engines, for letters
-			  if (x5 >= 'a' && x5 <= 'z')
-			    keycode = x5 - ('a' - 'A');
+      goto freeze;
+    }
 
-			  sprintf(msg, "key-%d", keycode);
-			  but_timer = thisTickCount+200;
+
+  //******************************  KEYS THAT CAN BE PRESSED AT ANY TIME **************
+  
+  if (bow.active)
+    {
+      //bow is active!!
+      process_bow(h);
+      return;
+    }
+
+  if (play.push_active && thisTickCount > play.push_timer + 600)
+    {
+      spr[h].seq = dink_base_push + spr[h].dir;
+      spr[h].frame = 1;
+      spr[h].nocontrol = /*true*/1;
+      //play.push_active = /*false*/0;
+      run_through_tag_list_push(h);
+      
+      return;
+    }
+  
+  if ((sjoy.button[2] == 1))
+    {
+      if (!run_through_tag_list_talk(h))
+	{
+	  int did_dnotalk = 0;
+	  if (dversion >= 108)
+	    {
+	      // addition of 'not talking to anything' script
+	      int sc = load_script ("dnotalk", 0, /*false*/0);
+	      if (sc != 0 && locate (sc, "MAIN"))
+		{
+		  run_script (sc);
+		  did_dnotalk = 1;
+		}
+	    }
+
+	  if (did_dnotalk == 0)
+	    {
+	      kill_text_owned_by(h);	
+	      int randy = (rand() % 6)+1;
+#ifdef __GERMAN
+	      if (randy == 1) say_text("`$Hier ist nichts.",h,0);
+	      if (randy == 2) say_text("`$Huh?",h,0);
+	      if (randy == 3) say_text("`$Ich bin mir ziemlich sicher ich kann dies weder ansprechen, noch benutzen.",h,0);
+	      if (randy == 4) say_text("`$Was?",h,0);
+	      if (randy == 5) say_text("`$Bah, LANGWEILIG.",h,0);
+	      if (randy == 6) say_text("`$Hier passiert nichts.",h,0);
+#endif
+#ifdef __ENGLISH
+	      if (randy == 1) say_text("`$I don't see anything here.",h,0);
+	      if (randy == 2) say_text("`$Huh?",h,0);
+	      if (randy == 3) say_text("`$I'm fairly sure I can't talk to or use that.",h,0);
+	      if (randy == 4) say_text("`$What?",h,0);
+	      if (randy == 5) say_text("`$I'm bored.",h,0);
+	      if (randy == 6) say_text("`$Not much happening here.",h,0);
+#endif	
+	    }
+	}
+    }
+	
+  if ((sjoy.button[1] == 1) && (weapon_script != 0))
+    {
+      if (spr[h].base_hit > 0)
+	{
+	  if (locate(weapon_script, "USE"))
+	    run_script(weapon_script);
+	  goto b1end;
+	}
+    }
+  
+  //added AGAIN 10-19-99
+  //Let's check keys for getting hit
+  if (thisTickCount > but_timer)  
+    {
+      for (x5=29; x5<256; x5++)
+	{ 
+	  if (x5 == SDLK_SPACE) continue;
+	  if (x5 == '6') continue;
+	  if (x5 == '7') continue;
+	  if (x5 == SDLK_LEFT) continue;
+	  if (x5 == SDLK_UP) continue;
+	  if (x5 == SDLK_RIGHT) continue;
+	  if (x5 == SDLK_DOWN) continue;
+	  if (x5 == 'm') continue;
+	  /* Conflicts with remapped 'a'-'z' SDL
+	     keycodes: */
+	  if (x5 >= 'A' && x5 <= 'Z') continue;
+	  
+	  char msg[30];
+	  if (GetKeyboard(x5))
+	    {
+	      int keycode = x5;
+	      // Get the same keycodes than the original
+	      // Dink engines, for letters
+	      if (x5 >= 'a' && x5 <= 'z')
+		keycode = x5 - ('a' - 'A');
+	      
+	      sprintf(msg, "key-%d", keycode);
+	      but_timer = thisTickCount+200;
+	      
+	      int mycrap = load_script(msg, 1, /*false*/0);
+	      if (locate(mycrap, "MAIN")) 
+		{
+		  run_script(mycrap);
+		  goto b1end;
+		}
+	    }
+	}
+    }
+  
+  int i;
+  int last_key = 6;
+  if (dversion >= 108)
+    last_key = 10;
+  for (i = 6; i <= last_key; i++)
+    {
+      // button6.c, button7.c, ..., button10.c
+      if (sjoy.button[i] == 1)
+	{
+	  char script_filename[6+2+1];
+	  sprintf(script_filename, "button%d", i);
+	  int mycrap = load_script(script_filename, 1, /*false*/0);
+	  if (locate(mycrap, "MAIN"))
+	    run_script(mycrap);
+	  goto b1end;
+	}
+    }
+  
+  if (magic_script != 0 && sjoy.joybit[3])
+    goto shootm;
+
+  if (sjoy.button[3] == 1)
+    {
+      if (magic_script == 0)
+	{
+	  if (dversion >= 108)
+	    {
+	      // addition of 'no magic' script
+	      int sc = load_script ("dnomagic", 0, /*false*/0);
+	      if (sc != 0 && locate (sc, "MAIN"))
+		{
+		  run_script (sc);
+		  goto b1end;
+		}
+	    }
+
+	  int randy = (rand() % 6)+1;
+	  kill_text_owned_by(h);	
+#ifdef __GERMAN
+	  if (randy == 1) say_text("`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann..",h,0);
+	  if (randy == 2) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
+	  if (randy == 3) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
+	  if (randy == 4) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
+	  if (randy == 5) say_text("`$Nichts ist passiert.",h,0);
+	  if (randy == 6) say_text("`$Hokus pokus!",h,0);
+#endif
+#ifdef __ENGLISH
+	  if (randy == 1) say_text("`$I don't know any magic.",h,0);
+	  if (randy == 2) say_text("`$I'm no wizard!",h,0);
+	  if (randy == 3) say_text("`$I need to learn magic before trying this.",h,0);
+	  if (randy == 4) say_text("`$I'm gesturing wildly to no avail!",h,0);
+	  if (randy == 5) say_text("`$Nothing happened.",h,0);
+	  if (randy == 6) say_text("`$Hocus pocus!",h,0);
+#endif
+	  goto b1end;
+	}
+		
+      //player pressed 1
+      //lets magiced something
+shootm:	
+      if (*pmagic_level >= *pmagic_cost)
+	{
+	  if (locate(magic_script, "USE"))
+	    run_script(magic_script);
+	  goto b1end;	
+	} 
+    }
+  
+  if (sjoy.button[4])
+    {
+      if (dversion >= 108)
+	{
+	  // addition of 'enter key/inventory' script
+	  int sc = load_script ("button4", 0, /*false*/0);
+	  if (sc != 0 && locate (sc, "MAIN"))
+	    {
+	      run_script (sc);
+	      return;
+	    }
+	}
+      
+      item_screen = /*true*/1;
+      SoundPlayEffect(18, 22050,0,0,0);
+      return;
+    }
+  
+  if (sjoy.button[5] == 1)
+    {
+      if (!showb.active && !bow.active && !talk.active)
+	{
+	  int sc = load_script("escape", 1000, /*false*/0);
+	  if (sc != 0 && locate(sc, "MAIN"))
+	    run_script(sc);
+	  return;
+	}
+    }
+	
+  if (GetKeyboard('b')) //66
+    {
+      ResumeMidi();
+    }
+  
+  if (GetKeyboard('n')) //78
+    {
+      PauseMidi();
+    }
+  
+  if (spr[h].skip > 0
+      && spr[h].skip <= spr[h].skiptimer)
+    {
+      spr[h].skiptimer = 0;
+      goto b1end;
+    }
+  
+  
+  diag = 0;
+  if (sjoy.right) diag++;
+  if (sjoy.left) diag++;
+  if (sjoy.down) diag++;
+  if (sjoy.up) diag++;
+
+  
+  //*********************************PROCESS MOVEMENT
+  
+  if (diag == 1)
+    {
+      if (sjoy.right)
+	{
+	  move(h,spr[h].speed,'+','0');
+	  changedir(6,h,spr[h].base_walk);
+	}
+      
+      if (sjoy.left) 
+	{
+	  move(h,spr[h].speed,'-','0');
+	  changedir(4,h,spr[h].base_walk);
+	}
+      
+      if (sjoy.down)
+	{
+	  move(h,spr[h].speed,'0','+');
+	  changedir(2,h,spr[h].base_walk);
+	}
+      
+      if (sjoy.up) 
+	{
+	  move(h,spr[h].speed,'0','-');
+	  changedir(8,h,spr[h].base_walk);
+	}
+    }
+  
+  // ***************** DIAGONAL!!!!
+  if (diag > 1 && diag < 3)
+    {
+      if (sjoy.up && sjoy.left)
+	{
+	  changedir(7,h,spr[h].base_walk);
+	  move(h,spr[h].speed - (spr[h].speed / 3),'-','-');
+	}
+      
+      if (sjoy.down && sjoy.left)
+	{
+	  changedir(1,h,spr[h].base_walk);
+	  move(h,spr[h].speed - (spr[h].speed / 3),'-','+');
+	}
+      
+      if (sjoy.down && sjoy.right)
+	{
+	  changedir(3,h,spr[h].base_walk);
+	  move(h,spr[h].speed - (spr[h].speed / 3),'+','+');
+	}
+      
+      if (sjoy.up && sjoy.right)
+	{
+	  changedir(9,h,spr[h].base_walk);
+	  move(h,spr[h].speed - (spr[h].speed / 3),'+','-');
+	}		
+    }
+  	
+  bad = 0;
+  if (sjoy.right) bad = 1;
+  if (sjoy.left) bad = 1;
+  if (sjoy.up) bad = 1;
+  if (sjoy.down) bad = 1;
+  
+  if (bad)
+    {
+      if (spr[h].idle)
+	{
+	  spr[h].frame = 1;
+	  spr[h].idle = /*FALSE*/0;
+	}
+      goto badboy;
+    }
+		
+  if (not_in_this_base(spr[h].seq, spr[h].base_idle)) //unccoment to allow walk anim to end before idle anim to start
+    {
+    freeze:
+      if (spr[h].dir == 1) spr[h].dir = 2;
+      if (spr[h].dir == 3) spr[h].dir = 2;
+      if (spr[h].dir == 7) spr[h].dir = 8;
+      if (spr[h].dir == 9) spr[h].dir = 8;
+      
+      if (spr[h].base_idle != 0)
+	changedir(spr[h].dir,h,spr[h].base_idle);
+      spr[h].idle = /*TRUE*/1;   
+    }
+  
+ badboy: 
+ b1end:
+  
+  if (spr[h].dir == 2 || spr[h].dir == 4 || spr[h].dir == 6 || spr[h].dir == 8)
+    goto smoothend;
+
+  crap = check_if_move_is_legal(h);
+  if (crap != 0)
+    {
+      if (pam.sprite[crap-100].prop != 0)
+	flub_mode = crap;
+		  
+      //hit something, can we move around it?
+		  
+      if (spr[h].seq == spr[h].base_walk + 4
+	  || spr[h].seq == spr[h].base_walk + 6)
+	{
+	  int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
+	  if (hardm == 0)
+	    spr[h].y -= 1;
+	}
+
+      if (spr[h].seq == spr[h].base_walk + 8
+	  || spr[h].seq == spr[h].base_walk + 2)
+	{
+	  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
+	  if (hardm == 0)
+	    spr[h].x -= 1;
+	}
+
+
+      if (spr[h].seq == spr[h].base_walk + 9)
+	{
+	  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y);
+	  if (hardm == 0)
+	    {  
+	      spr[h].x += 1;
+	      
+	    }
+	  else
+	    {
+	      int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+1);
+	      if (hardm == 0)
+		{  
+		  spr[h].x += 1;
+		  spr[h].y += 1;
+		}
+	      else
+		{
+		  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+2);
+		  if (hardm == 0)
+		    {  
+		      spr[h].x += 1;
+		      spr[h].y += 2;
+		    }
+		  else
+		    {
+		      int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
+		      if (hardm == 0)
+			{  
+			  spr[h].y -= 1;
 			  
-			  int mycrap = load_script(msg, 1, /*false*/0);
-			  if (locate(mycrap, "MAIN")) 
-			    {
-			      run_script(mycrap);
-			      goto b1end;
+			}
+		      else
+			{
+			  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-1);
+			  if (hardm == 0)
+			    {  
+			      spr[h].x -= 1;
+			      spr[h].y -= 1;
+			    }  
+			}
+		    }
+		}
+	    }
+	}
+      
+      if (spr[h].seq == spr[h].base_walk + 7)
+	{
+	  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
+	  if (hardm == 0)
+	    {  
+	      spr[h].x -= 1;
+	    }
+	  else
+	    {
+	      int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+1);
+	      if (hardm == 0)
+		{  
+		  spr[h].x -= 1;
+		  spr[h].y += 1;
+		}
+	      else
+		{
+		  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+2);
+		  if (hardm == 0)
+		    {  
+		      spr[h].x -= 1;
+		      spr[h].y += 2;
+		    }
+		  else
+		    {
+		      int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
+		      if (hardm == 0)
+			{  				
+			  spr[h].y -= 1;
+			}
+		      else
+			{
+			  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-1);
+			  if (hardm == 0)
+			    {  				
+			      spr[h].x += 1;
+			      spr[h].y -= 1;
 			    }
 			}
+		    }
 		}
+	    }
 	}
-	
-	
-	if (sjoy.button[6] == 1)
+      
+      if (spr[h].seq == spr[h].base_walk + 1)
 	{
-		int mycrap = load_script("BUTTON6", 1, /*false*/0);
-		if (locate(mycrap, "MAIN")) run_script(mycrap);
-		goto b1end;
+	  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
+	  if (hardm == 0)
+	    {  
+	      spr[h].x -= 1;
+	    }
+	  else
+	    {
+	      int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-1);
+	      if (hardm == 0)
+		{  
+		  spr[h].x -= 1;
+		  spr[h].y -= 1;
+		}
+	      else
+		{
+		  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-2);
+		  if (hardm == 0)
+		    {  
+		      spr[h].x -= 1;
+		      spr[h].y -= 2;
+		    }
+		  else
+		    {
+		      int hardm = get_hard_play(h, spr[h].x, spr[h].y+1);
+		      if (hardm == 0)
+			{  
+			  spr[h].y += 1;
+			}
+		      else
+			{
+			  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+1);
+			  if (hardm == 0)
+			    {  
+			      spr[h].x += 1;
+			      spr[h].y += 1;
+			    } 
+			}
+		    }
+		}
+	    }
 	}
-	
-	if (magic_script != 0) if (sjoy.joybit[3]) goto shootm;
-	if ( (sjoy.button[3] == /*TRUE*/1) )
+		  
+      if (spr[h].seq == spr[h].base_walk + 3)
 	{
-		if (magic_script == 0)
-		{
-			int randy = (rand() % 6)+1;
-			kill_text_owned_by(h);	
-			
-			
-#ifdef __GERMAN
-			
-				
-				if (randy == 1) say_text("`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann..",h,0);
-				if (randy == 2) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-				if (randy == 3) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-				if (randy == 4) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-				if (randy == 5) say_text("`$Nichts ist passiert.",h,0);
-				
-				if (randy == 6) say_text("`$Hokus pokus!",h,0);							 	    
-				
-#endif
-				
-#ifdef __ENGLISH
-				
-				if (randy == 1) say_text("`$I don't know any magic.",h,0);
-				if (randy == 2) say_text("`$I'm no wizard!",h,0);
-				if (randy == 3) say_text("`$I need to learn magic before trying this.",h,0);
-				if (randy == 4) say_text("`$I'm gesturing wildly to no avail!",h,0);
-				if (randy == 5) say_text("`$Nothing happened.",h,0);
-				if (randy == 6) say_text("`$Hocus pocus!",h,0);
-				
-#endif
-				
-				
-				
-				goto b1end;
+	  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y);
+	  if (hardm == 0)
+	    {  
+	      spr[h].x += 1;
+	    }
+	  else
+	    {
+	      int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-1);
+	      if (hardm == 0)
+		{  
+		  spr[h].x += 1;
+		  spr[h].y -= 1;
 		}
-		
-		//player pressed 1
-		//lets magiced something
-shootm:	
-		if (*pmagic_level >= *pmagic_cost)
+	      else
 		{
-			if (locate(magic_script, "USE")) run_script(magic_script);
-			
-			goto b1end;	
-		} 
+		  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-2);
+		  if (hardm == 0)
+		    {  
+		      spr[h].x += 1;
+		      spr[h].y -= 2;
+		    }
+		  else
+		    {
+		      int hardm = get_hard_play(h, spr[h].x, spr[h].y+1);
+		      if (hardm == 0)
+			{  
+			  spr[h].y += 1;
+			}
+		      else
+			{
+			  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+1);
+			  if (hardm == 0)
+			    {  
+			      spr[h].x -= 1;
+			      spr[h].y += 1;
+			    }
+			}
+		    }
+		}
+	    }
 	}
-	
-	if (sjoy.button[4])
-	{
-		item_screen = /*true*/1;
-		SoundPlayEffect(18, 22050,0,0,0);
-		
-		return;
-	}
-	
-	
-	if ( (sjoy.button[5] == /*TRUE*/1) )
-	{
-		
-		if (!showb.active) if (!bow.active) if (!talk.active)
-		{
-			int sc = load_script("ESCAPE", 1000, /*false*/0);
-			if (sc != 0) if (locate(sc,"MAIN")) run_script(sc);
-			return;
-		}
-	}
-	
-	
-	if (GetKeyboard('b')) //66
-	{
-		ResumeMidi();
-	}
-	
-	if (GetKeyboard('n')) //78
-	{
-		PauseMidi();
-	}
-	
-	if (spr[h].skip > 0)
-		
-		if (spr[h].skip <= spr[h].skiptimer)
-		{
-			spr[h].skiptimer = 0;
-			goto b1end;
-		}
-		
-		
-		diag = 0;
-		if (sjoy.right) diag++;
-		if (sjoy.left) diag++;
-		if (sjoy.down) diag++;
-		if (sjoy.up) diag++;
-		
-		
-		//*********************************PROCESS MOVEMENT							
-		
-		if (diag == 1)
-		{
-			
-			if (sjoy.right)
-			{
-				move(h,spr[h].speed,'+','0');
-				changedir(6,h,spr[h].base_walk);
-			}
-			
-			
-			if (sjoy.left) 
-			{
-				move(h,spr[h].speed,'-','0');
-				changedir(4,h,spr[h].base_walk);
-			}
-			
-			
-			if (sjoy.down)
-			{
-				move(h,spr[h].speed,'0','+');
-				changedir(2,h,spr[h].base_walk);
-				
-			}
-			
-			
-			if (sjoy.up) 
-			{
-				move(h,spr[h].speed,'0','-');
-				changedir(8,h,spr[h].base_walk);
-			}
-			
-		}
-		// ***************** DIAGONAL!!!!
-		
-		
-		if (diag > 1) if (diag < 3)
-		{
-			
-			if ( (sjoy.up) && (sjoy.left) ) 
-			{
-				changedir(7,h,spr[h].base_walk);
-				move(h,spr[h].speed - (spr[h].speed / 3),'-','-');
-				
-			}
-			
-			if ( (sjoy.down) && (sjoy.left))
-			{
-				changedir(1,h,spr[h].base_walk);
-				move(h,spr[h].speed - (spr[h].speed / 3),'-','+');
-				
-			}
-			
-			if ( (sjoy.down) && (sjoy.right))
-			{
-				changedir(3,h,spr[h].base_walk);
-				move(h,spr[h].speed - (spr[h].speed / 3),'+','+');
-			}
-			
-			
-			if ( (sjoy.up) && (sjoy.right))
-			{
-				changedir(9,h,spr[h].base_walk);
-				move(h,spr[h].speed - (spr[h].speed / 3),'+','-');
-			}
-			
-		}
-		
-		
-		bad = /*FALSE*/0;
-		if (sjoy.right) bad = /*TRUE*/1;    
-		if (sjoy.left) bad = /*TRUE*/1;    
-		if (sjoy.up) bad = /*TRUE*/1;    
-		if (sjoy.down) bad = /*TRUE*/1;    
-		
-		if (bad)
-		{
-			if (spr[h].idle)
-			{
-				spr[h].frame = 1;
-				spr[h].idle = /*FALSE*/0;
-			}
-			goto badboy;
-		}
-		
-		
-		if (not_in_this_base(spr[h].seq, spr[h].base_idle)) //unccoment to allow walk anim to end before idle anim to start
-		{
-freeze:
-								if (spr[h].dir == 1) spr[h].dir = 2;
-								if (spr[h].dir == 3) spr[h].dir = 2;
-								if (spr[h].dir == 7) spr[h].dir = 8;
-								if (spr[h].dir == 9) spr[h].dir = 8;
-								
-								if (spr[h].base_idle != 0) changedir(spr[h].dir,h,spr[h].base_idle);								
-								spr[h].idle = /*TRUE*/1;   
-		}
-		
-		
-badboy: 
-		
-		
-		
-b1end:;
-	  
-	  if ( (spr[h].dir == 2)  | (spr[h].dir == 4) | (spr[h].dir == 6) | (spr[h].dir == 8)) goto smoothend;
-	  crap = check_if_move_is_legal(h);
-	  if (crap != 0)
-	  {
-		  if (pam.sprite[crap-100].prop != 0) flub_mode = crap;
-		  
-		  //hit something, can we move around it?
-		  
-		  
-		  if( (spr[h].seq == spr[h].base_walk + 4) |
-			  (spr[h].seq == spr[h].base_walk + 6) )
-		  {
-			  int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
-			  if (hardm == 0)
-			  {  
-				  spr[h].y -= 1;
-				  
-			  }
-			  
-		  }
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  if( (spr[h].seq == spr[h].base_walk + 8) |
-			  (spr[h].seq == spr[h].base_walk + 2) )
-		  {
-			  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
-			  if (hardm == 0)
-			  {  
-				  spr[h].x -= 1;
-				  
-			  }
-			  
-		  }
-		  
-		  
-		  
-		  
-		  if (spr[h].seq == spr[h].base_walk + 9)
-		  {
-			  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y);
-			  if (hardm == 0)
-			  {  
-				  spr[h].x += 1;
-				  
-			  } else
-			  {
-				  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+1);
-				  if (hardm == 0)
-				  {  
-					  spr[h].x += 1;
-					  spr[h].y += 1;
-				  } else
-				  {
-					  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+2);
-					  if (hardm == 0)
-					  {  
-						  spr[h].x += 1;
-						  spr[h].y += 2;
-					  } else
-					  {
-						  int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
-						  if (hardm == 0)
-						  {  
-							  spr[h].y -= 1;
-							  
-						  } else
-						  {
-							  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-1);
-							  if (hardm == 0)
-							  {  
-								  spr[h].x -= 1;
-								  spr[h].y -= 1;
-							  }
-							  
-						  }
-						  
-						  
-						  
-					  }
-					  
-				  }
-				  
-				  
-			  }
-			  
-		  }
-		  
-		  if (spr[h].seq == spr[h].base_walk + 7)
-		  {
-			  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
-			  if (hardm == 0)
-			  {  
-				  spr[h].x -= 1;
-				  
-			  } else
-			  {
-				  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+1);
-				  if (hardm == 0)
-				  {  
-					  spr[h].x -= 1;
-					  spr[h].y += 1;
-				  } else
-				  {
-					  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+2);
-					  if (hardm == 0)
-					  {  
-						  spr[h].x -= 1;
-						  spr[h].y += 2;
-					  } else
-					  {
-						  
-						  int hardm = get_hard_play(h, spr[h].x, spr[h].y-1);
-						  if (hardm == 0)
-						  {  				
-							  spr[h].y -= 1;
-						  } else
-						  {
-							  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-1);
-							  if (hardm == 0)
-							  {  				
-								  spr[h].x += 1;
-								  spr[h].y -= 1;
-							  }
-						  }
-						  
-					  }
-					  
-				  }
-				  
-				  
-			  }
-			  
-		  }
-		  
-		  
-		  
-		  if (spr[h].seq == spr[h].base_walk + 1)
-		  {
-			  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y);
-			  if (hardm == 0)
-			  {  
-				  spr[h].x -= 1;
-				  
-			  } else
-			  {
-				  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-1);
-				  if (hardm == 0)
-				  {  
-					  spr[h].x -= 1;
-					  spr[h].y -= 1;
-				  } else
-				  {
-					  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y-2);
-					  if (hardm == 0)
-					  {  
-						  spr[h].x -= 1;
-						  spr[h].y -= 2;
-					  } else
-					  {
-						  int hardm = get_hard_play(h, spr[h].x, spr[h].y+1);
-						  if (hardm == 0)
-						  {  
-							  
-							  spr[h].y += 1;
-						  } else
-						  {
-							  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y+1);
-							  if (hardm == 0)
-							  {  
-								  spr[h].x += 1;
-								  spr[h].y += 1;
-							  } 
-							  
-						  }
-						  
-					  }
-					  
-				  }
-				  
-				  
-			  }
-			  
-		  }
-		  
-		  if (spr[h].seq == spr[h].base_walk + 3)
-		  {
-			  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y);
-			  if (hardm == 0)
-			  {  
-				  spr[h].x += 1;
-				  
-			  } else
-			  {
-				  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-1);
-				  if (hardm == 0)
-				  {  
-					  spr[h].x += 1;
-					  spr[h].y -= 1;
-				  } else
-				  {
-					  int hardm = get_hard_play(h, spr[h].x+1, spr[h].y-2);
-					  if (hardm == 0)
-					  {  
-						  spr[h].x += 1;
-						  spr[h].y -= 2;
-					  } else
-					  {
-						  int hardm = get_hard_play(h, spr[h].x, spr[h].y+1);
-						  if (hardm == 0)
-						  {  
-							  
-							  spr[h].y += 1;
-						  } else
-						  {
-							  int hardm = get_hard_play(h, spr[h].x-1, spr[h].y+1);
-							  if (hardm == 0)
-							  {  
-								  spr[h].x -= 1;
-								  spr[h].y += 1;
-							  }
-							  
-						  }
-						  
-					  }
-					  
-				  }
-				  
-				  
-			  }
-			  
-		  }
-		  
-		  
-		  
-}
+    }
 
-
-
-smoothend:;
-		  
+ smoothend:
+  ;
 }
 
 

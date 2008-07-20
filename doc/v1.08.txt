@@ -133,6 +133,7 @@ Fixes:
     experience count issues.
 [ ] Status is drawn on load so the magic-level is always displayed.
 [X] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
+    => Could not reproduce the problem, but applied the code clean-up.
     => Implemented unconditionaly 2008-07-19
 [ ] Restoring game will not redraw status bar if it wasn't drawn.
 [X] Fixed issue of loading regular bmp sequences over top of previous sequences
@@ -152,12 +153,12 @@ Improvements:
     => Implemented conditionally 2008-07-15 -> 2008-07-17
 
 Improvements that potentially break backward compatibility:
-[ ] "dnotalk" script is run if no sprites are around when Dink talks (not
+[X] "dnotalk" script is run if no sprites are around when Dink talks (not
     required).
-[ ] "dnomagic" script is run if Dink tries to use magic without arming any (not
+[X] "dnomagic" script is run if Dink tries to use magic without arming any (not
     required).
-[ ] "button4" script is run when the user hits the enter key (not required).
-[ ] "button7" through "button10" scripts will be run when extra gamepad buttons
+[X] "button4" script is run when the user hits the enter key (not required).
+[X] "button7" through "button10" scripts will be run when extra gamepad buttons
     are pressed.
     => there's a naming conflict: "Edit: Well, that's beautiful... As
     you may or may not be aware, as of 1.08, you can change the
@@ -166,6 +167,7 @@ Improvements that potentially break backward compatibility:
     button4, interfering with the Enter key's ability to
     work. Therefore, Secret of Parizaya is currently incompatible with
     1.08. Tada." (http://www.dinknetwork.com/forum.cgi?MID=59442)
+    => Implemented conditionally 2008-07-20
 [X] Variables can begin with another variable stub (i.e. &goldtemp will work with
     &gold).
     => Implemented conditionally 2008-07-04
@@ -338,6 +340,10 @@ Changes not documented in whatsnew.txt
     now the sprite that _was_ hit, not the one who hits. This is most
     useful with v1.08 sprite-specific blood, it's not really
     noticeable in v1.07.
+
+[ ] Entry for sp_custom: "sp_custom gets or sets the custom key value
+    for the active_sprite.  Each sprite can store unlimited keys. 
+    This will not work for sprite 1 (the player sprite)."
 
 [X] Entry for sp_flying: "In 1.07 and earlier, sp_flying would work
     well for missile brains and poorly for the player brain.  In
