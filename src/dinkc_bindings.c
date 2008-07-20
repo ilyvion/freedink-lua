@@ -3990,6 +3990,38 @@ pass:
 	return(0);
       }
 
+    /**
+     * Like sp_mx but use change_sprite_noreturn, so allow setting the
+     * value to -1.
+     */
+    if (compare (ev[1], "sp_move_x"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].mx);
+	    return (0);
+	  }
+	return (0);
+      }
+
+    /**
+     * Like sp_my but use change_sprite_noreturn, so allow setting the
+     * value to -1.
+     */
+    if (compare (ev[1], "sp_move_y"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  {
+	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].my);
+	    return (0);
+	  }
+	return (0);
+      }
+
     }
 
 

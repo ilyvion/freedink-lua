@@ -292,10 +292,12 @@ New functions:
 [X] var_used()
     Returns the number of variables used.
     => Implemented conditionally 2008-07-18
-[ ] sp_move_x(int sprite, int value)
+[X] sp_move_x(int sprite, int value)
     Like sp_mx, but does not return a value.
-[ ] sp_move_y(int sprite, int value)
+    => Implemented conditionally 2008-07-20
+[X] sp_move_y(int sprite, int value)
     Like sp_my, but does not return a value.
+    => Implemented conditionally 2008-07-20
 
 Non-changes:
 [?] Variables are no longer shared between two instances of the same

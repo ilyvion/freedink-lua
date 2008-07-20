@@ -514,42 +514,6 @@
  	return (0);
        }
      if (compare (ev[1], "stop_entire_game"))
-@@ -9925,6 +11312,17 @@
- 	returnint = -1;
- 	return (0);
-       }
-+    if (compare (ev[1], "sp_move_x"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].mx);
-+	    return (0);
-+	  }
-+	return (0);
-+      }
-     if (compare (ev[1], "sp_my"))
-       {
- 	h = &h[strlen (ev[1])];
-@@ -9937,6 +11335,17 @@
- 	returnint = -1;
- 	return (0);
-       }
-+    if (compare (ev[1], "sp_move_y"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].my);
-+	    return (0);
-+	  }
-+	return (0);
-+      }
-     if (compare (ev[1], "scripts_used"))
-       {
- 	h = &h[strlen (ev[1])];
 @@ -10111,7 +11520,9 @@
  	      {
  		return (0);
