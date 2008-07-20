@@ -4022,6 +4022,30 @@ pass:
 	return (0);
       }
 
+    //redink1
+    if (compare (ev[1], "sp_custom"))
+      {
+	h = &h[strlen (ev[1])];
+	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p) && spr[nlist[1]].active == 1)
+	  {
+	    if (nlist[1] < 1 || spr[nlist[1]].active == 0)
+	      {
+		returnint = -1;
+	      }
+	    else
+	      {
+		// Set the value
+		if (nlist[2] != -1)
+		  dinkc_sp_custom_set(spr[nlist[1]].custom, slist[0], nlist[2]);
+		returnint = dinkc_sp_custom_get(spr[nlist[1]].custom, slist[0]);
+	      }
+	    return (0);
+	  }
+	returnint = -1;
+	return (0);
+      }
+
     }
 
 

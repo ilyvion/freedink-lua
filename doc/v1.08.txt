@@ -345,9 +345,10 @@ Changes not documented in whatsnew.txt
     useful with v1.08 sprite-specific blood, it's not really
     noticeable in v1.07.
 
-[ ] Entry for sp_custom: "sp_custom gets or sets the custom key value
+[X] Entry for sp_custom: "sp_custom gets or sets the custom key value
     for the active_sprite.  Each sprite can store unlimited keys. 
     This will not work for sprite 1 (the player sprite)."
+    => Implemented conditionally 2008-07-20
 
 [X] Entry for sp_flying: "In 1.07 and earlier, sp_flying would work
     well for missile brains and poorly for the player brain.  In

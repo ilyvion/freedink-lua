@@ -30,7 +30,8 @@ WOERES=
 endif
 
 COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkc.c dinkc.h		\
-	dinkc_bindings.c dinkc_bindings.h dinkvar.c dinkvar.h		\
+	dinkc_bindings.c dinkc_bindings.h dinkc_sp_custom.c		\
+	dinkc_sp_custom.h dinkvar.c dinkvar.h				\
 	fastfile.c fastfile.h game_engine.c game_engine.h str_util.c	\
 	str_util.h io_util.c io_util.h sfx.c sfx.h gfx.c gfx.h		\
 	gfx_fade.c gfx_fade.h gfx_tiles.c gfx_tiles.h gfx_utils.c	\

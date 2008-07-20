@@ -37,19 +37,6 @@
  bool locate (int script, char proc[20]);
  bool exist (char name[255]);
  BOOL SoundStopEffect (int sound);
-@@ -420,10 +543,12 @@
-   int nodraw;
-   int frame_delay;
-   int picfreeze;
- //redink1
- 
-   int bloodseq;
-   int bloodnum;
-+// std::map<std::string, int>* custom;
-+
- };
- struct seth_joy
- {
 @@ -635,7 +765,8 @@
  BYTE torusColors[256];		// Marks the colors used in the torus
  HWND hWndMain = NULL;
@@ -126,22 +113,6 @@
  inside_box (int x1, int y1, RECT box)
  {
    if (x1 > box.right)
-@@ -4054,6 +4444,15 @@
- 	  spr[x].strength = 0;
- 	  spr[x].damage = 0;
- 	  spr[x].defense = 0;
-+	  if (spr[x].custom == NULL)
-+	    {
-+// spr[x].custom = new std::map<std::string, int>;
-+
-+	    }
-+	  else
-+	    {
-+	      spr[x].custom->clear ();
-+	    }
- 	  return (x);
- 	}
-     }
 @@ -4117,6 +4520,24 @@
  							  0) | (spr[h].alt.
  								right != 0))
@@ -187,22 +158,6 @@
    char crap[100];
    strip_beginning_spaces (h);
    if (h[0] == '(')
-@@ -4954,6 +5544,15 @@
- 	  spr[x].damage = 0;
- 	  spr[x].defense = 0;
- 	  spr[x].hard = 1;
-+	  if (spr[x].custom == NULL)
-+	    {
-+// spr[x].custom = new std::map<std::string, int>;
-+
-+	    }
-+	  else
-+	    {
-+	      spr[x].custom->clear ();
-+	    }
- 	  return (x);
- 	}
-     }
 @@ -5016,8 +5615,11 @@
  
  //Msg("Sprite %d's seq is %d",h,spr[h].seq);
@@ -306,44 +261,6 @@
 -	return (0);
 +	mConsoleActive = true;	/*int p[20] = {1,0,0,0,0,0,0,0,0,0}; if (get_parms(ev[1], script, h, p)) { if ( nlist[0] >= 1 ) { mConsoleActive = true; } else { mConsoleActive = false; } } returnint = 0; if ( mConsoleActive ) { returnint = 1; } */
        }
-[...]
-+//redink1
-+
-+    if (compare (ev[1], "sp_custom"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p) && spr[nlist[1]].active == TRUE)
-+	  {
-+	    if (nlist[1] < 1 || spr[nlist[1]].active == false)
-+	      {
-+		returnint = -1;
-+	      }
-+	    else
-+	      {
-+// If key doesn't exist, create it.
-+
-+		if (spr[nlist[1]].custom->find (slist[0]) ==
-+		    spr[nlist[1]].custom->end ())
-+		  {
-+// spr[nlist[1]].custom->insert( std::make_pair( slist[0], 0 ) );
-+
-+		  }
-+// Set the value
-+
-+		if (nlist[2] != -1)
-+		  {
-+		    spr[nlist[1]].custom->erase (slist[0]);
-+// spr[nlist[1]].custom->insert( std::make_pair( slist[0], nlist[2] ) );
-+
-+		  }
-+		returnint = spr[nlist[1]].custom->find (slist[0])->second;
-+	      }
-+	    return (0);
-+	  }
-+	returnint = -1;
-+	return (0);
-+      }
 [...]
 +    if (compare (ev[1], "set_callback_random"))
 +      {

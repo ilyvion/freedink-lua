@@ -2780,6 +2780,18 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
                         spr[x].damage = 0;
                         spr[x].defense = 0;
 
+			if (dversion >= 108)
+			  {
+			    if (spr[x].custom == NULL)
+			      {
+				spr[x].custom = dinkc_sp_custom_new();
+			      }
+			    else
+			      {
+				dinkc_sp_custom_clear(spr[x].custom);
+			      }
+			  }
+
                         return(x);
                 }
 
@@ -3005,6 +3017,17 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
                         spr[x].defense = 0;
                         spr[x].hard = 1;
 
+			if (dversion >= 108)
+			  {
+			    if (spr[x].custom == NULL)
+			      {
+				spr[x].custom = dinkc_sp_custom_new();
+			      }
+			    else
+			      {
+				dinkc_sp_custom_clear(spr[x].custom);
+			      }
+			  }
 
                         return(x);
                 }

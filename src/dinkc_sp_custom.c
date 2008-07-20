@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dinkc_sp_custom_hash.h"
+#include "dinkc_sp_custom.h"
 
 # include <stdbool.h>
 struct str_int
@@ -26,7 +26,7 @@ static bool dinkc_sp_custom_comparator(const void* a, const void* b)
 /**
  * Return a new hash table
  */
-dinkc_sp_custom_hash dinkc_sp_custom_new()
+dinkc_sp_custom dinkc_sp_custom_new()
 {
   Hash_tuning* default_tuner = NULL;
   int start_size = 10;
@@ -39,16 +39,21 @@ dinkc_sp_custom_hash dinkc_sp_custom_new()
 /**
  * Free all memory
  */
-void dinkc_sp_custom_free(dinkc_sp_custom_hash hash)
+void dinkc_sp_custom_free(dinkc_sp_custom hash)
 {
   hash_free(hash);
+}
+
+void dinkc_sp_custom_clear(dinkc_sp_custom hash)
+{
+  hash_clear(hash);
 }
 
 /**
  * Create a new int value for key 'key', or replace existing value if
  * 'key' is already mapped.
  */
-void dinkc_sp_custom_set(dinkc_sp_custom_hash hash, char key[200], int val)
+void dinkc_sp_custom_set(dinkc_sp_custom hash, char key[200], int val)
 {
   struct str_int search;
   strcpy(search.key, key);
@@ -70,7 +75,7 @@ void dinkc_sp_custom_set(dinkc_sp_custom_hash hash, char key[200], int val)
  * Get the int value associated with 'key'. Returns -1 if not found
  * (DinkC limitation: no way to return NULL or similar).
  */
-int dinkc_sp_custom_get(dinkc_sp_custom_hash hash, char key[200])
+int dinkc_sp_custom_get(dinkc_sp_custom hash, char key[200])
 {
   struct str_int search;
   strcpy(search.key, key);
@@ -86,7 +91,7 @@ int dinkc_sp_custom_get(dinkc_sp_custom_hash hash, char key[200])
 
 int main(void)
 {
-  dinkc_sp_custom_hash myhash = dinkc_sp_custom_new();
+  dinkc_sp_custom myhash = dinkc_sp_custom_new();
 
   dinkc_sp_custom_set(myhash, "foo", -1);
   dinkc_sp_custom_set(myhash, "foo", 3);
@@ -95,8 +100,11 @@ int main(void)
 
   dinkc_sp_custom_set(myhash, "bar", 34);
 
-  printf("%d\n", dinkc_sp_custom_get(myhash, "foo"));
-  printf("%d\n", dinkc_sp_custom_get(myhash, "bar"));
+  printf("foo: %d\n", dinkc_sp_custom_get(myhash, "foo"));
+  printf("bar: %d\n", dinkc_sp_custom_get(myhash, "bar"));
+
+  dinkc_sp_custom_clear(myhash);
+  printf("foo (after clear): %d\n", dinkc_sp_custom_get(myhash, "foo"));
 
   dinkc_sp_custom_free(myhash);
   return 0;

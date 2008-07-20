@@ -29,6 +29,7 @@
 #include "io_util.h"
 #include "dinkc.h"
 #include "gfx_tiles.h"
+#include "dinkc_sp_custom.h"
 
 #define MAX_SPRITES_AT_ONCE 300
 
@@ -140,7 +141,7 @@ struct sp
   /* v1.08 */
   int bloodseq;
   int bloodnum;
-  // sp_custom
+  dinkc_sp_custom custom;
 };
 
 struct item_struct
@@ -291,5 +292,8 @@ extern double truecolor_fade_brightness;
 extern Uint32 truecolor_fade_lasttick;
 
 extern unsigned int dink_base_push;
+
+extern void game_init(void);
+extern void game_quit(void);
 
 #endif

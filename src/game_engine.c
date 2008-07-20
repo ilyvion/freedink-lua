@@ -22,6 +22,7 @@
  */
 
 #include "game_engine.h"
+#include "dinkvar.h" /* hmap, pam */
 
 struct sp spr[MAX_SPRITES_AT_ONCE]; //max sprite control systems at once
 int last_sprite_created;
@@ -90,7 +91,26 @@ double truecolor_fade_brightness = 256;
 Uint32 truecolor_fade_lasttick = -1;
 
 /* Base for Dink's push sequences */
-extern unsigned int dink_base_push = 310;
+unsigned int dink_base_push = 310;
+
+void game_init()
+{
+  /* Clean the game state structure - done by C++ but not
+     automatically done by C, and this causes errors. TODO: fix the
+     errors properly instead of using this dirty trick. */
+  memset(&play, 0, sizeof(play));
+
+  memset(&hmap, 0, sizeof(hmap));
+  memset(&pam, 0, sizeof(pam));
+}
+
+void game_quit()
+{
+  int i = 0;
+  for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
+    if (spr[i].custom != NULL)
+      dinkc_sp_custom_free(spr[i].custom);
+}
 
 /* Sound - SFX */
         int get_pan(int h)
