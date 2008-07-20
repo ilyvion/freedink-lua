@@ -634,6 +634,8 @@ void add_kill_sprite(int h)
 			int crap2 = add_sprite(spr[h].x,spr[h].y,5,spr[h].base_walk +5,1);
 			spr[crap2].speed = 0;
 			spr[crap2].seq = spr[h].base_walk + 5;   
+			// set corpse size to the original sprite size
+			spr[crap2].size = spr[h].size;
 			return;
 		} else
 		{

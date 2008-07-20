@@ -77,16 +77,6 @@
    for (int x2 = 1; x2 <= 10; x2++)
      {
        if (sjoy.joybit[x2])
-@@ -659,6 +672,9 @@
- 	    add_sprite (spr[h].x, spr[h].y, 5, spr[h].base_walk + 5, 1);
- 	  spr[crap2].speed = 0;
- 	  spr[crap2].seq = spr[h].base_walk + 5;
-+//redink1 added this so corpses are the same size
-+
-+	  spr[crap2].size = spr[h].size;
- 	  return;
- 	}
-       else
 @@ -1566,7 +1686,10 @@
  int
  check_if_move_is_legal (int u)

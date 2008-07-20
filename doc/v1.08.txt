@@ -178,9 +178,11 @@ Improvements that potentially break backward compatibility:
 [X] Custom functions can have up to 9 arguments, stored in the built-in variables
     &arg1 through &arg9.
     => Implemented conditionally 2008-07-04
-[ ] Corpses appear as the same size as the living sprite.
+[X] Corpses appear as the same size as the living sprite.
     => that is, if an ennemy has a size of 50%, its dead body will
-    also have a size of 50% (previously it was 100%)
+       also have a size of 50% (previously it was 100%)
+    => Implemented unconditionaly 2008-07-20, I don't think this was
+       ever worked-around in a released D-Mod
 
 DinkC changes:
 
