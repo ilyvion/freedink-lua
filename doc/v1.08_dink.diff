@@ -1,27 +1,5 @@
 --- d_canonical	2008-06-26 09:24:48.000000000 +0200
 +++ d2_canonical	2008-06-29 19:45:03.000000000 +0200
-@@ -22,7 +22,7 @@
- int check_if_move_is_legal (int u);
- void change_dir_to_diag (int *dir);
- int hurt_thing (int h, int damage, int special);
--int but_timer;
-+int but_timer = 0;
- int water_timer;
- bool fire_forward;
- int fire_flip;
-@@ -54,7 +54,11 @@
-   int color = 0;
-   if (spr[h].damage == -1)
-     {
--      sprintf (crap, "%s", spr[h].text);
-+//redink1 fix for : and '%deee bugs?
-+
-+      strcpy (crap, spr[h].text);
-+//sprintf(crap, "%s", spr[h].text);
-+
-       cr = &crap[0];
-       color = 14;
-       while (cr[0] == '`')
 @@ -198,10 +194,14 @@
        Msg ("Drew map.");
        if (mode > 2)
@@ -173,17 +151,6 @@
  		  if (spr[i].nohit == 1)
  		    {
  		      if (spr[i].script > 0)
-@@ -4601,7 +5047,10 @@
-       bActive = wParam;
-       break;
-     case WM_SETCURSOR:
-+      if (!windowed)
-+	{
-       SetCursor (NULL);
-+	}
-       return TRUE;
-     case WM_CREATE:
-       break;
 @@ -4610,18 +5059,106 @@
        PostQuitMessage (0);
        break;
@@ -296,51 +263,3 @@
 +	    }
 +	}
 +      break;
-@@ -4715,7 +5270,7 @@
- 	}
-       if (strnicmp (shit, "-nojoy", strlen ("-nojoy")) == 0)
- 	{
--	  joystick = false;
-+	  disablejoystick = TRUE;
- 	}
-       if (strnicmp (shit, "-noini", strlen ("-noini")) == 0)
- 	{
-@@ -5029,6 +5778,8 @@
-   if (cd_inserted)
-     PlayCD (g_hWnd, 7);
- #endif
-+  if (disablejoystick == FALSE)
-+    {
-   if (CheckJoyStickPresent () == FALSE)
-     {
- // return initFail(hwnd, "Could not init the joystick.");
-@@ -5039,6 +5790,7 @@
-     {
-       joystick = TRUE;
-     }
-+    }
-   rcRect.left = 0;
-   rcRect.top = 0;
-   rcRect.right = x;
-@@ -5158,6 +5910,8 @@
-   attach ();
- //init_mouse(hwnd);
- 
-+  memset (&spr, NULL, sizeof (spr));
-@@ -5346,6 +6100,7 @@
- 	{
- 	  if (g_b_kill_app == false)
- 	    {
-+	      SetFocus (hwnd);
- 	      updateFrame ();
- 	    }
- //WaitMessage();
-@@ -5355,6 +6110,8 @@
- 	{
- // make sure we go to sleep if we have nothing else to do
- 
-+	  Sleep (1);
-+	  SetFocus (NULL);
- 	  WaitMessage ();
- 	}
-     }

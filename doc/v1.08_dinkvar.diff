@@ -27,26 +27,6 @@
  void init_scripts (void);
  int load_script (char filename[15], int sprite, bool set_sprite);
  void strchar (char *string, char ch);
-@@ -64,7 +147,8 @@
- DWORD killcd (HWND hWndNotify, BYTE bTrack);
- void update_status_all (void);
- int add_sprite (int x1, int y, int brain, int pseq, int pframe);
--void add_exp (int num, int h);
-+void load_info ();		//redink1
-+void add_exp (int num, int h, bool addEvenIfNotLastSpriteHit = false);
- bool locate (int script, char proc[20]);
- bool exist (char name[255]);
- BOOL SoundStopEffect (int sound);
-@@ -635,7 +765,8 @@
- BYTE torusColors[256];		// Marks the colors used in the torus
- HWND hWndMain = NULL;
- JOYINFOEX jinfo;		//joystick info
--BOOL joystick = false;
-+BOOL joystick = FALSE;
-+BOOL disablejoystick = FALSE;
- hardness hmap;
- RECT tilerect[tile_screens];
- void
 @@ -1940,10 +2089,15 @@
  	  hm.x[x1].y[y1] = get_hard_map (0, x1, y1);
  }}} void
@@ -181,30 +161,6 @@
  	  {
  	    figure_out (seq[h].data, 0);
  	  }
-@@ -6352,7 +7029,14 @@
-   return (*change);
- }
- 
--int
-+//redink1 added for long values
-+
-+long
-+change_sprite (int h, int val, long *change)
-+{
-+  return (long) change_sprite (h, val, (int *) change);
-+} int
-+
- change_edit (int h, int val, unsigned short *change)
- {
- //Msg("Searching sprite %s with val %d. Cur is %d", h, val, *change);
-@@ -6446,6 +7138,7 @@
- 	  }
-       }
- }
-+}
- 
- void
- changedir (int dir1, int k, int base)
 @@ -6683,6 +7376,9 @@
      }
    if (*pexper != fexp)
@@ -306,90 +262,6 @@
 +	strcpy (s, h);
 +	return (0);
 +      }
-[...]
-+    if (compare (ev[1], "reset_timer"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	time (&time_start);
-+	play.minutes = 0;
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "set_keep_mouse"))
-+      {
-+	Msg ("setting callback random");
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    keep_mouse = nlist[0];
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "add_item"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    add_item (slist[0], nlist[1], nlist[2], false);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "add_exp"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    add_exp (nlist[0], nlist[1], true);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "add_magic"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    add_item (slist[0], nlist[1], nlist[2], true);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "kill_this_item"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    kill_cur_item_script (slist[0]);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "kill_this_magic"))
-+      {
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p))
-+	  {
-+	    kill_cur_magic_script (slist[0]);
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }
-+    if (compare (ev[1], "show_bmp"))
-+      {
-+	Msg ("showing BMP");
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
- 	    wait.active = false;
 @@ -9712,6 +11086,10 @@
  	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
  	if (get_parms (ev[1], script, h, p))

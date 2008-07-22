@@ -100,8 +100,10 @@ void game_init()
      errors properly instead of using this dirty trick. */
   memset(&play, 0, sizeof(play));
 
+  /* Precaution */
   memset(&hmap, 0, sizeof(hmap));
   memset(&pam, 0, sizeof(pam));
+  memset(&spr, 0, sizeof(spr));
 }
 
 void game_quit()

@@ -63,7 +63,7 @@ void change_dir_to_diag( int *dir);
 int hurt_thing(int h, int damage, int special);
 
 
-int but_timer;
+int but_timer = 0;
 
 int fps_show = 0;
 int fps_average;
