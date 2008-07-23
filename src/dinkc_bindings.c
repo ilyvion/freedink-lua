@@ -3118,29 +3118,32 @@ pass:
                                                                 }
 
 
-                                                                if (compare(ev[1], "compare_magic"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = 0;
-                                                                                if (*pcur_magic == 0)
-                                                                                {
-                                                                                        return(0);
-                                                                                }
-
-                                                                                if (compare(play.item[*pcur_magic].name, slist[0]))
-                                                                                {
-                                                                                        returnint = 1;
-
-                                                                                }
-                                                                                return(0);
-                                                                        }
-
-
-                                                                        return(0);
-                                                                }
+if (compare(ev[1], "compare_magic"))
+{
+  h = &h[strlen(ev[1])];
+  int p[20] = {2,0,0,0,0,0,0,0,0,0};
+  if (get_parms(ev[1], script, h, p))
+    {
+      returnint = 0;
+      if (*pcur_magic == 0)
+	{
+	  return(0);
+	}
+ 
+      if (dversion >= 108)
+	{
+	  if (compare(play.mitem[*pcur_magic].name, slist[0]))
+	    returnint = 1;
+	}
+      else
+	{
+	  if (compare(play.item[*pcur_magic].name, slist[0]))
+	    returnint = 1;
+	}
+      return(0);
+    }
+  return(0);
+}
 
 
                                                                 if (compare(ev[1], "compare_sprite_script"))

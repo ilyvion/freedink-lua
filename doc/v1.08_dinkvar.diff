@@ -303,14 +303,3 @@
  	return (0);
        }
      if (compare (ev[1], "stop_entire_game"))
-@@ -10111,7 +11520,9 @@
- 	      {
- 		return (0);
- 	      }
--	    if (compare (play.item[*pcur_magic].name, slist[0]))
-+//redink1 fix so compare_magic works!
-+
-+	    if (compare (play.mitem[*pcur_magic].name, slist[0]))
- 	      {
- 		returnint = 1;
- 	      }

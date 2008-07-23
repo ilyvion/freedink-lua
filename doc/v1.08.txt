@@ -199,8 +199,10 @@ Fixes:
     => Fixed 2008-07-01
 
 Backward-incompatible fixes:
-[ ] compare_magic(str magicitem)
+[X] compare_magic(str magicitem)
     Works correctly.
+    => Compare the magic index rather than the weapon index.
+    => Implemented conditionally 2008-07-23
 [ ] sp_move_nohard(int sprite, bool value)
     When activated, a sprite can move freely through all hardness.  Previously
     had no effect.
