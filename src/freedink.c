@@ -1826,14 +1826,22 @@ void pig_brain(int h)
 
 
 
-
+/**
+ * Check if the sprite can pass or should be blocked
+ *
+ * Returns 0 = can pass, <>0 = should be blocked
+ */
 int check_if_move_is_legal(int u)
-
 {
-	if (spr[u].move_active) if (spr[u].move_nohard == 1) return(0);
-	if (u == 1) if (in_this_base(spr[u].seq, dink_base_push)) return(0);
+  if ((dversion >= 108) /* move_nohard is active for all movements, not just active moves */
+      || (/* dversion == 107 && */ spr[u].move_active))
+    if (spr[u].move_nohard == 1)
+      return(0);
+
+  if (u == 1 && in_this_base(spr[u].seq, dink_base_push))
+    return(0);
 	
-	int hardness = 0;
+  int hardness = 0;
 	if (spr[u].moveman > 0)
 	{
 	  int i;

@@ -44,14 +44,6 @@
    if (num > 0)
      {
  //add experience
-@@ -2149,6 +2311,7 @@
-     Msg ("ERROR: Couldn't read map %d?!?", num);
-   fclose (fp);
-   spr[1].move_active = false;
-+  spr[1].move_nohard = false;
-   spr[1].freeze = false;
-   screenlock = 0;
-   fill_whole_hard ();
 @@ -2443,6 +2677,11 @@
        Msg ("Loaded map.");
        draw_map_game ();
@@ -118,18 +110,6 @@
  //spr[h].alt.bottom = 10; 
  
        box_crap->left = box_crap->left + spr[h].alt.left;
-@@ -4651,6 +5072,7 @@
- 	      if (rinfo[script]->sprite != 1000)
- 		{
- 		  spr[rinfo[script]->sprite].move_active = false;
-+		  spr[rinfo[script]->sprite].move_nohard = false;
- 		}
- 	      rinfo[script]->skipnext = false;
- 	      rinfo[script]->onlevel = 0;
-@@ -4728,29 +5202,142 @@
-     }
- }
- 
 @@ -4802,6 +5391,7 @@
  bool
  get_parms (char proc_name[20], int script, char *h, int p[10])

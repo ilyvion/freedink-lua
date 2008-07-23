@@ -360,8 +360,9 @@ void strip_beginning_spaces(char *str)
                                 //clean up vars so it is ready to run
                                 if (rinfo[script]->sprite != 1000)
                                 {
-                                        spr[rinfo[script]->sprite].move_active = /*false*/0;
-
+                                        spr[rinfo[script]->sprite].move_active = 0;
+                                        if (dversion >= 108)
+					  spr[rinfo[script]->sprite].move_nohard = 0;
                                 }
                                 rinfo[script]->skipnext = /*false*/0;
                                 rinfo[script]->onlevel = 0;

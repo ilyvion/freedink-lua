@@ -1035,8 +1035,10 @@ void load_map(const int num)
 {
   load_map_to(current_map, num, &pam);
   
-  spr[1].move_active = /*false*/0;
-  spr[1].freeze = /*false*/0;
+  spr[1].move_active = 0;
+  if (dversion >= 108)
+    spr[1].move_nohard = 0;
+  spr[1].freeze = 0;
   screenlock = 0;
   fill_whole_hard();
   fix_dead_sprites();

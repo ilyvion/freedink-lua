@@ -203,9 +203,12 @@ Backward-incompatible fixes:
     Works correctly.
     => Compare the magic index rather than the weapon index
     => Implemented conditionally 2008-07-23
-[ ] sp_move_nohard(int sprite, bool value)
+[X] sp_move_nohard(int sprite, bool value)
     When activated, a sprite can move freely through all hardness.  Previously
     had no effect.
+    => Cf. sp_move_nohard dinkc.chm entry: actually had effect but
+       only when in scripted moves
+    => Implemented conditionally 2008-07-23
 [X] screenlock(int value)
     Returns the current screenlock value if value is -1.
     => Implemented conditionally 2008-07-23
