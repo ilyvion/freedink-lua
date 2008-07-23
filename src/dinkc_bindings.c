@@ -2756,13 +2756,27 @@ pass:
                 {
                         h = &h[strlen(ev[1])];
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
+			if (dversion >= 108)
+			  {
+			    // returns the screenlock value to DinkC
+			    if (get_parms (ev[1], script, h, p))
+			      {
+				if (nlist[0] == 0 || nlist[0] == 1)
+				  screenlock = nlist[0];
+			      }
+			    returnint = screenlock;
+			    return (0);
+			  }
+			else
+			  {
+			    if (get_parms(ev[1], script, h, p))
+			      {
                                 screenlock = nlist[0];
                                 return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
+			      }
+			    returnint = -1;
+			  }
+			return(0);
                 }
 
                 if (compare(ev[1], "stop_entire_game"))

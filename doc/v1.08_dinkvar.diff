@@ -286,20 +286,3 @@
  		    kill_returning_stuff (spr[nlist[0]].script);
  		    run_script (spr[nlist[0]].script);
  		  }
-@@ -9802,10 +11185,14 @@
- 	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
-+	    if (nlist[0] == 0 || nlist[0] == 1)
-+	      {
- 	    screenlock = nlist[0];
--	    return (0);
- 	  }
--	returnint = -1;
-+	  }
-+//redink1 - set screenlock() to return the screenlock value
-+
-+	returnint = screenlock;
- 	return (0);
-       }
-     if (compare (ev[1], "stop_entire_game"))

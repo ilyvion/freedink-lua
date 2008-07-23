@@ -201,13 +201,14 @@ Fixes:
 Backward-incompatible fixes:
 [X] compare_magic(str magicitem)
     Works correctly.
-    => Compare the magic index rather than the weapon index.
+    => Compare the magic index rather than the weapon index
     => Implemented conditionally 2008-07-23
 [ ] sp_move_nohard(int sprite, bool value)
     When activated, a sprite can move freely through all hardness.  Previously
     had no effect.
-[ ] screenlock(int value)
+[X] screenlock(int value)
     Returns the current screenlock value if value is -1.
+    => Implemented conditionally 2008-07-23
 
 New functions:
 [X] clear_editor_info()
