@@ -53,6 +53,11 @@
 #include "init.h"
 #include "msgbox.h"
 
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 static int g_b_no_write_ini = 0; // -noini passed to command line?
 static char* init_error_msg = NULL;
 
@@ -356,7 +361,7 @@ void log_path(/*bool*/int playing)
   /* TODO: saves it in the user home instead. Think about where to
      cleanly store additional DMods. */
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
   char windir[100];
   char inifile[256];
   GetWindowsDirectory(windir, 256);
