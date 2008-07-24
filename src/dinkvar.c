@@ -2700,7 +2700,10 @@ void draw_status_all(void)
   }
 
   fraise = next_raise();
-  fexp = *pexper;
+  if (*pexper < fraise)
+    fexp = *pexper;
+  else
+    fexp = fraise - 1;
   fstrength = *pstrength;
   fmagic = *pmagic;
   fgold = *pgold;
@@ -3711,7 +3714,10 @@ void update_status_all(void)
 
         }
 
-        if (*pexper != fexp)
+        if (*pexper != fexp
+	    && ((talk.active == false && item_screen == false && spr[1].freeze == 0)
+		|| fexp + 10 < fraise))
+
         {
                 //update screen experience
                 fexp += 10;
