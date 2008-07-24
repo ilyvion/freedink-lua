@@ -392,13 +392,14 @@ Changes not documented in whatsnew.txt
     points", 1); // would not display any text at all! This issue has
     also been fixed in 1.08."
 
-[ ] entry for hurt(): "In 1.07 and earlier, a negative damage value
+[X] entry for hurt(): "In 1.07 and earlier, a negative damage value
     would cause the game to freeze.  1.08 and later will ignore the
     command safely."
 
     => Actually, I couldn't reproduce the freeze, so v1.08 is
        essentially changing DinkC's behavior: with v1.07 hurt(&sthing,
        -1) would run hit(), with v1.08 it doesn't.
+    => Implementing conditionally 2008-07-24
 
 [X] entry for show_bmp(): "1.07 had a couple bugs displaying the map
     dot: it would not be displayed properly if Dink was warped using

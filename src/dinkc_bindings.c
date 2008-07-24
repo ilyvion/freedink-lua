@@ -2658,6 +2658,15 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
+			  if (dversion >= 108)
+			    {
+			        // With v1.07 hurt(&sthing, -1) would
+			        // run hit(), with v1.08 it doesn't
+			        // (after redink1 tried to fix a game
+			        // freeze bug that I can't reproduce)
+                                if (nlist[1] < 0)
+                                  return (0);
+			    }
 
                                 if (hurt_thing(nlist[0], nlist[1], 0) > 0)
                                         random_blood(spr[nlist[0]].x, spr[nlist[0]].y-40, nlist[0]);

@@ -152,14 +152,3 @@
 +	strcpy (s, h);
 +	return (0);
 +      }
-@@ -9712,6 +11086,10 @@
- 	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
- 	if (get_parms (ev[1], script, h, p))
- 	  {
-+//redink1 fix for freeze if hurt value is less than 0
-+
-+	    if (nlist[1] < 0)
-+	      return (0);
- 	    if (hurt_thing (nlist[0], nlist[1], 0) > 0)
- 	      random_blood (spr[nlist[0]].x, spr[nlist[0]].y - 40, nlist[0]);
- 	    if (spr[nlist[0]].nohit != 1)
