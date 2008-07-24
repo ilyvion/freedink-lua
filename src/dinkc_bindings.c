@@ -809,7 +809,12 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                add_exp(nlist[0], nlist[1]);
+			  if (dversion >= 108)
+			    // fix - made work with all sprites when
+			    // using add_exp DinkC command
+			    add_exp_force(nlist[0], nlist[1]);
+			  else
+			    add_exp(nlist[0], nlist[1]);
                         }
 
                         strcpy_nooverlap(s, h);

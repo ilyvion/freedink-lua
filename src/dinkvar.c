@@ -661,39 +661,42 @@ void fill_hardxy(rect box)
 }
 
 
-void add_exp(int num, int h)
+/**
+ * Add experience - no "did the player really killed this enemy?"
+ * checks
+ */
+void add_exp_force(int num, int source_sprite)
 {
-        if (spr[h].last_hit != 1) return;
+  if (num > 0)
+    {
+      //add experience
+      *pexper += num;
 
-        if (num > 0)
-        {
-                //add experience
+      int crap2 = add_sprite(spr[source_sprite].x, spr[source_sprite].y, 8, 0, 0);
+      spr[crap2].y -= k[seq[spr[source_sprite].pseq].frame[spr[source_sprite].pframe]].yoffset;
+      spr[crap2].x -= k[seq[spr[source_sprite].pseq].frame[spr[source_sprite].pframe]].xoffset;
+      spr[crap2].y -= k[seq[spr[source_sprite].pseq].frame[spr[source_sprite].pframe]].box.bottom / 3;
+      spr[crap2].x += k[seq[spr[source_sprite].pseq].frame[spr[source_sprite].pframe]].box.right / 5;
+      spr[crap2].y -= 30;
+      spr[crap2].speed = 1;
+      spr[crap2].hard = 1;
+      spr[crap2].brain_parm = 5000;
+      spr[crap2].my = -1;
+      spr[crap2].kill = 1000;
+      spr[crap2].dir = 8;
+      spr[crap2].damage = num;
+      
+      if (*pexper > 99999)
+	*pexper = 99999;
+    }
+}
 
-
-                *pexper += num;
-
-
-                int crap2 = add_sprite(spr[h].x,spr[h].y,8,0,0);
-
-                spr[crap2].y -= k[seq[spr[h].pseq].frame[spr[h].pframe]].yoffset;
-                spr[crap2].x -= k[seq[spr[h].pseq].frame[spr[h].pframe]].xoffset;
-                spr[crap2].y -= k[seq[spr[h].pseq].frame[spr[h].pframe]].box.bottom / 3;
-                spr[crap2].x += k[seq[spr[h].pseq].frame[spr[h].pframe]].box.right / 5;
-                spr[crap2].y -= 30;
-                spr[crap2].speed = 1;
-                spr[crap2].hard = 1;
-                spr[crap2].brain_parm = 5000;
-                spr[crap2].my = -1;
-                spr[crap2].kill = 1000;
-                spr[crap2].dir = 8;
-                spr[crap2].damage = num;
-
-
-                if (*pexper > 99999) *pexper = 99999;
-
-
-        }
-
+void add_exp(int num, int killed_sprite)
+{
+  if (spr[killed_sprite].last_hit != 1)
+    return;
+  
+  add_exp_force(num, killed_sprite);
 }
 
 int realhard(int tile)

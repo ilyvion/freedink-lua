@@ -27,23 +27,6 @@
  void init_scripts (void);
  int load_script (char filename[15], int sprite, bool set_sprite);
  void strchar (char *string, char ch);
-@@ -1940,10 +2089,15 @@
- 	  hm.x[x1].y[y1] = get_hard_map (0, x1, y1);
- }}} void
- 
--add_exp (int num, int h)
-+add_exp (int num, int h, bool addEvenIfNotLastSpriteHit)
-+{
-+//redink1 fix - made work with all sprites when using add_exp DinkC command
-+
-+  if (addEvenIfNotLastSpriteHit == false)
- {
-   if (spr[h].last_hit != 1)
-     return;
-+    }
-   if (num > 0)
-     {
- //add experience
 @@ -3976,7 +4359,14 @@
    if (ddrval == DDERR_WASSTILLDRAWING)
      goto again3;

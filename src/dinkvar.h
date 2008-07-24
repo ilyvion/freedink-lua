@@ -257,7 +257,8 @@ extern /*bool*/int inside_box(int x1, int y1, rect box);
 extern int walk_off_screen;
 
 /* Sprites - state */
-extern void add_exp(int num, int h);
+extern void add_exp_force(int num, int source_sprite);
+extern void add_exp(int num, int killed_sprite);
 extern void changedir( int dir1, int k,int base);
 extern int get_pan(int h);
 extern int get_vol(int h);

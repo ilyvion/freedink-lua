@@ -129,9 +129,9 @@ Fixes:
     2008-07-18 in DinkC's 'load_screen' (script warp)
 [X] Properly exits when closed with Alt-F4.
     => done as part of FreeDink v1.07 clean-up
-[ ] Level-up no longer lost if in inventory screen,
-[ ] fixed several other experience count issues.
-    => add_exp() always works (cf. add_exp dinkc.chm entry)
+[ ] Level-up no longer lost if in inventory screen, fixed several
+    other experience count issues.
+    => Cf. also 'add_exp' dinkc.chm entry below
 [X] Fixed issue of a phantom keyboard key causing the Map to not be displayed.
     => Could not reproduce the problem, but applied the code clean-up.
     => Implemented unconditionaly 2008-07-19
@@ -400,9 +400,10 @@ Changes not documented in whatsnew.txt
     fixed in 1.08+."
     => Fixed unconditionaly 2007-07-18
 
-[ ] entry for add_exp(): "v1.07 and earlier required that
+[X] entry for add_exp(): "v1.07 and earlier required that
     active_sprite was last hit by Dink [PP].  v1.08 will work with any
     active_sprite."
+    => Fixed conditionaly 2007-07-24
 
 Changes eventually not implemented
 ----------------------------------
