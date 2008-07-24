@@ -42,20 +42,6 @@
    fstrength = *pstrength;
    fmagic = *pmagic;
    fgold = *pgold;
-@@ -3992,10 +4382,10 @@
-   draw_icons ();
-   if (*pmagic_cost > 0)
-     if (*pmagic_level > 0)
--      draw_mlevel (*pmagic_level / (*pmagic_cost / 100));
--}
-+      draw_mlevel (*pmagic_level / static_cast <
-+		   double >(*pmagic_cost) / 100.0);
-+} bool
- 
--bool
- inside_box (int x1, int y1, RECT box)
- {
-   if (x1 > box.right)
 @@ -4117,6 +4520,24 @@
  							  0) | (spr[h].alt.
  								right != 0))
@@ -130,20 +116,6 @@
    if (drawexp)
      {
        draw_exp ();
-@@ -6776,7 +7473,12 @@
-   if (*pmagic_cost > 0)
-     if (*pmagic_level > 0)
-       {
--	int mnum = *pmagic_level / (*pmagic_cost / 100);
-+	double mnumd = *pmagic_level;
-+	mnumd *= 100;
-+	mnumd /= *pmagic_cost;
-+	int mnum = static_cast < int >(mnumd);
-+//int mnum = *pmagic_level / (*pmagic_cost / 100);
-+
- 	if (mnum != last_magic_draw)
- 	  {
- 	    draw_mlevel (mnum);
 @@ -8019,21 +8747,8 @@
  	strcpy (s, h);
  	return (1);

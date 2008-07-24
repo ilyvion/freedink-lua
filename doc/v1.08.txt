@@ -330,6 +330,11 @@ Changes not documented in whatsnew.txt
 [ ] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
 
+[X] avoid crash when &magic_cost is < 100
+    => does it more simply in 'update_status_all', and avoid a
+       precedence mistake in 'draw_status_all'
+    => Implemented unconditionaly 2008-07-24
+
 [ ] Change the fade_down (but not fade_up) palette-mode algorithm to
     use time-based rather than absolute increments. Should avoid
     incomplete fades on slow computers.
@@ -398,12 +403,12 @@ Changes not documented in whatsnew.txt
     dot: it would not be displayed properly if Dink was warped using
     DinkC or if he was on the 32nd screen of any row. This has been
     fixed in 1.08+."
-    => Fixed unconditionaly 2007-07-18
+    => Fixed unconditionaly 2008-07-18
 
 [X] entry for add_exp(): "v1.07 and earlier required that
     active_sprite was last hit by Dink [PP].  v1.08 will work with any
     active_sprite."
-    => Fixed conditionaly 2007-07-24
+    => Fixed conditionaly 2008-07-24
 
 Changes eventually not implemented
 ----------------------------------

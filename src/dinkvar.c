@@ -2715,7 +2715,7 @@ void draw_status_all(void)
   draw_level();
   draw_icons();
   if (*pmagic_cost > 0 && *pmagic_level > 0)
-    draw_mlevel(*pmagic_level / (*pmagic_cost / 100));
+    draw_mlevel(*pmagic_level * 100 / *pmagic_cost);
 }
 
 
@@ -3803,7 +3803,7 @@ void update_status_all(void)
         }
         if (*pmagic_cost > 0) if (*pmagic_level > 0)
         {
-                int mnum = *pmagic_level / (*pmagic_cost / 100);
+                int mnum = *pmagic_level * 100 / *pmagic_cost;
                 if (mnum != last_magic_draw)
                 {
 
