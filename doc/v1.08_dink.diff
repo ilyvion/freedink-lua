@@ -1,20 +1,5 @@
 --- d_canonical	2008-06-26 09:24:48.000000000 +0200
 +++ d2_canonical	2008-06-29 19:45:03.000000000 +0200
-@@ -198,10 +194,14 @@
-       Msg ("Drew map.");
-       if (mode > 2)
- 	{
-+	  fill_screen (0);
- 	  draw_map_game_background ();
-+	  if (*pupdate_status == 1)
-+	    {
- 	  draw_status_all ();
- 	}
-     }
-+    }
-   return ddrval;
- }				/* restoreAll */
- 
 @@ -352,7 +352,12 @@
        if (jinfo.dwYpos < 17000)
  	sjoy.up = TRUE;

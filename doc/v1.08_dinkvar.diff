@@ -44,18 +44,6 @@
    if (num > 0)
      {
  //add experience
-@@ -2443,6 +2677,11 @@
-       Msg ("Loaded map.");
-       draw_map_game ();
-       Msg ("Map drawn.");
-+//redink1 fixes
-+
-+      fexp = *pexper;
-+      draw_status_all ();
-+      Msg ("Status drawn.");
-       last_saved_game = num;
-       return (true);
-     }
 @@ -3976,7 +4359,14 @@
    if (ddrval == DDERR_WASSTILLDRAWING)
      goto again3;
