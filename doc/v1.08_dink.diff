@@ -114,16 +114,6 @@
  	}
      }
    lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
-@@ -3358,6 +3805,9 @@
- 		draw_box (box, 33);
- 	      if (inside_box (spr[h].x, spr[h].y, box))
- 		{
-+//redink1 addition for fixing missle_source problems
-+
-+		  *pmissle_source = h;
- 		  if (spr[i].nohit == 1)
- 		    {
- 		      if (spr[i].script > 0)
 @@ -4610,18 +5059,106 @@
        PostQuitMessage (0);
        break;

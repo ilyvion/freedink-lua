@@ -241,16 +241,3 @@
  	    if (hurt_thing (nlist[0], nlist[1], 0) > 0)
  	      random_blood (spr[nlist[0]].x, spr[nlist[0]].y - 40, nlist[0]);
  	    if (spr[nlist[0]].nohit != 1)
-@@ -9719,7 +11097,12 @@
- 		if (locate (spr[nlist[0]].script, "HIT"))
- 		  {
- 		    if (rinfo[script]->sprite != 1000)
-+		      {
- 		      *penemy_sprite = rinfo[script]->sprite;
-+//redink1 addition of missle_source stuff
-+
-+			*pmissle_source = rinfo[script]->sprite;
-+		      }
- 		    kill_returning_stuff (spr[nlist[0]].script);
- 		    run_script (spr[nlist[0]].script);
- 		  }

@@ -2663,7 +2663,13 @@ pass:
                                                 {
 
                                                         if (rinfo[script]->sprite != 1000)
+							  {
                                                                 *penemy_sprite = rinfo[script]->sprite;
+								//redink1 addition of missle_source stuff
+								if (dversion >= 108)
+								  *pmissle_source = rinfo[script]->sprite;
+
+							  }
 
                                                         kill_returning_stuff(spr[nlist[0]].script);
                                                         run_script(spr[nlist[0]].script);

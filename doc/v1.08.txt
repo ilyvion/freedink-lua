@@ -170,7 +170,8 @@ Improvements that potentially break backward compatibility:
 [X] Variables can begin with another variable stub (i.e. &goldtemp will work with
     &gold).
     => Implemented conditionally 2008-07-04
-[ ] &missle_source is defined for all attacks, not just missiles.
+[X] &missle_source is defined for all attacks, not just missiles.
+    => Implemented conditionally 2008-07-24
 [X] &return is a built-in variable that stores the last return value of any
     function (built-in or custom).
     => Implemented conditionally 2008-07-04

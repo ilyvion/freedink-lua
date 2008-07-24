@@ -3735,7 +3735,10 @@ void flip_it(void)
 				
 				if (inside_box(spr[h].x, spr[h].y, box))
 				{	
-					
+					// addition for fixing missle_source problems
+					if (dversion >= 108)
+					  *pmissle_source = h;
+
 					if (spr[i].nohit == 1)
 					{
 						if (spr[i].script > 0)
