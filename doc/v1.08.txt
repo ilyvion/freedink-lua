@@ -66,8 +66,31 @@ with a "v1.08+" entry, describing all added DinkC commands.
 
 Grep //redink1 in the 1.08 source code.
 
-[ ] Paul Jewsbury posted a list of v1.08 bugs he ran into:
+[X] Paul Jewsbury posted a list of v1.08 bugs he ran into:
     http://www.dinknetwork.com/forum.cgi?MID=89849
+
+    => The descriptions are pretty vague, without explaining how to
+       reproduce the problem. They mostly concern the old DinkC
+       engine, and each change is likely to further break
+       compatibility. So I'm not in favor of fixing them: rather, it
+       would make sense to implement a proper scripting engine (in
+       progress).
+
+    [X] "The operator /= is buggy. If you use a function as the
+        divisor it will divide by the LAST function to have been
+        calculated, not the one you want. *= works in that
+        circumstance, though, and so does /.
+	=> Can be reproduced, due to "/" and "/=" sharing the same
+	code, and DinkC advancing 1 character in both cases (while it
+	should advance 2 chars for "/=").
+
+    [ ] "sp_pframe is apparently broken; changing from one frame to
+        another with a different hit box doesn't update the hit box,
+        however it does work when its sequenced. I saw this with Red
+        Shield and I'm sure it worked before. (I'm not talking about
+        hardness, though its the same hardbox.)"
+	=> This one may be fixed, though it can break
+	   backward-compatibility.
 
 
 Incorporating changes in FreeDink
