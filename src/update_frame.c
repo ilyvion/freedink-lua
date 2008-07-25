@@ -66,8 +66,7 @@ void updateFrame( void )
   frames++;
   
     unsigned char state[256]; 
-/*     RECT                rcRect,box_crap,box_real; */
-    rect rcRect; /* for FONTS */
+/*     RECT                box_crap,box_real; */
     SDL_Rect GFX_box_crap;
 
 /* 	DDBLTFX     ddbltfx; */
@@ -110,7 +109,7 @@ trigger_start:
 	
 	if (GetKeyboard('d') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{	
-		if (debug_mode) 
+		if (debug_mode)
 		{
 			debug_mode = /*false*/0;
 		}
@@ -125,12 +124,12 @@ trigger_start:
 		  
 	
 	
-	if (GetKeyboard(SDLK_q) && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
+	if (GetKeyboard('q') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{
 		//shutdown game
 	//	PostMessage(hWndMain, WM_CLOSE, 0, 0);
 		finiObjects();
-	    return;	
+	    return;
 	}
 	
 	if (mode == 1) Scrawl_OnMouseInput(); else
@@ -947,78 +946,36 @@ past:
 	}
 	
 	
-	
-/* 	if (lpDDSBack->GetDC(&hdc) == DD_OK) */
-/* 	{       */
-		
-		if (debug_mode)
-		{
-			
-			
-/* 			SetBkMode(hdc, OPAQUE); */
-			//		TextOut(hdc,0,0, msg,lstrlen(msg));
-			if (mode == 0) strcpy(msg,"");		
-			if (mode == 1) 
-			{
-			  int x;
-				sprintf(msg,"X is %d y is %d", spr[1].x, spr[1].y);		
-				//let's add the key info to it.
-				for (x = 0; x < 256; x++)
-				{ 
-					if (GetKeyboard(x))
-					{
-						sprintf(msg, "%s (Key %i)",msg,x);
-					}
-				}
-				
-				
-			}
-			if (mode == 3) 
-				
-			{
-				
-				
-				sprintf(msg, "Sprites: %d  FPS: %d  Show_dot: %d Plane_process: %d Moveman X%d X%d: %d Y%d Y%d Map %d",
-					last_sprite_created,fps/*_show*/,show_dot,plane_process,spr[1].lpx[0],spr[1].lpy[0],spr[1].moveman,spr[1].lpx[1],
-					spr[1].lpy[1], *pmap);
-				
-			}
-			rcRect.left = 0;
-			rcRect.top = 0;
-			rcRect.right = playx;
-			rcRect.bottom = playy;
-/* 			SetTextColor(hdc, RGB(200,200,200)); */
-			// FONTS
-			FONTS_SetTextColor(200, 200, 200);
-/* 			DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
-			// FONTS
-			/* TODO: write with OPAQUE / Shaded mode */
-			print_text_wrap(msg, &rcRect, 0, 0, FONT_SYSTEM);
+	if (debug_mode)
+	  {
+	    if (mode == 0) strcpy(msg,"");
+	    if (mode == 1)
+	      {
+		int x;
+		sprintf(msg,"X is %d y is %d  FPS: %d", spr[1].x, spr[1].y, fps);
+		//let's add the key info to it.
+		for (x = 0; x < 256; x++)
+		  if (GetKeyboard(x))
+		    sprintf(msg, "%s (Key %i)",msg,x);
+	      }
+	    if (mode == 3)
+	      {
+		sprintf(msg, "Sprites: %d  FPS: %d  Show_dot: %d Plane_process: %d"
+			" Moveman X%d X%d: %d Y%d Y%d Map %d",
+			last_sprite_created, fps/*_show*/, show_dot, plane_process,
+			spr[1].lpx[0], spr[1].lpy[0], spr[1].moveman,
+			spr[1].lpx[1], spr[1].lpy[1], *pmap);
+	      }
+	    
+	    print_text_wrap_debug(msg, 0);
+	    if (strlen(last_debug) > 0)
+	      {
+		//let's also draw this...
+		strcpy(msg, last_debug);
+		print_text_wrap_debug(msg, 20);
+	      }
+	  }
 
-			            if (strlen(last_debug) > 0)
-							
-						{
-						 //let's also draw this...	
-							strcpy(msg, last_debug);
-							rcRect.left = 0;
-							rcRect.top = 20;
-							rcRect.right = playx;
-							rcRect.bottom = playy;
-/* 							SetTextColor(hdc, RGB(200,200,200)); */
-							// FONTS
-							FONTS_SetTextColor(200, 200, 200);
-/* 							DrawText(hdc,msg,lstrlen(msg),&rcRect,DT_WORDBREAK); */
-							// FONTS
-							print_text_wrap(msg, &rcRect, 0, 0, FONT_SYSTEM);
-								}
-
-
-		}
-/* 		SelectObject (hdc, hfont_small); */
-		// FONTS
-		//FONTS_SetFont(FONTS_hfont_small);
-/* 		SetBkMode(hdc, TRANSPARENT);  */
-				
 		
 		for ( j = 1; j < max_s+1; j++)
 		{

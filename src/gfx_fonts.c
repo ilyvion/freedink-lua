@@ -377,7 +377,7 @@ font_len (TTF_Font *font, char *str, int len)
  * (a.k.a. word-wrapping)
  */
 static int
-process_text_for_wrapping (TTF_Font *font, char *str, rect *box)
+process_text_for_wrapping (TTF_Font *font, char *str, int max_len)
 {
   //printf("process_text_for_wrapping: %s on %dx%d\n", str, box->right - box->left, box->bottom - box->top);
   int i, start, line, last_fit;
@@ -399,7 +399,7 @@ process_text_for_wrapping (TTF_Font *font, char *str, rect *box)
 	 unless that was the beginning of the string. */
       len = font_len (font, &str[start], i - start);
 
-      if (len > (box->right - box->left))
+      if (len > max_len)
 	{
 	  /* String is bigger than the textbox */
 
@@ -483,10 +483,8 @@ print_text_wrap (char *str, rect* box,
   if (lineskip == 1)
     lineskip = TTF_FontHeight(font);
 
-  tmp = (char*) malloc(strlen(str) + 1);
-  strcpy(tmp, str);
-  /*   tmp = strdup (str); */
-  process_text_for_wrapping (font, tmp, box);
+  tmp = strdup(str);
+  process_text_for_wrapping(font, tmp, box->right - box->left);
 
   x = box->left;
   y = box->top;
@@ -518,6 +516,64 @@ print_text_wrap (char *str, rect* box,
   return res_height;
 }
 
+
+/**
+ * Display text for debug mode (with a white background)
+ */
+void
+print_text_wrap_debug(char *text, int y)
+{
+  char *tmp, *pline, *pc;
+  int this_is_last_line = 0;
+  int res_height = 0;
+  SDL_Color fgcolor = {200, 200, 200};
+  SDL_Color bgcolor = {255, 255, 255};
+  int max_len = 640;
+
+  /* Workaround: with vgasys.fon, lineskip is always 1. We'll use it's
+     height instead. */
+  int lineskip = TTF_FontHeight(system_font);
+
+  int textlen = strlen(text);
+  tmp = malloc(strlen(text) + 1);
+  /* drop '\r' */
+  pc = tmp;
+  int i;
+  for (i = 0; i < textlen; i++)
+    if (text[i] == '\r' && text[i+1] == '\n')
+      continue;
+    else
+      *(pc++) = text[i];
+  *pc = '\0';
+  
+  process_text_for_wrapping(system_font, tmp, max_len);
+
+  pline = pc = tmp;
+  this_is_last_line = 0;
+  while (!this_is_last_line)
+    {
+      while (*pc != '\n' && *pc != '\0')
+	pc++;
+
+      if (*pc == '\0')
+	this_is_last_line = 1;
+      else
+	/* Terminate the current line to feed it to print_text */
+	*pc= '\0';
+
+      SDL_Rect dst = {0, y + res_height, -1, -1};
+      SDL_Surface *rendered_text = TTF_RenderText_Shaded(system_font, pline, fgcolor, bgcolor);
+      SDL_BlitSurface(rendered_text, NULL, GFX_lpDDSBack, &dst);
+      SDL_FreeSurface(rendered_text);
+
+      res_height += lineskip;
+
+      /* advance to next line*/
+      pc++;
+      pline = pc;
+    }
+  free(tmp);
+}
 
 
 

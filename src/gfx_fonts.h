@@ -45,7 +45,9 @@ extern void gfx_fonts_init_colors(void);
 extern void gfx_fonts_quit(void);
 extern void FONTS_SetTextColor(Uint8 r, Uint8 g, Uint8 b);
 extern void FONTS_SetTextColorIndex(int no);
-extern int print_text_wrap (char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
+extern int print_text_wrap(char *str, rect * box, /*bool*/int hcenter, int calc_only, FONT_TYPE font_type);
+extern void print_text_wrap_debug(char *str, int y);
+
 
 extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void Say(char thing[500], int px, int py);
