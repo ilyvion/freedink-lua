@@ -751,11 +751,12 @@ pass:
                         h = &h[strlen(ev[1])];
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
-                        {
-                                dinkspeed = nlist[0];
-
-                        }
-
+			  {
+			    if (dversion >= 108 && nlist[0] == 0)
+			      ; // do nothing
+			    else
+			      dinkspeed = nlist[0];
+			  }
                         strcpy_nooverlap(s, h);
                         return(0);
                 }

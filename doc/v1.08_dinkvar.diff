@@ -140,15 +140,3 @@
 +	strcpy (s, h);
 +	return (0);
 +      }
-+    if (compare (ev[1], "set_dink_speed"))
-+      {
-+	Msg ("setting callback random");
-+	h = &h[strlen (ev[1])];
-+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	if (get_parms (ev[1], script, h, p) && nlist[0] != 0)
-+	  {
-+	    dinkspeed = nlist[0];
-+	  }
-+	strcpy (s, h);
-+	return (0);
-+      }

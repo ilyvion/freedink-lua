@@ -328,8 +328,9 @@ Changes not documented in whatsnew.txt
     of them, resulting in misplaced sprites.
     => Implemented conditionally 2008-07-04
 
-[ ] added a woe registry key so as to deprecate
+[X] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
+    => Done by the installer rather than the engine
 
 [X] avoid crash when &magic_cost is < 100
     => does it more simply in 'update_status_all', and avoid a
@@ -381,11 +382,13 @@ Changes not documented in whatsnew.txt
 [ ] Entry for callback_kill: "callback_kill kills the callback_number
     returned by set_callback_random."
 
-[ ] Entry for set_dink_speed: "1.07 and earlier had timing issues that
+[X] Entry for set_dink_speed: "1.07 and earlier had timing issues that
     would cause Dink's speed to change rather noticeably in comparison
     to monsters, and his sp_speed return value could vary wildly. 
     1.08+ locks Dink's speed value to the sp_speed equivalents in the
     table."
+    => Actually only changes the behavior for '0' (freeze->noop)
+    => Implemented conditionnaly 2008-07-25
 
 [X] entry for say(): "Also in 1.07 and earlier, Dink would not
     interpret lines with a colon correctly, like so: say("bonus: 5
