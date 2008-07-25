@@ -34,8 +34,7 @@ consideration on the library choice)
 - Audio
   - Midi (Done)
   - Audio CD (Done: SDL_CD*)
-  - WAV (Half-done: SDL_Mixer, speed shift needs to integrated in the
-    engine)
+  - WAV (Done: SDL_Mixer + custom speed shift)
 - Input
   - Keyboard (Nearly done: a few Dinkedit glitches; decide whether to
     use unicode instead of keycodes for letters in the game)
@@ -47,7 +46,8 @@ consideration on the library choice)
   - Bitmaps (Done: backgrounds OK, sprites Game=OK Editor=OK; using
     SDL_Image to support compressed BMPs)
   - Scaling (Done: SDL_gfx/rotozoom)
-  - Fonts (Nearly done: use 2 different fonts in the editor)
+  - Fonts (Done: use 2 different fonts: Arial-metric-compatible
+    Liberation-Sans and Wine's vgasys.fon)
 - Timer (Done: SDL_GetTicks)
 - Frame rate limiting (Done: SDL_gfx / SDL_framerate.h)
 - Embedded resources - Dinkedit sounds, newly introduced dependencies
@@ -67,7 +67,7 @@ definite plans.
 Action: Make the result available. The engine relies on free software,
 we can publish it.
 
-[ ] Take care of portability issues for big-endian architectures such
+[X] Take care of portability issues for big-endian architectures such
 as PowerPC. Make sure that a game save on big-endian can be read
 correctly on little-endian (Intel...) and vice-versa.
 
@@ -84,6 +84,7 @@ broken Dinkedit. We don't want.
 
 [ ] Add a guile interface to the game engine
 [ ] Add a translator from a clean version of DinkC to Guile
+    - or implement a clean DinkC scripting engine directly
 
 We'll need to separate the (untouched) DinkC parser. Avoid messing
 with the DinkC engine ever again! The problem is not that it's buggy,
@@ -106,7 +107,7 @@ and Python.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Action: encourage people to contribute. Promote discussions and vote.
 
-[ ] Merge 24/32 bit color support from Invertigo
+[X] Merge 24/32 bit color support from Invertigo
 
 Well, merge the _idea_, the code is for DirectX anyway
 
@@ -149,16 +150,16 @@ GNU/Linux.
 [Milestone 3]: the current engine flaws are fixed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[ ] Port existing Dink utilities, that usually only work for MS Woe.
+[/] Port existing Dink utilities, that usually only work for MS Woe.
 
-DinkSay, Savegame editor, Dinkspell (use aspell instead of MS Word),
-the DMod installer...
+DFArc2, DinkSay, Savegame editor, Dinkspell (use aspell instead of MS
+Word), ...
 
-[ ] Port WinDinkedit to Gtk+ 2
+[O] Port WinDinkedit to Gtk+ 2
 
 Gtk+ 2 is cross-platform now.
 
-[ ] Improve WinDinkedit
+[O] Improve WinDinkedit
 
 Make GNU FreeDink the most easiest way to create your own 2d game.
 

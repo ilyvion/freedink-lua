@@ -73,7 +73,7 @@ With the Gentoo archive:
 I then edited /etc/timidity/timidity.cfg:
   source /usr/share/midi/eawpats/linuxconfig/timidity.cfg
 then /usr/share/midi/eawpats/linuxconfig/timidity.cfg:
-  dir /usr/share/midi/eawpatches
+  dir /usr/share/midi/eawpats/
 
 
 The NetBSD documentation (in file '+DISPLAY') mentions you can test
