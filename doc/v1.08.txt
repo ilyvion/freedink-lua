@@ -375,12 +375,14 @@ Changes not documented in whatsnew.txt
     implementing it unconditionally. The snake boss from "I, Kara Gu"
     (designed for v1.08) is stuck in a corner without this fix.
 
-[ ] Entry for set_callback_random: "In 1.08+, set_callback_random
+[X] Entry for set_callback_random: "In 1.08+, set_callback_random
     returns a callback number, which can be used to kill the callback
     later in the script using callback_kill."
+    => Implemented conditionnaly 2008-07-25
 
-[ ] Entry for callback_kill: "callback_kill kills the callback_number
+[X] Entry for callback_kill: "callback_kill kills the callback_number
     returned by set_callback_random."
+    => Implemented conditionnaly 2008-07-25
 
 [X] Entry for set_dink_speed: "1.07 and earlier had timing issues that
     would cause Dink's speed to change rather noticeably in comparison

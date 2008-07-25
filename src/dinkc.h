@@ -81,6 +81,7 @@ extern /*bool*/int locate_goto(char proc[50], int script);
 extern void decipher(char *crap, int script);
 extern void decipher_string(char line[200], int script);
 extern int add_callback(char name[20], int n1, int n2, int script);
+extern void kill_callback(int cb);
 extern void kill_callbacks_owned_by_script(int script);
 extern void kill_script(int k);
 extern void kill_all_scripts(void);

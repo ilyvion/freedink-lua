@@ -737,8 +737,10 @@ pass:
                         int p[20] = {2,1,1,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                add_callback(slist[0],nlist[1],nlist[2],script);
+                                int cb = add_callback(slist[0],nlist[1],nlist[2],script);
                                 //got all parms, let do it
+				if (dversion >= 108)
+				  returnint = cb;
                         }
 
                         strcpy_nooverlap(s, h);
@@ -4081,6 +4083,18 @@ if (compare(ev[1], "compare_magic"))
 	    return (0);
 	  }
 	returnint = -1;
+	return (0);
+      }
+
+    // redink1 added
+    if (compare (ev[1], "callback_kill"))
+      {
+	Msg ("setting callback random");
+	h = &h[strlen (ev[1])];
+	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	if (get_parms (ev[1], script, h, p))
+	  kill_callback(nlist[0]);
+	strcpy (s, h);
 	return (0);
       }
 
