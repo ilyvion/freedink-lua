@@ -27,62 +27,6 @@
  void init_scripts (void);
  int load_script (char filename[15], int sprite, bool set_sprite);
  void strchar (char *string, char ch);
-@@ -4117,6 +4520,24 @@
- 							  0) | (spr[h].alt.
- 								right != 0))
-     {
-+//redink1 checks for correct box stuff
-+
-+      if (spr[h].alt.left < 0)
-+	spr[h].alt.left = 0;
-+      if (spr[h].alt.left > k[getpic (h)].box.right)
-+	spr[h].alt.left = k[getpic (h)].box.right;
-+      if (spr[h].alt.top < 0)
-+	spr[h].alt.top = 0;
-+      if (spr[h].alt.top > k[getpic (h)].box.bottom)
-+	spr[h].alt.top = k[getpic (h)].box.bottom;
-+      if (spr[h].alt.right < 0)
-+	spr[h].alt.right = 0;
-+      if (spr[h].alt.right > k[getpic (h)].box.right)
-+	spr[h].alt.right = k[getpic (h)].box.right;
-+      if (spr[h].alt.bottom < 0)
-+	spr[h].alt.bottom = 0;
-+      if (spr[h].alt.bottom > k[getpic (h)].box.bottom)
-+	spr[h].alt.bottom = k[getpic (h)].box.bottom;
- //spr[h].alt.bottom = 10; 
- 
-       box_crap->left = box_crap->left + spr[h].alt.left;
-@@ -4802,6 +5391,7 @@
- bool
- get_parms (char proc_name[20], int script, char *h, int p[10])
- {
-+  memset (nlist, 0, 10 * sizeof (int));
-   char crap[100];
-   strip_beginning_spaces (h);
-   if (h[0] == '(')
-@@ -5016,8 +5615,11 @@
- 
- //Msg("Sprite %d's seq is %d",h,spr[h].seq);
- 
--	  dderror = k[seq[h].frame[1]].k->IsLost ();
--	  if (dderror == DDERR_SURFACELOST)
-+	  if (k[seq[h].frame[1]].k == NULL)
-+	    {
-+	      figure_out (seq[h].data, 0);
-+	    }
-+	  else if (k[seq[h].frame[1]].k->IsLost () == DDERR_SURFACELOST)
- 	    {
- 	      get_word (seq[h].data, 2, word1);
- 	      reload_sprites (word1, h, 0);
-@@ -5040,7 +5642,7 @@
-       {
- // Msg("Smartload: Loading seq %d..", spr[h].seq);
- 
--	if (seq[h].frame[1] == 0)
-+	if (seq[h].frame[1] == 0 || k[seq[h].frame[1]].k == NULL)
- 	  {
- 	    figure_out (seq[h].data, 0);
- 	  }
 @@ -8019,21 +8747,8 @@
  	strcpy (s, h);
  	return (1);

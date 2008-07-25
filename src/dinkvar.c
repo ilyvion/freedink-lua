@@ -146,8 +146,6 @@ char *in_string;
 
 
 
-/*bool*/int first_frame = /*false*/0;
-
 /* If true, and if the engine is executing a screen's attached script,
    and if main() loads new graphics (preload_seq()...), then
    load_sprites and load_sprite_pak will display a "Please Wait"
@@ -2872,8 +2870,27 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
   //if (OffsetRect(&spr[h].alt2,44,33) == 0) Msg("Error with set rect");
 
 
-  if ( (spr[h].alt.right != 0) | (spr[h].alt.left != 0) | (spr[h].alt.top != 0) | (spr[h].alt.right != 0))
+  if (spr[h].alt.right != 0 || spr[h].alt.left != 0
+      || spr[h].alt.top != 0 || spr[h].alt.right != 0)
     {
+      // checks for correct box stuff
+      if (spr[h].alt.left < 0)
+	spr[h].alt.left = 0;
+      if (spr[h].alt.left > k[getpic(h)].box.right)
+	spr[h].alt.left = k[getpic(h)].box.right;
+      if (spr[h].alt.top < 0)
+	spr[h].alt.top = 0;
+      if (spr[h].alt.top > k[getpic(h)].box.bottom)
+	spr[h].alt.top = k[getpic(h)].box.bottom;
+      if (spr[h].alt.right < 0)
+	spr[h].alt.right = 0;
+      if (spr[h].alt.right > k[getpic(h)].box.right)
+	spr[h].alt.right = k[getpic(h)].box.right;
+      if (spr[h].alt.bottom < 0)
+	spr[h].alt.bottom = 0;
+      if (spr[h].alt.bottom > k[getpic(h)].box.bottom)
+	spr[h].alt.bottom = k[getpic(h)].box.bottom;
+
       //spr[h].alt.bottom = 10;
 
       box_crap->left = box_crap->left +  spr[h].alt.left;
@@ -3098,11 +3115,9 @@ void check_frame_status(int h, int frame)
         if (h > 0)
         {
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
-                if (seq[h].frame[1] == 0)
+                if (seq[h].frame[1] == 0 || GFX_k[seq[h].frame[1]].k == NULL)
                 {
-                        first_frame = /*true*/1;
                         figure_out(seq[h].ini, 0);
-                        first_frame = /*false*/0;
                 }
                 else
                 {
@@ -3133,9 +3148,8 @@ void check_seq_status(int seq_no)
   if (!seq[seq_no].is_active)
     return;
 
-  if ((seq_no > 0)
-      && (seq_no < MAX_SEQUENCES)
-      && (seq[seq_no].frame[1] == 0))
+  if ((seq_no > 0 && seq_no < MAX_SEQUENCES)
+      && (seq[seq_no].frame[1] == 0 || GFX_k[seq[seq_no].frame[1]].k == NULL))
     {
       figure_out(seq[seq_no].ini, 0);
     }

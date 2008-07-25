@@ -281,6 +281,10 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 {
   char crap[1024];
 
+  /* Clean-up parameters */
+  memset(nlist, 0, 10 * sizeof (int));
+  memset(slist, '\0', 10 * 200);
+
   strip_beginning_spaces(str_params);
   if (str_params[0] == '(')
     {

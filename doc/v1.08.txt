@@ -145,9 +145,6 @@ Fixes:
 [X] Removed extra space in "I'm gesturing wildly to  no avail!"
     => Fixed 2008-06-08
 
-[ ] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
-    infinite loop of hard-drive punishment).
-
 Improvements:
 [X] Support for high-color (-truecolor parameter).
     => Implemented conditionally 2008-07-15 -> 2008-07-17
@@ -318,6 +315,13 @@ Non-changes:
        don't see how redink1's patch changes the situation
 [?] Restoring game will not redraw status bar if it wasn't drawn.
     => pupdate_status is set to 1 on load, so this doesn't work
+
+Changes not-implemented:
+[X] ffcreate.exe will only include .bmp files (to prevent the .ff file including itself in an
+    infinite loop of hard-drive punishment).
+    => Not planning to support ffcreate, dir.ff files are handled
+       weirdly by the engine, and foster obfuscation
+
 
 Changes not documented in whatsnew.txt
 --------------------------------------
