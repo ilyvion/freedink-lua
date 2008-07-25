@@ -341,9 +341,10 @@ Changes not documented in whatsnew.txt
        precedence mistake in 'draw_status_all'
     => Implemented unconditionaly 2008-07-24
 
-[ ] Change the fade_down (but not fade_up) palette-mode algorithm to
+[X] Change the fade_down (but not fade_up) palette-mode algorithm to
     use time-based rather than absolute increments. Should avoid
     incomplete fades on slow computers.
+    => Implemented conditionally 2008-07-25
 
 [X] New DinkC function: set_smooth_follow
     => Implemented conditionally 2008-07-08

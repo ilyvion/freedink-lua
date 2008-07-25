@@ -72,48 +72,6 @@
    if (spr[h].skip > 0)
      if (spr[h].skip <= spr[h].skiptimer)
        {
-@@ -3117,31 +3313,32 @@
-       Msg ("error with getting entries");
-       return;
-     }
-+      int lValue = (thisTickCount - lastTickCount) / 2;
-   for (int kk = 1; kk < 256; kk++)
-     {
-       if (pe[kk].peBlue != 0)
- 	{
- 	  done_this_time = false;
--	  if (pe[kk].peBlue > 10)
--	    pe[kk].peBlue -= 10;
-+	      if (pe[kk].peBlue > lValue)
-+		pe[kk].peBlue -= lValue;
- 	  else
--	    pe[kk].peBlue--;
-+		pe[kk].peBlue = 0;
- 	}
-       if (pe[kk].peGreen != 0)
- 	{
- 	  done_this_time = false;
--	  if (pe[kk].peGreen > 10)
--	    pe[kk].peGreen -= 10;
-+	      if (pe[kk].peGreen > lValue)
-+		pe[kk].peGreen -= lValue;
- 	  else
--	    pe[kk].peGreen--;
-+		pe[kk].peGreen = 0;
- 	}
-       if (pe[kk].peRed != 0)
- 	{
- 	  done_this_time = false;
--	  if (pe[kk].peRed > 10)
--	    pe[kk].peRed -= 10;
-+	      if (pe[kk].peRed > lValue)
-+		pe[kk].peRed -= lValue;
- 	  else
--	    pe[kk].peRed--;
-+		pe[kk].peRed = 0;
- 	}
-     }
-   lpDD->WaitForVerticalBlank (DDWAITVB_BLOCKBEGIN, NULL);
 @@ -4610,18 +5059,106 @@
        PostQuitMessage (0);
        break;

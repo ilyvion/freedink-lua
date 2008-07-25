@@ -3445,34 +3445,59 @@ void CyclePalette()
 
       memcpy(palette, cur_screen_palette, sizeof(palette));
 
-      for (kk = 1; kk < 256; kk++)
-	// skipping index 0 because it's already (and always) black ;)
+      for (kk = 1; kk < 256; kk++) /* skipping index 0 because it's
+				      already (and always) black ;) */
 	{
-	  if (palette[kk].b != 0)
+	  if (dversion >= 108)
 	    {
-	      //done_this_time = false;
-	      if (palette[kk].b > 10)
-		palette[kk].b -= 10;
-	      else
-		palette[kk].b--;
+	      /* Use time-based rather than absolute increments;
+		 avoids incomplete fades on slow computers */
+	      int lValue = (thisTickCount - lastTickCount) / 2;
+	      if (palette[kk].b != 0)
+		{
+		  if (palette[kk].b > lValue)
+		    palette[kk].b -= lValue;
+		  else
+		    palette[kk].b = 0;
+		}
+	      if (palette[kk].g != 0)
+		{
+		  if (palette[kk].g > lValue)
+		    palette[kk].g -= lValue;
+		  else
+		    palette[kk].g = 0;
+		}
+	      if (palette[kk].r != 0)
+		{
+		  if (palette[kk].r > lValue)
+		    palette[kk].r -= lValue;
+		  else
+		    palette[kk].r = 0;
+		}
 	    }
-      
-	  if (palette[kk].g != 0)
+	  else
 	    {
-	      //done_this_time = false;
-	      if (palette[kk].g > 10)
-		palette[kk].g -= 10;
-	      else
-		palette[kk].g--;
-	    }
-
-	  if (palette[kk].r != 0)
-	    {
-	      //done_this_time = false;
-	      if (palette[kk].r > 10)
-		palette[kk].r -= 10;
-	      else
-		palette[kk].r--;
+	      if (palette[kk].b != 0)
+		{
+		  if (palette[kk].b > 10)
+		    palette[kk].b -= 10;
+		  else
+		    palette[kk].b--;
+		}
+	      if (palette[kk].g != 0)
+		{
+		  if (palette[kk].g > 10)
+		    palette[kk].g -= 10;
+		  else
+		    palette[kk].g--;
+		}
+	      if (palette[kk].r != 0)
+		{
+		  if (palette[kk].r > 10)
+		    palette[kk].r -= 10;
+		  else
+		    palette[kk].r--;
+		}
 	    }
 	}
   
