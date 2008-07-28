@@ -59,7 +59,7 @@ struct wait_for_button wait4b;
 
 
 int dversion = 108;
-char *dversion_string = "v1.08--";
+char* dversion_string;
 
 int last_saved_game = 0;
 char save_game_info[200] = "Level &level";
@@ -104,6 +104,11 @@ void game_init()
   memset(&hmap, 0, sizeof(hmap));
   memset(&pam, 0, sizeof(pam));
   memset(&spr, 0, sizeof(spr));
+
+  if (dversion >= 108)
+    dversion_string = "v1.08";
+  else
+    dversion_string = "v1.07";
 }
 
 void game_quit()

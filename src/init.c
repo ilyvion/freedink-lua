@@ -254,7 +254,6 @@ static int check_arg(int argc, char *argv[])
 	break;
       case '7':
 	dversion = 107;
-	dversion_string = "v1.07";
 	break;
       case 't':
 	truecolor = 1;
