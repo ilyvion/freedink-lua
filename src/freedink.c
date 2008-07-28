@@ -3554,38 +3554,46 @@ void up_cycle(void)
 
       for (kk = 1; kk < 256; kk++)
 	{
-	  if (palette[kk].b != GFX_real_pal[kk].b)
+	  int tmp = -1;
+
+	  tmp = palette[kk].b; // 'int' to avoid 'char' overflow
+	  if (tmp != GFX_real_pal[kk].b)
 	    {
 	      donethistime = 0;
-	      if (palette[kk].b > 246)
-		palette[kk].b++;
+	      if (tmp > 246)
+		tmp++;
 	      else
-		palette[kk].b += 10;
+		tmp += 10;
 	    }
-	  if (palette[kk].b > GFX_real_pal[kk].b)
-	    palette[kk].b = GFX_real_pal[kk].b;
+	  if (tmp > GFX_real_pal[kk].b)
+	    tmp = GFX_real_pal[kk].b;
+	  palette[kk].b = tmp;
       
-	  if (palette[kk].g != GFX_real_pal[kk].g)
+	  tmp = palette[kk].g; // 'int' to avoid 'char' overflow
+	  if (tmp != GFX_real_pal[kk].g)
 	    {
 	      donethistime = 0;
-	      if (palette[kk].g > 246)
-		palette[kk].g++;
+	      if (tmp > 246)
+		tmp++;
 	      else
-		palette[kk].g += 10;
+		tmp += 10;
 	    }
-	  if (palette[kk].g > GFX_real_pal[kk].g)
-	    palette[kk].g = GFX_real_pal[kk].g;
+	  if (tmp > GFX_real_pal[kk].g)
+	    tmp = GFX_real_pal[kk].g;
+	  palette[kk].g = tmp;
       
-	  if (palette[kk].r != GFX_real_pal[kk].r)
+	  tmp = palette[kk].r; // 'int' to avoid 'char' overflow
+	  if (tmp != GFX_real_pal[kk].r)
 	    {
 	      donethistime = 0;
-	      if (palette[kk].r > 246)
-		palette[kk].r++;
+	      if (tmp > 246)
+		tmp++;
 	      else
-		palette[kk].r += 10;
+		tmp += 10;
 	    }
-	  if (palette[kk].r > GFX_real_pal[kk].r)
-	    palette[kk].r = GFX_real_pal[kk].r;
+	  if (tmp > GFX_real_pal[kk].r)
+	    tmp = GFX_real_pal[kk].r;
+	  palette[kk].r = tmp;
 	}
   
       change_screen_palette(palette);
@@ -3960,7 +3968,7 @@ void process_warp_man(void)
 	  SDL_FillRect(GFX_lpDDSBack, NULL,
 		       SDL_MapRGB(GFX_lpDDSBack->format, 0, 0, 0));
 	  flip_it();
-			
+	  
 	  process_count = 0;
 	  int block = process_warp;
 	  update_screen_time();
