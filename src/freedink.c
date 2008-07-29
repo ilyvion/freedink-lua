@@ -3667,7 +3667,7 @@ void flip_it(void)
      the original game): the double buffer (Back) is directly
      managed by SDL; SDL_Flip is used to refresh the physical
      screen. */
-  if (trigger_palette_change)
+  if (!truecolor && trigger_palette_change)
     {
       // Apply the logical palette to the physical screen. This
       // may trigger a Flip (so don't do that until Back is
@@ -5103,7 +5103,7 @@ void drawscreenlock( void )
 /*   if (ddrval == DDERR_WASSTILLDRAWING ) goto loop; */
   //if (ddrval != DD_OK) dderror(ddrval);
   // GFX
-  SDL_BlitSurface(GFX_k[seq[423].frame[9]].k, NULL, GFX_lpDDSBack, NULL);
+  gfx_blit_nocolorkey(GFX_k[seq[423].frame[9]].k, NULL, GFX_lpDDSBack, NULL);
   
 /*  loop2: */
   //draw the screenlock icon
@@ -5114,7 +5114,7 @@ void drawscreenlock( void )
   // GFX
   {
     SDL_Rect dst = {620, 0};
-    SDL_BlitSurface(GFX_k[seq[423].frame[10]].k, NULL, GFX_lpDDSBack, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[423].frame[10]].k, NULL, GFX_lpDDSBack, &dst);
   }
 }
 

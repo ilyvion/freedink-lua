@@ -67,9 +67,8 @@ SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer and link to physical
    3) with various hacks such as fill_screen() (and maybe
    copy_bmp_to_screen()). */
 /* Those changes may conflict with each other (eg: an animated tile
-   overwrites half the carcass of a dead enemy). I think that some
-   alternate versions of Dink considered those conflicts as bugs (not
-   features) and fixed them. Maybe we should do so as well. */
+   overwrites half the carcass of a dead enemy). We might want to fix
+   that. */
 /* After the background is done, all the other operations are applied
    on lpDDSBack, the double buffer which is directly used by the
    physical screen. */
@@ -202,7 +201,8 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* Default palette (may be used by early init error messages */
   setup_palette(cur_screen_palette);
   setup_palette(GFX_real_pal);
-  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+  if (!truecolor)
+    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
 
 
   /* Create and set the reference palette */
@@ -219,7 +219,8 @@ int gfx_init(enum gfx_windowed_state windowed)
      image to the internal palette at load time - and we never change
      the buffer's palette again, so we're sure there isn't any
      conversion even if we change the screen palette: */
-  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
+  if (!truecolor)
+    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
   GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
@@ -230,6 +231,7 @@ int gfx_init(enum gfx_windowed_state windowed)
   if (gfx_fonts_init() < 0)
     return -1; /* error message set in gfx_fonts_init */
 
+  /* Compute fade cache if necessary */
   gfx_fade_init();
 
   /* Mouse */
@@ -430,9 +432,9 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
     }
   else
     {
-      /* Attempting to convert to the truecolor display does not bring
-	 noticeable performance increase or decrease, but does
-	 increase memory usage by at least 10MB so let's use the
+      /* In truecolor mode, converting a 8bit image to truecolor does
+	 not bring noticeable performance increase or decrease, but
+	 does increase memory usage by at least 10MB so let's use the
 	 loaded image as-is. No need for palette conversion either. */
       return image;
     }
@@ -467,4 +469,18 @@ SDL_Surface* load_bmp_setpal(FILE* in)
     return NULL;
   SDL_RWops *rw = SDL_RWFromFP(in, /*autoclose=*/1);
   return load_bmp_internal(NULL, rw, 1, 1);
+}
+
+/**
+ * Temporary disable src's transparency and blit it to dst
+ */
+void gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
+			 SDL_Surface *dst, SDL_Rect *dst_rect)
+{
+    Uint32 flag, key;
+    flag = src->flags & (SDL_SRCCOLORKEY|SDL_RLEACCEL);
+    key = src->format->colorkey;
+    SDL_SetColorKey(src, 0, 0);
+    SDL_BlitSurface(src, src_rect, dst, dst_rect);
+    SDL_SetColorKey(src, flag, key);
 }

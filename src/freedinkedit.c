@@ -246,7 +246,7 @@ void flip_it_second(void)
     /* We work directly on either lpDDSBack (no lpDDSPrimary as in the
        original game): the double buffer (Back) is directly managed by
        SDL; SDL_Flip is used to refresh the physical screen. */
-    if (trigger_palette_change)
+    if (!truecolor && trigger_palette_change)
       {
 	// Apply the logical palette to the physical
 	// screen. This may trigger a Flip (so don't do
@@ -717,11 +717,7 @@ draw_this_map(struct map_info* pmap)
 	    sprite = GFX_k[seq[10].frame[6]].k;
 	    dst.x = x * 20 - x/32*640;
 	    dst.y = x/32 * 20;
-	    /* We need to avoid transparency though */
-	    Uint32 colorkey = sprite->format->colorkey;
-	    SDL_SetColorKey(sprite, 0, 0); /* Temporarily disable transparent color */
-	    SDL_BlitSurface(sprite, NULL, GFX_lpDDSTwo, &dst);
-	    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
+	    gfx_blit_nocolorkey(sprite, NULL, GFX_lpDDSTwo, &dst);
 	  }
 	}
       /* Red square - used screen */
@@ -735,11 +731,7 @@ draw_this_map(struct map_info* pmap)
 	    SDL_Surface *sprite = GFX_k[seq[10].frame[7]].k;
 	    dst.x = x * 20 - x/32*640;
 	    dst.y = x/32 * 20;
-	    /* We need to avoid transparency though */
-	    Uint32 colorkey = sprite->format->colorkey;
-	    SDL_SetColorKey(sprite, 0, 0); /* Temporarily disable transparent color */
-	    SDL_BlitSurface(sprite, NULL, GFX_lpDDSTwo, &dst);
-	    SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
+	    gfx_blit_nocolorkey(sprite, NULL, GFX_lpDDSTwo, &dst);
 	  }
 	}
 

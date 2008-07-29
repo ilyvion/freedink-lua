@@ -110,6 +110,7 @@ int walk_off_screen = /*false*/0;
 /*bool*/int abort_this_flip = /*false*/0;
 
 
+#define SEQ_LEVEL_NUMS 442
 
 
 struct show_bmp showb;
@@ -2218,31 +2219,22 @@ int draw_num(int mseq, char nums[50], int mx, int my)
       else if (nums[i] == '9') rnum = 9;
       else if (nums[i] == '/') rnum = 11;
 /*     again: */
-      if ((rnum != 11) && (!(mseq == 442)))
+      if ((rnum != 11) && (!(mseq == SEQ_LEVEL_NUMS)))
 	{
 /* 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k, */
 /* 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_NOCOLORKEY); */
 	  // GFX
-	  /* TODO: we should not allow color transparency here; on the
-	     other hand this doesn't seem useful; numbers are loaded
-	     with LEFTALIGN, which convert black and white to the
-	     nearest non-black and non-white colors from the Dink
-	     Palette - hence disabling black and white
-	     transparency. */
-	  /* TODO: test what happens if dir.ff files are replaced by
-	     .bmp's. Possibly number will carry transparency. */
 	  {
 	    SDL_Rect dst = {mx+length, my};
-	    SDL_BlitSurface(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
+	    gfx_blit_nocolorkey(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
 	  }
 	}
       else
 	{
 /* 	  ddrval = lpDDSTwo->BltFast(mx+length, my, k[seq[mseq].frame[rnum]].k, */
 /* 				     &k[seq[mseq].frame[rnum]].box, DDBLTFAST_SRCCOLORKEY); */
+	  /* Draw experience level number _with_ transparency */
 	  // GFX
-	  /* Transparency is meaningly less here as well, at least in
-	     the original game */
 	  {
 	    SDL_Rect dst = {mx+length, my};
 	    SDL_BlitSurface(GFX_k[seq[mseq].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
@@ -2380,8 +2372,8 @@ void draw_level()
 
         if (strlen(final) == 1)
 
-                draw_num(442, final, 528, 456); else
-                draw_num(442, final, 523, 456);
+                draw_num(SEQ_LEVEL_NUMS, final, 528, 456); else
+                draw_num(SEQ_LEVEL_NUMS, final, 523, 456);
 
 }
 
@@ -2440,7 +2432,7 @@ void draw_bar(int life, int seqman)
 		src.w = GFX_k[seq[seqman].frame[rnum]].k->w * (rem * 10) / 100;
 		src.h = GFX_k[seq[seqman].frame[rnum]].k->h;
 		dst.x = curx; dst.y = cury;
-		SDL_BlitSurface(GFX_k[seq[seqman].frame[rnum]].k, &src, GFX_lpDDSTwo, &dst);
+		gfx_blit_nocolorkey(GFX_k[seq[seqman].frame[rnum]].k, &src, GFX_lpDDSTwo, &dst);
 	      }
 	    }
 	  //are we done?
@@ -2462,7 +2454,7 @@ void draw_bar(int life, int seqman)
 	    SDL_Rect dst;
 	    dst.x = curx;
 	    dst.y = cury;
-	    SDL_BlitSurface(GFX_k[seq[seqman].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
+	    gfx_blit_nocolorkey(GFX_k[seq[seqman].frame[rnum]].k, NULL, GFX_lpDDSTwo, &dst);
 	  }
 
 	  //if (ddrval != DD_OK) dderror(ddrval);
@@ -2556,7 +2548,7 @@ void draw_virtical(int percent, int mx, int my, int mseq, int mframe)
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
     dst.x = mx;
     dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -2582,7 +2574,7 @@ void draw_virt2(int percent, int mx, int my, int mseq, int mframe)
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h * percent / 100;
     dst.x = mx; dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -2609,7 +2601,7 @@ void draw_hor(int percent, int mx, int my, int mseq, int mframe)
     src.w = GFX_k[seq[mseq].frame[mframe]].k->w * percent / 100;
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
     dst.x = mx; dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -2638,7 +2630,7 @@ void draw_hor2(int percent, int mx, int my, int mseq, int mframe)
     src.h = GFX_k[seq[mseq].frame[mframe]].k->h;
     dst.x = mx;
     dst.y = my;
-    SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[mseq].frame[mframe]].k, &src, GFX_lpDDSTwo, &dst);
   }
 }
 
@@ -2675,7 +2667,7 @@ void draw_status_all(void)
   // GFX
   {
     SDL_Rect src = {0, 0, 640, 80}, dst = {0, 400};
-    SDL_BlitSurface(GFX_k[seq[180].frame[3]].k, &src, GFX_lpDDSTwo, &dst);
+    gfx_blit_nocolorkey(GFX_k[seq[180].frame[3]].k, &src, GFX_lpDDSTwo, &dst);
   }
 
 /*   rcRect.left = 0; */
@@ -2693,8 +2685,8 @@ void draw_status_all(void)
   // GFX
   {
     SDL_Rect src = {0, 0, 20, 400}, dst1 = {0, 0}, dst2 = {620, 0};
-    SDL_BlitSurface(GFX_k[seq[180].frame[1]].k, &src, GFX_lpDDSTwo, &dst1);
-    SDL_BlitSurface(GFX_k[seq[180].frame[2]].k, &src, GFX_lpDDSTwo, &dst2);
+    gfx_blit_nocolorkey(GFX_k[seq[180].frame[1]].k, &src, GFX_lpDDSTwo, &dst1);
+    gfx_blit_nocolorkey(GFX_k[seq[180].frame[2]].k, &src, GFX_lpDDSTwo, &dst2);
   }
 
   fraise = next_raise();
