@@ -344,6 +344,9 @@ Copyright: Composed by Y-Asano
 Sequence: AVE MARIA    
 Copyright: (C)1994 Roland Corporation
 (Bach/Gounod version)
+Possible replacement:
+http://arsouyes.org/divers/finies/Bach/Prelude/Piano/prelude.mid - Art Libre
+http://arsouyes.org/divers/finies/gounod/Ave_Maria/Ave_Maria.mid - Art Libre
 
 2.mid
 Sequence: untitled
