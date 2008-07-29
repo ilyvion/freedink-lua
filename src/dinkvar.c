@@ -57,7 +57,6 @@
 
 #include "SDL.h"
 #include "SDL_framerate.h"
-#include "SDL_rotozoom.h"
 
 #include "game_engine.h"
 #include "dinkini.h"
@@ -3400,8 +3399,6 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
 	return;
       
       SDL_Rect src, dst;
-      SDL_Surface *scaled;
-      double sx, sy;
       int retval = 0;
       src.x = box_real.left;
       src.y = box_real.top;
@@ -3411,34 +3408,9 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
       dst.y = box_crap.top;
       dst.w = box_crap.right - box_crap.left;
       dst.h = box_crap.bottom - box_crap.top;
-      sx = 1.0 * dst.w / src.w;
-      sy = 1.0 * dst.h / src.h;
-      /* In principle, double's are precised up to 15 decimal
-	 digits */
-      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
-	{
-	  scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
-	  
-	  /* Keep the same transparency / alpha parameters
-	     (SDL_gfx bug, report submitted to the author) */
-	  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
-			  GFX_k[getpic(h)].k->format->colorkey);
-	  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
-		       GFX_k[getpic(h)].k->format->alpha);
-	  
-	  src.x = (int) round(src.x * sx);
-	  src.y = (int) round(src.y * sy);
-	  src.w = (int) round(src.w * sx);
-	  src.h = (int) round(src.h * sy);
-	  retval = SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
-	  SDL_FreeSurface(scaled);
-	}
-      else
-	{
-	  /* No scaling */
-	  retval = SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
-	}
-  
+
+      retval = gfx_blit_stretch(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
+      
       if (retval < 0) {
 	fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
 	/* If we failed, then maybe the sprite was actually loaded

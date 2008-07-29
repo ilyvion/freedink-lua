@@ -26,8 +26,10 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_rotozoom.h"
 
 #include <string.h>
+#include <math.h>
 
 #include "freedink_xpm.h"
 #include "io_util.h"
@@ -474,13 +476,77 @@ SDL_Surface* load_bmp_setpal(FILE* in)
 /**
  * Temporary disable src's transparency and blit it to dst
  */
-void gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
+int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
 			 SDL_Surface *dst, SDL_Rect *dst_rect)
 {
-    Uint32 flag, key;
-    flag = src->flags & (SDL_SRCCOLORKEY|SDL_RLEACCEL);
-    key = src->format->colorkey;
-    SDL_SetColorKey(src, 0, 0);
-    SDL_BlitSurface(src, src_rect, dst, dst_rect);
-    SDL_SetColorKey(src, flag, key);
+  int retval = -1;
+
+  Uint32 colorkey_flags, colorkey, alpha_flags, alpha;
+  colorkey_flags = src->flags & (SDL_SRCCOLORKEY|SDL_RLEACCEL);
+  colorkey = src->format->colorkey;
+  alpha_flags = src->flags & (SDL_SRCALPHA|SDL_RLEACCEL);
+  alpha = src->format->alpha;
+  SDL_SetColorKey(src, 0, -1);
+  SDL_SetAlpha(src, 0, -1);
+  
+  retval = SDL_BlitSurface(src, src_rect, dst, dst_rect);
+  
+  SDL_SetColorKey(src, colorkey_flags, colorkey);
+  SDL_SetAlpha(src, alpha_flags, alpha);
+
+  return retval;
+}
+
+/**
+ * Blit and resize so that 'src' fits in 'dst_rect'
+ */
+int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect,
+		     SDL_Surface *dst, SDL_Rect *dst_rect)
+{
+  int retval = -1;
+  SDL_Rect src_rect_if_null;
+
+  if (src_rect == NULL)
+    {
+      src_rect = &src_rect_if_null;
+      src_rect->x = 0;
+      src_rect->y = 0;
+      src_rect->w = src->w;
+      src_rect->h = src->h;
+    }
+
+  double sx = 1.0 * dst_rect->w / src_rect->w;
+  double sy = 1.0 * dst_rect->h / src_rect->h;
+  /* In principle, double's are precise up to 15 decimal digits */
+  if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
+    {
+      SDL_Surface *scaled = zoomSurface(src, sx, sy, SMOOTHING_OFF);
+
+      /* Keep the same transparency / alpha parameters (SDL_gfx bug,
+	 report submitted to the author: SDL_gfx adds transparency to
+	 non-transparent surfaces) */
+      int colorkey_flag = src->flags & SDL_SRCCOLORKEY;
+      Uint8 r, g, b, a;
+      SDL_GetRGBA(src->format->colorkey, src->format, &r, &g, &b, &a);
+
+      SDL_SetColorKey(scaled, colorkey_flag,
+		      SDL_MapRGBA(scaled->format, r, g, b, a));
+      /* Don't mess with alpha transparency, though: */
+      /* int alpha_flag = src->flags & SDL_SRCALPHA; */
+      /* int alpha = src->format->alpha; */
+      /* SDL_SetAlpha(scaled, alpha_flag, alpha); */
+      
+      src_rect->x = (int) round(src_rect->x * sx);
+      src_rect->y = (int) round(src_rect->y * sy);
+      src_rect->w = (int) round(src_rect->w * sx);
+      src_rect->h = (int) round(src_rect->h * sy);
+      retval = SDL_BlitSurface(scaled, src_rect, dst, dst_rect);
+      SDL_FreeSurface(scaled);
+    }
+  else
+    {
+      /* No scaling */
+      retval = SDL_BlitSurface(src, src_rect, dst, dst_rect);
+    }
+  return retval;
 }

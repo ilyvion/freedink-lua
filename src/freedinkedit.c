@@ -370,8 +370,6 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 	  /* Classical scaling - copy/paste from dinkvar.cpp */
 	  {
 	    SDL_Rect src, dst;
-	    SDL_Surface *scaled;
-	    double sx, sy;
 	    src.x = box_real.left;
 	    src.y = box_real.top;
 	    src.w = box_real.right - box_real.left;
@@ -380,31 +378,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 	    dst.y = box_crap.top;
 	    dst.w = box_crap.right - box_crap.left;
 	    dst.h = box_crap.bottom - box_crap.top;
-	    sx = 1.0 * dst.w / src.w;
-	    sy = 1.0 * dst.h / src.h;
-	    /* In principle, double's are precised up to 15 decimal
-	       digits */
-	    if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
-	      {
-		scaled = zoomSurface(GFX_k[getpic(h)].k, sx, sy, SMOOTHING_OFF);
-		/* Keep the same transparency / alpha parameters
-		   (SDL_gfx bug, report submitted to the author) */
-		SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
-				GFX_k[getpic(h)].k->format->colorkey);
-		SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
-			     GFX_k[getpic(h)].k->format->alpha);
-		src.x = (int) round(src.x * sx);
-		src.y = (int) round(src.y * sy);
-		src.w = (int) round(src.w * sx);
-		src.h = (int) round(src.h * sy);
-		SDL_BlitSurface(scaled, &src, GFX_lpdest, &dst);
-		SDL_FreeSurface(scaled);
-	      }
-	    else
-	      {
-		/* No scaling */
-		SDL_BlitSurface(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
-	      }
+	    gfx_blit_stretch(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
 	  }
 
 /* 	  if (ddrval != DD_OK) */
@@ -1206,34 +1180,13 @@ void draw15(int num)
 /* 	      dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[frame]].k, */
 /* 				 &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx); */
 	      // GFX
-	      /* Optimized scaling: no clipping */
 	      {
-		SDL_Rect src, dst;
-		SDL_Surface *scaled;
-		double sx, sy;
+		SDL_Rect dst;
 		dst.x = x1 * 50;
 		dst.y = y1 * 50;
 		dst.w = 50;
 		dst.h = 50;
-		sx = 1.0 * dst.w / GFX_k[seq[se].frame[frame]].k->w;
-		sy = 1.0 * dst.h / GFX_k[seq[se].frame[frame]].k->h;
-		if (sx != 1 || sy != 1)
-		  {
-		    scaled = zoomSurface(GFX_k[seq[se].frame[frame]].k, sx, sy, SMOOTHING_OFF);
-		    /* Keep the same transparency / alpha parameters
-		       (SDL_gfx bug, report submitted to the
-		       author) */
-		    SDL_SetColorKey(scaled, GFX_k[seq[se].frame[frame]].k->flags & SDL_SRCCOLORKEY,
-				    GFX_k[seq[se].frame[frame]].k->format->colorkey);
-		    SDL_SetAlpha(scaled, GFX_k[seq[se].frame[frame]].k->flags & SDL_SRCALPHA,
-				 GFX_k[seq[se].frame[frame]].k->format->alpha);
-		    SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
-		    SDL_FreeSurface(scaled);
-		  }
-		else
-		  {
-		    SDL_BlitSurface(GFX_k[seq[se].frame[frame]].k, &src, GFX_lpDDSTwo, &dst);
-		  }
+		gfx_blit_stretch(GFX_k[seq[se].frame[frame]].k, NULL, GFX_lpDDSTwo, &dst);
 	      }
 
 
@@ -1304,33 +1257,13 @@ void draw96(int def)
 /* 	  dd = lpDDSTwo->Blt(&Rect, k[seq[se].frame[num]].k, */
 /* 			     &crapRec, DDBLT_KEYSRC | DDBLT_DDFX | DDBLT_WAIT, &ddbltfx ); */
 	  // GFX
-	  /* Optimized scaling: no clipping */
 	  {
-	    SDL_Rect src, dst;
-	    SDL_Surface *scaled;
-	    double sx, sy;
+	    SDL_Rect dst;
 	    dst.x = x1 * 50;
 	    dst.y = y1 * 50;
 	    dst.w = 50;
 	    dst.h = 50;
-	    sx = 1.0 * dst.w / GFX_k[seq[se].frame[num]].k->w;
-	    sy = 1.0 * dst.h / GFX_k[seq[se].frame[num]].k->h;
-	    if (sx != 1 || sy != 1)
-	      {
-		scaled = zoomSurface(GFX_k[seq[se].frame[num]].k, sx, sy, SMOOTHING_OFF);
-		/* Keep the same transparency / alpha parameters
-		   (SDL_gfx bug, report submitted to the author) */
-		SDL_SetColorKey(scaled, GFX_k[seq[se].frame[num]].k->flags & SDL_SRCCOLORKEY,
-				GFX_k[seq[se].frame[num]].k->format->colorkey);
-		SDL_SetAlpha(scaled, GFX_k[seq[se].frame[num]].k->flags & SDL_SRCALPHA,
-			     GFX_k[seq[se].frame[num]].k->format->alpha);
-		SDL_BlitSurface(scaled, NULL, GFX_lpDDSTwo, &dst);
-		SDL_FreeSurface(scaled);
-	      }
-	    else
-	      {
-		SDL_BlitSurface(GFX_k[seq[se].frame[num]].k, &src, GFX_lpDDSTwo, &dst);
-	      }
+	    gfx_blit_stretch(GFX_k[seq[se].frame[num]].k, NULL, GFX_lpDDSTwo, &dst);
 	  }
 
 /* 	  if (dd != DD_OK) Msg("Error with drawing sprite! Seq %d, Spr %d.",se,frame); */
@@ -1981,8 +1914,6 @@ void shrink_screen_to_these_cords(int x1, int y1)
   /* Generic scaling - except no transparency */
   {
     SDL_Rect src, dst;
-    SDL_Surface *scaled;
-    double sx, sy;
     src.x = playl;
     src.y = 0;
     src.w = playx - playl;
@@ -1991,21 +1922,7 @@ void shrink_screen_to_these_cords(int x1, int y1)
     dst.y = y1;
     dst.w = 20;
     dst.h = 20;
-    sx = 1.0 * dst.w / src.w;
-    sy = 1.0 * dst.h / src.h;
-
-    scaled = zoomSurface(GFX_lpDDSTwo, sx, sy, SMOOTHING_OFF);
-    /* Don't introduce transparencey (SDL_gfx bug, report submitted to
-       the author) */
-    SDL_SetColorKey(scaled, 0, 0);
-    SDL_SetAlpha(scaled, 0, 0);
-
-    src.x = (int) round(src.x * sx);
-    src.y = 0; /* (int) round(src.y * sy); */
-    src.w = (int) round(src.w * sx);
-    src.h = (int) round(src.h * sy);
-    SDL_BlitSurface(scaled, &src, GFX_lpDDSBack, &dst);
-    SDL_FreeSurface(scaled);
+    gfx_blit_stretch(GFX_lpDDSTwo, &src, GFX_lpDDSBack, &dst);
   }
 }
 
@@ -3921,8 +3838,6 @@ void updateFrame(void)
 			       before scaling it.. */
 			    {
 			      SDL_Rect src, dst;
-			      SDL_Surface *scaled;
-			      double sx, sy;
 			      src.x = xx * 50 - xx/12 * 600;
 			      src.y = xx/12 * 50;
 			      src.w = 50;
@@ -3931,33 +3846,7 @@ void updateFrame(void)
 			      dst.y = 0;
 			      dst.w = 450;
 			      dst.h = 450;
-			      sx = 1.0 * dst.w / src.w;
-			      sy = 1.0 * dst.h / src.h;
-			      /* In principle, double's are precised up to 15 decimal
-				 digits */
-			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
-				{
-				  scaled = zoomSurface(GFX_tiles[cool+1], sx, sy, SMOOTHING_OFF);
-				  /* Keep the same transparency /
-				     alpha parameters (SDL_gfx bug,
-				     report submitted to the
-				     author) */
-				  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
-						  GFX_k[getpic(h)].k->format->colorkey);
-				  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
-					       GFX_k[getpic(h)].k->format->alpha);
-				  src.x = (int) round(src.x * sx);
-				  src.y = (int) round(src.y * sy);
-				  src.w = (int) round(src.w * sx);
-				  src.h = (int) round(src.h * sy);
-				  SDL_BlitSurface(scaled, &src, GFX_lpDDSTwo, &dst);
-				  SDL_FreeSurface(scaled);
-				}
-			      else
-				{
-				  /* No scaling */
-				  SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-				}
+			      gfx_blit_stretch(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
 			    }
 
 			    m4x = spr[h].x;
@@ -4408,8 +4297,6 @@ void updateFrame(void)
 			       single 50x50 square of it... */
 			    {
 			      SDL_Rect src, dst;
-			      SDL_Surface *scaled;
-			      double sx, sy;
 			      src.x = spr[1].x+20;
 			      src.y = spr[1].y;
 			      src.w = 50;
@@ -4418,33 +4305,7 @@ void updateFrame(void)
 			      dst.y = 0;
 			      dst.w = 450;
 			      dst.h = 450;
-			      sx = 1.0 * dst.w / src.w;
-			      sy = 1.0 * dst.h / src.h;
-			      /* In principle, double's are precised up to 15 decimal
-				 digits */
-			      if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
-				{
-				  scaled = zoomSurface(GFX_lpDDSBack, sx, sy, SMOOTHING_OFF);
-				  /* Keep the same transparency /
-				     alpha parameters (SDL_gfx bug,
-				     report submitted to the
-				     author) */
-				  SDL_SetColorKey(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCCOLORKEY,
-						  GFX_k[getpic(h)].k->format->colorkey);
-				  SDL_SetAlpha(scaled, GFX_k[getpic(h)].k->flags & SDL_SRCALPHA,
-					       GFX_k[getpic(h)].k->format->alpha);
-				  src.x = (int) round(src.x * sx);
-				  src.y = (int) round(src.y * sy);
-				  src.w = (int) round(src.w * sx);
-				  src.h = (int) round(src.h * sy);
-				  SDL_BlitSurface(scaled, &src, GFX_lpDDSTwo, &dst);
-				  SDL_FreeSurface(scaled);
-				}
-			      else
-				{
-				  /* No scaling */
-				  SDL_BlitSurface(GFX_lpDDSBack, &src, GFX_lpDDSTwo, &dst);
-				}
+			      gfx_blit_stretch(GFX_lpDDSBack, &src, GFX_lpDDSTwo, &dst);
 			    }
 
 			    m4x = spr[h].x;
