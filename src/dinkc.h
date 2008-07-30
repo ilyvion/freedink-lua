@@ -71,10 +71,10 @@ struct refinfo
 };
 extern struct refinfo *rinfo[];
 
-extern char cbuf[];
 extern void decompress(FILE *in);
 extern void decompress_nocomp(FILE *in);
 extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
+extern int dinkc_execute_one_liner(char* line);
 extern void strip_beginning_spaces(char *str);
 extern /*bool*/int locate(int script, char proc[20]);
 extern /*bool*/int locate_goto(char proc[50], int script);

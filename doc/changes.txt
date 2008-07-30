@@ -116,6 +116,8 @@ up to 1000 frames in a sequence but without the buffer overflow part.
 The engine now can switch between fullscreen and window mode at
 run-time, using the Ctrl+Enter shortcut.
 
+The engine also supports paletted-color-mode in windowed mode.
+
 
 Dinkedit 1.07 does not play sounds anymore (v1.06 did): now plays
 external .wav, grabbed in Dinkedit 1.06 resources.

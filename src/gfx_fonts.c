@@ -521,12 +521,11 @@ print_text_wrap (char *str, rect* box,
  * Display text for debug mode (with a white background)
  */
 void
-print_text_wrap_debug(char *text, int y)
+print_text_wrap_debug(char *text, int x, int y)
 {
   char *tmp, *pline, *pc;
   int this_is_last_line = 0;
   int res_height = 0;
-  SDL_Color fgcolor = {200, 200, 200};
   SDL_Color bgcolor = {255, 255, 255};
   int max_len = 640;
 
@@ -561,8 +560,8 @@ print_text_wrap_debug(char *text, int y)
 	/* Terminate the current line to feed it to print_text */
 	*pc= '\0';
 
-      SDL_Rect dst = {0, y + res_height, -1, -1};
-      SDL_Surface *rendered_text = TTF_RenderText_Shaded(system_font, pline, fgcolor, bgcolor);
+      SDL_Rect dst = {x, y + res_height, -1, -1};
+      SDL_Surface *rendered_text = TTF_RenderText_Shaded(system_font, pline, text_color, bgcolor);
       SDL_BlitSurface(rendered_text, NULL, GFX_lpDDSBack, &dst);
       SDL_FreeSurface(rendered_text);
 

@@ -41,6 +41,7 @@
 #include "str_util.h"
 #include "paths.h"
 #include "log.h"
+#include "dinkc_console.h"
 
 /* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
@@ -4100,6 +4101,13 @@ if (compare(ev[1], "compare_magic"))
 	  kill_callback(nlist[0]);
 	strcpy (s, h);
 	return (0);
+      }
+
+    if (compare(ev[1], "show_console"))
+      {
+	h = &h[strlen(ev[1])];
+	console_active = 1;
+	return 0;
       }
 
     }

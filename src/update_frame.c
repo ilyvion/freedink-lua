@@ -42,6 +42,7 @@
 #include "bgm.h"
 #include "log.h"
 #include "rect.h"
+#include "dinkc_console.h"
 
 #include "update_frame.h"
 
@@ -948,6 +949,7 @@ past:
 	
 	if (debug_mode)
 	  {
+	    FONTS_SetTextColor(200, 200, 200);
 	    if (mode == 0) strcpy(msg,"");
 	    if (mode == 1)
 	      {
@@ -967,14 +969,29 @@ past:
 			spr[1].lpx[1], spr[1].lpy[1], *pmap);
 	      }
 	    
-	    print_text_wrap_debug(msg, 0);
+	    print_text_wrap_debug(msg, 0, 0);
 	    if (strlen(last_debug) > 0)
 	      {
 		//let's also draw this...
 		strcpy(msg, last_debug);
-		print_text_wrap_debug(msg, 20);
+		print_text_wrap_debug(msg, 0, 20);
 	      }
 	  }
+
+        /* Console */
+        if (console_active == 1)
+        {
+	  rect lConsoleRectangle;
+
+	  char* line = dinkc_console_get_cur_line();
+	  FONTS_SetTextColor(0, 0, 0);
+	  print_text_wrap_debug(line, 20, 380);
+
+	  char retval[20+1];
+	  sprintf(retval, "%d", dinkc_console_get_last_retval());
+	  FONTS_SetTextColor(255, 0, 0);
+	  print_text_wrap_debug(retval, 20, 360);
+	}
 
 		
 		for ( j = 1; j < max_s+1; j++)

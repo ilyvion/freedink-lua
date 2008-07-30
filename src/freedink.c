@@ -54,6 +54,7 @@
 
 #include "game_engine.h"
 #include "dinkvar.h"
+#include "dinkc_console.h"
 
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(rect box, int color);
@@ -128,15 +129,18 @@ void check_joystick(void)
 	}
     }
   
-/* pass: */
-  if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = 1;
-  if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = 1;
-  if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = 1;
-  if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = 1;
-  if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = 1;
-  if (GetKeyboard('6')) sjoy.joybit[6] = 1;
-  if (GetKeyboard('m')) sjoy.joybit[6] = 1;
-  if (GetKeyboard('7')) sjoy.joybit[7] = 1;
+  /* Only accept keyboard input when console is not active. */
+  if (console_active == 0)
+    {
+      if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = 1;
+      if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = 1;
+      if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = 1;
+      if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = 1;
+      if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = 1;
+      if (GetKeyboard('6')) sjoy.joybit[6] = 1;
+      if (GetKeyboard('m')) sjoy.joybit[6] = 1;
+      if (GetKeyboard('7')) sjoy.joybit[7] = 1;
+    }
   
   {
     int x5;
@@ -158,10 +162,14 @@ void check_joystick(void)
       }
   }
   
-  if (GetKeyboard(SDLK_RIGHT)) sjoy.right = 1;
-  if (GetKeyboard(SDLK_LEFT)) sjoy.left = 1;
-  if (GetKeyboard(SDLK_DOWN)) sjoy.down = 1;
-  if (GetKeyboard(SDLK_UP)) sjoy.up = 1;
+  /* Only accept keyboard input when console is not active. */
+  if (console_active == 0)
+    {
+      if (GetKeyboard(SDLK_RIGHT)) sjoy.right = 1;
+      if (GetKeyboard(SDLK_LEFT)) sjoy.left = 1;
+      if (GetKeyboard(SDLK_DOWN)) sjoy.down = 1;
+      if (GetKeyboard(SDLK_UP)) sjoy.up = 1;
+    }
   
   {
     int x2;
@@ -2760,7 +2768,7 @@ void human_brain(int h)
   
   //added AGAIN 10-19-99
   //Let's check keys for getting hit
-  if (thisTickCount > but_timer)  
+  if (thisTickCount > but_timer && console_active == 0)
     {
       for (x5=29; x5<256; x5++)
 	{ 
@@ -2894,15 +2902,13 @@ shootm:
 	  return;
 	}
     }
-	
-  if (GetKeyboard('b')) //66
-    {
-      ResumeMidi();
-    }
   
-  if (GetKeyboard('n')) //78
+  if (console_active == 0)
     {
-      PauseMidi();
+      if (GetKeyboard('b'))
+	ResumeMidi();
+      if (GetKeyboard('n'))
+	PauseMidi();
     }
   
   if (spr[h].skip > 0
@@ -5206,6 +5212,8 @@ static int doInit(int argc, char *argv[])
  */
 int main(int argc, char* argv[])
 {
+  int last_console_active = 0;
+
   doInit(argc, argv);
   
   /* Notify other apps that FreeDink is playing */
@@ -5229,9 +5237,26 @@ int main(int argc, char* argv[])
       /* TODO: maybe check for application active/background state and
 	 pause the game accordingly - but this may be an annoying
 	 behavior. */
-
       if (g_b_kill_app == /*false*/0)
 	updateFrame();
+
+      if (console_active == 0 || last_console_active == 0)
+	/* Get rid of keyboard events, otherwise they'll pile-up. Also
+	   purge them just when console is turned on. We poll the
+	   keyboard state directly in the rest of the game, so no
+	   keystroke will be lost. */
+	while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			      SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
+
+      if (console_active == 1)
+	{
+	  SDL_KeyboardEvent kev;
+	  if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
+			     SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
+	    dinkc_console_process_key(kev);
+	}
+
+      last_console_active = console_active;
     }
 
   return 0;

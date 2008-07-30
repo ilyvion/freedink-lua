@@ -58,12 +58,13 @@ static struct call_back callback[MAX_CALLBACKS];
 /* TODO: Used 1->100 in the game, should it be MAX_CALLBACKS+1 ? */
 
 /* DinkC script buffer */
-char cbuf[64000]; /* TODO: don't use a fixed limit, vulnerable to
+static char cbuf[64000]; /* TODO: don't use a fixed limit, vulnerable to
 		     buffer overflow */
-char *rbuf[MAX_SCRIPTS]; //pointers to buffers we may need
+static char *rbuf[MAX_SCRIPTS]; //pointers to buffers we may need
 
 /* Number of reserved ASCII indexes in .d BPE compression format */
 #define NB_PAIRS_MAX 128
+
 
 struct refinfo *rinfo[MAX_SCRIPTS];
 
@@ -293,6 +294,29 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
     spr[sprite].script = script;
 
   return script;
+}
+
+
+int dinkc_execute_one_liner(char* line)
+{
+  /* Find available script slot */
+  int k = 1;
+  for (k = 1; k < MAX_SCRIPTS; k++)
+    if (rbuf[k] == NULL)
+      break;
+
+  if (k < MAX_SCRIPTS)
+    {
+      rinfo[k] = (struct refinfo*) calloc(1, sizeof(struct refinfo));
+      rinfo[k]->sprite = 1000; /* survice screen change */
+      rinfo[k]->level = 1; /* skip 'void main(void) {' parsing */
+      rbuf[k] = (char*) malloc(255);
+      strcpy(rbuf[k], line);
+      process_line(k, rbuf[k], 0);
+      return returnint;
+    }
+  else
+    return -1;
 }
 
 

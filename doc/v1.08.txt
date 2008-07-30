@@ -299,7 +299,7 @@ New functions:
     Sets the line of information to be displayed in the save game summary.  The
     default is "Level &level".
     => Implemented conditionally 2008-07-07
-[ ] show_console()
+[X] show_console()
     Shows the console, which accepts DinkC commands as input (Escape to cancel).
 [X] show_inventory()
     Displays the inventory screen.

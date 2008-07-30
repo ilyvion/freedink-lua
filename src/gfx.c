@@ -243,22 +243,6 @@ int gfx_init(enum gfx_windowed_state windowed)
   SDL_GetRelativeMouseState(NULL, NULL);
 
 
-  /* We'll handle those events manually */
-  SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
-  SDL_EventState(SDL_VIDEOEXPOSE, SDL_IGNORE);
-  SDL_EventState(SDL_VIDEORESIZE, SDL_IGNORE);
-  SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
-  SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
-  SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
-  SDL_EventState(SDL_KEYUP, SDL_IGNORE);
-  SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-  SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
-  /* We still process through a SDL_PollEvent() loop: */
-  /* - SDL_QUIT: quit on window close and Ctrl+C */
-  /* - SDL_MOUSEBUTTONDOWN: don't miss quick clicks */
-  /* - Joystick: apparently we need to keep them, otherwise joystick
-       doesn't work at all */
-
   /* SDL_MouseMotionEvent: If the cursor is hidden (SDL_ShowCursor(0))
      and the input is grabbed (SDL_WM_GrabInput(SDL_GRAB_ON)), then
      the mouse will give relative motion events even when the cursor

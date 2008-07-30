@@ -5553,14 +5553,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
       exit(1);
     }
 
-    /* Difference with the game: we want the keydown events for text
-       input */
-    SDL_EventState(SDL_KEYDOWN, SDL_ENABLE);
-    /* Enable Unicode to be able to grab what letter the user actually
-       typed, taking the keyboard layout/language into account */
-    SDL_EnableUNICODE(1);
-    
-
   memset(&hm, 0, sizeof(struct hit_map));
 
 	  srand( (unsigned)time( NULL ) );

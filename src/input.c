@@ -50,6 +50,11 @@ int keypressed(void)
 
 void input_init(void)
 {
+  /* Enable Unicode to be able to grab what letter the user actually
+     typed, taking the keyboard layout/language into account. Used for
+     the console (game) and the input dialogs (editor). */
+  SDL_EnableUNICODE(1);
+
   /* Clear keyboard buffer */
   {
     int x, u, x1;
