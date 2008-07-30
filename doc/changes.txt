@@ -6,6 +6,9 @@ after.
 
 If a cd is present, it is taken into account (for playing 100X tracks)
 even if it doesn't have exactly 19 tracks.
+=> Maybe we need to reconsider this - FreeDink often attempt to load
+audio CDs that I forgot in my drive, which takes time and is
+unexpected.
 
 The two WAVE files played by Dinkedit were extracted from Dinkedit.exe
 v1.06's resources and are now external. Incidentally those were
@@ -132,3 +135,16 @@ display the current screen's sprites over the minimap.
 
 When text or number is asked in the editor, user now can press
 'escape' to discard changes.
+
+
+The editor palette is now Ts01.bmp instead of esplash.bmp - just like
+the game. This is simpler that way, and nobody changed the editor
+palette anyway.
+
+
+In debug mode, use a line width of 640px instead of 620px, avoiding
+some unwanted line wrapping.
+
+
+Fix some overflow issues in up_cycle (fade_up) causing artifacts
+during a fadeup.
