@@ -6,27 +6,30 @@ under certain conditions; see the GNU GPL for details.
 ( cf. COPYING and http://gnu.org/licenses/gpl.html )
 
 
-GNU FreeDink v1.07
-------------------
+About
+-----
 
-This version aims at running the original game as well as its D-Mods
+GNU FreeDink aims at running the original game as well as its D-Mods
 (Dink MODules, or add-ons), with close compatibility, under new
 platforms. For example: play existing D-Mods under GNU/Linux.
 
-On the technical level, GNU FreeDink v1.07 is also where the internals
-of the engines experience a clean-up to allow for portability and
-later improvements.
+On the technical level, the internals of the engines experience a
+clean-up to allow for portability and later improvements.
 
+FreeDink can run in 2 modes:
 
-GNU FreeDink v1.08
-------------------
+* v1.08 (default): this matches the latest release of the Dink engine,
+  which includes some new features and some backward-incompatible
+  changes. Use it for recent D-Mods.
 
-This version, in progress, is the next step. The plan is to start
-improving the game engine, possibly breaking backward compatibility
-(such as fixing bugs in the script engine or palette manager). It will
-not be meant to play every old D-Mods perfectly, it will be meant to
-create new D-Mods with a refined engine.
+* v1.07 (with option '--v1.07'): this matches v1.07 of the Dink
+  engine, essentially unmodified since 1998. Use it to play D-Mods
+  released before 2006.
 
+Next step is extending the engine while preserving accurate support
+for released D-Mods.
+
+Check out FreeDink's website at http://www.freedink.org/ .
 
 
 GNU
@@ -36,7 +39,7 @@ FreeDink is part of the GNU project, whose aim is to create "GNU", a
 completely free (as in freedom) operating system. Its most famous
 variant these days is GNU/Linux. A engine to play the Dink Smallwood
 game and D-Mods is definitely a must for the GNU OS ;) Check
-www.gnu.org for more information.
+http://www.gnu.org/ for more information.
 
 
 Building
@@ -44,6 +47,13 @@ Building
 
 If you are compiling GNU FreeDink from sources, check BUILD for
 instructions.
+
+
+Other FreeDink applications
+---------------------------
+
+DFArc2, a graphical front-end run the game and manage D-Mods, was also
+ported and extended. Get new version 2.1 from http://www.freedink.org/ .
 
 
 Technical information
