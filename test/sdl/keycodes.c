@@ -52,7 +52,7 @@ int main(int argc, char*argv[])
       if (e.type == SDL_KEYDOWN)
 	{
 	  
-	  printf("code=%d(keyname'%s')\tu=%d(ascii'%c')\n",
+	  printf("DOWN: code=%d(keyname'%s')\tu=%d(ascii'%c')\n",
 		 e.key.keysym.sym,
 		 SDL_GetKeyName(e.key.keysym.sym),
 		 e.key.keysym.unicode,
@@ -60,6 +60,16 @@ int main(int argc, char*argv[])
 	  fflush(stdout);
 	  if (e.key.keysym.sym == SDLK_ESCAPE)
 	    break;
+	}
+      if (e.type == SDL_KEYUP)
+	{
+	  /* No Unicode on KEYUP :/ */
+	  printf("UP: code=%d(keyname'%s')\tu=%d(ascii'%c')\n",
+		 e.key.keysym.sym,
+		 SDL_GetKeyName(e.key.keysym.sym),
+		 e.key.keysym.unicode,
+		 e.key.keysym.unicode);
+	  fflush(stdout);
 	}
       if (e.type == SDL_QUIT)
 	break;

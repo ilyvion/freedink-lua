@@ -46,13 +46,22 @@ struct seth_joy
   /*BOOL*/int letgo[17]; //copy of old above
   /*BOOL*/int button[17]; //has button been pressed recently?
 
-  /* Only used in the editor: */
-  int justpressed[SDLK_LAST]; /* true if key was just pressed, false
-				 if kept pressed or released */
+  /* Only used in the editor (for now): */
+  /* State of the keyboard, SDL-supported keys */
   int keystate[SDLK_LAST]; /* current GetAsyncKeyState value, in
 			      cache */
-  Uint16 last_unicode; /* last layout-dependent character typed by the
-			  user, used for text input */
+  int keyjustpressed[SDLK_LAST]; /* true if key was just pressed, false
+				 if kept pressed or released */
+
+  /* Idem, but with unicode characters - layout-independant */
+  char charstate[65536];
+  char charjustpressed[65536];
+  char key2char[65536]; /* to retrieve matching unicode on SDL_KEYUP,
+			   if possible */
+  Uint16 last_unicode; /* last character typed by the user, used for
+			  text input */
+  Uint16 last_nokey_unicode; /* char with no key match, so no KEYUP
+				support - reset it next time */
 
   /*BOOL*/int right,left,up,down;
   /*BOOL*/int rightd,leftd,upd,downd;
