@@ -1,10 +1,11 @@
 This is GNU FreeDink.
 
 The original source can always be found at:
-	ftp://ftp.debian.org/dists/unstable/main/source/
+	http://git.savannah.gnu.org/gitweb/?p=freedink.git
 
 Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
-Copyright (C) 2006, 2007, 2008 Sylvain Beucler
+Copyright (C) 2005, 2007, 2008  Sylvain Beucler
+Copyright (C) 2005, 2006  Dan Walma
 and others...
 
 License:

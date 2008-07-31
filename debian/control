@@ -12,7 +12,12 @@ Package: freedink
 Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: dfarc2
-Description: GNU FreeDink
- Free extension of the Dink Smallwood game engine with emphasis on
- freedom, backward compatibility, portability, documentation, and
- power.
+Description: adventure and role-playing game (engine)
+ Dink Smallwood is an adventure/role-playing game for MS Windows,
+ similar to Zelda, made by RTsoft. Besides twisted humour, it includes
+ the actual game editor, allowing players to create hundreds of new
+ adventures called Dink Modules or D-Mods for short.
+
+ GNU FreeDink is a new version of the game engine, which runs the
+ original game as well as its D-Mods, with close compatibility, under
+ new platforms.
