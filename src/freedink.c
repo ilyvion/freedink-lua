@@ -2788,8 +2788,9 @@ void human_brain(int h)
 	  if (GetKeyboard(x5))
 	    {
 	      int keycode = x5;
-	      // Get the same keycodes than the original
-	      // Dink engines, for letters
+	      /* Get the same keycodes than the original Dink engines
+		 for letters, that is, uppercase ascii rather than
+		 lowercase ascii */
 	      if (x5 >= 'a' && x5 <= 'z')
 		keycode = x5 - ('a' - 'A');
 	      

@@ -560,7 +560,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
   // Safety check
   if (registered_sounds[sound].cvt.buf == NULL)
     {
-      fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
+      //fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
       return 0;
     }
 

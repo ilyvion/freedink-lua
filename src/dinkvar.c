@@ -4106,9 +4106,6 @@ void copy_bmp( char name[80])
     SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
     SDL_FreeSurface(image);
   }
-
-  // DEBUG: disabled because it seems useless
-  //flip_it_second();
 }
 
         int hurt_thing(int h, int damage, int special)

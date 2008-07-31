@@ -981,8 +981,6 @@ past:
         /* Console */
         if (console_active == 1)
         {
-	  rect lConsoleRectangle;
-
 	  char* line = dinkc_console_get_cur_line();
 	  FONTS_SetTextColor(0, 0, 0);
 	  print_text_wrap_debug(line, 20, 380);
