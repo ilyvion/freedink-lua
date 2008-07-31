@@ -38,16 +38,6 @@ int GetKeyboard(int key)
   return keystate[key];
 }
 
-int keypressed(void)
-{
-  int x;
-  for (x=0; x<256; x++)
-    if (GetKeyboard(x))
-      return 1;
-  return 0;
-}
-
-
 void input_init(void)
 {
   /* Enable Unicode to be able to grab what letter the user actually
