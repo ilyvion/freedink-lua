@@ -822,37 +822,36 @@ int add_new_map(void)
 }
 
 
+
+
+/* Read key "is pressed?" status from cache */
+int
+getkey(int key)
+{
+  if (sjoy.keystate[key])
+    return 1;
+  else
+    return 0;
+}
+
 /* Set the keyboard state in sjoy */
 void check_keyboard(void)
 {
-  int x;
-  /* GetKeyboard (which calls W32API's GetAsyncKeyState) returns a
-     combined value in a short int; the most-significant bit indicates
-     if the key is currently pressed; the least significant bit
-     indicates if the key was pressed since the last call. */
-
   /* Check if the key was just pressed, or only maintained pressed */
+  int x;
   for (x = 1; x < SDLK_LAST; x++)
     {
       /* Put the current keyboard state in cache */
-      /* getkey() then can check sjoy.realkey - that is, from the cache */
-      sjoy.realkey[x] = GetKeyboard(x);
+      /* getkey() then can check sjoy.keystate - that is, from the cache */
+      int last_state = sjoy.keystate[x];
+      sjoy.keystate[x] = GetKeyboard(x);
 
-      sjoy.key[x] = /*FALSE*/0;
-      if (getkey(x))
-	{
-	  if (sjoy.kletgo[x] == /*TRUE*/1)
-	    /* We just changed from "released" to "pressed" */
-	    {
-	      sjoy.key[x] = /*TRUE*/1;
-	    }
-	  sjoy.kletgo[x] = /*FALSE*/0;
-	}
+      if (last_state == 0 && sjoy.keystate[x] == 1)
+	/* We just changed from "released" to "pressed" */
+	sjoy.justpressed[x] = 1;
       else
-	sjoy.kletgo[x] = /*TRUE*/1;
+	sjoy.justpressed[x] = 0;
     }
-  sjoy.kletgo[SDLK_LSHIFT] = /*TRUE*/1;
-  sjoy.kletgo[SDLK_RSHIFT] = /*TRUE*/1;
 }
 
 
@@ -998,6 +997,40 @@ if (GetKeyboard(SDLK_UP /* 38 */)) sjoy.up = /*TRUE*/1;
 
 check_keyboard();
 
+}
+
+/* Human-readable representation of the keycode, used to display which
+   key is currently pressed */
+/* Note: key constants may be found in winuser.h. The
+   "Keycodes"/keycodes.txt file by Dan Walma also brings some clues
+   about the _OEM keys. */
+char
+key_convert(int key)
+{
+  if (SDL_GetModState()&KMOD_SHIFT) key = toupper(key);
+
+  if (key == 190 /* VK_OEM_PERIOD */) { if (SDL_GetModState()&KMOD_SHIFT) key = '>'; else key = '.'; }
+  if (key == 188 /* VK_OEM_COMMA */)  { if (SDL_GetModState()&KMOD_SHIFT) key = '<'; else key = ','; }
+
+  if (key == '1') if (SDL_GetModState()&KMOD_SHIFT) key = '!';
+  if (key == '2') if (SDL_GetModState()&KMOD_SHIFT) key = '@';
+  if (key == '3') if (SDL_GetModState()&KMOD_SHIFT) key = '#';
+  if (key == '4') if (SDL_GetModState()&KMOD_SHIFT) key = '$';
+  if (key == '5') if (SDL_GetModState()&KMOD_SHIFT) key = '%';
+  if (key == '6') if (SDL_GetModState()&KMOD_SHIFT) key = '^';
+  if (key == '7') if (SDL_GetModState()&KMOD_SHIFT) key = '&';
+  if (key == '8') if (SDL_GetModState()&KMOD_SHIFT) key = '*';
+  if (key == '9') if (SDL_GetModState()&KMOD_SHIFT) key = '(';
+  if (key == '0') if (SDL_GetModState()&KMOD_SHIFT) key = ')';
+
+  if (key == 189 /* VK_OEM_MINUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '_'; else key = '-'; }
+  if (key == 187 /* VK_OEM_PLUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '+'; else key = '='; }
+  if (key == 186 /* VK_OEM_1 */) { if (SDL_GetModState()&KMOD_SHIFT) key = ':'; else key = ';'; }
+  if (key == 222 /* VK_OEM_7 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '\"'; else key = '\''; }
+  if (key == 191 /* VK_OEM_2 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '?'; else key = '/'; }
+  if (key == 220 /* VK_OEM_5 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '|'; else key = '\\'; }
+
+  return(key);
 }
 
 
@@ -2079,6 +2112,9 @@ void get_keyboard_last_unicode()
   if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
 		     SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
     sjoy.last_unicode = event.key.keysym.unicode;
+  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
+
   return;
 }
 
@@ -2100,62 +2136,62 @@ void write_moves(void)
     strcpy(fname, "CRAP");
 
 
-  if (sjoy.key[SDLK_KP8 /* 104 */])
+  if (sjoy.justpressed[SDLK_KP8 /* 104 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 8, %d, 1)\n", spr[1].y);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP4 /* 100 */])
+  if (sjoy.justpressed[SDLK_KP4 /* 100 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 4, %d, 1)\n", spr[1].x);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP5 /* 101 */])
+  if (sjoy.justpressed[SDLK_KP5 /* 101 */])
     {
       EditorSoundPlayEffect(SOUND_JUMP);
       sprintf(crap, "story/%s.c",fname);
       add_text("//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n", crap);
     }
-  if (sjoy.key[SDLK_KP2 /* 98 */])
+  if (sjoy.justpressed[SDLK_KP2 /* 98 */])
     {
       EditorSoundPlayEffect(SOUND_JUMP);
       sprintf(crap, "story/%s.c", fname);
       sprintf(move, "move_stop(&current_sprite, 2, %d, 1)\n", spr[1].y);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP6 /* 102 */])
+  if (sjoy.justpressed[SDLK_KP6 /* 102 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 6, %d, 1)\n", spr[1].x);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP7 /* 103 */])
+  if (sjoy.justpressed[SDLK_KP7 /* 103 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 7, %d, 1)\n", spr[1].x);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP1 /* 97 */])
+  if (sjoy.justpressed[SDLK_KP1 /* 97 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 1, %d, 1)\n", spr[1].x);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP9 /* 105 */])
+  if (sjoy.justpressed[SDLK_KP9 /* 105 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
       sprintf(move, "move_stop(&current_sprite, 9, %d, 1)\n", spr[1].x);
       add_text(move, crap);
     }
-  if (sjoy.key[SDLK_KP3 /* 99 */])
+  if (sjoy.justpressed[SDLK_KP3 /* 99 */])
     {
       EditorSoundPlayEffect( SOUND_JUMP );
       sprintf(crap, "story/%s.c",fname);
@@ -2426,7 +2462,7 @@ void updateFrame(void)
 			  }
 
 
-			if (sjoy.key[SDLK_TAB /* 9 */])
+			if (sjoy.justpressed[SDLK_TAB /* 9 */])
 			  {
 
 			    //they hit tab, lets toggle what mode they are in
@@ -2434,7 +2470,7 @@ void updateFrame(void)
 
 
 			  }
-			if (sjoy.key['s' /* 83 */])
+			if (sjoy.justpressed['s' /* 83 */])
 			  {
 
 			    //they hit tab, lets toggle what mode they are in
@@ -2466,25 +2502,25 @@ void updateFrame(void)
 
 			    if (SDL_GetModState()&KMOD_CTRL)
 			      {
-				if (sjoy.key[SDLK_RIGHT /* 39 */])
+				if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].xoffset += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_LEFT /* 37 */])
+				if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 				  {
 
 				    k[seq[sp_seq].frame[sp_frame]].xoffset -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-				if (sjoy.key[SDLK_UP /* 38 */])
+				if (sjoy.justpressed[SDLK_UP /* 38 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].yoffset -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_DOWN /* 40 */])
+				if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].yoffset += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
@@ -2530,25 +2566,25 @@ void updateFrame(void)
 
 			    if (SDL_GetModState()&KMOD_CTRL)
 			      {
-				if (sjoy.key[SDLK_RIGHT /* 39 */])
+				if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_LEFT /* 37 */])
+				if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 				  {
 
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.right -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-				if (sjoy.key[SDLK_UP /* 38 */])
+				if (sjoy.justpressed[SDLK_UP /* 38 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_DOWN /* 40 */])
+				if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.bottom += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
@@ -2602,25 +2638,25 @@ void updateFrame(void)
 
 			    if (SDL_GetModState()&KMOD_CTRL)
 			      {
-				if (sjoy.key[SDLK_RIGHT /* 39 */])
+				if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_LEFT /* 37 */])
+				if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 				  {
 
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.left -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
-				if (sjoy.key[SDLK_UP /* 38 */])
+				if (sjoy.justpressed[SDLK_UP /* 38 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top -= modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
 				  }
 
-				if (sjoy.key[SDLK_DOWN /* 40 */])
+				if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 				  {
 				    k[seq[sp_seq].frame[sp_frame]].hardbox.top += modif;
 				    EditorSoundPlayEffect( SOUND_STOP );
@@ -2694,7 +2730,7 @@ void updateFrame(void)
 		    if (mode == MODE_SCREEN_SPRITES)
 		      {
 			// place sprite
-			if ( (sjoy.key['v']) )
+			if ( (sjoy.justpressed['v']) )
 			  {
 			    in_master = INPUT_SCREEN_VISION; // Set screen vision?
 			  }
@@ -2703,7 +2739,7 @@ void updateFrame(void)
 			if (SDL_GetModState()&KMOD_SHIFT)
 			  modif = 9;
 
-			if (sjoy.key['m'])
+			if (sjoy.justpressed['m'])
 			  {
 			    if (sp_screenmatch)
 			      sp_screenmatch = /*false*/0;
@@ -2715,7 +2751,7 @@ void updateFrame(void)
 			if (SDL_GetModState()&KMOD_ALT) // alt
 			  {
 			    //alt is held down 87
-			    if (sjoy.key['w' /* 87 */])
+			    if (sjoy.justpressed['w' /* 87 */])
 			      {
 				//pressed W
 				if (((spr[1].pseq == 10) && (spr[1].pframe == 8)))
@@ -2804,7 +2840,7 @@ void updateFrame(void)
 			      }
 
 
-			    if (sjoy.key['s' /* 83 */])
+			    if (sjoy.justpressed['s' /* 83 */])
 			      {
 				smart_add();
 
@@ -2822,7 +2858,7 @@ void updateFrame(void)
 
 			      }
 
-			    if (sjoy.key[SDLK_DELETE /* 46 */])
+			    if (sjoy.justpressed[SDLK_DELETE /* 46 */])
 			      {
 
 				spr[1].pseq = 10;
@@ -2852,7 +2888,7 @@ void updateFrame(void)
 			    if (max_spr > 0)
 			      {
 
-				/* if (sjoy.key[VK_OEM_4 /\* 219 *\/]) // '[' for US */
+				/* if (sjoy.justpressed[VK_OEM_4 /\* 219 *\/]) // '[' for US */
 				if (GetKeyboard(SDLK_LEFTBRACKET))
 				  {
 				    sp_cycle--;
@@ -2860,7 +2896,7 @@ void updateFrame(void)
 				    if (sp_cycle < 1) sp_cycle = max_spr;
 				  }
 
-				/* if (sjoy.key[VK_OEM_6 /\* 221 *\/]) // ']' for US */
+				/* if (sjoy.justpressed[VK_OEM_6 /\* 221 *\/]) // ']' for US */
 				if (GetKeyboard(SDLK_RIGHTBRACKET))
 				  {
 				    sp_cycle++;
@@ -3067,34 +3103,34 @@ void updateFrame(void)
 			      }
 			  }
 
-			if ( (sjoy.realkey['z']) | (sjoy.realkey['x']) )
+			if ( (sjoy.keystate['z']) | (sjoy.keystate['x']) )
 			  {
 			    if (  (spr[h].alt.right == 0) && (spr[h].alt.left == 0) && (spr[h].alt.top == 0) &
 				  (spr[h].alt.bottom == 0) ) rect_copy(&spr[h].alt, &k[getpic(h)].box);
 			  }
 
 			/* Trim a sprite? */
-                        if (sjoy.realkey['z'])
+                        if (sjoy.keystate['z'])
 			  {
 
-			    if (sjoy.key[SDLK_RIGHT /* 39 */])
+			    if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 			      {
 				spr[h].alt.left += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
 
-			    if (sjoy.key[SDLK_LEFT /* 37 */])
+			    if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 			      {
 				spr[h].alt.left -= spr[h].speed +modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-			    if (sjoy.key[SDLK_DOWN /* 40 */])
+			    if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 			      {
 				spr[h].alt.top += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
 
-			    if (sjoy.key[SDLK_UP /* 38 */])
+			    if (sjoy.justpressed[SDLK_UP /* 38 */])
 			      {
 				spr[h].alt.top -= spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
@@ -3108,28 +3144,28 @@ void updateFrame(void)
 
 
 
-			if (sjoy.realkey['x'])
+			if (sjoy.keystate['x'])
 			  {
 
-			    if (sjoy.key[SDLK_RIGHT /* 39 */])
+			    if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 			      {
 				spr[h].alt.right += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
 
-			    if (sjoy.key[SDLK_LEFT /* 37 */])
+			    if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 			      {
 
 				spr[h].alt.right -= spr[h].speed +modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-			    if (sjoy.key[SDLK_DOWN /* 40 */])
+			    if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 			      {
 				spr[h].alt.bottom += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
 
-			    if (sjoy.key[SDLK_UP /* 38 */])
+			    if (sjoy.justpressed[SDLK_UP /* 38 */])
 			      {
 				spr[h].alt.bottom -= spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
@@ -3154,7 +3190,7 @@ void updateFrame(void)
 			   pressed again. */
 			if (SDL_GetModState()&KMOD_CTRL)
 			  {
-			    if (sjoy.key[SDLK_RIGHT /* 39 */])
+			    if (sjoy.justpressed[SDLK_RIGHT /* 39 */])
 			      {
 				
 				sp_cycle = 0;
@@ -3163,20 +3199,20 @@ void updateFrame(void)
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
 			    
-			    if (sjoy.key[SDLK_LEFT /* 37 */])
+			    if (sjoy.justpressed[SDLK_LEFT /* 37 */])
 			      {
 				spr[h].x -= spr[h].speed +modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
-			    if (sjoy.key[SDLK_UP /* 38 */])
+			    if (sjoy.justpressed[SDLK_UP /* 38 */])
 			      {
 				spr[h].y -= spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
 				sp_cycle = 0;
 			      }
 			    
-			    if (sjoy.key[SDLK_DOWN /* 40 */])
+			    if (sjoy.justpressed[SDLK_DOWN /* 40 */])
 			      {
 				spr[h].y += spr[h].speed + modif;
 				EditorSoundPlayEffect( SOUND_STOP );
@@ -3250,7 +3286,7 @@ void updateFrame(void)
 			  }
 
 
-			if (sjoy.key['e'])
+			if (sjoy.justpressed['e'])
 			  {
 			    //they hit E, go to sprite picker
 			    rect_set(&spr[1].alt,0,0,0,0);
@@ -3335,7 +3371,7 @@ void updateFrame(void)
 			    {
 			      //they are in select sprite phase 2
 
-			      if (sjoy.key['e'])
+			      if (sjoy.justpressed['e'])
 				{
 				  //they want to 'edit' the sprite
 				  mode = MODE_SPRITE_HARDNESS;
@@ -3458,8 +3494,8 @@ void updateFrame(void)
 
 			    }
 
-			  /* if (sjoy.key[VK_OEM_4 /\* 219 *\/]) // '[' for US */
-			  if (sjoy.key[SDLK_LEFTBRACKET])
+			  /* if (sjoy.justpressed[VK_OEM_4 /\* 219 *\/]) // '[' for US */
+			  if (sjoy.justpressed[SDLK_LEFTBRACKET])
 			    {
 			      if (sp_picker > 95) sp_picker -= 96; else
 				{
@@ -3467,8 +3503,8 @@ void updateFrame(void)
 				}
 			      draw15(sp_picker);
 			    }
-			    /* if (sjoy.key[VK_OEM_6 /\* 221 *\/]) // ']' for US */
-			  if (sjoy.key[SDLK_RIGHTBRACKET])
+			    /* if (sjoy.justpressed[VK_OEM_6 /\* 221 *\/]) // ']' for US */
+			  if (sjoy.justpressed[SDLK_RIGHTBRACKET])
 			    {
 			      if (sp_picker < 400) sp_picker += 96;
 			      draw15(sp_picker);
@@ -3749,14 +3785,14 @@ void updateFrame(void)
 
 		    //THEY WANT TO EDIT HARDNESS
 
-		    if ( (sjoy.key['b']) )
+		    if ( (sjoy.justpressed['b']) )
 		      {
 			in_master = 31;
 
 
 		      }
 
-		    if ( (sjoy.key['v']) )
+		    if ( (sjoy.justpressed['v']) )
 		      {
 			in_master = INPUT_SCREEN_VISION;
 		      }
@@ -4035,14 +4071,14 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (sjoy.key[SDLK_SPACE])  && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed[SDLK_SPACE])  && (mode == MODE_MINIMAP))
 		      {
 			//make_map_tiny();
 			draw_map_tiny = 0;
 
 		      }
 
-		    if ( (sjoy.key['l'])  && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed['l'])  && (mode == MODE_MINIMAP))
 		      {
 
 			//if (map.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)] != 0)
@@ -4054,7 +4090,7 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (sjoy.key[SDLK_ESCAPE /* 27 */]) && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed[SDLK_ESCAPE /* 27 */]) && (mode == MODE_MINIMAP))
 		      {
 			load_info();
 			draw_minimap();
@@ -4063,21 +4099,21 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (sjoy.key['m']) && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed['m']) && (mode == MODE_MINIMAP))
 		      {
 			//set music # for this block
 			in_int = &map.music[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 			in_master = INPUT_SCREEN_MIDI;
 		      }
 
-		    if ( (sjoy.key['s']) && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed['s']) && (mode == MODE_MINIMAP))
 		      {
 			//set music # for this block
 			in_int = &map.indoor[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)];
 			in_master = INPUT_SCREEN_TYPE;
 		      }
 
-		    if ( (sjoy.key['q']) && (mode == MODE_MINIMAP))
+		    if ( (sjoy.justpressed['q']) && (mode == MODE_MINIMAP))
 		      {
 			save_hard();
 			Msg("Info saved.");
@@ -4182,7 +4218,7 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.key['h']) )
+		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.justpressed['h']) )
 		      {
 			//start althard mode
 
@@ -4198,7 +4234,7 @@ void updateFrame(void)
 		    if (mode == MODE_SCREEN_HARDNESS)
 		      {
 			//mode for it
-			if (sjoy.key[SDLK_ESCAPE])
+			if (sjoy.justpressed[SDLK_ESCAPE])
 			  {
 			    //exit mode 8
 			    mode = MODE_SCREEN_TILES;
@@ -4208,27 +4244,27 @@ void updateFrame(void)
 			    goto b1end;
 			  }
 
-			/* if (sjoy.key[/\* VK_OEM_6 *\/ 221]) // ']' for US */
+			/* if (sjoy.justpressed[/\* VK_OEM_6 *\/ 221]) // ']' for US */
 			if (GetKeyboard(SDLK_RIGHTBRACKET))
 			  {
 			    hard_tile++;
 			    if (hard_tile > 799) hard_tile = 1;
 			  }
-			/* if (sjoy.key[/\* VK_OEM_4 *\/ 219]) // '[' for US */
+			/* if (sjoy.justpressed[/\* VK_OEM_4 *\/ 219]) // '[' for US */
 			if (GetKeyboard(SDLK_LEFTBRACKET))
 			  {
 			    hard_tile--;
 			    if (hard_tile < 1) hard_tile = 799;
 			  }
 
-			if (sjoy.key['c'])
+			if (sjoy.justpressed['c'])
 			  {
 			    //copy tile hardness from current block
 			    hard_tile = realhard(   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50)   );
 
 			  }
 
-			if (sjoy.key['s'])
+			if (sjoy.justpressed['s'])
 			  {
 			    //stamp tile hardness to selected
 			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = hard_tile;
@@ -4238,7 +4274,7 @@ void updateFrame(void)
 			    return;
 			  }
 
-			if (sjoy.key[SDLK_DELETE])
+			if (sjoy.justpressed[SDLK_DELETE])
 			  {
 			    //stamp tile hardness to selected
 			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = 0;
@@ -4257,7 +4293,7 @@ void updateFrame(void)
 
 			SaySmall(crapa,580,400,255,255,255);
 
-			if (sjoy.key[SDLK_RETURN])
+			if (sjoy.justpressed[SDLK_RETURN])
 			  {
 
 			    //they want to edit this alt hardness, less do it'
@@ -4328,7 +4364,7 @@ void updateFrame(void)
 
 		      }
 
-		    if ((mode == MODE_SCREEN_TILES) && (SDL_GetModState()&KMOD_ALT)) if (sjoy.key['x'])
+		    if ((mode == MODE_SCREEN_TILES) && (SDL_GetModState()&KMOD_ALT)) if (sjoy.justpressed['x'])
 									     {
 									       spr[h].seq = 2;
 									       spr[h].seq_orig = 2;
@@ -4834,7 +4870,7 @@ void updateFrame(void)
 
   if ((mode == MODE_MINIMAP))
     {
-      if (sjoy.key['z'])
+      if (sjoy.justpressed['z'])
 	{
 	  if (show_display) show_display = /*false*/0;
 	  else show_display = /*true*/1;
@@ -4845,7 +4881,7 @@ void updateFrame(void)
   if ( (mode == MODE_SCREEN_SPRITES) | (mode == MODE_SCREEN_TILES) )
     {
       /* Show sprites info */
-      if (sjoy.realkey['i'])
+      if (sjoy.keystate['i'])
 	{
 	  int j;
 	  for (j = 1; j < 100; j++)
@@ -5096,11 +5132,11 @@ void updateFrame(void)
 	  
 	  in_enabled = 0;
 	}
-      else if (sjoy.key[SDLK_ESCAPE])
+      else if (sjoy.justpressed[SDLK_ESCAPE])
 	{
 	  in_enabled = 0;
 	}
-      else if (sjoy.key[SDLK_BACKSPACE])
+      else if (sjoy.justpressed[SDLK_BACKSPACE])
 	//	if (getkey(8)) //this is a much faster backspace than the above
 	{
 	  if (strlen(in_temp) > 0)
@@ -5735,8 +5771,6 @@ sp_seq = 0;
 } /* doInit */
 
 
-/* int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, */
-/* 		   LPSTR lpCmdLine, int nCmdShow) */
 int main(int argc, char *argv[])
 {
   if(!doInit(argc, argv))
@@ -5760,50 +5794,5 @@ int main(int argc, char *argv[])
       updateFrame();
     }
 
-  return(/*true*/0);
-}
-
-
-/* Read key "is pressed?" status from cache */
-/*bool*/int
-getkey(int key)
-{
-  if (sjoy.realkey[key])
-    return(/*true*/1);
-  else
-    return(/*false*/0);
-}
-
-/* Human-readable representation of the keycode, used to display which
-   key is currently pressed */
-/* Note: key constants may be found in winuser.h. The
-   "Keycodes"/keycodes.txt file by Dan Walma also brings some clues
-   about the _OEM keys. */
-char
-key_convert(int key)
-{
-  if (SDL_GetModState()&KMOD_SHIFT) key = toupper(key);
-
-  if (key == 190 /* VK_OEM_PERIOD */) { if (SDL_GetModState()&KMOD_SHIFT) key = '>'; else key = '.'; }
-  if (key == 188 /* VK_OEM_COMMA */)  { if (SDL_GetModState()&KMOD_SHIFT) key = '<'; else key = ','; }
-
-  if (key == '1') if (SDL_GetModState()&KMOD_SHIFT) key = '!';
-  if (key == '2') if (SDL_GetModState()&KMOD_SHIFT) key = '@';
-  if (key == '3') if (SDL_GetModState()&KMOD_SHIFT) key = '#';
-  if (key == '4') if (SDL_GetModState()&KMOD_SHIFT) key = '$';
-  if (key == '5') if (SDL_GetModState()&KMOD_SHIFT) key = '%';
-  if (key == '6') if (SDL_GetModState()&KMOD_SHIFT) key = '^';
-  if (key == '7') if (SDL_GetModState()&KMOD_SHIFT) key = '&';
-  if (key == '8') if (SDL_GetModState()&KMOD_SHIFT) key = '*';
-  if (key == '9') if (SDL_GetModState()&KMOD_SHIFT) key = '(';
-  if (key == '0') if (SDL_GetModState()&KMOD_SHIFT) key = ')';
-
-  if (key == 189 /* VK_OEM_MINUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '_'; else key = '-'; }
-  if (key == 187 /* VK_OEM_PLUS */) { if (SDL_GetModState()&KMOD_SHIFT) key = '+'; else key = '='; }
-  if (key == 186 /* VK_OEM_1 */) { if (SDL_GetModState()&KMOD_SHIFT) key = ':'; else key = ';'; }
-  if (key == 222 /* VK_OEM_7 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '\"'; else key = '\''; }
-  if (key == 191 /* VK_OEM_2 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '?'; else key = '/'; }
-  if (key == 220 /* VK_OEM_5 */) { if (SDL_GetModState()&KMOD_SHIFT) key = '|'; else key = '\\'; }
-
-  return(key);
+  return EXIT_SUCCESS;
 }

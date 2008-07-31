@@ -1,9 +1,8 @@
 /**
  * DinkC interactive console
 
- * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008  Sylvain Beucler
+ * Copyright (C) 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

@@ -46,10 +46,11 @@ struct seth_joy
   /*BOOL*/int letgo[17]; //copy of old above
   /*BOOL*/int button[17]; //has button been pressed recently?
 
-  /*BOOL*/int key[SDLK_LAST]; /* true if key was just pressed, false if kept
-		    pressed or released; reset before each loop */
-  /*BOOL*/int kletgo[SDLK_LAST]; /* non-reset "is released?" value; used to set .key */
-  /*bool*/int realkey[SDLK_LAST]; /* current GetAsyncKeyState value, in cache */
+  /* Only used in the editor: */
+  int justpressed[SDLK_LAST]; /* true if key was just pressed, false
+				 if kept pressed or released */
+  int keystate[SDLK_LAST]; /* current GetAsyncKeyState value, in
+			      cache */
   Uint16 last_unicode; /* last layout-dependent character typed by the
 			  user, used for text input */
 

@@ -2677,7 +2677,7 @@ void human_brain(int h)
   if (spr[h].freeze)
     {
       //they are frozen
-      if (sjoy.button[2] == 1 || sjoy.key[SDLK_SPACE])
+      if (sjoy.button[2] == 1)
 	{
 	  //they hit the talk button while frozen, lets hurry up the process
 	  int jj;
