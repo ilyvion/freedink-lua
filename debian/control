@@ -11,6 +11,7 @@ Vcs-Browser: http://git.savannah.gnu.org/gitweb/?p=freedink.git
 Package: freedink
 Architecture: any
 Depends: ${shlibs:Depends}
+Recommends: dfarc2
 Description: GNU FreeDink
  Free extension of the Dink Smallwood game engine with emphasis on
  freedom, backward compatibility, portability, documentation, and
