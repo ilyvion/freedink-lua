@@ -21,7 +21,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "SDL.h"
 #include "str_util.h"
 #include "dinkc.h"
 
