@@ -355,7 +355,7 @@ Changes not documented in whatsnew.txt
     of them, resulting in misplaced sprites.
     => Implemented conditionally 2008-07-04
 
-[X] added a woe registry key so as to deprecate
+[ ] added a woe registry key so as to deprecate
     %WINDIR%/dinksmallwood.ini overwrite.
     => Done by the installer rather than the engine
 
