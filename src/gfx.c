@@ -483,6 +483,11 @@ int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
 
 /**
  * Blit and resize so that 'src' fits in 'dst_rect'
+ *
+ * Not perfectly accurate: move a 200% sprite to the border of the
+ * screen so it is clipped: it's scaled size will slighly vary. Maybe
+ * we need to clip the source zone before scaling it, but it behaves
+ * that way in the original game anyway.
  */
 int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect,
 		     SDL_Surface *dst, SDL_Rect *dst_rect)

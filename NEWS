@@ -1,1 +1,21 @@
 1.08.20080731: in progress
+
+FreeDink is a port of the Dink game engine, so it can work under
+operating systems (e.g. GNU/Linux) and architectures (e.g. PowerPC).
+
+After essentially 1 year of active development, I think I've now
+reached the point where FreeDink can run any D-Mod v1.08 improvements
+are supported, and there's also a "v1.07 mode" to play D-Mods that
+aren't upgraded yet (such as Eternal Suicide). DFArc2 was made
+portable too, and has a new checkbox for this mode.
+
+I put a lot of effort into maintaining compatibility, including
+features that, well, weren't supposed to work, but still did (Seth
+magic ). The port also allowed me to add better windowed mode, which
+can support non-truecolor (e.g. for Lyna's Story or Cycles of Evil)
+and you can switch windowed/full-screen using Alt + Enter. I think the
+truecolor fades are faster/smoother too.
+
+Some other fixes were made in the game engine and in the editor.
+
+TODO: cf. doc/changes.txt

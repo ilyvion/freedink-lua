@@ -23,10 +23,10 @@
 
 /*
  * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
- * sprites(6), screen hardness(8), tile hardness(4), sprite
+ * sprites(6), screen hardness initialization (9, switches to 8
+ * immediately), screen hardness(8), tile hardness(4), sprite
  * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
- * dialog(0?) and the big mystery (9 - probably related to
- * hardness). */
+ * dialog(0). */
 /* TODO: The goal is to split the big keybinding functions into these
  * modes, and in each mode, call a function instead of inlining the
  * code. And we may use 'else if', or even a hashmap to do the
@@ -41,12 +41,12 @@
 #define MODE_SCREEN_TILES 3
 #define MODE_SCREEN_SPRITES 6
 #define MODE_SCREEN_HARDNESS 8
+#define MODE_SCREEN_HARDNESS_INIT 9
 
 #define MODE_TILE_HARDNESS 4
 #define MODE_SPRITE_HARDNESS 7
 
 #define MODE_DIALOG 0
-#define MODE_UNKNOWN 9
 
 
 #define INPUT_MINIMAP_LOAD  30
@@ -761,27 +761,21 @@ void check_keyboard()
 
 void check_joystick(void)
 {
+  /* int total; */
+  int x = 1;
+  
+  for (x = 1; x <= 10; x++)
+    {
+      sjoy.joybit[x] = 0;
+    }
+  sjoy.right = 0;
+  sjoy.left = 0;
+  sjoy.up = 0;
+  sjoy.down = 0;
 
-/* int ddrval; */
-/* int total; */
-int e2;
- int x5, x, x2;
-
-//memset(&sjoy,0,sizeof(sjoy));
-
-      for (e2 = 1; e2 <= 10; e2++)
-	  {
-		  sjoy.joybit[e2] = /*FALSE*/0;
-
-	  }
-sjoy.right = /*FALSE*/0;
-sjoy.left = /*FALSE*/0;
-sjoy.up = /*FALSE*/0;
-sjoy.down = /*FALSE*/0;
-
-
-if (joystick)
-{
+  if (joystick)
+    {
+      /* TODO: enable joystick support */
 // memset(&jinfo,0,sizeof(JOYINFOEX));
 // jinfo.dwSize=sizeof(JOYINFOEX);
 // jinfo.dwFlags=JOY_RETURNALL;
@@ -855,52 +849,29 @@ if (joystick)
 //  if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
 //  if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
 //  if (jinfo.dwYpos < 25000) sjoy.up = TRUE;
+    }
 
-}
+  /* Refresh keyboard state */
+  check_keyboard();
 
-if (getkeystate(SDLK_ESCAPE /* 27 */)) sjoy.joybit[1] = /*TRUE*/1; //esc
-if (getkeystate(SDLK_RETURN /* 13 */)) sjoy.joybit[2] = /*TRUE*/1;
-if (getcharstate('x' /* 88 */)) sjoy.joybit[3] = /*TRUE*/1;
-if (getcharstate('z' /* 90 */)) sjoy.joybit[4] = /*TRUE*/1;
-
-if (getkeystate(SDLK_TAB /* 9 */)) sjoy.joybit[5] = /*TRUE*/1; //tab
-
-
-
- for (x5 = 1; x5 <= 10; x5++)
-   sjoy.button[x5] = /*FALSE*/0;
-
-
- for (x=1; x <=10; x++)
-
-   {
-     if (sjoy.joybit[x])
-       {
-	 if (sjoy.letgo[x] == /*TRUE*/1)
-	   {
-			 sjoy.button[x] = /*TRUE*/1;
-			 sjoy.letgo[x] = /*FALSE*/0;
-	   }
-
-       }
-   }
-
-
-for (x2 = 1; x2 <= 10; x2++)
-	  {
-		if (sjoy.joybit[x2])  sjoy.letgo[x2] = /*FALSE*/0; else sjoy.letgo[x2] = /*TRUE*/1;
-
-	  }
-
-
-
-if (getkeystate(SDLK_RIGHT /* 39 */)) sjoy.right = /*TRUE*/1;
-if (getkeystate(SDLK_LEFT /* 37 */)) sjoy.left = /*TRUE*/1;
-if (getkeystate(SDLK_DOWN /* 40 */)) sjoy.down = /*TRUE*/1;
-if (getkeystate(SDLK_UP /* 38 */)) sjoy.up = /*TRUE*/1;
-
-check_keyboard();
-
+  if (getkeystate(SDLK_ESCAPE)) sjoy.joybit[1] = 1;
+  if (getkeystate(SDLK_RETURN)) sjoy.joybit[2] = 1;
+  if (getcharstate('x')) sjoy.joybit[3] = 1;
+  if (getcharstate('z')) sjoy.joybit[4] = 1;
+  if (getkeystate(SDLK_TAB)) sjoy.joybit[5] = 1;
+  if (getkeystate(SDLK_RIGHT)) sjoy.right = 1;
+  if (getkeystate(SDLK_LEFT)) sjoy.left = 1;
+  if (getkeystate(SDLK_DOWN)) sjoy.down = 1;
+  if (getkeystate(SDLK_UP)) sjoy.up = 1;
+  
+  for (x = 1; x <= 10; x++)
+    {
+      sjoy.button[x] = 0;
+      if (sjoy.joybit[x] && sjoy.letgo[x] == 1)
+	/* Button was just pressed */
+	sjoy.button[x] = 1;
+      sjoy.letgo[x] = !sjoy.joybit[x];
+    }
 }
 
 /* Human-readable representation of the keycode, used to display which
@@ -2316,15 +2287,11 @@ void updateFrame(void)
 
 	    if (spr[h].brain == 1)
 	      {
-		if ( (spr[h].seq == 0) | (mode == MODE_TILE_HARDNESS)  )
+		if ((spr[h].seq == 0) || (mode == MODE_TILE_HARDNESS))
 		  {
-
-
-
 		    //if (mode == 7)
 		    if (mode == MODE_SPRITE_HARDNESS)
 		      {
-
 			//editting a sprite, setting hard box and depth dot.
 			spr[1].pseq = 1;
 			spr[1].pframe = 1;
@@ -2343,7 +2310,6 @@ void updateFrame(void)
 			    goto sp_edit_end;
 
 			  }
-
 
 			if (sjoy.keyjustpressed[SDLK_TAB /* 9 */])
 			  {
@@ -2375,7 +2341,6 @@ void updateFrame(void)
 			int modif = 1;
 			if (SDL_GetModState()&KMOD_SHIFT)
 			  modif += 9;
-
 
 
 			if (sp_mode == 0)
@@ -3443,12 +3408,9 @@ void updateFrame(void)
 
 		    if (mode == MODE_TILE_HARDNESS)
 		      {
-
-
 			if (spr[h].seq == 0)
 			  {
-
-			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_RIGHT /* 39 */)) )
+			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_RIGHT)))
 			      {
 				spr[h].seq = 4;
 				spr[h].frame = 1;
@@ -3456,7 +3418,7 @@ void updateFrame(void)
 				goto b1fun;
 			      }
 
-			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_LEFT /* 37 */)) )
+			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_LEFT)))
 			      {
 				spr[h].seq = 4;
 				spr[h].frame = 1;
@@ -3464,7 +3426,7 @@ void updateFrame(void)
 				goto b1fun;
 			      }
 
-			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_UP /* 38 */)) )
+			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_UP)))
 			      {
 				spr[h].seq = 4;
 				spr[h].frame = 1;
@@ -3472,7 +3434,7 @@ void updateFrame(void)
 				goto b1fun;
 			      }
 
-			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_DOWN /* 40 */)) )
+			    if ((SDL_GetModState()&KMOD_SHIFT) && (getkeystate(SDLK_DOWN)))
 			      {
 				spr[h].seq = 4;
 				spr[h].frame = 1;
@@ -3486,8 +3448,7 @@ void updateFrame(void)
 				spr[h].x += 9;
 				spr[h].seq = 4;
 				spr[h].frame = 1;
-				EditorSoundPlayEffect( SOUND_STOP );
-
+				EditorSoundPlayEffect(SOUND_STOP);
 			      }
 			    if (sjoy.left)
 			      {
@@ -3510,7 +3471,6 @@ void updateFrame(void)
 				spr[h].frame = 1;
 				EditorSoundPlayEffect( SOUND_STOP );
 			      }
-
 			  }
 
 
@@ -3527,7 +3487,7 @@ void updateFrame(void)
 			  }
 
 			//change a piece to hard
-			if (  getcharstate('z'))
+			if (getcharstate('z'))
 			  {
 			    int y;
 			    for (y = 0; y < sely; y++)
@@ -3555,8 +3515,6 @@ void updateFrame(void)
 
 				  }
 			      }
-
-
 			  }
 
 
@@ -3621,7 +3579,7 @@ void updateFrame(void)
 
 			draw_hard();
 
-			if (   (sjoy.button[1])  | (sjoy.button[2]) )
+			if (sjoy.button[1] == 1 || sjoy.button[2] == 1)
 			  {
 			    //quit hardness edit
 
@@ -3639,20 +3597,18 @@ void updateFrame(void)
 				selx = 1;
 				sely = 1;
 
-				mode = MODE_UNKNOWN;
+				mode = MODE_SCREEN_HARDNESS_INIT;
 				return;
 				//goto skip_draw;
-
-
 			      }
 
-			    if (last_mode > 0) {
-
-			      loadtile(last_mode);
-			      selx = 1;
-			      sely = 1;
-			      goto b1end;
-			    }
+			    if (last_mode > 0)
+			      {
+				loadtile(last_mode);
+				selx = 1;
+				sely = 1;
+				goto b1end;
+			      }
 			    fill_whole_hard();
 
 			    draw_map();
@@ -3683,30 +3639,27 @@ void updateFrame(void)
 
 
 
-		    if (((mode == MODE_SCREEN_TILES) && (sjoy.button[2]) ) || ((mode == MODE_TILE_PICKER) && (getkeystate(SDLK_SPACE))))
+		    if (((mode == MODE_SCREEN_TILES) && (sjoy.button[2]))
+			|| ((mode == MODE_TILE_PICKER) && (getkeystate(SDLK_SPACE))))
 
 		      {
 
-			if (mode == MODE_SCREEN_TILES) cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			if (mode == MODE_SCREEN_TILES)
+			  cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
 
 			if (mode == MODE_TILE_PICKER)
-
 			  {
 			    cur_tile = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 			    cur_tile += (cur_screen * 128) - 128;
-
-
 			  }
+
 			while(kill_last_sprite());
 			draw_current();
 
 			if (cur_tile > 0)
-
 			  {
-
 			    if (hmap.index[cur_tile] == 0)
 			      {
-
 				int j;
 				for (j = 1; j < 799; j++)
 				  {
@@ -3717,13 +3670,11 @@ void updateFrame(void)
 					hmap.tile[j].used = /*TRUE*/1;
 				    	hard_tile = j;
 					goto tilesel;
-
 				      }
-
 				  }
-
-
-			      } else hard_tile = hmap.index[cur_tile];
+			      }
+			    else
+			      hard_tile = hmap.index[cur_tile];
 
 			  tilesel:
 			    cool = cur_tile / 128;
@@ -3781,14 +3732,10 @@ void updateFrame(void)
 
 			    kickass = /*TRUE*/1;
 			  }
-
-
-
 		      }
 
 
-
-		    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) )
+		    if ((mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
 		      {
 			//resizing the box
 
@@ -3828,13 +3775,11 @@ void updateFrame(void)
 		      }
 
 
-		    if (getkeystate(SDLK_RIGHT /* 39 */))
+		    if (getkeystate(SDLK_RIGHT))
 		      {
 			spr[h].x += spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
 			EditorSoundPlayEffect( SOUND_STOP );
-			//PlayMidi("TOP.MID");
-
 		      }
 
 
@@ -3861,15 +3806,13 @@ void updateFrame(void)
 			      }
 			  }
 
-
 			draw_map();
 		      }
 
 
 
-		    if ( (getcharstate('c')) && (mode == MODE_SCREEN_TILES) )
+		    if ((getcharstate('c')) && (mode == MODE_SCREEN_TILES))
 		      {
-
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			//SoundPlayEffect( SOUND_JUMP );
@@ -3915,7 +3858,7 @@ void updateFrame(void)
 		    //if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
 
 
-		    if ( (sjoy.button[2]) && (mode == MODE_TILE_PICKER))
+		    if ((sjoy.button[2]) && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
@@ -3936,7 +3879,7 @@ void updateFrame(void)
 
 
 
-		    if ( (sjoy.button[1]) && (mode == MODE_TILE_PICKER))
+		    if (sjoy.button[1] && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
@@ -4102,16 +4045,12 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.charjustpressed['h']) )
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.charjustpressed['h']))
 		      {
 			//start althard mode
 
-
-			mode = MODE_UNKNOWN;
+			mode = MODE_SCREEN_HARDNESS_INIT;
 			goto skip_draw;
-
-
-
 		      }
 
 
@@ -4129,13 +4068,13 @@ void updateFrame(void)
 			  }
 
 			/* if (sjoy.keyjustpressed[/\* VK_OEM_4 *\/ 219]) // '[' for US */
-			if (getcharstate('['))
+			if (sjoy.charjustpressed['['])
 			  {
 			    hard_tile--;
 			    if (hard_tile < 1) hard_tile = 799;
 			  }
 			/* if (sjoy.keyjustpressed[/\* VK_OEM_6 *\/ 221]) // ']' for US */
-			if (getcharstate(']'))
+			if (sjoy.charjustpressed[']'])
 			  {
 			    hard_tile++;
 			    if (hard_tile > 799) hard_tile = 1;
@@ -4145,7 +4084,6 @@ void updateFrame(void)
 			  {
 			    //copy tile hardness from current block
 			    hard_tile = realhard(   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50)   );
-
 			  }
 
 			if (sjoy.charjustpressed['s'])
@@ -4153,7 +4091,7 @@ void updateFrame(void)
 			    //stamp tile hardness to selected
 			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = hard_tile;
 			    draw_map();
-			    mode = MODE_UNKNOWN;
+			    mode = MODE_SCREEN_HARDNESS_INIT;
 
 			    return;
 			  }
@@ -4163,27 +4101,22 @@ void updateFrame(void)
 			    //stamp tile hardness to selected
 			    pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].althard = 0;
 			    draw_map();
-			    mode = MODE_UNKNOWN;
+			    mode = MODE_SCREEN_HARDNESS_INIT;
 
 			    return;
 			  }
-
-
 
 			draw_hard_tile(spr[1].x,spr[1].y,hard_tile);
 
 			char crapa[10];
 			sprintf(crapa, "%d",hard_tile);
 
-			SaySmall(crapa,580,400,255,255,255);
+			SaySmall(crapa, 580,400, 255,255,255);
 
 			if (sjoy.keyjustpressed[SDLK_RETURN])
 			  {
-
 			    //they want to edit this alt hardness, less do it'
 			    cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
-
-
 
 			    xx = cur_tile - (cool * 128);
 			    Rect.left = spr[1].x+20;
@@ -4206,15 +4139,10 @@ void updateFrame(void)
 /* 			    lpDDSTwo->Blt(&crapRec , lpDDSBack, */
 /* 					  &Rect, DDBLT_DDFX | DDBLT_WAIT,&ddbltfx ); */
 			    // GFX
-			    /* Generic scaling */
-			    /* Not perfectly accurate yet: move a 200% sprite to the
-			       border of the screen to it is clipped: it's scaled size
-			       will slighly vary. Maybe we need to clip the source zone
-			       before scaling it.. */
-			    /* Moreover, in this particular case,
-			       we're scaling the whole screen
-			       backbuffer by 900% just to scale a
-			       single 50x50 square of it... */
+			    /* In this particular case, we're scaling
+			       the whole screen backbuffer by 900%
+			       just to scale a single 50x50 square of
+			       it... */
 			    {
 			      SDL_Rect src, dst;
 			      src.x = spr[1].x+20;
@@ -4243,29 +4171,27 @@ void updateFrame(void)
 			    hmap.tile[hard_tile].used = /*true*/1;
 			    last_modereal = 8;
 			  }
-
-
-
 		      }
 
-		    if ((mode == MODE_SCREEN_TILES) && (SDL_GetModState()&KMOD_ALT)) if (sjoy.charjustpressed['x'])
-									     {
-									       spr[h].seq = 2;
-									       spr[h].seq_orig = 2;
-									       m3x = spr[h].x;
-									       m3y = spr[h].y;
-									       spr[h].x = m1x;
-									       spr[h].y = m1y;
-									       mode = MODE_MINIMAP;
-									       spr[h].speed = 20;
-									       load_info();
-									       draw_minimap();
-									       while (kill_last_sprite());
-									       return;
-									     }
+		    if ((mode == MODE_SCREEN_TILES)
+			&& (SDL_GetModState()&KMOD_ALT)
+			&& sjoy.charjustpressed['x'])
+		      {
+			spr[h].seq = 2;
+			spr[h].seq_orig = 2;
+			m3x = spr[h].x;
+			m3y = spr[h].y;
+			spr[h].x = m1x;
+			spr[h].y = m1y;
+			mode = MODE_MINIMAP;
+			spr[h].speed = 20;
+			load_info();
+			draw_minimap();
+			while (kill_last_sprite());
+			return;
+		      }
 
-
-		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]) )
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]))
 		      {
 			// jump to map selector selector from map mode
 			save_map(map.loc[cur_map]);
@@ -4285,43 +4211,43 @@ void updateFrame(void)
 			return;
 		      }
 
-
-		    if (getkeystate(SDLK_LEFT /* 37 */))
+		    if (getkeystate(SDLK_LEFT))
 		      {
 			spr[h].x -= spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
-			EditorSoundPlayEffect( SOUND_STOP );
+			EditorSoundPlayEffect(SOUND_STOP);
 		      }
 
-
-		    //if (GetKeyboard(127) PostMessage(hWnd, WM_CLOSE, 0, 0);
-
-		    if (getkeystate(SDLK_DOWN /* 40 */))
+		    if (getkeystate(SDLK_DOWN))
 		      {
 			spr[h].y += spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
-			EditorSoundPlayEffect( SOUND_STOP );
+			EditorSoundPlayEffect(SOUND_STOP);
 		      }
 
-		    if (getkeystate(SDLK_UP /* 38 */))
+		    if (getkeystate(SDLK_UP))
 		      {
 			spr[h].y -= spr[h].speed;
 			spr[h].seq = spr[h].seq_orig;
-			EditorSoundPlayEffect( SOUND_STOP );
+			EditorSoundPlayEffect(SOUND_STOP);
 		      }
 
-		    if (spr[h].speed < 1) spr[h].speed = 1;
-		    if (spr[h].y > (y-k[getpic(h)].box.bottom)) spr[h].y = (y-k[getpic(h)].box.bottom);
-		    if (spr[h].x > (x-k[getpic(h)].box.right)) spr[h].x = (x-k[getpic(h)].box.right);
-		    if (spr[h].x < 0) spr[h].x = 0;
-		    if (spr[h].y < 0) spr[h].y = 0;
+		    if (spr[h].speed < 1)
+		      spr[h].speed = 1;
+		    if (spr[h].y > (y - k[getpic(h)].box.bottom))
+		      spr[h].y = y - k[getpic(h)].box.bottom;
+		    if (spr[h].x > (x - k[getpic(h)].box.right))
+		      spr[h].x = x - k[getpic(h)].box.right;
+		    if (spr[h].x < 0)
+		      spr[h].x = 0;
+		    if (spr[h].y < 0)
+		      spr[h].y = 0;
 
 		    // end human brain (1)
 
 
-
-		    //if( (mode == 2) | (mode == 3) | (mode == 5) )
-		    if( (mode == MODE_TILE_PICKER) | (mode == MODE_SCREEN_TILES) | (mode == MODE_SPRITE_PICKER) )
+		    if ((mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES)
+			|| (mode == MODE_SPRITE_PICKER) || (mode == MODE_SCREEN_HARDNESS))
 		      {
 			if ((selx * 50 + spr[1].x) > 600)
 			  {
@@ -4329,35 +4255,23 @@ void updateFrame(void)
 			  }
 		      }
 
-		    //if( (mode == 2) )
-		    if( (mode == MODE_TILE_PICKER) )
+		    if ((mode == MODE_TILE_PICKER))
 		      {
 			if ((sely * 50 + spr[1].y) > 450)
 			  {
 			    spr[1].y = 450 - (sely * 50);
 			  }
 		      }
-		    //		if( (mode == 3) )
-		    if( (mode == MODE_SCREEN_TILES) )
+
+		    if ((mode == MODE_SCREEN_TILES) || (mode == MODE_SPRITE_PICKER))
 		      {
 			if ((sely * 50 + spr[1].y) > 400)
 			  {
 			    spr[1].y = 400 - (sely * 50);
 			  }
 		      }
-
-		    //		if( (mode == 5) )
-		    if( (mode == MODE_SPRITE_PICKER) )
-		      {
-			if ((sely * 50 + spr[1].y) > 400)
-			  {
-			    spr[1].y = 400 - (sely * 50);
-			  }
-		      }
-
 
 		  b1end:;
-
 		  } //end if seq is 0
 	      } //real end of human brain
 
@@ -4471,10 +4385,8 @@ void updateFrame(void)
 	      }
 
 	    //		if (  !(( h == 1) & (mode == 9)) )
-	    if (  !(( h == 1) && (mode == MODE_UNKNOWN)) )
-
+	    if (!((h == 1) && (mode == MODE_SCREEN_HARDNESS_INIT)))
 	      {
-
 		if (draw_map_tiny == -1)
 		  draw_sprite(GFX_lpDDSBack, h);
 		else
@@ -4486,7 +4398,7 @@ void updateFrame(void)
 	  skip_draw:
 	    if (spr[h].brain == 1)
 	      {
-		if ( (mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
+		if ((mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
 		  {
 		    /* Draw the tile squares selector, an expandable
 		       array of white non-filled squares */
@@ -4512,7 +4424,7 @@ void updateFrame(void)
 		  }
 
 
-		if ( (mode == MODE_TILE_HARDNESS))
+		if ((mode == MODE_TILE_HARDNESS))
 		  {
 		    /* Display the current "pencil"/square to draw hardness with */
 		    int yy;
@@ -4521,7 +4433,6 @@ void updateFrame(void)
 			int xx;
 			for (xx = 0; xx < selx; xx++)
 			  {
-
 /* 			    ddrval = lpDDSBack->BltFast( spr[h].x+(9 * xx),spr[h].y+(9 * yy), k[getpic(h)].k, */
 /* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
@@ -4533,24 +4444,14 @@ void updateFrame(void)
 			    }
 			  }
 		      }
-
-
 		  }
-
 	      }
-
-
-
-
 	  }
-
       }
 
 
-  //if (mode == 9)
-  if (mode == MODE_UNKNOWN)
+  if (mode == MODE_SCREEN_HARDNESS_INIT)
     {
-      //mode = 8;
       mode = MODE_SCREEN_HARDNESS;
 
       fill_whole_hard();
@@ -4579,11 +4480,6 @@ void updateFrame(void)
       SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
 
       while(kill_last_sprite());
-
-
-
-
-
     }
 
 

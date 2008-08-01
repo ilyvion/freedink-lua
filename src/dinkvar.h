@@ -49,13 +49,16 @@ struct attackinfo_struct
 	int pull_wait;
 };
 
-
+/* Background square in a screen */
 struct tile
 {
-  int num, property, althard, more2;
-  unsigned char more3, more4;
-  
-  int buff[15];
+  int num, /* tile index */
+    property,   /* unused */
+    althard, /* alternate hardness index, 0 = default tile hardness */
+    more2;      /* unused */
+  unsigned char
+  more3, more4; /* unused */
+  int buff[15]; /* unused */
 };
 
 struct sprite_placement
@@ -64,10 +67,10 @@ struct sprite_placement
   BOOL_1BYTE active;
   int rotation, special, brain;
   
-  char script[13];
-  char hit[13];
-  char die[13];
-  char talk[13];
+  char script[13]; /* attached DinkC script */
+  char hit[13];    /* buffer overflow for script.. should rather be script[13+1]/unused[12] */
+  char die[13];    /* unused */
+  char talk[13];   /* unused */
   int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
   int hard;
   rect alt;
@@ -85,15 +88,15 @@ struct sprite_placement
 struct small_map
 {
   char name[20];
-  struct tile t[97];
-  int v[40];
-  char s[80];
-  struct sprite_placement sprite[101];
+  struct tile t[12*8+1]; // 97 background tiles
+  int v[40];  /* unused */
+  char s[80]; /* unused */
+  struct sprite_placement sprite[100+1];
   
-  char script[13];
-  char random[13];
-  char load[13];
-  char buffer[1000];
+  char script[13]; /* script to run when entering the script */
+  char random[13]; /* buffer overflow for script.. should rather be script[20+1]/unused[5] */
+  char load[13];     /* unused */
+  char buffer[1000]; /* unused */
 };
 
 

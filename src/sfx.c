@@ -528,7 +528,10 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
  */
 void EditorSoundPlayEffect(int sound)
 {
-  SoundPlayEffectChannel(sound, registered_sounds[sound].orig_spec.freq, 0, 0, 0, 0);
+  /* Don't print warning if the sound isn't present - as sounds are
+     played continuously when arrow keys are pressed */
+  if (registered_sounds[sound].cvt.buf != NULL)
+    SoundPlayEffectChannel(sound, registered_sounds[sound].orig_spec.freq, 0, 0, 0, 0);
 }
 
 /**
@@ -560,7 +563,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
   // Safety check
   if (registered_sounds[sound].cvt.buf == NULL)
     {
-      //fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
+      fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
       return 0;
     }
 

@@ -144,6 +144,11 @@ the game. This is simpler that way, and nobody changed the editor
 palette anyway.
 
 
+In editor "Alternative Tile Hardness Selector", when going completely
+to the right of the screen, avoid a postponement for the square
+selector.
+
+
 In debug mode, use a line width of 640px instead of 620px, avoiding
 some unwanted line wrapping.
 
