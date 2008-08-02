@@ -50,16 +50,19 @@ cp -r SDL_image-$VERSION/include/* i386-mingw32msvc/include/SDL/
 rm -rf SDL_image-$VERSION/
 
 # Cross-compile SDL_gfx (no binaries available)
-VERSION=2.0.16
+VERSION=2.0.17
 cd /usr/src
 wget http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-$VERSION.tar.gz
 tar xzf SDL_gfx-$VERSION.tar.gz
 cd SDL_gfx-$VERSION
-# Refresh and mark as DLL-compliant (patch sent)
-rm -f acinclude.m4
-sed -i -e 's/-version-info/-no-undefined -version-info/' Makefile.am
+# Build system patches sent to the author, hopefully they will make to
+# 2.0.18 :)
+patch -p1 < ~/freedink/doc/SDL_gfx-patches/asm_gcc4.3.diff
+patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_crosscompile.diff
+patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_static.diff
+patch -p1 < ~/freedink/doc/SDL_gfx-patches/asm_win32_nomingw.diff
+# Rebuild patched build system (make sure you have libtool)
 autoreconf --force --install --symlink
-patch -p1 < /tmp/SDL_gfx-libtool.diff # see below
 SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
 make
@@ -288,116 +291,6 @@ sed -i -e 's/@LIBOBJS@/@LTLIBOBJS@/' lib/Makefile.am
 make
 make install
 
-diff -ru SDL_gfx-2.0.16/SDL_framerate.h SDL_gfx-2.0.16.beuc/SDL_framerate.h
---- SDL_gfx-2.0.16/SDL_framerate.h	2006-12-22 13:36:10.000000000 +0100
-+++ SDL_gfx-2.0.16.beuc/SDL_framerate.h	2007-09-27 01:46:10.000000000 +0200
-@@ -39,21 +39,24 @@
- /* --------- Function prototypes */
- 
- #ifdef WIN32
--#ifdef BUILD_DLL
--#define DLLINTERFACE __declspec(dllexport)
--#else
--#define DLLINTERFACE __declspec(dllimport)
-+#  ifdef DLL_EXPORT
-+#    define SDL_FRAMERATE_SCOPE __declspec(dllexport)
-+#  else
-+#    ifdef LIBSDL_GFX_DLL_IMPORT
-+#      define SDL_FRAMERATE_SCOPE __declspec(dllimport)
-+#    endif
-+#  endif
- #endif
--#else
--#define DLLINTERFACE
-+#ifndef SDL_FRAMERATE_SCOPE
-+#  define SDL_FRAMERATE_SCOPE extern
- #endif
- 
- /* Functions return 0 or value for sucess and -1 for error */
- 
--    DLLINTERFACE void SDL_initFramerate(FPSmanager * manager);
--    DLLINTERFACE int SDL_setFramerate(FPSmanager * manager, int rate);
--    DLLINTERFACE int SDL_getFramerate(FPSmanager * manager);
--    DLLINTERFACE void SDL_framerateDelay(FPSmanager * manager);
-+    SDL_FRAMERATE_SCOPE void SDL_initFramerate(FPSmanager * manager);
-+    SDL_FRAMERATE_SCOPE int SDL_setFramerate(FPSmanager * manager, int rate);
-+    SDL_FRAMERATE_SCOPE int SDL_getFramerate(FPSmanager * manager);
-+    SDL_FRAMERATE_SCOPE void SDL_framerateDelay(FPSmanager * manager);
- 
- /* --- */
- 
-diff -ru SDL_gfx-2.0.16/SDL_rotozoom.h SDL_gfx-2.0.16.beuc/SDL_rotozoom.h
---- SDL_gfx-2.0.16/SDL_rotozoom.h	2006-12-22 13:36:10.000000000 +0100
-+++ SDL_gfx-2.0.16.beuc/SDL_rotozoom.h	2007-09-27 01:45:58.000000000 +0200
-@@ -45,13 +45,16 @@
- /* ---- Prototypes */
- 
- #ifdef WIN32
--#ifdef BUILD_DLL
--#define DLLINTERFACE __declspec(dllexport)
--#else
--#define DLLINTERFACE __declspec(dllimport)
-+#  ifdef DLL_EXPORT
-+#    define SDL_ROTOZOOM_SCOPE __declspec(dllexport)
-+#  else
-+#    ifdef LIBSDL_GFX_DLL_IMPORT
-+#      define SDL_ROTOZOOM_SCOPE __declspec(dllimport)
-+#    endif
-+#  endif
- #endif
--#else
--#define DLLINTERFACE
-+#ifndef SDL_ROTOZOOM_SCOPE
-+#  define SDL_ROTOZOOM_SCOPE extern
- #endif
- 
- /* 
-@@ -65,17 +68,17 @@
- 
- */
- 
--    DLLINTERFACE SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth);
-+    SDL_ROTOZOOM_SCOPE SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth);
- 
--    DLLINTERFACE SDL_Surface *rotozoomSurfaceXY
-+    SDL_ROTOZOOM_SCOPE SDL_Surface *rotozoomSurfaceXY
-     (SDL_Surface * src, double angle, double zoomx, double zoomy, int smooth);
- 
- /* Returns the size of the target surface for a rotozoomSurface() call */
- 
--    DLLINTERFACE void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
-+    SDL_ROTOZOOM_SCOPE void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
- 					  int *dstheight);
- 
--    DLLINTERFACE void rotozoomSurfaceSizeXY
-+    SDL_ROTOZOOM_SCOPE void rotozoomSurfaceSizeXY
-     (int width, int height, double angle, double zoomx, double zoomy, 
-      int *dstwidth, int *dstheight);
- 
-@@ -90,11 +93,11 @@
- 
- */
- 
--    DLLINTERFACE SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
-+    SDL_ROTOZOOM_SCOPE SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
- 
- /* Returns the size of the target surface for a zoomSurface() call */
- 
--    DLLINTERFACE void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
-+    SDL_ROTOZOOM_SCOPE void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
- 
- 
- /* 
-@@ -107,7 +110,7 @@
-     or 32bit RGBA/ABGR it will be converted into a 32bit RGBA format on the fly.
- */     
-     
--    DLLINTERFACE SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory);
-+    SDL_ROTOZOOM_SCOPE SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory);
- 
- /* Ends C function definitions when using C++ */
- #ifdef __cplusplus
-
 
 ## libtool (libltdl)
 VERSION=2.2.4
@@ -454,3 +347,9 @@ cd libffi-$VERSION
 make
 make install
 #i586-mingw32msvc-gcc test.c `/usr/local/cross-tools/i386-mingw32/bin/pkg-config --cflags --libs libffi`
+
+## SDL_stretch
+wget http://kent.dl.sourceforge.net/sourceforge/sdl-stretch/SDL_stretch-0.2.3.tar.bz2
+tar xjf SDL_stretch-0.2.3.tar.bz2  # 07 Dec 2003...
+cd SDL_stretch-0.2.3
+...lots errors...
