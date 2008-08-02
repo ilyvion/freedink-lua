@@ -7,3 +7,4 @@ embedded_font
 keycodes
 videoinfo
 fade
+sdl_stretch

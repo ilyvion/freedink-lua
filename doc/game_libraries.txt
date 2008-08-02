@@ -79,9 +79,14 @@ sum of all their features do.
 
   [/] SDL_gfx does. Maybe the scaling algorithm is not exactly the
   same, I've seen some ugly resized tree shades in POTA, I'm not sure
-  it was intentional.
+  it was intentional. SDL_gfx has a small scaling bug which introduces
+  a 1-pixel postponement in FreeDinkedit's tile hardness editing.
 
-  [?] [TODO] SDL_strech should do.
+  [/] SDL_strech does, but only on surfaces with the same graphics
+  format. It hasn't been updated for 5 years and has troubles to
+  compile (check Debian packaging for fixes). It's packaged in less
+  distros than SDL_gfx. It doesn't have the SDL_gfx bug and scales
+  fine.
 
   [?] [TODO] Allegro does.
 
