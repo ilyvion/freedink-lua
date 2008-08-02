@@ -2056,50 +2056,38 @@ void write_moves(void)
 }
 
 
+/**
+ * Draw hardness single tile #'tile', pixel by pixel, in white. Used
+ * to draw the currently selected hardness tile.
+ */
 void draw_hard_tile(int x1, int y1, int tile)
 {
-/* HRESULT             ddrval; */
-/* rect box; */
+  SDL_Rect dst;
+  dst.w = 1;
+  dst.h = 1;
 
-/*                DDBLTFX     ddbltfx; */
-/* ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
-/* ddbltfx.dwSize = sizeof( ddbltfx); */
- int x;
-	for (x = 0; x < 50; x++)
-		{
-		  int y;
-			for (y = 0; y < 50; y++)
-			{
-
-
-			if (hmap.tile[tile].x[x].y[y] == 1)
-			{
-			//draw it
-
-/*  ddbltfx.dwFillColor = RGB(255,255,255); */
-
-/*  SetRect(&box, x1+x+20,y1+y,x1+x+1+20,y1+y+1); */
-/*  ddrval = lpDDSBack->Blt(&box ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx); */
- // GFX
- {
-   SDL_Rect dst;
-   dst.x = x1+x+20;
-   dst.y = y1+y;
-   dst.w = 1;
-   dst.y = 1;
-   SDL_FillRect(GFX_lpDDSBack, &dst, SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
- }
- //if (ddrval != DD_OK) dderror(ddrval);
-
-			}
-
-			}
-		}
-
+  int x = 0;
+  for (x = 0; x < 50; x++)
+    {
+      int y = 0;
+      for (y = 0; y < 50; y++)
+	{
+	  if (hmap.tile[tile].x[x].y[y] == 1)
+	    {
+	      //draw it
+	      dst.x = x1 + x
+		+ 20/* status bar length */;
+	      dst.y = y1 + y;
+	      /* TODO: not very efficient */
+	      SDL_FillRect(GFX_lpDDSBack, &dst,
+			   SDL_MapRGB(GFX_lpDDSBack->format, 255, 255, 255));
+	    }
+	}
+    }
 }
 
 
-/*
+/**
  * updateFrame
  *
  * Decide what needs to be blitted next, wait for flip to complete,
@@ -4077,7 +4065,7 @@ void updateFrame(void)
 			if (sjoy.charjustpressed[']'])
 			  {
 			    hard_tile++;
-			    if (hard_tile > 799) hard_tile = 1;
+			    if (hard_tile > 799) hard_tile = 0;
 			  }
 
 			if (sjoy.charjustpressed['c'])
@@ -4106,7 +4094,7 @@ void updateFrame(void)
 			    return;
 			  }
 
-			draw_hard_tile(spr[1].x,spr[1].y,hard_tile);
+			draw_hard_tile(spr[1].x,spr[1].y, hard_tile);
 
 			char crapa[10];
 			sprintf(crapa, "%d",hard_tile);
