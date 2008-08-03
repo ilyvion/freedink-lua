@@ -34,7 +34,7 @@
 
 /* Tiles */
 /* Game pieces */
-/* +1 to avoid the -1 in arrays.. */
+/* +1 to avoid the -1 in array indexes.. */
 SDL_Surface *GFX_tiles[NB_TILE_SCREENS+1];
 
 /* Animated tiles current status */
@@ -179,7 +179,7 @@ void draw_map_game(void)
       {
 	SDL_Rect src;
 	SDL_Rect dst;
-	src.x = (pa * 50- (pa / 12) * 600);
+	src.x = (pa * 50 - (pa / 12) * 600);
 	src.y = (pa / 12) * 50;
 	src.w = 50;
 	src.h = 50;

@@ -170,7 +170,15 @@ int cx;
 int cy;
 int speed;
 
-
+/**
+ * Get the screen tile under coords x,y
+ */
+int xy2screentile(int x, int y)
+{
+  return
+    ((y + 1) * 12) / 50
+    + x / 50;
+}
 
 
 
@@ -1770,21 +1778,13 @@ void check_in(void)
 void change_tile(int tile, int num)
 {
   int x;
-	for (x = 0; x < 50; x++)
-	{
-	  int y;
-		for (y = 0; y < 50; y++)
-		{
-
-
-			if (hmap.tile[tile].x[x].y[y] != 0)
-			{
-			hmap.tile[tile].x[x].y[y] = num;
-			}
-		}
-	}
-
-
+  for (x = 0; x < 50; x++)
+    {
+      int y;
+      for (y = 0; y < 50; y++)
+	if (hmap.tile[tile].x[x].y[y] != 0)
+	  hmap.tile[tile].x[x].y[y] = num;
+    }
 }
 
 
@@ -3653,7 +3653,6 @@ void updateFrame(void)
 				  {
 				    if (hmap.tile[j].used == /*FALSE*/0)
 				      {
-
 					hmap.index[cur_tile] = j;
 					hmap.tile[j].used = /*TRUE*/1;
 				    	hard_tile = j;
@@ -3665,8 +3664,7 @@ void updateFrame(void)
 			      hard_tile = hmap.index[cur_tile];
 
 			  tilesel:
-			    cool = cur_tile / 128;
-			    xx = cur_tile - (cool * 128);
+			    xx = cur_tile % 128;
 /* 			    Rect.left = (xx * 50- (xx / 12) * 600); */
 /* 			    Rect.top = (xx / 12) * 50; */
 /* 			    Rect.right = Rect.left + 50; */
@@ -3697,14 +3695,16 @@ void updateFrame(void)
 			       before scaling it.. */
 			    {
 			      SDL_Rect src, dst;
-			      src.x = xx * 50 - xx/12 * 600;
-			      src.y = xx/12 * 50;
+			      src.x = (xx % 12) * 50;
+			      src.y = (xx / 12) * 50;
 			      src.w = 50;
 			      src.h = 50;
 			      dst.x = 95;
 			      dst.y = 0;
 			      dst.w = 450;
 			      dst.h = 450;
+			      
+			      cool = cur_tile / 128;
 			      gfx_blit_stretch(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
 			    }
 
@@ -4041,7 +4041,6 @@ void updateFrame(void)
 			goto skip_draw;
 		      }
 
-
 		    if (mode == MODE_SCREEN_HARDNESS)
 		      {
 			//mode for it
@@ -4059,7 +4058,7 @@ void updateFrame(void)
 			if (sjoy.charjustpressed['['])
 			  {
 			    hard_tile--;
-			    if (hard_tile < 1) hard_tile = 799;
+			    if (hard_tile < 0) hard_tile = 799;
 			  }
 			/* if (sjoy.keyjustpressed[/\* VK_OEM_6 *\/ 221]) // ']' for US */
 			if (sjoy.charjustpressed[']'])
@@ -4071,7 +4070,7 @@ void updateFrame(void)
 			if (sjoy.charjustpressed['c'])
 			  {
 			    //copy tile hardness from current block
-			    hard_tile = realhard(   (((spr[1].y+1)*12) / 50)+(spr[1].x / 50)   );
+			    hard_tile = realhard(xy2screentile(spr[1].x, spr[1].y));
 			  }
 
 			if (sjoy.charjustpressed['s'])
@@ -4094,17 +4093,17 @@ void updateFrame(void)
 			    return;
 			  }
 
-			draw_hard_tile(spr[1].x,spr[1].y, hard_tile);
-
-			char crapa[10];
-			sprintf(crapa, "%d",hard_tile);
-
+			/* Display the hard tile in the clipboard */
+			char crapa[20];
+			sprintf(crapa, "Copy: %d",hard_tile);
 			SaySmall(crapa, 580,400, 255,255,255);
+
+			draw_hard_tile(spr[1].x,spr[1].y, hard_tile);
 
 			if (sjoy.keyjustpressed[SDLK_RETURN])
 			  {
-			    //they want to edit this alt hardness, less do it'
-			    cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			    //they want to edit this alt hardness, let's do it
+			    cur_tile = pam.t[xy2screentile(spr[1].x, spr[1].y)].num;
 
 			    xx = cur_tile - (cool * 128);
 			    Rect.left = spr[1].x+20;
@@ -4199,6 +4198,7 @@ void updateFrame(void)
 			return;
 		      }
 
+
 		    if (getkeystate(SDLK_LEFT))
 		      {
 			spr[h].x -= spr[h].speed;
@@ -4250,8 +4250,8 @@ void updateFrame(void)
 			    spr[1].y = 450 - (sely * 50);
 			  }
 		      }
-
-		    if ((mode == MODE_SCREEN_TILES) || (mode == MODE_SPRITE_PICKER))
+		    if ((mode == MODE_SCREEN_TILES) || (mode == MODE_SPRITE_PICKER)
+			|| (mode == MODE_SCREEN_HARDNESS))
 		      {
 			if ((sely * 50 + spr[1].y) > 400)
 			  {
@@ -4266,8 +4266,6 @@ void updateFrame(void)
 
 	    if (spr[h].brain == 2)
 	      {
-
-
 		if (spr[h].y > (y-k[getpic(h)].box.bottom))
 		  {
 		    spr[h].my -= (spr[h].my * 2);
@@ -4358,14 +4356,13 @@ void updateFrame(void)
 
 
 
-	    if ( (mode == MODE_SCREEN_TILES) )
+	    if (mode == MODE_SCREEN_TILES)
 	      {
 		//need offset to look right
 		k[seq[3].frame[1]].xoffset = -20;
 		greba = 20;
 	      }
-	    if ( (mode == MODE_TILE_PICKER) | (mode == MODE_SPRITE_PICKER) )
-
+	    if (mode == MODE_TILE_PICKER || mode == MODE_SPRITE_PICKER)
 	      {
 		//pick a tile, needs no offset
 		k[seq[3].frame[1]].xoffset = 0;
@@ -4386,7 +4383,7 @@ void updateFrame(void)
 	  skip_draw:
 	    if (spr[h].brain == 1)
 	      {
-		if ((mode == MODE_TILE_PICKER) || (mode == MODE_SCREEN_TILES))
+		if (mode == MODE_TILE_PICKER || mode == MODE_SCREEN_TILES)
 		  {
 		    /* Draw the tile squares selector, an expandable
 		       array of white non-filled squares */
@@ -4396,7 +4393,6 @@ void updateFrame(void)
 			int x;
 			for (x = 0; x < selx; x++)
 			  {
-
 /* 			    ddrval = lpDDSBack->BltFast( (spr[h].x+(50 *x))+greba,spr[h].y+(50 * y), k[getpic(h)].k, */
 /* 							 &k[getpic(h)].box  , DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT ); */
 			    // GFX
@@ -4408,7 +4404,6 @@ void updateFrame(void)
 			    }
 			  }
 		      }
-
 		  }
 
 
@@ -4508,7 +4503,7 @@ void updateFrame(void)
 	  //((x-1) - (x / 12))*50, (x / 12) * 50,
 	  sprintf(msg,
 		  "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."
-		  "V to change vision, B to change maps base .C file.",
+		  " V to change vision, B to change maps base .C file.",
 		  mode);
 /* 		  cur_map, */
 /* 		  cur_tile, */
@@ -4522,8 +4517,9 @@ void updateFrame(void)
 /* 		(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)); */
       if (mode == MODE_TILE_HARDNESS)
 	{
-	  sprintf(msg, "X:%d Y:%d: Density index %d. (for tile %d) Z to harden, X to soften.  Shift+direction for larger brush. ENTER or ESC to exit.",
-		  (spr[1].x / 9) -9,(spr[1].y / 9) +1,hmap.index[cur_tile], cur_tile);
+	  sprintf(msg, "X:%d Y:%d: Density index %d  Z to harden, X to soften, A for low-hard, S for ???.\n"
+		  "Shift+direction for larger brush. ENTER or ESC to exit.",
+		  (spr[1].x / 9) -9,(spr[1].y / 9) +1, hard_tile);
 	}
 
       if (mode == MODE_SPRITE_PICKER)
@@ -4603,9 +4599,22 @@ void updateFrame(void)
 
       if (mode == MODE_SCREEN_HARDNESS)
 	{
-
+	  int screentile = xy2screentile(spr[1].x, spr[1].y);
+	  int sourcetile = pam.t[screentile].num;
+	  int defaulthardness = hmap.index[sourcetile];
+	  int curhardness = realhard(screentile);
+	  char str[100];
+	  if (defaulthardness == curhardness)
+	    sprintf(str, "Current %03d (default %03d tile %03d)", curhardness, defaulthardness, sourcetile);
+	  else
+	    sprintf(str, "Current %03d (default %03d tile %03d) (alternate)", curhardness, defaulthardness, sourcetile);
+	    
 	  sprintf(msg, "Alternative Tile Hardness Selector: Press S to stamp this tiles hardness."
-		  "  DEL to remove alternate hardness.  C to copy from current block. [ & ] to cycle.  ESCAPE to exit.");
+		  "  DEL to remove alternate hardness."
+		  "  C to copy from current block."
+		  "  [ & ] to cycle."
+		  "  ESCAPE to exit.\n"
+		  "%s", str);
 	}
 
       {

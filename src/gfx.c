@@ -483,40 +483,25 @@ int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
 
 /**
  * Blit and resize so that 'src' fits in 'dst_rect'
- *
- * Not perfectly accurate: move a 200% sprite to the border of the
- * screen so it is clipped: it's scaled size will slighly vary. Maybe
- * we need to clip the source zone before scaling it, but it behaves
- * that way in the original game anyway.
  */
-int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect,
-		     SDL_Surface *dst, SDL_Rect *dst_rect)
+int gfx_blit_stretch(SDL_Surface *src_surf, SDL_Rect *src_rect,
+		     SDL_Surface *dst_surf, SDL_Rect *dst_rect)
 {
   int retval = -1;
-  SDL_Rect src_rect_if_null;
-
-  if (src_rect == NULL)
-    {
-      src_rect = &src_rect_if_null;
-      src_rect->x = 0;
-      src_rect->y = 0;
-      src_rect->w = src->w;
-      src_rect->h = src->h;
-    }
 
   double sx = 1.0 * dst_rect->w / src_rect->w;
   double sy = 1.0 * dst_rect->h / src_rect->h;
   /* In principle, double's are precise up to 15 decimal digits */
   if (fabs(sx-1) > 1e-10 || fabs(sy-1) > 1e-10)
     {
-      SDL_Surface *scaled = zoomSurface(src, sx, sy, SMOOTHING_OFF);
+      SDL_Surface *scaled = zoomSurface(src_surf, sx, sy, SMOOTHING_OFF);
 
       /* Keep the same transparency / alpha parameters (SDL_gfx bug,
 	 report submitted to the author: SDL_gfx adds transparency to
 	 non-transparent surfaces) */
-      int colorkey_flag = src->flags & SDL_SRCCOLORKEY;
+      int colorkey_flag = src_surf->flags & SDL_SRCCOLORKEY;
       Uint8 r, g, b, a;
-      SDL_GetRGBA(src->format->colorkey, src->format, &r, &g, &b, &a);
+      SDL_GetRGBA(src_surf->format->colorkey, src_surf->format, &r, &g, &b, &a);
 
       SDL_SetColorKey(scaled, colorkey_flag,
 		      SDL_MapRGBA(scaled->format, r, g, b, a));
@@ -525,17 +510,26 @@ int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect,
       /* int alpha = src->format->alpha; */
       /* SDL_SetAlpha(scaled, alpha_flag, alpha); */
       
+      SDL_Rect src_rect_if_null;
+      if (src_rect == NULL)
+	{
+	  src_rect = &src_rect_if_null;
+	  src_rect->x = 0;
+	  src_rect->y = 0;
+	  src_rect->w = src_surf->w;
+	  src_rect->h = src_surf->h;
+	}
       src_rect->x = (int) round(src_rect->x * sx);
       src_rect->y = (int) round(src_rect->y * sy);
       src_rect->w = (int) round(src_rect->w * sx);
       src_rect->h = (int) round(src_rect->h * sy);
-      retval = SDL_BlitSurface(scaled, src_rect, dst, dst_rect);
+      retval = SDL_BlitSurface(scaled, src_rect, dst_surf, dst_rect);
       SDL_FreeSurface(scaled);
     }
   else
     {
       /* No scaling */
-      retval = SDL_BlitSurface(src, src_rect, dst, dst_rect);
+      retval = SDL_BlitSurface(src_surf, src_rect, dst_surf, dst_rect);
     }
   return retval;
 }

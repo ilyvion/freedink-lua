@@ -697,12 +697,16 @@ void add_exp(int num, int killed_sprite)
   add_exp_force(num, killed_sprite);
 }
 
+/**
+ * Return hardness index for this screen tile, either its default
+ * hardness, or the replaced/alternative hardness. Tile is in [0,95].
+ */
 int realhard(int tile)
 {
-
-        //      if (pam.t[tile].num > 3000) Msg("Hard is %d", pam.t[tile].num );
-        if (pam.t[tile].althard > 0) return(pam.t[tile].althard); else return(hmap.index[pam.t[tile].num]);
-
+  if (pam.t[tile].althard > 0)
+    return(pam.t[tile].althard);
+  else
+    return(hmap.index[pam.t[tile].num]);
 }
 
 
