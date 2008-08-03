@@ -412,3 +412,6 @@ Sequence: Neighbor
 
 Wanderer.mid
 Sequence: wanderer
+
+
+See also http://www.rtsoft.com/forums/showthread.php?t=1165 for some clues.

@@ -489,6 +489,16 @@ int gfx_blit_stretch(SDL_Surface *src_surf, SDL_Rect *src_rect,
 {
   int retval = -1;
 
+  SDL_Rect src_rect_if_null;
+  if (src_rect == NULL)
+    {
+      src_rect = &src_rect_if_null;
+      src_rect->x = 0;
+      src_rect->y = 0;
+      src_rect->w = src_surf->w;
+      src_rect->h = src_surf->h;
+    }
+
   double sx = 1.0 * dst_rect->w / src_rect->w;
   double sy = 1.0 * dst_rect->h / src_rect->h;
   /* In principle, double's are precise up to 15 decimal digits */
@@ -510,15 +520,6 @@ int gfx_blit_stretch(SDL_Surface *src_surf, SDL_Rect *src_rect,
       /* int alpha = src->format->alpha; */
       /* SDL_SetAlpha(scaled, alpha_flag, alpha); */
       
-      SDL_Rect src_rect_if_null;
-      if (src_rect == NULL)
-	{
-	  src_rect = &src_rect_if_null;
-	  src_rect->x = 0;
-	  src_rect->y = 0;
-	  src_rect->w = src_surf->w;
-	  src_rect->h = src_surf->h;
-	}
       src_rect->x = (int) round(src_rect->x * sx);
       src_rect->y = (int) round(src_rect->y * sy);
       src_rect->w = (int) round(src_rect->w * sx);

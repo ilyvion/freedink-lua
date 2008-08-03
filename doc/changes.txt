@@ -152,6 +152,8 @@ the square selector.
 When editing hardness, print the hardness index actually being edited,
 instead of the one associated by the current background tile.
 
+Display real-time information about hardness in hardness mode.
+
 
 In debug mode, use a line width of 640px instead of 620px, avoiding
 some unwanted line wrapping.

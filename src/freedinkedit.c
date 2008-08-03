@@ -4518,7 +4518,7 @@ void updateFrame(void)
       if (mode == MODE_TILE_HARDNESS)
 	{
 	  sprintf(msg, "X:%d Y:%d: Density index %d  Z to harden, X to soften, A for low-hard, S for ???.\n"
-		  "Shift+direction for larger brush. ENTER or ESC to exit.",
+		  "Alt+X/A/S to fill hardness. Shift+direction for larger brush. ENTER or ESC to exit.",
 		  (spr[1].x / 9) -9,(spr[1].y / 9) +1, hard_tile);
 	}
 
