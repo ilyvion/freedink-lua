@@ -211,6 +211,7 @@ static int check_arg(int argc, char *argv[])
       {"window",    no_argument,       NULL, 'w'},
       {"v1.07",     no_argument,       NULL, '7'},
       {"truecolor", no_argument,       NULL, 't'},
+      {"nomovie"  , no_argument,       NULL, ','},
       {0, 0, 0, 0}
     };
   
@@ -255,6 +256,9 @@ static int check_arg(int argc, char *argv[])
 	break;
       case 't':
 	truecolor = 1;
+	break;
+      case ',':
+        printf("Note: -nomovie is accepted for compatiblity, but has no effect.\n");
 	break;
       default:
 	exit(EXIT_FAILURE);
