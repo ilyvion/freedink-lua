@@ -107,7 +107,32 @@ void main(void)
   sp_que(1,20000);
   sp_noclip(1, 1);
 
-  say_stop_xy("Hello, world!", 0, 40);
+  //say_stop_xy("Hello, world!", 0, 40);
+  // Do intro screen here
+
+  // Now start the game
+  sp_que(1, 0);
+  sp_noclip(1, 0);
+  sp_x(1, 300);
+  sp_y(1, 200);
+  sp_base_walk(1, 70);
+  sp_base_attack(1, 100);
+  sp_base_idle(1, 10);
+  sp_brain(1, 1);
+  reset_timer();
+  &player_map = 1;
+  // back to the engine as mode is set to 1 after launching start.c
+  wait(0);
+  // now we can set mode to 2
+  set_mode(2); //turn game on
+
+  //lets give him fists to start out with
+  add_item("item-fst",438, 1);
+  &cur_weapon = 1;
+  arm_weapon();
+
+  &update_status=1;
+  draw_status();
 
   kill_this_task();
 }
