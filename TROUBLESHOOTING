@@ -1,6 +1,9 @@
 Troubleshooting
 ===============
 
+Sound
+-----
+
 Q: Under GNU/Linux, FreeDink freezes when trying to play a sound or
    music.
 
@@ -12,3 +15,45 @@ A: SDL_mixer (the component that provides the sound) is known to
 
    More information at
    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=369670
+
+
+Q: Under some distros (such as recent Fedora and Ubuntu), the sound is
+   managed through PulseAudio, and this breaks sound in the game.
+
+A: Apparently FreeDink is not the only game or even application that
+   PulseAudio affects. 
+
+   Suggests that was a bit prematurate:
+     http://brainstorm.ubuntu.com/idea/7377/
+   Wesnoth is impacted:
+     http://www.wesnoth.org/forum/viewtopic.php?f=4&t=21864&p=305666
+   Various work-arounds for several applications/libraries:
+     http://pulseaudio.org/wiki/PerfectSetup
+   SDL patch:
+     https://bugs.launchpad.net/ubuntu/+source/libsdl1.2/+bug/216397
+
+   So it's something to fix in SDL - but not in FreeDink itself.
+
+   Work-arounds:
+
+   1) export SDL_AUDIODRIVER=pulse
+
+   2) disable PulseAudio using:
+
+     pulseaudio -k
+     freedink
+     pulseaudio -D
+
+
+Q: I want FreeDink to use my MIDI hardware or fluidsynth setup, but it
+   uses TiMidity instead.
+
+A: SDL_mixer (the MIDI component that FreeDink uses) can use both
+   hardware and software sequencer. If '/etc/timidity/timidity.cfg' is
+   present, it will use that first. You can remove that file if you
+   want to use '/dev/sequencer' directly :)
+
+   You can also see above that there are some issues if
+   ''/dev/sequencer' is present but not functionnal, so it's best we
+   use TiMidity by default for common Dinkers, and just let you remove
+   '/etc/timidity/timidity.cfg' if you know better ;)
