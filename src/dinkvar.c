@@ -197,7 +197,7 @@ int m1x,m1y;
 int m2x,m2y;
 int m3x,m3y;
 int playx = 620;
-/*bool*/int windowed = /*false*/0;
+/*bool*/int windowed = /*false*/0; /* TODO: move to gfx.c? */
 int playl = 20;
 
 /*bool*/int mouse1 = /*false*/0;

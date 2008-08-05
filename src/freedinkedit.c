@@ -194,7 +194,6 @@ void draw_map(void);
 void draw_minimap(void);
 /* void dderror(HRESULT hErr); */
 
-int SInitSound();
 void finiObjects(void);
 
 
@@ -5064,7 +5063,7 @@ void updateFrame(void)
 } /* updateFrame */
 
 
-int SInitSound()
+int load_editor_sounds()
 {
   int i;
 
@@ -5099,455 +5098,156 @@ int SInitSound()
  */
 static /*BOOL*/int doInit(int argc, char *argv[])
 {
-/* 	  HWND                hwnd; */
-	  //    HRESULT             dsrval;
-	  // BOOL                bUseDSound;
-/* 	  WNDCLASS            wc; */
-/* 	  DDSURFACEDESC       ddsd; */
-/* 	  DDSCAPS             ddscaps; */
-/* 	  HRESULT             ddrval; */
-	  rect                rcRect;
-/* 	  char crap[100]; */
-/* 	  char crap1[50]; */
-/* 	  rect rcRectSrc;    rect rcRectDest; */
-/* 	  POINT p; */
-       char *fullpath = NULL;
-	  /*
-	  * set up and register window class
-	  */
-
-	  //initFail(hwnd, "Couldn't make Back buffer in Windowed mode.");
-       dinkedit = /*true*/1;
-
-/* 	  wc.style = CS_HREDRAW | CS_VREDRAW; */
-/* 	  wc.lpfnWndProc = WindowProc; */
-/* 	  wc.cbClsExtra = 0; */
-/* 	  wc.cbWndExtra = 0; */
-/* 	  wc.hInstance = hInstance; */
-/* 	  wc.hIcon = LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1)); */
-/* 	  wc.hCursor = LoadCursor( NULL, IDC_ARROW ); */
-/* 	  wc.hbrBackground = GetStockBrush(BLACK_BRUSH); */
-/* 	  wc.lpszMenuName = NAME; */
-/* 	  wc.lpszClassName = NAME; */
-/* 	  RegisterClass( &wc ); */
-
-	  /*
-	  * create a window
-	  */
-
-	  windowed = /*false*/0;
-
-/* 	  if (windowed) */
-/* 	  { */
-/* 		  hwnd = CreateWindowEx( */
-/* 			  0, */
-/* 			  NAME, */
-/* 			  TITLE, */
-/* 			  //        WS_POPUP, */
-
-/* 			  WS_SYSMENU|WS_CAPTION, */
-
-/* 			  0, */
-/* 			  0, */
-
-/* 			  640+winoffsetx, 480+winoffset, */
-/* 			  //        GetSystemMetrics(SM_CXSCREEN), */
-/* 			  //      GetSystemMetrics(SM_CYSCREEN), */
-/* 			  NULL, */
-/* 			  NULL, */
-/* 			  hInstance, */
-/* 			  NULL ); */
-/* 		  hWndMain = hwnd;    */
-
-/* 		  if( !hwnd ) */
-/* 		  { */
-/* 			  return FALSE; */
-/* 		  } */
-
-
-/* 		  ShowWindow( hwnd, nCmdShow ); */
-/* 		  UpdateWindow( hwnd ); */
-/* 		  SetFocus( hwnd ); */
-
-/* 		  /\* */
-/* 		  * create the main DirectDraw object */
-/* 		  *\/ */
-/* 		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL ); */
-/* 		  if( ddrval != DD_OK ) */
-/* 		  { */
-/* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
-/* 		  } */
-
-/* 		  // Get exclusive mode */
-
-
-/* 		  // using DDSCL_NORMAL means we will coexist with GDI */
-/* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL ); */
-
-/* 		  if( ddrval != DD_OK )   */
-/* 		  {         */
-/* 			  lpDD->Release();  */
-/* 			  return initFail(hwnd, "Couldn't make windowed screen."); */
-
-/* 		  }    */
-/* 		  memset( &ddsd, 0, sizeof(ddsd) ); */
-/* 		  ddsd.dwSize = sizeof( ddsd ); */
-/* 		  ddsd.dwFlags = DDSD_CAPS; */
-/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE; */
-
-/* 		  // The primary surface is not a page flipping surface this time */
-/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
-
-/* 		  if( ddrval != DD_OK )     */
-/* 		  {        lpDD->Release();   */
-/* 		  return initFail(hwnd, "Couldn't make primary surface."); */
-
-
-/* 		  }  */
-
-
-
-/* 		  memset( &ddsd, 0, sizeof(ddsd) );  */
-/* 		  ddsd.dwSize = sizeof( ddsd ); */
-/* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH; */
-/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;  */
-/* 		  ddsd.dwWidth = 640; */
-/* 		  ddsd.dwHeight = 480;    // create the backbuffer separately */
-/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSBack, NULL ); */
-/* 		  if( ddrval != DD_OK ) */
-/* 		  {        lpClipper-> Release(); */
-
-/* 		  lpDDSPrimary->Release();     */
-/* 		  lpDD->Release();  */
-/* 		  return initFail(hwnd, "Couldn't make Back buffer in Windowed mode."); */
-
-
-/* 		  }    */
-
-
-		  // Create a clipper to ensure that our drawing stays inside our window
-/* 	  ddrval = lpDD->CreateClipper( 0, &lpClipper, NULL ); */
-/* 	  if( ddrval != DD_OK )    */
-/* 	  {       */
-/* 		  lpDDSPrimary->Release(); */
-
-/* 		  lpDD->Release();   */
-/* 		  return initFail(hwnd, "Couldn't make a Clipper object, god knows why."); */
-
-/* 	  } */
-
-
-/* 	  // setting it to our hwnd gives the clipper the coordinates from our window */
-/* 	  ddrval = lpClipper->SetHWnd( 0, hwnd );    */
-/* 	  if( ddrval != DD_OK )   */
-/* 	  { */
-/* 		  lpClipper-> Release();    */
-/* 		  lpDDSPrimary->Release(); */
-
-/* 		  lpDD->Release();      */
-/* 		  return initFail(hwnd, "Couldn't give Clipper window cords."); */
-
-/* 	  } */
-/* 	  // attach the clipper to the primary surface */
-/* 	  ddrval = lpDDSPrimary->SetClipper( lpClipper );  */
-/* 	  if( ddrval != DD_OK ) */
-/* 	  {   */
-/* 		  lpClipper-> Release();    */
-/* 		  lpDDSPrimary->Release(); */
-/* 		  lpDD->Release();     */
-
-/* 		  return initFail(hwnd, "Couldn't attach Clipper to primary buffer."); */
-/* 	  } */
-
-
-/* 	  } */
-
-
-
-
-/* 	  if (!windowed) */
-/* 	  { */
-
-/* 		  hwnd = CreateWindowEx( */
-/* 			  0, */
-/* 			  NAME, */
-/* 			  TITLE, */
-/* 			  WS_POPUP, */
-
-/* 			  //WS_SYSMENU|WS_CAPTION, */
-
-/* 			  0, */
-/* 			  0, */
-/* 			  640, 480, */
-/* 			  //        GetSystemMetrics(SM_CXSCREEN), */
-/* 			  //      GetSystemMetrics(SM_CYSCREEN), */
-/* 			  NULL, */
-/* 			  NULL, */
-/* 			  hInstance, */
-/* 			  NULL ); */
-/* 		  hWndMain = hwnd;    */
-
-/* 		  if( !hwnd ) */
-/* 		  { */
-/* 			  return FALSE; */
-/* 		  } */
-
-/* 		  ShowWindow( hwnd, nCmdShow ); */
-/* 		  UpdateWindow( hwnd ); */
-/* 		  SetFocus( hwnd ); */
-
-/* 		  /\* */
-/* 		  * create the main DirectDraw object */
-/* 		  *\/ */
-/* 		  ddrval = DirectDrawCreate( NULL, &lpDD, NULL ); */
-/* 		  if( ddrval != DD_OK ) */
-/* 		  { */
-/* 			  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
-/* 		  } */
-/* //		  	  return initFail(hwnd, "Couldn't use DirectX 3+...  Install it first."); */
-
-/* 		  // Get exclusive mode */
-
-
-/* 		  ddrval = lpDD->SetCooperativeLevel( hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN ); */
-
-
-/* 		  if( ddrval != DD_OK ) */
-/* 		  { */
-/* 			  return initFail(hwnd, "Whatup?  Couldn't set to full screen."); */
-/* 		  } */
-
-/* 		  // Set the video mode to 640x480x8 */
-/* 		  ddrval = lpDD->SetDisplayMode( x, y, 8); */
-/* 		  if(ddrval != DD_OK) */
-/* 		  { */
-/* 			  return initFail(hwnd, "640 X 480, 8 bit not supported."); */
-/* 		  } */
-
-/* 		  // Create the primary surface with 1 back buffer */
-
-/* 		  ddsd.dwSize = sizeof( ddsd ); */
-/* 		  ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT; */
-/* 		  ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | */
-/* 			  DDSCAPS_FLIP | */
-/* 			  DDSCAPS_COMPLEX; */
-
-
-
-/* 		  ddsd.dwBackBufferCount = 1; */
-/* 		  ddrval = lpDD->CreateSurface( &ddsd, &lpDDSPrimary, NULL ); */
-/* 		  if( ddrval != DD_OK ) */
-/* 		  { */
-/* 			  return initFail(hwnd, "Could not create primary surface."); */
-/* 		  } */
-
-/* 		  ddscaps.dwCaps = DDSCAPS_BACKBUFFER; */
-
-/* 		  /\* if (ddsd.ddsCaps.dwCaps == DDCAPS_BLTSTRETCH) */
-/* 		  { */
-/* 		  return initFail(hwnd, "Hardware blit stretching available."); */
-/* 		  } */
-/* 		  *\/ */
-/* 		  ddrval = lpDDSPrimary->GetAttachedSurface(&ddscaps, &lpDDSBack); */
-/* 		  if( ddrval != DD_OK ) */
-/* 		  { */
-/* 			  return initFail(hwnd, "Could not create backbuffer,"); */
-/* 		  } */
-
-/* 	  } */
-
-
-	  //done with major initting of graphics engine
-
+  rect rcRect;
+  char *fullpath = NULL;
+  dinkedit = 1;
 
   /* New initialization */
-    if (init(argc, argv) == 0)
+  if (init(argc, argv) == 0)
     {
       exit(1);
     }
-    /* Difference with the game: attempt to get a Unicode key state
-       (to handle '[' and ']' in a layout-independant way, namely) */
-    SDL_EventState(SDL_KEYUP, SDL_ENABLE);
+  /* Difference with the game: attempt to get a Unicode key state
+     (to handle '[' and ']' in a layout-independant way, namely) */
+  SDL_EventState(SDL_KEYUP, SDL_ENABLE);
 
+  // TODO: move to game_init() ?
   memset(&hm, 0, sizeof(struct hit_map));
+  srand((unsigned)time(NULL));
 
-	  srand( (unsigned)time( NULL ) );
-
-	  // GFX
-	  char *base_bmp = "tiles/esplash.bmp";
-	  fullpath = paths_dmodfile(base_bmp);
-	  if (!exist(fullpath))
-	    {
-	      free(fullpath);
-	      fullpath = paths_fallbackfile(base_bmp);
-	    }
-	  SDL_Surface* splash = load_bmp(fullpath);
-	  free(fullpath);
-	  if (!GFX_lpDDSTwo)
-	    {
-	      fprintf(stderr, "Couldn't load esplash.bmp\n");
-	    }
-	  else
-	    {
-	      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
-	      SDL_FreeSurface(splash);
-	    }
-
-	  rcRect.left = 0;
-	  rcRect.top = 0;
-	  rcRect.right = x;
-	  rcRect.bottom = y;
-
-	  /* Copy splash screen to the screen during loading time */
-	  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-
-	  flip_it_editor();
-
-    load_batch();
-
-
-
-//game[15] = DDLoadBitmap(lpDD, "TILES\\SPLASH.BMP", 0, 0);
-    //game[15] = DDSetColorKey(game[15], RGB(0,0,0));
-load_hard();
-
-
-
-/*  for (int oo = 1; oo < 9; oo++)
-  {
-  sprintf(crap, "TILES\\S%d.BMP",oo);
-
-     if (!exist(crap))  sprintf(crap, "..\\DINK\\TILES\\S%d.BMP",oo);
-
-    k[oo].k = DDSethLoad(lpDD, crap, 0, 0,oo);
-	if( k[oo].k == NULL )
+  // GFX
+  char *base_bmp = "tiles/esplash.bmp";
+  fullpath = paths_dmodfile(base_bmp);
+  if (!exist(fullpath))
     {
-		return initFail(hwnd, "Couldn't find a sprite.");
+      free(fullpath);
+      fullpath = paths_fallbackfile(base_bmp);
+    }
+  SDL_Surface* splash = load_bmp(fullpath);
+  free(fullpath);
+  if (!GFX_lpDDSTwo)
+    {
+      fprintf(stderr, "Couldn't load esplash.bmp\n");
+    }
+  else
+    {
+      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
+      SDL_FreeSurface(splash);
     }
 
-  DDSetColorKey(k[oo].k, RGB(0,0,0));
-   k[oo].yoffset = (k[oo].box.bottom  - ( k[oo].box.bottom  ));
-         k[oo].xoffset = (k[oo].box.right - (k[oo].box.right ));
+  /* Copy splash screen to the screen during loading time */
+  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 
+  /* Manually apply palette (done in flip_it() in the game) */
+  if (!truecolor && trigger_palette_change)
+    {
+      // Apply the logical palette to the physical screen. This
+      // may trigger a Flip (so don't do that until Back is
+      // ready), but not necessarily (so do a Flip anyway).
+      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
+		     cur_screen_palette, 0, 256);
+      trigger_palette_change = 0;
+    }
 
+  flip_it_editor();
+  
+  load_batch();
+  load_hard();
+  // Load the tiles from the BMPs
+  tiles_load_default();
+
+  {
+    int i = 1;
+    for (; i <= 4; i++)
+      {
+	spr[i].active = 0;
+	spr[i].x = 10;
+	spr[i].y = 10;
+	spr[i].my = (rand() % 3)+1;
+	spr[i].mx = (rand() % 3)+1;
+	spr[i].seq = 1;
+	spr[i].speed = (rand() % 40)+1;
+	spr[i].brain = 2;
+	spr[i].pseq = 10;
+	spr[i].pframe = 3;
+	spr[i].size = 100;
+      }
   }
 
-*/
+  // ** SETUP **
+  spr[1].active = /*TRUE*/1;
+  spr[1].x = 0;
+  spr[1].y = 0;
+  spr[1].speed = 20;
+  spr[1].brain = 1;
+  rect_set(&spr[1].alt,0,0,0,0);
+  spr[1].pseq = 10;
+  spr[1].pframe = 3;
+  spr[1].seq = 0;
+  spr[1].seq = 2;
+  
+  rcRect.left = 0;
+  rcRect.top = 0;
+  rcRect.right = 639;
+  rcRect.bottom = 79;
 
-// Load the tiles from the BMPs
- tiles_load_default();
+  //sprite sequence setup
+  seq[1].frame[1] = seq[10].frame[1];
+  seq[1].frame[2] = seq[10].frame[2];
+  seq[1].frame[3] = seq[10].frame[3];
+  // FIX: end of sequence is 0, not -1. This made the editor crash.
+  // seq[1].frame[4] = -1;
+  seq[1].frame[4] = 0;
 
- {
-   int i;
-   for (i = 1; i <= 4; i++)
-     {
-       spr[i].active = /*FALSE*/0;
-       spr[i].x = 10;
-       spr[i].y = 10;
-       spr[i].my = (rand() % 3)+1;
-       spr[i].mx = (rand() % 3)+1;
-       spr[i].seq = 1;
-       spr[i].speed = (rand() % 40)+1;
-       spr[i].brain = 2;
-       spr[i].pseq = 10;
-       spr[i].pframe = 3;
-       spr[i].size = 100;
-     }
- }
+  seq[1].delay[1] = 50;
+  seq[1].delay[2] = 50;
+  seq[1].delay[3] = 50;
+  seq[1].delay[4] = 50;
 
-	// ** SETUP **
-    spr[1].active = /*TRUE*/1;
-	spr[1].x = 0;
-    spr[1].y = 0;
-    spr[1].speed = 20;
-    spr[1].brain = 1;
-   rect_set(&spr[1].alt,0,0,0,0);
-    spr[1].pseq = 10;
-    spr[1].pframe = 3;
-	spr[1].seq = 0;
-    spr[1].seq = 2;
+  seq[2].frame[1] = seq[10].frame[4];
+  seq[2].frame[2] = seq[10].frame[4];
+  seq[2].frame[3] = seq[10].frame[4];
+  seq[2].frame[4] = 0;
 
-    rcRect.left = 0;
-    rcRect.top = 0;
-    rcRect.right = 639;
-    rcRect.bottom = 79;
+  seq[2].delay[1] = 10;
+  seq[2].delay[2] = 10;
+  seq[2].delay[3] = 10;
+  seq[2].delay[4] = 10;
+  
+  seq[3].frame[1] = seq[10].frame[5];
+  seq[3].frame[2] = seq[10].frame[5];
+  seq[3].frame[3] = seq[10].frame[5];
+  seq[3].frame[4] = 0;
+  
+  seq[3].delay[1] = 5;
+  seq[3].delay[2] = 5;
+  seq[3].delay[3] = 5;
+  seq[3].delay[4] = 5;
+  
+  seq[4].frame[1] = seq[10].frame[1];
+  seq[4].frame[2] = seq[10].frame[1];
+  seq[4].frame[3] = 0;
+  seq[4].frame[4] = 0;
+  
+  seq[4].delay[1] = 2;
+  seq[4].delay[2] = 2;
+  seq[4].delay[3] = 2;
+  seq[4].delay[4] = 2;
+  
+  if (sound_on)
+    load_editor_sounds();
 
-	//lpDDSTwo->BltFast( 0, 400, game[1],
-      //      &rcRect, DDBLTFAST_NOCOLORKEY );
+  mode = MODE_DIALOG;
+  cur_tile = 1;
+  load_info();
+  memset(&sjoy,0,sizeof(sjoy)); //clear key/joystick values
+  
+  playl = 20;
+  playx = 620;
+  playy = 480;
+  sp_seq = 0;
 
-
-    //sprite sequence setup
-	seq[1].frame[1] = seq[10].frame[1];
-    seq[1].frame[2] = seq[10].frame[2];
-    seq[1].frame[3] = seq[10].frame[3];
-
-    // FIX: end of sequence is 0, not -1. This made the editor crash.
-    // seq[1].frame[4] = -1;
-    seq[1].frame[4] = 0;
-
-    seq[1].delay[1] = 50;
-    seq[1].delay[2] = 50;
-    seq[1].delay[3] = 50;
-    seq[1].delay[4] = 50;
-
-	seq[2].frame[1] = seq[10].frame[4];
-    seq[2].frame[2] = seq[10].frame[4];
-    seq[2].frame[3] = seq[10].frame[4];
-    seq[2].frame[4] = 0;
-
-	seq[2].delay[1] = 10;
-    seq[2].delay[2] = 10;
-    seq[2].delay[3] = 10;
-    seq[2].delay[4] = 10;
-
-	seq[3].frame[1] = seq[10].frame[5];
-    seq[3].frame[2] = seq[10].frame[5];
-    seq[3].frame[3] = seq[10].frame[5];
-    seq[3].frame[4] = 0;
-
-	seq[3].delay[1] = 5;
-    seq[3].delay[2] = 5;
-    seq[3].delay[3] = 5;
-    seq[3].delay[4] = 5;
-
-	seq[4].frame[1] = seq[10].frame[1];
-    seq[4].frame[2] = seq[10].frame[1];
-    seq[4].frame[3] = 0;
-    seq[4].frame[4] = 0;
-
-	seq[4].delay[1] = 2;
-    seq[4].delay[2] = 2;
-    seq[4].delay[3] = 2;
-    seq[4].delay[4] = 2;
-
-
-
-	if (sound_on) SInitSound();
-	//Go Pap!!
-	//	PlayMidi("sound\\TOP.MID");
-    mode = MODE_DIALOG;
-    cur_tile = 1;
-    load_info();
-
-//	 Msg("Hi, you suck.");
-
-
-	memset(&sjoy,0,sizeof(sjoy)); //clear key/joystick values
-
-
-playl = 20;
-playx = 620;
-playy = 480;
-sp_seq = 0;
-
-// init_mouse(hwnd);
-
-
-// g_pMouse->Acquire();
-
-
-	return /*TRUE*/1;
-
+  return /*TRUE*/1;
 } /* doInit */
 
 

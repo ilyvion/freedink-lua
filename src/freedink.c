@@ -3678,7 +3678,7 @@ void flip_it(void)
     {
       // Apply the logical palette to the physical screen. This
       // may trigger a Flip (so don't do that until Back is
-      // read), but not necessarily (so do a Flip anyway).
+      // ready), but not necessarily (so do a Flip anyway).
       SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
 		     cur_screen_palette, 0, 256);
       trigger_palette_change = 0;
