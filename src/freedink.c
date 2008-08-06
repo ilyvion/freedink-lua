@@ -3459,6 +3459,7 @@ void CyclePalette()
 	    {
 	      /* Use time-based rather than absolute increments;
 		 avoids incomplete fades on slow computers */
+	      /* dt / 2 == dt * 256 / 512 == complete fade in 512ms */
 	      int lValue = (thisTickCount - lastTickCount) / 2;
 	      if (palette[kk].b != 0)
 		{
