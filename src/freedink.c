@@ -5233,6 +5233,7 @@ int main(int argc, char* argv[])
 	finiObjects();
 
       /* Fullscreen <-> window */
+      /* Note: as of 2008-08-07, only works under X11 */
       if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
 	SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
 
