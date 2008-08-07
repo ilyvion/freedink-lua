@@ -1,11 +1,8 @@
 Cross-compilation # -*- shell-script -*-
 =================
 
-TODO: put all source tarballs in a directory that will be distributed
-along with static binaries, to comply with the GNU GPL and LGPL
-
-
 # Install a cross-compiler version of GCC
+aptitude install mingw32
 
 # To store cross-compiled libraries
 mkdir -p -m 775 /usr/local/cross-tools/i386-mingw32msvc
@@ -59,7 +56,7 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config ./configure \
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
 
-# FreeType (SDL_ttf dependency)
+# SDL_ttf - dep1: FreeType
 VERSION=2.3.7
 cd /usr/src/
 wget -P depsources/ http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
@@ -122,7 +119,7 @@ make
 make install-lib
 # Shared build: would need to reliboolize, recreate configure.ac. The
 # sources from Debian do not appear to support cross-compilation to
-# mingw either.
+# mingw either - just a standard Unix build.
 #  --enable-shared
 ## Need to do a lot of things manually:
 #CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
@@ -136,6 +133,9 @@ make install-lib
 ##ln -fs /usr/share/libtool/ltmain.sh
 #make
 #make install
+# See also http://gnuwin32.sourceforge.net/packages/jpeg.htm
+#          http://gnuwin32.sourceforge.net/downlinks/jpeg-src-zip.php
+#          (/src/jpeg/6b/jpeg-6b/Makefile - custom build system)
 
 # TODO: libpng and libtiff
 # http://www.libpng.org/pub/png/libpng.html
@@ -174,6 +174,11 @@ make install
 # TODO: --shared doesn't work, it says I should not set CC - but I
 # need it for cross-compilation. Then they say we should try libtool -
 # how about using it directly then? ;)
+# Maybe check:
+# http://gnuwin32.sourceforge.net/packages/zlib.htm
+# http://gnuwin32.sourceforge.net/downlinks/zlib-src-zip.php
+# (non-trivial Makefile patch - direct, not Makefile.in)
+# (src/zlib/1.2.3/zlib-1.2.3/patches/zlib-1.2.3.diff)
 
 # libzip
 VERSION=0.9
@@ -257,6 +262,10 @@ rm -rf SDL_image-$VERSION/
 # Cross-compile libzip (no binaries available)
 # (see above)
 
+See also http://www.gtk.org/download-windows.html which has links to
+various binaries and dev packages for Windows.
+
+
 Details on static build
 -----------------------
 
@@ -272,8 +281,8 @@ i586-mingw32msvc-gcc mousetest.c \
   --static-libs` -lwinmm
 
 - If you have some troubles with SDL_gfx which tries to use
-  __imp__SDL_setFramerate, you need a build system patch (see below) -
-  maybe it will make it to 2.0.17 ;)
+  __imp__SDL_setFramerate, you need a build system patch (see above) -
+  maybe it will make it to 2.0.18 ;)
 
 - You add -lfreetype, a dependency of SDL_ttf
 
@@ -290,7 +299,7 @@ Misc
 
 Those may be used later on.
 
-# zziplib
+# zziplib 0.12
 wget http://dfn.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.12.83.tar.bz2
 CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
@@ -302,6 +311,7 @@ make
 make install
 # I think I remember it crashes under woe?
 
+# zziplib 0.13
 wget http://ovh.dl.sourceforge.net/sourceforge/zziplib/zziplib-0.13.49.tar.bz2
 # --disable-mmap because of compilation errors in zzip/mmapped.c
 CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
@@ -311,7 +321,7 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
 make
 # => doesn't work, it tries to use ftello which is apparently missing from mingw
 
-## libtool (libltdl)
+# Guile - dep1: libltdl
 VERSION=2.2.4
 http://ftp.gnu.org/pub/gnu/libtool/libtool-$VERSION.tar.bz2
 tar xjf libtool-$VERSION.tar.bz2 
@@ -321,7 +331,7 @@ cd libtool-$VERSION
 make
 make install
 
-## GNU MP
+# Guile - dep2: GNU MP
 VERSION=4.2.2
 wget ftp://ftp.gnu.org/gnu/gmp/gmp-$VERSION.tar.bz2
 tar xjf gmp-$VERSION.tar.bz2
@@ -331,7 +341,7 @@ cd gmp-$VERSION
 make
 make install
 
-## Guile
+# Guile
 VERSION=1.8.5
 http://ftp.gnu.org/pub/gnu/guile/guile-$VERSION.tar.gz
 tar xzf guile-$VERSION.tar.gz
@@ -357,7 +367,8 @@ Some problems need to be fixed:
 See:
 http://lists.gnu.org/archive/html/bug-guile/2008-05/msg00016.html
 
-## libffi
+
+# libffi (could be used to simplify DinkC bindings)
 VERSION=3.0.5
 wget ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
 tar xzf libffi-$VERSION.tar.gz
@@ -367,8 +378,30 @@ make
 make install
 #i586-mingw32msvc-gcc test.c `/usr/local/cross-tools/i386-mingw32/bin/pkg-config --cflags --libs libffi`
 
-## SDL_stretch
+# SDL_stretch (alternative to SDL_gfx that has more accurate scaling,
+# but this this is being fixed in SDL_gfx)
 wget http://kent.dl.sourceforge.net/sourceforge/sdl-stretch/SDL_stretch-0.2.3.tar.bz2
 tar xjf SDL_stretch-0.2.3.tar.bz2  # 07 Dec 2003...
 cd SDL_stretch-0.2.3
 ...lots errors...
+
+
+See also
+--------
+
+http://gnuwin32.sourceforge.net/ distributes precompiled binaries with
+static and shared libraries. The binaries are created using MinGW but
+from Windows, so they are not cross-compiled. There is no well-defined
+source format, and rebuilding binaries can be difficult because they
+can rely on heavily modified gnuwin32-specific build system, and on a
+set of helpers (http://gnuwin32.sourceforge.net/compile.html). So
+binary packages are probably fine to use as-is. Source instructions
+however are not always reusable for cross-compiling by our own means.
+
+http://www.profv.de/mingw_cross_env/ provides a scripted way to
+cross-build various libraries (static only though).
+
+http://www.profv.de/debian/ repackages gnuwin32 binaries under the
+.deb format for easy installation in a cross-compilation
+environment. Again this is fine to use as-is but there is no
+recompilation nor instructions for re(cross)compilation.
