@@ -99,8 +99,7 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-#	Keep debug info (in /usr/lib/debug), so users can more easily check bugs
-	dh_strip -k
+	dh_strip
 	dh_compress
 	dh_fixperms
 #	dh_perl

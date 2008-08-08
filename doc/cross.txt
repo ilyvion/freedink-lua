@@ -56,7 +56,7 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config ./configure \
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
 
-# SDL_ttf - dep1: FreeType
+# FreeType (dependency of SDL_ttf)
 VERSION=2.3.7
 cd /usr/src/
 wget -P depsources/ http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
@@ -106,7 +106,7 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
 make
 make install # /usr/local/cross-tools/i386-mingw32msvc/ by default
 
-# SDL_image - dep1: JPEG
+# libjpeg (dependency of SDL_image and libtiff)
 cd /usr/src/
 wget -P depsources/ http://www.ijg.org/files/jpegsrc.v6b.tar.gz
 tar xzf depsources/jpegsrc.v6b.tar.gz
@@ -123,6 +123,7 @@ make install-lib
 #  --enable-shared
 ## Need to do a lot of things manually:
 #CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
+#  NM=i586-mingw32msvc-nm \
 #  ./ltconfig ltmain.sh i586-mingw32msvc
 ##(From the Debian package:)
 #cat <<'EOF' > libtool
@@ -137,9 +138,73 @@ make install-lib
 #          http://gnuwin32.sourceforge.net/downlinks/jpeg-src-zip.php
 #          (/src/jpeg/6b/jpeg-6b/Makefile - custom build system)
 
-# TODO: libpng and libtiff
-# http://www.libpng.org/pub/png/libpng.html
-# http://www.remotesensing.org/libtiff/
+
+# zlib (dependency of libzip and libpng)
+VERSION=1.2.3
+cd /usr/src
+wget -P depsources/ http://www.gzip.org/zlib/zlib-$VERSION.tar.gz
+tar xzf depsources/zlib-$VERSION.tar.gz
+cd zlib-$VERSION
+# static:
+CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
+  AR="i586-mingw32msvc-ar r" \
+  RANLIB="i586-mingw32msvc-ranlib" \
+  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install
+# shared:
+# ./configure chokes on the "-fPIC ignored for target (all code is
+# position independent)" warning. We can work-around this by removing
+# '-fPIC' from SFLAGS.
+sed -i -e '/SFLAGS=/ s/-fPIC//' configure
+CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
+  AR="i586-mingw32msvc-ar r" \
+  RANLIB="i586-mingw32msvc-ranlib" \
+  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc \
+  --shared
+make
+make install
+ln -s ../lib/libz.so /usr/local/cross-tools/i386-mingw32msvc/bin/libz1.dll
+# => issue, resulting .exe now want libz1.so.1.2.3!
+# Attempt:
+find *.c | xargs -n1 libtool --tag=CC --mode=compile i586-mingw32msvc-gcc -c
+LD=i586-mingw32msvc-ld AR="i586-mingw32msvc-ar r" RANLIB="i586-mingw32msvc-ranlib"  libtool --tag=CC --mode=link i586-mingw32msvc-gcc -rpath '/usr/local/cross-tools/i386-mingw32msvc/lib' -no-undefined -version-number 1:0:0 -o libz.la *.lo
+# Still doesn't work, libtool doesn't know about $LD!
+# => Need to autoconfiscate
+
+# libpng
+VERSION=1.2.29
+cd /usr/src/
+# Download version "with config script"
+wget -P depsources/ ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$VERSION.tar.bz2
+tar xjf depsources/libpng-$VERSION.tar.bz2
+cd libpng-$VERSION
+# Need zlib
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install
+
+# libtiff
+VERSION=3.8.2
+cd /usr/src/
+# Download version "with config script"
+wget -P depsources/ ftp://ftp.remotesensing.org/pub/libtiff/tiff-$VERSION.tar.gz
+tar xzf depsources/tiff-$VERSION.tar.gz
+cd tiff-$VERSION
+# Optional zlib and jpeg support OK
+# OpenGL support???
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install
+# TODO: since libjpeg wasn't compiled as a shared library, what
+# exactly did happen with -ljpeg in the .dll? Fallback to static
+# build?
 
 # SDL_image
 # (not used now, but may be in the future)
@@ -158,27 +223,6 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   --host=i586-mingw32msvc --build=i686-pc-linux-gnu
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
-
-# libzip - dep1: zlib
-VERSION=1.2.3
-cd /usr/src
-wget -P depsources/ http://www.gzip.org/zlib/zlib-$VERSION.tar.gz
-tar xzf depsources/zlib-$VERSION.tar.gz
-cd zlib-$VERSION
-CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
-  AR="i586-mingw32msvc-ar r" \
-  RANLIB="i586-mingw32msvc-ranlib" \
-  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
-make
-make install
-# TODO: --shared doesn't work, it says I should not set CC - but I
-# need it for cross-compilation. Then they say we should try libtool -
-# how about using it directly then? ;)
-# Maybe check:
-# http://gnuwin32.sourceforge.net/packages/zlib.htm
-# http://gnuwin32.sourceforge.net/downlinks/zlib-src-zip.php
-# (non-trivial Makefile patch - direct, not Makefile.in)
-# (src/zlib/1.2.3/zlib-1.2.3/patches/zlib-1.2.3.diff)
 
 # libzip
 VERSION=0.9
@@ -321,7 +365,7 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
 make
 # => doesn't work, it tries to use ftello which is apparently missing from mingw
 
-# Guile - dep1: libltdl
+# Guile - dep: libltdl
 VERSION=2.2.4
 http://ftp.gnu.org/pub/gnu/libtool/libtool-$VERSION.tar.bz2
 tar xjf libtool-$VERSION.tar.bz2 
@@ -331,7 +375,7 @@ cd libtool-$VERSION
 make
 make install
 
-# Guile - dep2: GNU MP
+# Guile - dep: GNU MP
 VERSION=4.2.2
 wget ftp://ftp.gnu.org/gnu/gmp/gmp-$VERSION.tar.bz2
 tar xjf gmp-$VERSION.tar.bz2
