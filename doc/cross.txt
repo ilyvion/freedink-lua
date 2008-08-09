@@ -1,5 +1,24 @@
-Cross-compilation # -*- shell-script -*-
-=================
+# -*- shell-script -*-
+# Cross-compilation instructions
+
+# Copyright (C) 2007, 2008  Sylvain Beucler
+
+# This file is part of GNU FreeDink
+
+# GNU FreeDink is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+
+# GNU FreeDink is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+
 
 # Install a cross-compiler version of GCC
 aptitude install mingw32
@@ -21,15 +40,17 @@ That is necessary for static builds (no static libraries are provided
 with the official releases). If feeling lazy and ok with .dlls, check
 "Install precompiled SDL binaries" below.
 
+# Super-user commands can be disabled using 'SUDO=false ./cross.sh'
+SUDO=${SUDO=sudo}
+
 # SDL
 VERSION=1.2.13
 cd /usr/src/
 # Get non-free DX headers from libsdl.org
 wget -P depsources/ http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
 tar xzf depsources/directx-devel.tar.gz -C /usr/local/cross-tools/i386-mingw32msvc/
-wget http://libsdl.org/release/SDL-$VERSION.tar.gz
-tar xzf SDL-$VERSION.tar.gz
-mv SDL-$VERSION.tar.gz depsources/
+wget -P depsources/ http://libsdl.org/release/SDL-$VERSION.tar.gz
+tar xzf depsources/SDL-$VERSION.tar.gz
 cd SDL-$VERSION
 CPPFLAGS="-I /usr/local/cross-tools/i386-mingw32msvc/include" \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
@@ -41,7 +62,65 @@ CPPFLAGS="-I /usr/local/cross-tools/i386-mingw32msvc/include" \
 #aptitude install libwine-dev
 #CPPFLAGS="-I /usr/include/wine/windows"
 make
-make install # /usr/local/cross-tools/i386-mingw32/ by default
+make install-strip # /usr/local/cross-tools/i386-mingw32/ by default
+
+# pkgconfig (used to detect ziplib and zzip in the build system, also
+# used by Vorbis to detect Ogg)
+VERSION=0.23
+cd /usr/src/
+wget -P depsources/ http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
+tar xzf depsources/pkg-config-$VERSION.tar.gz
+cd pkg-config-$VERSION
+./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install-strip
+$SUDO ln -s /usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config \
+  /usr/local/bin/i586-mingw32msvc-pkg-config
+# or set
+# PKG_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config
+
+# libogg (libvorbis dependency)
+cd /usr/src/
+VERSION=1.1.3
+wget -P depsources/ http://downloads.xiph.org/releases/ogg/libogg-$VERSION.tar.gz
+tar xzf depsources/libogg-$VERSION.tar.gz
+cd liboff-$VERSION
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install-strip
+
+# libvorbis and libvorbisfile (SDL_mixer dependencies)
+cd /usr/src/
+VERSION=1.2.0
+wget -P depsources/ http://downloads.xiph.org/releases/vorbis/libvorbis-$VERSION.tar.gz
+tar xzf depsources/libvorbis-$VERSION.tar.gz
+cd libvorbis-$VERSION
+# Fix cross-compilation
+wget -O- 'https://trac.xiph.org/changeset/14833?format=diff&new=14833' | patch -p3
+cat <<'EOF' | patch configure.in
+--- configure.in~       2007-07-25 16:27:00.000000000 +0000
++++ configure.in        2008-08-09 12:37:44.000000000 +0000
+@@ -46,7 +46,8 @@
+ AC_PROG_CPP
+ CFLAGS="$cflags_save"
+ 
+-AM_PROG_LIBTOOL
++AC_LIBTOOL_WIN32_DLL
++AC_PROG_LIBTOOL
+ 
+ dnl docbook xml transform and processing tools
+ AC_ARG_ENABLE(docs,
+EOF
+autoconf
+aclocal
+automake
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib" \
+  ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --prefix=/usr/local/cross-tools/i386-mingw32msvc
+make
+make install-strip
 
 # SDL_mixer
 VERSION=1.2.8
@@ -49,12 +128,23 @@ cd /usr/src/
 wget -P depsources/ http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-$VERSION.tar.gz
 tar xzf depsources/SDL_mixer-$VERSION.tar.gz
 cd SDL_mixer-$VERSION
-# Disable MP3 support (not needed in FreeDink and avoid a dependency)
-SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config ./configure \
+# Disable MP3 support (there are patents treats, and there's the Ogg
+# Vorbis alternative)
+# Adding -L.../bin so it can find .dll. This enables lazy loading
+# (e.g. SDL_mixer.dll won't depend on libvorbis-0.dll, but will load
+# it at run-time. For normal linking: --disable-music-ogg-shared)
+# Let's choose normal linking to avoid inconsistencies and support
+# static linking.
+CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib -L/usr/local/cross-tools/i386-mingw32msvc/bin" \
+  SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config ./configure \
   --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
-  --disable-music-mp3
+  --disable-music-mp3 --enable-music-native-midi-gpl \
+  --disable-music-ogg-shared
 make
 make install # /usr/local/cross-tools/i386-mingw32/ by default
+# make install-strip not supported :/
+i586-mingw32msvc-strip /usr/local/cross-tools/i386-mingw32msvc/bin/SDL_mixer.dll
 
 # FreeType (dependency of SDL_ttf)
 VERSION=2.3.7
@@ -73,7 +163,7 @@ sed -i -e 's,/\* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER \*/,#define TT_CO
     include/freetype/config/ftoption.h
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
+make install-strip
 
 # SDL_ttf
 VERSION=2.0.9
@@ -85,7 +175,7 @@ SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   FREETYPE_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/freetype-config \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
 make
-make install # /usr/local/cross-tools/i386-mingw32/ by default
+make install-strip # /usr/local/cross-tools/i386-mingw32/ by default
 
 # SDL_gfx
 VERSION=2.0.17
@@ -99,44 +189,71 @@ patch -p1 < ~/freedink/doc/SDL_gfx-patches/asm_gcc4.3.diff
 patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_crosscompile.diff
 patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_static.diff
 patch -p1 < ~/freedink/doc/SDL_gfx-patches/asm_win32_nomingw.diff
+# Also fix issues with sdl-config, not meant for libraries:
+cat <<'EOF' | patch configure.in
+--- configure.in~       2008-06-01 11:38:16.000000000 +0000
++++ configure.in        2008-08-09 14:05:54.000000000 +0000
+@@ -114,5 +114,7 @@
+ )
+ CFLAGS="$CFLAGS $SDL_CFLAGS"
++# Remove dependencies from 'sdl-config' not meant for us libraries:
++SDL_LIBS=$(echo "$SDL_LIBS" | sed -e 's/-lmingw32//' -e 's/-lSDLmain//')
+ LIBS="$LIBS $SDL_LIBS"
+ 
+ # Finally create all the generated files
+EOF
 # Rebuild patched build system (make sure you have libtool)
+rm acinclude.m4 # rebuild obsolete macros
 autoreconf --force --install --symlink
 SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu
 make
-make install # /usr/local/cross-tools/i386-mingw32msvc/ by default
+make install-strip # /usr/local/cross-tools/i386-mingw32msvc/ by default
 
 # libjpeg (dependency of SDL_image and libtiff)
 cd /usr/src/
 wget -P depsources/ http://www.ijg.org/files/jpegsrc.v6b.tar.gz
 tar xzf depsources/jpegsrc.v6b.tar.gz
 cd jpeg-6b
+# Generate jconfig.h 
 CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
   ./configure \
   --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+   --prefix=/usr/local/cross-tools/i386-mingw32msvc
+# zlib's build system is not suitable for woe cross-compiling, so
+# let's use some autotools skills :)
+cat <<'EOF' > configure.ac
+AC_PREREQ(2.61)
+AC_INIT([jpeg],[6b])
+AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_HEADERS(config-ignored.h)
+AC_PROG_CC
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+EOF
+# Files from original Makefile, check libjpeg.a/LIBOBJECTS
+# Cf. '(libtool.info)Updating version info' for the versioning scheme
+cat <<'EOF' > Makefile.am
+lib_LTLIBRARIES = libjpeg.la
+libjpeg_la_SOURCES = jcomapi.c jutils.c jerror.c jmemmgr.c jmemnobs.c	\
+	jcapimin.c jcapistd.c jctrans.c jcparam.c jdatadst.c jcinit.c	\
+	jcmaster.c jcmarker.c jcmainct.c jcprepct.c jccoefct.c		\
+	jccolor.c jcsample.c jchuff.c jcphuff.c jcdctmgr.c jfdctfst.c	\
+	jfdctflt.c jfdctint.c jdapimin.c jdapistd.c jdtrans.c		\
+	jdatasrc.c jdmaster.c jdinput.c jdmarker.c jdhuff.c jdphuff.c	\
+	jdmainct.c jdcoefct.c jdpostct.c jddctmgr.c jidctfst.c		\
+	jidctflt.c jidctint.c jidctred.c jdsample.c jdcolor.c		\
+	jquant1.c jquant2.c jdmerge.c
+libjpeg_la_LDFLAGS = -no-undefined -version-info 62:0:0
+include_HEADERS = jconfig.h jpeglib.h jmorecfg.h jerror.h
+EOF
+autoreconf -fis
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install-lib
-# Shared build: would need to reliboolize, recreate configure.ac. The
-# sources from Debian do not appear to support cross-compilation to
-# mingw either - just a standard Unix build.
-#  --enable-shared
-## Need to do a lot of things manually:
-#CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
-#  NM=i586-mingw32msvc-nm \
-#  ./ltconfig ltmain.sh i586-mingw32msvc
-##(From the Debian package:)
-#cat <<'EOF' > libtool
-##!/bin/bash
-#exec libtool "$@"
-#EOF
-#chmod 755 libtool
-##ln -fs /usr/share/libtool/ltmain.sh
-#make
-#make install
-# See also http://gnuwin32.sourceforge.net/packages/jpeg.htm
-#          http://gnuwin32.sourceforge.net/downlinks/jpeg-src-zip.php
-#          (/src/jpeg/6b/jpeg-6b/Makefile - custom build system)
+make install-strip
 
 
 # zlib (dependency of libzip and libpng)
@@ -145,32 +262,32 @@ cd /usr/src
 wget -P depsources/ http://www.gzip.org/zlib/zlib-$VERSION.tar.gz
 tar xzf depsources/zlib-$VERSION.tar.gz
 cd zlib-$VERSION
-# static:
-CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
-  AR="i586-mingw32msvc-ar r" \
-  RANLIB="i586-mingw32msvc-ranlib" \
-  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
+# zlib's build system is not suitable for woe cross-compiling, so
+# let's use some autotools skills :)
+cat <<'EOF' > configure.ac
+AC_PREREQ(2.61)
+AC_INIT([zlib],[1.2.3])
+AM_INIT_AUTOMAKE([foreign])
+AC_PROG_CC
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+EOF
+# Cf. '(libtool.info)Updating version info' for the versioning scheme
+# Using 'echo' to remove newlines
+files=$(echo $(ls *.c *.h | grep -v example.c | grep -v minigzip.c))
+cat <<EOF > Makefile.am
+lib_LTLIBRARIES = libz.la
+libz_la_SOURCES = $files
+libz_la_LDFLAGS = -no-undefined -version-info 3:3:2
+include_HEADERS = zlib.h zconf.h
+EOF
+autoreconf -fis
+./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
-# shared:
-# ./configure chokes on the "-fPIC ignored for target (all code is
-# position independent)" warning. We can work-around this by removing
-# '-fPIC' from SFLAGS.
-sed -i -e '/SFLAGS=/ s/-fPIC//' configure
-CC=i586-mingw32msvc-gcc LD=i586-mingw32msvc-ld \
-  AR="i586-mingw32msvc-ar r" \
-  RANLIB="i586-mingw32msvc-ranlib" \
-  ./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc \
-  --shared
-make
-make install
-ln -s ../lib/libz.so /usr/local/cross-tools/i386-mingw32msvc/bin/libz1.dll
-# => issue, resulting .exe now want libz1.so.1.2.3!
-# Attempt:
-find *.c | xargs -n1 libtool --tag=CC --mode=compile i586-mingw32msvc-gcc -c
-LD=i586-mingw32msvc-ld AR="i586-mingw32msvc-ar r" RANLIB="i586-mingw32msvc-ranlib"  libtool --tag=CC --mode=link i586-mingw32msvc-gcc -rpath '/usr/local/cross-tools/i386-mingw32msvc/lib' -no-undefined -version-number 1:0:0 -o libz.la *.lo
-# Still doesn't work, libtool doesn't know about $LD!
-# => Need to autoconfiscate
+make install-strip
 
 # libpng
 VERSION=1.2.29
@@ -185,7 +302,7 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
+make install-strip
 
 # libtiff
 VERSION=3.8.2
@@ -201,28 +318,27 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
-# TODO: since libjpeg wasn't compiled as a shared library, what
-# exactly did happen with -ljpeg in the .dll? Fallback to static
-# build?
+make install-strip
 
 # SDL_image
-# (not used now, but may be in the future)
 VERSION=1.2.6
 cd /usr/src/
 wget -P depsources/ http://libsdl.org/projects/SDL_image/release/SDL_image-$VERSION.tar.gz
 tar xzf depsources/SDL_image-$VERSION.tar.gz
 cd SDL_image-$VERSION
 # Apply security patch from forgot-to-release 1.2.7
-aptitude install subversion
+$SUDO aptitude install subversion
 svn diff -c3462 http://svn.libsdl.org/trunk/SDL_image/IMG_gif.c | patch -p0
 svn diff -c3462 http://svn.libsdl.org/trunk/SDL_image/SDL_image.h | patch -p0
+# See SDL_mixer for explanations about disabled dynamic loading
 SDL_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config \
   CPPFLAGS="-I /usr/local/cross-tools/i386-mingw32msvc/include" \
+  LDFLAGS="-L/usr/local/cross-tools/i386-mingw32msvc/lib -L/usr/local/cross-tools/i386-mingw32msvc/bin" \
   ./configure \
-  --host=i586-mingw32msvc --build=i686-pc-linux-gnu
+  --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
+  --disable-jpg-shared --disable-png-shared --disable-tif-shared
 make
-make install # /usr/local/cross-tools/i386-mingw32/ by default
+make install-strip # /usr/local/cross-tools/i386-mingw32/ by default
 
 # libzip
 VERSION=0.9
@@ -235,27 +351,13 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
   ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
     --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
-
-# pkgconfig (used to detect ziplib and zzip in the build system)
-VERSION=0.23
-cd /usr/src/
-wget -P depsources/ http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
-tar xzf depsources/pkg-config-$VERSION.tar.gz
-cd pkg-config-$VERSION
-./configure --prefix=/usr/local/cross-tools/i386-mingw32msvc
-make
-make install
-ln -s /usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config \
-  /usr/local/bin/i586-mingw32msvc-pkg-config
-# or set
-# PKG_CONFIG=/usr/local/cross-tools/i386-mingw32msvc/bin/pkg-config
+make install-strip
 
 
 Cross-compile FreeDink
 ----------------------
 
-aptitude install upx-ucl 
+$SUDO aptitude install upx-ucl 
 cd ~/freedink/
 mkdir cross
 cd cross/
@@ -268,6 +370,8 @@ ls -lh destdir/usr/local/bin/*.exe
 
 Install precompiled SDL binaries
 --------------------------------
+
+(.dll only)
 
 VERSION=1.2.13
 # Cf. http://libsdl.org/download-1.2.php
@@ -352,7 +456,7 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
 # avoid compiling bins/ which has compilation errors:
 cd i586-pc-mingw32msvc/zzip
 make
-make install
+make install-strip
 # I think I remember it crashes under woe?
 
 # zziplib 0.13
@@ -373,7 +477,7 @@ cd libtool-$VERSION
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
+make install-strip
 
 # Guile - dep: GNU MP
 VERSION=4.2.2
@@ -383,7 +487,7 @@ cd gmp-$VERSION
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu \
   --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
+make install-strip
 
 # Guile
 VERSION=1.8.5
@@ -396,7 +500,7 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
     --prefix=/usr/local/cross-tools/i386-mingw32msvc \
     --disable-shared
 make
-make install
+make install-strip
 
 Some problems need to be fixed:
 
@@ -419,7 +523,7 @@ tar xzf libffi-$VERSION.tar.gz
 cd libffi-$VERSION
 ./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
 make
-make install
+make install-strip
 #i586-mingw32msvc-gcc test.c `/usr/local/cross-tools/i386-mingw32/bin/pkg-config --cflags --libs libffi`
 
 # SDL_stretch (alternative to SDL_gfx that has more accurate scaling,

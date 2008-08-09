@@ -135,7 +135,10 @@ if test x"$enable_static" = x"yes"; then
     # least Debian's MinGW package uses i586-mingw32msvc (instead of
     # i586-pc-mingw32msvc)
     *-*-go32* | *-mingw32* | *-*-cygwin* | *-*-windows*)
-        LIBS="$LIBS -lfreetype -lwinmm -ldxguid -ljpeg -lz"
+        # Light version, if dependencies are compiled minimaly
+        LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
+        # Full version, if planning to support more formats
+        LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lwinmm -ldxguid"
         LDFLAGS="$LDFLAGS -static"
         ;;
     esac
