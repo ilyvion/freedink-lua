@@ -108,7 +108,7 @@ int gfx_fonts_init()
     }
   setup_font(system_font);
 
-  /* Load dialog font from built-in resouces */
+  /* Load dialog font from built-in resources */
   dialog_font = load_default_font("LiberationSans-Regular.ttf");
   if (dialog_font == NULL)
     return -1; /* error message set by load_default_font */
