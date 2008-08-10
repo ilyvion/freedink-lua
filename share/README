@@ -1,5 +1,16 @@
+freedink.ico
+============
+
+(and hence freedink_xpm.c, freedink.png)
+
+From the original Dink source package, see src/freedink_xpm.c
+
+
 jump.wav, stop.wav, stop-orig.wav
 =================================
+
+(Note: apparently they are not redistributable, so they were
+removed. We need to replace them.)
 
 Sound files used by Dinkedit. There were included in v1.06 as
 Dinkedit.exe resources (included in the executable).
@@ -10,17 +21,6 @@ and application icon were missing, that's the reason :)
 
 stop.wav (now stop-orig.wav) had to be re-written using Audacity to
 make it compatible with SDL_Mixer.
-
-
-Legal: not necessarily freely distributable. I need to ask Seth.
-
-
-freedink.ico
-============
-
-(and hence freedink_xpm.c, freedink.png)
-
-From the original Dink source package, see src/freedink_xpm.c
 
 
 Extracting wav resources from dinkedit.exe
