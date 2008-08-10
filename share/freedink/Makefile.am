@@ -1,1 +1,1 @@
-dist_pkgdata_DATA = LiberationSans-Regular.ttf jump.wav stop.wav
+dist_pkgdata_DATA = LiberationSans-Regular.ttf
