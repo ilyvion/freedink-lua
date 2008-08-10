@@ -11,7 +11,7 @@ Vcs-Browser: http://git.savannah.gnu.org/gitweb/?p=freedink.git
 Package: freedink
 Architecture: any
 Depends: ${shlibs:Depends}, timidity
-Recommends: dfarc2
+Recommends: dfarc
 Description: adventure and role-playing game (engine)
  Dink Smallwood is an adventure/role-playing game for MS Windows,
  similar to Zelda, made by RTsoft. Besides twisted humour, it includes
