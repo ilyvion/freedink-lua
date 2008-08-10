@@ -3312,72 +3312,67 @@ void get_right(char line[200], char thing[100], char *ret)
 
 
 
-        int change_sprite(int h,  int val, int * change)
-        {
-                //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
+int change_sprite(int h, int val, int *change)
+{
+  //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
+  if (h < 1 || h >= MAX_SPRITES_AT_ONCE)
+    {
+      Msg("Error with an SP command - Sprite %d is invalid.", h);
+      return -1;
+    }
 
-                if (h < 1)
-                {
-                        Msg("Error with an SP command - Sprite %d is invalid.", h);
-                        return(-1);
-                }
-                if (spr[h].active == /*false*/0) return(-1);
-                if (val != -1)
-                {
-                        *change = val;
-                }
+  if (spr[h].active == 0)
+    return -1;
 
-                return(*change);
+  if (val != -1)
+    *change = val;
+  
+  return *change;
+  
+}
 
-        }
+int change_edit(int h, int val, unsigned short* change)
+{
+  //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
+  
+  if (h < 1 || h > 99)
+    return -1;
 
-        int change_edit(int h,  int val, unsigned short * change)
-        {
-                //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
-
-                if (h > 99) return(-1);
-                if (h < 1) return(-1);
-                if (val != -1)
-                {
-                        *change = val;
-                }
-
-                return(*change);
-
-        }
+  if (val != -1)
+    *change = val;
+  
+  return *change;
+}
 
 /**
  * Sanity-check and set an editor variable (editor_type(),
  * editor_seq() and editor_frame())
  */
-        int change_edit_char(int h,  int val, unsigned char * change)
-        {
-                //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
-                //  Msg("h is %d..",val);
-                if (h > 99) return(-1);
-                if (h < 1) return(-1);
-                if (val != -1)
-                {
-                        *change = val;
-                }
+int change_edit_char(int h, int val, unsigned char* change)
+{
+  //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
+  //  Msg("h is %d..",val);
+  if (h < 1 || h > 99)
+    return -1;
 
-                return(*change);
+  if (val != -1)
+    *change = val;
+  
+  return *change;
+}
 
-        }
+int change_sprite_noreturn(int h, int val, int* change)
+{
+  //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
+  if (h < 0
+      || h >= MAX_SPRITES_AT_ONCE
+      || spr[h].active == 0)
+    return -1;
 
+  *change = val;
 
-        int change_sprite_noreturn(int h,  int val, int * change)
-        {
-                //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
-                if (spr[h].active == /*false*/0) return(-1);
-
-                {
-                        *change = val;
-                }
-
-                return(*change);
-
-        }
+  return(*change);
+}
 
 
 void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
