@@ -21,3 +21,19 @@ Description: adventure and role-playing game (engine)
  GNU FreeDink is a new version of the game engine, which runs the
  original game as well as its D-Mods, with close compatibility, under
  new platforms.
+
+Package: freedink-dbg
+Architecture: any
+Priority: extra
+Depends: freedink (= ${binary:Version})
+Description: debugging symbols for freedink
+ Dink Smallwood is an adventure/role-playing game for MS Windows,
+ similar to Zelda, made by RTsoft. Besides twisted humour, it includes
+ the actual game editor, allowing players to create hundreds of new
+ adventures called Dink Modules or D-Mods for short.
+ .
+ GNU FreeDink is a new version of the game engine, which runs the
+ original game as well as its D-Mods, with close compatibility, under
+ new platforms.
+ .
+ This package contains the debugging symbols for freedink.

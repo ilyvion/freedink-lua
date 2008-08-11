@@ -92,20 +92,24 @@ void
 print_help (int argc, char *argv[])
 {
   printf("Usage: %s [OPTIONS]...\n", argv[0]);
+  if (!dinkedit)
+    printf("Starts the Dink Smallwood game or one of its D-Mods.");
+  else
+    printf("Edit the Dink Smallwood game or one of its D-Mods.");
   printf("\n");
-  printf("TODO                  Display the default configuration here\n");
-  printf("-h, --help            Display this help screen\n");
-  printf("-v, --version         Display the version\n");
+  /* TODO: Display the default configuration here */
+  printf("  -h, --help            Display this help screen\n");
+  printf("  -v, --version         Display the version\n");
   printf("\n");
-  printf("-g, --game <dir>      Specify a DMod directory\n");
-  printf("-r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n");
+  printf("  -g, --game <dir>      Specify a DMod directory\n");
+  printf("  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n");
   printf("\n");
-  printf("-d, --debug           Explain what is being done\n");
-  printf("-i, --noini           Do not attempt to write dinksmallwood.ini\n");
-  printf("-j, --nojoy           Do not attempt to use joystick\n");
-  printf("-s, --nosound         Do not play sound\n");
-  printf("-w, --window          Use windowed mode instead of screen mode\n");
-  printf("-7, --v1.07           Enable v1.07 compatibility mode\n");
+  printf("  -d, --debug           Explain what is being done\n");
+  printf("  -i, --noini           Do not attempt to write dinksmallwood.ini\n");
+  printf("  -j, --nojoy           Do not attempt to use joystick\n");
+  printf("  -s, --nosound         Do not play sound\n");
+  printf("  -w, --window          Use windowed mode instead of screen mode\n");
+  printf("  -7, --v1.07           Enable v1.07 compatibility mode\n");
   printf("\n");
 
   /* printf ("Type 'info freedink' for more information\n"); */

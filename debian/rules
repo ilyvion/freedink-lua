@@ -99,8 +99,7 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-#	-k doesn't work under Etch, use long option --keep-debug
-	dh_strip --keep-debug
+	dh_strip --dbg-package=freedink-dbg
 	dh_compress
 	dh_fixperms
 #	dh_perl

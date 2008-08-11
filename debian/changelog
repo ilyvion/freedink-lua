@@ -1,5 +1,5 @@
 freedink (1.08.20080804-1) unstable; urgency=low
 
-  * Initial package.
+  * Initial package. Closes: #492760.
 
- -- Sylvain Beucler <beuc@beuc.net>  Thu, 08 May 2008 22:02:52 +0200
+ -- Sylvain Beucler <beuc@beuc.net>  Mon, 11 Aug 2008 23:25:35 +0200

@@ -27,6 +27,7 @@ aptitude install autoconf automake
 
 aptitude install pkg-config # for PKG_CHECK_MODULES
 aptitude install libsdl1.2-dev # for sdl.m4
+aptitude install help2man # to rebuild manpages
 sh bootstrap
 
 
@@ -64,9 +65,11 @@ aptitude install timidity freepats
 On a minimal Fedora system
 ==========================
 
+(use 'pkcon' or 'yum' indifferently)
+
 ## Bootstrap
 # Source code:
-yum install git-core
+pkcon install git-core
 git clone git://git.sv.gnu.org/freedink
 cd freedink
 
@@ -75,26 +78,28 @@ cd freedink
 # No Fedora package, but there's no need for one.
 
 # autotools
-yum install autoconf automake
+pkcon install autoconf automake
 
-yum install pkg-config # for PKG_CHECK_MODULES
-yum install SDL_devel # for sdl.m4
+pkcon install pkg-config # for PKG_CHECK_MODULES
+pkcon install SDL_devel # for sdl.m4
+pkcon install help2man # to rebuild manpages
 sh bootstrap
 
 
 ## Dependencies
 # Base: GCC, make & al.
+# Note: 'groupinstall' not working with pkcon yet
 yum groupinstall 'Development Tools'
 # or just:
-#yum install make gcc
+#pkcon install make gcc
 # Required: SDL, libzip | zziplib
 # No libzip package yet AFAIK
-yum install SDL_devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
+pkcon install SDL_devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
   SDL_mixer-devel zziplib-devel zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
-yum install upx bzip2
+pkcon install upx bzip2
 
 ## Compilation
 ./configure
@@ -137,6 +142,7 @@ cd freedink
 
 # TODO: is pkg-config already installed?
 emerge libsdl # for sdl.m4
+emerge help2man # to rebuild manpages
 sh bootstrap
 
 
@@ -187,6 +193,7 @@ pkg_add -r autoconf261 automake19
 
 pkg_add -r pkg-config # for PKG_CHECK_MODULES
 pkg_add -r sdl # for sdl.m4
+pkg_add -r help2man # to rebuild manpages
 sh bootstrap
 
 

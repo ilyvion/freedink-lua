@@ -86,3 +86,18 @@ endif
 # Other projects that use Autotools and support MinGW
 # http://sourceforge.net/projects/chocolate-doom (Doom port)
 # http://savannah.nongnu.org/projects/akfavatar (text display)
+
+
+# help2man-generated manpages
+# Cf. (automake-1.10.info.gz)distcleancheck
+if HAVE_HELP2MAN
+dist_man_MANS = freedink.6 freedinkedit.6 dink.6 dinkedit.6
+freedink.6: init.c $(top_srcdir)/configure.ac Makefile
+	$(MAKE) $(AM_MAKEFLAGS) freedink$(EXEEXT)
+	$(HELP2MAN) -s6 -n "adventure and role-playing game (engine)"	\
+	--no-info --output=freedink.6 ./freedink$(EXEEXT)
+freedinkedit.6: init.c $(top_srcdir)/configure.ac Makefile
+	$(MAKE) $(AM_MAKEFLAGS) freedinkedit$(EXEEXT)
+	$(HELP2MAN) -s6 -n "adventure and role-playing game (editor)"	\
+	--no-info --output=freedinkedit.6 ./freedinkedit$(EXEEXT)
+endif

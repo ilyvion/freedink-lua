@@ -56,6 +56,8 @@ AC_CHECK_PROG(ZIP, zip, zip)
 fi
 AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
 
+AC_CHECK_TOOL(HELP2MAN, help2man)
+AM_CONDITIONAL(HAVE_HELP2MAN, test "$HELP2MAN" != "")
 
 AC_ARG_WITH([upx],
   AS_HELP_STRING([--with-upx], [compress executables [[default=no]]]),
