@@ -45,43 +45,34 @@ CFLAGS="$CFLAGS -Wall -std=c99"
 gl_EARLY
 
 
+AC_ARG_VAR([WINDRES], [Resource compiler for woe executables])
 AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
 AC_ARG_ENABLE([embedded-resources],
-  AS_HELP_STRING([--disable-embedded-resources], [don't embed default fonts in the executable [[default=enabled]]]),
+  AS_HELP_STRING([--disable-embedded-resources], [don't embed default fonts in the executable [[default is enabled]]]),
   [], [enable_embedded_resources=yes])
 if test x"$enable_embedded_resources" = x"yes"; then
 AC_CHECK_PROG(ZIP, zip, zip)
 fi
 AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
 
-AC_CHECK_TOOL(HELP2MAN, help2man)
-AM_CONDITIONAL(HAVE_HELP2MAN, test "$HELP2MAN" != "")
-
-AC_ARG_WITH([upx],
-  AS_HELP_STRING([--with-upx], [compress executables [[default=no]]]),
-  [], [with_upx=no])
-
-# Possible values for $with_upx:
-#   "yes" (--with-upx),
-#   "upx-ucl", "/non/standard/path/to/upx" (--with-upx=...),
-#   "no" (default, --without-upx)
-if test x"$with_upx" = x"yes"; then
-  with_upx="upx"
+AC_ARG_VAR([HELP2MAN], [Manpage generator from '--help' output])
+AC_PATH_PROG(HELP2MAN, help2man)
+if test -z "$HELP2MAN"; then
+  AC_MSG_WARN([You need to install help2man])
+  # Set HELP2MAN so 'make' errors will be understandable
+  HELP2MAN="help2man"
+  LACK_HELP2MAN=1
 fi
-case "$with_upx" in
-  no)
-    ;;
-  */*)
-    # look if full path to executable exists
-    AC_PATH_PROG(UPX, [`basename $with_upx`], [], [`dirname $with_upx`])
-    ;;
-  *)
-    # look in PATH
-    AC_CHECK_PROG(UPX, $with_upx, $with_upx)
-    ;;
-esac
+
+AC_ARG_VAR([UPX], [Produce self-decompressing executables (if --enable-upx)])
+AC_ARG_ENABLE([upx],
+  AS_HELP_STRING([--enable-upx], [compress executables [[default is disabled]]]),
+  [], [enable_upx=no])
+if test x"$enable_upx" = x"yes"; then
+  AC_PATH_PROG(UPX, upx)
+fi
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 
@@ -127,7 +118,7 @@ fi
 
 # Dynamic and static builds
 AC_ARG_ENABLE([static],
-  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default=disabled]]]),
+  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default is disabled]]]),
   [], [enable_static=no])
 
 if test x"$enable_static" = x"yes"; then
@@ -240,7 +231,7 @@ fi
 
 
 echo
-echo "Errors recap:"
+echo "Errors and warnings recap:"
 error=0
 warning=0
 
@@ -270,7 +261,7 @@ if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
 fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
-   echo "* You lack some library headers (.h) - see warnings above."
+   echo "* Warning: You lack some library headers (.h) - see warnings above."
    #error=1
    warning=1
 fi
@@ -281,8 +272,13 @@ if test -z "$ZIP"; then
   warning=1
 fi
 
-if test "$with_upx" != "no" -a -z "$UPX"; then
-  echo "* Error: UPX is explicitely activated (--with-upx=$with_upx) but cannot be found"
+if test "$error" = 0 -a "$LACK_HELP2MAN" = 1; then
+   echo "* Warning: The 'help2man' utility cannot be found. You won't be able to rebuild manpages."
+   warning=1
+fi
+
+if test "$enable_upx" = "yes" -a -z "$UPX"; then
+  echo "* UPX is explicitely activated (--enable-upx) but cannot be found"
   error=1
 fi
 
@@ -294,7 +290,7 @@ if test "$error" = 1; then
   exit 1
 elif test "$warning" = 1; then
   echo
-  echo "There are warnings - let's continue for now,"
+  echo "There were warnings - let's continue for now,"
   echo "but please check make sure nothing is missing."
 else
   echo "* No errors"
@@ -311,7 +307,7 @@ AC_OUTPUT
 
 echo
 echo "Options summary:"
-echo "* --with-upx=$with_upx"
+echo "* --enable-upx=$enable_upx"
 echo "* --enable-static=$enable_static"
 # We'd rather have a consistent autonomous executable across
 # platforms, always enable this:

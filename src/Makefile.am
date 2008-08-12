@@ -74,9 +74,7 @@ endif
 
 # help2man-generated manpages
 # Inspiration from (automake-1.10.info.gz)distcleancheck
-if HAVE_HELP2MAN
-dist_man_MANS = dink.6 dinkedit.6
-man_MANS = freedink.6 freedinkedit.6
+dist_man_MANS = freedink.6 freedinkedit.6 dink.6 dinkedit.6
 freedink.6: init.c $(top_srcdir)/configure.ac Makefile
 	$(MAKE) $(AM_MAKEFLAGS) freedink$(EXEEXT)
 	$(HELP2MAN) -s6 -n "adventure and role-playing game (engine)"	\
@@ -87,10 +85,6 @@ freedinkedit.6: init.c $(top_srcdir)/configure.ac Makefile
 	--no-info --output=freedinkedit.6 ./freedinkedit$(EXEEXT)
 distclean-local:
 	rm -f freedink.6 freedinkedit.6
-else
-# Avoid requiring building everything on 'make dist':
-EXTRA_DIST += dink.6 dinkedit.6
-endif
 
 
 # Woe icon and app infos
