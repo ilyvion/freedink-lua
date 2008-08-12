@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h> /* free */
+#include <stdarg.h> /* va_start */
 #include <stdio.h> /* vasprintf */
 #include "str_util.h"
 
