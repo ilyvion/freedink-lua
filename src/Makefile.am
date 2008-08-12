@@ -8,6 +8,8 @@ AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 # includes generated files from top_builddir (not only top_srcdir)
 AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib -I$(top_builddir)/gnulib/lib
 LDADD = $(top_builddir)/gnulib/lib/libgnu.a
+$(top_builddir)/gnulib/lib/libgnu.a:
+	$(MAKE) -C $(top_builddir)/gnulib/lib/
 
 # relocatable-prog
 AM_CPPFLAGS += -DINSTALLDIR=\"$(bindir)\"
