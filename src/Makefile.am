@@ -5,8 +5,6 @@
 AM_CPPFLAGS = -DDEFAULT_DATA_DIR=\"$(datadir)\"
 
 # Gnulib:
-# Build libgnu.a and portability headers if not already
-SUBDIRS = ../gnulib/lib
 # includes generated files from top_builddir (not only top_srcdir)
 AM_CPPFLAGS += -I$(top_srcdir)/gnulib/lib -I$(top_builddir)/gnulib/lib
 LDADD = $(top_builddir)/gnulib/lib/libgnu.a
@@ -77,11 +75,11 @@ endif
 # help2man-generated manpages
 # Inspiration from (automake-1.10.info.gz)distcleancheck
 dist_man_MANS = freedink.6 freedinkedit.6 dink.6 dinkedit.6
-freedink.6: init.c $(top_srcdir)/configure.ac Makefile
+freedink.6: init.c $(top_srcdir)/configure.ac Makefile.am
 	$(MAKE) $(AM_MAKEFLAGS) freedink$(EXEEXT)
 	$(HELP2MAN) -s6 -n "adventure and role-playing game (engine)"	\
 	--no-info --output=freedink.6 ./freedink$(EXEEXT)
-freedinkedit.6: init.c $(top_srcdir)/configure.ac Makefile
+freedinkedit.6: init.c $(top_srcdir)/configure.ac Makefile.am
 	$(MAKE) $(AM_MAKEFLAGS) freedinkedit$(EXEEXT)
 	$(HELP2MAN) -s6 -n "adventure and role-playing game (editor)"	\
 	--no-info --output=freedinkedit.6 ./freedinkedit$(EXEEXT)
