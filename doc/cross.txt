@@ -114,6 +114,7 @@ $WGET -P depsources/ http://downloads.xiph.org/releases/vorbis/libvorbis-$VERSIO
 tar xzf depsources/libvorbis-$VERSION.tar.gz
 cd libvorbis-$VERSION
 # Fix cross-compilation
+# https://trac.xiph.org/ticket/884
 wget -O- 'https://trac.xiph.org/changeset/14833?format=diff&new=14833' | patch -p3
 cat <<'EOF' | patch configure.in
 --- configure.in~       2007-07-25 16:27:00.000000000 +0000
