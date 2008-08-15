@@ -185,3 +185,12 @@ Try switching from dlopen to relaytool
 ======================================
 
 Left as exercise to the reader ;)
+
+
+Use Statifier
+=============
+
+http://statifier.sourceforge.net/
+
+I haven't looked at it much but apparently it makes a big
+distro-neutral executable out of dynamic libraries.
