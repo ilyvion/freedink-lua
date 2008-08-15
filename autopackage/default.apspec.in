@@ -32,6 +32,16 @@ AutopackageTarget: 1.2
 # InterfaceVersion: 0.0
 
 [BuildPrepare]
+# - Static zzip to avoid a dependency
+# - Static SDL_gfx because versions tend to change in distros
+# (e.g. so.0.0.17 official, so.4.0.9 in Debian)
+export APBUILD_STATIC="zzip SDL_gfx"
+# Bad detection due to statically compiling SDL_gfx - should be -lSDL,
+# not -lSDL-1.2
+#export APBUILD_BOGUS_DEPS="SDL-1.2"
+# That doesn't work, so you need to:
+#sudo ln -s libSDL-1.2.so.0 /usr/lib/libSDL-1.2.so
+
 # For ./configure based systems this is a good default
 #prepareBuild --with-some-feature
 
@@ -79,7 +89,12 @@ echo '*' | import
 # as you need.
 
 #require @whatever.you/need 1.0
-#TODO: SDL dependencies?
+# Don't attempt to statically compile SDL - too much complicated
+# (see doc/static-build.txt)
+require '@libsdl.org/sdl' 1.2
+require '@libsdl.org/sdl_image' 1.2
+require '@libsdl.org/sdl_mixer' 1.2
+require '@libsdl.org/sdl_ttf' 1.2
 
 # The user may have already installed the program from an RPM.
 # Let's try and uninstall it first. We only need one call if 3rd party
@@ -92,6 +107,9 @@ echo '*' | import
 # the website for an API cheat-sheet
 installExe bin/*
 installData share
+# Note: symlinks are created at install time (not included in the package)
+linkFile freedink bin/dink
+linkFile freedinkedit bin/dinkedit
 
 [Uninstall]
 # Usually just the following line is enough to uninstall everything

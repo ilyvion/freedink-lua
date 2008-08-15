@@ -27,10 +27,10 @@ while read line; do
         '## END OF HEADER')
             break
             ;;
-        skip_lines=*)
+        skip_lines=* | skipLines=*)
             skip_lines=`echo $line | grep -o '[0-9]\+'`
             ;;
-        'export meta_size='*)
+        'export meta_size='* | 'export metaSize='*)
             meta_size=`echo $line | grep -o '[0-9]\+'`
             ;;
     esac
@@ -38,6 +38,19 @@ done < "$package"
 
 echo skip_lines=$skip_lines 2>&1
 echo meta_size=$meta_size 2>&1
+type=$(tail -n +$skip_lines "$package" | tail -c +$(($meta_size+1)) | head -c 100 | file - | cut -d' ' -f2)
 
-cat "$package" | tail -n +$skip_lines | head -c $meta_size > package-metadata.tar.gz
-cat "$package" | tail -n +$skip_lines | tail -c +$(($meta_size+1)) | lzma -d > package.tar
+case $type in
+    bzip2)
+	ext=bz2
+	;;
+    gzip)
+	ext=gz
+	;;
+    *)
+	# file doesn't detect it yet
+	ext=lzma
+	;;
+esac
+tail -n +$skip_lines "$package" | head -c $meta_size > package-metadata.tar.gz
+tail -n +$skip_lines "$package" | tail -c +$(($meta_size+1)) > package.tar.$ext

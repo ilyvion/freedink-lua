@@ -1,1 +1,1 @@
-EXTRA_DIST = extract-package.sh Makefile.autopackage
+EXTRA_DIST = extract-package.sh Makefile.autopackage skeletons
