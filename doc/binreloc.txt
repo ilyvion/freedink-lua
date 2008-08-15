@@ -14,6 +14,9 @@ from the same binary package.
 It is used to determine the default path to the share/ directory,
 which contains the default font, icon and editor sounds.
 
+
+I used binreloc-2.0.tar.gz
+
 binreloc.m4 was added in acsite.m4. Keep it updated. I removed the
 ("$datadir" = '${prefix}/share') test because $datadir evals to
 "${datarootdir}" with a recent Autoconf so the test will always fail.
@@ -21,6 +24,7 @@ binreloc.m4 was added in acsite.m4. Keep it updated. I removed the
 To avoid using a redundant AM_CFLAGS=$(BINRELOC_CFLAGS) in
 Makefile.am, I added #include <config.h> in binreloc.c. Both define
 ENABLE_BINRELOC according to ./configure.
+
 
 Beware that BinReloc is working for the Linux kernel only. This is not
 a portable way to find where the binary is installed. Under Woe, one

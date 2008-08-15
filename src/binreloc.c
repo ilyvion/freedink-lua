@@ -10,6 +10,8 @@
  * more information and how to use this.
  */
 
+/* See doc/binreloc.txt for FreeDink-related specifics */
+
 #ifndef __BINRELOC_C__
 #define __BINRELOC_C__
 
