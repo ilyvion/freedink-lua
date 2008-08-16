@@ -3196,7 +3196,7 @@ if (compare(ev[1], "compare_magic"))
                                                                         {
                                                                                 returnint = 0;
 
-                                                                                if (nlist[0] == 0)
+                                                                                if (nlist[0] <= 0 || nlist[0] >= MAX_SPRITES_AT_ONCE)
                                                                                 {
                                                                                         Msg("Error: Can't compare sprite script for sprite 0!?");
                                                                                         return(0);
