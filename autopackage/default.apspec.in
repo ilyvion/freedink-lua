@@ -37,7 +37,7 @@ AutopackageTarget: 1.2
 # (e.g. so.0.0.17 official, so.4.0.9 in Debian)
 export APBUILD_STATIC="zzip SDL_gfx"
 # Bad detection due to statically compiling SDL_gfx - should be -lSDL,
-# not -lSDL-1.2
+# not -lSDL-1.2 ("C compiler cannot create executables" in configure)
 #export APBUILD_BOGUS_DEPS="SDL-1.2"
 # That doesn't work, so you need to:
 #sudo ln -s libSDL-1.2.so.0 /usr/lib/libSDL-1.2.so
@@ -94,7 +94,7 @@ echo '*' | import
 require '@libsdl.org/sdl' 1.2
 require '@libsdl.org/sdl_image' 1.2
 require '@libsdl.org/sdl_mixer' 1.2
-require '@libsdl.org/sdl_ttf' 1.2
+require '@libsdl.org/sdl_ttf' 2.0
 
 # The user may have already installed the program from an RPM.
 # Let's try and uninstall it first. We only need one call if 3rd party
@@ -107,7 +107,8 @@ require '@libsdl.org/sdl_ttf' 1.2
 # the website for an API cheat-sheet
 installExe bin/*
 installData share
-# Note: symlinks are created at install time (not included in the package)
+# Note: doesn't work, how is it supposed to work?
+# Symlinks aren't packaged, nor installed
 linkFile freedink bin/dink
 linkFile freedinkedit bin/dinkedit
 
