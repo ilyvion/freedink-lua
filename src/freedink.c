@@ -2026,7 +2026,7 @@ void did_player_cross_screen(/*bool*/int real, int h)
 	
   if ((spr[h].x) < playl) 
     {
-      if ((map.loc[*pmap-1] > 0) && (screenlock == 0))
+      if ((*pmap-1) >= 1 && map.loc[*pmap-1] > 0 && screenlock == 0)
 	{
 	  //move one map to the left
 	  if (real)
@@ -2051,7 +2051,7 @@ void did_player_cross_screen(/*bool*/int real, int h)
   
   else if (spr[h].x > 619)
     {
-      if ((map.loc[*pmap+1] > 0) && (screenlock == 0))
+      if ((*pmap+1) <= 24*32 && map.loc[*pmap+1] > 0 && screenlock == 0)
 	{
 	  //move one map to the right
 	  if (real)
@@ -2076,7 +2076,7 @@ void did_player_cross_screen(/*bool*/int real, int h)
   
   else if (spr[h].y < 0)
     {
-      if ((map.loc[*pmap-32] > 0)  && (screenlock == 0) )
+      if ((*pmap-32) >= 1 && map.loc[*pmap-32] > 0 && screenlock == 0)
 	{
 	  //move one map up
 	  if (real)
@@ -2102,7 +2102,7 @@ void did_player_cross_screen(/*bool*/int real, int h)
   
   else if (spr[h].y > 399)
     {
-      if ((map.loc[*pmap+32] > 0) && (screenlock == 0))
+      if ((*pmap+32) <= 24*32 && map.loc[*pmap+32] > 0 && screenlock == 0)
 	{
 	  //move one map down
 	  if (real)
