@@ -250,14 +250,99 @@ In addition, freedinkedit.exe (from version 1.06) contains 2 embedded
 sounds that were extracted and shipped with FreeDink - they need legal
 clarification.
 
-There's the status, after a discussion with Seth A. Robinson.
 
-Unfortunately, most of the sounds effects are not redistributable. We
-should replace them.
+Unfortunately, most of the sounds effects are not redistributable.
+From the game's credits.txt:
+
+  Most were licensed from Hollywood Edge (tm). (www.hollywoodedge.com)
+  Many were created by us as well, most using a Korg T3 & X3 keyboard.
+  (level up wave, choir noise when you pickup a strength potion, etc)
+  Sound Forge was also used.
+
+We need to replace the hollywood version, which mostly include all war
+and atmosphere sounds (fighting, fire, beasts, etc.).
+
 
 Some MIDIs were made by Seth. Other midis have unclear legal status
 and should not be redistributed - or we need to find their original
 source again.
+
+From the game's credits.txt:
+
+  þ CD Music þ (CD version only, third burn version)
+  Track 2 - "Michief" by Seth A. Robinson ('95)
+  Track 3 - "Intro" by Joel Baker
+  Track 4 - "Egyption Theme" by Joel Baker
+  Track 5 - "Bar room theme" by Joel Baker (yes, inspired by an Ultima midi)
+  Track 6 - "Bravery theme" by Joel Baker
+  Track 7 - "Heartbeat Dungeon" by Joel Baker.  Chris Baker and Seth helped
+  Track 8 - "Heroin" by Joel Baker
+  Track 9 - "Battle March" by Joel Baker
+  Track 10 - "Haunted Stone" by Seth A. Robinson
+  Track 11 - "Dana" by Seth A. Robinson
+  Track 12 - "Memories" by Seth A. Robinson
+  Track 13 - "Church Theme" by Seth A. Robinson ('92)
+  Track 14 - "Somber" by Greg Smith
+  Track 15 - "The Funk-o-matic" by Greg Smith
+  Track 16 - "Island" by Seth A. Robinson ('91)
+  Track 17 - "Clubdance" by Greg Smith (original music by Seth A. Robinson)
+  Track 18 - "Generic Adventure" by Greg Smith
+  Track 19 - "Pantastic" by Seth A. Robinson ('91)
+  
+  þ Midi Music þ
+  tavern theme - Mitch Brink
+  cave theme   - Mitch Brink
+  story.mid    - Joel Baker
+  insper.mid   - Joel Baker
+  lively.mid   - Joel Baker
+  love.mid     - Joel Baker
+  wanderer.mid - Matt S. Smith
+  battle.mid   - Matt S. Smith
+  sleep.mid    - Matt S. Smith
+  thebully.mid - Matt S. Smith
+  dance.mid    - Seth A. Robinson
+  
+  All new midi's for freeware version - Nobuo Kuge (thanks!!)
+  
+  His page: http://www.threeweb.ad.jp/~kuge/indexe.html
+  
+  Special thanks to Mitch Brink for doing additional midi music for the
+  demo.  His webpage is at http://www.geocities.com/~mitchb2/
+  
+  The rest are favorite classical pieces of mine taken from the
+  public domain.
+  
+Two MIDIs are MIDI versions of original CD sound tracks, available at
+http://www.dinknetwork.com/file/dink_smallwood_cd_audio/ (announcement
+at http://www.dinknetwork.com/forum.cgi?MID=67456):
+
+2.mid -> #2
+1003.mid -> #3
+
+(at least that's the two I recognised)
+
+Track #6 in that pack sounds like a classical piece rather than
+'Bravery theme'.
+
+
+Some Mitch Brink's MIDIs are still available at
+http://www.mbsoundworks.com/demos.html#GM
+
+Unfortunately this is only those from Mystery Island:
+- Cave (island cave)
+- Deserted Town (island town)
+- Main Theme (splash screen)
+- Mandibles (sea event, e.g. sharks)
+- Map Screen (new game intro)
+- Pirate Theme (on ship)
+- Rescued (end)
+- Robot Lab (end boss)
+- Tavern (?)
+
+
+The name "Noke Kuge" gives some results in search engines, but not
+many.
+
 
 Duplicates:
 - 4.mid, Battle.mid [battle with soldiers]
