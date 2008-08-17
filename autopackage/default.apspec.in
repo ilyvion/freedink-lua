@@ -34,7 +34,8 @@ AutopackageTarget: 1.2
 [BuildPrepare]
 # - Static zzip to avoid a dependency
 # - Static SDL_gfx because versions tend to change in distros
-# (e.g. so.0.0.17 official, so.4.0.9 in Debian)
+# (e.g. so.0.0.17 official, so.4.0.9 in Debian, so.13.0.0 in Fedora7
+# and Gentoo)
 export APBUILD_STATIC="zzip SDL_gfx"
 # Bad detection due to statically compiling SDL_gfx - should be -lSDL,
 # not -lSDL-1.2 ("C compiler cannot create executables" in configure)
