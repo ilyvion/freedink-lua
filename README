@@ -9,19 +9,19 @@ under certain conditions; see the GNU GPL for details.
 About Dink Smallwood
 --------------------
 
-Dink Smallwood is an adventure/role-playing game for MS Windows,
-similar to Zelda, made by RTsoft. Besides twisted humour, it includes
-the actual game editor, allowing players to create hundreds of new
-adventures called Dink Modules or D-Mods for short. The Dink Network
+Dink Smallwood is an adventure/role-playing game, similar to Zelda,
+made by RTsoft. Besides twisted humour, it includes the actual game
+editor, allowing players to create hundreds of new adventures called
+Dink Modules or D-Mods for short. The Dink Network
 (http://www.dinknetwork.com/) hosts a copy of almost all of them.
 
 
 GNU FreeDink
 ------------
 
-GNU FreeDink is a new version of the game engine, which runs the
-original game as well as its D-Mods, with close compatibility, under
-new platforms.
+GNU FreeDink is a new and portable version of the game engine, which
+runs the original game as well as its D-Mods, with close
+compatibility, under multiple platforms.
 
 FreeDink can run in 2 modes:
 
@@ -59,11 +59,29 @@ If you are compiling GNU FreeDink from sources, check BUILD for
 instructions.
 
 
+Game data
+---------
+
+Get the free game data separately at:
+
+  http://www.freedink.org/releases/dink_108_game_data.zip
+
+and unzip it in '/usr/share/dink/dink':
+
+  mkdir -p /usr/share/dink/dink/
+  unzip -d /usr/share/dink/dink/ dink_108_game_data.zip
+
+Note:
+The original game contained sounds that were not owned by RTsoft and
+hence could not be released under a free license.  We're looking for
+free replacements!  Please send contributions at bug-freedink@gnu.org.
+
+
 Other FreeDink applications
 ---------------------------
 
 DFArc2, a graphical front-end run the game and manage D-Mods, was also
-ported and extended. Get new version 2.1 from http://www.freedink.org/ .
+ported and extended. Get new version 3 at http://www.freedink.org/ .
 
 
 Technical information

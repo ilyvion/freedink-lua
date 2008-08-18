@@ -3,37 +3,37 @@ Section: games
 Priority: extra
 Maintainer: Sylvain Beucler <beuc@beuc.net>
 Build-Depends: debhelper (>= 5), autotools-dev, pkg-config, libsdl1.2-dev, libsdl-gfx1.2-dev, libsdl-ttf2.0-dev, libsdl-image1.2-dev, libsdl-mixer1.2-dev, libzzip-dev, zip
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Homepage: http://www.freedink.org/
 Vcs-Git: git://git.sv.gnu.org/freedink.git
 Vcs-Browser: http://git.savannah.gnu.org/gitweb/?p=freedink.git
 
 Package: freedink
 Architecture: any
-Depends: ${shlibs:Depends}, timidity
+Depends: ${shlibs:Depends}, dink-data, timidity
 Recommends: dfarc
 Description: adventure and role-playing game (engine)
- Dink Smallwood is an adventure/role-playing game for MS Windows,
- similar to Zelda, made by RTsoft. Besides twisted humour, it includes
- the actual game editor, allowing players to create hundreds of new
- adventures called Dink Modules or D-Mods for short.
+ Dink Smallwood is an adventure/role-playing game, similar to Zelda,
+ made by RTsoft. Besides twisted humour, it includes the actual game
+ editor, allowing players to create hundreds of new adventures called
+ Dink Modules or D-Mods for short.
  .
- GNU FreeDink is a new version of the game engine, which runs the
- original game as well as its D-Mods, with close compatibility, under
- new platforms.
+ GNU FreeDink is a new and portable version of the game engine, which
+ runs the original game as well as its D-Mods, with close
+ compatibility, under multiple platforms.
 
 Package: freedink-dbg
 Architecture: any
 Priority: extra
 Depends: freedink (= ${binary:Version})
 Description: debugging symbols for freedink
- Dink Smallwood is an adventure/role-playing game for MS Windows,
- similar to Zelda, made by RTsoft. Besides twisted humour, it includes
- the actual game editor, allowing players to create hundreds of new
- adventures called Dink Modules or D-Mods for short.
+ Dink Smallwood is an adventure/role-playing game, similar to Zelda,
+ made by RTsoft. Besides twisted humour, it includes the actual game
+ editor, allowing players to create hundreds of new adventures called
+ Dink Modules or D-Mods for short.
  .
- GNU FreeDink is a new version of the game engine, which runs the
- original game as well as its D-Mods, with close compatibility, under
- new platforms.
+ GNU FreeDink is a new and portable version of the game engine, which
+ runs the original game as well as its D-Mods, with close
+ compatibility, under multiple platforms.
  .
  This package contains the debugging symbols for freedink.
