@@ -40,4 +40,17 @@ $ package remove freedink
 
 
 Currently we do not deal with SDL dependencies, but I wonder whether
-they can be statically built...
+they can be statically built... Apparently the best is to assume the
+user has SDL installed, and statically compiled non-widespread
+dependencies.
+
+
+To check for binaries dependencies, don't use plain 'ldd' - since it
+also shows indirect dependencise. Use:
+
+- scandeps # part of aptools
+
+- Visual Dependency Walker or 'visual-ldd' -
+  http://ftp.sunsite.dk/projects/autopackage/packages/Visual%20Dependency%20Walker%201.2.package
+
+- ldd -u # not sure about "unused"? Doesn't show libc.so.6
