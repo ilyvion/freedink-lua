@@ -2761,8 +2761,11 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                spr[nlist[0]].wait = 0;
-                                return(0);
+			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+			    spr[nlist[0]].wait = 0;
+			  else
+			    Msg("Error: sp_kill_wait: invalid sprite %d", nlist[0]);
+			  return(0);
                         }
                         returnint =  -1;
                         return(0);
@@ -2773,8 +2776,11 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                spr[nlist[0]].kill = nlist[1];
-                                return(0);
+			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+			    spr[nlist[0]].kill = nlist[1];
+			  else
+			    Msg("Error: sp_kill: invalid sprite %d", nlist[0]);
+			  return(0);
                         }
                         returnint =  -1;
                         return(0);
@@ -3198,7 +3204,7 @@ if (compare(ev[1], "compare_magic"))
 
                                                                                 if (nlist[0] <= 0 || nlist[0] >= MAX_SPRITES_AT_ONCE)
                                                                                 {
-                                                                                        Msg("Error: Can't compare sprite script for sprite 0!?");
+										  Msg("Error: Can't compare sprite script for sprite %d!?", nlist[0]);
                                                                                         return(0);
                                                                                 }
                                                                                 if (spr[nlist[0]].active)
