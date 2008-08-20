@@ -250,6 +250,13 @@ SDL_RWops* find_resource_as_rwops(char *name)
   /* Fallback to pkgdatadir */
   FILE *in = paths_pkgdatafile_fopen(name, "rb");
   if (in == NULL)
+    /* When the relocatable datadir fails, it may be worth trying the
+       compile-time datadir nonetheless; in the gNewSense LiveCD, the
+       path is mistakenly detected as /cow/usr/bin/freedink, and hence
+       the datadir becomes /cow/usr/share/freedink, which doesn't
+       exist. */
+    in = paths_pkgdatafile_fopen(DEFAULT_DATA_DIR, "rb");
+  if (in == NULL)
     return NULL;
   rwops = SDL_RWFromFP(in, /*autoclose=*/1);
   return rwops;

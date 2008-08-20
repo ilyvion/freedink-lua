@@ -85,6 +85,7 @@ Checked each time (search path):
 Resources (LiberationSans-Regular.ttf, vgasys.fon, stop.wav, jump.wav)
   =  embedded resource
   || $pkgdatadir
+  || $default_data_dir/freedink # in case /proc/cmdline is wrong (e.g. LiveCD with COW)
 Font = DMod
      || C:\Windows\Fonts\ || (? /usr/share/fonts/truetype/**/*.ttf)
 .ini = ~/.dink/dinksmallwood.ini || Registry
