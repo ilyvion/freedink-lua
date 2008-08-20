@@ -309,8 +309,6 @@ echo
 echo "Options summary:"
 echo "* --enable-upx=$enable_upx"
 echo "* --enable-static=$enable_static"
-# We'd rather have a consistent autonomous executable across
-# platforms, always enable this:
-#echo "* --enable-embedded-resources=$enable_embedded_resources"
+echo "* --enable-embedded-resources=$enable_embedded_resources"
 echo
 echo "Now you can type 'make' to compile $PACKAGE_STRING"

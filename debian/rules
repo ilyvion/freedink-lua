@@ -36,8 +36,11 @@ endif
 $(BUILD)/config.status: configure
 	dh_testdir
 	[ -d $(BUILD) ] || mkdir $(BUILD)
-	# Add here commands to configure the package.
-	cd $(BUILD) && $(SRC)/configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --bindir=/usr/games CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+	# Using '--bindir=/usr/games' by Debian policy
+	#   (e.g. not the case for Fedora)
+	# Using '--disable-embedded-resources' because 'dh_strip' will remove
+	#   them anyway, and we need it for the -dbg package -- too bad :/
+	cd $(BUILD) && $(SRC)/configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --bindir=/usr/games --disable-embedded-resources CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 
 build: debian/build-stamp
@@ -88,22 +91,12 @@ binary-arch: build install
 #	dh_installexamples
 	dh_install
 	dh_installmenu
-#	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_python
-#	dh_installinit
-#	dh_installcron
 #	dh_installinfo
 	dh_installman
 	dh_link
 	dh_strip --dbg-package=freedink-dbg
 	dh_compress
 	dh_fixperms
-#	dh_perl
-#	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
