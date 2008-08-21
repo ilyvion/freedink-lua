@@ -33,6 +33,7 @@ extern "C"
   extern void paths_init(char* argv0, char* refdir_opt, char* dmoddir_opt);
   extern const char *paths_getdmoddir(void);
   extern const char *paths_getfallbackdir(void);
+  extern const char *paths_getdefaultpkgdatadir(void);
   extern const char *paths_getpkgdatadir(void);
   extern const char *paths_getexedir(void);
   extern char* paths_dmodfile(char* file);
@@ -40,6 +41,7 @@ extern "C"
   extern char* paths_pkgdatafile(char* file);
   extern FILE* paths_dmodfile_fopen(char* file, char* mode);
   extern FILE* paths_fallbackfile_fopen(char* file, char* mode);
+  extern FILE* paths_defaultpkgdatafile_fopen(char* file, char* mode);
   extern FILE* paths_pkgdatafile_fopen(char* file, char* mode);
   extern FILE* paths_savegame_fopen(int num, char* mode);
   extern void paths_quit(void);

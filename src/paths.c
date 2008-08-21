@@ -54,6 +54,7 @@
 #include "str_util.h" /* asprintf_append */
 
 
+static char* defaultpkgdatadir = NULL;
 static char* pkgdatadir = NULL;
 static char* exedir = NULL;
 static char* fallbackdir = NULL;
@@ -70,6 +71,11 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
   /* relocatable_prog */
   set_program_name(argv0);
   printf("Hi, I'm '%s'\n", get_full_program_name());
+
+  /** default pkgdatadir (e.g. "/usr/share/freedink") **/
+  {
+    defaultpkgdatadir = br_build_path(DEFAULT_DATA_DIR, PACKAGE);
+  }
 
   /** datadir (e.g. "/usr/share") **/
   {
@@ -104,7 +110,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
     datadir = datadir_binreloc;
   }
   
-  /** pkgdatadir (e.g. "/usr/share/freedink") **/
+  /** pkgdatadir (e.g. ".local/share/freedink") **/
   {
     pkgdatadir = br_build_path(datadir, PACKAGE);
   }
@@ -279,11 +285,16 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 }
 
 
+const char *paths_getdefaultpkgdatadir(void)
+{
+  return defaultpkgdatadir;
+}
+
+
 const char *paths_getpkgdatadir(void)
 {
   return pkgdatadir;
 }
-
 const char *paths_getdmoddir(void)
 {
   return dmoddir;
@@ -325,6 +336,21 @@ char* paths_fallbackfile(char *file)
 FILE* paths_fallbackfile_fopen(char *file, char *mode)
 {
   char *fullpath = paths_fallbackfile(file);
+  FILE *result = fopen(fullpath, mode);
+  free(fullpath);
+  return result;
+}
+
+char* paths_defaultpkgdatafile(char *file)
+{
+  char *fullpath = br_build_path(defaultpkgdatadir, file);
+  ciconvert(fullpath);
+  return fullpath;
+}
+
+FILE* paths_defaultpkgdatafile_fopen(char *file, char *mode)
+{
+  char *fullpath = paths_defaultpkgdatafile(file);
   FILE *result = fopen(fullpath, mode);
   free(fullpath);
   return result;
@@ -401,6 +427,7 @@ FILE *paths_savegame_fopen(int num, char *mode)
 
 void paths_quit(void)
 {
+  free(defaultpkgdatadir);
   free(pkgdatadir);
   free(exedir);
   free(fallbackdir);
