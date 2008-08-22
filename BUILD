@@ -94,7 +94,7 @@ yum groupinstall 'Development Tools'
 #pkcon install make gcc
 # Required: SDL, libzip | zziplib
 # No libzip package yet AFAIK
-pkcon install SDL_devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
+pkcon install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
   SDL_mixer-devel zziplib-devel zip
 # Optional:
 # - upx compresses binary
