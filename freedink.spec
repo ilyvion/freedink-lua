@@ -10,7 +10,7 @@ Source0:	http://www.freedink.org/snapshots/freedink-1.08.20080821.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel zziplib-devel zip
-Requires:	dink-data
+Requires:	dink-data, dfarc
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -28,7 +28,9 @@ compatibility, under multiple platforms.
 
 
 %build
-%configure
+# Using '--disable-embedded-resources' because 'rpmbuild' will remove
+#   them anyway (so it can make the -debuginfo package -- too bad :/
+%configure --disable-embedded-resources 
 make %{?_smp_mflags}
 
 
