@@ -3,7 +3,9 @@ To build the Debian package
 
  tar xzf freedink-*.tar.gz
  ln -s freedink-x.y.z.tar.gz freedink_x.y.z.orig.tar.gz
- cd freedink-*
+ git clone git://git.sv.gnu.org/freedink freedinkgit
+ cp -a freedinkgit/debian freedink-*/
+ cd freedink-*/
  debuild -us -uc
 
 

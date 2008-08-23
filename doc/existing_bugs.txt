@@ -19,13 +19,9 @@ Bugs that existed in v1.07 and needs to be fixed:
   numbers. You should know better."
   (http://www.dinknetwork.com/forum.cgi?MID=57829)
 
-- Dinkedit doesn't align the hardness selection square correctly if
-  you go completely to the right of the screen and come to the
-  left. (http://www.dinknetwork.com/forum.cgi?MID=57829)
-
 - "Dinkedit may crash if opening certain D-Mods with a dink.ini from
   WDE 1.1-1.4. Try using an older version of Dinkedit, such as that
   included with the v1.07 patch, or use WinDinkedit."
   (http://www.dinknetwork.com/forum.cgi?MID=59442)
 
-For fixed bugs, see changes.txt.
+For fixed bugs, see NEWS.

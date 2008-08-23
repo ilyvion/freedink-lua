@@ -349,15 +349,14 @@ Changes not-implemented:
 Changes not documented in whatsnew.txt
 --------------------------------------
 
+[X] Enabled screen scrolling in windowed mode (it was explicitely
+    disabled in command-line options parsing).
+
 [X] max_idata changed from 600 to 1000; idata store additional sprite
     data during dink.ini initial loading. Some 1.08 D-Mods such as
     "City of Dead" require more than 600 idata, and v1.07 ignores part
     of them, resulting in misplaced sprites.
     => Implemented conditionally 2008-07-04
-
-[ ] added a woe registry key so as to deprecate
-    %WINDIR%/dinksmallwood.ini overwrite.
-    => Done by the installer rather than the engine
 
 [X] avoid crash when &magic_cost is < 100
     => does it more simply in 'update_status_all', and avoid a
@@ -445,6 +444,10 @@ Changes not documented in whatsnew.txt
     active_sprite."
     => Fixed conditionaly 2008-07-24
 
+[ ] added a woe registry key so as to deprecate
+    %WINDIR%/dinksmallwood.ini overwrite.
+    => Done by the installer rather than the engine
+
 Changes eventually not implemented
 ----------------------------------
 
@@ -462,6 +465,13 @@ Dink Smallwood source code was released, Dan Walma used this command
 to add additional features, like changing maps. He released dPlay, a
 replacement for dplay.exe. No D-Mods were released that took advantage
 of this functionality."
+
+Additional info: additionaly the command used to stop the execution of
+the current script, while it's now just ignored in v1.08. This means
+v1.07 may stop where v1.08 would continue, e.g.  in "City of the
+Dead"'s start.c. "Fairy Goodness Online" also rely on an external
+executable but it's launched manually. So removing this command does
+not break anything released.
 
 - entry for sp_move_nohard(): "In 1.07 and earlier, the move_no_hard
 value only had an effect when the active_sprite was actively moving

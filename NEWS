@@ -1,21 +1,147 @@
-1.08.20080804: in progress
+1.08.20080800: first official release
+=====================================
 
-FreeDink is a port of the Dink game engine, so it can work under
+FreeDink is based on version 1.07 of the original engine and also
+incorporates v1.08 improvements.
+
+The main change is that FreeDink is portable, so it can work under
 operating systems (e.g. GNU/Linux) and architectures (e.g. PowerPC).
 
-After essentially 1 year of active development, I think I've now
-reached the point where FreeDink can run any D-Mod v1.08 improvements
-are supported, and there's also a "v1.07 mode" to play D-Mods that
-aren't upgraded yet (such as Eternal Suicide). DFArc2 was made
-portable too, and has a new checkbox for this mode.
+The following describe some differences with the original game engine.
 
-I put a lot of effort into maintaining compatibility, including
-features that, well, weren't supposed to work, but still did (Seth
-magic ). The port also allowed me to add better windowed mode, which
-can support non-truecolor (e.g. for Lyna's Story or Cycles of Evil)
-and you can switch windowed/full-screen using Alt + Enter. I think the
-truecolor fades are faster/smoother too.
+* User-visible changes:
 
-Some other fixes were made in the game engine and in the editor.
+- Backward-incompatible changes in v1.08 can be disabled using a
+  'v1.07 mode' (--v1.07 option -- more information in doc/v1.08.txt).
+  This allows playing D-Mods that weren't upgraded to v1.08 yet.
 
-TODO: cf. doc/changes.txt
+- Game graphics
+
+  - Better windowed mode: supports non-truecolor mode, and can switch
+    between windowed and full-screen using Alt + Enter (X11 only).
+
+  - Avoid color/palette temporary glitch after quitting show_bmp()
+    mode.
+
+  - Smoother truecolor fades, and avoid some glitches in palette mode.
+
+  - Use a different but metric-compatible fonts (alignment and
+    wrapping are conserved), due to copyright issues (see
+    doc/fonts.txt).
+
+  - Widen debug-mode line to avoid some unwanted line wrapping.
+
+- Gamepad: the threshold for joystick axis is slightly greater - with
+  the same threshold than the original game (~10%) Dink is going diags
+  too easily.  Feedback welcome :)
+
+- Game speed: set maximum framerate to 50 FPS, which is compatible
+  with v1.08 (see doc/framerate.txt)
+
+- Installation: supports separate directories for original data and
+  additional D-Mods.  This permits installing the game as
+  administrator in a write-protected directory, while allowing normal
+  users to install D-Mods in their personal directory.
+
+- Memory usage
+
+  - Requires less memory in truecolor mode (by not converting paletted
+    graphics to truecolor)
+
+  - Fixes memory leaks, in particular when loading a savegame
+    (reloaded graphics were duplicated in memory)
+
+- Editor fixes:
+
+  - To avoid issues with non-US keyboards in the editor, F1->F10-F11
+    and NumPad 0->9-. are used in addition to 1->0-` for tiles
+    selection.
+
+  - When vision is changed from the minimap mode in the editor, don't
+    display the current screen's sprites over the minimap.
+
+  - When text or number is asked in the editor, user now can press
+    'escape' to discard changes.
+
+  - In editor "Alternative Tile Hardness Selector", when going
+    completely to the right or to the bottom of the screen, avoid a
+    postponement for the square selector. Reported at
+    http://www.dinknetwork.com/forum.cgi?MID=57829
+
+  - When editing hardness, print the hardness index actually being
+    edited, instead of the one associated by the current background
+    tile.
+
+  - Display real-time information about hardness in hardness mode.
+
+* Developer notes:
+
+- Compressed BMP support: afaics in some situations, the original Dink
+  engines does not support compressed (RLE?) BMPs. Such BMPs are
+  notably used in "Prophecy of the Ancients" (like the 3 alternate
+  colored orbs) - when support is lacking, graphics are simply not
+  displayed which much complaining in DEBUG.TXT. I believe this
+  support depends on which DX version is used. More surprisingly:
+  there's a screen, still in PotA, where you can pass above and under
+  and bridge (you need to pass under the bridge to blow up a rock in
+  the above screen and thus reach the secret island). There's no way
+  to pass under the bridge when there's no compressed BMP support - I
+  haven't investigated much, but I guess either a missing sprite does
+  not clear the hardness for Dink to pass, either the missing sprite
+  is causing a DinkC script to stop.  So, vanilla SDL does not support
+  compressed BMPs, so I used SDL_image everywhere to do so. This means
+  that FreeDink always support compressed BMPs.
+
+- Fix several array-out-of-bounds issues while reproducing the
+  original de-facto engine behavior.
+
+  - For example, in 'init_scripts', the script may check the active
+    status of sprite 1000, while the sprite array has 300
+    elements. This caused bugs after the port and is now
+    fixed. Curiously it didn't seem to cause bugs before. Such bug did
+    'appear' in v1.08 too.
+
+  - Sometimes, a init() or dink.ini line would be more than 80 chars,
+    which is its allocated length in the 'sequence' structure. This
+    would overwrite parts of the next sequence. Possibly this never
+    was an issue, because sequences were initialized incrementally,
+    but an init() line was more likely to cause breakage. This is
+    fixed anyway.
+
+  - When reloading a sequence through init() with a longer sequence,
+    v1.07 will overwrite bits of the next sequence, for dir.ff loading
+    only. v1.08 overwrites for both BMPs and dir.ff sequences to avoid
+    to a bug with mixed dir.ff and BMPs sequences. This bug is
+    documented in dink.ini and loads the sword (longer) hit sequence
+    before the first (shorter) sequence to work-around it. See
+    http://www.dinknetwork.com/forum.cgi?MID=92733 for details. In
+    FreeDink, sequences are never overwritten.
+
+  - Some D-Mods have sequences with more than 50 frames. This triggers
+    a buffer overflow in the original game BUT the overwritten data is
+    the animation metadata ('delay' and 'special' fields), which is
+    not critical for non-animated sprite sequences. Example: "The
+    Green Voice in my Head - Part 1 - Hangover & Agony", first save
+    game then east then house on the right: it shows a shelf with
+    broken vases with is seq 66 frame 65 (> 50). FreeDink reproduces
+    this behavior by allowing up to 1000 frames in a sequence but
+    without the buffer overflow part.
+
+- Command line: fails on invalid options.  Supports undocumented
+  '-nomovie' for compatibility with DFArc2.  Supports short aliases
+  (e.g. -window -> -w) and double-dash options (e.g. -window ->
+  --window).
+
+- Search path: Dink search data in additional places to support
+  separating reference data and user D-Mods. Check
+  doc/directory_layout.txt for information.
+
+- Dinkedit
+
+  - Dinkedit creates a custom sequence #1 but mark the 4th frame as
+    '-1'.  This made FreeDinkEdit crash, so it's set to 0, which means
+    "end of sequence".
+
+  - The editor palette is now Ts01.bmp instead of esplash.bmp - just
+    like the game. This is simpler that way, and nobody changed the
+    editor palette anyway.

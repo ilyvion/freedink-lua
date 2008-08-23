@@ -1,9 +1,14 @@
 Currently SDL does not provide portable physical keycodes (independant
 of the keyboard layout). The current workaround is to recommend X11
 FreeDinkEdit users to switch to a US keyboard layout (setxkbmap
-us). For FreeDink, I think DMods authors usually attached scripts to
-the letters keys, so we could try something with the unicode field and
-get compatibility for that part of the keyboard only.
+us).
+
+For FreeDink, I think DMods authors usually attached scripts to the
+letters keys, so we could try something with the unicode field and get
+compatibility for that part of the keyboard only.
+
+This is currently implemented, with some work-arounds, in
+FreeDinkedit.
 
 -----
 

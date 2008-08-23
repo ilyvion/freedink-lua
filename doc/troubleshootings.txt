@@ -1,3 +1,5 @@
+(intended for developers who recompile)
+
 - There's a delay between an action and its sound
 
   You probably use a version of SDL that does not support DX. The

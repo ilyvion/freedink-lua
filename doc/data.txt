@@ -484,7 +484,7 @@ Sequence: untitled
 Copyright: Copyright © 1997 by Seth A. Robinson
 Text: Seth A. Robinson
 
-lovin.mid
+lovin.mid (Kernsin parade)
 Sequence: Lovin' / GACHOPIN
 Copyright: Copyright(c)1997,GACHOPIN All Rights Reserved.
 http://sound.jp/gachopin/en/
@@ -492,7 +492,7 @@ http://sound.jp/gachopin/music/lovin-e.html
 http://sound.jp/gachopin/midi/midplug/lovin_mp.mid
 gachos@gmail.com ICQ:21807998
 
-neighbor.mid
+neighbor.mid (unused)
 Sequence: Neighbor
 
 Wanderer.mid
@@ -500,3 +500,12 @@ Sequence: wanderer
 
 
 See also http://www.rtsoft.com/forums/showthread.php?t=1165 for some clues.
+
+
+splash.wav
+Comment: 'Cool Edit v.1.05 by David Johnston'
+
+
+I also started a page at:
+http://www.freedink.org/doc/sounds/
+
