@@ -249,11 +249,16 @@ void check_midi(void)
 	  if (PlayCD(cd_track) >= 0)
 	    return; /* Playing fine */
 	}
+      /* If couldn't play the CD track, fallback to midi */
+      sprintf(midi_filename, "%d.mid", map.music[*pmap] - 1000);
+      PlayMidi(midi_filename);
     }
-
-  /* Just play the specified MIDI */
-  sprintf(midi_filename, "%d.mid", map.music[*pmap]);
-  PlayMidi(midi_filename);
+  else
+    {
+      /* Just play the specified MIDI */
+      sprintf(midi_filename, "%d.mid", map.music[*pmap]);
+      PlayMidi(midi_filename);
+    }
 }
 
 /**
@@ -284,11 +289,12 @@ void bgm_init(void)
       return;
     }
   
-  if (CD_INDRIVE(SDL_CDStatus(cdrom))) {
-    /* TODO: do some test about the presence of audio tracks in the
-       CD - though fortunately SDL_Mixer does not read data track */
-    cd_inserted = /*true*/1;
-  } 
+  if (CD_INDRIVE(SDL_CDStatus(cdrom)))
+    if (cdrom->numtracks == 19)
+      /* only enable CD for the original game CD; and well, it makes
+	 sense not to try to play the CD anytime the user left a CD in
+	 the drive */
+      cd_inserted = 1;
   
   /* This newly opened CD-ROM becomes the default CD used when other
      CD functions are passed a NULL CD-ROM handle. */
