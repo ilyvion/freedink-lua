@@ -1,7 +1,7 @@
 Name:		freedink
 Version:	1.08.20080821
 Release:	1%{?dist}
-Summary:	adventure and role-playing game (engine)
+Summary:	Adventure and role-playing game (engine)
 
 Group:		Amusements/Games
 License:	GPLv3+
@@ -29,7 +29,7 @@ compatibility, under multiple platforms.
 
 %build
 # Using '--disable-embedded-resources' because 'rpmbuild' will remove
-#   them anyway (so it can make the -debuginfo package -- too bad :/
+# them anyway (so it can make the -debuginfo package -- too bad :/
 %configure --disable-embedded-resources 
 make %{?_smp_mflags}
 
