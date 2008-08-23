@@ -7,7 +7,7 @@ SUBDIRS = autopackage gnulib/lib src share
 # Copy those directly and recursively:
 # (don't include debian/ as this displeases debian devs)
 EXTRA_DIST = bootstrap doc test contrib gnulib/m4/gnulib-cache.m4	\
-	BUILD TROUBLESHOOTING
+	BUILD DEB TROUBLESHOOTING freedink.spec
 
 dist-hook:
 	find $(distdir) -name '*~' | xargs -r rm -f
