@@ -179,10 +179,12 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       Uint8 *buffer;
       SDL_RWops *rw;
       buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
-      rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
-      
-      GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
-      // bmp_surf = IMG_Load_RW (rw, 0);
+      if (buffer != NULL)
+	{
+	  rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
+	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
+	  // bmp_surf = IMG_Load_RW (rw, 0);
+	}
       if (GFX_k[myslot].k == NULL)
 	{
 	  fprintf(stderr, "Failed to load %s from fastfile\n", crap);

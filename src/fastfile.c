@@ -2,7 +2,7 @@
  * Free fastfile.cpp replacement
 
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2003, 2004  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -65,12 +65,13 @@ HANDLE g_FileMap;
 #endif
 
 
-char *g_MemMap = 0;
+unsigned char *g_MemMap = 0;
 
 int
-FastFileInit (char *filename, int max_handles)
+FastFileInit(char *filename, int max_handles)
 {
-  long pos, count = 0;
+  long count = 0;
+  unsigned char *buf = NULL;
 
   FastFileFini ();
 
@@ -80,7 +81,7 @@ FastFileInit (char *filename, int max_handles)
   g_FileSize = lseek (g_File, 0, SEEK_END);
   lseek (g_File, 0, SEEK_SET);
 
-  g_MemMap = mmap (0, g_FileSize, PROT_READ, MAP_PRIVATE, g_File, 0);
+  g_MemMap = mmap (NULL, g_FileSize, PROT_READ, MAP_PRIVATE, g_File, 0);
 #else
   /* Open and mmap the file(Windows) */
   g_File =
@@ -95,21 +96,23 @@ FastFileInit (char *filename, int max_handles)
   g_FileMap = CreateFileMapping (g_File, NULL, PAGE_READONLY, 0, 0, NULL);
   g_MemMap = MapViewOfFile (g_FileMap, FILE_MAP_READ, 0, 0, 0);
 #endif
-  /* Get the number of entries */
-  g_numEntries = *((long *) g_MemMap);
+
+  /* Get the number of entries (from stored LSB int32) */
+  buf = g_MemMap;
+  g_numEntries = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
   g_numHandles = max_handles;
-  pos = sizeof (long);
+  buf += 4;
 
   /* Allocate the memory */
-  g_Entries = calloc (sizeof (struct FF_Entry), g_numEntries);
-  g_Handles = calloc (sizeof (struct FF_Handle), max_handles);
+  g_Entries = calloc(sizeof(struct FF_Entry), g_numEntries);
+  g_Handles = calloc(sizeof(struct FF_Handle), max_handles);
 
-  for (count = 0; count < (long) g_numEntries; count++)
+  for (count = 0; count < g_numEntries; count++)
     {
-      g_Entries[count].off = *((long *) (g_MemMap + pos));
-      pos += sizeof (long);
-      strncpy (g_Entries[count].name, &g_MemMap[pos], 13);
-      pos += 13;
+      g_Entries[count].off = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
+      buf += 4;
+      strncpy (g_Entries[count].name, (char*)buf, 13);
+      buf += 13;
     }
 
   return 1;
@@ -240,7 +243,7 @@ FastFileSeek (struct FF_Handle *i, int offset, int whence)
 int
 FastFileRead (struct FF_Handle *i, void *bigBuffer, int size)
 {
-  char *srcBuffer;
+  unsigned char *srcBuffer;
 
   if (!i || !bigBuffer || !g_MemMap)
     return 0;
@@ -278,24 +281,24 @@ FastFileLock (struct FF_Handle *i, int off, int len)
 
   if (!i || !g_MemMap)
     {
-      return 0;
+      return NULL;
     }
   if (off < 0 || len < 0)
     {
-      return 0;
+      return NULL;
     }
   if (len > i->len)
     {
       printf("FastFileLock: len = %d > i->len = %ld - exiting.\n", len, i->len);
       fflush(stdout);
-      return 0;
+      return NULL;
     }
 
-  buffer = (char *) g_MemMap;
+  buffer = (char*)g_MemMap;
   buffer += i->off;
   buffer += off;
 
-  return (void *) buffer;
+  return (void*)buffer;
 }
 
 
