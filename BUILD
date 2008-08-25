@@ -38,8 +38,9 @@ aptitude install build-essential
 # Note: if you're under Etch, you need to use newer versions of
 # FreeType and SDL_ttf from here:
 #deb http://www.freedink.org/snapshots/debian/etch-backports/ ./
-aptitude install libsdl1.2-dev libsdl-gfx1.2-dev libsdl-ttf2.0-dev \
-  libsdl-image1.2-dev libsdl-mixer1.2-dev libzzip-dev zip
+aptitude install pkg-config libsdl1.2-dev libsdl-gfx1.2-dev \
+  libsdl-ttf2.0-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
+  libzzip-dev zip
 # | aptitude install libzip-dev
 # Optional:
 # - upx compresses binary
