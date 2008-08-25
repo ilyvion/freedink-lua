@@ -40,9 +40,11 @@
 #include "relocatable.h"
 #include "SDL.h"
 #ifdef HAVE_LIBZIP
-#include "SDL_rwops_libzip.h"
+#  include "SDL_rwops_libzip.h"
 #else
+#  ifdef HAVE_ZZIPLIB
 #include "SDL_rwops_zzip.h"
+#  endif
 #endif
 
 #include "paths.h"
@@ -235,6 +237,7 @@ SDL_RWops* find_resource_as_rwops(char *name)
   rwops = SDL_RWFromZIP(myself, name);
   free(myself);
 #else
+#  ifdef HAVE_ZZIPLIB
   char *myself = get_full_program_name();
   char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
   sprintf(zippath, "%s/%s", myself, name);
@@ -242,6 +245,7 @@ SDL_RWops* find_resource_as_rwops(char *name)
   rwops = SDL_RWFromZZIP(zippath, "rb");
   /* Retrieve error (if any) with: printf("%s\n", strerror(errno)); */
   free(zippath);
+#  endif
 #endif
 
   if (rwops != NULL)

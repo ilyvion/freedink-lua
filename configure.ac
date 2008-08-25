@@ -75,24 +75,29 @@ if test x"$enable_upx" = x"yes"; then
 fi
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
+dnl TODO: check for pkg-config's presence manually?
 
-# libzip - cross-compiles well but not widespread (distro packages) yet
-PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
-  AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
-  AC_MSG_WARN($LIBZIP_PKG_ERRORS); LACK_LIBZIP=1)
-CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
-LIBS="$LIBS $LIBZIP_LIBS"
+if test x"$enable_embedded_resources" = x"yes"; then
+  # libzip - cross-compiles well but not widespread (distro packages) yet
+  PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
+    AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
+    AC_MSG_WARN($LIBZIP_PKG_ERRORS); LACK_LIBZIP=1)
+  CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
+  LIBS="$LIBS $LIBZIP_LIBS"
+  # ZZipLib - doesn't cross-compile well and unstable under woe, but
+  #   functional and more widespread under GNU/Linux
+  #AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
+  PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
+    AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
+    AC_MSG_WARN($ZZIPLIB_PKG_ERRORS); LACK_ZZIPLIB=1)
+  CFLAGS="$CFLAGS $ZZIPLIB_CFLAGS"
+  LIBS="$LIBS $ZZIPLIB_LIBS"
+else
+   LACK_LIBZIP=1
+   LACK_ZZIPLIB=1
+fi
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
-# ZZipLib - doesn't cross-compile well and unstable under woe, but
-#   functional and more widespread under GNU/Linux
-#AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
-PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
-  AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
-  AC_MSG_WARN($ZZIPLIB_PKG_ERRORS); LACK_ZZIPLIB=1)
-CFLAGS="$CFLAGS $ZZIPLIB_CFLAGS"
-LIBS="$LIBS $ZZIPLIB_LIBS"
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
-
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
@@ -255,10 +260,6 @@ if test "$LACK_LIBSDL_MIXER" = 1; then
    echo "* You need to install the SDL_mixer library";
    error=1
 fi
-if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
-   echo "* You need to install libzip or ZZipLib"
-   error=1
-fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
    echo "* Warning: You lack some library headers (.h) - see warnings above."
@@ -266,10 +267,15 @@ if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
    warning=1
 fi
 
-if test -z "$ZIP"; then
-  echo "* The 'zip' utility cannot be found. Please install it."
-  #error=1
-  warning=1
+if test x"$enable_embedded_resources" = x"yes"; then
+   if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
+      echo "* You need to install libzip or ZZipLib (or --disable-embedded-resources)."
+      error=1
+   fi
+   if test -z "$ZIP"; then
+       echo "* The 'zip' utility cannot be found. Please install it (or --disable-embedded-resources)."
+       error=1
+   fi
 fi
 
 if test "$error" = 0 -a "$LACK_HELP2MAN" = 1; then
