@@ -50,59 +50,25 @@ void add_text(char *text, char *filename)
 
 void Msg(char *fmt, ...)
 {
-    char    buff[350];
-    va_list  va;
+  char buff[350];
+  va_list ap;
 
-    va_start(va, fmt);
+  // format message with header
+  strcpy(buff, "Dink:");
+  va_start(ap, fmt);
+  vsprintf(&buff[strlen(buff)], fmt, ap);
+  va_end(ap);
+  strcat(buff, "\r\n");
+  
+  // need to reset 'ap' if using it again:
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+  fprintf(stderr, "\n");
 
-    //
-    // format message with header
-    //
+  // displayed on screen if user switches to debug mode
+  strcpy(last_debug, buff);
 
-    strcpy( buff, "Dink:" );
-    vsprintf( &buff[strlen(buff)], fmt, va );
-    strcat( buff, "\r\n" );
-
-    vfprintf(stderr, fmt, va);
-    fprintf(stderr, "\n");
-    //
-    // To the debugger unless we need to be quiet
-    //
-
-
-
-/*         OutputDebugString( buff ); */
-        strcpy(last_debug, buff);
-        if (debug_mode) add_text(buff, "DEBUG.TXT");
-
-
-} /* Msg */
-
-void TRACE(char *fmt, ...)
-{
-    char    buff[350];
-    va_list  va;
-
-    va_start(va, fmt);
-
-    //
-    // format message with header
-    //
-
-    strcpy( buff, "Dink:" );
-    vsprintf( &buff[strlen(buff)], fmt, va );
-    strcat( buff, "\r\n" );
-
-    //
-    // To the debugger unless we need to be quiet
-    //
-
-
-
-/*         OutputDebugString( buff ); */
-        strcpy(last_debug, buff);
-        if (debug_mode) add_text(buff, "DEBUG.TXT");
-
-
-} /* Msg */
-
+  if (debug_mode)
+    add_text(buff, "DEBUG.TXT");
+}

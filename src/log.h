@@ -27,6 +27,5 @@ extern char last_debug[200];
 extern /*bool*/int debug_mode;
 extern void add_text(char *tex ,char *filename);
 extern void Msg(char *fmt, ...);
-extern void TRACE(char *fmt, ...);
 
 #endif
