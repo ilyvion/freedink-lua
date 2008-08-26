@@ -14,6 +14,13 @@ BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-d
 BuildRequires:  update-desktop-files
 %endif
 Requires:	dink-data, dfarc
+# TiMidity++ is useful to play midis when /dev/sequencer isn't
+# functional (most of the case) and installing it prevents some
+# SDL_mixer freezes (see TROUBLESHOOTING).  In Fedora this is done
+# through SDL_mixer dependencies.
+%if 0%{?suse_version}
+Requires: timidity
+%endif
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
