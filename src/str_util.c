@@ -78,7 +78,6 @@ void strcpy_nooverlap(char *dst, char* src)
 int asprintf_append(char **strp, const char* fmt, ...)
 {
   va_list ap;
-  va_start(ap, fmt);
 
   if (*strp == NULL)
     {
@@ -87,7 +86,10 @@ int asprintf_append(char **strp, const char* fmt, ...)
     }
 
   char *tmp = NULL;
+  va_start(ap, fmt);
   int result = vasprintf(&tmp, fmt, ap);
+  va_end(ap);
+
   *strp = realloc(*strp, strlen(*strp) + strlen(tmp) + 1);
   strcat(*strp, tmp);
   free(tmp);

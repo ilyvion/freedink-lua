@@ -179,10 +179,11 @@ void msgbox(char* msg)
 void msgbox_init_error(char* fmt, ...)
 {
   va_list ap;
-  va_start(ap, fmt);
 
   char *buf = NULL;
+  va_start(ap, fmt);
   vasprintf(&buf, fmt, ap);
+  va_end(ap);
 
   fprintf(stderr, "%s\n", buf);
   msgbox(buf);

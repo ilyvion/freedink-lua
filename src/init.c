@@ -66,6 +66,7 @@ void init_set_error_msg(char *fmt, ...)
   va_list ap;
   va_start(ap, fmt);
   vasprintf(&init_error_msg, fmt, ap);
+  va_end(ap);
 }
 
 /**
