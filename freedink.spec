@@ -10,6 +10,9 @@ Source0:	http://www.freedink.org/snapshots/freedink-1.08.20080821.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel
+%if 0%{?suse_version}
+BuildRequires:  update-desktop-files
+%endif
 Requires:	dink-data, dfarc
 
 %description
@@ -37,6 +40,10 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
+%if 0%{?suse_version}
+%suse_update_desktop_file -i %name
+%suse_update_desktop_file -i %{name}edit
+%endif
 
 
 %clean
