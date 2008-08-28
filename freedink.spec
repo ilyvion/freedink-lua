@@ -1,12 +1,12 @@
 Name:		freedink
-Version:	1.08.20080821
+Version:	1.08.20080828
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game (engine)
 
 Group:		Amusements/Games
 License:	GPLv3+
 URL:		http://www.freedink.org/
-Source0:	http://www.freedink.org/snapshots/freedink-1.08.20080821.tar.gz
+Source0:	http://www.freedink.org/releases/freedink-1.08.20080828.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel
@@ -68,5 +68,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fri Aug 22 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080821-1
+* Thu Aug 28 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080828-1
 - Initial package

@@ -11,7 +11,7 @@ version=3
 #http://www.example.com/downloads.php freedink-(.*)\.tar\.gz
 
 # Uncomment to examine a Webserver directory
-#http://www.example.com/pub/freedink-(.*)\.tar\.gz
+http://www.freedink.org/releases/freedink-(.*)\.tar\.gz
 
 # Uncommment to examine a FTP server
 #ftp://ftp.example.com/pub/freedink-(.*)\.tar\.gz debian uupdate
