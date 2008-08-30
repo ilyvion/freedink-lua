@@ -1,0 +1,52 @@
+dink.ini only:
+* PLAYMIDI  filename
+
+
+dink.ini:
+
+* LOAD_SEQUENCE_NOW  path  seq  BLACK
+* LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
+* LOAD_SEQUENCE_NOW  path  seq  NOTANIM
+* LOAD_SEQUENCE_NOW  path  seq  speed
+* LOAD_SEQUENCE_NOW  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
+
+* LOAD_SEQUENCE  path  seq  BLACK
+* LOAD_SEQUENCE  path  seq  LEFTALIGN
+* LOAD_SEQUENCE  path  seq  NOTANIM
+* LOAD_SEQUENCE  path  seq  speed
+* LOAD_SEQUENCE  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
+
+* SET_SPRITE_INFO
+* SET_FRAME_SPECIAL
+* SET_FRAME_DELAY
+  
+* SET_FRAME_FRAME  seq frame  new_seq new_frame
+* SET_FRAME_FRAME  seq frame  -1
+
+
+
+
+Delayed init (idata) or DinkC init():
+
+* LOAD_SEQUENCE_NOW  path  seq  BLACK
+* LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
+* LOAD_SEQUENCE_NOW  path  seq  NOTANIM
+* LOAD_SEQUENCE_NOW  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
+
+* SET_SPRITE_INFO
+* SET_FRAME_SPECIAL
+* SET_FRAME_DELAY
+
+* SET_FRAME_FRAME
+
+
+Doesn't exist anymore, but still used in Dink's dink.ini:
+
+* starting_dink_x
+* starting_dink_y
+* starting_dink_map  1
+
+
+Sequence metadata (center, hardbox) set using LOAD_SEQUENCE_NOW
+doesn't survice another LOAD_SEQUENCE_NOW with the same
+sequence. However, SET_SPRITE_INFO and SET_FRAME_* do.

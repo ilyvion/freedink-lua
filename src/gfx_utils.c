@@ -28,6 +28,7 @@
 #include "paths.h"
 #include "log.h"
 #include "dinkvar.h"
+#include "dinkini.h"
 
 /* Parse dink.ini */
 void load_batch(void)
@@ -44,7 +45,7 @@ void load_batch(void)
   else
     {
       while(fgets(line, 255, in) != NULL) 
-	pre_figure_out(line, 0);
+	pre_figure_out(line);
       fclose(in);
     }
 

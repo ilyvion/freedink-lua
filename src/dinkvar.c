@@ -1252,8 +1252,8 @@ void save_info(void)
   fread(play.gameinfo, 196, 1, f);
   // offset 200
   play.minutes = read_lsb_int(f);
-  play.x = read_lsb_int(f);
-  play.y = read_lsb_int(f);
+  spr[1].x = read_lsb_int(f);
+  spr[1].y = read_lsb_int(f);
   play.die = read_lsb_int(f);
   play.size = read_lsb_int(f);
   play.defense = read_lsb_int(f);
@@ -1393,8 +1393,6 @@ void save_info(void)
   
   
   spr[1].damage = 0;
-  spr[1].x = play.x;
-  spr[1].y = play.y;
   walk_off_screen = 0;
   spr[1].nodraw = 0;
   push_active = 1;
@@ -1512,8 +1510,6 @@ void save_game(int num)
   FILE *f;
 
   //lets set some vars first
-  play.x = spr[1].x;
-  play.y = spr[1].y;
   play.version = dversion;
   play.pseq =  spr[1].pseq;
   play.pframe     =        spr[1].pframe;
@@ -1562,8 +1558,8 @@ void save_game(int num)
   fwrite(play.gameinfo, 196, 1, f);
   // offset 200
   write_lsb_int(play.minutes, f);
-  write_lsb_int(play.x, f);
-  write_lsb_int(play.y, f);
+  write_lsb_int(spr[1].x, f);
+  write_lsb_int(spr[1].y, f);
   write_lsb_int(play.die, f);
   write_lsb_int(play.size, f);
   write_lsb_int(play.defense, f);
@@ -1933,20 +1929,158 @@ void load_hard(void)
 }
 
 
+
 /**
- * Parse a sprite .ini data or init() line, and act immediately
+ * Parse a dink.ini line, and store instructions for later processing
+ * (used in game initialization through 'load_batch')
  */
-void figure_out(char line[255], int load_seq)
+void pre_figure_out(char* line)
 {
-  int myseq = 0,myframe = 0; int special = 0;
+  int i;
+  char ev[15][100];
+  memset(&ev, 0, sizeof(ev));
+  for (i = 1; i <= 14; i++)
+    separate_string(line, i, ' ', ev[i]);
+  char *command = ev[1];
+
+
+  // PLAYMIDI  filename
+  if (compare(command, "playmidi"))
+    {
+      char* midi_filename = ev[2];
+      if (!dinkedit)
+	PlayMidi(midi_filename);
+    }
+
+  // LOAD_SEQUENCE_NOW  path  seq  BLACK
+  // LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
+  // LOAD_SEQUENCE_NOW  path  seq  NOTANIM
+  // LOAD_SEQUENCE_NOW  path  seq  speed
+  // LOAD_SEQUENCE_NOW  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
+  if (compare(command, "LOAD_SEQUENCE_NOW"))
+    {
+      rect hardbox;
+      memset(&hardbox, 0, sizeof(rect));
+
+      int myseq = atol(ev[3]);
+      seq[myseq].is_active = 1;
+      seq_set_ini(myseq, line);
+
+      if (compare(ev[4], "BLACK"))
+	{
+	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		       hardbox, /*not_anim=*/1, /*black=*/1, /*leftalign=*/0);
+	}
+      else if (compare(ev[4], "LEFTALIGN"))
+	{
+	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/1);
+	}
+      else if (compare(ev[4], "NOTANIM"))
+	{
+	  //not an animation!
+	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/0);
+	}
+      else
+	{
+	  //yes, an animation!
+	  hardbox.left = atol(ev[7]);
+	  hardbox.top = atol(ev[8]);
+	  hardbox.right = atol(ev[9]);
+	  hardbox.bottom = atol(ev[10]);
+	  
+	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		       hardbox, /*not_anim=*/1, /*black=*/0, /*leftalign=*/0);
+	}
+
+      /* In the original engine, due to a bug, make_idata() modifies
+	 unused sequence #0, but this isn't really important because
+	 sequence was already configured in was already done in
+	 'load_sprites'. This is consistent with 'figure_out', which
+	 doesn't call 'make_idata' at all. */
+      /* We still call 'make_idata' for compatibility, to use the same
+	 number of idata, hence preserving the same max_idata. */
+      make_idata(IDATA_SPRITE_INFO, 0,0, 0,0, hardbox);
+      return;
+    }
+
+  // LOAD_SEQUENCE  path  seq  BLACK
+  // LOAD_SEQUENCE  path  seq  LEFTALIGN
+  // LOAD_SEQUENCE  path  seq  NOTANIM
+  // LOAD_SEQUENCE  path  seq  speed
+  // LOAD_SEQUENCE  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
+  if (compare(command, "LOAD_SEQUENCE"))
+    {
+      int myseq = atol(ev[3]);
+      seq_set_ini(myseq, line);
+      seq[myseq].is_active = 1;
+      return;
+    }
+  
+  if (compare(command, "SET_SPRITE_INFO"))
+    {
+      //           name   seq    speed       offsetx     offsety       hardx      hardy
+      //if (k[seq[myseq].frame[myframe]].frame = 0) Msg("Changing sprite that doesn't exist...");
+      
+      rect hardbox;
+      int myseq = atol(ev[2]);
+      int myframe = atol(ev[3]);
+      rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
+      make_idata(IDATA_SPRITE_INFO, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
+      return;
+    }
+  
+  if (compare(command, "SET_FRAME_SPECIAL"))
+    {
+      rect hardbox;
+      int myseq = atol(ev[2]);
+      int myframe = atol(ev[3]);
+      int special = atol(ev[4]);
+      make_idata(IDATA_FRAME_SPECIAL, myseq, myframe, special, 0, hardbox);
+      return;
+    }
+  
+  if (compare(command, "SET_FRAME_DELAY"))
+    {
+      rect hardbox;
+      int myseq = atol(ev[2]);
+      int myframe = atol(ev[3]);
+      int delay = atol(ev[4]);
+      make_idata(IDATA_FRAME_DELAY, myseq, myframe, delay, 0, hardbox);
+      return;
+    }
+  
+  // SET_FRAME_FRAME  seq frame  new_seq new_frame
+  // SET_FRAME_FRAME  seq frame  -1
+  if (compare(command, "SET_FRAME_FRAME"))
+    {
+      rect hardbox;
+      int myseq = atol(ev[2]);
+      int myframe = atol(ev[3]);
+      int new_seq = atol(ev[4]);
+      int new_frame = atol(ev[5]);
+      
+      make_idata(IDATA_FRAME_FRAME, myseq, myframe, new_seq, new_frame, hardbox);
+    }
+}
+
+/**
+ * Parse a delayed seq[].ini or a DinkC init("...") , and act
+ * immediately
+ */
+void figure_out(char* line)
+{
+  int myseq = 0, myframe = 0;
+  int special = 0;
   int special2 = 0;
   int i;
   char ev[15][100];
   memset(&ev, 0, sizeof(ev));
   for (i = 1; i <= 14; i++)
-    separate_string(line, i,' ',ev[i]);
+    separate_string(line, i, ' ', ev[i]);
   char *command = ev[1];
-  
+
   // LOAD_SEQUENCE_NOW  path  seq  BLACK
   // LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
   // LOAD_SEQUENCE_NOW  path  seq  NOTANIM
@@ -2028,18 +2162,6 @@ void figure_out(char line[255], int load_seq)
       Msg("Set delay.  %d %d %d",myseq, myframe, special);
     }
 
-  if (compare(command, "STARTING_DINK_X"))
-    {
-      myseq = atol(ev[2]);
-      play.x = myseq;
-    }
-
-  if (compare(command, "STARTING_DINK_Y"))
-    {
-      myseq = atol(ev[2]);
-      play.y = myseq;
-    }
-  
   if (compare(command, "SET_FRAME_FRAME"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
@@ -2052,151 +2174,7 @@ void figure_out(char line[255], int load_seq)
 	seq[myseq].frame[myframe] = special;
       else
 	seq[myseq].frame[myframe] = seq[special].frame[special2];
-      Msg("Set frame.  %d %d %d",myseq, myframe, special);
-    }
-}
-
-
-/**
- * Parse a dink.ini line, and store instructions for later processing
- * (used in game initialization through 'load_batch')
- */
-void pre_figure_out(char line[255], int load_seq)
-{
-  int i;
-  char ev[15][100];
-  memset(&ev, 0, sizeof(ev));
-  for (i = 1; i <= 14; i++)
-    separate_string(line, i, ' ', ev[i]);
-  char *command = ev[1];
-
-
-  // PLAYMIDI  filename
-  if (compare(command, "playmidi"))
-    {
-      char* midi_filename = ev[2];
-      if (!dinkedit)
-	PlayMidi(midi_filename);
-    }
-
-  // LOAD_SEQUENCE_NOW  path  seq  BLACK
-  // LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
-  // LOAD_SEQUENCE_NOW  path  seq  NOTANIM
-  // LOAD_SEQUENCE_NOW  path  seq  speed
-  // LOAD_SEQUENCE_NOW  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
-  if (compare(command, "LOAD_SEQUENCE_NOW"))
-    {
-      rect hardbox;
-      memset(&hardbox, 0, sizeof(rect));
-
-      int myseq = atol(ev[3]);
-      seq[myseq].is_active = 1;
-      seq_set_ini(myseq, line);
-
-      if (compare(ev[4], "BLACK"))
-	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/1, /*black=*/1, /*leftalign=*/0);
-	}
-      else if (compare(ev[4], "LEFTALIGN"))
-	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/1);
-	}
-      else if (compare(ev[4], "NOTANIM"))
-	{
-	  //not an animation!
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/0);
-	}
-      else
-	{
-	  //yes, an animation!
-	  hardbox.left = atol(ev[7]);
-	  hardbox.top = atol(ev[8]);
-	  hardbox.right = atol(ev[9]);
-	  hardbox.bottom = atol(ev[10]);
-	  
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/1, /*black=*/0, /*leftalign=*/0);
-	}
-      
-      int myseq_TODO = atol(ev[2]);   // isn't it #3???
-      int myframe = atol(ev[3]); // isn't it #4???
-      rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
-      make_idata(IDATA_SPRITE_INFO, myseq_TODO, myframe,atol(ev[4]), atol(ev[5]),hardbox);
-      return;
-    }
-
-  // LOAD_SEQUENCE  path  seq  BLACK
-  // LOAD_SEQUENCE  path  seq  LEFTALIGN
-  // LOAD_SEQUENCE  path  seq  NOTANIM
-  // LOAD_SEQUENCE  path  seq  speed
-  // LOAD_SEQUENCE  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
-  if (compare(command, "LOAD_SEQUENCE"))
-    {
-      int myseq = atol(ev[3]);
-      seq_set_ini(myseq, line);
-      seq[myseq].is_active = 1;
-      return;
-    }
-  
-  if (compare(command, "SET_SPRITE_INFO"))
-    {
-      //           name   seq    speed       offsetx     offsety       hardx      hardy
-      //if (k[seq[myseq].frame[myframe]].frame = 0) Msg("Changing sprite that doesn't exist...");
-      
-      rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
-      make_idata(IDATA_SPRITE_INFO, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
-      return;
-    }
-  
-  if (compare(command, "SET_FRAME_SPECIAL"))
-    {
-      rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int special = atol(ev[4]);
-      make_idata(IDATA_FRAME_SPECIAL, myseq, myframe, special, 0, hardbox);
-      return;
-    }
-  
-  if (compare(command, "SET_FRAME_DELAY"))
-    {
-      rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int delay = atol(ev[4]);
-      make_idata(IDATA_FRAME_DELAY, myseq, myframe, delay, 0, hardbox);
-      return;
-    }
-  
-  // SET_FRAME_FRAME  seq frame  new_seq new_frame
-  // SET_FRAME_FRAME  seq frame  -1
-  if (compare(command, "SET_FRAME_FRAME"))
-    {
-      rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int new_seq = atol(ev[4]);
-      int new_frame = atol(ev[5]);
-      
-      make_idata(IDATA_FRAME_FRAME, myseq, myframe, new_seq, new_frame, hardbox);
-    }
-
-  // Obsolete?
-  if (compare(command, "STARTING_DINK_X"))
-    {
-      int x = atol(ev[2]);
-      play.x = x;
-    }
-  if (compare(command, "STARTING_DINK_Y"))
-    {
-      int y  = atol(ev[2]);
-      play.y = y;
+      Msg("Set frame.  %d %d %d", myseq, myframe, special);
     }
 }
 
@@ -3069,7 +3047,7 @@ void check_sprite_status(int h)
                 if (seq[spr[h].pseq].frame[1] == 0)
                 {
 		  if (seq[spr[h].pseq].is_active)
-		    figure_out(seq[spr[h].pseq].ini, 0);
+		    figure_out(seq[spr[h].pseq].ini);
 		  else
 		    fprintf(stderr, "Error: sprite %d on map %d references non-existent sequence %d \n",
 			    h, cur_map, spr[h].pseq);
@@ -3112,7 +3090,7 @@ void check_frame_status(int h, int frame)
                 // Msg("Smartload: Loading seq %d..", spr[h].seq);
                 if (seq[h].frame[1] == 0 || GFX_k[seq[h].frame[1]].k == NULL)
                 {
-                        figure_out(seq[h].ini, 0);
+                        figure_out(seq[h].ini);
                 }
                 else
                 {
@@ -3146,7 +3124,7 @@ void check_seq_status(int seq_no)
   if ((seq_no > 0 && seq_no < MAX_SEQUENCES)
       && (seq[seq_no].frame[1] == 0 || GFX_k[seq[seq_no].frame[1]].k == NULL))
     {
-      figure_out(seq[seq_no].ini, 0);
+      figure_out(seq[seq_no].ini);
     }
 }
 

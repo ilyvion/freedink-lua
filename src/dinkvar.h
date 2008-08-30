@@ -288,7 +288,6 @@ extern void load_info(void);
 extern struct hit_map hm;
 
 /* Dunno */
-extern void program_idata(void);
 extern /*bool*/int mouse1;
 
 /* Screen */
@@ -303,7 +302,8 @@ extern int g_b_kill_app;
 
 
 /* Startup */
-extern void pre_figure_out(char line[255], int load_seq);
+extern void pre_figure_out(char* line);
+extern void figure_out(char* line);
 
 /* Metadata */
 extern int burn_revision;
@@ -389,6 +389,5 @@ extern int change_edit_char(int h,  int val, unsigned char * change);
 extern int change_edit(int h,  int val, unsigned short * change);
 extern int hurt_thing(int h, int damage, int special);
 extern void random_blood(int mx, int my, int h);
-extern void figure_out(char line[255], int load_seq);
 
 #endif

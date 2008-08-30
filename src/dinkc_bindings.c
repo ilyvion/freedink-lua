@@ -3089,7 +3089,7 @@ pass:
                                                                         if (get_parms(ev[1], script, h, p))
                                                                         {
 
-                                                                                figure_out(slist[0], 0);
+                                                                                figure_out(slist[0]);
                                                                                 return(0);
                                                                         }
                                                                         returnint =  -1;

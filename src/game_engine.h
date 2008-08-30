@@ -185,8 +185,7 @@ struct player_info
   int version;
   char gameinfo[196];
   int minutes;
-  int x, y,
-    die, size, defense, dir, pframe, pseq, seq, frame, strength,
+  int die, size, defense, dir, pframe, pseq, seq, frame, strength,
     base_walk, base_idle, base_hit, que;
   
   struct item_struct mitem[NB_MITEMS+1]; //added one to these, because I don't like referring to a 0 item

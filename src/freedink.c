@@ -5185,10 +5185,6 @@ static int doInit(int argc, char *argv[])
   //spr[1].active = TRUE;
   spr[1].timer = 33;
 	
-  //copy from player info
-  spr[1].x = play.x;
-  spr[1].y = play.y;
-
 
   // ** SETUP **
   last_sprite_created = 1;
