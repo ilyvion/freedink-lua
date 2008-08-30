@@ -11,6 +11,9 @@ EXTRA_DIST = bootstrap doc test contrib gnulib/m4/gnulib-cache.m4	\
 
 dist-hook:
 	find $(distdir) -name '*~' | xargs -r rm -f
+#	Remove .gitignore files; e.g. they prevent 'git-buildpackage'
+#	from importing ignored files from release tarballs
+	find $(distdir) -name '.gitignore' | xargs -r rm -f
 #	At the end of each line (doubled $), add a \r, so we get \r\n
 	cd $(distdir) && sed 's/$$/\r/' README > README.txt
 	make -C $(distdir)/test/sdl clean
