@@ -6,14 +6,14 @@ Summary:	Adventure and role-playing game (engine)
 Group:		Amusements/Games
 License:	GPLv3+
 URL:		http://www.freedink.org/
-Source0:	http://www.freedink.org/releases/freedink-1.08.20080828.tar.gz
+Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-1.08.20080828.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel
 %if 0%{?suse_version}
 BuildRequires:  update-desktop-files
 %endif
-Requires:	dink-data, dfarc
+Requires:	dink-data, freedink-dfarc
 # TiMidity++ is useful to play midis when /dev/sequencer isn't
 # functional (most of the case) and installing it prevents some
 # SDL_mixer freezes (see TROUBLESHOOTING).  In Fedora this is done
