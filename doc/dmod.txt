@@ -131,7 +131,7 @@ void main(void)
   &cur_weapon = 1;
   arm_weapon();
 
-  &update_status=1;
+  &update_status = 1;
   draw_status();
 
   kill_this_task();
