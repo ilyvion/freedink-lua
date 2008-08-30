@@ -32,6 +32,7 @@
 #include "io_util.h"
 #include "log.h"
 #include "paths.h"
+#include "dinkini.h"
 
 /*
   External global variables in use:
@@ -122,10 +123,18 @@ static void free_seq(int seq_no)
 
 
 void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffset, int yoffset,
-		     rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign, /*bool*/int samedir)
+		     rect hardbox, int flags, /*bool*/int samedir)
 {
   char fname[20];
   char crap[200];
+
+  int notanim = 0, black = 0, leftalign = 0;
+  if ((flags & DINKINI_NOTANIM) == DINKINI_NOTANIM)
+    notanim = 1;
+  if ((flags & DINKINI_BLACK) == DINKINI_BLACK)
+    black = 1;
+  if ((flags & DINKINI_LEFTALIGN) == DINKINI_LEFTALIGN)
+    leftalign = 1;
 
   /* If the sequence already exists, free it first */
   free_seq(seq_no);
@@ -182,8 +191,10 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       if (buffer != NULL)
 	{
 	  rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
+	  /* We use IMG_Load_RW instead of SDL_LoadBMP because there
+	     is no _RW access in plain SDL. However there is not
+	     intent to support anything else than 8bit BMPs. */
 	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
-	  // bmp_surf = IMG_Load_RW (rw, 0);
 	}
       if (GFX_k[myslot].k == NULL)
 	{
@@ -287,32 +298,37 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       k[myslot].box.right = GFX_k[myslot].k->w;
       k[myslot].box.bottom = GFX_k[myslot].k->h;
       
-      if ( (oo > 1) && (notanim) )
+      /* Define the offsets / center of the image */
+      if (yoffset > 0)
 	{
-	  k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
+	  // explicitely set center
+	  k[myslot].yoffset = yoffset;
 	}
       else
 	{
-	  if (yoffset > 0)
-	    k[myslot].yoffset = yoffset;
+	  if (oo > 1 && notanim)
+	    // copy first frame info
+	    k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
 	  else
-	    k[myslot].yoffset = (k[myslot].box.bottom -
-				 (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
+	    // compute default center
+	    k[myslot].yoffset = (k[myslot].box.bottom - (k[myslot].box.bottom / 4))
+	      - (k[myslot].box.bottom / 30);
 	}
       
-      if ( (oo > 1 ) && (notanim))
+      if (xoffset > 0)
 	{
-	  k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
+	  // explicitely set center
+	  k[myslot].xoffset = xoffset;
 	}
       else
 	{
-	  if (xoffset > 0)
-	    k[myslot].xoffset = xoffset;
+	  if (oo > 1 && notanim)
+	    // copy first frame info
+	    k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
 	  else
-	    {
-	      k[myslot].xoffset = (k[myslot].box.right -
-				       (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
-	    }
+	    // compute default center
+	    k[myslot].xoffset = (k[myslot].box.right - (k[myslot].box.right / 2))
+	      + (k[myslot].box.right / 6);
 	}
       //ok, setup main offsets, lets build the hard block
       
@@ -363,11 +379,19 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 /* - seq_path_prefix: path to the file, relative to the current game (dink or dmod) */
 /* - not_anim: reuse xoffset and yoffset from the first frame of the animation (misnomer) */
 void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset, int yoffset,
-		  rect hardbox, /*bool*/int notanim, /*bool*/int black, /*bool*/int leftalign)
+		  rect hardbox, int flags)
 {
   char crap[200];
   char *fullpath = NULL;
   int use_fallback = 0;
+
+  int notanim = 0, black = 0, leftalign = 0;
+  if ((flags & DINKINI_NOTANIM) == DINKINI_NOTANIM)
+    notanim = 1;
+  if ((flags & DINKINI_BLACK) == DINKINI_BLACK)
+    black = 1;
+  if ((flags & DINKINI_LEFTALIGN) == DINKINI_LEFTALIGN)
+    leftalign = 1;
 
   if (no_running_main)
     draw_wait();
@@ -387,7 +411,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       free(fullpath);
       free(seq_dirname);
       load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
-		      hardbox, notanim, black, leftalign, /*true*/1);
+		      hardbox, flags, /*true*/1);
       return;
     }
   free(fullpath);
@@ -407,7 +431,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       if (exists)
 	{
 	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
-			  hardbox, notanim, black, leftalign, /*false*/0);
+			  hardbox, flags, /*false*/0);
 	  free(seq_dirname);
 	  return;
 	}
@@ -478,33 +502,36 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       k[myslot].box.bottom = GFX_k[myslot].k->h;
       
       /* Define the offsets / center of the image */
-      
-      if (oo > 1 && notanim)
+      if (yoffset > 0)
 	{
-	  k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
+	  // explicitely set center
+	  k[myslot].yoffset = yoffset;
 	}
       else
 	{
-	  if (yoffset > 0)
-	    k[myslot].yoffset = yoffset;
+	  if (oo > 1 && notanim)
+	    // copy first frame info
+	    k[myslot].yoffset = k[seq[seq_no].frame[1]].yoffset;
 	  else
-	    {
-	      k[myslot].yoffset = (k[myslot].box.bottom -
-				   (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
-	    }
+	    // compute default center
+	    k[myslot].yoffset = (k[myslot].box.bottom - (k[myslot].box.bottom / 4))
+	      - (k[myslot].box.bottom / 30);
 	}
       
-      if (oo > 1 && notanim)
+      if (xoffset > 0)
 	{
-	  k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
+	  // explicitely set center
+	  k[myslot].xoffset = xoffset;
 	}
       else
 	{
-	  if (xoffset > 0)
-	    k[myslot].xoffset = xoffset;
+	  if (oo > 1 && notanim)
+	    // copy first frame info
+	    k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
 	  else
-	    k[myslot].xoffset = (k[myslot].box.right -
-				 (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
+	    // compute default center
+	    k[myslot].xoffset = (k[myslot].box.right - (k[myslot].box.right / 2))
+	      + (k[myslot].box.right / 6);
 	}
       //ok, setup main offsets, lets build the hard block
       
@@ -513,7 +540,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 	  //forced setting
 	  k[myslot].hardbox.left = hardbox.left;
 	  k[myslot].hardbox.right = hardbox.right;
-	    }
+	}
       else
 	{
 	  //default setting

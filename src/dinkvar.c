@@ -1966,21 +1966,19 @@ void pre_figure_out(char* line)
       seq[myseq].is_active = 1;
       seq_set_ini(myseq, line);
 
+      int flags = 0;
       if (compare(ev[4], "BLACK"))
 	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/1, /*black=*/1, /*leftalign=*/0);
+	  flags = DINKINI_NOTANIM | DINKINI_BLACK;
 	}
       else if (compare(ev[4], "LEFTALIGN"))
 	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/1);
+	  flags = DINKINI_LEFTALIGN;
 	}
       else if (compare(ev[4], "NOTANIM"))
 	{
 	  //not an animation!
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/0, /*black=*/0, /*leftalign=*/0);
+	  flags = 0;
 	}
       else
 	{
@@ -1989,10 +1987,13 @@ void pre_figure_out(char* line)
 	  hardbox.top = atol(ev[8]);
 	  hardbox.right = atol(ev[9]);
 	  hardbox.bottom = atol(ev[10]);
-	  
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*not_anim=*/1, /*black=*/0, /*leftalign=*/0);
+
+	  flags = DINKINI_NOTANIM;
 	}
+
+      load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		   hardbox, flags);
+
 
       /* In the original engine, due to a bug, make_idata() modifies
 	 unused sequence #0, but this isn't really important because
@@ -2095,21 +2096,20 @@ void figure_out(char* line)
       seq[myseq].is_active = 1;
       seq_set_ini(myseq, line);
 
+      int flags = 0;
+
       if (compare(ev[4], "BLACK"))
 	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*true*/1, /*true*/1, /*false*/0);
+	  flags = DINKINI_NOTANIM | DINKINI_BLACK;
 	}
       else if (compare(ev[4], "LEFTALIGN"))
 	{
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*false*/0, /*false*/0, /*true*/1);
+	  flags = DINKINI_LEFTALIGN;
 	}
       else if (compare(ev[4], "NOTANIM"))
 	{
 	  //not an animation!
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*false*/0, /*false*/0, /*false*/0);
+	  flags = 0;
 	}
       else
 	{
@@ -2119,9 +2119,11 @@ void figure_out(char* line)
 	  hardbox.right = atol(ev[9]);
 	  hardbox.bottom = atol(ev[10]);
 	  
-	  load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
-		       hardbox, /*true*/1, /*false*/0, /*false*/0); //Crap
+	  flags = DINKINI_NOTANIM;
 	}
+
+      load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+		   hardbox, flags);
       
       program_idata();
       return;

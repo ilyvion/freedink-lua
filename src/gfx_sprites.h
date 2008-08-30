@@ -80,9 +80,9 @@ extern "C"
 
   extern void sprites_unload(void);
   extern void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
-			      rect hardbox, int notanim, int black, int leftalign, int samedir);
+			      rect hardbox, int flags, int samedir);
   extern void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
-			   rect hardbox, int notanim, int black, int leftalign);
+			   rect hardbox, int flags);
   extern void seq_set_ini(int seq_no, char *line);
 
 #ifdef __cplusplus

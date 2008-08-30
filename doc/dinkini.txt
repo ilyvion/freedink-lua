@@ -40,13 +40,90 @@ Delayed init (idata) or DinkC init():
 * SET_FRAME_FRAME
 
 
-Doesn't exist anymore, but still used in Dink's dink.ini:
-
-* starting_dink_x
-* starting_dink_y
-* starting_dink_map  1
-
-
 Sequence metadata (center, hardbox) set using LOAD_SEQUENCE_NOW
-doesn't survice another LOAD_SEQUENCE_NOW with the same
+doesn't survive another LOAD_SEQUENCE_NOW with the same
 sequence. However, SET_SPRITE_INFO and SET_FRAME_* do.
+
+
+NOTANIM (implicitely enabled by LEFTALIGN): when offsetx (respectively
+offsety) is not specified, recompute the default offsetx
+(resp. offsety) for each frame. If using no or BLACK parameter, then
+the default offset is computed once for the first frame and replicated
+in all later frames.
+
+The default offset is a weird formula:
+default_offset_x = width - int(width / 2) + int(width / 6);
+default_offset_y = height - int(height / 4) - int(height / 30);
+
+This isn't supposed to make sense - the source code's 'notanim'
+parameter is actually set to false when NOTANIM is specified, so
+there may be a bug.
+
+Offsets are usually properly defined with SET_SPRITE_INFO, so this
+parameter has a very marginal interest.  Better not use it.
+
+The original Dink.ini contains:
+  load_sequence graphics\effects\arrow\arrow- 25 75 NOTANIM
+This is a bug (extra 75), and NOTANIM is not considered in that case.
+
+
+Transparency and color substition
+=================================
+
+If loading from a dir.ff file:
+
+A dir.ff contains all BMPs the one after the other in a single
+file. But the real efficiency in the original engine comes from the
+dump-to-video-memory approach, bypassing any format or palette
+conversion.  This requires a few work-arounds.  For this reason dir.ff
+supported is considered a deprecated compatibility feature, and its
+use for new D-Mods is discouraged.
+
+- default: replace black (index 255) by brighter black (index 249),
+  and set index 0 as transparent. Since DX forces 255=white,
+  subsitution is necessary to avoid pure black pixels displayed white.
+
+- BLACK: replace white (index 0) by darker white (index) 30 and set
+  index 255 as transparent. Since DX forces 0=black, subsitution is
+  necessary to avoid pure white pixels displayed black.
+
+- LEFTALIGN: perform both default and BLACK substitutions, and don't
+  set any transparent color.
+
+Note:
+
+- Substituting pure white pixels also avoids showing them during
+  fade_down().  A side-effect we need to take into account.
+
+- Only indexed (256 colors) in BMP format are supported.
+
+
+If loading from a BMP file:
+
+- default: set white as transparent color
+
+- BLACK: set black as transparent color
+
+- LEFTALIGN: ignored (default white=transparent behavior)
+
+Notes:
+
+- It is your responsibility to avoid pure-white pixels, unless you
+  want them to show up during fade_down().
+
+- This loading method involves palette convertion, so there are no
+  conflicts with DX's forced 0 and 255 indices.
+
+- FreeDink introduces COMPAT_DIRFF, to reproduce the dir.ff loading
+  process even when not using dir.ff. Only used to repackage the
+  original game.
+
+
+Obsolete
+========
+
+Doesn't exist anymore (or no-op), but still used in Dink's dink.ini:
+
+* starting_dink_x  x
+* starting_dink_y  y
+* starting_dink_map  1

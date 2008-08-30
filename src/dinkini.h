@@ -29,6 +29,12 @@
 enum idata_type { IDATA_EMPTY=0, IDATA_SPRITE_INFO, IDATA_FRAME_SPECIAL,
 		  IDATA_FRAME_DELAY, IDATA_FRAME_FRAME };
 
+/* Graphics load flags */
+#define DINKINI_BLACK        0x00000001
+#define DINKINI_LEFTALIGN    0x00000002
+#define DINKINI_NOTANIM      0x00000004
+#define DINKINI_COMPAT_DIRFF 0x00000008
+
 extern void dinkini_init(void);
 extern void dinkini_quit(void);
 extern void make_idata(enum idata_type type, int myseq, int myframe, int xoffset, int yoffset, rect crect);
