@@ -294,16 +294,15 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       else
 	{
 	  if (yoffset > 0)
-	    k[myslot].yoffset = yoffset; else
-	    {
-	      k[myslot].yoffset = (k[myslot].box.bottom -
-				       (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
-	    }
+	    k[myslot].yoffset = yoffset;
+	  else
+	    k[myslot].yoffset = (k[myslot].box.bottom -
+				 (k[myslot].box.bottom / 4)) - (k[myslot].box.bottom / 30);
 	}
       
       if ( (oo > 1 ) && (notanim))
 	{
-	  k[myslot].xoffset =  k[seq[seq_no].frame[1]].xoffset;
+	  k[myslot].xoffset = k[seq[seq_no].frame[1]].xoffset;
 	}
       else
 	{
@@ -352,7 +351,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
   /* Mark end-of-sequence */
   seq[seq_no].frame[oo] = 0;
   /* Length: inaccurate if 'set_frame_frame' is used */
-  seq[seq_no].len = oo - 1; 
+  seq[seq_no].len = oo - 1;
   
   if (oo == 1)
     fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s.\n", crap);
@@ -502,11 +501,10 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       else
 	{
 	  if (xoffset > 0)
-	    k[myslot].xoffset = xoffset; else
-	    {
-	      k[myslot].xoffset = (k[myslot].box.right -
-				   (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
-	    }
+	    k[myslot].xoffset = xoffset;
+	  else
+	    k[myslot].xoffset = (k[myslot].box.right -
+				 (k[myslot].box.right / 2)) + (k[myslot].box.right / 6);
 	}
       //ok, setup main offsets, lets build the hard block
       
@@ -547,7 +545,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   /* Mark end-of-sequence */
   seq[seq_no].frame[oo] = 0;
   /* Length: inaccurate if 'set_frame_frame' is used */
-  seq[seq_no].len = oo - 1; 
+  seq[seq_no].len = oo - 1;
   
   /* oo == 1 => not even one sprite was loaded, error */
   /* oo > 1 => the sequence ends */
