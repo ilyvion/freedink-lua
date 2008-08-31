@@ -114,10 +114,6 @@ Notes:
 - This loading method involves palette convertion, so there are no
   conflicts with DX's forced 0 and 255 indices.
 
-- FreeDink introduces COMPAT_DIRFF, to reproduce the dir.ff loading
-  process even when not using dir.ff. Only used to repackage the
-  original game.
-
 
 Obsolete
 ========
