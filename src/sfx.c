@@ -315,7 +315,7 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
 
   if (SDL_LoadWAV_RW(rwops, rwfreesrc, &wav_spec, &wav_buf, &wav_len) == NULL)
     {
-      fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+      fprintf(stderr, "Could not open sound file: %s\n", SDL_GetError());
       return 0;
     }
   printf("info: frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes\n",
