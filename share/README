@@ -6,28 +6,51 @@ freedink.ico
 From the original Dink source package, see src/freedink_xpm.c
 
 
-jump.wav, stop.wav, stop-orig.wav
-=================================
+jump.wav, stop.wav
+==================
 
-(Note: apparently they are not redistributable, so they were
-removed. We need to replace them.)
+The original sounds (see below) had unclear origin. I replaced them.
 
-Sound files used by Dinkedit. There were included in v1.06 as
-Dinkedit.exe resources (included in the executable).
+jump.wav: generated using sfxr
+(http://www.cyd.liu.se/~tompe573/hp/project_sfxr.html). The parameters
+are stored in jump.sfxr.
 
-The resources were forgotten in v1.07, so if you noticed that sound
-and application icon were missing, that's the reason :)
+stop.wav: generated using Audacity and various try&test. As far as I
+remember I started with a generated drum, reversed it to have 'bumps'
+at the beginning and the end of the sound, then increased frequency
+quite a lot, and eventually lowered the volume. The last state of the
+Audacity project is in stop.aup.
 
+Legal info:
+Copyright (C) 2008  Sylvain Beucler
 
-stop.wav (now stop-orig.wav) had to be re-written using Audacity to
-make it compatible with SDL_Mixer.
+This file is part of GNU FreeDink
+
+GNU FreeDink is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or (at
+your option) any later version.
+
+GNU FreeDink is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 
 Extracting wav resources from dinkedit.exe
 ==========================================
 
-I went the manual way. You need to get the position and length of the
-data using a PE/COFF (aka .exe) analyser:
+Dinkedit embedded sound resources in the v1.06 executable.
+
+The resources were forgotten in v1.07, so if you noticed that sound
+and application icon were missing, that's the reason :)
+
+To extract and study them, I went the manual way. You need to get the
+position and length of the data using a PE/COFF (aka .exe) analyser:
 
 http://www.mikekohn.net/file_formats/anal_pe.php
 $ ./anal_pe dinkedit106.exe
@@ -62,3 +85,7 @@ Now you can extract your data:
 
 dd if=dinkedit106.exe of=stop-orig.wav bs=1 skip=120752 count=3356
 dd if=dinkedit106.exe of=jump.wav      bs=1 skip=124108 count=9196
+
+
+stop-orig.wav has to be re-written using Audacity to make it
+compatible with SDL_Mixer.
