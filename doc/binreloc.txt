@@ -17,9 +17,9 @@ which contains the default font, icon and editor sounds.
 
 I used binreloc-2.0.tar.gz
 
-binreloc.m4 was added in acsite.m4. Keep it updated. I removed the
-("$datadir" = '${prefix}/share') test because $datadir evals to
-"${datarootdir}" with a recent Autoconf so the test will always fail.
+binreloc.m4 was added in acsite.m4. Keep it updated. I included a fix
+from SVN (trunk hasn't been released for 2 years?!) to properly
+support autoconf >= 2.60. See http://trac.autopackage.org/ticket/95
 
 To avoid using a redundant AM_CFLAGS=$(BINRELOC_CFLAGS) in
 Makefile.am, I added #include <config.h> in binreloc.c. Both define
