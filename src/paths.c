@@ -124,7 +124,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
   {
     /** => refdir **/
     char* match = NULL;
-    int nb_dirs = 6;
+    int nb_dirs = 8;
     char** lookup = malloc(sizeof(char*) * nb_dirs);
     int i = 0;
     if (refdir_opt == NULL)
@@ -134,13 +134,20 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
     lookup[1] = ".";
     lookup[2] = exedir;
 
-    char *default1 = NULL, *default2 = NULL, *default3 = NULL;
-    default1 = br_build_path(datadir, "dink");
-    default2 = "/usr/local/share/dink";
-    default3 = "/usr/share/dink";
-    lookup[3] = default1;
-    lookup[4] = default2;
-    lookup[5] = default3;
+    char *default3 = NULL, *default4 = NULL, *default5 = NULL,
+      *default6 = NULL, *default7 = NULL;
+    /* FHS mentions optional 'share/games' which some Debian packagers
+       seem to be found of */
+    default3 = br_build_path(datadir, "dink");
+    default4 = "/usr/local/share/games/dink";
+    default5 = "/usr/local/share/dink";
+    default6 = "/usr/share/games/dink";
+    default7 = "/usr/share/dink";
+    lookup[3] = default3;
+    lookup[4] = default4;
+    lookup[5] = default5;
+    lookup[6] = default6;
+    lookup[7] = default7;
 
     for (; i < nb_dirs; i++)
       {
@@ -158,7 +165,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 
 	if (match == NULL && i == 0)
 	  {
-	    msgbox_init_error("Invalid refdir: %s and/or %s are not accessible.",
+	    msgbox_init_error("Invalid --refdir option: %s and/or %s are not accessible.",
 			      dir_graphics_ci, dir_tiles_ci);
 	    exit(1);
 	  }
@@ -177,16 +184,14 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       {
 	char *msg = NULL;
 	asprintf_append(&msg, "Error: cannot find reference directory (--refdir). I looked in:\n");
-	int i = 0;
-	for (i = 0; i < nb_dirs; i++)
-	  {
-	    if (lookup[i] != NULL)
-	      {
-		char *dir_graphics_ci;
-		dir_graphics_ci = lookup[i];
-		asprintf_append(&msg, "- %s\n", dir_graphics_ci);
-	      }
-	  }
+	// lookup[0] already treated above
+	asprintf_append(&msg, "- %s [current dir]\n", lookup[1]);
+	asprintf_append(&msg, "- %s [exedir]\n", lookup[2]);
+	asprintf_append(&msg, "- %s [detected prefix]\n", lookup[3]);
+	asprintf_append(&msg, "- %s [/usr/local/share/games prefix]\n", lookup[4]);
+	asprintf_append(&msg, "- %s [/usr/local/share prefix]\n", lookup[5]);
+	asprintf_append(&msg, "- %s [/usr/share/games prefix]\n", lookup[6]);
+	asprintf_append(&msg, "- %s [/usr/share prefix]\n", lookup[7]);
 	asprintf_append(&msg, "The reference directory contains among others the "
 		"'dink/graphics/' and 'dink/tiles/' directories (as well as "
 		"D-Mods).");
@@ -195,7 +200,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 	exit(1);
       }
 
-    free(default1);
+    free(default3); // br_build_path()
     free(lookup);
   }
 
