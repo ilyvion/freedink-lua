@@ -22,7 +22,7 @@ GNU FreeDink is a new and portable version of the game engine, which
 runs the original game as well as its D-Mods, with close
 compatibility, under multiple platforms.
 
-This package is a meta-package to install the game, its data and a
+This package is a metapackage to install the game, its data and a
 front-end to manage game options and D-Mods.
 
 

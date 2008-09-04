@@ -8,9 +8,9 @@ Homepage: http://www.freedink.org/
 Vcs-Git: git://git.debian.org/git/pkg-games/freedink.git
 Vcs-Browser: http://git.debian.org/?p=pkg-games/freedink.git
 
-Package: freedink
+Package: freedink-engine
 Architecture: any
-Depends: ${shlibs:Depends}, dink-data, timidity
+Depends: ${shlibs:Depends}, freedink-data, timidity
 Recommends: freedink-dfarc
 Description: adventure and role-playing game (engine)
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -21,11 +21,13 @@ Description: adventure and role-playing game (engine)
  GNU FreeDink is a new and portable version of the game engine, which
  runs the original game as well as its D-Mods, with close
  compatibility, under multiple platforms.
+ .
+ This package contains the game engine alone.
 
-Package: freedink-dbg
+Package: freedink-engine-dbg
 Architecture: any
 Priority: extra
-Depends: freedink (= ${binary:Version})
+Depends: freedink-engine (= ${binary:Version})
 Description: debugging symbols for freedink
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
  made by RTsoft. Besides twisted humour, it includes the actual game
@@ -37,3 +39,19 @@ Description: debugging symbols for freedink
  compatibility, under multiple platforms.
  .
  This package contains the debugging symbols for freedink.
+
+Package: freedink
+Architecture: all
+Depends: freedink-engine, freedink-dfarc
+Description: adventure and role-playing game (engine)
+ Dink Smallwood is an adventure/role-playing game, similar to Zelda,
+ made by RTsoft. Besides twisted humour, it includes the actual game
+ editor, allowing players to create hundreds of new adventures called
+ Dink Modules or D-Mods for short.
+ .
+ GNU FreeDink is a new and portable version of the game engine, which
+ runs the original game as well as its D-Mods, with close
+ compatibility, under multiple platforms.
+ .
+ This package is a metapackage to install the game, its data and a
+ front-end to manage game options and D-Mods.
