@@ -3,7 +3,12 @@
 
 * User-visible changes:
 
+- Supports playing Ogg Vorbis for background music (will look for .ogg
+  extension before .mid extension)
+
 * Developer notes:
+
+- Supports /usr/share/games alternate prefix for game data.
 
 - In progress.
 

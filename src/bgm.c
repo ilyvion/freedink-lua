@@ -251,12 +251,16 @@ void check_midi(void)
 	}
       /* If couldn't play the CD track, fallback to midi */
       sprintf(midi_filename, "%d.mid", map.music[*pmap] - 1000);
+      if (PlayMidi(midi_filename) == 0)
+	sprintf(midi_filename, "%d.ogg", map.music[*pmap] - 1000);
       PlayMidi(midi_filename);
     }
   else
     {
       /* Just play the specified MIDI */
       sprintf(midi_filename, "%d.mid", map.music[*pmap]);
+      if (PlayMidi(midi_filename) == 0)
+	sprintf(midi_filename, "%d.ogg", map.music[*pmap]);
       PlayMidi(midi_filename);
     }
 }
