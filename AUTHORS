@@ -33,6 +33,10 @@ separate reference and D-Mod directories, v1.08 adaptation, bugfixes,
 etc.
 
 
+The zzip and libzip resource-loading code are based on sample code
+from zzip author Guido Draheim, Copyright (c) 2001.
+
+
 ---
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
