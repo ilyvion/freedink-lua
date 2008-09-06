@@ -33,8 +33,9 @@ separate reference and D-Mod directories, v1.08 adaptation, bugfixes,
 etc.
 
 
-The zzip and libzip resource-loading code are based on sample code
-from zzip author Guido Draheim, Copyright (c) 2001.
+The zzip and libzip resource-loading code (SDL_rwops_libzip.c,
+SDL_rwops_libzip.h, SDL_rwops_zzip.c, SDL_rwops_zzip.h) are based on
+sample code from zzip author Guido Draheim, Copyright (c) 2001.
 
 
 ---
