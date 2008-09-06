@@ -403,6 +403,7 @@ FILE *paths_savegame_fopen(int num, char *mode)
 	  return NULL;
 	}
   fullpath_in_userappdir = br_build_path(savedir, file);
+  ciconvert(fullpath_in_userappdir);
   free(savedir);
 
 
