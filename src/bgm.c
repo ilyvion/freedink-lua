@@ -114,9 +114,9 @@ static void callback_HookMusicFinished()
 /**
  * Thing to play the midi
  */
-int PlayMidi(char *sFileName)
+int PlayMidi(char *midi_filename)
 {
-  char midi_filename[256];
+  char relpath[256];
   char *fullpath = NULL;
   
   /* no midi stuff right now */
@@ -126,33 +126,70 @@ int PlayMidi(char *sFileName)
   /* Do nothing if the same midi is already playing */
   /* TODO: Does not differentiate midi and ./midi, qsf\\midi and
      qsf/midi... Ok, midi is supposed to be just a number, but..*/
-  if (last_midi != NULL && compare(last_midi, sFileName)
+  if (last_midi != NULL && compare(last_midi, midi_filename)
       && something_playing())
     {
       Msg("I think %s is already playing, I should skip it...",
-	  sFileName);
+	  midi_filename);
       return 0;
     }
 
-  /* Try to load the midi in the DMod or the main game */
-  sprintf(midi_filename, "sound/%s", sFileName);
-  fullpath = paths_dmodfile(midi_filename);
+      
+  // Attempt to play .ogg in addition to .mid, if playing a ".*\.mid$"
+  char* oggv_filename = NULL;
+  int pos = strlen(midi_filename) - strlen(".mid");
+  if (strcasecmp(midi_filename + pos, ".mid") == 0)
+    {
+      oggv_filename = strdup(midi_filename);
+      strcpy(oggv_filename + pos, ".ogg");
+    }
+  printf("**** oggv_filename=%s\n", oggv_filename);
+
+  /* Try to load the ogg vorbis or midi in the DMod or the main game */
+  int exists = 0;
+  fullpath = malloc(1);
+  if (!exists && oggv_filename != NULL)
+    {
+      free(fullpath);
+      sprintf(relpath, "sound/%s", oggv_filename);
+      fullpath = paths_dmodfile(relpath);
+      exists = exist(fullpath);
+    }
+  if (!exists)
+    {
+      free(fullpath);
+      sprintf(relpath, "sound/%s", midi_filename);
+      fullpath = paths_dmodfile(relpath);
+      exists = exist(fullpath);
+    }
+  if (!exists && oggv_filename != NULL)
+    {
+      free(fullpath);
+      sprintf(relpath, "sound/%s", oggv_filename);
+      fullpath = paths_fallbackfile(relpath);
+      exists = exist(fullpath);
+    }
   if (!exist(fullpath))
     {
       free(fullpath);
-      fullpath = paths_fallbackfile(midi_filename);
-      if (!exist(fullpath))
-	{
-	  free(fullpath);
-  	  Msg("Error playing midi %s, doesn't exist in any dir.", sFileName);
-	  return 0;
-	}  
+      sprintf(relpath, "sound/%s", midi_filename);
+      fullpath = paths_fallbackfile(relpath);
+      exists = exist(fullpath);
     }
+  free(oggv_filename);
+
+  if (!exist(fullpath))
+    {
+      free(fullpath);
+      Msg("Error playing midi %s, doesn't exist in any dir.", midi_filename);
+      return 0;
+    }
+
 
   /* Save the midi currently playing */
   if (last_midi != NULL)
     free(last_midi);
-  last_midi = strdup(sFileName);
+  last_midi = strdup(midi_filename);
 
   /* Stop CD track */
   Msg("Killing cd...");
@@ -251,16 +288,12 @@ void check_midi(void)
 	}
       /* If couldn't play the CD track, fallback to midi */
       sprintf(midi_filename, "%d.mid", map.music[*pmap] - 1000);
-      if (PlayMidi(midi_filename) == 0)
-	sprintf(midi_filename, "%d.ogg", map.music[*pmap] - 1000);
       PlayMidi(midi_filename);
     }
   else
     {
       /* Just play the specified MIDI */
       sprintf(midi_filename, "%d.mid", map.music[*pmap]);
-      if (PlayMidi(midi_filename) == 0)
-	sprintf(midi_filename, "%d.ogg", map.music[*pmap]);
       PlayMidi(midi_filename);
     }
 }
