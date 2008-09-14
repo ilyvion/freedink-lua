@@ -132,3 +132,31 @@ The font line skip is: 19
 The font is not fixed width.
 The family name of the face in the font is: Liberation Sans
 The name of the face in the font is: Regular
+
+
+Locating fonts
+==============
+
+Under X11, the reference tool appear to be fontconfig.
+
+We can attempt to detect a font path using 'fontconfig'::
+
+  $ fc-match "LiberationSans-Regular.ttf"
+  LiberationSans-Regular.ttf: "Liberation Sans" "Regular"
+  
+  $ fc-list| grep -i liber
+  Liberation Mono:style=Regular
+  Liberation Sans:style=Regular
+  Liberation Serif:style=Bold Italic
+  Liberation Serif:style=Bold
+  Liberation Mono:style=Bold Italic
+  Liberation Sans:style=Bold
+  Liberation Serif:style=Regular
+  Liberation Sans:style=Bold Italic
+  Liberation Mono:style=Bold
+  Liberation Serif:style=Italic
+  Liberation Mono:style=Italic
+  Liberation Sans:style=Italic
+  
+  $ fc-list "Liberation Sans:style=Regular" file
+  /usr/share/fonts/truetype/ttf-liberation/LiberationSans-Regular.ttf:

@@ -29,7 +29,7 @@ front-end to manage game options and D-Mods.
 %package engine
 Summary:	Adventure and role-playing game (engine)
 Group:		Amusements/Games
-BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel
+BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel fontconfig-devel
 %if 0%{?suse_version}
 BuildRequires:  update-desktop-files
 %endif
@@ -40,6 +40,10 @@ Requires:	freedink-data
 # through SDL_mixer dependencies.
 %if 0%{?suse_version}
 Requires: timidity
+%endif
+%if 0%{?fedora_version} >= 10
+# See %install for explanation
+Requires: liberation-fonts
 %endif
 
 %description engine
@@ -70,6 +74,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %if 0%{?suse_version}
 %suse_update_desktop_file -i %name
 %suse_update_desktop_file -i %{name}edit
+%endif
+%if 0%{?fedora_version} >= 10
+# Policy insists on not installing a different version of "Liberation
+# Sans". Beware that the system version may be different than the
+# official FreeDink font, because Liberation changes regularly.
+rm $RPM_BUILD_ROOT%{_datadir}/%{name}/LiberationSans-Regular.ttf
 %endif
 
 %clean

@@ -1,7 +1,7 @@
 /**
  * Fonts
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -43,7 +43,8 @@
 
 /* Default size was 18 in the original game, but it refers to a
    different part of the font glyph (see doc/fonts.txt for
-   details). 16 matches that size with SDL_ttf. */
+   details). 16 matches that size with SDL_ttf (possibly only for
+   LiberationSans). */
 #define FONT_SIZE 16
 
 /* Default fonts: dialog and system */
@@ -53,7 +54,7 @@ static TTF_Font *system_font = NULL;
 /* Current font parameters */
 static SDL_Color text_color;
 
-static TTF_Font *load_default_font(char *filename);
+static TTF_Font *load_default_font();
 static void setup_font(TTF_Font *font);
 
 // D-Mod-defined font colors
@@ -65,6 +66,57 @@ struct font_color
 };
 static struct font_color font_colors[16];
 
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#else
+#include <fontconfig/fontconfig.h>
+/* Get filename for canonical font name 'fontname'. Return NULL if the
+   font cannot be found (for correctness, no alternate font will be
+   provided). */
+char* get_fontconfig_path(char* fontname)
+{
+  char* filename = NULL;
+  FcPattern* p = NULL;
+  FcChar8* strval = NULL;
+  FcObjectSet *attr = NULL;
+
+  if (!FcInit())
+    {
+      fprintf(stderr, "get_fontconfig_path: cannot initialize fontconfig\n");
+      return NULL;
+    }
+
+  p = FcNameParse((FcChar8*)fontname);
+  if (p == NULL)
+    {
+      fprintf(stderr, "get_fontconfig_path: invalid font pattern: %s\n", fontname);
+      return NULL;
+    }
+  /* Grab filename attribute */
+  attr = FcObjectSetBuild (FC_FILE, (char *) 0);
+
+  FcFontSet *fs = FcFontList (0, p, attr);
+  if (fs->nfont == 0)
+    {
+      fprintf(stderr, "get_fontconfig_path: no matching font\n");
+      return NULL;
+    }
+  if (FcPatternGetString(fs->fonts[0], FC_FILE, 0, &strval) == FcResultTypeMismatch
+      || strval == NULL)
+    {
+      fprintf(stderr, "get_fontconfig_path: cannot find font filename\n");
+      return NULL;
+    }
+
+  filename = strdup((char*)strval);
+
+  FcFontSetDestroy(fs);
+  FcObjectSetDestroy(attr);
+  FcPatternDestroy(p);
+  FcFini();
+
+  return filename;
+}
+#endif
 
 /**
  * Init font subsystem and one built-in font, so we can display error
@@ -109,7 +161,7 @@ int gfx_fonts_init()
   setup_font(system_font);
 
   /* Load dialog font from built-in resources */
-  dialog_font = load_default_font("LiberationSans-Regular.ttf");
+  dialog_font = load_default_font();
   if (dialog_font == NULL)
     return -1; /* error message set by load_default_font */
   setup_font(dialog_font);
@@ -142,26 +194,38 @@ void gfx_fonts_quit(void)
 /**
  * Default font from resources and pkgdatadir
  */
-static TTF_Font *load_default_font(char *filename) {
+static TTF_Font *load_default_font() {
   TTF_Font *font_object = NULL;
+  SDL_RWops* rwops = NULL;
 
   /* Try from resources */
-  SDL_RWops* rwops = NULL;
-  rwops = find_resource_as_rwops(filename);
   if (rwops == NULL)
     {
-      init_set_error_msg("Could not open font '%s'. I tried:\n"
+      rwops = find_resource_as_rwops("LiberationSans-Regular.ttf");
+    }
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
+#else
+  if (rwops == NULL)
+    {
+      char *path = get_fontconfig_path("Liberation Sans:style=Regular");
+      rwops = SDL_RWFromFile(path, "rb");
+    }
+#endif
+  if (rwops == NULL)
+    {
+      init_set_error_msg("Could not open font 'LiberationSans-Regular.ttf'. I tried:\n"
 			 "- loading from executable's resources\n"
 			 "- loading from '%s'\n"
-			 "- loading from '%s'",
-			 filename, paths_getpkgdatadir(), paths_getdefaultpkgdatadir());
+			 "- loading from '%s'\n",
+			 "- querying fontconfig",
+			 paths_getpkgdatadir(), paths_getdefaultpkgdatadir());
       return NULL;
     }
 
   font_object = TTF_OpenFontRW(rwops, 1, FONT_SIZE);
   if (font_object == NULL)
     {
-      init_set_error_msg("Could not open font '%s': %s", filename, TTF_GetError());
+      init_set_error_msg("Could not open font 'LiberationSans-Regular.ttf': %s", TTF_GetError());
       return NULL;
     }
 
@@ -173,25 +237,27 @@ static TTF_Font *load_default_font(char *filename) {
  */
 int initfont(char* fontname) {
   TTF_Font *new_font = NULL;
+  char* ext = ".ttf";
+  char* filename = malloc(strlen(fontname) + strlen(ext) + 1);
+  strcpy(filename, fontname);
+  strcat(filename, ext);
 
-  /* Font from DMod directory */
   if (new_font == NULL)
     {
-      new_font = TTF_OpenFont(fontname, FONT_SIZE);
-    }
-
+      char *path = NULL;
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-  if (new_font == NULL)
-    {
       /* Look in system fonts dir */
-      char *path = malloc(MAX_PATH + 1 + strlen(fontname) + 1);
+      path = malloc(MAX_PATH + 1 + strlen(filename) + 1);
       /* C:\WINNT\Fonts */
       SHGetSpecialFolderPath(NULL, path, CSIDL_FONTS, 0);
       strcat(path, "\\");
-      strcat(path, fontname);
-      new_font = TTF_OpenFont(path, FONT_SIZE);
-    }
+      strcat(path, filename);
+#else
+      path = get_fontconfig_path(fontname);
 #endif
+      if (path != NULL)
+	new_font = TTF_OpenFont(path, FONT_SIZE);
+    }
 
   if (new_font == NULL) {
     printf("TTF_OpenFont: %s\n", TTF_GetError());

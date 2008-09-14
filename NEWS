@@ -10,6 +10,9 @@
 
 - Supports /usr/share/games alternate prefix for game data.
 
+- Can search and use system fonts under FreeDesktop-compliant systems
+  (using fontconfig)
+
 - In progress.
 
 

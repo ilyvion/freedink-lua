@@ -77,6 +77,27 @@ AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 dnl TODO: check for pkg-config's presence manually?
 
+case "${host}" in
+# (cf. (autoconf.info)Using System Type)
+# Modified to accept "biplet" instead of "triplet", because at
+# least Debian's MinGW package uses i586-mingw32msvc (instead of
+# i586-pc-mingw32msvc)
+*-*-go32* | *-mingw32* | *-*-cygwin* | *-*-windows*)
+    # Can't search fonts using fontconfig under ms woe
+    use_fontconfig="no"
+    ;;
+*)
+    use_fontconfig="yes"
+    ;;
+esac
+if test x"$use_fontconfig" = x"yes"; then
+  PKG_CHECK_MODULES([FONTCONFIG], [fontconfig >= 2.3],
+    AC_DEFINE([HAVE_FONTCONFIG], [], [fontconfig library (-lfontconfig)]),
+    AC_MSG_WARN($FONTCONFIG_PKG_ERRORS); LACK_FONTCONFIG=1)
+  CFLAGS="$CFLAGS $FONTCONFIG_CFLAGS"
+  LIBS="$LIBS $FONTCONFIG_LIBS"
+fi
+
 if test x"$enable_embedded_resources" = x"yes"; then
   # libzip - cross-compiles well but not widespread (distro packages) yet
   PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
@@ -98,6 +119,7 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
+
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
@@ -259,6 +281,11 @@ fi
 if test "$LACK_LIBSDL_MIXER" = 1; then
    echo "* You need to install the SDL_mixer library";
    error=1
+fi
+
+if test "$use_fontconfig" = "yes" -a "$LACK_FONTCONFIG" = 1; then
+  echo "* You need to install the fontconfig library"
+  error=1
 fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
