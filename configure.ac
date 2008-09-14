@@ -77,6 +77,11 @@ AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
 dnl TODO: check for pkg-config's presence manually?
 
+
+# Explicitely call PKG_PROG_PKG_CONFIG because PKG_CHECK_MODULES is
+# called conditionaly
+PKG_PROG_PKG_CONFIG()
+
 case "${host}" in
 # (cf. (autoconf.info)Using System Type)
 # Modified to accept "biplet" instead of "triplet", because at
