@@ -143,7 +143,6 @@ int PlayMidi(char *midi_filename)
       oggv_filename = strdup(midi_filename);
       strcpy(oggv_filename + pos, ".ogg");
     }
-  printf("**** oggv_filename=%s\n", oggv_filename);
 
   /* Try to load the ogg vorbis or midi in the DMod or the main game */
   int exists = 0;
