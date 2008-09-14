@@ -11,22 +11,22 @@ Copyright (C) 2001  Guido Draheim
 
 License:
 
-  This file is part of GNU FreeDink
-
-  GNU FreeDink is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 3 of the License, or
-  (at your option) any later version.
-
-  GNU FreeDink is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see
-  <http://www.gnu.org/licenses/>.
-
+    This file is part of GNU FreeDink
+  
+    GNU FreeDink is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+  
+    GNU FreeDink is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
+  
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see
+    <http://www.gnu.org/licenses/>.
+  
 
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
@@ -35,34 +35,33 @@ Public License can be found in `/usr/share/common-licenses/GPL'.
 GNU FreeDink is based on the original Dink source code release.  The
 following is from license.txt:
 
-  *** Dink Smallwood Source License Information ***
-  
-  This software is provided "as is" without express or implied
-  warranties. You may freely use, modify and distribute this
-  source provided that the copyright text below is included in
-  the resulting source code, for example:
-  "Portions Copyright (C) Seth A. Robinson, 1997-2003
-  
-  You may use this source in personal and commercial products, you
-  are not required to release the source code.
-  
-  Please note that sharing this source does not in any way relinquish
-  interest or forfeit any rights enjoyed by Robinson Technologies and
-  Seth A. Robinson concerning the name Dink Smallwood and related
-  media includeding graphics, sounds, music, scripts and map
-  data. (hereafter referred to as "Dink Smallwood Media").
-  
-  Repackaging or distributing the Dink Smallwood Media in a modified
-  format requires permission from Seth A. Robinson.  Please consult
-  the license included with the Dink Smallwood full version
-  distribution for more information.
-  
-  Fastfile.*, ffcreate.*, dsutil.* and ddutil.* are copyrighted by the
-  Microsoft Corporation and excluded from the above license.
-  
-  -Seth A. Robinson (seth@rtsoft.com)
-  www.rtsoft.com
-
+    *** Dink Smallwood Source License Information ***
+    
+    This software is provided "as is" without express or implied
+    warranties. You may freely use, modify and distribute this
+    source provided that the copyright text below is included in
+    the resulting source code, for example:
+    "Portions Copyright (C) Seth A. Robinson, 1997-2003
+    
+    You may use this source in personal and commercial products, you
+    are not required to release the source code.
+    
+    Please note that sharing this source does not in any way relinquish
+    interest or forfeit any rights enjoyed by Robinson Technologies and
+    Seth A. Robinson concerning the name Dink Smallwood and related
+    media includeding graphics, sounds, music, scripts and map
+    data. (hereafter referred to as "Dink Smallwood Media").
+    
+    Repackaging or distributing the Dink Smallwood Media in a modified
+    format requires permission from Seth A. Robinson.  Please consult
+    the license included with the Dink Smallwood full version
+    distribution for more information.
+    
+    Fastfile.*, ffcreate.*, dsutil.* and ddutil.* are copyrighted by the
+    Microsoft Corporation and excluded from the above license.
+    
+    -Seth A. Robinson (seth@rtsoft.com)
+    www.rtsoft.com
 
 Notes:
 
@@ -70,6 +69,100 @@ Notes:
 
 - The Dink Smallwood Media was later partially relicensed under the
   zlib license, see the 'freedink-data' package.
+
+
+FreeDink includes version 'ttf-3' of the 'Liberation Sans' font.
+
+Copyright (C) 2007 Red Hat, Inc.
+
+License:
+
+    LIBERATION is a trademark of Red Hat, Inc.
+   
+    This agreement governs the use of the Software and any updates to the Software,
+    regardless of the delivery mechanism. Subject to the following terms, Red Hat, Inc.
+    ("Red Hat") grants to the user ("Client") a license to this work pursuant to 
+    the GNU General Public License v.2 with the exceptions set forth below and such 
+    other terms as our set forth in this End User License Agreement.
+   
+    1. The Software and License Exception. LIBERATION font software  (the "Software")
+    consists of TrueType-OpenType formatted font software for rendering LIBERATION
+    typefaces in sans serif, serif, and monospaced character styles. You are licensed 
+    to  use, modify, copy, and distribute the Software pursuant to the GNU General
+    Public License v.2 with the following exceptions:  
+   
+    (a) As a special exception, if you create a document which uses this font, and 
+        embed this font or unaltered portions of this font into the document, this
+        font does not by itself cause the resulting document to be covered by the 
+        GNU General Public License.  This exception does not however invalidate any
+        other reasons why the document might be covered by the GNU General Public 
+        License.  If you modify this font, you may extend this exception to your 
+        version of the font, but you are not obligated to do so. If you do not 
+        wish to do so, delete this exception statement from your version.
+   
+    (b) As a further exception, any distribution of the object code of the Software 
+        in a physical product must provide you the right to access and modify the
+        source code for the Software and to reinstall that modified version of the 
+        Software in object code form on the same physical product on which you 
+        received it.
+   
+    2. Intellectual Property Rights. The Software and each of its components, including 
+       the source code, documentation, appearance, structure and organization are owned 
+       by Red Hat and others and are protected under copyright and other laws. Title to 
+       the Software and any component, or to any copy, modification, or merged portion
+       shall remain with the aforementioned, subject to the applicable license. 
+       The "LIBERATION" trademark is a trademark of Red Hat, Inc. in the U.S. and other
+       countries. This agreement does not permit Client to distribute modified versions 
+       of the Software using Red Hat's trademarks. If Client makes a redistribution of 
+       a modified version of the Software, then Client must modify the files names to 
+       remove any reference to the Red Hat trademarks and must not use the Red Hat 
+       trademarks in any way to reference or promote the modified Software. 
+   
+    3. Limited Warranty. To the maximum extent permitted under applicable law, the 
+       Software is provided and licensed "as is" without warranty of any kind, 
+       expressed or implied, including the implied warranties of merchantability, 
+       non-infringement or fitness for a particular purpose. Red Hat does not warrant
+       that the functions contained in the Software will meet Client's requirements or
+       that the operation of the Software will be entirely error free or appear precisely
+       as described in the accompanying documentation. 
+   
+    4. Limitation of Remedies and Liability.  To the maximum extent permitted by applicable
+       law, Red Hat or any Red Hat authorized dealer will not be liable to Client for any
+       incidental or consequential damages, including lost profits or lost savings arising 
+       out of the use or inability to use the Software, even if Red Hat or such dealer has
+       been advised of the possibility of such damages. 
+   
+    5. General. If any provision of this agreement is held to be unenforceable, that shall
+       not affect the enforceability of the remaining provisions. This agreement shall be
+       governed by the laws of the State of North Carolina and of the United States, without
+       regard to any conflict of laws provisions, except that the United Nations Convention 
+       on the International Sale of Goods shall not apply.
+
+On Debian systems, the complete text of the GNU General
+Public License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+
+
+FreeDink includes vgasys.fon (from Wine).
+
+Copyright (C) 2004 Huw D M Davies, Dmitry Timoshkov
+
+    This library is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of the
+    License, or (at your option) any later version.
+    
+    This library is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+    
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301,
+    USA
+
+On Debian systems, the complete text of the GNU General
+Public License version 2.1 can be found in `/usr/share/common-licenses/LGPL-2.1'.
 
 
 The Debian packaging is (C) 2008, Sylvain Beucler <beuc@beuc.net> and
