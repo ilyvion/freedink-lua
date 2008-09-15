@@ -2024,13 +2024,16 @@ pass:
                         int p[20] = {1,1,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].speed);
-
-                                if (nlist[1] != -1) changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
-
-                                return(0);
+			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+			    {
+			      returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].speed);
+			      
+			      if (nlist[1] != -1)
+				changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
+			    }
+			  return(0);
                         }
-                        returnint =  -1;
+                        returnint = -1;
                         return(0);
                 }
 
