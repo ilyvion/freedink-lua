@@ -4,6 +4,10 @@ Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
+BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel fontconfig-devel
+%if 0%{?suse_version}
+BuildRequires:  update-desktop-files
+%endif
 License:	GPLv3+
 URL:		http://www.freedink.org/
 #Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-1.08.20080828.tar.gz
@@ -29,10 +33,6 @@ front-end to manage game options and D-Mods.
 %package engine
 Summary:	Adventure and role-playing game (engine)
 Group:		Amusements/Games
-BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel fontconfig-devel
-%if 0%{?suse_version}
-BuildRequires:  update-desktop-files
-%endif
 Requires:	freedink-data
 # TiMidity++ is useful to play midis when /dev/sequencer isn't
 # functional (most of the case) and installing it prevents some
