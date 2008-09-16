@@ -141,9 +141,9 @@ cd freedink
 
 # I assume you already have autoconf & al. ;)
 
-# TODO: is pkg-config already installed?
 emerge libsdl # for sdl.m4
 emerge help2man # to rebuild manpages
+emerge pkgconfig # for PKG_CHECK_MODULES
 sh bootstrap
 
 
@@ -152,7 +152,8 @@ sh bootstrap
 # Required: SDL, libzip | zziplib
 # Note: as of 2007-12-23 libzip's ebuild is in progress:
 # http://bugs.gentoo.org/show_bug.cgi?id=120244
-emerge libsdl sdl-gfx sdl-ttf sdl-image sdl-mixer fontconfig zziplib zip
+emerge libsdl # (if not already done in bootstrap step)
+emerge sdl-gfx sdl-ttf sdl-image sdl-mixer fontconfig zziplib zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs (included in base Gentoo)
