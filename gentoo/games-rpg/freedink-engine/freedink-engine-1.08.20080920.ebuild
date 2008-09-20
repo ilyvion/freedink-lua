@@ -8,9 +8,9 @@ DESCRIPTION="adventure and role-playing game (engine)"
 MY_PN="freedink"
 MY_P="${MY_PN}-${PV}"
 HOMEPAGE="http://www.freedink.org/"
-#SRC_URI="http://ftp.gnu.org/gnu/freedink/${MY_P}.tar.bz2
-#		 mirror://gnu/freedink/${P}.tar.bz2"
-SRC_URI="http://www.freedink.org/snapshots/${MY_P}.tar.gz"
+SRC_URI="http://ftp.gnu.org/gnu/freedink/${MY_P}.tar.bz2
+		 mirror://gnu/freedink/${P}.tar.bz2"
+#SRC_URI="http://www.freedink.org/snapshots/${MY_P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 IUSE=""

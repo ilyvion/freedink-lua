@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20080830
+Version:	1.08.20080920
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -10,8 +10,8 @@ BuildRequires:  update-desktop-files
 %endif
 License:	GPLv3+
 URL:		http://www.freedink.org/
-#Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-1.08.20080828.tar.gz
-Source0:	http://www.freedink.org/snapshots/freedink-1.08.20080830.tar.gz
+Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
+#Source0:	http://www.freedink.org/snapshots/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:	freedink-engine freedink-dfarc
@@ -100,8 +100,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Sat Aug 30 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080830-1
-- UNRELEASED snapshot
+* Sat Sep 20 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080920-1
+- New upstream release
 
 * Thu Aug 28 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080828-1
 - Initial package
