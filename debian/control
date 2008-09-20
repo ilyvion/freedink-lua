@@ -44,7 +44,7 @@ Description: debugging symbols for freedink
 Package: freedink
 Architecture: all
 Depends: freedink-engine, freedink-dfarc
-Description: adventure and role-playing game (engine)
+Description: adventure and role-playing game
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
  made by RTsoft. Besides twisted humour, it includes the actual game
  editor, allowing players to create hundreds of new adventures called

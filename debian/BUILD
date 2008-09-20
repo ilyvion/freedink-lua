@@ -17,6 +17,9 @@ absence can cause troubles (see TROUBLESHOOTING in the source tarball
 and http://bugs.debian.org/369670).  An alternative would be to 'touch
 /etc/timidity/timidity.cfg' on install but this looks ugly.
 
+We could specify it as a Recommend, but this isn't supported by
+Synaptic, so let's keep it as a dependency until then.
+
 
 dpkg-shlibdeps warnings
 =======================
