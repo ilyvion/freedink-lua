@@ -5,6 +5,7 @@ Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
 BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel fontconfig-devel
+BuildRequires:  desktop-file-utils
 %if 0%{?suse_version}
 BuildRequires:  update-desktop-files
 %endif
@@ -15,6 +16,7 @@ Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:	freedink-engine freedink-dfarc
+BuildArch:	noarch
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -45,6 +47,7 @@ Requires: timidity
 # See %install for explanation
 Requires: liberation-fonts
 %endif
+BuildArch:	%%{ARCH}
 
 %description engine
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -70,12 +73,15 @@ make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
+desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
+desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}edit.desktop
 %if 0%{?suse_version}
 %suse_update_desktop_file -i %name
 %suse_update_desktop_file -i %{name}edit
 %endif
 %if 0%{?fedora_version} >= 10
+# http://fedoraproject.org/wiki/Packaging/Guidelines#Avoid_bundling_of_fonts_in_other_packages
 # Policy insists on not installing a different version of "Liberation
 # Sans". Beware that the system version may be different than the
 # official FreeDink font, because Liberation changes regularly.
@@ -86,12 +92,23 @@ rm $RPM_BUILD_ROOT%{_datadir}/%{name}/LiberationSans-Regular.ttf
 rm -rf $RPM_BUILD_ROOT
 
 
+%post
+# http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
+update-desktop-database &> /dev/null || :
+fi
+
+%postun
+# http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
+update-desktop-database &> /dev/null || :
+fi
+
+
 %files
 %defattr(-,root,root,-)
 
 %files engine
 %defattr(-,root,root,-)
-%doc AUTHORS COPYING NEWS README THANKS TROUBLESHOOTING
+%doc AUTHORS COPYING NEWS README THANKS TROUBLESHOOTING ChangeLog
 %{_bindir}/*
 %{_datadir}/applications/*
 %{_datadir}/%{name}/
