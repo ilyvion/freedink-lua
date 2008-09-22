@@ -15,7 +15,7 @@ Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 #Source0:	http://www.freedink.org/snapshots/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires:	freedink-engine freedink-dfarc
+Requires:	freedink-engine=%{version}-%{release} freedink-dfarc
 BuildArch:	noarch
 
 %description
@@ -43,8 +43,9 @@ Requires:	freedink-data
 %if 0%{?suse_version}
 Requires: timidity
 %endif
-%if 0%{?fedora_version} >= 10
+%if 0%{?fedora} >= 10
 # See %install for explanation
+# and http://fedoraproject.org/wiki/Packaging/DistTag for %{fedora}
 Requires: liberation-fonts
 %endif
 BuildArch:	%%{ARCH}
@@ -80,7 +81,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}edit.desktop
 %suse_update_desktop_file -i %name
 %suse_update_desktop_file -i %{name}edit
 %endif
-%if 0%{?fedora_version} >= 10
+%if 0%{?fedora} >= 10
 # http://fedoraproject.org/wiki/Packaging/Guidelines#Avoid_bundling_of_fonts_in_other_packages
 # Policy insists on not installing a different version of "Liberation
 # Sans". Beware that the system version may be different than the

@@ -60,7 +60,7 @@ AM_CONDITIONAL(HAVE_ZIP, test "$ZIP" != "")
 AC_ARG_VAR([HELP2MAN], [Manpage generator from '--help' output])
 AC_PATH_PROG(HELP2MAN, help2man)
 if test -z "$HELP2MAN"; then
-  AC_MSG_WARN([You need to install help2man])
+  AC_MSG_WARN([You may need to install help2man (if you're a developer)])
   # Set HELP2MAN so 'make' errors will be understandable
   HELP2MAN="help2man"
   LACK_HELP2MAN=1
