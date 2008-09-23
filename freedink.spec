@@ -16,7 +16,6 @@ Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:	freedink-engine=%{version}-%{release} freedink-dfarc
-BuildArch:	noarch
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -48,7 +47,6 @@ Requires: timidity
 # and http://fedoraproject.org/wiki/Packaging/DistTag for %{fedora}
 Requires: liberation-fonts
 %endif
-BuildArch:	%%{ARCH}
 
 %description engine
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -68,7 +66,7 @@ This package contains the game engine alone.
 
 %build
 # Using '--disable-embedded-resources' because 'rpmbuild' will remove
-# them anyway (so it can make the -debuginfo package -- too bad :/
+# them anyway (so it can make the -debuginfo package -- too bad :/)
 %configure --disable-embedded-resources 
 make %{?_smp_mflags}
 
@@ -96,12 +94,10 @@ rm -rf $RPM_BUILD_ROOT
 %post
 # http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
 update-desktop-database &> /dev/null || :
-fi
 
 %postun
 # http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
 update-desktop-database &> /dev/null || :
-fi
 
 
 %files
