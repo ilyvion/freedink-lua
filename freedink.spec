@@ -15,7 +15,7 @@ Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 #Source0:	http://www.freedink.org/snapshots/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires:	freedink-engine=%{version}-%{release} freedink-dfarc
+Requires:	freedink-engine = %{version}-%{release}  freedink-dfarc
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -43,8 +43,8 @@ Requires:	freedink-data
 Requires: timidity
 %endif
 %if 0%{?fedora} >= 10
-# See %install for explanation
-# and http://fedoraproject.org/wiki/Packaging/DistTag for %{fedora}
+# See 'install' for explanation
+# and http://fedoraproject.org/wiki/Packaging/DistTag for '{fedora}'
 Requires: liberation-fonts
 %endif
 
@@ -91,15 +91,6 @@ rm $RPM_BUILD_ROOT%{_datadir}/%{name}/LiberationSans-Regular.ttf
 rm -rf $RPM_BUILD_ROOT
 
 
-%post
-# http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
-update-desktop-database &> /dev/null || :
-
-%postun
-# http://fedoraproject.org/wiki/Packaging/ScriptletSnippets#desktop-database
-update-desktop-database &> /dev/null || :
-
-
 %files
 %defattr(-,root,root,-)
 
@@ -114,8 +105,19 @@ update-desktop-database &> /dev/null || :
 
 
 %changelog
-* Sat Sep 20 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080920-1
+* Wed Sep 24 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-3
+- Don't use 'update-desktop-database' for simple desktop files
+- Fix unescaped macros in comments
+- Use spaces around '=' in version-specific dependency
+
+* Wed Sep 24 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-2
+- Fix variable s/fedora_version/fedora/
+- Meta-package depends on same version of freedink-engine
+- Use "install -p" to preserve timestamps
+- Validate installed .desktop files
+
+* Sat Sep 20 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-1
 - New upstream release
 
-* Thu Aug 28 2008 Sylvain Beucler <beuc@beuc.net> 1.08.20080828-1
+* Thu Aug 28 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080828-1
 - Initial package
