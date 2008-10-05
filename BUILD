@@ -177,6 +177,61 @@ emerge media-sound/timidity-eawpatches # non-free
 # :)
 
 
+On a minimal ArchLinux system
+=============================
+
+## Bootstrap
+# Update packages list
+pacman -Sy
+
+# Source code:
+pacman -S git
+git clone git://git.sv.gnu.org/freedink
+cd freedink
+
+# Gnulib
+(cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
+# No ArchLinux package, but there's no need for one.
+
+# Install development tools (autoconf automake gcc m4 make pkgconfig)
+pacman -S base-devel 
+
+pacman -S sdl # for sdl.m4
+pacman -S help2man # to rebuild manpages
+sh bootstrap
+
+
+## Dependencies
+# I also assume you already have GCC and Make ;)
+# Required: SDL, libzip | zziplib
+# Note: as of 2007-12-23 libzip's ebuild is in progress:
+# http://bugs.gentoo.org/show_bug.cgi?id=120244
+pacman -S sdl # (if not already done in bootstrap step)
+pacman -S sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
+# Optional:
+# - upx compresses binary
+# - bzip is for .tar.bz2 release tarballs (included in base Gentoo)
+pacman -S bzip2 upx
+
+./configure
+make
+make install
+
+## Release tests
+make dist
+make distcheck
+
+## Optional: software MIDI support, used by SDL_mixer
+# Check doc/sound.txt for details
+pacman -S timidity++
+pacman -S timidity-freepats # GPLv>=2 + lax exception
+cp /etc/timidity++/timidity-freepats.cfg /etc/timidity++/timidity.cfg
+yaourt -S timidity-eawpatches # non-free, in the AUR
+cp /etc/timidity++/timidity-eawpats.cfg /etc/timidity++/timidity.cfg
+
+# :)
+
+
 On a minimal FreeBSD 6.3 system
 ===============================
 
