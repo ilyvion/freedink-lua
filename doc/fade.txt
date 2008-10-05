@@ -1,0 +1,24 @@
+Time for fade_down?
+  Originaly posted at
+  http://www.dinknetwork.com/forum.cgi?MID=95949
+
+
+1.07 8bit: it's designed to fade down during 1000ms; if the computer
+is too slow, the fade will be incomplete (semi-dark)
+
+
+1.08 8bit: it's designed to take 500ms
+
+1.08 true-color: it's designed to take 400ms (coded differently)
+
+  However, one of the values (i.e. fps_final) used to determine the time
+  may be "adjusted" depending on your computer speed, so this may
+  vary. Typically if you have a very fast computer (able to refresh the
+  dink screen in < 12ms) the fade will go faster because of a
+  miscomputation. Similarly if the computer is too slow and refreshes
+  less than 15 FPS (more than 70ms), the fade will take longer.
+
+1.08 FreeDink: takes 400ms
+
+
+The fade_up() time is different.
