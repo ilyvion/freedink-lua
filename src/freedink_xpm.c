@@ -31,6 +31,13 @@ www.rtsoft.com
 
 */
 
+/*
+In case this isn't clear enough, here's a statement of intent
+clarifying that the icon is free and not covered by the stanza about
+the "Dink Smallwood Media":
+http://lists.gnu.org/archive/html/bug-freedink/2008-09/msg00008.html
+*/
+
 /* XPM */
 char * freedink_xpm[] = {
 "32 32 8 1",
