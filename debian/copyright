@@ -32,19 +32,6 @@ On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
 
-GNU FreeDink is based on the original Dink source code release.  The
-following is from license.txt:
-
-    This software is provided "as is" without express or implied
-    warranties. You may freely use, modify and distribute this
-    source provided that the copyright text below is included in
-    the resulting source code, for example:
-    "Portions Copyright (C) Seth A. Robinson, 1997-2003
-    
-    You may use this source in personal and commercial products, you
-    are not required to release the source code.
-
-
 FreeDink includes version 'ttf-3' of the 'Liberation Sans' font.
 
 Copyright (C) 2007 Red Hat, Inc.

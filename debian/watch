@@ -6,4 +6,4 @@
 version=3
 
 # Uncommment to examine a FTP server
-ftp://ftp.gnu.org/gnu/freedink/freedink-(.*)\.tar\.gz debian uupdate
+http://ftp.gnu.org/gnu/freedink/freedink-(\d.*)\.tar\.gz debian uupdate
