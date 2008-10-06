@@ -34,18 +34,13 @@ front-end to manage game options and D-Mods.
 %package engine
 Summary:	Adventure and role-playing game (engine)
 Group:		Amusements/Games
-Requires:	freedink-data
+Requires:	freedink-data liberation-fonts
 # TiMidity++ is useful to play midis when /dev/sequencer isn't
 # functional (most of the case) and installing it prevents some
 # SDL_mixer freezes (see TROUBLESHOOTING).  In Fedora this is done
 # through SDL_mixer dependencies.
 %if 0%{?suse_version}
 Requires: timidity
-%endif
-%if 0%{?fedora} >= 10
-# See 'install' for explanation
-# and http://fedoraproject.org/wiki/Packaging/DistTag for '{fedora}'
-Requires: liberation-fonts
 %endif
 
 %description engine
@@ -79,13 +74,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}edit.desktop
 %suse_update_desktop_file -i %name
 %suse_update_desktop_file -i %{name}edit
 %endif
-%if 0%{?fedora} >= 10
 # http://fedoraproject.org/wiki/Packaging/Guidelines#Avoid_bundling_of_fonts_in_other_packages
 # Policy insists on not installing a different version of "Liberation
 # Sans". Beware that the system version may be different than the
 # official FreeDink font, because Liberation changes regularly.
 rm $RPM_BUILD_ROOT%{_datadir}/%{name}/LiberationSans-Regular.ttf
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -105,6 +98,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Oct  5 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-4
+- Use liberation-fonts in all distro versions
+
 * Wed Sep 24 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-3
 - Don't use 'update-desktop-database' for simple desktop files
 - Fix unescaped macros in comments
