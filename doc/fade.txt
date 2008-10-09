@@ -10,15 +10,24 @@ is too slow, the fade will be incomplete (semi-dark)
 1.08 8bit: it's designed to take 500ms
 
 1.08 true-color: it's designed to take 400ms (coded differently)
-
-  However, one of the values (i.e. fps_final) used to determine the time
-  may be "adjusted" depending on your computer speed, so this may
-  vary. Typically if you have a very fast computer (able to refresh the
-  dink screen in < 12ms) the fade will go faster because of a
+  However, one of the values (i.e. fps_final) used to determine the
+  time may be "adjusted" depending on your computer speed, so this may
+  vary. Typically if you have a very fast computer (able to refresh
+  the dink screen in < 12ms) the fade will go faster because of a
   miscomputation. Similarly if the computer is too slow and refreshes
   less than 15 FPS (more than 70ms), the fade will take longer.
 
-1.08 FreeDink: takes 400ms
+1.08 true-color FreeDink: takes 400ms
 
 
-The fade_up() time is different.
+The fade_up() time is different:
+
+1.07 8bit: depends on whether the game could complete a complete
+  fade_down(), or only a partial one (fade_up will then be
+  quicker). It then depends on computer speed (the faster computer,
+  the quicker fade)
+
+1.08 8bit: similarly depends on computer speed (except that
+  fade_down() was always complete)
+
+1.08 true-color: same as fade_down() 32bit
