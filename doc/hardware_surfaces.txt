@@ -1,8 +1,19 @@
+From what I understand, 2D hardware surfaces are on the decline (less
+support in documentation, software libraries, and even hardware) and
+the preferred way to store surfaces on the graphic card is to use
+OpenGL. Anyway:
+
+
 The SDL documentation wiki refers people to this article for hardware
 surfaces:
 http://www.linuxdevcenter.com/pub/a/linux/2003/08/07/sdl_anim.html
 
 It doesn't give this much information though.
+
+
+Another nice FAQ stating that GNU/Linux solutions are DGA, fbdev and
+DirectFB:
+http://sdl.beuc.net/sdl.wiki/FAQ_No_Hardware_Acceleration
 
 
 The only way I could get SDL_SetVideoMode to return a hardware surface
@@ -31,9 +42,5 @@ and perform 2D direct video memory buffer access from it.
 
 
 Trying under Woe with the default driver didn't trigger an hardware
-surface either. I don't know what you need to do under that platform.
-
-
-Anyway, Dink itself does not especially require direct video memory
-buffer access, since all the screen refresh logic is based on flipping
-the whole screen.
+surface either.  This is probably because I tested on a S3 ProSavage
+card, which I think only use system memory.

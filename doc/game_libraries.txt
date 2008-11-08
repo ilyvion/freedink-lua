@@ -88,6 +88,8 @@ sum of all their features do.
   distros than SDL_gfx. It doesn't have the SDL_gfx bug and scales
   fine.
 
+  [?] [TODO] SGE http://www.etek.chalmers.se/~e8cal1/sge/ does.
+
   [?] [TODO] Allegro does.
 
   [?] [TODO] Mesa does.
