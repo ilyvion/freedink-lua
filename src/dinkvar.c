@@ -213,9 +213,6 @@ FPSmanager framerate_manager;
 unsigned long timecrap;
 rect math,box_crap,box_real;
 
-int sz,sy,x_offset,y_offset;
-
-
 
 int mode;
 
@@ -2782,10 +2779,9 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 }
 
 
-/*bool*/int get_box (int h, rect * box_crap, rect * box_real )
+/*bool*/int get_box (int h, rect * box_crap, rect * box_real)
 {
-  rect math;
-  int sz,sy,x_offset,y_offset;
+  int x_offset,y_offset;
 
   int mplayx = playx;
   int mplayl = playl;
@@ -2798,15 +2794,14 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
       mplayy = 480;
     }
 
-  rect krect;
-
+  // added to fix frame-not-in-memory immediately
   if (getpic(h) < 1)
     {
-      // added to fix frame-not-in-memory immediately
       if (spr[h].pseq != 0)
 	check_seq_status(spr[h].pseq);
     }
 
+  // if frame is still not in memory:
   if (getpic(h) < 1)
     {
       if (dinkedit)
@@ -2816,34 +2811,26 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
       goto nodraw;
     }
 
-  int txoffset = k[getpic(h)].xoffset;
-  int tyoffset = k[getpic(h)].yoffset;
-
   *box_real = k[getpic(h)].box;
-  rect_copy(&krect, &k[getpic(h)].box);
 
-  if (spr[h].size != 100) sz =    ((krect.right * spr[h].size) / 100); else sz = 0;
-  if (spr[h].size != 100) sy =    ((krect.bottom * spr[h].size) / 100); else sy = 0;
+  /* This doesn't really make sense, but that's the way the game was
+     released, so we keep it for compatibility */
+  {
+    rect krect;
+    rect_copy(&krect, &k[getpic(h)].box);
 
-  if (spr[h].size != 100)
-    {
-      sz = ((sz - krect.right) / 2);
-      sy = ((sy - krect.bottom) / 2);
-    }
+    double size_ratio = spr[h].size / 100.0;
+    int x_compat = krect.right  * (size_ratio - 1) / 2;
+    int y_compat = krect.bottom * (size_ratio - 1) / 2;
 
-  box_crap->left = spr[h].x-txoffset-sz;
-  math.left = spr[h].x-txoffset;
+    int center_x = k[getpic(h)].xoffset;
+    int center_y = k[getpic(h)].yoffset;
+    box_crap->left   = spr[h].x - center_x - x_compat;
+    box_crap->top    = spr[h].y - center_y - y_compat;
 
-  box_crap->top = spr[h].y - tyoffset-sy;
-  math.top = spr[h].y-tyoffset;
-
-  box_crap->right = (math.left+ (krect.right -krect.left)) + sz;
-  math.right = math.left+ krect.right;
-
-  box_crap->bottom = (math.top + (krect.bottom - krect.top)) + sy;
-  math.bottom = math.top + krect.bottom;
-  //if (OffsetRect(&spr[h].alt2,44,33) == 0) Msg("Error with set rect");
-
+    box_crap->right  = box_crap->left + krect.right  * size_ratio;
+    box_crap->bottom = box_crap->top  + krect.bottom * size_ratio;
+  }
 
   if (spr[h].alt.right != 0 || spr[h].alt.left != 0
       || spr[h].alt.top != 0 || spr[h].alt.right != 0)
@@ -2879,9 +2866,11 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 
   //********* Check to see if they need to be cut down and do clipping
 
-  if (spr[h].size == 0) spr[h].size = 100;
+  if (spr[h].size == 0)
+    spr[h].size = 100;
 
-  if (dinkedit) if ( (mode == 1) | (mode == 5) ) if (draw_map_tiny < 1) goto do_draw;
+  if (dinkedit && (mode == 1 || mode == 5) && draw_map_tiny < 1)
+    goto do_draw;
 
   if (box_crap->left < mplayl)
     {
