@@ -47,6 +47,12 @@ int main(void)
   info = SDL_GetVideoInfo();
   print_info(info);
 
+  printf("Requesting 24bit:\n");
+  SDL_SetVideoMode(800, 600, 24, 0);
+
+  info = SDL_GetVideoInfo();
+  print_info(info);
+
   printf("Requesting 32bit:\n");
   SDL_SetVideoMode(800, 600, 32, 0);
 
