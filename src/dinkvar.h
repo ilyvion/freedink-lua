@@ -73,7 +73,7 @@ struct sprite_placement
   char talk[13];   /* unused */
   int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
   int hard;
-  rect alt;
+  rect alt; /* trim left/top/right/bottom */
   int prop;
   int warp_map;
   int warp_x;

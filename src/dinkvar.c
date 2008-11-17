@@ -2779,9 +2779,9 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 }
 
 
-/*bool*/int get_box (int h, rect * box_crap, rect * box_real)
+/*bool*/int get_box (int h, rect * box_scaled, rect * box_real)
 {
-  int x_offset,y_offset;
+  int x_offset, y_offset;
 
   int mplayx = playx;
   int mplayl = playl;
@@ -2825,43 +2825,42 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 
     int center_x = k[getpic(h)].xoffset;
     int center_y = k[getpic(h)].yoffset;
-    box_crap->left   = spr[h].x - center_x - x_compat;
-    box_crap->top    = spr[h].y - center_y - y_compat;
+    box_scaled->left   = spr[h].x - center_x - x_compat;
+    box_scaled->top    = spr[h].y - center_y - y_compat;
 
-    box_crap->right  = box_crap->left + krect.right  * size_ratio;
-    box_crap->bottom = box_crap->top  + krect.bottom * size_ratio;
+    box_scaled->right  = box_scaled->left + krect.right  * size_ratio;
+    box_scaled->bottom = box_scaled->top  + krect.bottom * size_ratio;
   }
 
-  if (spr[h].alt.right != 0 || spr[h].alt.left != 0
-      || spr[h].alt.top != 0 || spr[h].alt.right != 0)
+  if (spr[h].alt.right != 0 || spr[h].alt.left != 0 || spr[h].alt.top != 0)
     {
       // checks for correct box stuff
       if (spr[h].alt.left < 0)
 	spr[h].alt.left = 0;
       if (spr[h].alt.left > k[getpic(h)].box.right)
 	spr[h].alt.left = k[getpic(h)].box.right;
+
       if (spr[h].alt.top < 0)
 	spr[h].alt.top = 0;
       if (spr[h].alt.top > k[getpic(h)].box.bottom)
 	spr[h].alt.top = k[getpic(h)].box.bottom;
+
       if (spr[h].alt.right < 0)
 	spr[h].alt.right = 0;
       if (spr[h].alt.right > k[getpic(h)].box.right)
 	spr[h].alt.right = k[getpic(h)].box.right;
+
       if (spr[h].alt.bottom < 0)
 	spr[h].alt.bottom = 0;
       if (spr[h].alt.bottom > k[getpic(h)].box.bottom)
 	spr[h].alt.bottom = k[getpic(h)].box.bottom;
 
-      //spr[h].alt.bottom = 10;
+      box_scaled->left += spr[h].alt.left;
+      box_scaled->top  += spr[h].alt.top;
+      box_scaled->right  = box_scaled->right  - (k[getpic(h)].box.right  - spr[h].alt.right);
+      box_scaled->bottom = box_scaled->bottom - (k[getpic(h)].box.bottom - spr[h].alt.bottom);
 
-      box_crap->left = box_crap->left +  spr[h].alt.left;
-      box_crap->top = box_crap->top + spr[h].alt.top;
-      box_crap->right = box_crap->right -  (k[getpic(h)].box.right - spr[h].alt.right);
-
-      box_crap->bottom = box_crap->bottom - (k[getpic(h)].box.bottom - spr[h].alt.bottom);
       rect_copy(box_real, &spr[h].alt);
-      //Msg("I should be changing box size... %d %d,%d,%d",spr[h].alt.right,spr[h].alt.left,spr[h].alt.top,spr[h].alt.bottom);
     }
 
   //********* Check to see if they need to be cut down and do clipping
@@ -2872,61 +2871,63 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
   if (dinkedit && (mode == 1 || mode == 5) && draw_map_tiny < 1)
     goto do_draw;
 
-  if (box_crap->left < mplayl)
+  if (box_scaled->left < mplayl)
     {
-      x_offset = box_crap->left * (-1) + mplayl;
-      box_crap->left = mplayl;
-      //box_real->left += (math.left * (-1)) + mplayl;
+      x_offset = box_scaled->left * (-1) + mplayl;
+      box_scaled->left = mplayl;
 
-      if (spr[h].size != 100)
-	box_real->left += (((x_offset * 100) / (spr[h].size )) ); else
-
+      if (spr[h].size == 100)
 	box_real->left += x_offset;
-      if (box_crap->right-1 < mplayl) goto nodraw;
+      else
+	box_real->left += (x_offset * 100) / spr[h].size;
+
+      if (box_scaled->right - 1 < mplayl)
+	goto nodraw;
     }
 
-  if (box_crap->top < 0)
+  if (box_scaled->top < 0)
     {
-      y_offset = box_crap->top * (-1);
-      box_crap->top = 0;
+      y_offset = box_scaled->top * (-1);
+      box_scaled->top = 0;
 
-      //box_real->top += math.top * (-1) + 0;
-      if (spr[h].size != 100)
-	box_real->top += (((y_offset * 100) / (spr[h].size ))  );
+      if (spr[h].size == 100)
+	box_real->top += y_offset;
+      else
+	box_real->top += (y_offset * 100) / spr[h].size;
 
-      else box_real->top += y_offset;
-      if (box_crap->bottom-1 < 0) goto nodraw;
+      if (box_scaled->bottom-1 < 0)
+	goto nodraw;
     }
 
-  if (box_crap->right > mplayx)
+  if (box_scaled->right > mplayx)
     {
-      x_offset = (box_crap->right) - mplayx;
-      box_crap->right = mplayx;
-      //x_real->right -= math.right - mplayx;
-      if (spr[h].size != 100)
-	box_real->right -= ((x_offset * 100) / (spr[h].size ));
-      else box_real->right -= x_offset;
-      if (box_crap->left+1 > mplayx) goto nodraw;
+      x_offset = (box_scaled->right) - mplayx;
+      box_scaled->right = mplayx;
 
-      //      Msg("ok, crap right is %d, real right is %d.",box_crap->right - box_crap->left,box_real->right);
+      if (spr[h].size == 100)
+	box_real->right -= x_offset;
+      else
+	box_real->right -= (x_offset * 100) / spr[h].size;
+
+      if (box_scaled->left+1 > mplayx)
+	goto nodraw;
     }
 
-  if (box_crap->bottom > mplayy)
+  if (box_scaled->bottom > mplayy)
     {
-      y_offset = (box_crap->bottom) - mplayy;
-      box_crap->bottom = mplayy;
-      if (spr[h].size != 100)
-	box_real->bottom -= ((y_offset * 100) / (spr[h].size ));
-      else box_real->bottom -= y_offset;
-      if (box_crap->top+1 > mplayy) goto nodraw;
+      y_offset = (box_scaled->bottom) - mplayy;
+      box_scaled->bottom = mplayy;
+
+      if (spr[h].size == 100)
+	box_real->bottom -= y_offset;
+      else
+	box_real->bottom -= (y_offset * 100) / spr[h].size;
+
+      if (box_scaled->top+1 > mplayy)
+	goto nodraw;
     }
 
  do_draw:
-  /*if (  (box_crap->right-box_crap->left) != (box_real->right-box_real->left) )
-{
-Msg("Ok, sprite %d is being scaled.", h);
-}
-        */
     return(/*true*/1);
 
  nodraw:
