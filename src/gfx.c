@@ -186,6 +186,11 @@ int gfx_init(enum gfx_windowed_state windowed)
       init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
       return -1;
     }
+  char buf[1024];
+  if (SDL_VideoDriverName(buf, 1024) != NULL)
+    printf("INFO: Video driver is '%s'\n", buf);
+  else
+    printf("INFO: Unable to determine video driver name\n");
   if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
     printf("INFO: Using hardware video mode.\n");
   else

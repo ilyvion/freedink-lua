@@ -1,46 +1,212 @@
-From what I understand, 2D hardware surfaces are on the decline (less
-support in documentation, software libraries, and even hardware) and
-the preferred way to store surfaces on the graphic card is to use
-OpenGL. Anyway:
-
-
 The SDL documentation wiki refers people to this article for hardware
 surfaces:
-http://www.linuxdevcenter.com/pub/a/linux/2003/08/07/sdl_anim.html
-
+  http://www.linuxdevcenter.com/pub/a/linux/2003/08/07/sdl_anim.html
 It doesn't give this much information though.
-
 
 Another nice FAQ stating that GNU/Linux solutions are DGA, fbdev and
 DirectFB:
-http://sdl.beuc.net/sdl.wiki/FAQ_No_Hardware_Acceleration
+  http://libsdl.org/faq.php?action=listentries&category=2#20
+wikified here:
+  http://sdl.beuc.net/sdl.wiki/FAQ_No_Hardware_Acceleration
+
+You can get a list of the available video drivers at:
+  http://www.libsdl.org/cgi/docwiki.cgi/SDL_envvars
 
 
-The only way I could get SDL_SetVideoMode to return a hardware surface
-is:
+Testing
+=======
 
-- Become root (!)
-
-- Set the SDL_VIDEODRIVER=dga environment variable
-
-I tried this with test/sdl/mousetest.c modified to run full-screen,
-and I noticed the (non-system) mouse didn't show up. Actually I'm not
-sure it really worked, since without the mouse, the test doesn't do
-anything but set the video mode and paint the screen in blue. Pretty
-strange.
+The testvidinfo.c tool from the SDL tarball is handy to test the
+features of your card, depending on the SDL video driver. You can
+specify the '-benchmark' option to successively test the different
+video modes with different options (fullscreen, hardware surface,
+double buffer).
 
 
-I have yet to try the framebuffer though, my system currently doesn't
-have /dev/fb0, I gotta investigate.
+GNU/Linux
+=========
+
+X11 mode
+--------
+
+The default mode, X11, is unfortunately always software buffered.
+
+For all other hardward modes, the procedure is:
+
+  - Become root (!) - or 'chown root a.out && chmod u+s a.out'
+
+  - Set the SDL_VIDEODRIVER environment variable
+
+DGA 2
+-----
+
+This one apparently asks X11 to get exclusive access on the video
+card.
+
+    sudo SDL_VIDEODRIVER=dga ./a.out
+
+I tried this with test/sdl/mousetest.c modified to run full-screen, on
+an Intel 915GM (laptop), and I noticed the (non-system) mouse didn't
+show up. Actually I'm not sure it really worked, since without the
+mouse, the test doesn't do anything but set the video mode and paint
+the screen in blue. Pretty strange.
+
+This 'dga' mode segfaults on a Radeon 9600 with the 'radeon' driver:
+  Video driver: dga
+  Current display: 1280x960, 32 bits-per-pixel
+  	Red Mask = 0x00ff0000
+  	Green Mask = 0x0000ff00
+  	Blue Mask = 0x000000ff
+  Fullscreen video modes:
+  	1600x1024x32
+  	1440x900x32
+  	1280x1024x32
+  	1280x960x32
+  	1280x800x32
+  	1280x768x32
+  	1152x864x32
+  	1152x768x32
+  	1024x768x32
+  	832x624x32
+  	800x600x32
+  	720x400x32
+  	640x480x32
+  	640x400x32
+  	640x350x32
+  Hardware surfaces are available (131072K video memory)
+  Copy blits between hardware surfaces are accelerated
+  Color fills on hardware surfaces are accelerated
+**Segmentation fault
+
+
+DirectFB mode
+-------------
+
+This mode is used more often for embedded development. It can work on
+desktops though:
+
+- Load the kernel framebuffer module for your card, to create
+  '/dev/fb0', e.g.:
+
+    sudo modprobe radeonfb
+
+- Set the SDL_VIDEODRIVER=directbf environment variable
+
+    sudo SDL_VIDEODRIVER=directfb ./a.out -benchmark
+
+Results on a Radeon 9600:
+  Video driver: directfb
+  Current display: 1024x768, 8 bits-per-pixel
+  Fullscreen video modes:
+  	1024x768x8
+  A window manager is available
+  Hardware surfaces are available (131071K video memory)
+  Copy blits between hardware surfaces are accelerated
+  Colorkey blits between hardware surfaces are accelerated
+  Alpha blits between hardware surfaces are accelerated
+  Color fills on hardware surfaces are accelerated
+
+It's weird to get only 1 video mode. Some modes tested by the
+benchmark were remarkably slow. I apparently got a hardware cursor
+too. On the terminal, lots of carriage returns were produced out of
+nowhere.
+
+fbdev
+-----
+ggi
+---
+
+I have no clue how to use this one. Help?
+
+fbcon
+-----
+
+Appears to work fine.
+  sudo SDL_VIDEODRIVER=fbcon ./a.out 
+
+Results:
+  Video driver: fbcon
+  Current display: 1024x768, 8 bits-per-pixel
+  Fullscreen video modes:
+  	1280x1024x8
+  	1152x864x8
+  	1024x768x8
+  	960x720x8
+  Hardware surfaces are available (131072K video memory)
+
+Again, it would be goot to test whether true-color modes are actually
+supported...
+
+SVGAlib
+-------
 
 According to http://tldp.org/HOWTO/Linux-Gamers-HOWTO/x130.html ,
-SVGAlib also requires root privileges to initiate the video mode.
+SVGAlib also requires root privileges to initiate the video mode. My
+tests confirm this ("Couldn't initialize SDL: No available video
+device" error as normal user).
 
-DRI appears to be aimed at 3D graphics, not 2D. We could imagine
-getting a 2D hardware surface from the 3D card (when the user has one)
-and perform 2D direct video memory buffer access from it.
+  sudo SDL_VIDEODRIVER=svgalib ./a.out
+
+On the terminal, lots of carriage returns were produced out of
+nowhere. Also no text output was produced, so I don't know the results
+of the benchmark.
+
+DRI
+---
+
+DRI is aimed at 3D graphics, not 2D. Maybe check glSDL, or switch to
+OpenGL, working on a 2D surface in a flat 3D environment.
+
+Conclusion
+----------
+
+2D hardware acceleration is either not available (user cannot become
+root because he doesn't have access and/or because the distro package
+refuses to ship setuid games binaries), or unstable (some more
+crashes), or uneasy (becoming root and/or loading the framebuffer
+module isn't user-friendly). This is essentially reserved to the woe
+platform as of 2008.
+
+However, it's worth noting that almost all computers ship with a basic
+3D cards (even integrated low-end S3), and there's an increasing
+number of free 3D drivers. So it's worth investigating 2D programming
+on top of OpenGL if performance is an issue.
 
 
-Trying under Woe with the default driver didn't trigger an hardware
-surface either.  This is probably because I tested on a S3 ProSavage
-card, which I think only use system memory.
+Woe
+===
+
+The default driver is 'windib' since SDL 1.2.10 and doesn't trigger an
+hardware surface (cf. http://www.libsdl.org/release/changes-1.2.html).
+
+Setting SDL_VIDEODRIVER=directx enables hardware surfaces.  It only
+worked in full-screen mode on a S3 ProSavage card.
+
+Consider shipping a front-end with your game to allowing setting the
+video driver before launching the game.
+
+Apparently DX has limitations when it comes to alpha:
+  http://forums.indiegamer.com/archive/index.php/t-10039.html
+and indeed in my tests alpha isn't supported:
+  Video driver: directx
+  Current display: 1024x768, 32 bits-per-pixel
+  	Red Mask = 0x00ff0000
+  	Green Mask = 0x0000ff00
+  	Blue Mask = 0x000000ff
+  Fullscreen video modes:
+  	1280x1024x32
+  	1152x864x32
+  	1024x768x32
+  	848x480x32
+  	800x600x32
+  	640x480x32
+  	640x400x32
+  	512x384x32
+  	400x300x32
+  	320x240x32
+  	320x200x32
+  A window manager is available
+  Hardware surfaces are available (77664K video memory)
+  Copy blits between hardware surfaces are accelerated
+  Colorkey blits between hardware surfaces are accelerated
+  Color fills on hardware surfaces are accelerated
