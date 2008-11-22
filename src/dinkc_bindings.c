@@ -724,10 +724,17 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-
-                                if (spr[nlist[0]].active) spr[nlist[0]].freeze = script; else
-                                        Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", nlist[0], script);
-
+			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+			    {
+			      if (spr[nlist[0]].active)
+				spr[nlist[0]].freeze = script;
+			      else
+				Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", nlist[0], script);
+			    }
+			  else
+			    {
+			      Msg("Error: freeze: invalid sprite %d", nlist[0]);
+			    }
                         }
 
                         strcpy_nooverlap(s, h);
