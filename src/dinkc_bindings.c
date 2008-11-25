@@ -1450,12 +1450,13 @@ pass:
 
                 if (compare(ev[1], "kill_game"))
                 {
-                        // (sprite, direction, until, nohard);
-
-                        Msg("Was told to kill game, so doing it like a good boy.");
-                //      PostMessage(hWndMain, WM_CLOSE, 0, 0);
-                        finiObjects();
-                        return(2);
+		  Msg("Was told to kill game, so doing it like a good boy.");
+		  /* Send QUIT event to the main game loop,
+		     which will cleanly exit */
+		  SDL_Event ev;
+		  ev.type = SDL_QUIT;
+		  SDL_PushEvent(&ev);
+		  return(2);
                 }
 
 
