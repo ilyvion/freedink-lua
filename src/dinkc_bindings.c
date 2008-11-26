@@ -2513,10 +2513,14 @@ pass:
                         int p[20] = {1,0,0,0,0,0,0,0,0,0};
                         if (get_parms(ev[1], script, h, p))
                         {
-                                returnint = spr[nlist[0]].sp_index;
-                                return(0);
+			  returnint = 0;
+			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+			    returnint = spr[nlist[0]].sp_index;
+			  else
+			    Msg("Error: sp_editor_num: invalid sprite %d", nlist[0]);
+			  return(0);
                         }
-                        returnint =  -1;
+                        returnint = -1;
                         return(0);
                 }
 
