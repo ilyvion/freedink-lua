@@ -173,26 +173,9 @@ a single character, updating the null at the end. */
  */
 /*bool*/int compare(char *orig, char *comp)
 {
-
-        int len;
-
-        //strcpy(comp, _strupr(comp));
-        //strcpy(orig, _strupr(orig));
-
-
-        len = strlen(comp);
-        if (strlen(orig) != len) return(/*false*/0);
-
-
-        if (strncasecmp(orig,comp,len) == 0)
-        {
-                return(/*true*/1);
-        }
-
-        //Msg("I'm sorry, but %s does not equal %s.",orig, comp);
-
-        return(/*false*/0);
+  return (strcasecmp(orig, comp) == 0);
 }
+
 
 void replace(const char *this1, char *that, char *line)
 {

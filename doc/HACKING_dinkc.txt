@@ -1,3 +1,5 @@
+Eliminate the "strcpy_nooverlap(s, h);" ?
+
 'line' is reused when
 - result == 4
 - result == 4 and then result == 1/3/4/5
@@ -7,6 +9,10 @@
 'line' is ignored when
 - result == 0 [skip to next line]
 - result == 2 [yield]
+
+- process_line is also called from DinkC "return", "if" and "if"'s
+  condition. In the case of a function call, line is replaced by
+  what's after the function call, so no need for 'strcpy_nooverlap'.
 
 When process_line returns 3, 4 or 5:
 4:
@@ -68,3 +74,43 @@ Changes in v1.08 - variables and scope:
   [X] decipher -> search for a given variable
   [X] decipher_string -> recurse_var_replace -> replace all vars in a
       string, longest first
+
+
+=====
+
+Possible values in DinkC bindings (i.e. functions, not in syntaxic
+constructs like if/then/else/goto/return/choice_start):
+
+Constant:
+
+- 0 (goto next line)
+
+- 2 (yield): show_bmp, wait_for_button, draw_screen, kill_cur_item,
+    kill_cur_magic, restart_game, fade_down, fade_up, kill_this_task,
+    kill_game, activate_bow
+
+Variable:
+
+- say_stop, say_stop_xy, say_stop_npc, wait, load_game, move_stop: 2
+  unless error (in which case: 0)
+
+- playmidi: 0 unless already playing requested CD track
+  (in which case 2???)
+
+=> If simplifying DinkC, make the system return "0"/"continue" by
+   default, and allow function to request a DinkC yield dynamically
+   (e.g. using an in/out variable "int& yield").
+
+
+=====
+
+Enum attempt:
+
+enum dinkc_parser_state {
+  DCPS_NEXTLINE = 0,
+  DCPS_NEXTINSTR = 1,
+  DCPS_YIELD = 2,
+  DCPS_SKIPELSE = 3,
+  DCPS_DOELSE_ONCE = 4,
+  DCPS_TODO5 = 5,
+};

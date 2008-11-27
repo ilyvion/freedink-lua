@@ -3237,22 +3237,17 @@ void kill_text_owned_by(int sprite)
     }
 }
 
+/**
+ * Is 'sprite' currently talking?
+ * Returns 1 if a text sprite is owned by sprite number 'sprite'.
+ */
 /*bool*/int text_owned_by(int sprite)
 {
-  int i;
-        for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
-        {
-                if (spr[i].active)
-                        if (spr[i].brain == 8) if (spr[i].owner == sprite)
-                        {
-
-                                return(/*true*/1);
-
-
-
-                        }
-        }
-        return(/*false*/0);
+  int i = 1;
+  for (; i < MAX_SPRITES_AT_ONCE; i++)
+    if (spr[i].active && spr[i].brain == 8 && spr[i].owner == sprite)
+      return /*true*/1;
+  return /*false*/0;
 }
 
 

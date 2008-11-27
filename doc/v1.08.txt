@@ -272,6 +272,8 @@ New functions:
 [X] loopmidi(bool loop)
     If 1, all midis will automatically loop.  If 0, midis will not loop.
     => Implemented conditionally 2008-07-17
+    => Fixed "Procedure void loopmidi( void ); not found in script"
+       warning 2008-11-27
 [X] make_global_function(str script, str function)
     Allows you to use the specified function in DinkC without the use of
     external.

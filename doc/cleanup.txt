@@ -32,6 +32,17 @@ aka copy/paste fixup :)
 
 [ ] doInit() in FreeDink and FreeDinkEdit are very similar.
 
+Optimisation
+============
+
+A run of gprof on a simple DinkC loop showed that:
+
+- locate_goto parses the whole script each time
+
+- var_replace_108 is not only quadratic, but also parses all variables
+  each time; it'd be more efficient to delimiter the current variable
+  and look it up in a hash table
+
 Unused code
 ===========
 

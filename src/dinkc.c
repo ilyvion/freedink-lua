@@ -1087,10 +1087,10 @@ void run_script(int script)
 
   while (read_next_line(script, line))
     {
-      while(1)
+      while (1)
 	{
 	  strip_beginning_spaces(line);
-	  if (compare(line, "\n"))
+	  if (strcmp(line, "\n") == 0)
 	    break;
 
 	  result = process_line(script, line, /*false*/0);

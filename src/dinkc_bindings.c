@@ -374,6 +374,7 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
  * - 0: continue processing script
  * - 2: stop processing script (may come back later via callbacks)
  * - 3 & 4: have something to do with if/else ?
+ * cf. doc/HACKING_dinkc.txt for understanding in progress ;)
  **/
 int process_line (int script, char *s, /*bool*/int doelse)
 {
@@ -4021,6 +4022,7 @@ if (compare(ev[1], "compare_magic"))
 	int p[20] = {1,0,0,0,0,0,0,0,0,0};  
 	if (get_parms(ev[1], script, h, p))
 	  loopmidi(nlist[0]);
+	return (0);
       }
 
     //redink1 added this function to show the item screen
