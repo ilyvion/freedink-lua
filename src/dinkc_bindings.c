@@ -370,20 +370,18 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 
 
 /**
- * Return values:
- * - 0: continue processing script
- * - 2: stop processing script (may come back later via callbacks)
- * - 3 & 4: have something to do with if/else ?
- * cf. doc/HACKING_dinkc.txt for understanding in progress ;)
+ * Process one line of DinkC and returns directive to the DinkC
+ * interpreter.
+ * 
+ * Cf. doc/HACKING_dinkc.txt for understanding in progress ;)
  **/
-int process_line (int script, char *s, /*bool*/int doelse)
+enum dinkc_parser_state process_line (int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
   int i;
   char line[200];
   char ev[15][100];
   char temp[100];
-  char first[2];
   int sprite = 0;
   int kk;
   
@@ -422,7 +420,7 @@ pass:
                         }
 
                         //Msg("returning..");
-                        return(2);
+                        return(DCPS_YIELD);
                 }
                 //replace("\n","",ev[1]);
                 if (ev[1][strlen(ev[1]) -1] == ':' && strlen(ev[2]) < 2)
@@ -586,11 +584,9 @@ pass:
 
         }
 
-    sprintf(first, "%c",ev[1][0]);
+	char first = ev[1][0];
 
-
-
-        if (compare(first, "{"))
+        if (first == '{')
         {
 
 
@@ -599,38 +595,38 @@ pass:
                 h = &h[1];
                 if (rinfo[script]->skipnext)
                 {
-                        rinfo[script]->skipnext = /*false*/0;
-                        rinfo[script]->onlevel = ( rinfo[script]->level - 1);
-                        //Msg("Skipping until level %d is met..", rinfo[script]->onlevel);
-
+		  /* Skip the whole { section } */
+		  rinfo[script]->skipnext = /*false*/0;
+		  rinfo[script]->onlevel = ( rinfo[script]->level - 1);
                 }
                 goto good;
-    }
+	}
 
-        if (compare(first, "}"))
+        if (first == '}')
         {
                 rinfo[script]->level--;
                 //Msg("Went down a level, now at %d.", rinfo[script]->level);
                 h = &h[1];
 
-                if (rinfo[script]->onlevel > 0) if (rinfo[script]->level == rinfo[script]->onlevel)
+                if (rinfo[script]->onlevel > 0 && rinfo[script]->level == rinfo[script]->onlevel)
                 {
-                        strip_beginning_spaces(h);
-
-                        strcpy_nooverlap(s, h);
-                        return(4);
+		  /* Finished skipping the { section }, preparing to run 'else' */
+		  strip_beginning_spaces(h);
+		  strcpy_nooverlap(s, h);
+		  return(DCPS_DOELSE_ONCE);
                 }
                 goto good;
         }
 
 
 
-
+	/* Fix if there are too many closing '}' */
         if (rinfo[script]->level < 0)
-        {
-                rinfo[script]->level = 0;
-        }
+	  {
+	    rinfo[script]->level = 0;
+	  }
 
+	/* TODO: that's the 2nd time we compare with "VOID" - cf. above */
         if (compare(ev[1], "void"))
         {
                 //     Msg("Next procedure starting, lets quit");
@@ -641,27 +637,27 @@ pass:
                         kill_script(script);
                 }
 
-                return(2);
+                return(DCPS_YIELD);
         }
-
 
         { //used to be an if..
 
 
-                if (rinfo[script]->onlevel > 0)
-                {
-                        if (rinfo[script]->level > rinfo[script]->onlevel) return(0);
+	/* Stop processing if we're skipping the current { section } */
+	if (rinfo[script]->onlevel > 0 && rinfo[script]->level > rinfo[script]->onlevel)
+	  return(0);
 
-                }
-                rinfo[script]->onlevel = 0;
+	rinfo[script]->onlevel = 0;
 
-                if (rinfo[script]->skipnext)
-                {
-                        //sorry, can't do it, you were told to skip the next thing
-                        rinfo[script]->skipnext = /*false*/0;
-                        strcpy_nooverlap(s, h);
-                        return(3);
-        }
+	/* Skip the current line if the previous 'if' or 'else' said so */
+	if (rinfo[script]->skipnext)
+	  {
+	    //sorry, can't do it, you were told to skip the next thing
+	    rinfo[script]->skipnext = /*false*/0;
+	    strcpy(s, "\n"); /* jump to next line */
+	    //return(3);
+	    return(DCPS_DOELSE_ONCE);
+	  }
 
                 //if (debug_mode) Msg("%s",s);
 
@@ -670,7 +666,7 @@ pass:
                 {
                         Msg("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
                         strcpy_nooverlap(s, h);
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
                 if (compare(ev[1], "else"))
@@ -895,7 +891,7 @@ pass:
                         }
 
                         strcpy_nooverlap(s, h);
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
 
@@ -907,7 +903,7 @@ pass:
                         wait4b.script = script;
                         wait4b.active = /*true*/1;
                         wait4b.button = 0;
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
                 if (compare(ev[1], "stop_wait_for_button"))
@@ -970,7 +966,7 @@ pass:
                                 return(0);
                         }
                         draw_map_game();
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
 
@@ -993,7 +989,7 @@ pass:
                 {
                         returnint = 0;
                         kill_cur_item();
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
 
@@ -1002,7 +998,7 @@ pass:
                 {
                         returnint = 0;
                         kill_cur_magic();
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
 
@@ -1077,7 +1073,7 @@ pass:
                         {
 
                                 //              Msg("Question gathered successfully.");
-                                return(2);
+                                return(DCPS_YIELD);
                         }
 
                         return(0);
@@ -1110,7 +1106,7 @@ pass:
 
                                 strcpy_nooverlap(s, h);
 
-                                return(2);
+                                return(DCPS_YIELD);
 
                         }
 
@@ -1142,7 +1138,7 @@ pass:
                                 spr[sprite].callback = script;
                                 strcpy_nooverlap(s, h);
 
-                                return(2);
+                                return(DCPS_YIELD);
 
                         }
 
@@ -1168,7 +1164,7 @@ pass:
                                 play.last_talk = script;
                                 strcpy_nooverlap(s, h);
 
-                                return(2);
+                                return(DCPS_YIELD);
 
                         }
 
@@ -1216,7 +1212,7 @@ pass:
                         run_script(script);
                         //lets attach our vars to the scripts
                         attach();
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
                 if (compare(ev[1], "wait"))
@@ -1231,7 +1227,7 @@ pass:
                                 kill_returning_stuff(script);
                                 add_callback("",nlist[0],0,script);
 
-                                return(2);
+                                return(DCPS_YIELD);
                         }
 
                         strcpy_nooverlap(s, h);
@@ -1424,7 +1420,7 @@ pass:
                         process_downcycle = /*true*/1;
                         cycle_clock = thisTickCount+1000;
                         cycle_script = script;
-                        return(2);
+                        return(DCPS_YIELD);
                 }
                 if (compare(ev[1], "fade_up"))
                 {
@@ -1434,7 +1430,7 @@ pass:
                         cycle_script = script;
 
                         strcpy_nooverlap(s, h);
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
 
@@ -1446,7 +1442,7 @@ pass:
                                 run_script(rinfo[script]->proc_return);
                         }
                         kill_script(script);
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
                 if (compare(ev[1], "kill_game"))
@@ -1457,7 +1453,7 @@ pass:
 		  SDL_Event ev;
 		  ev.type = SDL_QUIT;
 		  SDL_PushEvent(&ev);
-		  return(2);
+		  return(DCPS_YIELD);
                 }
 
 
@@ -1481,7 +1477,7 @@ pass:
                                   {
                                     if (cd_track == last_cd_track
                                         && cdplaying())
-                                      return(2);
+                                      return(DCPS_YIELD);
 
                                     Msg("Playing CD track %d.", cd_track);
                                     if (PlayCD(cd_track) >= 0)
@@ -1679,7 +1675,7 @@ pass:
 
                                 *pupdate_status = 1;
                                 draw_status_all();
-                                return(2);
+                                return(DCPS_YIELD);
                         }
 
                         strcpy_nooverlap(s, h);
@@ -1726,7 +1722,7 @@ pass:
                                 spr[nlist[0]].move_script = script;
                                 strcpy_nooverlap(s, h);
                                 if (debug_mode) Msg("Move_stop: Sprite %d, dir %d, num %d", nlist[0],nlist[1], nlist[2]);
-                                return(2);
+                                return(DCPS_YIELD);
 
                         }
 
@@ -1816,10 +1812,10 @@ pass:
                                 strip_beginning_spaces(h);
                                 //Msg("Found =...continuing equation");
                                 strcpy_nooverlap(s, h);
-                                return(4);
+                                return(DCPS_CONTINUE);
                         }
 
-                        return(0);
+                        return(DCPS_GOTO_NEXTLINE);
 
                 }
 
@@ -2279,7 +2275,7 @@ pass:
                           //bowsound->Play(0, 0, DSBPLAY_LOOPING);
                         */
 
-                        return(2);
+                        return(DCPS_YIELD);
                 }
 
                 if (compare(ev[1], "get_last_bow_power"))
@@ -3297,7 +3293,7 @@ if (compare(ev[1], "compare_magic"))
                                                                                 kill_script(script);
                                                                         }
 
-                                                                        return(2);
+                                                                        return(DCPS_YIELD);
                                                                 }
 
 
@@ -3330,7 +3326,11 @@ if (compare(ev[1], "compare_magic"))
                                                                         //g("continuing to run line %s..", h);
 
 
-                                                                        return(5);
+                                                                        //return(5);
+									return(DCPS_DOELSE_ONCE);
+									/* state 5 should actually be state DCPS_CONTINUE, but keeping it
+									   that way (e.g. with doelse=1 for the next line) for compatibility, just in case somebody
+									   abused it */
 
                                                                 }
 
@@ -4226,7 +4226,7 @@ if (compare(ev[1], "compare_magic"))
 	    rinfo[myscript]->arg9 = nlist[8];
 	    rinfo[myscript]->proc_return = script;
 	    run_script(myscript);
-	    return(2);
+	    return(DCPS_YIELD);
 	  }
 	else
 	  {
@@ -4253,7 +4253,7 @@ if (compare(ev[1], "compare_magic"))
 		      {
 			rinfo[myscript]->proc_return = script;
 			run_script (myscript);
-			return(2);
+			return(DCPS_YIELD);
 		      }
 		    break;
 		  }
@@ -4272,7 +4272,7 @@ if (compare(ev[1], "compare_magic"))
 	   {
 	   rinfo[myscript]->proc_return = script;
 	   run_script(myscript);    
-	   return(2);
+	   return(DCPS_YIELD);
 	   } else
 	   {
 	   Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
@@ -4304,7 +4304,7 @@ if (compare(ev[1], "compare_magic"))
                                                                                         rinfo[myscript1]->proc_return = script;
                                                                                         run_script(myscript1);
 
-                                                                                        return(2);
+                                                                                        return(DCPS_YIELD);
                                                                                 } else
                                                                                 {
                                                                                         Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
@@ -4329,7 +4329,7 @@ if (compare(ev[1], "compare_magic"))
                                                                         {
                                                                                 rinfo[myscript]->proc_return = script;
                                                                                 run_script(myscript);
-                                                                                return(2);
+                                                                                return(DCPS_YIELD);
                                                                         } else
                                                                         {
                                                                                 Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
@@ -4350,12 +4350,13 @@ if (compare(ev[1], "compare_magic"))
         }
 
 bad:
-	strcpy_nooverlap(s, h);
-        return 0;
+	strcpy(s, "\n"); /* jump to next line */
+        //return(0);
+	return(DCPS_CONTINUE);
 
 good:
 	strcpy_nooverlap(s, h);
         //s = h
         //Msg("ok, continuing with running %s..",s);
-        return 1;
+        return(DCPS_CONTINUE);
 }

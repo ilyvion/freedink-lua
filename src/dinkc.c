@@ -1,3 +1,4 @@
+
 /**
  * DinkC script engine
 
@@ -848,47 +849,32 @@ void kill_all_scripts_for_real(void)
 
 /*bool*/int read_next_line(int script, char *line)
 {
+  if (rinfo[script] == NULL || rbuf == NULL)
+    {
+      Msg("  ERROR:  Tried to read script %d, it doesn't exist.", script);
+      return /*false*/0;
+    }
+
+  if (rinfo[script]->current >= rinfo[script]->end)
+    {
+      //at end of buffer
+      return /*false*/0;
+    }
+
+  strcpy(line, "");
+
   int k;
-        if (  (rinfo[script] == NULL) || (rbuf == NULL) )
-        {
+  for (k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
+    {
+      strchar(line, rbuf[script][k]);
+      rinfo[script]->current++;
+      
+      if ((rbuf[script][k] == '\n') || (rbuf[script][k] == '\r'))
+	return /*true*/1;
+    }
 
-                Msg("  ERROR:  Tried to read script %d, it doesn't exist.", script);
-                return(/*false*/0);
-        }
-
-        if (rinfo[script]->current >= rinfo[script]->end)
-        {
-                //at end of buffer
-                return(/*false*/0);
-        }
-
-        /*              if (rinfo[script]->current < -1);
-        {
-        //something errored out, why did it go negetive?
-        return(false);
-        }
-        */
-
-        strcpy(line, "");
-
-        for (k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
-        {
-
-
-                //              Msg("..%d",k);
-                strchar(line, rbuf[script][k]);
-                rinfo[script]->current++;
-
-                if (  (rbuf[script][k] == '\n') || (rbuf[script][k] == '\r')  )
-                {
-                        return(/*true*/1);
-                }
-
-                if (rinfo[script]->current >= rinfo[script]->end) return(/*false*/0);
-
-        }
-
-        return(/*false*/0);
+  //at end of buffer
+  return /*false*/0;
 }
 
 /**
@@ -1085,6 +1071,7 @@ void run_script(int script)
       Msg("Error:  Tried to run a script that doesn't exist in memory.  Nice work.");
     }
 
+  int doelse_once = 0;
   while (read_next_line(script, line))
     {
       while (1)
@@ -1093,62 +1080,34 @@ void run_script(int script)
 	  if (strcmp(line, "\n") == 0)
 	    break;
 
-	  result = process_line(script, line, /*false*/0);
-
-	  if (result == 3)
+	  
+	  int doelse = 0;
+	  if (doelse_once == 1)
 	    {
-	    redo:
-	      read_next_line(script, line);
-	    crappa:
-	      strip_beginning_spaces(line);
-	      if (compare(line, "\n")) goto redo;
-	      if (compare(line, "\\\\")) goto redo;
-	      //           Msg("processing %s knowing we are going to skip it...", line);
-	      result = process_line(script,line, /*true*/1);
+	      doelse = 1;
+	      doelse_once = 0;
+	    }
+	  result = process_line(script, line, doelse);
+	  
+
+	  if (result == DCPS_DOELSE_ONCE)
+	    {
+	      doelse_once = 1;
+	      /* now process the rest of the line */
 	    }
 
-	  if (result == 5)
-	    goto crappa;
-
-	  if (result == 3)
-	      goto redo;
-
-	  if (result == 2)
+	  if (result == DCPS_YIELD)
 	    {
+	      /* Quit script: */
 	      if (debug_mode)
 		Msg("giving script the boot");
-	      //quit script
 	      return;
 	    }
-
-	  if (result == 0)
+	  
+	  if (result == DCPS_GOTO_NEXTLINE)
 	    break;
 
-	  if (result == 4)
-	    {
-	      //       Msg("Was sent %s, length %d", line, strlen(line));
-	      if (strlen(line) < 2)
-		{
-		redo2:
-		  read_next_line(script, line);
-		  strip_beginning_spaces(line);
-		  //Msg("Comparing to %s.", line);
-		  if (compare(line, "\n"))
-		    goto redo2;
-		  if (compare(line, "\\\\"))
-		    goto redo2;
-		}
-	      result = process_line(script,line, /*true*/1);
-	    }
-
-	  if (result == 2)
-	    {
-	      if (debug_mode)
-		Msg("giving script the boot");
-	      //quit script
-	      return;
-	    }
-	  if (result == 0) break;
+	  /* else result == DCPS_CONTINUE */
 	}
     }
 

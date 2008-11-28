@@ -14,6 +14,8 @@ Eliminate the "strcpy_nooverlap(s, h);" ?
   condition. In the case of a function call, line is replaced by
   what's after the function call, so no need for 'strcpy_nooverlap'.
 
+=====
+
 When process_line returns 3, 4 or 5:
 4:
 - '}' end of skipped bloc => allow code after '}', IMHO meant to support:
@@ -50,12 +52,22 @@ after
     something_else();  <- return 3;
 
 
-
-4 => doelse once
-3 => doelse while (return == 3 or return == 5)
-5 => 
-
 1 => continue processing this line (!= process next line, as '0' does)
+
+0 => stop processing this line and go to the next one
+2 => stop processing script i.e. give control back to the game engine i.e. yield
+
+3 => doelse once on next line
+5 => doelse once on the remainder of the line;
+     Given that it's returned right after a if(), there's little
+     chance to meet a "else" in the next line anyway..
+4 => doelse once on a) remainder of line or b) if remainder too short, on next non-empty line
+     + handle 3 or 5 return values like 1; see below for an analysis
+     of when 3 or 5 happen after state 4
+
+doelse => handle "else" if present on next line, otherwise same as
+          normal; a better flag for if/else handling is 'skipnext'
+
 
 
 
@@ -104,13 +116,28 @@ Variable:
 
 =====
 
-Enum attempt:
+Changes in FreeDink: in an attempt to clarify the code, I've made a
+couple bugfixes. I didn't actually test, it's just what I read from
+the code.
 
-enum dinkc_parser_state {
-  DCPS_NEXTLINE = 0,
-  DCPS_NEXTINSTR = 1,
-  DCPS_YIELD = 2,
-  DCPS_SKIPELSE = 3,
-  DCPS_DOELSE_ONCE = 4,
-  DCPS_TODO5 = 5,
-};
+- If the file ends with '\\' (double antislash, without final carriage
+  return), the game would endlessly loop. Well nobody will care but
+  this is fixed :p
+
+- In some weird cases where the file would end on state 3, 4 or 5, the
+  last line may be ran twice.
+
+- In some weird cases where a script was killed by another script
+  while it was in state 3, 4 or 5, then the current line may be ran
+  again before the script is effectively stopped.
+
+- This particular (illogical) construct:
+
+  }
+  if (&stuff) else
+  do_something();
+
+  that is, return values 4 then 5 followed by a 'else' statement,
+  would do nothing in v1.07/08. Now it do_something().
+
+- Now supposing that nobody every tried to write "int else = ...".
