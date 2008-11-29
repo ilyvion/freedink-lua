@@ -657,7 +657,7 @@ void fill_hardxy(rect box)
 
 
 /**
- * Add experience - no "did the player really killed this enemy?"
+ * Add experience - no "did the player really kill this enemy?"
  * checks
  */
 void add_exp_force(int num, int source_sprite)
@@ -3971,7 +3971,7 @@ void place_sprites_game(void)
 }
 
 
-void show_bmp(char name[80], int showdot, int reserved, int script)
+void show_bmp(char name[80], int showdot, int script)
 {
   SDL_Surface *image = NULL;
   FILE* in = NULL;
@@ -4281,9 +4281,9 @@ void copy_bmp( char name[80])
 
 
 
-        void add_item(char name[10], int mseq, int mframe, /*bool*/int magic)
+        void add_item(char name[10], int mseq, int mframe, enum item_type type)
         {
-                if (magic == /*false*/0)
+                if (type == ITEM_REGULAR)
                 {
                         //add reg item
 		  int i;

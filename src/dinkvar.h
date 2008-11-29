@@ -366,11 +366,12 @@ extern void init_scripts(void);
 
 
 /* Used by dinkc_bindings.c only */
+enum item_type { ITEM_REGULAR, ITEM_MAGIC };
 extern void clear_talk(void);
-extern void add_item(char name[10], int mseq, int mframe, /*bool*/int magic);
+extern void add_item(char name[10], int mseq, int mframe, enum item_type type);
 extern void kill_cur_item_script( char name[20]);
 extern void kill_cur_magic_script( char name[20]);
-extern void show_bmp(char name[80], int showdot, int reserved, int script);
+extern void show_bmp(char name[80], int showdot, int script);
 extern void copy_bmp( char name[80]);
 extern void kill_cur_item( void );
 extern void kill_cur_magic( void );

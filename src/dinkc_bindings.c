@@ -50,6 +50,7 @@
 static long nlist[10];
 /* store current procedure arguments of type 'string' (idem) */
 static char slist[10][200];
+static char* cur_funcname;
 
 
 /***************/
@@ -57,13 +58,21 @@ static char slist[10][200];
 /*             */
 /***************/
 
+/**
+ * Short-hand to check for invalid sprites and avoid segfaults.
+ * Also warn the D-Mod author about it.
+ */
+#define RETURN_IF_BAD_SPRITE(sprite, ...)            \
+  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
+    {                                                \
+      Msg("DinkC error: %s: invalid sprite %d",      \
+          cur_funcname, sprite);                     \
+      return __VA_ARGS__;                            \
+    }                                                \
+
 void dc_unfreeze(int script, int* yield, int sprite)
 {
-  if (sprite <= 0 && sprite >= MAX_SPRITES_AT_ONCE)
-    {
-      Msg("Error: dinkc_unfreeze: invalid sprite %d", sprite);
-      return;
-    }
+  RETURN_IF_BAD_SPRITE(sprite);
 
   if (spr[sprite].active)
     spr[sprite].freeze = 0;
@@ -73,11 +82,7 @@ void dc_unfreeze(int script, int* yield, int sprite)
 
 void dc_freeze(int script, int* yield, int sprite)
 {
-  if (nlist[0] <= 0 && nlist[0] >= MAX_SPRITES_AT_ONCE)
-    {
-      Msg("Error: freeze: invalid sprite %d", nlist[0]);
-      return;
-    }
+  RETURN_IF_BAD_SPRITE(sprite);
 
   if (spr[sprite].active)
     spr[sprite].freeze = script;
@@ -93,6 +98,85 @@ void dc_set_callback_random_107(int script, int* yield, char* procedure, int bas
 int dc_set_callback_random_108(int script, int* yield, char* procedure, int base, int range)
 {
   return add_callback(procedure, base, range, script);
+}
+
+void dc_set_dink_speed(int script, int* yield, int speed)
+{
+  if (dversion >= 108 && speed == 0)
+    ; // do nothing
+  else
+    dinkspeed = speed;
+}
+
+void dc_reset_timer(int script, int* yield)
+{
+  time(&time_start);
+  play.minutes = 0;
+}
+
+void dc_set_keep_mouse(int script, int* yield, int keep_mouse_p)
+{
+  keep_mouse = keep_mouse_p;
+}
+
+void dc_add_item(int script, int* yield, char* dcscript, int sequence, int frame)
+{
+  add_item(dcscript, sequence, frame, ITEM_REGULAR);
+}
+
+void dc_add_magic(int script, int* yield, char* dcscript, int sequence, int frame)
+{
+  add_item(dcscript, sequence, frame, ITEM_MAGIC);
+}
+
+void dc_add_exp(int script, int* yield, int amount, int active_sprite)
+{
+  RETURN_IF_BAD_SPRITE(active_sprite);
+
+  if (dversion >= 108)
+    // fix - made work with all sprites when
+    // using add_exp DinkC command
+    add_exp_force(amount, active_sprite);
+  else
+    add_exp(amount, active_sprite);
+}
+
+void dc_kill_this_item(int script, int* yield, char* dcscript)
+{
+  kill_cur_item_script(dcscript);
+}
+
+void dc_kill_this_magic(int script, int* yield, char* dcscript)
+{
+  kill_cur_magic_script(dcscript);
+}
+
+void dc_show_bmp(int script, int* yield, char* bmp_file, int show_map_dot, int unused)
+{
+  Msg("showing BMP");
+  wait4b.active = /*false*/0;
+  show_bmp(bmp_file, show_map_dot, script);
+  *yield = 1;
+}
+
+void dc_copy_bmp_to_screen(int script, int* yield, char* bmp_file)
+{
+  Msg("copying BMP");
+  copy_bmp(bmp_file);
+}
+
+void dc_wait_for_button(int script, int* yield)
+{
+  Msg("waiting for button with script %d", script);
+  wait4b.script = script;
+  wait4b.active = /*true*/1;
+  wait4b.button = 0;
+  *yield = 1;
+}
+
+void dc_stop_wait_for_button(int script, int* yield)
+{
+  wait4b.active = /*false*/0;
 }
 
 
@@ -169,21 +253,25 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
   args[1] = &ffi_type_pointer;
   
   /* prepare call interface */
+  int nb_dc_args = 0;
   int* p = newslot->params;
-  int i = 0;
-  while (p[i] != 0 && i < 10)
+  if (p[0] != -1)
     {
-      switch(p[i])
+      int i = 0;
+      while (p[i] != 0 && i < 10)
 	{
-	case 1: /* int */
-	  args[2+i] = &ffi_type_sint;
-	  break;
-	case 2:
-	  args[2+i] = &ffi_type_pointer;
+	  switch(p[i])
+	    {
+	    case 1: /* int */
+	      args[2+i] = &ffi_type_sint;
+	      break;
+	    case 2:
+	      args[2+i] = &ffi_type_pointer;
+	    }
+	  i++;
 	}
-      i++;
+      nb_dc_args = i;
     }
-  int nb_dc_args = i;
       
   /* Initialize the cif */
   ffi_type* rt = (newslot->returntype == RT_VOID) ?
@@ -203,9 +291,9 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
  * Simple macro to allow using struct initializer e.g. {2,1,1,0....}
  * when declaring a DinkC function.
  */
-#define DCBD_ADD(...)			\
+#define DCBD_ADD(name, ...)			\
 { \
-  struct binding bd = { __VA_ARGS__ }; \
+  struct binding bd = { #name, dc_ ## name, __VA_ARGS__ };	\
   dinkc_bindings_add(bindings, &bd);	       \
 }
 /**
@@ -219,16 +307,33 @@ void dinkc_bindings_init()
 			     dinkc_bindings_hasher, dinkc_bindings_comparator,
 			     free);
 
-  DCBD_ADD("unfreeze", dc_unfreeze, {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD("freeze",   dc_freeze,   {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  
+  DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(set_dink_speed,        {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(reset_timer,          {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
+  DCBD_ADD(set_keep_mouse,        {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_item,              {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_magic,             {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_exp,               {1,1,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(kill_this_item,        {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(kill_this_magic,       {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(show_bmp,              {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_YIELD);
+  DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
+  DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
+
+
   if (dversion >= 108)
     {
-      DCBD_ADD("set_callback_random", dc_set_callback_random_108, {2,1,1,0,0,0,0,0,0,0}, RT_INT,  DCPS_GOTO_NEXTLINE)
+      struct binding bd = {"set_callback_random", dc_set_callback_random_108, {2,1,1,0,0,0,0,0,0,0},
+			   RT_INT, DCPS_GOTO_NEXTLINE};
+      dinkc_bindings_add(bindings, &bd);
     }
   else
     {
-      DCBD_ADD("set_callback_random", dc_set_callback_random_107, {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+      struct binding bd = {"set_callback_random", dc_set_callback_random_107, {2,1,1,0,0,0,0,0,0,0},
+			   RT_VOID, DCPS_GOTO_NEXTLINE};
+      dinkc_bindings_add(bindings, &bd);
     }
 }
 
@@ -555,7 +660,8 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 	}
       else
 	{
-	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)", proc_name, i+1, rinfo[script]->name, rinfo[script]->current, str_params);
+	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)",
+	      proc_name, i+1, rinfo[script]->name, rinfo[script]->current, str_params);
 	  return 0;
 	}
     }
@@ -569,7 +675,7 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
  * 
  * Cf. doc/HACKING_dinkc.txt for understanding in progress ;)
  **/
-enum dinkc_parser_state process_line (int script, char *s, /*bool*/int doelse)
+enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
   int i;
@@ -888,10 +994,10 @@ pass:
                 }
 
 
-  /***************/
-  /*  DinkC API  */
-  /*             */
-  /***************/
+  /******************/
+  /*  New bindings  */
+  /*                */
+  /******************/
 
   /** Lookup bindings **/
   char* funcname = ev[1];
@@ -922,10 +1028,17 @@ pass:
 		  switch(params[i])
 		    {
 		    case 1: /* int */
-		      values[2+i] = &nlist[i];
-		      break;
-		    case 2:
-		      values[2+i] = &slist[i];
+		      {
+			values[2+i] = &nlist[i];
+			break;
+		      }
+		    case 2: /* string */
+		      {
+			char** pointer = alloca(sizeof(char*)*1);
+			*pointer = slist[i];
+			values[2+i] = pointer;
+			break;
+		      }
 		    }
 		  i++;
 		}
@@ -940,6 +1053,7 @@ pass:
 
       /* Call C function */
       int rc;
+      cur_funcname = pbd->funcname; /* for error messages */
       ffi_call(&pbd->cif, pbd->func, &rc, values);
       if (pbd->returntype == RT_INT)
 	returnint = rc;
@@ -955,182 +1069,6 @@ pass:
 	  exit(EXIT_FAILURE);
 	}
     }
-
-
-                if (compare(ev[1], "set_dink_speed"))
-                {
-                        Msg("setting callback random");
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-			  {
-			    if (dversion >= 108 && nlist[0] == 0)
-			      ; // do nothing
-			    else
-			      dinkspeed = nlist[0];
-			  }
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "reset_timer"))
-                {
-                        h = &h[strlen(ev[1])];
-                        time(&time_start);
-                        play.minutes = 0;
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "set_keep_mouse"))
-                {
-                        Msg("setting callback random");
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                keep_mouse = nlist[0];
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "add_item"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                add_item(slist[0], nlist[1], nlist[2], /*false*/0);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "add_exp"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (dversion >= 108)
-			    // fix - made work with all sprites when
-			    // using add_exp DinkC command
-			    add_exp_force(nlist[0], nlist[1]);
-			  else
-			    add_exp(nlist[0], nlist[1]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "add_magic"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                add_item(slist[0], nlist[1], nlist[2], /*true*/1);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "kill_this_item"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                kill_cur_item_script(slist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "kill_this_magic"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                kill_cur_magic_script(slist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "show_bmp"))
-                {
-                        Msg("showing BMP");
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                wait4b.active = /*false*/0;
-                                show_bmp(slist[0], nlist[1], nlist[2], script);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(DCPS_YIELD);
-                }
-
-
-                if (compare(ev[1], "wait_for_button"))
-                {
-                        Msg("waiting for button with script %d", script);
-                        h = &h[strlen(ev[1])];
-                        strcpy_nooverlap(s, h);
-                        wait4b.script = script;
-                        wait4b.active = /*true*/1;
-                        wait4b.button = 0;
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "stop_wait_for_button"))
-                {
-                        wait4b.active = /*false*/0;
-
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "copy_bmp_to_screen"))
-                {
-                        Msg("copying BMP");
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                copy_bmp(slist[0]);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
 
 
                 if (compare(ev[1], "say"))
