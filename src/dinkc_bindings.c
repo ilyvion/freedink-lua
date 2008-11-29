@@ -354,6 +354,61 @@ void dc_arm_magic(int script, int* yield, int* preturnint)
   return;
 }
 
+void dc_restart_game(int script, int* yield, int* preturnint)
+{
+  int u;
+  int mainscript;
+  while (kill_last_sprite());
+  kill_repeat_sounds_all();
+  kill_all_scripts_for_real();
+  mode = 0;
+  screenlock = 0;
+  kill_all_vars();
+  memset(&hm, 0, sizeof(hm));
+  for (u = 1; u <= 10; u++)
+    play.button[u] = u;
+  mainscript = load_script("main", 0, /*true*/1);
+    
+  locate(mainscript, "main");
+  run_script(mainscript);
+  //lets attach our vars to the scripts
+  attach();
+  *yield = 1;
+}
+
+void dc_wait(int script, int* yield, int* preturnint, int delayms)
+{
+  kill_returning_stuff(script);
+  add_callback("", delayms, 0, script);
+  *yield = 1;
+}
+
+void dc_preload_seq(int script, int* yield, int* preturnint, int sequence)
+{
+  check_seq_status(sequence);
+}
+
+void dc_script_attach(int script, int* yield, int* preturnint, int sprite)
+{
+  /* RETURN_IF_BAD_SPRITE(sprite); */
+  rinfo[script]->sprite = sprite;
+}
+
+void dc_draw_hard_sprite(int script, int* yield, int* preturnint, int sprite)
+{
+  RETURN_IF_BAD_SPRITE(sprite);
+
+  update_play_changes();
+  int l = sprite;
+  rect mhard;
+  rect_copy(&mhard, &k[seq[spr[l].pseq].frame[spr[l].pframe]].hardbox);
+  rect_offset(&mhard, (spr[l].x- 20), spr[l].y);
+
+  fill_hardxy(mhard);
+  fill_back_sprites();
+  fill_hard_sprites();
+}
+
 
 /****************/
 /*  Hash table  */
@@ -510,6 +565,11 @@ void dinkc_bindings_init()
   DCBD_ADD(say_stop_npc,          {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
   DCBD_ADD(say_stop_xy,           {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
   DCBD_ADD(say_xy,                {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(restart_game,         {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(wait,                  {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(preload_seq,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(script_attach,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(draw_hard_sprite,      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
 }
 
 void dinkc_bindings_quit()
@@ -1261,101 +1321,10 @@ pass:
                 }
 
 
-
-                if (compare(ev[1], "restart_game"))
-                {
-		  int u;
-		  int script;
-                        while (kill_last_sprite());
-                        kill_repeat_sounds_all();
-                        kill_all_scripts_for_real();
-                        mode = 0;
-                        screenlock = 0;
-                        kill_all_vars();
-                        memset(&hm, 0, sizeof(hm));
-                        for (u = 1; u <= 10; u++)
-                                play.button[u] = u;
-                        script = load_script("main", 0, /*true*/1);
-
-                        locate(script, "main");
-                        run_script(script);
-                        //lets attach our vars to the scripts
-                        attach();
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "wait"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //               Msg("Wait called for %d.", nlist[0]);
-                                strcpy_nooverlap(s, h);
-                                kill_returning_stuff(script);
-                                add_callback("",nlist[0],0,script);
-
-                                return(DCPS_YIELD);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "preload_seq"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                check_seq_status(nlist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "script_attach"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                rinfo[script]->sprite = nlist[0];
-                        }
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "draw_hard_sprite"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                update_play_changes();
-                                int l = nlist[0];
-                                rect mhard;
-                                rect_copy(&mhard, &k[seq[spr[l].pseq].frame[spr[l].pframe]].hardbox);
-                                rect_offset(&mhard, (spr[l].x- 20), spr[l].y);
-
-                                fill_hardxy(mhard);
-                                fill_back_sprites();
-                                fill_hard_sprites();
-
-
-                        }
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
+  /******************/
+  /*  Old bindings  */
+  /*                */
+  /******************/
 
 
                 if (compare(ev[1], "move"))
@@ -1379,45 +1348,6 @@ pass:
                         strcpy_nooverlap(s, h);
                         return(0);
                 }
-
-
-                if (compare(ev[1], "sp_script"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,2,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (nlist[0] == 0)
-                                {
-                                        Msg("Error: sp_script cannot process sprite 0??");
-                                        return(0);
-                                }
-                                kill_scripts_owned_by(nlist[0]);
-                                if (load_script(slist[1], nlist[0], /*true*/1) == 0)
-                                {
-                                        returnint = 0;
-                                        return(0);
-                                }
-                                if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
-
-                                if (no_running_main == /*false*/0)
-                                        locate(spr[nlist[0]].script, "MAIN");
-
-
-                                int tempreturn = spr[nlist[0]].script;
-
-                                if (no_running_main == /*false*/0)
-                                        run_script(spr[nlist[0]].script);
-
-
-                                returnint = tempreturn;
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
 
                 if (compare(ev[1], "spawn"))
                 {
@@ -2076,6 +2006,7 @@ pass:
                 }
 
 
+
                 if (compare(ev[1], "is_script_attached"))
                 {
                         h = &h[strlen(ev[1])];
@@ -2090,6 +2021,42 @@ pass:
                         return(0);
                 }
 
+                if (compare(ev[1], "sp_script"))
+                {
+                        // (sprite, direction, until, nohard);
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,2,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                if (nlist[0] == 0)
+                                {
+                                        Msg("Error: sp_script cannot process sprite 0??");
+                                        return(0);
+                                }
+                                kill_scripts_owned_by(nlist[0]);
+                                if (load_script(slist[1], nlist[0], /*true*/1) == 0)
+                                {
+                                        returnint = 0;
+                                        return(0);
+                                }
+                                if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
+
+                                if (no_running_main == /*false*/0)
+                                        locate(spr[nlist[0]].script, "MAIN");
+
+
+                                int tempreturn = spr[nlist[0]].script;
+
+                                if (no_running_main == /*false*/0)
+                                        run_script(spr[nlist[0]].script);
+
+
+                                returnint = tempreturn;
+                        }
+
+                        strcpy_nooverlap(s, h);
+                        return(0);
+                }
 
 
                 if (compare(ev[1], "sp_speed"))
@@ -2167,85 +2134,6 @@ pass:
                         return(0);
                 }
 
-
-
-                if (compare(ev[1], "get_sprite_with_this_brain"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                for (i = 1; i <= last_sprite_created; i++)
-                                {
-                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
-                                                (spr[i].active == 1)
-                                        {
-                                                Msg("Ok, sprite with brain %d is %d", nlist[0], i);
-                                                returnint = i;
-                                                return(0);
-                                        }
-
-                                }
-                        }
-                                 Msg("Ok, sprite with brain %d is 0", nlist[0], i);
-
-                                         returnint =  0;
-                                         return(0);
-                }
-
-
-                if (compare(ev[1], "get_rand_sprite_with_this_brain"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                int cter = 0;
-                                for (i = 1; i <= last_sprite_created; i++)
-                                {
-                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
-                                                (spr[i].active == 1)
-                                        {
-                                                cter++;
-
-                                        }
-
-                                }
-
-                                if (cter == 0)
-                                {
-                                        Msg("Get rand brain can't find any brains with %d.",nlist[0]);
-                                        returnint =  0;
-                                        return(0);
-                                }
-
-				{
-				  int mypick = (rand() % cter)+1;
-				  int ii;
-				  cter = 0;
-				  for (ii = 1; ii <= last_sprite_created; ii++)
-				    {
-				      if (spr[ii].brain == nlist[0] && ii != nlist[1] && spr[ii].active == 1)
-					{
-					  cter++;
-					  if (cter == mypick)
-					    {
-					      returnint = ii;
-					      return(0);
-					    }
-                                        }
-				    }
-                                }
-
-
-                        }
-
-
-                        returnint =  0;
-                        return(0);
-                }
 
 
 
@@ -2327,33 +2215,7 @@ pass:
                         returnint =  -1;
                         return(0);
                 }
-                if (compare(ev[1], "activate_bow"))
-                {
 
-                        spr[1].seq = 0;
-                        spr[1].pseq = 100+spr[1].dir;
-                        spr[1].pframe = 1;
-                        bow.active = /*true*/1;
-                        bow.script = script;
-                        bow.hitme = /*false*/0;
-                        bow.time = 0;
-
-                        /*      bowsound->Release();
-
-                          //lpDS->DuplicateSoundBuffer(ssound[42].sound,&bowsound);
-                          //bowsound->Play(0, 0, DSBPLAY_LOOPING);
-                        */
-
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "get_last_bow_power"))
-                {
-
-
-                        returnint = bow.last_power;
-                        return(0);
-                }
 
 
                 if (compare(ev[1], "sp_que"))
@@ -2408,14 +2270,6 @@ pass:
                                 return(0);
                         }
                         returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "stopcd"))
-                {
-                        // mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL);
-                        Msg("Stopped cd");
-                        killcd();
                         return(0);
                 }
 
@@ -2475,21 +2329,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "disable_all_sprites"))
-                {
-		  int jj;
-                        for (jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = /*true*/1;
-                                return(0);
-                }
-                if (compare(ev[1], "enable_all_sprites"))
-                {
-		  int jj;
-                        for (jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = /*false*/0;
-                                return(0);
-                }
-
 
                 if (compare(ev[1], "sp_pseq"))
                 {
@@ -2531,46 +2370,6 @@ pass:
                         returnint =  -1;
                         return(0);
                 }
-
-                if (compare(ev[1], "editor_type"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //Msg("Setting editor_type..");
-                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].type[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-                if (compare(ev[1], "editor_seq"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_edit(nlist[0], nlist[1], &play.spmap[*pmap].seq[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "editor_frame"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].frame[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
 
 
                 if (compare(ev[1], "sp_editor_num"))
@@ -2615,20 +2414,7 @@ pass:
                         returnint =  -1;
                         return(0);
                 }
-                if (compare(ev[1], "set_button"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
 
-                                play.button[nlist[0]] = nlist[1];
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
 
 
                 if (compare(ev[1], "sp_reverse"))
@@ -2741,53 +2527,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "hurt"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (dversion >= 108)
-			    {
-			        // With v1.07 hurt(&sthing, -1) would
-			        // run hit(), with v1.08 it doesn't
-			        // (after redink1 tried to fix a game
-			        // freeze bug that I can't reproduce)
-                                if (nlist[1] < 0)
-                                  return (0);
-			    }
-
-                                if (hurt_thing(nlist[0], nlist[1], 0) > 0)
-                                        random_blood(spr[nlist[0]].x, spr[nlist[0]].y-40, nlist[0]);
-                                if (spr[nlist[0]].nohit != 1)
-                                        if (spr[nlist[0]].script != 0)
-
-                                                if (locate(spr[nlist[0]].script, "HIT"))
-                                                {
-
-                                                        if (rinfo[script]->sprite != 1000)
-							  {
-                                                                *penemy_sprite = rinfo[script]->sprite;
-								//redink1 addition of missle_source stuff
-								if (dversion >= 108)
-								  *pmissle_source = rinfo[script]->sprite;
-
-							  }
-
-                                                        kill_returning_stuff(spr[nlist[0]].script);
-                                                        run_script(spr[nlist[0]].script);
-                                                }
-
-                                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-
-
 
 
                 if (compare(ev[1], "sp_hard"))
@@ -2866,6 +2605,442 @@ pass:
                         returnint =  -1;
                         return(0);
                 }
+
+                if (compare(ev[1], "sp_x"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].x);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+                if (compare(ev[1], "sp_mx"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].mx);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "sp_my"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].my);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+
+
+
+                if (compare(ev[1], "sp_dir"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].dir);
+
+                                if (nlist[1] != -1) changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+                if (compare(ev[1], "sp_hitpoints"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].hitpoints);
+
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "sp_attack_hit_sound"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound);
+
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+                                                                if (compare(ev[1], "sp_attack_hit_sound_speed"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound_speed);
+
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[1], "sp_strength"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].strength);
+
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+                                                                if (compare(ev[1], "sp_defense"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].defense);
+
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+
+                                                                if (compare(ev[1], "sp_distance"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].distance);
+
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[1], "sp_nohit"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].nohit);
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[1], "sp_notouch"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].notouch);
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[1], "sp_y"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].y);
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[1], "sp_timing"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                                                                        if (get_parms(ev[1], script, h, p))
+                                                                        {
+                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].timer);
+                                                                                return(0);
+                                                                        }
+                                                                        returnint =  -1;
+                                                                        return(0);
+                                                                }
+
+                if (compare(ev[1], "get_sprite_with_this_brain"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+			  int i;
+                                for (i = 1; i <= last_sprite_created; i++)
+                                {
+                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
+                                                (spr[i].active == 1)
+                                        {
+                                                Msg("Ok, sprite with brain %d is %d", nlist[0], i);
+                                                returnint = i;
+                                                return(0);
+                                        }
+
+                                }
+                        }
+                                 Msg("Ok, sprite with brain %d is 0", nlist[0], i);
+
+                                         returnint =  0;
+                                         return(0);
+                }
+
+
+                if (compare(ev[1], "get_rand_sprite_with_this_brain"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+			  int i;
+                                int cter = 0;
+                                for (i = 1; i <= last_sprite_created; i++)
+                                {
+                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
+                                                (spr[i].active == 1)
+                                        {
+                                                cter++;
+
+                                        }
+
+                                }
+
+                                if (cter == 0)
+                                {
+                                        Msg("Get rand brain can't find any brains with %d.",nlist[0]);
+                                        returnint =  0;
+                                        return(0);
+                                }
+
+				{
+				  int mypick = (rand() % cter)+1;
+				  int ii;
+				  cter = 0;
+				  for (ii = 1; ii <= last_sprite_created; ii++)
+				    {
+				      if (spr[ii].brain == nlist[0] && ii != nlist[1] && spr[ii].active == 1)
+					{
+					  cter++;
+					  if (cter == mypick)
+					    {
+					      returnint = ii;
+					      return(0);
+					    }
+                                        }
+				    }
+                                }
+
+
+                        }
+
+
+                        returnint =  0;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "activate_bow"))
+                {
+
+                        spr[1].seq = 0;
+                        spr[1].pseq = 100+spr[1].dir;
+                        spr[1].pframe = 1;
+                        bow.active = /*true*/1;
+                        bow.script = script;
+                        bow.hitme = /*false*/0;
+                        bow.time = 0;
+
+                        /*      bowsound->Release();
+
+                          //lpDS->DuplicateSoundBuffer(ssound[42].sound,&bowsound);
+                          //bowsound->Play(0, 0, DSBPLAY_LOOPING);
+                        */
+
+                        return(DCPS_YIELD);
+                }
+
+                if (compare(ev[1], "get_last_bow_power"))
+                {
+
+
+                        returnint = bow.last_power;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "stopcd"))
+                {
+                        // mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL);
+                        Msg("Stopped cd");
+                        killcd();
+                        return(0);
+                }
+
+                if (compare(ev[1], "disable_all_sprites"))
+                {
+		  int jj;
+                        for (jj = 1; jj < last_sprite_created; jj++)
+                                if (spr[jj].active) spr[jj].disabled = /*true*/1;
+                                return(0);
+                }
+                if (compare(ev[1], "enable_all_sprites"))
+                {
+		  int jj;
+                        for (jj = 1; jj < last_sprite_created; jj++)
+                                if (spr[jj].active) spr[jj].disabled = /*false*/0;
+                                return(0);
+                }
+
+
+                if (compare(ev[1], "editor_type"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                //Msg("Setting editor_type..");
+                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].type[nlist[0]]);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+                if (compare(ev[1], "editor_seq"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_edit(nlist[0], nlist[1], &play.spmap[*pmap].seq[nlist[0]]);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+                if (compare(ev[1], "editor_frame"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].frame[nlist[0]]);
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "set_button"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+
+                                play.button[nlist[0]] = nlist[1];
+
+                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
+
+                if (compare(ev[1], "hurt"))
+                {
+                        h = &h[strlen(ev[1])];
+                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
+                        if (get_parms(ev[1], script, h, p))
+                        {
+			  if (dversion >= 108)
+			    {
+			        // With v1.07 hurt(&sthing, -1) would
+			        // run hit(), with v1.08 it doesn't
+			        // (after redink1 tried to fix a game
+			        // freeze bug that I can't reproduce)
+                                if (nlist[1] < 0)
+                                  return (0);
+			    }
+
+                                if (hurt_thing(nlist[0], nlist[1], 0) > 0)
+                                        random_blood(spr[nlist[0]].x, spr[nlist[0]].y-40, nlist[0]);
+                                if (spr[nlist[0]].nohit != 1)
+                                        if (spr[nlist[0]].script != 0)
+
+                                                if (locate(spr[nlist[0]].script, "HIT"))
+                                                {
+
+                                                        if (rinfo[script]->sprite != 1000)
+							  {
+                                                                *penemy_sprite = rinfo[script]->sprite;
+								//redink1 addition of missle_source stuff
+								if (dversion >= 108)
+								  *pmissle_source = rinfo[script]->sprite;
+
+							  }
+
+                                                        kill_returning_stuff(spr[nlist[0]].script);
+                                                        run_script(spr[nlist[0]].script);
+                                                }
+
+                                                return(0);
+                        }
+                        returnint =  -1;
+                        return(0);
+                }
+
 
                 if (compare(ev[1], "screenlock"))
                 {
@@ -2970,19 +3145,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "sp_x"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].x);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
 
                 if (compare(ev[1], "count_item"))
                 {
@@ -3032,35 +3194,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "sp_mx"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].mx);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_my"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].my);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
                 if (compare(ev[1], "scripts_used"))
                 {
                         h = &h[strlen(ev[1])];
@@ -3071,97 +3204,6 @@ pass:
                                 returnint = m;
                                 return(0);
                 }
-
-
-
-
-                if (compare(ev[1], "sp_dir"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].dir);
-
-                                if (nlist[1] != -1) changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_hitpoints"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].hitpoints);
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_attack_hit_sound"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound);
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                                                                if (compare(ev[1], "sp_attack_hit_sound_speed"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound_speed);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_strength"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].strength);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[1], "sp_defense"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].defense);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
 
                                                                 if (compare(ev[1], "init"))
                                                                 {
@@ -3176,51 +3218,6 @@ pass:
                                                                         returnint =  -1;
                                                                         return(0);
                                                                 }
-
-
-                                                                if (compare(ev[1], "sp_distance"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].distance);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_nohit"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].nohit);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_notouch"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].notouch);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
 
                                                                 if (compare(ev[1], "compare_weapon"))
                                                                 {
@@ -3318,34 +3315,6 @@ if (compare(ev[1], "compare_magic"))
                                                                         }
 
 
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_y"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].y);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_timing"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].timer);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
                                                                         return(0);
                                                                 }
 

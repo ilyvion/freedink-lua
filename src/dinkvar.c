@@ -3109,14 +3109,18 @@ void check_frame_status(int h, int frame)
  */
 void check_seq_status(int seq_no)
 {
-  /* Skip empty/unused sequences */
-  if (!seq[seq_no].is_active)
-    return;
-
-  if ((seq_no > 0 && seq_no < MAX_SEQUENCES)
-      && (seq[seq_no].frame[1] == 0 || GFX_k[seq[seq_no].frame[1]].k == NULL))
+  if (seq_no > 0 && seq_no < MAX_SEQUENCES)
     {
-      figure_out(seq[seq_no].ini);
+      /* Skip empty/unused sequences */
+      if (!seq[seq_no].is_active)
+	return;
+
+      if (seq[seq_no].frame[1] == 0 || GFX_k[seq[seq_no].frame[1]].k == NULL)
+	figure_out(seq[seq_no].ini);
+    }
+  else
+    {
+      fprintf(stderr, "Warning: check_seq_status: invalid sequence %d\n", seq_no);
     }
 }
 
