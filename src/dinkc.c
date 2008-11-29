@@ -865,19 +865,25 @@ void kill_all_scripts_for_real(void)
       return /*false*/0;
     }
 
-  strcpy(line, "");
+  line[0] = '\0';
+  char *pc = line;
 
   int k;
   for (k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
     {
-      strchar(line, rbuf[script][k]);
+      *pc = rbuf[script][k];
+      pc++;
       rinfo[script]->current++;
       
       if ((rbuf[script][k] == '\n') || (rbuf[script][k] == '\r'))
-	return /*true*/1;
+	{
+	  *pc= '\0';
+	  return /*true*/1;
+	}
     }
 
   //at end of buffer
+  *pc= '\0';
   return /*false*/0;
 }
 
