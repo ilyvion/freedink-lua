@@ -194,6 +194,85 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
   *preturnint = say_text(text, active_sprite, script);
 }
 
+void dc_load_screen(int script, int* yield, int* preturnint)
+{
+  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+
+  //Msg("Loading map %d..",*pmap);
+  update_screen_time();
+  load_map(map.loc[*pmap]);
+
+  // update indicator on mini-map
+  if (map.indoor[*pmap] == 0)
+    play.last_map = *pmap;
+    
+  return;
+}
+
+void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
+{
+  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+
+  if (active_sprite == 0)
+    {
+      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
+      return;
+    }
+    
+  kill_text_owned_by(active_sprite);
+  kill_text_owned_by(1);
+  kill_returning_stuff(script);
+
+  decipher_string(text, script);
+  int sprite = say_text(text, active_sprite, script);
+  *preturnint = sprite;
+  spr[sprite].callback = script;
+  play.last_talk = script;
+  //Msg("Sprite %d marked callback true.", sprite);
+    
+  *yield = 1;
+}
+
+void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int active_sprite)
+{
+  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+
+  /* no-op if already talking */
+  if (text_owned_by(active_sprite))
+    {
+      *preturnint = 0;
+      return;
+    }
+    
+  kill_returning_stuff(script);
+  decipher_string(text, script);
+  int sprite = say_text(text, active_sprite, script);
+  *preturnint = sprite;
+  spr[sprite].callback = script;
+    
+  *yield = 1;
+}
+
+void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
+{
+  Msg("Say_stop_xy: Adding %s", text);
+  kill_returning_stuff(script);
+  decipher_string(text, script);
+  int sprite = say_text_xy(text, x, y, script);
+  spr[sprite].callback = script;
+  spr[sprite].live = /*true*/1;
+  play.last_talk = script;
+  *yield = 1;
+}
+
+void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
+{
+  kill_returning_stuff(script);
+  decipher_string(text, script);
+  int sprite = say_text_xy(text, x, y, script);
+  *preturnint = sprite;
+}
+
 void dc_draw_screen(int script, int* yield, int* preturnint)
 {
   draw_map_game();
@@ -306,8 +385,8 @@ static size_t dinkc_bindings_hasher(const void *x, size_t tablesize)
 
 static bool dinkc_bindings_comparator(const void* a, const void* b)
 {
-  return !strcmp(((struct binding*)a)->funcname,
-		 ((struct binding*)b)->funcname);
+  return !strcasecmp(((struct binding*)a)->funcname,
+		     ((struct binding*)b)->funcname);
 }
 
 /**
@@ -417,7 +496,6 @@ void dinkc_bindings_init()
   DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
   DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, -1                );
   DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(say,                   {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
   DCBD_ADD(draw_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
   DCBD_ADD(free_items,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
   DCBD_ADD(free_magic,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
@@ -426,6 +504,12 @@ void dinkc_bindings_init()
   DCBD_ADD(draw_status,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
   DCBD_ADD(arm_weapon,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
   DCBD_ADD(arm_magic,            {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(load_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(say,                   {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(say_stop,              {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(say_stop_npc,          {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(say_stop_xy,           {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(say_xy,                {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
 }
 
 void dinkc_bindings_quit()
@@ -773,7 +857,6 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   char line[200];
   char ev[15][100];
   char temp[100];
-  int sprite = 0;
   int kk;
   
   if (rinfo[script]->level < 1)
@@ -1163,21 +1246,6 @@ pass:
     }
 
 
-
-                if (compare(ev[1], "load_screen"))
-                {
-                        //Msg("Loading map %d..",*pmap);
-                        update_screen_time();
-                        load_map(map.loc[*pmap]);
-
-			// update indicator on mini-map
-			if (map.indoor[*pmap] == 0)
-			  play.last_map = *pmap;
-
-                        return(0);
-                }
-
-
                 if (compare(ev[1], "choice_start"))
                 {
 
@@ -1193,118 +1261,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "say_stop"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (nlist[1] == 0)
-                                {
-                                        Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
-                                        return(0);
-                                }
-
-                                kill_text_owned_by(nlist[1]);
-                                kill_text_owned_by(1);
-                                kill_returning_stuff(script);
-
-                                decipher_string(slist[0], script);
-                                sprite = say_text(slist[0], nlist[1], script);
-                                returnint = sprite;
-                                spr[sprite].callback = script;
-                                play.last_talk = script;
-                                //Msg("Sprite %d marked callback true.", sprite);
-
-                                strcpy_nooverlap(s, h);
-
-                                return(DCPS_YIELD);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "say_stop_npc"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                if (text_owned_by(nlist[1]))
-                                {
-                                        returnint = 0;
-                                        return(0);
-                                }
-
-                                kill_returning_stuff(script);
-                                decipher_string(slist[0], script);
-                                sprite = say_text(slist[0], nlist[1], script);
-                                returnint = sprite;
-                                spr[sprite].callback = script;
-                                strcpy_nooverlap(s, h);
-
-                                return(DCPS_YIELD);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "say_stop_xy"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                Msg("Say_stop_xy: Adding %s", slist[0]);
-                                kill_returning_stuff(script);
-                                decipher_string(slist[0], script);
-                                sprite = say_text_xy(slist[0], nlist[1], nlist[2], script);
-                                spr[sprite].callback = script;
-                                spr[sprite].live = /*true*/1;
-                                play.last_talk = script;
-                                strcpy_nooverlap(s, h);
-
-                                return(DCPS_YIELD);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "say_xy"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                kill_returning_stuff(script);
-                                decipher_string(slist[0], script);
-                                sprite = say_text_xy(slist[0], nlist[1], nlist[2], script);
-                                returnint = sprite;
-                                strcpy_nooverlap(s, h);
-                                return(0);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
 
                 if (compare(ev[1], "restart_game"))
                 {
