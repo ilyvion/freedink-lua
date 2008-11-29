@@ -3118,7 +3118,7 @@ void check_seq_status(int seq_no)
       if (seq[seq_no].frame[1] == 0 || GFX_k[seq[seq_no].frame[1]].k == NULL)
 	figure_out(seq[seq_no].ini);
     }
-  else
+  else if (seq_no > 0)
     {
       fprintf(stderr, "Warning: check_seq_status: invalid sequence %d\n", seq_no);
     }

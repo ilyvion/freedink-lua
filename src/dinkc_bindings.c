@@ -62,17 +62,333 @@ static char* cur_funcname;
  * Short-hand to check for invalid sprites and avoid segfaults.
  * Also warn the D-Mod author about it.
  */
-#define RETURN_IF_BAD_SPRITE(sprite)                 \
+#define STOP_IF_BAD_SPRITE(sprite)                   \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
     {                                                \
       Msg("DinkC error: %s: invalid sprite %d",      \
           cur_funcname, sprite);                     \
       return;                                        \
-    }                                                \
+    }
+
+/**
+ * sp_* functions used to call 'change_sprite' on spr[sprite] without
+ * checking if 'sprite' was in [1; MAX_SPRITES_AT_ONCE-1]. Since
+ * 'change_sprite' returns -1 when 'sprite' is inactive, that's also
+ * what we return when the sprite is out of range.
+ */
+#define RETURN_NEG_IF_BAD_SPRITE(sprite)             \
+  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
+    {                                                \
+      Msg("DinkC error: %s: invalid sprite %d",      \
+          cur_funcname, sprite);                     \
+      *preturnint = -1;                              \
+      return;                                        \
+    }
+
+
+void dc_sp_active(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].active);
+}
+
+void dc_sp_attack_hit_sound(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].attack_hit_sound);
+}
+
+void dc_sp_attack_hit_sound_speed(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].attack_hit_sound_speed);
+}
+
+void dc_sp_attack_wait(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg+thisTickCount, &spr[sprite].attack_wait);
+}
+
+void dc_sp_base_attack(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].base_attack);
+}
+
+void dc_sp_base_hit(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].base_hit);
+}
+
+void dc_sp_base_idle(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].base_idle);
+}
+
+void dc_sp_base_walk(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].base_walk);
+}
+
+void dc_sp_brain(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].brain);
+}
+
+void dc_sp_brain_parm(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].brain_parm);
+}
+
+void dc_sp_brain_parm2(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].brain_parm2);
+}
+
+void dc_sp_defense(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].defense);
+}
+
+void dc_sp_dir(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].dir);
+  if (sparg != -1)
+    changedir(spr[sprite].dir, sprite, spr[sprite].base_walk);
+}
+
+void dc_sp_disabled(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].disabled);
+}
+
+void dc_sp_distance(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].distance);
+}
+
+void dc_sp_exp(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].exp);
+}
+
+void dc_sp_flying(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].flying);
+}
+
+void dc_sp_follow(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].follow);
+}
+
+void dc_sp_frame(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].frame);
+}
+
+void dc_sp_frame_delay(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].frame_delay);
+}
+
+void dc_sp_gold(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].gold);
+}
+
+void dc_sp_hard(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].hard);
+  if (spr[sprite].sp_index != 0 && sparg != -1)
+    pam.sprite[spr[sprite].sp_index].hard = *preturnint;
+}
+
+void dc_sp_hitpoints(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].hitpoints);
+}
+
+void dc_sp_move_nohard(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].move_nohard);
+}
+
+void dc_sp_mx(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].mx);
+}
+
+void dc_sp_my(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].my);
+}
+
+void dc_sp_noclip(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].noclip);
+}
+
+void dc_sp_nocontrol(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].nocontrol);
+}
+
+void dc_sp_nodraw(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].nodraw);
+}
+
+void dc_sp_nohit(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].nohit);
+}
+
+void dc_sp_notouch(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].notouch);
+}
+
+void dc_sp_pframe(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].pframe);
+}
+
+void dc_sp_picfreeze(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].picfreeze);
+}
+
+void dc_sp_pseq(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].pseq);
+}
+
+void dc_sp_que(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].que);
+}
+
+void dc_sp_range(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].range);
+}
+
+void dc_sp_reverse(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].reverse);
+}
+
+void dc_sp_seq(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].seq);
+}
+
+void dc_sp_size(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].size);
+}
+
+void dc_sp_sound(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].sound);
+  if (sparg > 0)
+    SoundPlayEffect(spr[sprite].sound,22050, 0, sprite, 1);
+}
+
+void dc_sp_speed(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].speed);
+  if (sparg != -1)
+    changedir(spr[sprite].dir, sprite, spr[sprite].base_walk);
+}
+
+void dc_sp_strength(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].strength);
+}
+
+void dc_sp_target(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].target);
+}
+
+void dc_sp_timing(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].timer);
+}
+
+void dc_sp_touch_damage(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].touch_damage);
+}
+
+void dc_sp_x(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].x);
+}
+
+void dc_sp_y(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite(sprite, sparg, &spr[sprite].y);
+}
+
+
+
+void dc_sp_kill(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  spr[sprite].kill = sparg;
+}
+
+
 
 void dc_unfreeze(int script, int* yield, int* preturnint, int sprite)
 {
-  RETURN_IF_BAD_SPRITE(sprite);
+  STOP_IF_BAD_SPRITE(sprite);
 
   if (spr[sprite].active)
     spr[sprite].freeze = 0;
@@ -82,7 +398,7 @@ void dc_unfreeze(int script, int* yield, int* preturnint, int sprite)
 
 void dc_freeze(int script, int* yield, int* preturnint, int sprite)
 {
-  RETURN_IF_BAD_SPRITE(sprite);
+  STOP_IF_BAD_SPRITE(sprite);
 
   if (spr[sprite].active)
     spr[sprite].freeze = script;
@@ -128,7 +444,7 @@ void dc_add_magic(int script, int* yield, int* preturnint, char* dcscript, int s
 
 void dc_add_exp(int script, int* yield, int* preturnint, int amount, int active_sprite)
 {
-  RETURN_IF_BAD_SPRITE(active_sprite);
+  STOP_IF_BAD_SPRITE(active_sprite);
 
   if (dversion >= 108)
     // fix - made work with all sprites when
@@ -180,7 +496,7 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
 {
   /* 1000 is a valid value, and bad values don't trigger segfaults
      in this particular function; so don't validate active_sprite */
-  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+  /* STOP_IF_BAD_SPRITE(active_sprite); */
 
   if (active_sprite == 0)
     {
@@ -196,7 +512,7 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
 
 void dc_load_screen(int script, int* yield, int* preturnint)
 {
-  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+  /* STOP_IF_BAD_SPRITE(active_sprite); */
 
   //Msg("Loading map %d..",*pmap);
   update_screen_time();
@@ -211,7 +527,7 @@ void dc_load_screen(int script, int* yield, int* preturnint)
 
 void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
 {
-  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+  /* STOP_IF_BAD_SPRITE(active_sprite); */
 
   if (active_sprite == 0)
     {
@@ -235,7 +551,7 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
 
 void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int active_sprite)
 {
-  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+  /* STOP_IF_BAD_SPRITE(active_sprite); */
 
   /* no-op if already talking */
   if (text_owned_by(active_sprite))
@@ -390,13 +706,13 @@ void dc_preload_seq(int script, int* yield, int* preturnint, int sequence)
 
 void dc_script_attach(int script, int* yield, int* preturnint, int sprite)
 {
-  /* RETURN_IF_BAD_SPRITE(sprite); */
+  /* STOP_IF_BAD_SPRITE(sprite); */
   rinfo[script]->sprite = sprite;
 }
 
 void dc_draw_hard_sprite(int script, int* yield, int* preturnint, int sprite)
 {
-  RETURN_IF_BAD_SPRITE(sprite);
+  STOP_IF_BAD_SPRITE(sprite);
 
   update_play_changes();
   int l = sprite;
@@ -422,8 +738,10 @@ struct binding
   char* funcname; /* name of the function, as string */
   void* func;     /* pointer to the C function */
   int params[10]; /* DinkC specification of params e.g. {2,1,1,0,0,0,0,0,0,0} */
-  enum dinkc_parser_state invalidparams_dcps; /* if the DinkC script has bad arguments, skip line or yield? */
-  ffi_cif cif;              /* libffi function struct */
+  enum dinkc_parser_state badparams_dcps; /* if the DinkC script has bad arguments, skip line or yield? */
+  int badparams_returnint_p; /* overwrite returnint if bad arguments? */
+  int badparams_returnint;   /* value for returnint if badparams_returnint_p is 1 */
+  ffi_cif cif;                           /* libffi function struct */
   ffi_type* cif_args[NB_COMMON_ARGS+10]; /* libffi argument types, referenced by 'cif' */
 };
 
@@ -536,40 +854,90 @@ void dinkc_bindings_init()
 			     dinkc_bindings_hasher, dinkc_bindings_comparator,
 			     free);
 
-  DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(set_callback_random,   {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(set_dink_speed,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(reset_timer,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(set_keep_mouse,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_item,              {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_magic,             {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_exp,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(kill_this_item,        {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(kill_this_magic,       {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(show_bmp,              {2,1,1,0,0,0,0,0,0,0}, DCPS_YIELD        );
-  DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(draw_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(free_items,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(free_magic,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(kill_cur_item,        {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(kill_cur_magic,       {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(draw_status,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(arm_weapon,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(arm_magic,            {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(load_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(say,                   {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(say_stop,              {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(say_stop_npc,          {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(say_stop_xy,           {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(say_xy,                {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(restart_game,         {-1,0,0,0,0,0,0,0,0,0}, -1                );
-  DCBD_ADD(wait,                  {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(preload_seq,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(script_attach,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(draw_hard_sprite,      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(sp_active,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_attack_hit_sound,       {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_attack_hit_sound_speed, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_attack_wait,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_base_attack,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_base_hit,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_base_idle,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_base_walk,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_brain,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_brain_parm,             {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_brain_parm2,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_defense,                {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_dir,                    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_disabled,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_distance,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_exp,                    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_flying,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_follow,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_frame,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_frame_delay,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_gold,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_hard,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_hitpoints,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_move_nohard,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_mx,                     {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_my,                     {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_noclip,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_nocontrol,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_nodraw,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_nohit,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_notouch,                {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_pframe,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_picfreeze,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_pseq,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_que,                    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_range,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_reverse,                {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_seq,                    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_size,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_sound,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_speed,                  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_strength,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_target,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_timing,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_touch_damage,           {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_x,                      {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_y,                      {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+  DCBD_ADD(sp_kill,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+  DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(set_callback_random,   {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(set_dink_speed,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(reset_timer,          {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(set_keep_mouse,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(add_item,              {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(add_magic,             {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(add_exp,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_this_item,        {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_this_magic,       {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(show_bmp,              {2,1,1,0,0,0,0,0,0,0}, DCPS_YIELD        , 0, 0);
+  DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(draw_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(free_items,           {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(free_magic,           {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(kill_cur_item,        {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(kill_cur_magic,       {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(draw_status,          {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(arm_weapon,           {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(arm_magic,            {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(load_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(say,                   {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(say_stop,              {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(say_stop_npc,          {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(say_stop_xy,           {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(say_xy,                {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(restart_game,         {-1,0,0,0,0,0,0,0,0,0}, -1                , 0, 0);
+  DCBD_ADD(wait,                  {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(preload_seq,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(script_attach,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(draw_hard_sprite,      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 }
 
 void dinkc_bindings_quit()
@@ -1281,9 +1649,12 @@ pass:
 	    }
 	  else
 	    {
-	      /* Invalid parameters in the DinkC script, using
-		 fallback parser state */
-	      return pbd->invalidparams_dcps;
+	      /* Invalid parameters in the DinkC script */
+	      /* Set 'returnint' if necessary */
+	      if (pbd->badparams_returnint_p == 1)
+		returnint = pbd->badparams_returnint;
+	      /* Fallback parser state */
+	      return pbd->badparams_dcps;
 	    }
 	}
 
@@ -1291,6 +1662,7 @@ pass:
       int rc;
       cur_funcname = pbd->funcname; /* for error messages */
       ffi_call(&pbd->cif, pbd->func, &rc, values);
+      cur_funcname = "";
       /* the function can manipulation returnint through argument #3 */
 
       if (*yield == 0)
@@ -1325,6 +1697,96 @@ pass:
   /*  Old bindings  */
   /*                */
   /******************/
+
+
+if ( (compare(ev[1], "sp_base_die")) || (compare(ev[1], "sp_base_death"))  )
+  {
+    h = &h[strlen(ev[1])];
+    int p[20] = {1,1,0,0,0,0,0,0,0,0};
+    if (get_parms(ev[1], script, h, p))
+      {
+	returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_die);
+	return(0);
+      }
+    returnint =  -1;
+    return(0);
+  }
+
+
+if (compare(ev[1], "sp_editor_num"))
+  {
+    h = &h[strlen(ev[1])];
+    int p[20] = {1,0,0,0,0,0,0,0,0,0};
+    if (get_parms(ev[1], script, h, p))
+      {
+	returnint = 0;
+	if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+	  returnint = spr[nlist[0]].sp_index;
+	else
+	  Msg("Error: sp_editor_num: invalid sprite %d", nlist[0]);
+	return(0);
+      }
+    returnint = -1;
+    return(0);
+  }
+
+
+if (compare(ev[1], "sp_kill_wait"))
+  {
+    h = &h[strlen(ev[1])];
+    int p[20] = {1,0,0,0,0,0,0,0,0,0};
+    if (get_parms(ev[1], script, h, p))
+      {
+	if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
+	  spr[nlist[0]].wait = 0;
+	else
+	  Msg("Error: sp_kill_wait: invalid sprite %d", nlist[0]);
+	return(0);
+      }
+    returnint =  -1;
+    return(0);
+  }
+
+if (compare(ev[1], "sp_script"))
+  {
+    // (sprite, direction, until, nohard);
+    h = &h[strlen(ev[1])];
+    int p[20] = {1,2,0,0,0,0,0,0,0,0};
+    if (get_parms(ev[1], script, h, p))
+      {
+	if (nlist[0] == 0)
+	  {
+	    Msg("Error: sp_script cannot process sprite 0??");
+	    return(0);
+	  }
+	kill_scripts_owned_by(nlist[0]);
+	if (load_script(slist[1], nlist[0], /*true*/1) == 0)
+	  {
+	    returnint = 0;
+	    return(0);
+	  }
+	if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
+
+	if (no_running_main == /*false*/0)
+	  locate(spr[nlist[0]].script, "MAIN");
+
+
+	int tempreturn = spr[nlist[0]].script;
+
+	if (no_running_main == /*false*/0)
+	  run_script(spr[nlist[0]].script);
+
+
+	returnint = tempreturn;
+      }
+
+    strcpy_nooverlap(s, h);
+    return(0);
+  }
+
+
+
+
 
 
                 if (compare(ev[1], "move"))
@@ -2021,794 +2483,6 @@ pass:
                         return(0);
                 }
 
-                if (compare(ev[1], "sp_script"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,2,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (nlist[0] == 0)
-                                {
-                                        Msg("Error: sp_script cannot process sprite 0??");
-                                        return(0);
-                                }
-                                kill_scripts_owned_by(nlist[0]);
-                                if (load_script(slist[1], nlist[0], /*true*/1) == 0)
-                                {
-                                        returnint = 0;
-                                        return(0);
-                                }
-                                if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
-
-                                if (no_running_main == /*false*/0)
-                                        locate(spr[nlist[0]].script, "MAIN");
-
-
-                                int tempreturn = spr[nlist[0]].script;
-
-                                if (no_running_main == /*false*/0)
-                                        run_script(spr[nlist[0]].script);
-
-
-                                returnint = tempreturn;
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_speed"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-			    {
-			      returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].speed);
-			      
-			      if (nlist[1] != -1)
-				changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
-			    }
-			  return(0);
-                        }
-                        returnint = -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_range"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].range);
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_nocontrol"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].nocontrol);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_nodraw"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].nodraw);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_picfreeze"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].picfreeze);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "sp_sound"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].sound);
-
-                                if (nlist[1] > 0)
-                                {
-                                        SoundPlayEffect( spr[nlist[0]].sound,22050, 0,nlist[0], 1);
-
-                                }
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_attack_wait"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                returnint = change_sprite(nlist[0], nlist[1]+thisTickCount, &spr[nlist[0]].attack_wait);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_active"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].active);
-
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_disabled"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].disabled);
-
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_size"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].size);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_que"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].que);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-        if (compare(ev[1], "sp_gold"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].gold);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_base_walk"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_walk);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_target"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].target);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_base_hit"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_hit);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_base_attack"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_attack);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_base_idle"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_idle);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if ( (compare(ev[1], "sp_base_die")) || (compare(ev[1], "sp_base_death"))  )
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_die);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_pseq"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].pseq);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_pframe"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].pframe);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_seq"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].seq);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_editor_num"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  returnint = 0;
-			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-			    returnint = spr[nlist[0]].sp_index;
-			  else
-			    Msg("Error: sp_editor_num: invalid sprite %d", nlist[0]);
-			  return(0);
-                        }
-                        returnint = -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_brain"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].brain);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_exp"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].exp);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_reverse"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].reverse);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_noclip"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].noclip);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_touch_damage"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].touch_damage);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_brain_parm"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].brain_parm);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-                if (compare(ev[1], "sp_brain_parm2"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].brain_parm2);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_follow"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].follow);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp_frame"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].frame);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_frame_delay"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].frame_delay);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "sp_hard"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].hard);
-                                if (spr[nlist[0]].sp_index != 0) if (nlist[1] != -1)
-                                {
-
-                                        pam.sprite[spr[nlist[0]].sp_index].hard = returnint;
-                                }
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_move_nohard"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].move_nohard);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-                if (compare(ev[1], "sp_flying"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].flying);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "sp_kill_wait"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-			    spr[nlist[0]].wait = 0;
-			  else
-			    Msg("Error: sp_kill_wait: invalid sprite %d", nlist[0]);
-			  return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-                if (compare(ev[1], "sp_kill"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-			    spr[nlist[0]].kill = nlist[1];
-			  else
-			    Msg("Error: sp_kill: invalid sprite %d", nlist[0]);
-			  return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_x"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].x);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_mx"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].mx);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_my"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].my);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-
-
-                if (compare(ev[1], "sp_dir"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].dir);
-
-                                if (nlist[1] != -1) changedir(spr[nlist[0]].dir, nlist[0], spr[nlist[0]].base_walk);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "sp_hitpoints"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].hitpoints);
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sp_attack_hit_sound"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound);
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                                                                if (compare(ev[1], "sp_attack_hit_sound_speed"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].attack_hit_sound_speed);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_strength"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].strength);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[1], "sp_defense"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].defense);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-
-                                                                if (compare(ev[1], "sp_distance"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].distance);
-
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_nohit"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].nohit);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_notouch"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].notouch);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_y"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].y);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[1], "sp_timing"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = change_sprite(nlist[0], nlist[1], &spr[nlist[0]].timer);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
 
                 if (compare(ev[1], "get_sprite_with_this_brain"))
                 {
