@@ -109,15 +109,15 @@ void reverse(char *st)
         strcpy(st, don);
 }
 
+/**
+ * This acts in the same way as strcat except it combines a string and
+ * a single character, updating the null at the end.
+ */
 void strchar(char *string, char ch)
-/* This acts in the same way as strcat except it combines a string and
-a single character, updating the null at the end. */
 {
-        int last;
-        last=strlen(string);
-        string[last]=ch;
-        string[last+1]=0;
-
+  int last = strlen(string);
+  string[last] = ch;
+  string[last+1] = '\0';
 }
 
 /**

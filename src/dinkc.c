@@ -111,6 +111,7 @@ void decompress(FILE *in)
       ungetc(c, in);
     }
   
+  char* pc = cbuf + strlen(cbuf);
   for (;;)
     {
       /* Pop byte from stack or read byte from file */
@@ -125,7 +126,7 @@ void decompress(FILE *in)
 	  if ((c-128) >= nb_pairs)
 	    {
 	      fprintf(stderr, "decompress: invalid body: references non-existent pair\n");
-	      return;
+	      break;
 	    }
 	  stack[++top] = pairs[c-128][1];
 	  stack[++top] = pairs[c-128][0];
@@ -133,23 +134,26 @@ void decompress(FILE *in)
       else
 	{
 	  if (c == '\r') c = '\n';
-	  if (c == 9) c = ' ';
-	  strchar(cbuf,c);
+	  if (c == '\t') c = ' ';
+	  *pc = c;
+	  pc++;
 	}
     }
+  *pc = '\0';
 }
 
 void decompress_nocomp(FILE *in)
 {
   int c;
-  
-  /* Check for optional pair count and pair table */
+  char* pc = cbuf + strlen(cbuf);
   while ((c = getc(in)) != EOF)
     {
       if (c == '\r') c = '\n';
-      if (c == 9) c = ' ';
-      strchar(cbuf,c);
+      if (c == '\t') c = ' ';
+      *pc = c;
+      pc++;
     }
+  *pc = '\0';
 }
 
 
