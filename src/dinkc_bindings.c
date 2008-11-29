@@ -781,6 +781,147 @@ void dc_draw_hard_sprite(int script, int* yield, int* preturnint, int sprite)
 }
 
 
+void dc_activate_bow(int script, int* yield, int* preturnint)
+{
+  spr[1].seq = 0;
+  spr[1].pseq = 100+spr[1].dir;
+  spr[1].pframe = 1;
+  bow.active = /*true*/1;
+  bow.script = script;
+  bow.hitme = /*false*/0;
+  bow.time = 0;
+    
+  /*      bowsound->Release();
+    
+  //lpDS->DuplicateSoundBuffer(ssound[42].sound,&bowsound);
+  //bowsound->Play(0, 0, DSBPLAY_LOOPING);
+  */
+    
+  *yield = 1;
+}
+
+void dc_disable_all_sprites(int script, int* yield, int* preturnint)
+{
+  int jj;
+  for (jj = 1; jj < last_sprite_created; jj++)
+    if (spr[jj].active) spr[jj].disabled = /*true*/1;
+}
+
+void dc_draw_background(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  draw_map_game_background();
+}
+
+void dc_draw_hard_map(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  Msg("Drawing hard map..");
+  update_play_changes();
+  fill_whole_hard();
+  fill_hard_sprites();
+  fill_back_sprites();
+}
+
+void dc_enable_all_sprites(int script, int* yield, int* preturnint)
+{
+  int jj;
+  for (jj = 1; jj < last_sprite_created; jj++)
+    if (spr[jj].active) spr[jj].disabled = /*false*/0;
+}
+
+void dc_fade_down(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  process_downcycle = /*true*/1;
+  cycle_clock = thisTickCount+1000;
+  cycle_script = script;
+  *yield = 1;
+}
+
+void dc_fade_up(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  process_upcycle = /*true*/1;
+  cycle_script = script;
+  *yield = 1;
+}
+
+void dc_get_burn(int script, int* yield, int* preturnint)
+{
+  *preturnint = 1;
+}
+
+void dc_get_last_bow_power(int script, int* yield, int* preturnint)
+{
+  *preturnint = bow.last_power;
+}
+
+void dc_get_version(int script, int* yield, int* preturnint)
+{
+  *preturnint = dversion;
+}
+
+void dc_kill_all_sounds(int script, int* yield, int* preturnint)
+{
+  kill_repeat_sounds_all();
+}
+
+void dc_kill_game(int script, int* yield, int* preturnint)
+{
+  Msg("Was told to kill game, so doing it like a good boy.");
+  /* Send QUIT event to the main game loop,
+     which will cleanly exit */
+  SDL_Event ev;
+  ev.type = SDL_QUIT;
+  SDL_PushEvent(&ev);
+  *yield = 1;
+}
+
+void dc_kill_this_task(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  if (rinfo[script]->proc_return != 0)
+    {
+      run_script(rinfo[script]->proc_return);
+    }
+  kill_script(script);
+  *yield = 1;
+}
+
+void dc_scripts_used(int script, int* yield, int* preturnint)
+{
+  int m = 0;
+  int i;
+  for (i = 1; i < MAX_SCRIPTS; i++)
+    if (rinfo[i] != NULL) m++;
+  *preturnint = m;
+}
+
+void dc_stopcd(int script, int* yield, int* preturnint)
+{
+  // mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL);
+  Msg("Stopped cd");
+  killcd();
+}
+
+void dc_stopmidi(int script, int* yield, int* preturnint)
+{
+  // (sprite, direction, until, nohard);
+  StopMidi();
+}
+
+void dc_turn_midi_off(int script, int* yield, int* preturnint)
+{
+  midi_active = /*false*/0;
+}
+
+void dc_turn_midi_on(int script, int* yield, int* preturnint)
+{
+  midi_active = /*true*/1;
+}
+
+
 /****************/
 /*  Hash table  */
 /*              */
@@ -813,8 +954,8 @@ static size_t dinkc_bindings_hasher(const void *x, size_t tablesize)
 
 static bool dinkc_bindings_comparator(const void* a, const void* b)
 {
-  return !strcasecmp(((struct binding*)a)->funcname,
-		     ((struct binding*)b)->funcname);
+  return !strcmp(((struct binding*)a)->funcname,
+		 ((struct binding*)b)->funcname);
 }
 
 /**
@@ -823,7 +964,11 @@ static bool dinkc_bindings_comparator(const void* a, const void* b)
 struct binding* dinkc_bindings_lookup(dinkc_sp_custom hash, char* funcname)
 {
   struct binding search;
-  search.funcname = funcname;
+  char* lcfuncname = strdup(funcname);
+  char* pc;
+  for (pc = lcfuncname; *pc != '\0'; pc++)
+    *pc = tolower(*pc);
+  search.funcname = lcfuncname;
   return hash_lookup(hash, &search);
 }
 
@@ -1001,6 +1146,25 @@ void dinkc_bindings_init()
   DCBD_ADD(preload_seq,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(script_attach,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(draw_hard_sprite,      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+  DCBD_ADD(activate_bow,        {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(disable_all_sprites, {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(draw_background,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(draw_hard_map,       {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(enable_all_sprites,  {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(fade_down,           {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(fade_up,             {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(get_burn,            {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(get_last_bow_power,  {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(get_version,         {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_all_sounds,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_game,           {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_this_task,      {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(scripts_used,        {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(stopcd,              {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(stopmidi,            {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(turn_midi_off,       {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(turn_midi_on,        {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 }
 
 void dinkc_bindings_quit()
@@ -1755,6 +1919,113 @@ pass:
                         return(0);
                 }
 
+                if (compare(ev[1], "goto"))
+                {
+
+                        locate_goto(ev[2], script);
+                        return(0);
+                }
+
+                if (compare(ev[1], "int"))
+                {
+
+                        int_prepare(h, script);
+
+                        //Msg(slist[0]);
+
+                        h = &h[strlen(ev[1])];
+
+                        //Msg("Int is studying %s..", h);
+                        if (strchr(h, '=') != NULL)
+                        {
+                                strip_beginning_spaces(h);
+                                //Msg("Found =...continuing equation");
+                                strcpy_nooverlap(s, h);
+                                return(DCPS_CONTINUE);
+                        }
+
+                        return(DCPS_GOTO_NEXTLINE);
+
+                }
+
+                                                                if (compare(ev[1], "return;"))
+                                                                {
+
+                                                                        if (debug_mode) Msg("Found return; statement");
+
+                                                                        if (rinfo[script]->proc_return != 0)
+                                                                        {
+                                                                                bKeepReturnInt = 1; /* v1.08 */
+                                                                                run_script(rinfo[script]->proc_return);
+                                                                                kill_script(script);
+                                                                        }
+
+                                                                        return(DCPS_YIELD);
+                                                                }
+
+
+if (dversion >= 108)
+  {
+    /* added so we can have return values and crap. */
+    /* see also "return;" above */
+    if (compare (ev[1], "return"))
+
+      {
+	if (debug_mode)
+	  Msg ("Found return; statement");
+	h = &h[strlen (ev[1])];
+	strip_beginning_spaces (h);
+	process_line (script, h, 0);
+	if (rinfo[script]->proc_return != 0)
+
+	  {
+	    bKeepReturnInt = 1;
+	    run_script (rinfo[script]->proc_return);
+	    kill_script (script);
+	  }
+	return (2);
+      }
+  }
+
+
+
+                                                                if (compare(ev[1], "if"))
+                                                                {
+
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        //Msg("running if with string of %s", h);
+
+                                                                        process_line(script, h, /*false*/0);
+                                                                        //Msg("Result is %d", returnint);
+
+                                                                        if (returnint != 0)
+                                                                        {
+                                                                                if (debug_mode) Msg("If returned true");
+
+
+                                                                        } else
+                                                                        {
+                                                                                //don't do it!
+                                                                                rinfo[script]->skipnext = /*true*/1;
+                                                                                if (debug_mode) Msg("If returned false, skipping next thing");
+                                                                        }
+
+                                                                        //DO STUFF HERE!
+                                                                        strcpy_nooverlap(s, h);
+                                                                        //g("continuing to run line %s..", h);
+
+
+                                                                        //return(5);
+									return(DCPS_DOELSE_ONCE);
+									/* state 5 should actually be state DCPS_CONTINUE, but keeping it
+									   that way (e.g. with doelse=1 for the next line) for compatibility, just in case somebody
+									   abused it */
+
+                                                                }
+
+
+
 
   /******************/
   /*  Old bindings  */
@@ -1821,75 +2092,6 @@ pass:
                         return(0);
                 }
 
-
-
-                if (compare(ev[1], "draw_hard_map"))
-                {
-                        // (sprite, direction, until, nohard);
-                        Msg("Drawing hard map..");
-                        update_play_changes();
-                        fill_whole_hard();
-                        fill_hard_sprites();
-                        fill_back_sprites();
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "draw_background"))
-                {
-                        // (sprite, direction, until, nohard);
-                        draw_map_game_background();
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "fade_down"))
-                {
-                        // (sprite, direction, until, nohard);
-                        process_downcycle = /*true*/1;
-                        cycle_clock = thisTickCount+1000;
-                        cycle_script = script;
-                        return(DCPS_YIELD);
-                }
-                if (compare(ev[1], "fade_up"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        process_upcycle = /*true*/1;
-                        cycle_script = script;
-
-                        strcpy_nooverlap(s, h);
-                        return(DCPS_YIELD);
-                }
-
-
-                if (compare(ev[1], "kill_this_task"))
-                {
-                        // (sprite, direction, until, nohard);
-                        if (rinfo[script]->proc_return != 0)
-                        {
-                                run_script(rinfo[script]->proc_return);
-                        }
-                        kill_script(script);
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "kill_game"))
-                {
-		  Msg("Was told to kill game, so doing it like a good boy.");
-		  /* Send QUIT event to the main game loop,
-		     which will cleanly exit */
-		  SDL_Event ev;
-		  ev.type = SDL_QUIT;
-		  SDL_PushEvent(&ev);
-		  return(DCPS_YIELD);
-                }
-
-
                 if (compare(ev[1], "playmidi"))
                 {
                         // (sprite, direction, until, nohard);
@@ -1926,38 +2128,6 @@ pass:
                         strcpy_nooverlap(s, h);
                         return(0);
                 }
-                if (compare(ev[1], "stopmidi"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        StopMidi();
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "kill_all_sounds"))
-                {
-            kill_repeat_sounds_all();
-                        strcpy_nooverlap(s, h);
-                        return(0);
-
-                }
-
-                if (compare(ev[1], "turn_midi_off"))
-                {
-                        midi_active = /*false*/0;
-                        strcpy_nooverlap(s, h);
-                        return(0);
-
-                }
-                if (compare(ev[1], "turn_midi_on"))
-                {
-                        midi_active = /*true*/1;
-                        strcpy_nooverlap(s, h);
-                        return(0);
-
-                }
-
 
                 if (compare(ev[1], "Playsound"))
                 {
@@ -2204,14 +2374,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "goto"))
-                {
-
-                        locate_goto(ev[2], script);
-                        return(0);
-                }
-
-
 
                 if (compare(ev[1], "make_global_int"))
                 {
@@ -2227,29 +2389,6 @@ pass:
 
                         strcpy_nooverlap(s, h);
                         return(0);
-                }
-
-
-                if (compare(ev[1], "int"))
-                {
-
-                        int_prepare(h, script);
-
-                        //Msg(slist[0]);
-
-                        h = &h[strlen(ev[1])];
-
-                        //Msg("Int is studying %s..", h);
-                        if (strchr(h, '=') != NULL)
-                        {
-                                strip_beginning_spaces(h);
-                                //Msg("Found =...continuing equation");
-                                strcpy_nooverlap(s, h);
-                                return(DCPS_CONTINUE);
-                        }
-
-                        return(DCPS_GOTO_NEXTLINE);
-
                 }
 
 
@@ -2330,25 +2469,6 @@ pass:
                         return(0);
                 }
 
-
-                if (compare(ev[1], "get_version"))
-                {
-                        h = &h[strlen(ev[1])];
-                        returnint = dversion;
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                /* Used in the original game to choose between 2 CD
-                   tracks/sounds. "This command is included for
-                   compatibility" (TM) */
-                if (compare(ev[1], "get_burn"))
-                {
-                        h = &h[strlen(ev[1])];
-                        returnint = 1;
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
 
 
 
@@ -2532,59 +2652,6 @@ pass:
 
                         returnint =  0;
                         return(0);
-                }
-
-
-                if (compare(ev[1], "activate_bow"))
-                {
-
-                        spr[1].seq = 0;
-                        spr[1].pseq = 100+spr[1].dir;
-                        spr[1].pframe = 1;
-                        bow.active = /*true*/1;
-                        bow.script = script;
-                        bow.hitme = /*false*/0;
-                        bow.time = 0;
-
-                        /*      bowsound->Release();
-
-                          //lpDS->DuplicateSoundBuffer(ssound[42].sound,&bowsound);
-                          //bowsound->Play(0, 0, DSBPLAY_LOOPING);
-                        */
-
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "get_last_bow_power"))
-                {
-
-
-                        returnint = bow.last_power;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "stopcd"))
-                {
-                        // mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL);
-                        Msg("Stopped cd");
-                        killcd();
-                        return(0);
-                }
-
-                if (compare(ev[1], "disable_all_sprites"))
-                {
-		  int jj;
-                        for (jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = /*true*/1;
-                                return(0);
-                }
-                if (compare(ev[1], "enable_all_sprites"))
-                {
-		  int jj;
-                        for (jj = 1; jj < last_sprite_created; jj++)
-                                if (spr[jj].active) spr[jj].disabled = /*false*/0;
-                                return(0);
                 }
 
 
@@ -2840,17 +2907,6 @@ pass:
                 }
 
 
-                if (compare(ev[1], "scripts_used"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int m = 0;
-			int i;
-                        for (i = 1; i < MAX_SCRIPTS; i++)
-                                if (rinfo[i] != NULL) m++;
-                                returnint = m;
-                                return(0);
-                }
-
                                                                 if (compare(ev[1], "init"))
                                                                 {
                                                                         h = &h[strlen(ev[1])];
@@ -2964,137 +3020,6 @@ if (compare(ev[1], "compare_magic"))
                                                                         return(0);
                                                                 }
 
-
-                                                                if (compare(ev[1], "return;"))
-                                                                {
-
-                                                                        if (debug_mode) Msg("Found return; statement");
-
-                                                                        if (rinfo[script]->proc_return != 0)
-                                                                        {
-                                                                                bKeepReturnInt = 1; /* v1.08 */
-                                                                                run_script(rinfo[script]->proc_return);
-                                                                                kill_script(script);
-                                                                        }
-
-                                                                        return(DCPS_YIELD);
-                                                                }
-
-
-
-
-                                                                if (compare(ev[1], "if"))
-                                                                {
-
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        //Msg("running if with string of %s", h);
-
-                                                                        process_line(script, h, /*false*/0);
-                                                                        //Msg("Result is %d", returnint);
-
-                                                                        if (returnint != 0)
-                                                                        {
-                                                                                if (debug_mode) Msg("If returned true");
-
-
-                                                                        } else
-                                                                        {
-                                                                                //don't do it!
-                                                                                rinfo[script]->skipnext = /*true*/1;
-                                                                                if (debug_mode) Msg("If returned false, skipping next thing");
-                                                                        }
-
-                                                                        //DO STUFF HERE!
-                                                                        strcpy_nooverlap(s, h);
-                                                                        //g("continuing to run line %s..", h);
-
-
-                                                                        //return(5);
-									return(DCPS_DOELSE_ONCE);
-									/* state 5 should actually be state DCPS_CONTINUE, but keeping it
-									   that way (e.g. with doelse=1 for the next line) for compatibility, just in case somebody
-									   abused it */
-
-                                                                }
-
-
-
-                                                                if (compare(ev[2], "="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '=', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[2], "+="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '+', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[2], "*="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '*', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-
-
-                                                                if (compare(ev[2], "-="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '-', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[2], "/")
-								    || (dversion >= 108 && compare(ev[2], "/=")))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '/', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[2], "*"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '*', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
 
 
   /*********************************/
@@ -3819,6 +3744,87 @@ if (compare(ev[1], "compare_magic"))
 
     }
 
+  /***************/
+  /** Operators **/
+  /**           **/
+  /***************/
+
+                                                                if (compare(ev[2], "="))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[1];
+                                                                        strip_beginning_spaces(h);
+                                                                        var_equals(ev[1], ev[3], '=', script, h);
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
+                                                                if (compare(ev[2], "+="))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[2];
+                                                                        strip_beginning_spaces(h);
+                                                                        var_equals(ev[1], ev[3], '+', script, h);
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
+                                                                if (compare(ev[2], "*="))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[2];
+                                                                        strip_beginning_spaces(h);
+                                                                        var_equals(ev[1], ev[3], '*', script, h);
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
+
+
+                                                                if (compare(ev[2], "-="))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[2];
+                                                                        strip_beginning_spaces(h);
+
+                                                                        var_equals(ev[1], ev[3], '-', script, h);
+
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
+
+                                                                if (compare(ev[2], "/")
+								    || (dversion >= 108 && compare(ev[2], "/=")))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[1];
+                                                                        strip_beginning_spaces(h);
+
+                                                                        var_equals(ev[1], ev[3], '/', script, h);
+
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
+                                                                if (compare(ev[2], "*"))
+                                                                {
+                                                                        h = &h[strlen(ev[1])];
+                                                                        strip_beginning_spaces(h);
+                                                                        h = &h[1];
+                                                                        strip_beginning_spaces(h);
+
+                                                                        var_equals(ev[1], ev[3], '*', script, h);
+
+                                                                        strcpy_nooverlap(s, h);
+                                                                        return(0);
+                                                                }
+
 
   /***************************************/
   /** New DinkC user-defined procedures **/
@@ -3826,27 +3832,6 @@ if (compare(ev[1], "compare_magic"))
   /***************************************/
   if (dversion >= 108)
     {
-
-    /* added so we can have return values and crap. */
-    /* see also "return;" above */
-    if (compare (ev[1], "return"))
-
-      {
-	if (debug_mode)
-	  Msg ("Found return; statement");
-	h = &h[strlen (ev[1])];
-	strip_beginning_spaces (h);
-	process_line (script, h, 0);
-	if (rinfo[script]->proc_return != 0)
-
-	  {
-	    bKeepReturnInt = 1;
-	    run_script (rinfo[script]->proc_return);
-	    kill_script (script);
-	  }
-	return (2);
-      }
-
     if (compare (ev[1], "external"))
       {
 	h = &h[strlen (ev[1])];
