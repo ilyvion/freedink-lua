@@ -116,6 +116,12 @@ void dc_sp_base_attack(int script, int* yield, int* preturnint, int sprite, int 
   *preturnint = change_sprite_noreturn(sprite, sparg, &spr[sprite].base_attack);
 }
 
+void dc_sp_base_die(int script, int* yield, int* preturnint, int sprite, int base_sequence)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  *preturnint = change_sprite_noreturn(sprite, base_sequence, &spr[sprite].base_die);
+}
+
 void dc_sp_base_hit(int script, int* yield, int* preturnint, int sprite, int sparg)
 {
   RETURN_NEG_IF_BAD_SPRITE(sprite);
@@ -787,7 +793,7 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
 
   /* Copy uninitialized binding in hash table */
   struct binding* newslot = malloc(sizeof(struct binding));
-  memcpy(newslot, pbd, sizeof(struct binding));
+  *newslot = *pbd;
   hash_insert(hash, newslot);
   /* Only use 'newslot' now, otherwise 'args' may refer to the wrong
      place */
@@ -859,6 +865,7 @@ void dinkc_bindings_init()
   DCBD_ADD(sp_attack_hit_sound_speed, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_attack_wait,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_base_attack,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_base_die,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_base_hit,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_base_idle,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_base_walk,              {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
@@ -903,6 +910,10 @@ void dinkc_bindings_init()
   DCBD_ADD(sp_y,                      {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
 
   DCBD_ADD(sp_kill,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  /* sp_base_death is an alias for sp_base_die */
+  struct binding bd_sp_base_death = *dinkc_bindings_lookup(bindings, "sp_base_die");
+  bd_sp_base_death.funcname = "sp_base_death";
+  dinkc_bindings_add(bindings, &bd_sp_base_death);
 
   DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
@@ -1697,20 +1708,6 @@ pass:
   /*  Old bindings  */
   /*                */
   /******************/
-
-
-if ( (compare(ev[1], "sp_base_die")) || (compare(ev[1], "sp_base_death"))  )
-  {
-    h = &h[strlen(ev[1])];
-    int p[20] = {1,1,0,0,0,0,0,0,0,0};
-    if (get_parms(ev[1], script, h, p))
-      {
-	returnint = change_sprite_noreturn(nlist[0], nlist[1], &spr[nlist[0]].base_die);
-	return(0);
-      }
-    returnint =  -1;
-    return(0);
-  }
 
 
 if (compare(ev[1], "sp_editor_num"))
