@@ -922,6 +922,209 @@ void dc_turn_midi_on(int script, int* yield, int* preturnint)
 }
 
 
+
+
+/****************/
+/*  v1.08-only  */
+/*              */
+/****************/
+
+void dc_sp_blood_num(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].bloodnum);
+  *preturnint = spr[sprite].bloodseq;
+}
+
+void dc_sp_blood_seq(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].bloodseq);
+  *preturnint = spr[sprite].bloodseq;
+}
+
+void dc_sp_clip_bottom(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].alt.bottom);
+  *preturnint = spr[sprite].alt.bottom;
+}
+
+void dc_sp_clip_left(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].alt.left);
+  *preturnint = spr[sprite].alt.left;
+}
+
+void dc_sp_clip_right(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].alt.right);
+  *preturnint = spr[sprite].alt.right;
+}
+
+void dc_sp_clip_top(int script, int* yield, int* preturnint, int sprite, int sparg)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  change_sprite (sprite, sparg, &spr[sprite].alt.top);
+  *preturnint = spr[sprite].alt.top;
+}
+
+void dc_sp_custom(int script, int* yield, int* preturnint, char* key, int sprite, int val)
+{
+  RETURN_NEG_IF_BAD_SPRITE(sprite);
+  if (spr[sprite].active == 0)
+    {
+      *preturnint = -1;
+    }
+  else
+    {
+      // Set the value
+      if (val != -1)
+	dinkc_sp_custom_set(spr[sprite].custom, key, val);
+      *preturnint = dinkc_sp_custom_get(spr[sprite].custom, key);
+    }
+}
+
+
+/**
+ * Like sp_mx but use change_sprite_noreturn, so allow setting the
+ * value to -1.
+ */
+void dc_sp_move_x(int script, int* yield, int* preturnint, int sprite, int dx)
+  {
+    STOP_IF_BAD_SPRITE(sprite);
+    change_sprite_noreturn (sprite, dx, &spr[sprite].mx);
+  }
+
+/**
+ * Like sp_my but use change_sprite_noreturn, so allow setting the
+ * value to -1.
+ */
+void dc_sp_move_y(int script, int* yield, int* preturnint, int sprite, int dy)
+  {
+    STOP_IF_BAD_SPRITE(sprite);
+    change_sprite_noreturn (sprite, dy, &spr[sprite].my);
+  }
+
+void dc_sp_freeze(int script, int* yield, int* preturnint, int sprite, int frozen_p)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  // Set the value
+  if (frozen_p == 0)
+    spr[sprite].freeze = 0;
+  else if (frozen_p == 1)
+    spr[sprite].freeze = script;
+  /* else -> invalid value */
+
+  // Return the (normalized) value
+  *preturnint = (spr[sprite].freeze > 0);
+}
+
+
+void dc_clear_editor_info(int script, int* yield, int* preturnint)
+{
+    int i;
+    for (i = 0; i < 769; i++)
+      {
+	int j;
+	for (j = 0; j < 100; j++)
+	  {
+	    play.spmap[i].seq[j] = 0;
+	    play.spmap[i].frame[j] = 0;
+	    play.spmap[i].type[j] = 0;
+	    play.spmap[i].last_time = 0;
+	  }
+      }
+    *preturnint = 1;
+}
+
+void dc_get_date_day(int script, int* yield, int* preturnint)
+{
+    char mytime[5];
+    time_t ct;
+    struct tm* time_now;
+    time (&ct);
+    time_now = localtime (&ct);
+    strftime (mytime, 5, "%d", time_now);
+    *preturnint = atoi (mytime);
+}
+
+void dc_get_date_month(int script, int* yield, int* preturnint)
+{
+    char mytime[5];
+    time_t ct;
+    struct tm* time_now;
+    time (&ct);
+    time_now = localtime (&ct);
+    strftime (mytime, 5, "%m", time_now);
+    *preturnint = atoi (mytime);
+}
+
+void dc_get_date_year(int script, int* yield, int* preturnint)
+{
+    char mytime[5];
+    time_t ct;
+    struct tm* time_now;
+    time (&ct);
+    time_now = localtime (&ct);
+    strftime (mytime, 5, "%Y", time_now);
+    *preturnint = atoi (mytime);
+}
+
+void dc_get_time_game(int script, int* yield, int* preturnint)
+{
+    time_t ct;
+    time (&ct);
+    *preturnint = play.minutes + (difftime (ct, time_start) / 60);
+}
+
+void dc_get_time_real(int script, int* yield, int* preturnint)
+{
+    char mytime[5];
+    time_t ct;
+    struct tm* time_now;
+    time (&ct);
+    time_now = localtime (&ct);
+    strftime (mytime, 5, "%M", time_now);
+    *preturnint = atoi (mytime);
+    strftime (mytime, 5, "%H", time_now);
+    *preturnint += 60 * atoi (mytime);
+}
+
+void dc_get_truecolor(int script, int* yield, int* preturnint)
+{
+    *preturnint = truecolor;
+}
+
+void dc_show_console(int script, int* yield, int* preturnint)
+{
+    console_active = 1;
+}
+
+void dc_show_inventory(int script, int* yield, int* preturnint)
+{
+    item_screen = 1;
+}
+
+void dc_var_used(int script, int* yield, int* preturnint)
+{
+    int m = 0;
+    int i;
+    for (i = 1; i < MAX_VARS; i++)
+      if (play.var[i].active == 1)
+	m++;
+    *preturnint = m;
+}
+
+
+void dc_loopmidi(int script, int* yield, int* preturnint, int loop_midi)
+{
+  loopmidi(loop_midi);
+}
+
+
 /****************/
 /*  Hash table  */
 /*              */
@@ -1165,6 +1368,36 @@ void dinkc_bindings_init()
   DCBD_ADD(stopmidi,            {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(turn_midi_off,       {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(turn_midi_on,        {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+  if (dversion >= 108)
+    {
+      DCBD_ADD(sp_blood_num,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(sp_blood_seq,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(sp_clip_bottom, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(sp_clip_left,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(sp_clip_right,  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(sp_clip_top,    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+      DCBD_ADD(sp_custom,      {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+      DCBD_ADD(sp_move_x, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(sp_move_y, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(sp_freeze, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+
+      DCBD_ADD(clear_editor_info, {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_date_day,      {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_date_month,    {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_date_year,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_time_game,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_time_real,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_truecolor,     {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(show_console,      {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(show_inventory,    {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(var_used,          {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+      DCBD_ADD(loopmidi,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+    }
 }
 
 void dinkc_bindings_quit()
@@ -3029,135 +3262,6 @@ if (compare(ev[1], "compare_magic"))
 
   if (dversion >= 108)
     {
-    //redink1 added
-    if (compare (ev[1], "sp_freeze"))
-
-      {
-	h = &h[strlen (ev[1])];
-
-	// Msg("Running busy, h is %s", h);    
-	int
-	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-
-	    // Set the value
-	    if (nlist[1] == 0)
-
-	      {
-		spr[nlist[0]].freeze = 0;
-	      }
-
-	    else if (nlist[1] == 1)
-
-	      {
-		spr[nlist[0]].freeze = script;
-	      }
-
-	    // Return the value
-	    if (spr[nlist[0]].freeze > 0)
-
-	      {
-		returnint = 1;
-	      }
-
-	    else
-
-	      {
-		returnint = 0;
-	      }
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "get_time_game"))
-
-      {
-	h = &h[strlen (ev[1])];
-	time_t ct;
-	time (&ct);
-	returnint = play.minutes + (difftime (ct, time_start) / 60);
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "get_time_real"))
-
-      {
-	h = &h[strlen (ev[1])];
-	char
-	  mytime[5];
-	time_t ct;
-	struct tm *
-	  time_now;
-	time (&ct);
-	time_now = localtime (&ct);
-	strftime (mytime, 5, "%M", time_now);
-	returnint = atoi (mytime);
-	strftime (mytime, 5, "%H", time_now);
-	returnint += 60 * atoi (mytime);
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "get_date_year"))
-
-      {
-	h = &h[strlen (ev[1])];
-	char
-	  mytime[5];
-	time_t ct;
-	struct tm *
-	  time_now;
-	time (&ct);
-	time_now = localtime (&ct);
-	strftime (mytime, 5, "%Y", time_now);
-	returnint = atoi (mytime);
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "get_date_month"))
-
-      {
-	h = &h[strlen (ev[1])];
-	char
-	  mytime[5];
-	time_t ct;
-	struct tm *
-	  time_now;
-	time (&ct);
-	time_now = localtime (&ct);
-	strftime (mytime, 5, "%m", time_now);
-	returnint = atoi (mytime);
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "get_date_day"))
-
-      {
-	h = &h[strlen (ev[1])];
-	char
-	  mytime[5];
-	time_t ct;
-	struct tm *
-	  time_now;
-	time (&ct);
-	time_now = localtime (&ct);
-	strftime (mytime, 5, "%d", time_now);
-	returnint = atoi (mytime);
-	strcpy (s, h);
-	return (0);
-      }
-
     //redink1 added this function
     if (compare (ev[1], "math_abs"))
 
@@ -3173,45 +3277,6 @@ if (compare(ev[1], "compare_magic"))
 	strcpy (s, h);
 	return (0);
       }
-
-    //redink1 added this function
-    /*if (compare(ev[1], "math_sin"))
-       {
-       h = &h[strlen(ev[1])];
-       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
-       if (get_parms(ev[1], script, h, p))
-       {
-       returnint = sin((double)nlist[0]);
-       }
-       strcpy(s, h);  
-       return(0);
-       }
-
-       //redink1 added this function
-       if (compare(ev[1], "math_cos"))
-       {
-       h = &h[strlen(ev[1])];
-       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
-       if (get_parms(ev[1], script, h, p))
-       {
-       returnint = cos((double)nlist[0]);
-       }
-       strcpy(s, h);  
-       return(0);
-       }
-
-       //redink1 added this function
-       if (compare(ev[1], "math_tan"))
-       {
-       h = &h[strlen(ev[1])];
-       int p[20] = {1,0,0,0,0,0,0,0,0,0};  
-       if (get_parms(ev[1], script, h, p))
-       {
-       returnint = tan((double)nlist[0]);
-       }
-       strcpy(s, h);  
-       return(0);
-       } */
 
     //redink1 added this function
     if (compare (ev[1], "math_sqrt"))
@@ -3263,42 +3328,6 @@ if (compare(ev[1], "compare_magic"))
 	return (0);
       }
 
-    //redink1
-    if (compare (ev[1], "sp_blood_seq"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodseq);
-	    returnint = spr[nlist[0]].bloodseq;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
-    //redink1
-    if (compare (ev[1], "sp_blood_num"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].bloodnum);
-	    returnint = spr[nlist[0]].bloodseq;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
     //redink1 added this function to change the save game 'info'
     if (compare (ev[1], "set_save_game_info"))
 
@@ -3313,26 +3342,6 @@ if (compare(ev[1], "compare_magic"))
 	  }
 	strcpy (s, h);
 	return (0);
-      }
-
-    //redink1 - clears the editor information, useful for save games and such
-    if (compare (ev[1], "clear_editor_info"))
-      {
-	h = &h[strlen (ev[1])];
-	int i;
-	for (i = 0; i < 769; i++)
-	  {
-	    int j;
-	    for (j = 0; j < 100; j++)
-	      {
-		play.spmap[i].seq[j] = 0;
-		play.spmap[i].frame[j] = 0;
-		play.spmap[i].type[j] = 0;
-		play.spmap[i].last_time = 0;
-	      }
-	  }
-	returnint = 1;
-	return(0);
       }
 
     //redink1 added this function to load a new map/dink.dat
@@ -3535,66 +3544,6 @@ if (compare(ev[1], "compare_magic"))
 	return (0);
       }
 
-    //redink1 clip stuff
-    if (compare (ev[1], "sp_clip_left"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.left);
-	    returnint = spr[nlist[0]].alt.left;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
-    //redink1 clip stuff
-    if (compare (ev[1], "sp_clip_top"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.top);
-	    returnint = spr[nlist[0]].alt.top;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
-    //redink1 clip stuff
-    if (compare (ev[1], "sp_clip_right"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.right);
-	    returnint = spr[nlist[0]].alt.right;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
-    //redink1 clip stuff
-    if (compare (ev[1], "sp_clip_bottom"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite (nlist[0], nlist[1], &spr[nlist[0]].alt.bottom);
-	    returnint = spr[nlist[0]].alt.bottom;
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-
     if (compare (ev[1], "set_smooth_follow"))
       {
 	h = &h[strlen (ev[1])];
@@ -3615,47 +3564,6 @@ if (compare(ev[1], "compare_magic"))
 	return (0);
       }
     
-    //redink1 added so users can check truecolor or not
-    if (compare (ev[1], "get_truecolor"))
-      {
-	h = &h[strlen (ev[1])];
-	returnint = truecolor;
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added
-    if (compare(ev[1], "loopmidi"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = {1,0,0,0,0,0,0,0,0,0};  
-	if (get_parms(ev[1], script, h, p))
-	  loopmidi(nlist[0]);
-	return (0);
-      }
-
-    //redink1 added this function to show the item screen
-    if (compare(ev[1], "show_inventory"))
-      {
-	h = &h[strlen(ev[1])];
-	item_screen = 1;
-	strcpy(s, h);  
-	return(0);
-      }
-
-    //redink1 - returns the number of variables used
-    if (compare(ev[1], "var_used"))
-      {
-	h = &h[strlen(ev[1])];
-	int m = 0;
-	int i;
-	for (i = 1; i < MAX_VARS; i++)
-	  if (play.var[i].active == 1)
-	    m++;
-	returnint = m;
-	return(0);
-      }
-
     //redink1
     if (compare(ev[1], "set_dink_base_push"))
       {
@@ -3665,62 +3573,6 @@ if (compare(ev[1], "compare_magic"))
 	  dink_base_push = nlist[0];
 	strcpy(s, h);  
 	return(0);
-      }
-
-    /**
-     * Like sp_mx but use change_sprite_noreturn, so allow setting the
-     * value to -1.
-     */
-    if (compare (ev[1], "sp_move_x"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].mx);
-	    return (0);
-	  }
-	return (0);
-      }
-
-    /**
-     * Like sp_my but use change_sprite_noreturn, so allow setting the
-     * value to -1.
-     */
-    if (compare (ev[1], "sp_move_y"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    change_sprite_noreturn (nlist[0], nlist[1], &spr[nlist[0]].my);
-	    return (0);
-	  }
-	return (0);
-      }
-
-    //redink1
-    if (compare (ev[1], "sp_custom"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p) && spr[nlist[1]].active == 1)
-	  {
-	    if (nlist[1] < 1 || spr[nlist[1]].active == 0)
-	      {
-		returnint = -1;
-	      }
-	    else
-	      {
-		// Set the value
-		if (nlist[2] != -1)
-		  dinkc_sp_custom_set(spr[nlist[1]].custom, slist[0], nlist[2]);
-		returnint = dinkc_sp_custom_get(spr[nlist[1]].custom, slist[0]);
-	      }
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
       }
 
     // redink1 added
@@ -3734,14 +3586,6 @@ if (compare(ev[1], "compare_magic"))
 	strcpy (s, h);
 	return (0);
       }
-
-    if (compare(ev[1], "show_console"))
-      {
-	h = &h[strlen(ev[1])];
-	console_active = 1;
-	return 0;
-      }
-
     }
 
   /***************/
