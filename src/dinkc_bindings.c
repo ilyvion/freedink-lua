@@ -62,15 +62,15 @@ static char* cur_funcname;
  * Short-hand to check for invalid sprites and avoid segfaults.
  * Also warn the D-Mod author about it.
  */
-#define RETURN_IF_BAD_SPRITE(sprite, ...)            \
+#define RETURN_IF_BAD_SPRITE(sprite)                 \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
     {                                                \
       Msg("DinkC error: %s: invalid sprite %d",      \
           cur_funcname, sprite);                     \
-      return __VA_ARGS__;                            \
+      return;                                        \
     }                                                \
 
-void dc_unfreeze(int script, int* yield, int sprite)
+void dc_unfreeze(int script, int* yield, int* preturnint, int sprite)
 {
   RETURN_IF_BAD_SPRITE(sprite);
 
@@ -80,7 +80,7 @@ void dc_unfreeze(int script, int* yield, int sprite)
     Msg("Couldn't unfreeze sprite %d in script %d, it doesn't exist.", sprite, script);
 }
 
-void dc_freeze(int script, int* yield, int sprite)
+void dc_freeze(int script, int* yield, int* preturnint, int sprite)
 {
   RETURN_IF_BAD_SPRITE(sprite);
 
@@ -90,17 +90,14 @@ void dc_freeze(int script, int* yield, int sprite)
     Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", sprite, script);
 }
 
-void dc_set_callback_random_107(int script, int* yield, char* procedure, int base, int range)
+void dc_set_callback_random(int script, int* yield, int* preturnint, char* procedure, int base, int range)
 {
-  add_callback(procedure, base, range, script);
+  int retval = add_callback(procedure, base, range, script);
+  if (dversion >= 108)
+    *preturnint = retval;
 }
 
-int dc_set_callback_random_108(int script, int* yield, char* procedure, int base, int range)
-{
-  return add_callback(procedure, base, range, script);
-}
-
-void dc_set_dink_speed(int script, int* yield, int speed)
+void dc_set_dink_speed(int script, int* yield, int* preturnint, int speed)
 {
   if (dversion >= 108 && speed == 0)
     ; // do nothing
@@ -108,28 +105,28 @@ void dc_set_dink_speed(int script, int* yield, int speed)
     dinkspeed = speed;
 }
 
-void dc_reset_timer(int script, int* yield)
+void dc_reset_timer(int script, int* yield, int* preturnint)
 {
   time(&time_start);
   play.minutes = 0;
 }
 
-void dc_set_keep_mouse(int script, int* yield, int keep_mouse_p)
+void dc_set_keep_mouse(int script, int* yield, int* preturnint, int keep_mouse_p)
 {
   keep_mouse = keep_mouse_p;
 }
 
-void dc_add_item(int script, int* yield, char* dcscript, int sequence, int frame)
+void dc_add_item(int script, int* yield, int* preturnint, char* dcscript, int sequence, int frame)
 {
   add_item(dcscript, sequence, frame, ITEM_REGULAR);
 }
 
-void dc_add_magic(int script, int* yield, char* dcscript, int sequence, int frame)
+void dc_add_magic(int script, int* yield, int* preturnint, char* dcscript, int sequence, int frame)
 {
   add_item(dcscript, sequence, frame, ITEM_MAGIC);
 }
 
-void dc_add_exp(int script, int* yield, int amount, int active_sprite)
+void dc_add_exp(int script, int* yield, int* preturnint, int amount, int active_sprite)
 {
   RETURN_IF_BAD_SPRITE(active_sprite);
 
@@ -141,17 +138,17 @@ void dc_add_exp(int script, int* yield, int amount, int active_sprite)
     add_exp(amount, active_sprite);
 }
 
-void dc_kill_this_item(int script, int* yield, char* dcscript)
+void dc_kill_this_item(int script, int* yield, int* preturnint, char* dcscript)
 {
   kill_cur_item_script(dcscript);
 }
 
-void dc_kill_this_magic(int script, int* yield, char* dcscript)
+void dc_kill_this_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
   kill_cur_magic_script(dcscript);
 }
 
-void dc_show_bmp(int script, int* yield, char* bmp_file, int show_map_dot, int unused)
+void dc_show_bmp(int script, int* yield, int* preturnint, char* bmp_file, int show_map_dot, int unused)
 {
   Msg("showing BMP");
   wait4b.active = /*false*/0;
@@ -159,13 +156,13 @@ void dc_show_bmp(int script, int* yield, char* bmp_file, int show_map_dot, int u
   *yield = 1;
 }
 
-void dc_copy_bmp_to_screen(int script, int* yield, char* bmp_file)
+void dc_copy_bmp_to_screen(int script, int* yield, int* preturnint, char* bmp_file)
 {
   Msg("copying BMP");
   copy_bmp(bmp_file);
 }
 
-void dc_wait_for_button(int script, int* yield)
+void dc_wait_for_button(int script, int* yield, int* preturnint)
 {
   Msg("waiting for button with script %d", script);
   wait4b.script = script;
@@ -174,9 +171,108 @@ void dc_wait_for_button(int script, int* yield)
   *yield = 1;
 }
 
-void dc_stop_wait_for_button(int script, int* yield)
+void dc_stop_wait_for_button(int script, int* yield, int* preturnint)
 {
   wait4b.active = /*false*/0;
+}
+
+void dc_say(int script, int* yield, int* preturnint, char* text, int active_sprite)
+{
+  /* 1000 is a valid value, and bad values don't trigger segfaults
+     in this particular function; so don't validate active_sprite */
+  /* RETURN_IF_BAD_SPRITE(active_sprite); */
+
+  if (active_sprite == 0)
+    {
+      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
+      return;
+    }
+
+  if (active_sprite != 1000)
+    kill_text_owned_by(active_sprite);
+  decipher_string(text, script);
+  *preturnint = say_text(text, active_sprite, script);
+}
+
+void dc_draw_screen(int script, int* yield, int* preturnint)
+{
+  draw_map_game();
+  /* only refresh screen if not in a cut-scene */
+  if (rinfo[script]->sprite != 1000)
+    *yield = 1;
+}
+
+void dc_free_items(int script, int* yield, int* preturnint)
+{
+  int i;
+  *preturnint = 0;
+  for (i = 1; i < 17; i ++)
+    {
+      if (play.item[i].active == /*false*/0)
+	{
+	  *preturnint += 1;
+	}
+    }
+  return;
+}
+
+void dc_free_magic(int script, int* yeild, int* preturnint)
+{
+  int i;
+  *preturnint = 0;
+
+  for (i = 1; i < 9; i ++)
+    {
+      if (play.mitem[i].active == /*false*/0)
+	{
+	  *preturnint += 1;
+	}
+    }
+  return;
+}
+
+void dc_kill_cur_item(int script, int* yield, int* preturnint)
+{
+  *preturnint = 0;
+  kill_cur_item();
+  *yield = 1;
+}
+
+void dc_kill_cur_magic(int script, int* yield, int* preturnint)
+{
+  *preturnint = 0;
+  kill_cur_magic();
+  *yield = 1;
+}
+
+void dc_draw_status(int script, int* yield, int* preturnint)
+{
+  draw_status_all();
+  return;
+}
+
+void dc_arm_weapon(int script, int* yield, int* preturnint)
+{
+  if (weapon_script != 0 && locate(weapon_script, "DISARM"))
+    run_script(weapon_script);
+
+  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+  if (locate(weapon_script, "ARM"))
+    run_script(weapon_script);
+
+  return;
+}
+
+void dc_arm_magic(int script, int* yield, int* preturnint)
+{
+  if (magic_script != 0 && locate(magic_script, "DISARM"))
+    run_script(magic_script);
+    
+  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+  if (locate(magic_script, "ARM"))
+    run_script(magic_script);
+    
+  return;
 }
 
 
@@ -186,16 +282,15 @@ void dc_stop_wait_for_button(int script, int* yield)
 /****************/
 
 /* Map DinkC function with C function */
-enum binding_returntype {RT_VOID, RT_INT};
+#define NB_COMMON_ARGS 3
 struct binding 
 {
   char* funcname; /* name of the function, as string */
   void* func;     /* pointer to the C function */
   int params[10]; /* DinkC specification of params e.g. {2,1,1,0,0,0,0,0,0,0} */
-  enum binding_returntype returntype; /* does the function sets the 'returnint' global? */
   enum dinkc_parser_state invalidparams_dcps; /* if the DinkC script has bad arguments, skip line or yield? */
   ffi_cif cif;              /* libffi function struct */
-  ffi_type* cif_args[2+10]; /* libffi argument types, referenced by 'cif' */
+  ffi_type* cif_args[NB_COMMON_ARGS+10]; /* libffi argument types, referenced by 'cif' */
 };
 
 /* Hash table of bindings, build dynamically (depending on 'dversion',
@@ -251,6 +346,7 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
   /* Common arguments */
   args[0] = &ffi_type_sint;
   args[1] = &ffi_type_pointer;
+  args[2] = &ffi_type_pointer;
   
   /* prepare call interface */
   int nb_dc_args = 0;
@@ -263,10 +359,10 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
 	  switch(p[i])
 	    {
 	    case 1: /* int */
-	      args[2+i] = &ffi_type_sint;
+	      args[NB_COMMON_ARGS+i] = &ffi_type_sint;
 	      break;
 	    case 2:
-	      args[2+i] = &ffi_type_pointer;
+	      args[NB_COMMON_ARGS+i] = &ffi_type_pointer;
 	    }
 	  i++;
 	}
@@ -274,9 +370,8 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
     }
       
   /* Initialize the cif */
-  ffi_type* rt = (newslot->returntype == RT_VOID) ?
-    &ffi_type_void : &ffi_type_sint;
-  if (ffi_prep_cif(&newslot->cif, FFI_DEFAULT_ABI, 2+nb_dc_args,
+  ffi_type* rt = &ffi_type_void;
+  if (ffi_prep_cif(&newslot->cif, FFI_DEFAULT_ABI, NB_COMMON_ARGS+nb_dc_args,
 		   rt, args) != FFI_OK)
     {
       printf("Internal error: couldn't initialize binding %s\n", newslot->funcname);
@@ -291,10 +386,10 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
  * Simple macro to allow using struct initializer e.g. {2,1,1,0....}
  * when declaring a DinkC function.
  */
-#define DCBD_ADD(name, ...)			\
-{ \
-  struct binding bd = { #name, dc_ ## name, __VA_ARGS__ };	\
-  dinkc_bindings_add(bindings, &bd);	       \
+#define DCBD_ADD(name, ...)                                 \
+{                                                           \
+  struct binding bd = { #name, dc_ ## name, __VA_ARGS__ };  \
+  dinkc_bindings_add(bindings, &bd);                        \
 }
 /**
  * Map DinkC functions to C functions, with their arguments
@@ -307,34 +402,30 @@ void dinkc_bindings_init()
 			     dinkc_bindings_hasher, dinkc_bindings_comparator,
 			     free);
 
-  DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(set_dink_speed,        {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(reset_timer,          {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
-  DCBD_ADD(set_keep_mouse,        {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_item,              {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_magic,             {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(add_exp,               {1,1,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(kill_this_item,        {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(kill_this_magic,       {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(show_bmp,              {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_YIELD);
-  DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
-  DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
-  DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, RT_VOID, -1);
-
-
-  if (dversion >= 108)
-    {
-      struct binding bd = {"set_callback_random", dc_set_callback_random_108, {2,1,1,0,0,0,0,0,0,0},
-			   RT_INT, DCPS_GOTO_NEXTLINE};
-      dinkc_bindings_add(bindings, &bd);
-    }
-  else
-    {
-      struct binding bd = {"set_callback_random", dc_set_callback_random_107, {2,1,1,0,0,0,0,0,0,0},
-			   RT_VOID, DCPS_GOTO_NEXTLINE};
-      dinkc_bindings_add(bindings, &bd);
-    }
+  DCBD_ADD(unfreeze,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(freeze,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(set_callback_random,   {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(set_dink_speed,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(reset_timer,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(set_keep_mouse,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_item,              {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_magic,             {2,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(add_exp,               {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(kill_this_item,        {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(kill_this_magic,       {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(show_bmp,              {2,1,1,0,0,0,0,0,0,0}, DCPS_YIELD        );
+  DCBD_ADD(copy_bmp_to_screen,    {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(wait_for_button,      {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(stop_wait_for_button, {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(say,                   {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD(draw_screen,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(free_items,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(free_magic,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(kill_cur_item,        {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(kill_cur_magic,       {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(draw_status,          {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(arm_weapon,           {-1,0,0,0,0,0,0,0,0,0}, -1                );
+  DCBD_ADD(arm_magic,            {-1,0,0,0,0,0,0,0,0,0}, -1                );
 }
 
 void dinkc_bindings_quit()
@@ -1008,13 +1099,15 @@ pass:
   if (pbd != NULL)
     {
       /** Call binding **/
-      void *values[2+10];
+      void *values[NB_COMMON_ARGS+10];
 
       /* Common arguments */
       values[0] = &script;
       int* yield = alloca(sizeof(int)*1);
       yield[0] = 0; /* don't yield by default) */
       values[1] = &yield;
+      int* preturnint = &returnint;
+      values[2] = &preturnint;
 
       /* Specific arguments */
       int* params = pbd->params;
@@ -1029,14 +1122,14 @@ pass:
 		    {
 		    case 1: /* int */
 		      {
-			values[2+i] = &nlist[i];
+			values[NB_COMMON_ARGS+i] = &nlist[i];
 			break;
 		      }
 		    case 2: /* string */
 		      {
 			char** pointer = alloca(sizeof(char*)*1);
 			*pointer = slist[i];
-			values[2+i] = pointer;
+			values[NB_COMMON_ARGS+i] = pointer;
 			break;
 		      }
 		    }
@@ -1055,8 +1148,7 @@ pass:
       int rc;
       cur_funcname = pbd->funcname; /* for error messages */
       ffi_call(&pbd->cif, pbd->func, &rc, values);
-      if (pbd->returntype == RT_INT)
-	returnint = rc;
+      /* the function can manipulation returnint through argument #3 */
 
       if (*yield == 0)
 	return DCPS_GOTO_NEXTLINE;
@@ -1070,124 +1162,6 @@ pass:
 	}
     }
 
-
-                if (compare(ev[1], "say"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                if (nlist[1] == 0)
-                                {
-                                        Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
-                                        return(0);
-                                }
-
-                                if (nlist[1] != 1000)
-                                        kill_text_owned_by(nlist[1]);
-                                decipher_string(slist[0], script);
-                                returnint = say_text(slist[0], nlist[1], script);
-                                //Msg("Just said %s.", slist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "draw_screen"))
-                {
-
-                        if (rinfo[script]->sprite == 1000)
-                        {
-                                draw_map_game();
-                                return(0);
-                        }
-                        draw_map_game();
-                        return(DCPS_YIELD);
-                }
-
-
-                if (compare(ev[1], "free_items"))
-                {
-		  int i;
-                        returnint = 0;
-                        for (i = 1; i < 17; i ++)
-                        {
-                                if (play.item[i].active == /*false*/0)
-                                {
-                                        returnint += 1;
-                                }
-                        }
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "kill_cur_item"))
-                {
-                        returnint = 0;
-                        kill_cur_item();
-                        return(DCPS_YIELD);
-                }
-
-
-
-                if (compare(ev[1], "kill_cur_magic"))
-                {
-                        returnint = 0;
-                        kill_cur_magic();
-                        return(DCPS_YIELD);
-                }
-
-
-
-                if (compare(ev[1], "free_magic"))
-                {
-		  int i;
-                        returnint = 0;
-
-                        for (i = 1; i < 9; i ++)
-                        {
-                                if (play.mitem[i].active == /*false*/0)
-                                {
-                                        returnint += 1;
-                                }
-                        }
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "draw_status"))
-                {
-                        draw_status_all();
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "arm_weapon"))
-                {
-
-                        if (weapon_script != 0) if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-                        weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-                        if (locate(weapon_script, "ARM")) run_script(weapon_script);
-
-
-                        return(0);
-                }
-
-                if (compare(ev[1], "arm_magic"))
-                {
-
-
-                        if (magic_script != 0) if (locate(magic_script, "DISARM")) run_script(magic_script);
-                        magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-                        if (locate(magic_script, "ARM")) run_script(magic_script);
-
-                        return(0);
-                }
 
 
                 if (compare(ev[1], "load_screen"))
