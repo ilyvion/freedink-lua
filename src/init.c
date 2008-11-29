@@ -164,6 +164,7 @@ void finiObjects()
 /* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
 	//PostQuitMessage(0);
 
+	dinkc_quit();
 	dinkini_quit();
 
 	game_quit();
@@ -304,6 +305,7 @@ int init(int argc, char *argv[])
   game_init();
 
   dinkini_init();
+  dinkc_init();
 
   if (sound_on) 
     {

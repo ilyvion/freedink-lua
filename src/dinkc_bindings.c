@@ -28,6 +28,9 @@
 #include <time.h>
 #include <math.h>
 
+#include <hash.h>
+#include <ffi.h>
+
 #include "game_engine.h"
 #include "dinkvar.h"
 #include "dinkc.h"
@@ -48,6 +51,197 @@ static long nlist[10];
 /* store current procedure arguments of type 'string' (idem) */
 static char slist[10][200];
 
+
+/***************/
+/*  DinkC API  */
+/*             */
+/***************/
+
+void dc_unfreeze(int script, int* yield, int sprite)
+{
+  if (sprite <= 0 && sprite >= MAX_SPRITES_AT_ONCE)
+    {
+      Msg("Error: dinkc_unfreeze: invalid sprite %d", sprite);
+      return;
+    }
+
+  if (spr[sprite].active)
+    spr[sprite].freeze = 0;
+  else
+    Msg("Couldn't unfreeze sprite %d in script %d, it doesn't exist.", sprite, script);
+}
+
+void dc_freeze(int script, int* yield, int sprite)
+{
+  if (nlist[0] <= 0 && nlist[0] >= MAX_SPRITES_AT_ONCE)
+    {
+      Msg("Error: freeze: invalid sprite %d", nlist[0]);
+      return;
+    }
+
+  if (spr[sprite].active)
+    spr[sprite].freeze = script;
+  else
+    Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", sprite, script);
+}
+
+void dc_set_callback_random_107(int script, int* yield, char* procedure, int base, int range)
+{
+  add_callback(procedure, base, range, script);
+}
+
+int dc_set_callback_random_108(int script, int* yield, char* procedure, int base, int range)
+{
+  return add_callback(procedure, base, range, script);
+}
+
+
+/****************/
+/*  Hash table  */
+/*              */
+/****************/
+
+/* Map DinkC function with C function */
+enum binding_returntype {RT_VOID, RT_INT};
+struct binding 
+{
+  char* funcname; /* name of the function, as string */
+  void* func;     /* pointer to the C function */
+  int params[10]; /* DinkC specification of params e.g. {2,1,1,0,0,0,0,0,0,0} */
+  enum binding_returntype returntype; /* does the function sets the 'returnint' global? */
+  enum dinkc_parser_state invalidparams_dcps; /* if the DinkC script has bad arguments, skip line or yield? */
+  ffi_cif cif;              /* libffi function struct */
+  ffi_type* cif_args[2+10]; /* libffi argument types, referenced by 'cif' */
+};
+
+/* Hash table of bindings, build dynamically (depending on 'dversion',
+   not statically) */
+Hash_table* bindings = NULL;
+
+/* Auxiliary functions for hash */
+static size_t dinkc_bindings_hasher(const void *x, size_t tablesize)
+{
+  return hash_string(((struct binding*)x)->funcname, tablesize);
+  // We could also call 'hash_pjw' from module 'hash-pjw'
+}
+
+static bool dinkc_bindings_comparator(const void* a, const void* b)
+{
+  return !strcmp(((struct binding*)a)->funcname,
+		 ((struct binding*)b)->funcname);
+}
+
+/**
+ * Search a binding by function name
+ */
+struct binding* dinkc_bindings_lookup(dinkc_sp_custom hash, char* funcname)
+{
+  struct binding search;
+  search.funcname = funcname;
+  return hash_lookup(hash, &search);
+}
+
+/**
+ * Initialize the libffi structures of binding pointer 'pbd' and add
+ * it to hash table 'hash'
+ */
+static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
+{
+  void* slot = dinkc_bindings_lookup(hash, pbd->funcname);
+  if (slot != NULL)
+    {
+      fprintf(stderr, "Internal error: attempting to redeclare binding %s\n", pbd->funcname);
+      exit(1);
+    }
+
+  /* Copy uninitialized binding in hash table */
+  struct binding* newslot = malloc(sizeof(struct binding));
+  memcpy(newslot, pbd, sizeof(struct binding));
+  hash_insert(hash, newslot);
+  /* Only use 'newslot' now, otherwise 'args' may refer to the wrong
+     place */
+  pbd = NULL;
+
+  /* Initialize the argument info vectors */
+  ffi_type** args = newslot->cif_args;
+  /* Common arguments */
+  args[0] = &ffi_type_sint;
+  args[1] = &ffi_type_pointer;
+  
+  /* prepare call interface */
+  int* p = newslot->params;
+  int i = 0;
+  while (p[i] != 0 && i < 10)
+    {
+      switch(p[i])
+	{
+	case 1: /* int */
+	  args[2+i] = &ffi_type_sint;
+	  break;
+	case 2:
+	  args[2+i] = &ffi_type_pointer;
+	}
+      i++;
+    }
+  int nb_dc_args = i;
+      
+  /* Initialize the cif */
+  ffi_type* rt = (newslot->returntype == RT_VOID) ?
+    &ffi_type_void : &ffi_type_sint;
+  if (ffi_prep_cif(&newslot->cif, FFI_DEFAULT_ABI, 2+nb_dc_args,
+		   rt, args) != FFI_OK)
+    {
+      printf("Internal error: couldn't initialize binding %s\n", newslot->funcname);
+      exit(EXIT_FAILURE);
+    }
+}
+
+
+/**
+ * Add a DinkC binding
+ * 
+ * Simple macro to allow using struct initializer e.g. {2,1,1,0....}
+ * when declaring a DinkC function.
+ */
+#define DCBD_ADD(...)			\
+{ \
+  struct binding bd = { __VA_ARGS__ }; \
+  dinkc_bindings_add(bindings, &bd);	       \
+}
+/**
+ * Map DinkC functions to C functions, with their arguments
+ */
+void dinkc_bindings_init()
+{
+  Hash_tuning* default_tuner = NULL;
+  int start_size = 400; /* ~nbfuncs*2 to try and avoid collisions */
+  bindings = hash_initialize(start_size, default_tuner,
+			     dinkc_bindings_hasher, dinkc_bindings_comparator,
+			     free);
+
+  DCBD_ADD("unfreeze", dc_unfreeze, {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  DCBD_ADD("freeze",   dc_freeze,   {1,0,0,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+  
+  if (dversion >= 108)
+    {
+      DCBD_ADD("set_callback_random", dc_set_callback_random_108, {2,1,1,0,0,0,0,0,0,0}, RT_INT,  DCPS_GOTO_NEXTLINE)
+    }
+  else
+    {
+      DCBD_ADD("set_callback_random", dc_set_callback_random_107, {2,1,1,0,0,0,0,0,0,0}, RT_VOID, DCPS_GOTO_NEXTLINE);
+    }
+}
+
+void dinkc_bindings_quit()
+{
+  hash_free(bindings);
+}
+
+
+/******************/
+/*  DinkC parser  */
+/*                */
+/******************/
 
 void attach(void)
 {
@@ -694,67 +888,74 @@ pass:
                 }
 
 
+  /***************/
+  /*  DinkC API  */
+  /*             */
+  /***************/
 
+  /** Lookup bindings **/
+  char* funcname = ev[1];
+  char* str_args = h + strlen(ev[1]);
+  struct binding* pbd = NULL;
+  pbd = dinkc_bindings_lookup(bindings, funcname);
 
-                if (compare(ev[1], "unfreeze"))
-                {
+  if (pbd != NULL)
+    {
+      /** Call binding **/
+      void *values[2+10];
 
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //Msg("UnFreeze called for %d.", nlist[0]);
-                                if (spr[nlist[0]].active) spr[nlist[0]].freeze = 0; else
-                                        Msg("Couldn't unfreeze sprite %d in script %d, it doesn't exist.", nlist[0], script);
+      /* Common arguments */
+      values[0] = &script;
+      int* yield = alloca(sizeof(int)*1);
+      yield[0] = 0; /* don't yield by default) */
+      values[1] = &yield;
 
-                        }
+      /* Specific arguments */
+      int* params = pbd->params;
+      if (params[0] != -1) /* no args == no checks*/
+	{
+	  if (get_parms(funcname, script, str_args, params))
+	    {
+	      int i = 0;
+	      while (params[i] != 0 && i < 10)
+		{
+		  switch(params[i])
+		    {
+		    case 1: /* int */
+		      values[2+i] = &nlist[i];
+		      break;
+		    case 2:
+		      values[2+i] = &slist[i];
+		    }
+		  i++;
+		}
+	    }
+	  else
+	    {
+	      /* Invalid parameters in the DinkC script, using
+		 fallback parser state */
+	      return pbd->invalidparams_dcps;
+	    }
+	}
 
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
+      /* Call C function */
+      int rc;
+      ffi_call(&pbd->cif, pbd->func, &rc, values);
+      if (pbd->returntype == RT_INT)
+	returnint = rc;
 
+      if (*yield == 0)
+	return DCPS_GOTO_NEXTLINE;
+      else if (*yield == 1)
+	return DCPS_YIELD;
+      else
+	{
+	  fprintf(stderr, "Internal error: DinkC function %s requested invalid state %d",
+		  pbd->funcname, *yield);
+	  exit(EXIT_FAILURE);
+	}
+    }
 
-                if (compare(ev[1], "freeze"))
-                {
-                        //Msg("Freeze called (%s)", h);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-			    {
-			      if (spr[nlist[0]].active)
-				spr[nlist[0]].freeze = script;
-			      else
-				Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", nlist[0], script);
-			    }
-			  else
-			    {
-			      Msg("Error: freeze: invalid sprite %d", nlist[0]);
-			    }
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "set_callback_random"))
-                {
-                        Msg("setting callback random");
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,1,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                int cb = add_callback(slist[0],nlist[1],nlist[2],script);
-                                //got all parms, let do it
-				if (dversion >= 108)
-				  returnint = cb;
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
 
                 if (compare(ev[1], "set_dink_speed"))
                 {

@@ -71,6 +71,8 @@ struct refinfo
 };
 extern struct refinfo *rinfo[];
 
+extern void dinkc_init();
+extern void dinkc_quit();
 extern void decompress(FILE *in);
 extern void decompress_nocomp(FILE *in);
 extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);

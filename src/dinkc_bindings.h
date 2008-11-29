@@ -30,6 +30,8 @@ enum dinkc_parser_state {
   DCPS_DOELSE_ONCE = 4,
 };
 
+extern void dinkc_bindings_init();
+extern void dinkc_bindings_quit();
 extern void attach(void);
 extern /*bool*/int talk_get(int script);
 extern enum dinkc_parser_state process_line (int script, char *s, /*bool*/int doelse);

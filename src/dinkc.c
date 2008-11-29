@@ -1531,3 +1531,13 @@ int var_figure(char h[200], int script)
                 strcpy(line, hold);
 
         }
+
+void dinkc_init()
+{
+  dinkc_bindings_init();
+}
+
+void dinkc_quit()
+{
+  dinkc_bindings_quit();
+}
