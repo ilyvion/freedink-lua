@@ -98,7 +98,7 @@ extern int var_figure(char h[200], int script);
 extern void kill_scripts_owned_by(int sprite);
 extern void kill_returning_stuff(int script);
 extern void run_script(int script);
-extern void get_word(char line[300], int word, char *crap);
+extern void get_word(char line[300], int word, char *result);
 extern void attach(void);
 extern void int_prepare(char line[100], int script);
 extern void make_function(char file[10], char func[20]);

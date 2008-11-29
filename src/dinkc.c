@@ -1128,64 +1128,38 @@ void run_script(int script)
     }
 }
 
-void get_word(char line[300], int word, char *crap)
+void get_word(char line[300], int word, char *result)
 {
-        int cur = 0;
-        int k;
+  int cur_word = 1;
+  result[0] = '\0';
 
-        /*bool*/int space_mode = /*false*/0;
-        char save_word[100];
-        save_word[0] = 0;
-
-        for (k = 0; k < strlen(line); k++)
-        {
-
-                if (space_mode == /*true*/1)
-                {
-                        if (line[k] != ' ')
-                        {
-                                space_mode = /*false*/0;
-                                strcpy(save_word, "");
-
-                        }
-                }
-
-
-
-                if (space_mode == /*false*/0)
-                {
-                        if (line[k] == ' ')
-                        {
-                                cur++;
-                                if (word == cur) goto done;
-                                space_mode = /*true*/1;
-                                strcpy(save_word, "");
-
-                                goto dooba;
-                        } else
-                        {
-                                strchar(save_word, line[k]);
-
-                        }
-                }
-
-
-dooba:;
-
-        }
-
-        if (space_mode == /*false*/0)
-        {
-
-                if (cur+1 != word) strcpy(save_word, "");
-        }
-
-
-done:
-
-        strcpy(crap, save_word);
-
-        //Msg("word %d of %s is %s.", word, line, crap);
+  /* find word */
+  char* pc = line;
+  while (*pc != '\0')
+    {
+      if (cur_word == word)
+	break;
+      if (*pc == ' ')
+	{
+	  cur_word++;
+	  while(*pc == ' ')
+	    pc++;
+	}
+      else
+	{
+	  while(*pc != ' ' && *pc != '\0')
+	    pc++;
+	}
+    }
+  /* copy word */
+  char* pcr = result;
+  while(*pc != '\0' && *pc != ' ')
+    {
+      *pcr = *pc;
+      pcr++;
+      pc++;
+    }
+  *pcr = '\0';
 }
 
 int var_exists(char name[20], int scope)
