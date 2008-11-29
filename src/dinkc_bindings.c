@@ -390,6 +390,55 @@ void dc_sp_kill(int script, int* yield, int* preturnint, int sprite, int sparg)
   spr[sprite].kill = sparg;
 }
 
+void dc_sp_editor_num(int script, int* yield, int* preturnint, int sprite)
+{
+  *preturnint = 0;
+  if (sprite > 0 && sprite < MAX_SPRITES_AT_ONCE)
+    *preturnint = spr[sprite].sp_index;
+  else
+    Msg("Error: sp_editor_num: invalid sprite %d", sprite);
+}
+
+
+void dc_sp_kill_wait(int script, int* yield, int* preturnint, int sprite)
+{
+  if (sprite > 0 && sprite < MAX_SPRITES_AT_ONCE)
+    spr[sprite].wait = 0;
+  else
+    Msg("Error: sp_kill_wait: invalid sprite %d", sprite);
+}
+
+void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcscript)
+{
+  // (sprite, direction, until, nohard);
+  if (sprite <= 0 || (sprite >= MAX_SPRITES_AT_ONCE && sprite != 1000))
+    {
+      Msg("Error: sp_script cannot process sprite %d??", sprite);
+      return;
+    }
+  kill_scripts_owned_by(sprite);
+  if (load_script(dcscript, sprite, /*true*/1) == 0)
+    {
+      *preturnint = 0;
+      return;
+    }
+
+  int tempreturn = 0;
+  if (sprite != 1000)
+    {
+      if (no_running_main == /*true*/1)
+	Msg("Not running %s until later..", rinfo[spr[sprite].script]->name);
+      if (no_running_main == /*false*/0 && sprite != 1000)
+	locate(spr[sprite].script, "MAIN");
+    
+      tempreturn = spr[sprite].script;
+    
+      if (no_running_main == /*false*/0)
+	run_script(spr[sprite].script);
+    }
+    
+  *preturnint = tempreturn;
+}
 
 
 void dc_unfreeze(int script, int* yield, int* preturnint, int sprite)
@@ -910,6 +959,9 @@ void dinkc_bindings_init()
   DCBD_ADD(sp_y,                      {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
 
   DCBD_ADD(sp_kill,                   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_editor_num,             {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_kill_wait,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(sp_script,                 {1,2,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   /* sp_base_death is an alias for sp_base_die */
   struct binding bd_sp_base_death = *dinkc_bindings_lookup(bindings, "sp_base_die");
   bd_sp_base_death.funcname = "sp_base_death";
@@ -1708,83 +1760,6 @@ pass:
   /*  Old bindings  */
   /*                */
   /******************/
-
-
-if (compare(ev[1], "sp_editor_num"))
-  {
-    h = &h[strlen(ev[1])];
-    int p[20] = {1,0,0,0,0,0,0,0,0,0};
-    if (get_parms(ev[1], script, h, p))
-      {
-	returnint = 0;
-	if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-	  returnint = spr[nlist[0]].sp_index;
-	else
-	  Msg("Error: sp_editor_num: invalid sprite %d", nlist[0]);
-	return(0);
-      }
-    returnint = -1;
-    return(0);
-  }
-
-
-if (compare(ev[1], "sp_kill_wait"))
-  {
-    h = &h[strlen(ev[1])];
-    int p[20] = {1,0,0,0,0,0,0,0,0,0};
-    if (get_parms(ev[1], script, h, p))
-      {
-	if (nlist[0] > 0 && nlist[0] < MAX_SPRITES_AT_ONCE)
-	  spr[nlist[0]].wait = 0;
-	else
-	  Msg("Error: sp_kill_wait: invalid sprite %d", nlist[0]);
-	return(0);
-      }
-    returnint =  -1;
-    return(0);
-  }
-
-if (compare(ev[1], "sp_script"))
-  {
-    // (sprite, direction, until, nohard);
-    h = &h[strlen(ev[1])];
-    int p[20] = {1,2,0,0,0,0,0,0,0,0};
-    if (get_parms(ev[1], script, h, p))
-      {
-	if (nlist[0] == 0)
-	  {
-	    Msg("Error: sp_script cannot process sprite 0??");
-	    return(0);
-	  }
-	kill_scripts_owned_by(nlist[0]);
-	if (load_script(slist[1], nlist[0], /*true*/1) == 0)
-	  {
-	    returnint = 0;
-	    return(0);
-	  }
-	if (no_running_main == /*true*/1) Msg("Not running %s until later..", rinfo[spr[nlist[0]].script]->name);
-
-	if (no_running_main == /*false*/0)
-	  locate(spr[nlist[0]].script, "MAIN");
-
-
-	int tempreturn = spr[nlist[0]].script;
-
-	if (no_running_main == /*false*/0)
-	  run_script(spr[nlist[0]].script);
-
-
-	returnint = tempreturn;
-      }
-
-    strcpy_nooverlap(s, h);
-    return(0);
-  }
-
-
-
-
-
 
                 if (compare(ev[1], "move"))
                 {
