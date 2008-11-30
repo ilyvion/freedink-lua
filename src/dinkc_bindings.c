@@ -1308,6 +1308,103 @@ void dc_map_hard_tile(int script, int* yield, int* preturnint, int tile_position
 }
 
 
+void dc_load_palette(int script, int* yield, int* preturnint, char* bmp_file)
+{
+  // load a pallete from any bmp
+  char *name = bmp_file;
+  SDL_Surface* image = NULL;
+  FILE *in = paths_dmodfile_fopen(name, "rb");
+  if (in == NULL)
+    fprintf(stderr, "Error: Can't open palette '%s'.", name);
+  else
+    {
+      /* Set palette */
+      image = load_bmp_setpal(in);
+      memcpy(GFX_real_pal, cur_screen_palette, 256);
+    }
+  
+  if (image == NULL)
+    fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+  else
+    {
+      //Store in save game
+      strncpy(play.palette, slist[0], 50);
+      SDL_FreeSurface(image);
+    }
+}
+
+void dc_get_item(int script, int* yield, int* preturnint, char* dcscript)
+{
+  // get index of specified item
+  *preturnint = 0;
+  for (int i = 1; i < 17; i++)
+    {
+      if (play.item[i].active
+	  && compare(play.item[i].name, dcscript))
+	{
+	  *preturnint = i;
+	  break;
+	}
+    }
+}
+
+void dc_get_magic(int script, int* yield, int* preturnint, char* dcscript)
+{
+  // get index of specified magic spell
+  *preturnint = 0;
+  for (int i = 1; i < 9; i++)
+    {
+      if (play.mitem[i].active
+	  && compare(play.mitem[i].name, dcscript))
+	{
+	  *preturnint = i;
+	  break;
+	}
+    }
+}
+
+void dc_set_font_color(int script, int* yield, int* preturnint, int index, int r, int g, int b)
+{
+  // sets font color
+  set_font_color(index, r, g, b);
+}
+
+void dc_get_next_sprite_with_this_brain(int script, int* yield, int* preturnint,
+					int brain, int sprite_ignore, int sprite_start_with)
+{
+  // make Paul Pliska's life more fulfilling
+  for (int i = sprite_start_with; i <= last_sprite_created; i++)
+    {
+      if ((spr[i].brain == brain) && (i != sprite_ignore))
+	if (spr[i].active == 1)
+	  {
+	    Msg ("Ok, sprite with brain %d is %d", brain, i);
+	    *preturnint = i;
+	    return;
+	  }
+    }
+  Msg ("Ok, sprite with brain %d is 0", brain);
+}
+
+void dc_set_smooth_follow(int script, int* yield, int* preturnint, int smooth_p)
+{
+  if (smooth_p == 0)
+    smooth_follow = 0;
+  else if (smooth_p == 1)
+    smooth_follow = 1;
+}
+void dc_set_dink_base_push(int script, int* yield, int* preturnint, int base_sequence)
+{
+  dink_base_push = base_sequence;
+}
+
+void dc_callback_kill(int script, int* yield, int* preturnint, int callback_index)
+{
+  Msg ("setting callback random");
+  kill_callback(callback_index);
+}
+
+
 /****************/
 /*  Hash table  */
 /*              */
@@ -1600,6 +1697,14 @@ void dinkc_bindings_init()
       DCBD_ADD(load_tile,                {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
       DCBD_ADD(map_tile,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
       DCBD_ADD(map_hard_tile,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(load_palette,             {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_item,                 {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(get_magic,                {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(set_font_color,           {1,1,1,1,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(set_smooth_follow,        {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(set_dink_base_push,       {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(callback_kill,            {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(get_next_sprite_with_this_brain,  {1,1,1,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
     }
 }
 
@@ -1944,7 +2049,6 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
-  int i;
   char line[200];
   char ev[15][100];
   char temp[100];
@@ -1966,13 +2070,15 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
       goto bad;
     }
 
+  {
+    int i;
+    for (i = 1; i <= 14; i++)
+      {
+	if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
+	  goto pass;
+      }
+  }
 
-  for (i = 1; i <= 14; i++)
-    {
-      if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
-	goto pass;
-    }
-  
 pass:
   //Msg("first line is %s (second is %s)", ev[1], ev[2]);
                 if (compare(ev[1], "VOID"))
@@ -3031,7 +3137,7 @@ if (dversion >= 108)
 
                                 }
                         }
-                                 Msg("Ok, sprite with brain %d is 0", nlist[0], i);
+                                 Msg("Ok, sprite with brain %d is 0", nlist[0]);
 
                                          returnint =  0;
                                          return(0);
@@ -3219,178 +3325,6 @@ if (dversion >= 108)
                 }
 
 
-
-
-  /*********************************/
-  /** New DinkC commands in v1.08 **/
-  /**                             **/
-  /*********************************/
-
-  if (dversion >= 108)
-    {
-
-    //redink1 added this function to load a pallete from any bmp
-    if (compare (ev[1], "load_palette"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    char *name = slist[0];
-	    SDL_Surface* image = NULL;
-	    FILE *in = paths_dmodfile_fopen(name, "rb");
-	    if (in == NULL)
-	      fprintf(stderr, "Error: Can't open palette '%s'.", name);
-	    else
-	      {
-		/* Set palette */
-		image = load_bmp_setpal(in);
-		memcpy(GFX_real_pal, cur_screen_palette, 256);
-	      }
-	    
-	    if (image == NULL)
-	      fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
-	    else
-	      {
-		//Store in save game
-		strncpy(play.palette, slist[0], 50);
-		SDL_FreeSurface(image);
-	      }
-	  }
-	strcpy(s, h);
-	return(0);
-      }
-
-    //redink1 added to get index of specified item
-    if (compare (ev[1], "get_item"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms(ev[1], script, h, p))
-	  {
-	    returnint = 0;
-	    for (int i = 1; i < 17; i++)
-	      {
-		if (play.item[i].active)
-		  {
-		    if (compare(play.item[i].name, slist[0]))
-		      {
-			returnint = i;
-			break;
-		      }
-		  }
-	      }
-	    return(0);
-	  }
-	returnint = -1;
-	return(0);
-      }
-
-    //redink1 added to get index of specified magic spell
-    if (compare (ev[1], "get_magic"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms(ev[1], script, h, p))
-	  {
-	    returnint = 0;
-	    for (int i = 1; i < 9; i++)
-	      {
-		if (play.mitem[i].active)
-		  {
-		    if (compare(play.mitem[i].name, slist[0]))
-		      {
-			returnint = i;
-			break;
-		      }
-		  }
-	      }
-	    return(0);
-	  }
-	returnint = -1;
-	return(0);
-      }
-
-    //redink1 - sets font color
-    if (compare (ev[1], "set_font_color"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 };
-	if (get_parms(ev[1], script, h, p))
-	  {
-	    set_font_color(nlist[0],
-			   nlist[1], nlist[2], nlist[3]);
-	  }
-	strcpy(s, h);
-	return(0);
-      }
-
-    //redink1 added this to make Paul Pliska's life more fulfilling
-    if (compare (ev[1], "get_next_sprite_with_this_brain"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    for (int i = nlist[2]; i <= last_sprite_created; i++)
-	      {
-		if ((spr[i].brain == nlist[0]) && (i != nlist[1]))
-		  if (spr[i].active == 1)
-		    {
-		      Msg ("Ok, sprite with brain %d is %d", nlist[0], i);
-		      returnint = i;
-		      return (0);
-		    }
-	      }
-	  }
-	Msg ("Ok, sprite with brain %d is 0", nlist[0], i);
-	returnint = 0;
-	return (0);
-      }
-
-    if (compare (ev[1], "set_smooth_follow"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    if (nlist[0] == 0)
-	      {
-		smooth_follow = 0;
-	      }
-	    else if (nlist[0] == 1)
-	      {
-		smooth_follow = 1;
-	      }
-	    return (0);
-	  }
-	returnint = -1;
-	return (0);
-      }
-    
-    //redink1
-    if (compare(ev[1], "set_dink_base_push"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = {1,0,0,0,0,0,0,0,0,0};  
-	if (get_parms(ev[1], script, h, p))
-	  dink_base_push = nlist[0];
-	strcpy(s, h);  
-	return(0);
-      }
-
-    // redink1 added
-    if (compare (ev[1], "callback_kill"))
-      {
-	Msg ("setting callback random");
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  kill_callback(nlist[0]);
-	strcpy (s, h);
-	return (0);
-      }
-    }
 
   /***************/
   /** Operators **/
