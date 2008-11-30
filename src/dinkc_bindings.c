@@ -1056,6 +1056,107 @@ void dc_editor_frame(int script, int* yield, int* preturnint, int editor_sprite,
 }
 
 
+
+void dc_move(int script, int* yield, int* preturnint,
+	     int sprite, int direction, int destination_limit, int ignore_hardness_p)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  spr[sprite].move_active = /*true*/1;
+  spr[sprite].move_dir = direction;
+  spr[sprite].move_num = destination_limit;
+  spr[sprite].move_nohard = ignore_hardness_p;
+  spr[sprite].move_script = 0;
+  if (debug_mode)
+    Msg("Moving: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
+}
+
+void dc_spawn(int script, int* yield, int* preturnint,
+	     char* dcscript)
+{
+  int mysc = load_script(dcscript, 1000, /*true*/1);
+  if (mysc == 0)
+    {
+      *preturnint = 0;
+      return;
+    }
+  locate(mysc, "MAIN");
+  int tempreturn = mysc;
+  run_script(mysc);
+  *preturnint = tempreturn;
+}
+
+void dc_run_script_by_number(int script, int* yield, int* preturnint,
+			     int script_index, char* funcname)
+{
+  if (locate(script_index, funcname))
+    run_script(script_index);
+}
+
+void dc_playmidi(int script, int* yield, int* preturnint,
+		 char* midi_file)
+{
+  //StopMidi();
+  int regm = atol(midi_file);
+  Msg("Processing playmidi command.");
+  if (regm > 1000)
+    //cd directive
+    {
+      int cd_track = regm - 1000;
+      Msg("playmidi - cd play command detected.");
+      
+      if (cd_inserted)
+	{
+	  if (cd_track == last_cd_track
+	      && cdplaying())
+	    {
+	      *yield = 1;
+	      return;
+	    }
+	  
+	  Msg("Playing CD track %d.", cd_track);
+	  if (PlayCD(cd_track) >= 0)
+	    return;
+	}
+    }
+  Msg("Playing midi %s.", midi_file);
+  PlayMidi(midi_file);
+}
+
+void dc_playsound(int script, int* yield, int* preturnint,
+		  int sound_number, int min_speed, int rand_speed_to_add, int sprite, int repeat_p)
+{
+  if (sprite < 0 || sprite >= MAX_SPRITES_AT_ONCE)
+    sprite = 0; // no "3d" volume effect... and no segfault :p
+
+  if (sound_on)
+    *preturnint = playsound(sound_number, min_speed, rand_speed_to_add, sprite, repeat_p);
+  else
+    *preturnint = 0;
+}
+
+void dc_sound_set_survive(int script, int* yield, int* preturnint,
+			  int sound_bank, int survive_p)
+{
+  //let's set one sound to survive
+  if (sound_on && sound_bank > 0)
+    sound_set_survive(sound_bank, survive_p);
+}
+
+void dc_sound_set_vol(int script, int* yield, int* preturnint,
+		      int sound_bank, int vol)
+{
+  if (sound_on && sound_bank > 0)
+    sound_set_vol(sound_bank, vol);
+}
+
+void dc_sound_set_kill(int script, int* yield, int* preturnint,
+		       int sound_bank)
+{
+  if (sound_on && sound_bank > 0)
+    sound_set_kill(sound_bank);
+}
+
+
 /****************/
 /*  v1.08-only  */
 /*              */
@@ -1686,6 +1787,15 @@ void dinkc_bindings_init()
   DCBD_ADD(editor_type,  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(editor_seq,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(editor_frame, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+  DCBD_ADD(move,                 {1,1,1,1,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(spawn,                {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(run_script_by_number, {1,2,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(playmidi,             {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(playsound,            {1,1,1,1,1,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
+  DCBD_ADD(sound_set_survive,    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(sound_set_vol,        {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(sound_set_kill,       {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 
   if (dversion >= 108)
     {
@@ -2601,183 +2711,6 @@ if (dversion >= 108)
   /*  Old bindings  */
   /*                */
   /******************/
-
-                if (compare(ev[1], "move"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,1,1,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                spr[nlist[0]].move_active = /*true*/1;
-                                spr[nlist[0]].move_dir = nlist[1];
-                                spr[nlist[0]].move_num = nlist[2];
-                                spr[nlist[0]].move_nohard = nlist[3];
-                                spr[nlist[0]].move_script = 0;
-                                if (debug_mode) Msg("Moving: Sprite %d, dir %d, num %d", nlist[0],nlist[1], nlist[2]);
-
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "spawn"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                int mysc = load_script(slist[0], 1000, /*true*/1);
-                                if (mysc == 0)
-                                {
-                                        returnint = 0;
-                                        return(0);
-                                }
-                                locate(mysc, "MAIN");
-                                int tempreturn = mysc;
-                                run_script(mysc);
-                                returnint = tempreturn;
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "run_script_by_number"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,2,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (locate (nlist[0], slist[1]))
-			    run_script (nlist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "playmidi"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                          {
-                            //StopMidi();
-                            int regm = atol(slist[0]);
-                            Msg("Processing playmidi command.");
-                            if (regm > 1000)
-                              //cd directive
-                              {
-                                int cd_track = regm - 1000;
-                                Msg("playmidi - cd play command detected.");
-
-                                if (cd_inserted)
-                                  {
-                                    if (cd_track == last_cd_track
-                                        && cdplaying())
-                                      return(DCPS_YIELD);
-
-                                    Msg("Playing CD track %d.", cd_track);
-                                    if (PlayCD(cd_track) >= 0)
-                                      {
-                                        strcpy_nooverlap(s, h);
-                                        return(0);
-                                      }
-                                  }
-                              }
-                            Msg("Playing midi %s.", slist[0]);
-                            PlayMidi(slist[0]);
-                          }
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "Playsound"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,1,1,1,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (sound_on)
-                                        returnint = playsound(nlist[0], nlist[1], nlist[2], nlist[3],nlist[4]);
-                                else returnint = 0;
-
-                        } else
-                                returnint = 0;
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sound_set_survive"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (sound_on)
-                                {
-                                        //let's set one sound to survive
-                                        if (nlist[0] > 0)
-					  sound_set_survive(nlist[0], nlist[1]);
-                                }
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "sound_set_vol"))
-                {
-                  // (sprite, direction, until, nohard);
-                  h = &h[strlen(ev[1])];
-                  int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                  if (get_parms(ev[1], script, h, p))
-                    {
-                      if (sound_on)
-                        {
-                          //let's set one sound to survive
-                          if (nlist[0] > 0)
-                            {
-                              sound_set_vol(nlist[0], nlist[1]);
-                            }
-                        }
-                    }
-
-                  strcpy_nooverlap(s, h);
-                  return(0);
-                }
-
-
-                if (compare(ev[1], "sound_set_kill"))
-                {
-                  // (sprite, direction, until, nohard);
-                  h = &h[strlen(ev[1])];
-                  int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                  if (get_parms(ev[1], script, h, p))
-                    {
-                      if (sound_on)
-                        {
-                          //let's set one sound to survive
-                          if (nlist[0] > 0)
-                            sound_set_kill(nlist[0] - 1);
-                        }
-                    }
-
-                  strcpy_nooverlap(s, h);
-                  return(0);
-                }
 
 
 
