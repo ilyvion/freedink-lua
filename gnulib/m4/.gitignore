@@ -75,3 +75,7 @@ xalloc.m4
 xgetcwd.m4
 xsize.m4
 xstrndup.m4
+/close.m4
+/dirent_h.m4
+/errno_h.m4
+/fclose.m4

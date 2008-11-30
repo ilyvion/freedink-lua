@@ -27,9 +27,12 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <alloca.h>
 
-#include <hash.h>
 #include <ffi.h>
+
+/* Gnulib */
+#include "hash.h"
 
 #include "game_engine.h"
 #include "dinkvar.h"

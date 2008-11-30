@@ -15,11 +15,12 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --doc-base=doc --aux-dir=autotools --no-libtool --macro-prefix=gl canonicalize dirname getopt hash relocatable-prog strcase strdup vasprintf
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --doc-base=doc --tests-base=tests --aux-dir=autotools --no-libtool --macro-prefix=gl alloca canonicalize dirname getopt hash relocatable-prog strcase strdup vasprintf
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
+  alloca
   canonicalize
   dirname
   getopt

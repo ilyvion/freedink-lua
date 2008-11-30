@@ -20,7 +20,8 @@
 # <http://www.gnu.org/licenses/>.
 
 
-# Environment can be ready in 1/2h if you have a not-too-old computer
+# Time: < 30mn
+# Space: ~50MB sources + ~150MB build + ~20MB install
 
 # Super-user commands can be disabled using 'SUDO=: ./cross.sh'
 # Idem for wget if you already downloaded the tarballs
@@ -89,7 +90,7 @@ cd pkg-config-$VERSION
 ./configure --prefix=$PREFIX
 make
 make install-strip
-$SUDO ln -s $PREFIX/bin/pkg-config \
+$SUDO ln -nfs $PREFIX/bin/pkg-config \
   /usr/local/bin/$HOST-pkg-config
 # or set
 # PKG_CONFIG="$PREFIX/bin/pkg-config"
@@ -321,7 +322,7 @@ make install-strip
 
 
 # libpng
-VERSION=1.2.29
+VERSION=1.2.33
 cd /usr/src/
 # Download version "with config script"
 $WGET -P depsources/ ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$VERSION.tar.bz2
@@ -354,15 +355,11 @@ make install-strip
 
 
 # SDL_image
-VERSION=1.2.6
+VERSION=1.2.7
 cd /usr/src/
 $WGET -P depsources/ http://libsdl.org/projects/SDL_image/release/SDL_image-$VERSION.tar.gz
 tar xzf depsources/SDL_image-$VERSION.tar.gz
 cd SDL_image-$VERSION
-# Apply security patch from forgot-to-release 1.2.7
-$SUDO aptitude install subversion
-svn diff -c3462 http://svn.libsdl.org/trunk/SDL_image/IMG_gif.c | patch -p0
-svn diff -c3462 http://svn.libsdl.org/trunk/SDL_image/SDL_image.h | patch -p0
 # Cross-prefix would be /usr/local/cross-tools/i386-mingw32 by default.
 # See SDL_mixer for explanations about disabled dynamic loading.
 SDL_CONFIG=$PREFIX/bin/sdl-config \
@@ -397,6 +394,8 @@ tar xzf depsources/libffi-$VERSION.tar.gz
 cd libffi-$VERSION
 ./configure --build=$BUILD --host=$HOST \
   --prefix=$PREFIX
+make
+make install-strip
 
 
 # Apparently automake's 'install-strip' doesn't necessarily work on
@@ -567,17 +566,6 @@ Some problems need to be fixed:
 
 See:
 http://lists.gnu.org/archive/html/bug-guile/2008-05/msg00016.html
-
-
-# libffi (could be used to simplify DinkC bindings)
-VERSION=3.0.5
-$WGET ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
-tar xzf libffi-$VERSION.tar.gz
-cd libffi-$VERSION
-./configure --host=i586-mingw32msvc --build=i686-pc-linux-gnu --prefix=/usr/local/cross-tools/i386-mingw32msvc
-make
-make install-strip
-#i586-mingw32msvc-gcc test.c `/usr/local/cross-tools/i386-mingw32/bin/pkg-config --cflags --libs libffi`
 
 # SDL_stretch (alternative to SDL_gfx that has more accurate scaling,
 # but this this is being fixed in SDL_gfx)

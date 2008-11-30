@@ -50,7 +50,9 @@ AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
 AC_ARG_ENABLE([embedded-resources],
-  AS_HELP_STRING([--disable-embedded-resources], [don't embed base fonts in the executable, disable this for distros that strip executables and break resources [[default is enabled]]]),
+  AS_HELP_STRING([--disable-embedded-resources],
+    [don't embed base fonts in the executable -
+     disable this for distros that strip executables and break resources (default is enabled)]),
   [], [enable_embedded_resources=yes])
 if test x"$enable_embedded_resources" = x"yes"; then
 AC_CHECK_PROG(ZIP, zip, zip)
@@ -68,7 +70,7 @@ fi
 
 AC_ARG_VAR([UPX], [Produce self-decompressing executables (if --enable-upx)])
 AC_ARG_ENABLE([upx],
-  AS_HELP_STRING([--enable-upx], [compress executables [[default is disabled]]]),
+  AS_HELP_STRING([--enable-upx], [compress executables (default is disabled)]),
   [], [enable_upx=no])
 if test x"$enable_upx" = x"yes"; then
   AC_PATH_PROG(UPX, upx)
@@ -130,6 +132,11 @@ PKG_CHECK_MODULES([LIBFFI], [libffi >= 3],
   AC_MSG_WARN($LIBFFI_PKG_ERRORS); LACK_LIBFFI=1)
 CFLAGS="$CFLAGS $LIBFFI_CFLAGS"
 LIBS="$LIBS $LIBFFI_LIBS"
+# Support libffi4 which is bundled with GCC and doesn't have a libffi.pc:
+if test $LACK_LIBFFI = 1; then
+   LACK_LIBFFI=0
+   AC_CHECK_LIB(ffi,ffi_prep_cif,,AC_MSG_WARN([You need to install libffi]);LACK_LIBFFI=1)
+fi
 
 
 dnl Check for SDL
@@ -156,7 +163,7 @@ fi
 
 # Dynamic and static builds
 AC_ARG_ENABLE([static],
-  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable [[default is disabled]]]),
+  AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable (default is disabled)]),
   [], [enable_static=no])
 
 if test x"$enable_static" = x"yes"; then

@@ -124,3 +124,9 @@ xreadlink.h
 xsize.h
 xstrndup.c
 xstrndup.h
+/alloca.c
+/close.c
+/errno.in.h
+/fclose.c
+/stdio-write.c
+/w32sock.h
