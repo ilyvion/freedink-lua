@@ -68,8 +68,8 @@ static char* cur_funcname;
 #define STOP_IF_BAD_SPRITE(sprite)                   \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
     {                                                \
-      Msg("DinkC error: %s: invalid sprite %d",      \
-          cur_funcname, sprite);                     \
+      Msg("%s:%s: DinkC error: invalid sprite %d",      \
+          rinfo[script]->name, cur_funcname, sprite);	 \
       return;                                        \
     }
 
@@ -82,8 +82,8 @@ static char* cur_funcname;
 #define RETURN_NEG_IF_BAD_SPRITE(sprite)             \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
     {                                                \
-      Msg("DinkC error: %s: invalid sprite %d",      \
-          cur_funcname, sprite);                     \
+      Msg("%s:%s: DinkC error: invalid sprite %d",      \
+          rinfo[script]->name, cur_funcname, sprite);                     \
       *preturnint = -1;                              \
       return;                                        \
     }
@@ -1157,6 +1157,91 @@ void dc_sound_set_kill(int script, int* yield, int* preturnint,
 }
 
 
+void dc_save_game(int script, int* yield, int* preturnint, int game_slot)
+{
+  save_game(game_slot);
+}
+
+void dc_force_vision(int script, int* yield, int* preturnint, int vision)
+{
+  *pvision = vision;
+  rinfo[script]->sprite = 1000;
+  fill_whole_hard();
+  draw_map_game();
+}
+
+void dc_fill_screen(int script, int* yield, int* preturnint, int palette_index)
+{
+  fill_screen(palette_index);
+}
+
+void dc_load_game(int script, int* yield, int* preturnint, int game_slot)
+{
+  kill_all_scripts_for_real();
+  *preturnint = load_game(game_slot);
+  Msg("load completed. ");
+  if (rinfo[script] == NULL)
+    Msg("Script %d is suddenly null!", script);
+  *pupdate_status = 1;
+  draw_status_all();
+  *yield = 1;
+}
+
+void dc_game_exist(int script, int* yield, int* preturnint, int game_slot)
+{
+  FILE *fp;
+  if ((fp = paths_savegame_fopen(game_slot, "rb")) != NULL)
+    {
+      fclose(fp);
+      *preturnint = 1;
+    }
+  else
+    {
+      *preturnint = 0;
+    }
+}
+
+void dc_move_stop(int script, int* yield, int* preturnint,
+		  int sprite, int direction, int destination_limit, int ignore_hardness_p)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  spr[sprite].move_active = /*true*/1;
+  spr[sprite].move_dir = direction;
+  spr[sprite].move_num = destination_limit;
+  spr[sprite].move_nohard = ignore_hardness_p;
+  spr[sprite].move_script = script;
+  if (debug_mode)
+    Msg("Move_stop: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
+  *yield = 1;
+}
+
+void dc_load_sound(int script, int* yield, int* preturnint,
+		   char* wav_file, int sound_index)
+{
+  if (sound_on)
+    {
+      Msg("getting %s..", wav_file);
+      CreateBufferFromWaveFile(wav_file, sound_index);
+    }
+}
+
+void dc_debug(int script, int* yield, int* preturnint,
+	      char* text)
+{
+  decipher_string(text, script);
+  Msg(text);
+}
+
+void dc_busy(int script, int* yield, int* preturnint,
+	     int sprite)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  *preturnint = does_sprite_have_text(nlist[0]);
+  Msg("Busy: Return int is %d and %d.  Nlist got %d.",
+      *preturnint, does_sprite_have_text(sprite), sprite);
+}
+
+
 /****************/
 /*  v1.08-only  */
 /*              */
@@ -1796,6 +1881,16 @@ void dinkc_bindings_init()
   DCBD_ADD(sound_set_survive,    {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(sound_set_vol,        {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(sound_set_kill,       {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+  DCBD_ADD(save_game,                 {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(force_vision,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(fill_screen,               {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(load_game,                 {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(game_exist,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(move_stop,                 {1,1,1,1,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(load_sound,                {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(debug,                     {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(busy,                      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 
   if (dversion >= 108)
     {
@@ -2714,170 +2809,6 @@ if (dversion >= 108)
 
 
 
-                if (compare(ev[1], "save_game"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                save_game(nlist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "force_vision"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                *pvision = nlist[0];
-                                rinfo[script]->sprite = 1000;
-                                fill_whole_hard();
-
-                                draw_map_game();
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "fill_screen"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                fill_screen(nlist[0]);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "load_game"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                kill_all_scripts_for_real();
-                                returnint = load_game(nlist[0]);
-                                Msg("load completed. ");
-                                if (rinfo[script] == NULL) Msg("Script %d is suddenly null!", script);
-
-
-                                *pupdate_status = 1;
-                                draw_status_all();
-                                return(DCPS_YIELD);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "game_exist"))
-                {
-                        // (sprite, direction, until, nohard);
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  FILE *fp;
-			  if ((fp = paths_savegame_fopen(nlist[0], "rb")) != NULL)
-			    {
-			      fclose(fp);
-			      returnint = 1;
-			    }
-			  else
-			    {
-			      returnint = 0;
-			    }
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "move_stop"))
-                {
-                        // (sprite, direction, until, nohard);
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,1,1,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //Msg("Move stop running %d to %d..", nlist[0], nlist[0]);
-                                spr[nlist[0]].move_active = /*true*/1;
-                                spr[nlist[0]].move_dir = nlist[1];
-                                spr[nlist[0]].move_num = nlist[2];
-                                spr[nlist[0]].move_nohard = nlist[3];
-                                spr[nlist[0]].move_script = script;
-                                strcpy_nooverlap(s, h);
-                                if (debug_mode) Msg("Move_stop: Sprite %d, dir %d, num %d", nlist[0],nlist[1], nlist[2]);
-                                return(DCPS_YIELD);
-
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "load_sound"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (sound_on)
-                                {
-                                        Msg("getting %s..",slist[0]);
-                                        CreateBufferFromWaveFile(slist[0],nlist[1]);
-                                }
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "debug"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                decipher_string(slist[0], script);
-                                Msg(slist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
                 if (compare(ev[1], "make_global_int"))
                 {
 
@@ -2889,32 +2820,6 @@ if (dversion >= 108)
                                 make_int(slist[0], nlist[1], 0, script);
                                 //Msg(slist[0]);
                         }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "busy"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        // Msg("Running busy, h is %s", h);
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                if (nlist[0] == 0) Msg("ERROR:  Busy cannot get info on sprite 0 in %s.",rinfo[script]->name);
-                                else
-                                {
-
-                                        returnint = does_sprite_have_text(nlist[0]);
-
-                                        Msg("Busy: Return int is %d and %d.  Nlist got %d.", returnint,does_sprite_have_text(nlist[0]), nlist[0]);
-
-                                }
-
-                        }  else Msg("Failed getting parms for Busy()");
 
                         strcpy_nooverlap(s, h);
                         return(0);
