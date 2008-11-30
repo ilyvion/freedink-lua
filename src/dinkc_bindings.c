@@ -65,12 +65,12 @@ static char* cur_funcname;
  * Short-hand to check for invalid sprites and avoid segfaults.
  * Also warn the D-Mod author about it.
  */
-#define STOP_IF_BAD_SPRITE(sprite)                   \
-  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
-    {                                                \
-      Msg("%s:%s: DinkC error: invalid sprite %d",      \
-          rinfo[script]->name, cur_funcname, sprite);	 \
-      return;                                        \
+#define STOP_IF_BAD_SPRITE(sprite)                                             \
+  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
+    {                                                                          \
+      Msg("%s:%s: DinkC error: invalid sprite %d (offset %d)",                 \
+          rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current);  \
+      return;                                                                  \
     }
 
 /**
@@ -79,13 +79,13 @@ static char* cur_funcname;
  * 'change_sprite' returns -1 when 'sprite' is inactive, that's also
  * what we return when the sprite is out of range.
  */
-#define RETURN_NEG_IF_BAD_SPRITE(sprite)             \
-  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)  \
-    {                                                \
-      Msg("%s:%s: DinkC error: invalid sprite %d",      \
-          rinfo[script]->name, cur_funcname, sprite);                     \
-      *preturnint = -1;                              \
-      return;                                        \
+#define RETURN_NEG_IF_BAD_SPRITE(sprite)                                       \
+  if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
+    {                                                                          \
+      Msg("%s:%s: DinkC error: invalid sprite %d (offset %d)",                 \
+          rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current);  \
+      *preturnint = -1;                                                        \
+      return;                                                                  \
     }
 
 
@@ -1422,8 +1422,8 @@ void dc_screenlock(int script, int* yield, int* preturnint,
       if (param == 0 || param == 1)
 	screenlock = param;
       *preturnint = screenlock;
-      /* Note: redink1's v1.08 always set returnint, even if no
-	 parameter was passed. Since this breaks the logic of DinkC
+      /* Note: redink1's v1.08 always set returnint, even if too many
+	 parameters were passed. Since this breaks the logic of DinkC
 	 interpreter clarification (return a variable value when bad
 	 parameters), we won't reproduce this particular bug
 	 here. AFAICS no D-Mod abused 'screenlock' this way. */
@@ -2387,9 +2387,12 @@ morestuff:
  *    2=string
  *    0=no more args (10 args max)
  *
+ * Known bug: passing no argument to a function expecting 1 int
+ * argument is considered valid..
+ *
  * Return: 0 if parse error, 1 if success
  */
-int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
+int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 {
   char crap[1024];
 
@@ -2456,7 +2459,6 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 	    }
 	  else
 	    {
-	      Msg("Missing ')' in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
 	      return 0;
 	    }
 	  strip_beginning_spaces(str_params);
@@ -2472,8 +2474,6 @@ int get_parms(char proc_name[20], int script, char *str_params, int spec[10])
 	}
       else
 	{
-	  Msg("Procedure %s does not take %d parms in %s, offset %d. (%s?)",
-	      proc_name, i+1, rinfo[script]->name, rinfo[script]->current, str_params);
 	  return 0;
 	}
     }
@@ -2514,314 +2514,398 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   {
     int i;
     for (i = 1; i <= 14; i++)
-      {
-	if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
-	  goto pass;
-      }
+      if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
+	break;
   }
 
-pass:
-  //Msg("first line is %s (second is %s)", ev[1], ev[2]);
-                if (compare(ev[1], "VOID"))
-                {
 
-                        if (rinfo[script]->proc_return != 0)
-                        {
-                                run_script(rinfo[script]->proc_return);
-                                kill_script(script);
-                        }
+  if (compare(ev[1], "VOID"))
+    {
+      if (rinfo[script]->proc_return != 0)
+	{
+	  run_script(rinfo[script]->proc_return);
+	  kill_script(script);
+	}
+      return(DCPS_YIELD);
+    }
 
-                        //Msg("returning..");
-                        return(DCPS_YIELD);
-                }
-                //replace("\n","",ev[1]);
-                if (ev[1][strlen(ev[1]) -1] == ':' && strlen(ev[2]) < 2)
-                {
-		  if (dversion >= 108)
-		    {
-		      /* Attempt to avoid considering:
+  /* goto label? */
+  if (ev[1][strlen(ev[1]) -1] == ':' && strlen(ev[2]) < 2)
+    {
+      if (dversion >= 108)
+	{
+	  /* Attempt to avoid considering:
 			   say("bonus: 5 points", 1); // would not display any text at all!
-			 as a label */
-		      if (strncmp (ev[1], "say", 3) != 0)
-			return(0); //its a label
-		    }
-		  else
-		    {
-		      return(0); //its a label
-		    }
-                }
-                if (ev[1][0] == '(')
-                {
-                        //this procedure has been passed a conditional statement finder
-                        //what kind of conditional statement is it?
-                        p = h;
-                        separate_string(h, 2,')',temp);
-                        //Msg("We found %s, woah!", temp);
-                        separate_string(h, 1,')',ev[1]);
+			   as a label */
+	  if (strncmp (ev[1], "say", 3) != 0)
+	    return(0); //its a label
+	}
+      else
+	{
+	  return(0); //its a label
+	}
+    }
 
-                        // Msg("Ok, turned h %s to  ev1 %s.",h,ev[1]);
-                        p = &p[strlen(ev[1])+1];
+  /** Expression between parenthesis **/
+  if (ev[1][0] == '(')
+    {
+      //this procedure has been passed a conditional statement finder
+      //what kind of conditional statement is it?
+      p = h;
+      separate_string(h, 2, ')', temp);
+      separate_string(h, 1, ')', ev[1]);
 
-                        strip_beginning_spaces(p);
-                        //      Msg("does %s have a ( in front?", p);
-                        //Msg("We found %s, woah!", temp);
+      // Msg("Ok, turned h %s to  ev1 %s.",h,ev[1]);
+      p += strlen(ev[1]) + 1;
 
+      strip_beginning_spaces(p);
 
-                        if (strchr(temp, '=') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d == %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-
-                        if (strchr(temp, '>') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d > %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-
-                        if (strchr(temp, '<') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d < %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-
-                        /* Beuc: This should be converted to a set of
-                         * "if ... else if... else if ..." and
-                         * multi-character constants should be
-                         * removed. However, this may cause the
-                         * interpreter to behave differently, so be
-                         * careful. */
-                        /* For now, I'll rewrite the code in an
-                         * equivalent warning-free inelegant way:
-                         * strchr(str, 'ab') <=> strchr(str, 'b') */
-                        /* if (strchr (temp, '<=') != NULL) */
-                        if (strchr(temp, '=') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d <= %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-                        /* if (strchr (temp, '>=') != NULL) */
-                        if (strchr (temp, '=') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d >= %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-                        /* if (strchr (temp, '!=') != NULL) */
-                        if (strchr (temp, '=') != NULL)
-                        {
-                                h = &h[1];
-                                strip_beginning_spaces(h);
-                                process_line(script, h, /*false*/0);
-                                replace("==", "", temp);
-                                sprintf(line, "%d != %s", returnint, temp);
-                                returnint = var_figure(line, script);
-                                strcpy(h, "\n");
-                                return(0);
-                        }
-
-
-                        if (p[0] == ')')
-                        {
-                                //its a procedure in the if statement!!!
-                                h = &h[1];
-                                p = &p[1];
-                                strcpy(line, p);
-                                process_line(script, h, /*false*/0);
-
-                                //8
-                                Msg("Returned %d for the returnint", returnint);
-                                h = s;
-                                strcpy(s, line);
-
-                                //      Msg("Returing %s..", s);
-                                return(0);
-                        } else
-                        {
-                                h = &h[1];
-
-                                separate_string(h, 1,')',line);
-                                h = &h[strlen(line)+1];
-                                returnint = var_figure(line, script);
-
-                                strcpy_nooverlap(s, h);
-
-                                return(0);
-                        }
-
-                        strip_beginning_spaces(h);
-                        strip_beginning_spaces(ev[1]);
-
-                        s = h;
-
-
-        }
-
-
-        if (strchr(ev[1], '(') != NULL)
-        {
-                //Msg("Has a (, lets change it");
-                separate_string(h, 1,'(',ev[1]);
-                //Msg("Ok, first is now %s",ev[1]);
-
-
-        }
-
-	char first = ev[1][0];
-
-        if (first == '{')
-        {
-
-
-                rinfo[script]->level++;
-                //Msg("Went up level, now at %d.", rinfo[script]->level);
-                h = &h[1];
-                if (rinfo[script]->skipnext)
-                {
-		  /* Skip the whole { section } */
-		  rinfo[script]->skipnext = /*false*/0;
-		  rinfo[script]->onlevel = ( rinfo[script]->level - 1);
-                }
-                goto good;
+      if (strchr(temp, '=') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d == %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
+	  return(0);
+	}
+      
+      if (strchr(temp, '>') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d > %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
+	  return(0);
 	}
 
-        if (first == '}')
-        {
-                rinfo[script]->level--;
-                //Msg("Went down a level, now at %d.", rinfo[script]->level);
-                h = &h[1];
-
-                if (rinfo[script]->onlevel > 0 && rinfo[script]->level == rinfo[script]->onlevel)
-                {
-		  /* Finished skipping the { section }, preparing to run 'else' */
-		  strip_beginning_spaces(h);
-		  strcpy_nooverlap(s, h);
-		  return(DCPS_DOELSE_ONCE);
-                }
-                goto good;
-        }
-
-
-
-	/* Fix if there are too many closing '}' */
-        if (rinfo[script]->level < 0)
-	  {
-	    rinfo[script]->level = 0;
-	  }
-
-	/* TODO: that's the 2nd time we compare with "VOID" - cf. above */
-        if (compare(ev[1], "void"))
-        {
-                //     Msg("Next procedure starting, lets quit");
-                strcpy_nooverlap(s, h);
-                if (rinfo[script]->proc_return != 0)
-                {
-                        run_script(rinfo[script]->proc_return);
-                        kill_script(script);
-                }
-
-                return(DCPS_YIELD);
-        }
-
-        { //used to be an if..
-
-
-	/* Stop processing if we're skipping the current { section } */
-	if (rinfo[script]->onlevel > 0 && rinfo[script]->level > rinfo[script]->onlevel)
+      if (strchr(temp, '<') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d < %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
 	  return(0);
+	}
+      
+      /* Beuc: This should be converted to a set of "if ... else
+       * if... else if ..." and multi-character constants should be
+       * removed. However, this may cause the interpreter to behave
+       * differently, so be careful. */
+      /* For now, I'll rewrite the code in an equivalent warning-free
+       * inelegant way: strchr(str, 'ab') <=> strchr(str, 'b') */
+      /* if (strchr (temp, '<=') != NULL) */
+      if (strchr(temp, '=') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d <= %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
+	  return(0);
+	}
+      /* if (strchr (temp, '>=') != NULL) */
+      if (strchr (temp, '=') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d >= %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
+	  return(0);
+	}
+      /* if (strchr (temp, '!=') != NULL) */
+      if (strchr (temp, '=') != NULL)
+	{
+	  h++;
+	  strip_beginning_spaces(h);
+	  process_line(script, h, /*false*/0);
+	  replace("==", "", temp);
+	  sprintf(line, "%d != %s", returnint, temp);
+	  returnint = var_figure(line, script);
+	  strcpy(h, "\n");
+	  return(0);
+	}
+      
 
-	rinfo[script]->onlevel = 0;
+      if (p[0] == ')')
+	{
+	  //its a procedure in the if statement!!!
+	  h++;
+	  p++;
+	  strcpy(line, p);
+	  process_line(script, h, /*false*/0);
+	  
+	  Msg("Returned %d for the returnint", returnint);
+	  h = s;
+	  strcpy(s, line);
+	  
+	  return(0);
+	}
+      else
+	{
+	  h++;
+	  
+	  separate_string(h, 1,')',line);
+	  h += strlen(line) + 1;
+	  returnint = var_figure(line, script);
+	  
+	  strcpy_nooverlap(s, h);
+	  
+	  return(0);
+	}
+      
+      strip_beginning_spaces(h);
+      strip_beginning_spaces(ev[1]);
 
-	/* Skip the current line if the previous 'if' or 'else' said so */
-	if (rinfo[script]->skipnext)
-	  {
-	    //sorry, can't do it, you were told to skip the next thing
-	    rinfo[script]->skipnext = /*false*/0;
-	    strcpy(s, "\n"); /* jump to next line */
-	    //return(3);
-	    return(DCPS_DOELSE_ONCE);
-	  }
-
-                //if (debug_mode) Msg("%s",s);
-
-
-                if (compare(ev[1], "void"))
-                {
-                        Msg("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
-                        strcpy_nooverlap(s, h);
-                        return(DCPS_YIELD);
-                }
-
-                if (compare(ev[1], "else"))
-                {
-                        //Msg("Found else!");
-                        h = &h[strlen(ev[1])];
-
-
-                        if (doelse)
-                        {
-                                //Msg("Yes to else...");
-
-
-
-                        } else
-                        {
-                                //they shouldn't run the next thing
-                                rinfo[script]->skipnext = /*true*/1;
-                                //Msg("No to else...");
-
-                        }
-                        strcpy_nooverlap(s, h);
-                        return(1);
-
-                }
+      s = h;
+    } /* END expression between parenthesis */
 
 
-  /******************/
-  /*  New bindings  */
-  /*                */
-  /******************/
+  if (strchr(ev[1], '(') != NULL)
+    {
+      //Msg("Has a (, lets change it");
+      separate_string(h, 1,'(',ev[1]);
+      //Msg("Ok, first is now %s",ev[1]);
+    }
 
+  /** { Bloc } **/
+  char first = ev[1][0];
+  if (first == '{')
+    {
+      rinfo[script]->level++;
+      //Msg("Went up level, now at %d.", rinfo[script]->level);
+      h++;
+      if (rinfo[script]->skipnext)
+	{
+	  /* Skip the whole { section } */
+	  rinfo[script]->skipnext = /*false*/0;
+	  rinfo[script]->onlevel = ( rinfo[script]->level - 1);
+	}
+      goto good;
+    }
+  
+  if (first == '}')
+    {
+      rinfo[script]->level--;
+      //Msg("Went down a level, now at %d.", rinfo[script]->level);
+      h++;
+      
+      if (rinfo[script]->onlevel > 0 && rinfo[script]->level == rinfo[script]->onlevel)
+	{
+	  /* Finished skipping the { section }, preparing to run 'else' */
+	  strip_beginning_spaces(h);
+	  strcpy_nooverlap(s, h);
+	  return(DCPS_DOELSE_ONCE);
+	}
+      goto good;
+    }
+
+  /* Fix if there are too many closing '}' */
+  if (rinfo[script]->level < 0)
+    {
+      rinfo[script]->level = 0;
+    }
+
+
+  /* Note: that's the 2nd time we compare with "VOID" -
+     cf. above. However ev[1] was modified in between, so this
+     section may still be called if the first comparison didn't
+     match. */
+  if (compare(ev[1], "void"))
+    {
+      //     Msg("Next procedure starting, lets quit");
+      strcpy_nooverlap(s, h);
+      if (rinfo[script]->proc_return != 0)
+	{
+	  run_script(rinfo[script]->proc_return);
+	  kill_script(script);
+	}
+      
+      return(DCPS_YIELD);
+    }
+
+  
+  /* Stop processing if we're skipping the current { section } */
+  if (rinfo[script]->onlevel > 0 && rinfo[script]->level > rinfo[script]->onlevel)
+    return(0);
+    
+  rinfo[script]->onlevel = 0;
+    
+  /* Skip the current line if the previous 'if' or 'else' said so */
+  if (rinfo[script]->skipnext)
+    {
+      //sorry, can't do it, you were told to skip the next thing
+      rinfo[script]->skipnext = /*false*/0;
+      strcpy(s, "\n"); /* jump to next line */
+      //return(3);
+      return(DCPS_DOELSE_ONCE);
+    }
+    
+
+
+  if (compare(ev[1], "void"))
+    {
+      Msg("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
+      strcpy_nooverlap(s, h);
+      return(DCPS_YIELD);
+    }
+    
+  /** if **/
+  if (compare(ev[1], "if"))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+	
+      process_line(script, h, /*false*/0);
+      // Result is 'returnint'
+	
+      if (returnint != 0)
+	{
+	  if (debug_mode)
+	    Msg("If returned true");
+	}
+      else
+	{
+	  //don't do it!
+	  rinfo[script]->skipnext = /*true*/1;
+	  if (debug_mode)
+	    Msg("If returned false, skipping next thing");
+	}
+	
+      strcpy_nooverlap(s, h);
+      //g("continuing to run line %s..", h);
+
+      //return(5);
+      return(DCPS_DOELSE_ONCE);
+      /* state 5 should actually be state DCPS_CONTINUE, but keeping
+	 it that way (e.g. with doelse=1 for the next line) for
+	 compatibility, just in case somebody abused it */
+    }
+
+  if (compare(ev[1], "else"))
+    {
+      //Msg("Found else!");
+      h += strlen(ev[1]);
+		
+      if (doelse)
+	{
+	  // Yes to else
+	}
+      else
+	{
+	  // No to else...
+	  // they shouldn't run the next thing
+	  rinfo[script]->skipnext = /*true*/1;
+	}
+      strcpy_nooverlap(s, h);
+      return(1);
+    }
+    
+  /** Dialog **/
+  if (compare(ev[1], "choice_start"))
+    {
+      kill_text_owned_by(1);
+      if (talk_get(script))
+	{
+	  // Question(s) gathered successfully
+	  return(DCPS_YIELD);
+	}
+      return(0);
+    }
+
+  /** Jump **/
+  if (compare(ev[1], "goto"))
+    {
+      locate_goto(ev[2], script);
+      return(0);
+    }
+
+  /** Definition **/
+  if (compare(ev[1], "int"))
+    {
+      int_prepare(h, script);
+      h += strlen(ev[1]);
+
+      if (strchr(h, '=') != NULL)
+	{
+	  strip_beginning_spaces(h);
+	  //Msg("Found =...continuing equation");
+	  strcpy_nooverlap(s, h);
+	  return(DCPS_CONTINUE);
+	}
+      else
+	{
+	  return(DCPS_GOTO_NEXTLINE);
+	}
+    }
+
+  /** "return;" and "return something;" **/
+  if (compare(ev[1], "return;"))
+    {
+      if (debug_mode)
+	Msg("Found return; statement");
+	
+      if (rinfo[script]->proc_return != 0)
+	{
+	  bKeepReturnInt = 1; /* v1.08 */
+	  run_script(rinfo[script]->proc_return);
+	  kill_script(script);
+	}
+	
+      return(DCPS_YIELD);
+    }
+
+  if (dversion >= 108)
+    {
+      /* "return", without trailing ';' */
+      /* added so we can have return values and crap. */
+      /* see also "return;" above */
+      if (compare (ev[1], "return"))
+	{
+	  if (debug_mode)
+	    Msg ("Found return; statement");
+	  h += strlen(ev[1]);
+	  strip_beginning_spaces (h);
+	  process_line (script, h, 0);
+	  if (rinfo[script]->proc_return != 0)
+	    {
+	      bKeepReturnInt = 1;
+	      run_script (rinfo[script]->proc_return);
+	      kill_script (script);
+	    }
+	  return(DCPS_YIELD);
+	}
+    }
+
+  /********************/
+  /*  DinkC bindings  */
+  /*                  */
+  /********************/
+    
   /** Lookup bindings **/
   char* funcname = ev[1];
   char* str_args = h + strlen(ev[1]);
   struct binding* pbd = NULL;
   pbd = dinkc_bindings_lookup(bindings, funcname);
-
+    
   if (pbd != NULL)
     {
       /** Call binding **/
       void *values[NB_COMMON_ARGS+10];
-
+	
       /* Common arguments */
       values[0] = &script;
       int* yield = alloca(sizeof(int)*1);
@@ -2829,7 +2913,7 @@ pass:
       values[1] = &yield;
       int* preturnint = &returnint;
       values[2] = &preturnint;
-
+	
       /* Specific arguments */
       int* params = pbd->params;
       if (params[0] != -1) /* no args == no checks*/
@@ -2859,7 +2943,14 @@ pass:
 	    }
 	  else
 	    {
-	      /* Invalid parameters in the DinkC script */
+	      /* Invalid parameters in the DinkC script - output an
+		 error message */
+	      int i = 0;
+	      while (params[i] != 0 && i < 10)
+		i++;
+	      Msg("%s: DinkC error: procedure '%s' takes %d parameters (offset %d)",
+		  rinfo[script]->name, funcname, i, rinfo[script]->current);
+
 	      /* Set 'returnint' if necessary */
 	      if (pbd->badparams_returnint_p == 1)
 		returnint = pbd->badparams_returnint;
@@ -2867,14 +2958,14 @@ pass:
 	      return pbd->badparams_dcps;
 	    }
 	}
-
+	
       /* Call C function */
       int rc;
       cur_funcname = pbd->funcname; /* for error messages */
       ffi_call(&pbd->cif, pbd->func, &rc, values);
       cur_funcname = "";
       /* the function can manipulation returnint through argument #3 */
-
+	
       if (*yield == 0)
 	return DCPS_GOTO_NEXTLINE;
       else if (*yield == 1)
@@ -2886,409 +2977,281 @@ pass:
 	  exit(EXIT_FAILURE);
 	}
     }
-
-
-                if (compare(ev[1], "choice_start"))
-                {
-
-                        kill_text_owned_by(1);
-                        if (talk_get(script))
-                        {
-
-                                //              Msg("Question gathered successfully.");
-                                return(DCPS_YIELD);
-                        }
-
-                        return(0);
-                }
-
-                if (compare(ev[1], "goto"))
-                {
-
-                        locate_goto(ev[2], script);
-                        return(0);
-                }
-
-                if (compare(ev[1], "int"))
-                {
-
-                        int_prepare(h, script);
-
-                        //Msg(slist[0]);
-
-                        h = &h[strlen(ev[1])];
-
-                        //Msg("Int is studying %s..", h);
-                        if (strchr(h, '=') != NULL)
-                        {
-                                strip_beginning_spaces(h);
-                                //Msg("Found =...continuing equation");
-                                strcpy_nooverlap(s, h);
-                                return(DCPS_CONTINUE);
-                        }
-
-                        return(DCPS_GOTO_NEXTLINE);
-
-                }
-
-                                                                if (compare(ev[1], "return;"))
-                                                                {
-
-                                                                        if (debug_mode) Msg("Found return; statement");
-
-                                                                        if (rinfo[script]->proc_return != 0)
-                                                                        {
-                                                                                bKeepReturnInt = 1; /* v1.08 */
-                                                                                run_script(rinfo[script]->proc_return);
-                                                                                kill_script(script);
-                                                                        }
-
-                                                                        return(DCPS_YIELD);
-                                                                }
-
-
-if (dversion >= 108)
-  {
-    /* added so we can have return values and crap. */
-    /* see also "return;" above */
-    if (compare (ev[1], "return"))
-
-      {
-	if (debug_mode)
-	  Msg ("Found return; statement");
-	h = &h[strlen (ev[1])];
-	strip_beginning_spaces (h);
-	process_line (script, h, 0);
-	if (rinfo[script]->proc_return != 0)
-
-	  {
-	    bKeepReturnInt = 1;
-	    run_script (rinfo[script]->proc_return);
-	    kill_script (script);
-	  }
-	return (2);
-      }
-  }
-
-
-
-                                                                if (compare(ev[1], "if"))
-                                                                {
-
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        //Msg("running if with string of %s", h);
-
-                                                                        process_line(script, h, /*false*/0);
-                                                                        //Msg("Result is %d", returnint);
-
-                                                                        if (returnint != 0)
-                                                                        {
-                                                                                if (debug_mode) Msg("If returned true");
-
-
-                                                                        } else
-                                                                        {
-                                                                                //don't do it!
-                                                                                rinfo[script]->skipnext = /*true*/1;
-                                                                                if (debug_mode) Msg("If returned false, skipping next thing");
-                                                                        }
-
-                                                                        //DO STUFF HERE!
-                                                                        strcpy_nooverlap(s, h);
-                                                                        //g("continuing to run line %s..", h);
-
-
-                                                                        //return(5);
-									return(DCPS_DOELSE_ONCE);
-									/* state 5 should actually be state DCPS_CONTINUE, but keeping it
-									   that way (e.g. with doelse=1 for the next line) for compatibility, just in case somebody
-									   abused it */
-
-                                                                }
-
+    
+  
   /***************/
   /** Operators **/
   /**           **/
   /***************/
 
-                                                                if (compare(ev[2], "="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '=', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
+  /* Beware: this works on ev[2], not ev[1]; position in the code is
+     critical! */
 
-                                                                if (compare(ev[2], "+="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '+', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[2], "*="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-                                                                        var_equals(ev[1], ev[3], '*', script, h);
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-
-
-                                                                if (compare(ev[2], "-="))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[2];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '-', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-
-                                                                if (compare(ev[2], "/")
-								    || (dversion >= 108 && compare(ev[2], "/=")))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '/', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[2], "*"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        strip_beginning_spaces(h);
-                                                                        h = &h[1];
-                                                                        strip_beginning_spaces(h);
-
-                                                                        var_equals(ev[1], ev[3], '*', script, h);
-
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-
+  if (compare(ev[2], "="))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h++;
+      strip_beginning_spaces(h);
+      var_equals(ev[1], ev[3], '=', script, h);
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+  if (compare(ev[2], "+="))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h += 2;
+      strip_beginning_spaces(h);
+      var_equals(ev[1], ev[3], '+', script, h);
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+  if (compare(ev[2], "*="))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h += 2;
+      strip_beginning_spaces(h);
+      var_equals(ev[1], ev[3], '*', script, h);
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+  if (compare(ev[2], "-="))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h += 2;
+      strip_beginning_spaces(h);
+	
+      var_equals(ev[1], ev[3], '-', script, h);
+	
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+  if (compare(ev[2], "/")
+      || (dversion >= 108 && compare(ev[2], "/=")))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h++;
+      strip_beginning_spaces(h);
+	
+      var_equals(ev[1], ev[3], '/', script, h);
+	
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+  if (compare(ev[2], "*"))
+    {
+      h += strlen(ev[1]);
+      strip_beginning_spaces(h);
+      h++;
+      strip_beginning_spaces(h);
+	
+      var_equals(ev[1], ev[3], '*', script, h);
+	
+      strcpy_nooverlap(s, h);
+      return(0);
+    }
+    
+    
   /***************************************/
   /** New DinkC user-defined procedures **/
   /**                                   **/
   /***************************************/
   if (dversion >= 108)
     {
-    if (compare (ev[1], "external"))
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
-	memset (slist, 0, 10 * 200);
-	get_parms (ev[1], script, h, p);
-	if (strlen (slist[0]) > 0 && strlen (slist[1]) > 0)
-	  {
-	    int
-	      myscript1 =
-	      load_script (slist[0], rinfo[script]->sprite, 0);
-	    if (myscript1 == 0)
-	      {
-		Msg ("Error:  Couldn't find %s.c (for procedure %s)",
-		     slist[0], slist[1]);
-		return (0);
-	      }
-	    rinfo[myscript1]->arg1 = nlist[2];
-	    rinfo[myscript1]->arg2 = nlist[3];
-	    rinfo[myscript1]->arg3 = nlist[4];
-	    rinfo[myscript1]->arg4 = nlist[5];
-	    rinfo[myscript1]->arg5 = nlist[6];
-	    rinfo[myscript1]->arg6 = nlist[7];
-	    rinfo[myscript1]->arg7 = nlist[8];
-	    rinfo[myscript1]->arg8 = nlist[9];
-	    if (locate (myscript1, slist[1]))
-	      {
-		rinfo[myscript1]->proc_return = script;
-		run_script (myscript1);
-		return (2);
-	      }
-	    else
-	      {
-		Msg ("Error:  Couldn't find procedure %s in %s.", slist[1],
-		     slist[0]);
-		kill_script (myscript1);
-	      }
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-    if (strchr (h, '(') != NULL)
-      {
-	//lets attempt to run a procedure
-	int myscript = load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	get_parms (ev[1], script, h, p);
-	if (locate(myscript, ev[1]))
-	  {
-	    /* Custom procedure in the current script */
-	    rinfo[myscript]->arg1 = nlist[0];
-	    rinfo[myscript]->arg2 = nlist[1];
-	    rinfo[myscript]->arg3 = nlist[2];
-	    rinfo[myscript]->arg4 = nlist[3];
-	    rinfo[myscript]->arg5 = nlist[4];
-	    rinfo[myscript]->arg6 = nlist[5];
-	    rinfo[myscript]->arg7 = nlist[6];
-	    rinfo[myscript]->arg8 = nlist[7];
-	    rinfo[myscript]->arg9 = nlist[8];
+      if (compare (ev[1], "external"))
+	{
+	  h += strlen(ev[1]);
+	  int p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
+	  memset (slist, 0, 10 * 200);
+	  get_parms(ev[1], script, h, p);
+	  if (strlen(slist[0]) > 0 && strlen(slist[1]) > 0)
+	    {
+	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, 0);
+	      if (myscript1 == 0)
+		{
+		  Msg ("Error:  Couldn't find %s.c (for procedure %s)",
+		       slist[0], slist[1]);
+		  return (0);
+		}
+	      rinfo[myscript1]->arg1 = nlist[2];
+	      rinfo[myscript1]->arg2 = nlist[3];
+	      rinfo[myscript1]->arg3 = nlist[4];
+	      rinfo[myscript1]->arg4 = nlist[5];
+	      rinfo[myscript1]->arg5 = nlist[6];
+	      rinfo[myscript1]->arg6 = nlist[7];
+	      rinfo[myscript1]->arg7 = nlist[8];
+	      rinfo[myscript1]->arg8 = nlist[9];
+	      if (locate (myscript1, slist[1]))
+		{
+		  rinfo[myscript1]->proc_return = script;
+		  run_script (myscript1);
+		  return(DCPS_YIELD);
+		}
+	      else
+		{
+		  Msg ("Error:  Couldn't find procedure %s in %s.",
+		       slist[1], slist[0]);
+		  kill_script (myscript1);
+		}
+	    }
+	  strcpy (s, h);
+	  return (0);
+	}
+
+      if (strchr (h, '(') != NULL)
+	{
+	  //lets attempt to run a procedure
+	  int myscript = load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
+	  h += strlen(ev[1]);
+	  int p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	  get_parms(ev[1], script, h, p);
+	  if (locate(myscript, ev[1]))
+	    {
+	      /* Custom procedure in the current script */
+	      rinfo[myscript]->arg1 = nlist[0];
+	      rinfo[myscript]->arg2 = nlist[1];
+	      rinfo[myscript]->arg3 = nlist[2];
+	      rinfo[myscript]->arg4 = nlist[3];
+	      rinfo[myscript]->arg5 = nlist[4];
+	      rinfo[myscript]->arg6 = nlist[5];
+	      rinfo[myscript]->arg7 = nlist[6];
+	      rinfo[myscript]->arg8 = nlist[7];
+	      rinfo[myscript]->arg9 = nlist[8];
+	      rinfo[myscript]->proc_return = script;
+	      run_script(myscript);
+	      return(DCPS_YIELD);
+	    }
+	  else
+	    {
+	      /* Try custom global procedure */
+	      for (int i = 0; i < 100; i++)
+		{
+		  /* Skip empty slots */
+		  if (strlen (play.func[i].func) == 0)
+		    continue;
+		    
+		  if (compare(play.func[i].func, ev[1]))
+		    {
+		      myscript = load_script(play.func[i].file, rinfo[script]->sprite, 0);
+		      rinfo[myscript]->arg1 = nlist[0];
+		      rinfo[myscript]->arg2 = nlist[1];
+		      rinfo[myscript]->arg3 = nlist[2];
+		      rinfo[myscript]->arg4 = nlist[3];
+		      rinfo[myscript]->arg5 = nlist[4];
+		      rinfo[myscript]->arg6 = nlist[5];
+		      rinfo[myscript]->arg7 = nlist[6];
+		      rinfo[myscript]->arg8 = nlist[7];
+		      rinfo[myscript]->arg9 = nlist[8];
+		      if (locate(myscript, ev[1]))
+			{
+			  rinfo[myscript]->proc_return = script;
+			  run_script (myscript);
+			  return(DCPS_YIELD);
+			}
+		      break;
+		    }
+		}
+	      Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s)",
+		  ev[1], ev[2], rinfo[myscript]->name);
+	      kill_script (myscript);
+	    }
+	    
+	  /*seperate_string(h, 1,'(',line);
+	      
+	    int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);
+	      
+	    if (locate( myscript, line))
+	    {
 	    rinfo[myscript]->proc_return = script;
-	    run_script(myscript);
+	    run_script(myscript);    
 	    return(DCPS_YIELD);
-	  }
-	else
-	  {
-	    /* Try custom global procedure */
-	    for (int i = 0; i < 100; i++)
-	      {
-		/* Skip empty slots */
-		if (strlen (play.func[i].func) == 0)
-		  continue;
-
-		if (compare(play.func[i].func, ev[1]))
-		  {
-		    myscript = load_script(play.func[i].file, rinfo[script]->sprite, 0);
-		    rinfo[myscript]->arg1 = nlist[0];
-		    rinfo[myscript]->arg2 = nlist[1];
-		    rinfo[myscript]->arg3 = nlist[2];
-		    rinfo[myscript]->arg4 = nlist[3];
-		    rinfo[myscript]->arg5 = nlist[4];
-		    rinfo[myscript]->arg6 = nlist[5];
-		    rinfo[myscript]->arg7 = nlist[6];
-		    rinfo[myscript]->arg8 = nlist[7];
-		    rinfo[myscript]->arg9 = nlist[8];
-		    if (locate(myscript, ev[1]))
-		      {
-			rinfo[myscript]->proc_return = script;
-			run_script (myscript);
-			return(DCPS_YIELD);
-		      }
-		    break;
-		  }
-	      }
-	    Msg
-	      ("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
-	       ev[1], ev[2], rinfo[myscript]->name);
-	    kill_script (myscript);
-	  }
-
-	/*seperate_string(h, 1,'(',line);
-
-	   int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);
-
-	   if (locate( myscript, line))
-	   {
-	   rinfo[myscript]->proc_return = script;
-	   run_script(myscript);    
-	   return(DCPS_YIELD);
-	   } else
-	   {
-	   Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
-	   ev[2], rinfo[myscript]->name); 
-	   kill_script(myscript);          
-	   } */
-	return (0);
-      }
+	    } else
+	    {
+	    Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
+	    ev[2], rinfo[myscript]->name); 
+	    kill_script(myscript);          
+	    } */
+	  return (0);
+	}
     }
   else
     {
       /* v1.07 function that are implemented differently than in v1.08 */
+      if (compare(ev[1], "external"))
+	{
+	  h += strlen(ev[1]);
+	  int p[20] = {2,2,0,0,0,0,0,0,0,0};
+	  if (get_parms(ev[1], script, h, p))
+	    {
+	      int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
+	      if (myscript1 == 0)
+		{
+		  Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
+		  return(0);
+		}
+	      if (locate( myscript1, slist[1]))
+		{
+		  rinfo[myscript1]->proc_return = script;
+		  run_script(myscript1);
+		  return(DCPS_YIELD);
+		}
+	      else
+		{
+		  Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
+		  kill_script(myscript1);
+		}
+	    }
+	  else
+	    {
+	      Msg("%s: DinkC error: procedure 'external' takes 2 parameters (offset %d)",
+		  rinfo[script]->name, rinfo[script]->current);
+	    }
+	  strcpy_nooverlap(s, h);
+	  return(0);
+	}
 
-                                                                if (compare(ev[1], "external"))
-                                                                {
+      if (strchr(h, '(') != NULL)
+	{
+	  //lets attempt to run a procedure
+	  separate_string(h, 1, '(', line);
+	  int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, /*false*/0);
 
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {2,2,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
-                                                                                if (myscript1 == 0)
-                                                                                {
-                                                                                        Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
-                                                                                        return(0);
-                                                                                }
-                                                                                if (locate( myscript1, slist[1]))
-                                                                                {
-                                                                                        rinfo[myscript1]->proc_return = script;
-                                                                                        run_script(myscript1);
-
-                                                                                        return(DCPS_YIELD);
-                                                                                } else
-                                                                                {
-                                                                                        Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
-                                                                                        kill_script(myscript1);
-                                                                                }
-                                                                        }
-                                                                        strcpy_nooverlap(s, h);
-                                                                        return(0);
-                                                                }
-
-                                                                if (strchr(h, '(') != NULL)
-                                                                {
-
-                                                                        //lets attempt to run a procedure
-
-                                                                        separate_string(h, 1,'(',line);
-
-
-                                                                        int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, /*false*/0);
-
-                                                                        if (locate( myscript, line))
-                                                                        {
-                                                                                rinfo[myscript]->proc_return = script;
-                                                                                run_script(myscript);
-                                                                                return(DCPS_YIELD);
-                                                                        } else
-                                                                        {
-                                                                                Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
-                                                                                        ev[2], rinfo[myscript]->name);
-                                                                                kill_script(myscript);
-                                                                        }
-
-
-                                                                        return(0);
-
-                                                                }
-
-                                                                Msg("MERROR: \"%s\" unknown in %s, offset %d.",ev[1], rinfo[script]->name,rinfo[script]->current);
-
-
-                                                                //in a thingie, ready to go
+	  if (locate(myscript, line))
+	    {
+	      rinfo[myscript]->proc_return = script;
+	      run_script(myscript);
+	      return(DCPS_YIELD);
+	    }
+	  else
+	    {
+	      Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
+		  ev[2], rinfo[myscript]->name);
+	      kill_script(myscript);
+	    }
+	  return(0);
+	}
+	
+      Msg("MERROR: \"%s\" unknown in %s, offset %d.",ev[1], rinfo[script]->name,rinfo[script]->current);
+      //in a thingie, ready to go
     }
-        }
 
 bad:
-	strcpy(s, "\n"); /* jump to next line */
-        //return(0);
-	return(DCPS_CONTINUE);
-
-good:
-	strcpy_nooverlap(s, h);
-        //s = h
-        //Msg("ok, continuing with running %s..",s);
-        return(DCPS_CONTINUE);
+  strcpy(s, "\n"); /* jump to next line */
+  //return(0);
+  return(DCPS_CONTINUE);
+  
+ good:
+  strcpy_nooverlap(s, h);
+  //s = h
+  //Msg("ok, continuing with running %s..",s);
+  return(DCPS_CONTINUE);
 }
