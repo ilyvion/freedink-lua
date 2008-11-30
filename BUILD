@@ -40,7 +40,7 @@ aptitude install build-essential
 #deb http://www.freedink.org/snapshots/debian/etch-backports/ ./
 aptitude install pkg-config libsdl1.2-dev libsdl-gfx1.2-dev \
   libsdl-ttf2.0-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
-  libfontconfig1-dev libzzip-dev zip
+  libfontconfig1-dev libffi-dev libzzip-dev zip
 # | aptitude install libzip-dev
 # Optional:
 # - upx compresses binary
@@ -96,7 +96,7 @@ yum groupinstall 'Development Tools'
 # Required: SDL, libzip | zziplib
 # No libzip package yet AFAIK
 pkcon install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
-  SDL_mixer-devel fontconfig-devel zziplib-devel zip
+  SDL_mixer-devel fontconfig-devel libffi-devel zziplib-devel zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
@@ -153,7 +153,7 @@ sh bootstrap
 # Note: as of 2007-12-23 libzip's ebuild is in progress:
 # http://bugs.gentoo.org/show_bug.cgi?id=120244
 emerge libsdl # (if not already done in bootstrap step)
-emerge sdl-gfx sdl-ttf sdl-image sdl-mixer fontconfig zziplib zip
+emerge sdl-gfx sdl-ttf sdl-image sdl-mixer fontconfig libffi zziplib zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs (included in base Gentoo)
@@ -207,7 +207,7 @@ sh bootstrap
 # Note: as of 2007-12-23 libzip's ebuild is in progress:
 # http://bugs.gentoo.org/show_bug.cgi?id=120244
 pacman -S sdl # (if not already done in bootstrap step)
-pacman -S sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
+pacman -S sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libffi libzip zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs (included in base Gentoo)
@@ -257,7 +257,7 @@ sh bootstrap
 ## Dependencies
 # I also assume you already have GCC and Make ;)
 # Required: SDL, libzip | zziplib
-pkg_add -r sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
+pkg_add -r sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libffi libzip zip
 # Note: SDL_ttf is tool old (2.0.8 < 2.0.9), you'll need to upgrade
 #   it manually:
 pkg_add -r wget

@@ -4,7 +4,8 @@ Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
-BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel fontconfig-devel
+BuildRequires:	SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel SDL_mixer-devel
+BuildRequires:  fontconfig-devel libffi-devel
 BuildRequires:  desktop-file-utils
 %if 0%{?suse_version}
 BuildRequires:  update-desktop-files

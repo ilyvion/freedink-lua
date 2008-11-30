@@ -240,7 +240,6 @@ SDL_CONFIG=$PREFIX/bin/sdl-config \
 make
 make install-strip
 
-
 # libjpeg (dependency of SDL_image and libtiff)
 cd /usr/src/
 $WGET -P depsources/ http://www.ijg.org/files/jpegsrc.v6b.tar.gz
@@ -388,6 +387,16 @@ CPPFLAGS="-I$PREFIX/include" \
     --prefix=$PREFIX
 make
 make install-strip
+
+
+# libffi (DinkC to C bindings)
+cd /usr/src/
+VERSION=3.0.7
+$WGET -P depsources/ ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
+tar xzf depsources/libffi-$VERSION.tar.gz
+cd libffi-$VERSION
+./configure --build=$BUILD --host=$HOST \
+  --prefix=$PREFIX
 
 
 # Apparently automake's 'install-strip' doesn't necessarily work on

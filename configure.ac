@@ -50,7 +50,7 @@ AC_CHECK_TOOL(WINDRES, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test "$WINDRES" != "")
 
 AC_ARG_ENABLE([embedded-resources],
-  AS_HELP_STRING([--disable-embedded-resources], [don't embed default fonts in the executable [[default is enabled]]]),
+  AS_HELP_STRING([--disable-embedded-resources], [don't embed base fonts in the executable, disable this for distros that strip executables and break resources [[default is enabled]]]),
   [], [enable_embedded_resources=yes])
 if test x"$enable_embedded_resources" = x"yes"; then
 AC_CHECK_PROG(ZIP, zip, zip)
@@ -107,7 +107,7 @@ if test x"$enable_embedded_resources" = x"yes"; then
   # libzip - cross-compiles well but not widespread (distro packages) yet
   PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
     AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
-    AC_MSG_WARN($LIBZIP_PKG_ERRORS); LACK_LIBZIP=1)
+    AC_MSG_WARN($LIBZIP_PKG_ERRORS [(non-fatal if there's zziplib)]); LACK_LIBZIP=1)
   CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
   LIBS="$LIBS $LIBZIP_LIBS"
   # ZZipLib - doesn't cross-compile well and unstable under woe, but
@@ -115,7 +115,7 @@ if test x"$enable_embedded_resources" = x"yes"; then
   #AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
   PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
     AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
-    AC_MSG_WARN($ZZIPLIB_PKG_ERRORS); LACK_ZZIPLIB=1)
+    AC_MSG_WARN($ZZIPLIB_PKG_ERRORS [(non-fatal if there's libzip)]); LACK_ZZIPLIB=1)
   CFLAGS="$CFLAGS $ZZIPLIB_CFLAGS"
   LIBS="$LIBS $ZZIPLIB_LIBS"
 else
@@ -124,6 +124,12 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
+
+PKG_CHECK_MODULES([LIBFFI], [libffi >= 3],
+  AC_DEFINE([HAVE_LIBFFI], [], [libffi library (-lffi)]),
+  AC_MSG_WARN($LIBFFI_PKG_ERRORS); LACK_LIBFFI=1)
+CFLAGS="$CFLAGS $LIBFFI_CFLAGS"
+LIBS="$LIBS $LIBFFI_LIBS"
 
 
 dnl Check for SDL
@@ -268,24 +274,24 @@ error=0
 warning=0
 
 if test "$LACK_LIBSDL" = 1; then
-   echo "* You need to install the libSDL";
-   error=1
+  echo "* You need to install the libSDL";
+  error=1
 fi
 if test "$LACK_LIBSDL_GFX" = 1; then
-   echo "* You need to install the SDL_gfx library";
-   error=1
+  echo "* You need to install the SDL_gfx library";
+  error=1
 fi
 if test "$LACK_LIBSDL_TTF" = 1; then
-   echo "* You need to install the SDL_ttf library, version >= 2.0.9";
-   error=1
+  echo "* You need to install the SDL_ttf library, version >= 2.0.9";
+  error=1
 fi
 if test "$LACK_LIBSDL_IMAGE" = 1; then
-   echo "* You need to install the SDL_image library";
-   error=1
+  echo "* You need to install the SDL_image library";
+  error=1
 fi
 if test "$LACK_LIBSDL_MIXER" = 1; then
-   echo "* You need to install the SDL_mixer library";
-   error=1
+  echo "* You need to install the SDL_mixer library";
+  error=1
 fi
 
 if test "$use_fontconfig" = "yes" -a "$LACK_FONTCONFIG" = 1; then
@@ -294,25 +300,30 @@ if test "$use_fontconfig" = "yes" -a "$LACK_FONTCONFIG" = 1; then
 fi
 
 if test "$error" = 0 -a "$LACK_HEADERS" = 1; then
-   echo "* Warning: You lack some library headers (.h) - see warnings above."
-   #error=1
-   warning=1
+  echo "* Warning: You lack some library headers (.h) - see warnings above."
+  #error=1
+  warning=1
 fi
 
 if test x"$enable_embedded_resources" = x"yes"; then
-   if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
-      echo "* You need to install libzip or ZZipLib (or --disable-embedded-resources)."
-      error=1
-   fi
-   if test -z "$ZIP"; then
-       echo "* The 'zip' utility cannot be found. Please install it (or --disable-embedded-resources)."
-       error=1
-   fi
+  if test "$LACK_LIBZIP" = 1 -a "$LACK_ZZIPLIB" = 1; then
+    echo "* You need to install libzip or ZZipLib (or --disable-embedded-resources)."
+    error=1
+  fi
+  if test -z "$ZIP"; then
+    echo "* The 'zip' utility cannot be found. Please install it (or --disable-embedded-resources)."
+    error=1
+  fi
+fi
+
+if test "$LACK_LIBFFI" = 1; then
+  echo "* You need to install the libffi library."
+  error=1
 fi
 
 if test "$error" = 0 -a "$LACK_HELP2MAN" = 1; then
-   echo "* Warning: The 'help2man' utility cannot be found. You won't be able to rebuild manpages."
-   warning=1
+  echo "* Warning: The 'help2man' utility cannot be found. You won't be able to rebuild manpages."
+  warning=1
 fi
 
 if test "$enable_upx" = "yes" -a -z "$UPX"; then

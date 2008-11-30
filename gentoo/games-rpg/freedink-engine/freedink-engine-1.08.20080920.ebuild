@@ -24,6 +24,7 @@ DEPEND="
 	>=media-libs/sdl-gfx-2.0
 	>=media-libs/fontconfig-2.4
 	>=dev-libs/zziplib-0.12
+	>=dev-libs/libffi-3
 	games-rpg/freedink-data
 "
 
