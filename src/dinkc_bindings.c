@@ -1032,6 +1032,30 @@ void dc_stop_entire_game(int script, int* yield, int* preturnint, int stop_p)
 }
 
 
+void dc_editor_type(int script, int* yield, int* preturnint, int editor_sprite, int type)
+{
+  if (editor_sprite < 0 || editor_sprite >= 100)
+    return;
+  *preturnint = change_edit_char(editor_sprite, type,
+				 &play.spmap[*pmap].type[editor_sprite]);
+}
+void dc_editor_seq(int script, int* yield, int* preturnint, int editor_sprite, int seq)
+{
+  if (editor_sprite < 0 || editor_sprite >= 100)
+    return;
+  *preturnint = change_edit(editor_sprite, seq,
+			    &play.spmap[*pmap].seq[editor_sprite]);
+}
+
+void dc_editor_frame(int script, int* yield, int* preturnint, int editor_sprite, int frame)
+{
+  if (editor_sprite < 0 || editor_sprite >= 100)
+    return;
+  *preturnint = change_edit_char(editor_sprite, frame,
+				 &play.spmap[*pmap].frame[editor_sprite]);
+}
+
+
 /****************/
 /*  v1.08-only  */
 /*              */
@@ -1658,6 +1682,10 @@ void dinkc_bindings_init()
   DCBD_ADD(dink_can_walk_off_screen, {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(push_active,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(stop_entire_game,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
+  DCBD_ADD(editor_type,  {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(editor_seq,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(editor_frame, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
 
   if (dversion >= 108)
     {
@@ -3196,45 +3224,6 @@ if (dversion >= 108)
                         return(0);
                 }
 
-
-                if (compare(ev[1], "editor_type"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                //Msg("Setting editor_type..");
-                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].type[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-                if (compare(ev[1], "editor_seq"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_edit(nlist[0], nlist[1], &play.spmap[*pmap].seq[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "editor_frame"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = change_edit_char(nlist[0], nlist[1], &play.spmap[*pmap].frame[nlist[0]]);
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
 
 
                 if (compare(ev[1], "set_button"))
