@@ -1242,6 +1242,199 @@ void dc_busy(int script, int* yield, int* preturnint,
 }
 
 
+void dc_make_global_int(int script, int* yield, int* preturnint,
+			char* varname, int default_val)
+{
+  make_int(varname, default_val, 0, script);
+}
+
+void dc_inside_box(int script, int* yield, int* preturnint,
+		   int x, int y, int left, int right, int top, int bottom)
+{
+  rect myrect;
+  rect_set(&myrect, left, right, top, bottom);
+  *preturnint = inside_box(x, y, myrect);
+  if (debug_mode)
+    Msg("Inbox is int is %d and %d.  Nlist got %d.", *preturnint, x, y);
+}
+
+void dc_random(int script, int* yield, int* preturnint,
+	       int range, int base)
+{
+  *preturnint = (rand() % range) + base;
+}
+
+void dc_initfont(int script, int* yield, int* preturnint,
+		 char* fontname)
+{
+  initfont(fontname);
+  Msg("Initted font %s", fontname);
+}
+
+void dc_set_mode(int script, int* yield, int* preturnint,
+		 int newmode)
+{
+  mode = newmode;
+  *preturnint = mode;
+}
+
+void dc_kill_shadow(int script, int* yield, int* preturnint,
+		    int sprite)
+{
+  /* STOP_IF_BAD_SPRITE(sprite); */
+  int jj;
+  for (jj = 1; jj <= last_sprite_created; jj++)
+    {
+      if (spr[jj].brain == 15 && spr[jj].brain_parm == sprite)
+	{
+	  spr[jj].active = 0;
+	}
+    }
+}
+
+void dc_create_sprite(int script, int* yield, int* preturnint,
+		      int x, int y, int brain, int sequence, int frame)
+{
+  *preturnint = add_sprite_dumb(x, y, brain, sequence, frame, 100/*size*/);
+}
+
+void dc_sp(int script, int* yield, int* preturnint,
+	   int editor_sprite)
+{
+  int ii;
+  for (ii = 1; ii <= last_sprite_created; ii++)
+    {
+      if (spr[ii].sp_index == editor_sprite)
+	{
+	  if (debug_mode)
+	    Msg("Sp returned %d.", ii);
+	  *preturnint = ii;
+	  return;
+	}
+      
+    }
+  if (last_sprite_created == 1)
+    Msg("warning - you can't call SP() from a screen-ref,"
+	" no sprites have been created yet.");
+}
+
+void dc_is_script_attached(int script, int* yield, int* preturnint,
+			   int sprite)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+  *preturnint = spr[sprite].script;
+}
+
+void dc_get_sprite_with_this_brain(int script, int* yield, int* preturnint,
+				   int brain, int sprite_ignore)
+{
+  int i;
+  for (i = 1; i <= last_sprite_created; i++)
+    {
+      if (spr[i].brain == brain && i != sprite_ignore && spr[i].active == 1)
+	{
+	  Msg("Ok, sprite with brain %d is %d", brain, i);
+	  *preturnint = i;
+	  return;
+	}
+    }
+}
+
+void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
+					int brain, int sprite_ignore)
+{
+  int i;
+  int nb_matches = 0;
+  for (i = 1; i <= last_sprite_created; i++)
+    {
+      if (spr[i].brain == brain && i != sprite_ignore && spr[i].active == 1)
+	nb_matches++;
+    }
+  if (nb_matches == 0)
+    {
+      Msg("Get rand brain can't find any brains with %d.", brain);
+	    *preturnint = 0;
+	    return;
+    }
+  
+  int mypick = (rand() % nb_matches) + 1;
+  int ii;
+  int cur_match = 0;
+  for (ii = 1; ii <= last_sprite_created; ii++)
+    {
+      if (spr[ii].brain == brain && ii != sprite_ignore && spr[ii].active == 1)
+	{
+	  cur_match++;
+	  if (cur_match == mypick)
+	    {
+	      *preturnint = ii;
+	      return;
+	    }
+	}
+    }
+}
+
+void dc_set_button(int script, int* yield, int* preturnint,
+		   int button, int function)
+{
+  play.button[button] = function;
+}
+
+void dc_hurt(int script, int* yield, int* preturnint,
+	     int sprite, int damage)
+{
+  STOP_IF_BAD_SPRITE(sprite);
+
+  if (dversion >= 108)
+    {
+      // With v1.07 hurt(&sthing, -1) would run hit(), with v1.08 it
+      // doesn't (after redink1 tried to fix a game freeze bug that I
+      // can't reproduce)
+      if (damage < 0)
+	return;
+    }
+
+  if (hurt_thing(sprite, damage, 0) > 0)
+    random_blood(spr[sprite].x, spr[sprite].y-40, sprite);
+
+  if (spr[sprite].nohit != 1
+      && spr[sprite].script != 0
+      && locate(spr[sprite].script, "HIT"))
+    {
+      if (rinfo[script]->sprite != 1000)
+	{
+	  *penemy_sprite = rinfo[script]->sprite;
+	  //redink1 addition of missle_source stuff
+	  if (dversion >= 108)
+	    *pmissle_source = rinfo[script]->sprite;
+	}
+      kill_returning_stuff(spr[sprite].script);
+      run_script(spr[sprite].script);
+    }
+}
+
+void dc_screenlock(int script, int* yield, int* preturnint,
+		   int param)
+{
+  if (dversion >= 108)
+    {
+      // returns the screenlock value to DinkC
+      if (param == 0 || param == 1)
+	screenlock = param;
+      *preturnint = screenlock;
+      /* Note: redink1's v1.08 always set returnint, even if no
+	 parameter was passed. Since this breaks the logic of DinkC
+	 interpreter clarification (return a variable value when bad
+	 parameters), we won't reproduce this particular bug
+	 here. AFAICS no D-Mod abused 'screenlock' this way. */
+    }
+  else
+    {
+      screenlock = param;
+    }
+}
+
+
 /****************/
 /*  v1.08-only  */
 /*              */
@@ -1891,6 +2084,21 @@ void dinkc_bindings_init()
   DCBD_ADD(load_sound,                {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(debug,                     {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(busy,                      {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+  DCBD_ADD(make_global_int,            {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(inside_box,                 {1,1,1,1,1,1,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(random,                     {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(initfont,                   {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(set_mode,                   {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(kill_shadow,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(create_sprite,              {1,1,1,1,1,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
+  DCBD_ADD(sp,                         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
+  DCBD_ADD(is_script_attached,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(get_sprite_with_this_brain,      {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
+  DCBD_ADD(get_rand_sprite_with_this_brain, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, 0);
+  DCBD_ADD(set_button,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(hurt,                       {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(screenlock,                 {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
 
   if (dversion >= 108)
     {
@@ -2798,360 +3006,6 @@ if (dversion >= 108)
 									   abused it */
 
                                                                 }
-
-
-
-
-  /******************/
-  /*  Old bindings  */
-  /*                */
-  /******************/
-
-
-
-                if (compare(ev[1], "make_global_int"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                make_int(slist[0], nlist[1], 0, script);
-                                //Msg(slist[0]);
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "inside_box"))
-                {
-
-                        h = &h[strlen(ev[1])];
-                        Msg("Running pigs with h", h);
-                        int p[20] = {1,1,1,1,1,1,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                rect myrect;
-                rect_set(&myrect, nlist[2], nlist[3], nlist[4], nlist[5]);
-                                returnint = inside_box(nlist[0], nlist[1], myrect);
-
-                                if (debug_mode)
-                                        Msg("Inbox is int is %d and %d.  Nlist got %d.", returnint, nlist[0], nlist[1]);
-
-
-
-                        }  else Msg("Failed getting parms for inside_box");
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "random"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                returnint = (rand() % nlist[0])+nlist[1];
-                        }  else Msg("Failed getting parms for Random()");
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "initfont"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                initfont(slist[0]);
-                                Msg("Initted font %s",slist[0]);
-                        }  else Msg("Failed getting parms for Initfont()");
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-
-                if (compare(ev[1], "set_mode"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                mode = nlist[0];
-                                returnint = mode;
-                        }  else Msg("Failed to set mode");
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-                if (compare(ev[1], "kill_shadow"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int jj;
-                                for (jj = 1; jj <= last_sprite_created; jj++)
-                                {
-                                        if (spr[jj].brain == 15) if (spr[jj].brain_parm == nlist[0])
-                                        {
-
-                                                spr[jj].active = 0;
-                                        }
-
-
-                                }
-                        }
-
-                        strcpy_nooverlap(s, h);
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "create_sprite"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,1,1,1,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                returnint = add_sprite_dumb(nlist[0],nlist[1],nlist[2],
-                                        nlist[3],nlist[4],
-                                        100);
-
-                                return(0);
-                        }
-                        returnint =  0;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "sp"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int ii;
-                                for (ii = 1; ii <= last_sprite_created; ii++)
-                                {
-
-                                        if (spr[ii].sp_index == nlist[0])
-                                        {
-
-                                                if (debug_mode) Msg("Sp returned %d.", ii);
-                                                returnint = ii;
-                                                return(0);
-                                        }
-
-                                }
-                                if (last_sprite_created == 1)
-                                {
-                                        Msg("warning - you can't call SP() from a screen-ref, no sprites have been created yet.");
-                                }
-
-                        }
-                        returnint =  0;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "is_script_attached"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-
-                                returnint =  spr[nlist[0]].script;
-
-                        }
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "get_sprite_with_this_brain"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                for (i = 1; i <= last_sprite_created; i++)
-                                {
-                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
-                                                (spr[i].active == 1)
-                                        {
-                                                Msg("Ok, sprite with brain %d is %d", nlist[0], i);
-                                                returnint = i;
-                                                return(0);
-                                        }
-
-                                }
-                        }
-                                 Msg("Ok, sprite with brain %d is 0", nlist[0]);
-
-                                         returnint =  0;
-                                         return(0);
-                }
-
-
-                if (compare(ev[1], "get_rand_sprite_with_this_brain"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                int cter = 0;
-                                for (i = 1; i <= last_sprite_created; i++)
-                                {
-                                        if (   (spr[i].brain == nlist[0]) && (i != nlist[1]) ) if
-                                                (spr[i].active == 1)
-                                        {
-                                                cter++;
-
-                                        }
-
-                                }
-
-                                if (cter == 0)
-                                {
-                                        Msg("Get rand brain can't find any brains with %d.",nlist[0]);
-                                        returnint =  0;
-                                        return(0);
-                                }
-
-				{
-				  int mypick = (rand() % cter)+1;
-				  int ii;
-				  cter = 0;
-				  for (ii = 1; ii <= last_sprite_created; ii++)
-				    {
-				      if (spr[ii].brain == nlist[0] && ii != nlist[1] && spr[ii].active == 1)
-					{
-					  cter++;
-					  if (cter == mypick)
-					    {
-					      returnint = ii;
-					      return(0);
-					    }
-                                        }
-				    }
-                                }
-
-
-                        }
-
-
-                        returnint =  0;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "set_button"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-
-                                play.button[nlist[0]] = nlist[1];
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "hurt"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,1,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  if (dversion >= 108)
-			    {
-			        // With v1.07 hurt(&sthing, -1) would
-			        // run hit(), with v1.08 it doesn't
-			        // (after redink1 tried to fix a game
-			        // freeze bug that I can't reproduce)
-                                if (nlist[1] < 0)
-                                  return (0);
-			    }
-
-                                if (hurt_thing(nlist[0], nlist[1], 0) > 0)
-                                        random_blood(spr[nlist[0]].x, spr[nlist[0]].y-40, nlist[0]);
-                                if (spr[nlist[0]].nohit != 1)
-                                        if (spr[nlist[0]].script != 0)
-
-                                                if (locate(spr[nlist[0]].script, "HIT"))
-                                                {
-
-                                                        if (rinfo[script]->sprite != 1000)
-							  {
-                                                                *penemy_sprite = rinfo[script]->sprite;
-								//redink1 addition of missle_source stuff
-								if (dversion >= 108)
-								  *pmissle_source = rinfo[script]->sprite;
-
-							  }
-
-                                                        kill_returning_stuff(spr[nlist[0]].script);
-                                                        run_script(spr[nlist[0]].script);
-                                                }
-
-                                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "screenlock"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-			if (dversion >= 108)
-			  {
-			    // returns the screenlock value to DinkC
-			    if (get_parms (ev[1], script, h, p))
-			      {
-				if (nlist[0] == 0 || nlist[0] == 1)
-				  screenlock = nlist[0];
-			      }
-			    returnint = screenlock;
-			    return (0);
-			  }
-			else
-			  {
-			    if (get_parms(ev[1], script, h, p))
-			      {
-                                screenlock = nlist[0];
-                                return(0);
-			      }
-			    returnint = -1;
-			  }
-			return(0);
-                }
-
-
 
   /***************/
   /** Operators **/
