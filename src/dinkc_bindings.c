@@ -924,7 +924,112 @@ void dc_turn_midi_on(int script, int* yield, int* preturnint)
   midi_active = /*true*/1;
 }
 
+void dc_count_item(int script, int* yield, int* preturnint, char* dcscript)
+{
+  int i;
+  *preturnint = 0;
+  for (i = 1; i < 17; i++)
+    {
+      if (play.item[i].active
+	  && compare(play.item[i].name, dcscript))
+	returnint++;
+    }
+}
 
+void dc_count_magic(int script, int* yield, int* preturnint, char* dcscript)
+{
+  int i;
+  *preturnint = 0;
+  for (i = 1; i < 9; i++)
+    {
+      if (play.mitem[i].active
+	  && compare(play.mitem[i].name, dcscript))
+	returnint++;
+    }
+}
+
+void dc_compare_sprite_script(int script, int* yield, int* preturnint, int sprite, char* dcscript)
+{
+  *preturnint = 0;
+  STOP_IF_BAD_SPRITE(sprite);
+ 
+  if (spr[sprite].active)
+    {
+      if (spr[sprite].script == 0)
+	{
+	  Msg("Compare sprite script says: Sprite %d has no script.", sprite);
+	  return;
+	}
+      if (rinfo[spr[sprite].script] == NULL)
+	{
+	  Msg("Compare sprite script says: script %d for sprite %d was already killed!.",
+	      sprite, spr[sprite].script);
+	  return;
+	}
+      if (compare(dcscript, rinfo[spr[sprite].script]->name))
+	{
+	  *preturnint = 1;
+	  return;
+	}
+    }
+  else
+    {
+      Msg("Can't compare sprite script, sprite not active.");
+    }
+}
+
+
+
+void dc_compare_weapon(int script, int* yield, int* preturnint, char* dcscript)
+{
+  *preturnint = 0;
+  if (*pcur_weapon == 0)
+    return;
+
+  if (compare(play.item[*pcur_weapon].name, dcscript))
+    *preturnint = 1;
+}
+
+void dc_compare_magic(int script, int* yield, int* preturnint, char* dcscript)
+{
+  *preturnint = 0;
+  if (*pcur_magic == 0)
+    return;
+ 
+  if (dversion >= 108)
+    {
+      if (compare(play.mitem[*pcur_magic].name, dcscript))
+	*preturnint = 1;
+    }
+  else
+    {
+      /* reproduce v1.07 bug: compare with regular item rather than
+	 magic item */
+      if (compare(play.item[*pcur_magic].name, dcscript))
+	*preturnint = 1;
+    }
+}
+
+void dc_init(int script, int* yield, int* preturnint, char* dink_ini_line)
+{
+  figure_out(dink_ini_line);
+}
+
+void dc_dink_can_walk_off_screen(int script, int* yield, int* preturnint, int can_walk_off_screen_p)
+{
+  walk_off_screen = can_walk_off_screen_p;
+}
+
+void dc_push_active(int script, int* yield, int* preturnint, int dink_can_push_p)
+{
+  push_active = dink_can_push_p;
+}
+
+void dc_stop_entire_game(int script, int* yield, int* preturnint, int stop_p)
+{
+  stop_entire_game = stop_p;
+  SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
+}
 
 
 /****************/
@@ -1125,6 +1230,81 @@ void dc_var_used(int script, int* yield, int* preturnint)
 void dc_loopmidi(int script, int* yield, int* preturnint, int loop_midi)
 {
   loopmidi(loop_midi);
+}
+
+
+void dc_math_abs(int script, int* yield, int* preturnint, int val)
+{
+  *preturnint = abs(val);
+}
+
+void dc_math_sqrt(int script, int* yield, int* preturnint, int val)
+{
+  *preturnint = sqrt(abs(val));
+}
+
+void dc_math_mod(int script, int* yield, int* preturnint, int val, int div)
+{
+  *preturnint = (val % div);
+}
+
+void dc_make_global_function(int script, int* yield, int* preturnint, char* dcscript, char* procname)
+{
+  make_function(dcscript, procname);
+}
+
+void dc_set_save_game_info(int script, int* yield, int* preturnint, char* info)
+{
+  strcpy (save_game_info, info);
+}
+
+void dc_load_map(int script, int* yield, int* preturnint, char* mapdat_file, char* dinkdat_file)
+{
+  // load a new map/dink.dat
+  strcpy(current_map, mapdat_file);
+  strcpy(current_dat, dinkdat_file);
+  load_info();
+}
+
+void dc_load_tile(int script, int* yield, int* preturnint, char* tile_file, int tile_index)
+{
+  // load new tiles
+  if (tile_index >= 1 && tile_index <= NB_TILE_SCREENS)
+    {
+      //Load in the new tiles...
+      tiles_load_slot(tile_file, tile_index);
+      
+      //Store in save game
+      strncpy(play.tile[tile_index].file, tile_file, 50);
+    }
+}
+
+void dc_map_tile(int script, int* yield, int* preturnint, int tile_position, int tile_index)
+{
+  // developers can change or see what tile is at any given position
+  // Yeah... they can only modify valid tiles
+  if (tile_position > 0 && tile_position <= 96)
+    {
+      //Only change the value if it is greater than 0...
+      if (tile_index > 0)
+	pam.t[tile_position - 1].num = tile_index;
+      *preturnint = pam.t[tile_position - 1].num;
+    }
+}
+
+void dc_map_hard_tile(int script, int* yield, int* preturnint, int tile_position, int hard_tile_index)
+{
+  // developers can retrieve/modify a hard tile
+  // Yeah... they can only modify valid tiles
+  if (tile_position > 0 && tile_position <= 96)
+    {
+      //Only change the value if it is greater than 0...
+      if (hard_tile_index > 0)
+	{
+	  pam.t[tile_position - 1].althard = hard_tile_index;
+	}
+      *preturnint = pam.t[tile_position - 1].althard;
+    }
 }
 
 
@@ -1372,6 +1552,16 @@ void dinkc_bindings_init()
   DCBD_ADD(turn_midi_off,       {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
   DCBD_ADD(turn_midi_on,        {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 
+  DCBD_ADD(count_item,               {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(count_magic,              {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(compare_sprite_script,    {1,2,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(compare_weapon,           {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(compare_magic,            {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+  DCBD_ADD(init,                     {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(dink_can_walk_off_screen, {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(push_active,              {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+  DCBD_ADD(stop_entire_game,         {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+
   if (dversion >= 108)
     {
       DCBD_ADD(sp_blood_num,   {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
@@ -1400,6 +1590,16 @@ void dinkc_bindings_init()
       DCBD_ADD(var_used,          {-1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
 
       DCBD_ADD(loopmidi,           {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+
+      DCBD_ADD(math_abs,                 {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(math_sqrt,                {1,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(math_mod,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(make_global_function,     {2,2,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(set_save_game_info,       {2,0,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(load_map,                 {2,2,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(load_tile,                {2,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 0, 0);
+      DCBD_ADD(map_tile,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
+      DCBD_ADD(map_hard_tile,            {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
     }
 }
 
@@ -3018,243 +3218,6 @@ if (dversion >= 108)
 			return(0);
                 }
 
-                if (compare(ev[1], "stop_entire_game"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                stop_entire_game = nlist[0];
-
-
-
-
-/*                                 while( 1 ) */
-/*                                 { */
-
-/*                                         RECT rcRect; */
-
-/*                                         SetRect(&rcRect, 0,0,640,480); */
-/*                                         ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSBack, */
-/*                                                 &rcRect, DDBLTFAST_NOCOLORKEY); */
-					// GFX
-					SDL_BlitSurface(GFX_lpDDSBack, NULL, GFX_lpDDSTwo, NULL);
-
-/*                                         if( ddrval == DD_OK ) */
-/*                                         { */
-/*                                                 break; */
-/*                                         } */
-/*                                         if( ddrval != DDERR_WASSTILLDRAWING ) */
-/*                                         { */
-/*                                                 dderror(ddrval); */
-/*                                                 return(0); */
-/*                                         } */
-/*                                 } */
-
-
-
-
-
-
-
-
-
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "dink_can_walk_off_screen"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                walk_off_screen = nlist[0];
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-                if (compare(ev[1], "push_active"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {1,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-                                push_active = nlist[0];
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-
-                if (compare(ev[1], "count_item"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                returnint = 0;
-                                for (i = 1; i < 17; i++)
-                                {
-                                        if (play.item[i].active)
-                                        {
-                                                if (compare(play.item[i].name, slist[0])) returnint++;
-                                        }
-
-                                }
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                if (compare(ev[1], "count_magic"))
-                {
-                        h = &h[strlen(ev[1])];
-                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                        if (get_parms(ev[1], script, h, p))
-                        {
-			  int i;
-                                returnint = 0;
-                                for (i = 1; i < 9; i++)
-                                {
-                                        if (play.mitem[i].active)
-                                        {
-                                                if (compare(play.mitem[i].name, slist[0])) returnint++;
-                                        }
-
-                                }
-
-                                return(0);
-                        }
-                        returnint =  -1;
-                        return(0);
-                }
-
-
-                                                                if (compare(ev[1], "init"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-
-                                                                                figure_out(slist[0]);
-                                                                                return(0);
-                                                                        }
-                                                                        returnint =  -1;
-                                                                        return(0);
-                                                                }
-
-                                                                if (compare(ev[1], "compare_weapon"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {2,0,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = 0;
-                                                                                if (*pcur_weapon == 0)
-                                                                                {
-                                                                                        return(0);
-                                                                                }
-
-                                                                                if (compare(play.item[*pcur_weapon].name, slist[0]))
-                                                                                {
-                                                                                        returnint = 1;
-
-                                                                                }
-                                                                                return(0);
-                                                                        }
-
-
-                                                                        return(0);
-                                                                }
-
-
-if (compare(ev[1], "compare_magic"))
-{
-  h = &h[strlen(ev[1])];
-  int p[20] = {2,0,0,0,0,0,0,0,0,0};
-  if (get_parms(ev[1], script, h, p))
-    {
-      returnint = 0;
-      if (*pcur_magic == 0)
-	{
-	  return(0);
-	}
- 
-      if (dversion >= 108)
-	{
-	  if (compare(play.mitem[*pcur_magic].name, slist[0]))
-	    returnint = 1;
-	}
-      else
-	{
-	  if (compare(play.item[*pcur_magic].name, slist[0]))
-	    returnint = 1;
-	}
-      return(0);
-    }
-  return(0);
-}
-
-
-                                                                if (compare(ev[1], "compare_sprite_script"))
-                                                                {
-                                                                        h = &h[strlen(ev[1])];
-                                                                        int p[20] = {1,2,0,0,0,0,0,0,0,0};
-                                                                        if (get_parms(ev[1], script, h, p))
-                                                                        {
-                                                                                returnint = 0;
-
-                                                                                if (nlist[0] <= 0 || nlist[0] >= MAX_SPRITES_AT_ONCE)
-                                                                                {
-										  Msg("Error: Can't compare sprite script for sprite %d!?", nlist[0]);
-                                                                                        return(0);
-                                                                                }
-                                                                                if (spr[nlist[0]].active)
-                                                                                {
-
-                                                                                        if (spr[nlist[0]].script == 0)
-                                                                                        {
-                                                                                                Msg("Compare sprite script says: Sprite %d has no script.",nlist[0]);
-                                                                                                return(0);
-                                                                                        }
-                                                                                        if (rinfo[spr[nlist[0]].script] == NULL)
-                                                                                        {
-											        Msg("Compare sprite script says: script %d for sprite %d was already killed!.", nlist[0], spr[nlist[0]].script);
-                                                                                                return(0);
-                                                                                        }
-                                                                                        if (compare(slist[1], rinfo[spr[nlist[0]].script]->name))
-                                                                                        {
-                                                                                                returnint = 1;
-                                                                                                return(0);
-                                                                                        }
-
-                                                                                } else
-                                                                                {
-                                                                                        Msg("Can't compare sprite script, sprite not active.");
-                                                                                }
-
-
-
-                                                                                return(0);
-                                                                        }
-
-
-                                                                        return(0);
-                                                                }
 
 
 
@@ -3265,168 +3228,6 @@ if (compare(ev[1], "compare_magic"))
 
   if (dversion >= 108)
     {
-    //redink1 added this function
-    if (compare (ev[1], "math_abs"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    returnint = abs (nlist[0]);
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "math_sqrt"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    returnint = sqrt ((double) abs (nlist[0]));
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function
-    if (compare (ev[1], "math_mod"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    returnint = (nlist[0] % nlist[1]);
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added for global functions
-    if (compare (ev[1], "make_global_function"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    make_function (slist[0], slist[1]);
-
-	    //Msg(slist[0]);
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function to change the save game 'info'
-    if (compare (ev[1], "set_save_game_info"))
-
-      {
-	h = &h[strlen (ev[1])];
-	int
-	p[20] = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-
-	  {
-	    strcpy (save_game_info, slist[0]);
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added this function to load a new map/dink.dat
-    if (compare (ev[1], "load_map"))
-      {
-	h = &h[strlen(ev[1])];
-	int p[20] = { 2, 2, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms(ev[1], script, h, p))
-	  {
-	    strcpy(current_map, slist[0]);
-	    strcpy(current_dat, slist[1]);
-	    load_info();
-	  }
-	strcpy(s, h);
-	return(0);
-      }
-
-    //redink1 added this function to load new tiles, because he is a l33t guy
-    if (compare (ev[1], "load_tile"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    if (nlist[1] >= 1 && nlist[1] <= NB_TILE_SCREENS)
-	      {
-		//Load in the new tiles...
-		tiles_load_slot(slist[0], nlist[1]);
-
-		//Store in save game
-		strncpy(play.tile[nlist[1]].file, slist[0], 50);
-	      }
-	  }
-	strcpy (s, h);
-	return (0);
-      }
-
-    //redink1 added so developers can change or see what tile is at any given position
-    if (compare (ev[1], "map_tile"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    //Yeah... they can only modify valid tiles
-	    if (nlist[0] > 0 && nlist[0] <= 96)
-	      {
-		//Only change the value if it is greater than 0...
-		if (nlist[1] > 0)
-		  {
-		    pam.t[nlist[0] - 1].num = nlist[1];
-		  }
-		returnint = pam.t[nlist[0] - 1].num;
-		return (0);
-	      }
-	  }
-	returnint = -1;
-	return (0);
-      }
-
-    //redink1 added so a developer can retrieve/modify a hard tile
-    if (compare (ev[1], "map_hard_tile"))
-      {
-	h = &h[strlen (ev[1])];
-	int p[20] = { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-	if (get_parms (ev[1], script, h, p))
-	  {
-	    //Yeah... they can only modify valid tiles
-	    if (nlist[0] > 0 && nlist[0] <= 96)
-	      {
-		//Only change the value if it is greater than 0...
-		if (nlist[1] > 0)
-		  {
-		    pam.t[nlist[0] - 1].althard = nlist[1];
-		  }
-		returnint = pam.t[nlist[0] - 1].althard;
-		return (0);
-	      }
-	  }
-	returnint = -1;
-	return (0);
-      }
 
     //redink1 added this function to load a pallete from any bmp
     if (compare (ev[1], "load_palette"))
