@@ -387,6 +387,9 @@ make install-strip
 
 
 # libffi (DinkC to C bindings)
+# Note: the build system only creates static libs for woe, creating
+# .dll's would require some libtool tuning, but is pretty useless
+# since libffi.a is ~10kB.
 cd /usr/src/
 VERSION=3.0.7
 $WGET -P depsources/ ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz

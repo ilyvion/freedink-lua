@@ -669,7 +669,7 @@ void dc_free_items(int script, int* yield, int* preturnint)
   return;
 }
 
-void dc_free_magic(int script, int* yeild, int* preturnint)
+void dc_free_magic(int script, int* yield, int* preturnint)
 {
   int i;
   *preturnint = 0;

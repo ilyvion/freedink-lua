@@ -255,7 +255,7 @@ sh bootstrap
 
 
 ## Dependencies
-# I also assume you already have GCC and Make ;)
+# I assume you already have GCC and Make ;)
 # Required: SDL, libzip | zziplib
 pkg_add -r sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libffi libzip zip
 # Note: SDL_ttf is tool old (2.0.8 < 2.0.9), you'll need to upgrade
