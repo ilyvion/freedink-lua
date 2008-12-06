@@ -32,3 +32,10 @@ dink
 # NCC
 *.nccout
 .tmp.c
+# gettext
+ABOUT-NLS
+intl/
+# gnulib
+gnulib/po/*.po
+# emacs
+TAGS

@@ -15,6 +15,13 @@ if RELOCATABLE_VIA_LD
 AM_LDFLAGS = `$(RELOCATABLE_LDFLAGS) $(bindir)`
 endif
 
+# gettext:
+localedir = $(datadir)/locale
+AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
+LDADD += @LIBINTL@
+AM_CPPFLAGS += -I../intl -I$(top_srcdir)/intl
+
+
 LIBS += -lm
 
 COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkc.c dinkc.h		\

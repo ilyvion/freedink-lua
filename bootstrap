@@ -36,22 +36,22 @@ if ! which pkg-config > /dev/null; then
     exit 1
 fi
 
-# Gnulib
-if [ ! -f gnulib/lib/Makefile.am ]; then
-    # Look for gnulib-tool. Use '|| true' because of 'set -e' above
-    GNULIB_TOOL=`PATH=gnulib-git:$PATH:/usr/src/gnulib which gnulib-tool \
-	|| true`
-    if [ -z "$GNULIB_TOOL" ]; then
-	git clone git://git.savannah.gnu.org/gnulib.git gnulib-git
-	GNULIB_TOOL=./gnulib-git/gnulib-tool
-    fi
-    $GNULIB_TOOL --source-base=gnulib/lib --m4-base=gnulib/m4 \
-	--import
-fi
+# gettext
+autopoint -f
 
-# Enable no-portability to disable GNU make extensions warnings, such as $(shell)
-#if autoreconf --install --symlink --warnings=all --warnings=no-portability $*
-if autoreconf --install --symlink --warnings=all $*
+# Gnulib
+# Look for gnulib-tool. Use '|| true' because of 'set -e' above
+GNULIB_TOOL=`PATH=gnulib-git:$PATH:/usr/src/gnulib which gnulib-tool \
+    || true`
+if [ -z "$GNULIB_TOOL" ]; then
+    git clone git://git.savannah.gnu.org/gnulib.git gnulib-git
+    GNULIB_TOOL=./gnulib-git/gnulib-tool
+fi
+$GNULIB_TOOL --update --more-symlinks
+
+# Disable autopoint since Gnulib is overriding some of its files and
+# needs to be run after it.
+if AUTOPOINT=/bin/true autoreconf --install --symlink --warnings=all $*
 then echo "You now can run ./configure"
 else echo "*** Error: please check the messages above. ***"
 fi

@@ -1,0 +1,4 @@
+# Set of available languages.
+de fr
+# cf. (gettext.info.gz)po/LINGUAS
+en@quot en@boldquot

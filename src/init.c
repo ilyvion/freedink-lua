@@ -30,6 +30,10 @@
 #include <math.h>
 #include <getopt.h>
 #include <unistd.h> /* chdir */
+
+#include "gettext.h"
+#define _(String) gettext (String)
+
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
@@ -92,29 +96,35 @@ print_version ()
 void
 print_help (int argc, char *argv[])
 {
-  printf("Usage: %s [OPTIONS]...\n", argv[0]);
+  printf(_("Usage: %s [OPTIONS]...\n"), argv[0]);
   if (!dinkedit)
-    printf("Starts the Dink Smallwood game or one of its D-Mods.");
+    printf(_("Starts the Dink Smallwood game or one of its D-Mods."));
   else
-    printf("Edit the Dink Smallwood game or one of its D-Mods.");
+    printf(_("Edit the Dink Smallwood game or one of its D-Mods."));
   printf("\n");
   /* TODO: Display the default configuration here */
-  printf("  -h, --help            Display this help screen\n");
-  printf("  -v, --version         Display the version\n");
+  printf(_("  -h, --help            Display this help screen\n"));
+  printf(_("  -v, --version         Display the version\n"));
   printf("\n");
-  printf("  -g, --game <dir>      Specify a DMod directory\n");
-  printf("  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n");
+  printf(_("  -g, --game <dir>      Specify a DMod directory\n"));
+  printf(_("  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"));
   printf("\n");
-  printf("  -d, --debug           Explain what is being done\n");
-  printf("  -i, --noini           Do not attempt to write dinksmallwood.ini\n");
-  printf("  -j, --nojoy           Do not attempt to use joystick\n");
-  printf("  -s, --nosound         Do not play sound\n");
-  printf("  -w, --window          Use windowed mode instead of screen mode\n");
-  printf("  -7, --v1.07           Enable v1.07 compatibility mode\n");
+  printf(_("  -d, --debug           Explain what is being done\n"));
+  printf(_("  -i, --noini           Do not attempt to write dinksmallwood.ini\n"));
+  printf(_("  -j, --nojoy           Do not attempt to use joystick\n"));
+  printf(_("  -s, --nosound         Do not play sound\n"));
+  printf(_("  -w, --window          Use windowed mode instead of screen mode\n"));
+  printf(_("  -7, --v1.07           Enable v1.07 compatibility mode\n"));
   printf("\n");
 
   /* printf ("Type 'info freedink' for more information\n"); */
-  printf("Report bugs to %s.\n", PACKAGE_BUGREPORT);
+
+  /* TRANSLATORS: The placeholder indicates the bug-reporting address
+     for this package.  Please add _another line_ saying "Report
+     translation bugs to <...>\n" with the address for translation
+     bugs (typically your translation team's web or email
+     address).  */
+  printf(_("Report bugs to %s.\n"), PACKAGE_BUGREPORT);
 
   exit(EXIT_SUCCESS);
 }
@@ -264,7 +274,7 @@ static int check_arg(int argc, char *argv[])
 	truecolor = 1;
 	break;
       case ',':
-        printf("Note: -nomovie is accepted for compatiblity, but has no effect.\n");
+        printf(_("Note: -nomovie is accepted for compatiblity, but has no effect.\n"));
 	break;
       default:
 	exit(EXIT_FAILURE);
@@ -296,6 +306,17 @@ static int check_arg(int argc, char *argv[])
    subsystem as needed (eg InitSound) */
 int init(int argc, char *argv[])
 {
+  /** i18n **/
+  /* Only using LC_MESSAGES because LC_CTYPE (part of LC_ALL) may
+     bring locale-specific behavior in the DinkC parsers. If that's a
+     problem we may use some gnulib modules
+     (cf. (gettext.info.gz)Triggering) */
+  /* setlocale (LC_ALL, ""); */
+  setlocale(LC_MESSAGES, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  bindtextdomain(PACKAGE "-gnulib", LOCALEDIR);
+  textdomain(PACKAGE);
+
   if (!check_arg(argc, argv))
     return 0;
 

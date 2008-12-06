@@ -41,8 +41,13 @@ CFLAGS="$CFLAGS -Wall -std=c99"
 
 
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
-# gnulib-tool --source-base=gnulib/lib --m4-base=gnulib/m4 --import
 gl_EARLY
+
+
+# gettext
+AM_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION(0.17)
+AM_GNU_GETTEXT_NEED(need-ngettext)
 
 
 AC_ARG_VAR([WINDRES], [Resource compiler for woe executables])
@@ -354,9 +359,7 @@ fi
 echo
 
 
-AC_CONFIG_FILES([Makefile gnulib/lib/Makefile src/Makefile \
-  src/woeres.rc share/Makefile share/freedink/Makefile \
-  autopackage/Makefile autopackage/default.apspec])
+AC_CONFIG_FILES([Makefile autopackage/Makefile autopackage/default.apspec gnulib/lib/Makefile intl/Makefile po/Makefile.in share/Makefile share/freedink/Makefile src/Makefile src/woeres.rc])
 
 AC_OUTPUT
 

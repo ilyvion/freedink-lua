@@ -1,0 +1,122 @@
+# German translations for GNU FreeDink package.
+# This file is put in the public domain.
+# Nobody <none@yet.tld>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink 1.08.20080920\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2008-12-06 20:15+0100\n"
+"PO-Revision-Date: 2008-12-06 21:00+0100\n"
+"Last-Translator: Nobody <none@yet.tld>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/init.c:99
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr ""
+
+#: src/init.c:101
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr ""
+
+#: src/init.c:103
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr ""
+
+#: src/init.c:106
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr ""
+
+#: src/init.c:107
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr ""
+
+#: src/init.c:109
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr ""
+
+#: src/init.c:110
+#, c-format
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+
+#: src/init.c:112
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr ""
+
+#: src/init.c:113
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr ""
+
+#: src/init.c:114
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr ""
+
+#: src/init.c:115
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr ""
+
+#: src/init.c:116
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr ""
+
+#: src/init.c:117
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr ""
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:127
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr ""
+
+#: src/init.c:277
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr ""
+
+#: src/freedink.c:2751
+msgid "`$I don't see anything here."
+msgstr "`$Hier ist nichts."
+
+#: src/freedink.c:2752
+msgid "`$Huh?"
+msgstr "`$Huh?"
+
+#: src/freedink.c:2753
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$Ich bin mir ziemlich sicher ich kann dies weder ansprechen, noch benutzen."
+
+#: src/freedink.c:2754
+msgid "`$What?"
+msgstr "`$Was?"
+
+#: src/freedink.c:2755
+msgid "`$I'm bored."
+msgstr "`$Bah, LANGWEILIG."
+
+#: src/freedink.c:2756
+msgid "`$Not much happening here."
+msgstr "`$Hier passiert nichts."

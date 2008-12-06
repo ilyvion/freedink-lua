@@ -35,6 +35,9 @@
 /* for time(): */
 #include <time.h>
 
+#include "gettext.h"
+#define _(String) gettext (String)
+
 #include "fastfile.h"
 
 #include "gfx.h"
@@ -2745,12 +2748,12 @@ void human_brain(int h)
 	      if (randy == 6) say_text("`$Hier passiert nichts.",h,0);
 #endif
 #ifdef __ENGLISH
-	      if (randy == 1) say_text("`$I don't see anything here.",h,0);
-	      if (randy == 2) say_text("`$Huh?",h,0);
-	      if (randy == 3) say_text("`$I'm fairly sure I can't talk to or use that.",h,0);
-	      if (randy == 4) say_text("`$What?",h,0);
-	      if (randy == 5) say_text("`$I'm bored.",h,0);
-	      if (randy == 6) say_text("`$Not much happening here.",h,0);
+	      if (randy == 1) say_text(_("`$I don't see anything here."), h, 0);
+	      if (randy == 2) say_text(_("`$Huh?"), h, 0);
+	      if (randy == 3) say_text(_("`$I'm fairly sure I can't talk to or use that."), h, 0);
+	      if (randy == 4) say_text(_("`$What?"), h, 0);
+	      if (randy == 5) say_text(_("`$I'm bored."), h, 0);
+	      if (randy == 6) say_text(_("`$Not much happening here."), h, 0);
 #endif	
 	    }
 	}
