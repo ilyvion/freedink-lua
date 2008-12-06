@@ -21,6 +21,24 @@ We could specify it as a Recommend, but this isn't supported by
 Synaptic, so let's keep it as a dependency until then.
 
 
+Gnulib
+======
+
+While it may look like FreeDink is embedding a private copy of
+FreeDink, this is absolutely not the case.
+
+This point was raised on the mailing list with a favorable response
+from the ftp-masters:
+http://lists.gnu.org/archive/html/bug-gnulib/2008-11/msg00269.html
+http://lists.gnu.org/archive/html/bug-gnulib/2008-12/msg00018.html
+
+Learn more about Gnulib at
+http://www.gnu.org/software/gnulib/manual/html_node/Introduction.html
+
+Bottom-line: don't attempt to relink FreeDink with Debian's gnulib
+package.
+
+
 dpkg-shlibdeps warnings
 =======================
 
