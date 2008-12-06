@@ -28,6 +28,9 @@
 #include <string.h>
 #include <strings.h> /* compare */
 
+#include "gettext.h"
+#define _(String) gettext (String)
+
 #include "dinkc.h"
 #include "dinkc_bindings.h"
 #include "game_engine.h"
@@ -699,7 +702,7 @@ void decipher_string(char line[200], int script)
 	  else if (play.button[decipher_savegame] == 8)   replace("&buttoninfo", "Unused", line);
 	  else if (play.button[decipher_savegame] == 9)   replace("&buttoninfo", "Unused", line);
 	  else if (play.button[decipher_savegame] == 10)  replace("&buttoninfo", "Unused", line);
-	  else replace("&buttoninfo", "Error: not mapped", line);
+	  else replace("&buttoninfo", _("Error: not mapped"), line);
 	}
     }
 
@@ -709,19 +712,13 @@ void decipher_string(char line[200], int script)
       sprintf(crap, "save%d.dat", decipher_savegame);
       if (load_game_small(decipher_savegame, crab, &mytime) == 1)
 	{
-	  sprintf(line, "Slot %d - %d:%02d - %s",decipher_savegame, (mytime / 60),
+	  sprintf(line, _("Slot %d - %d:%02d - %s"), decipher_savegame, (mytime / 60),
 		  mytime - ((mytime / 60) * 60) , crab);
 	  //sprintf(line, "In Use");
 	}
       else
 	{
-#ifdef __GERMAN
-	  sprintf(line, "Slot %d - Ungebraucht",decipher_savegame);
-#endif
-	  
-#ifdef __ENGLISH
-	  sprintf(line, "Slot %d - Empty",decipher_savegame);
-#endif
+	  sprintf(line, _("Slot %d - Empty"), decipher_savegame);
 	}
     }
 }

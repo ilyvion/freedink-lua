@@ -2739,22 +2739,12 @@ void human_brain(int h)
 	    {
 	      kill_text_owned_by(h);	
 	      int randy = (rand() % 6)+1;
-#ifdef __GERMAN
-	      if (randy == 1) say_text("`$Hier ist nichts.",h,0);
-	      if (randy == 2) say_text("`$Huh?",h,0);
-	      if (randy == 3) say_text("`$Ich bin mir ziemlich sicher ich kann dies weder ansprechen, noch benutzen.",h,0);
-	      if (randy == 4) say_text("`$Was?",h,0);
-	      if (randy == 5) say_text("`$Bah, LANGWEILIG.",h,0);
-	      if (randy == 6) say_text("`$Hier passiert nichts.",h,0);
-#endif
-#ifdef __ENGLISH
 	      if (randy == 1) say_text(_("`$I don't see anything here."), h, 0);
 	      if (randy == 2) say_text(_("`$Huh?"), h, 0);
 	      if (randy == 3) say_text(_("`$I'm fairly sure I can't talk to or use that."), h, 0);
 	      if (randy == 4) say_text(_("`$What?"), h, 0);
 	      if (randy == 5) say_text(_("`$I'm bored."), h, 0);
 	      if (randy == 6) say_text(_("`$Not much happening here."), h, 0);
-#endif	
 	    }
 	}
     }
@@ -2848,22 +2838,12 @@ void human_brain(int h)
 
 	  int randy = (rand() % 6)+1;
 	  kill_text_owned_by(h);	
-#ifdef __GERMAN
-	  if (randy == 1) say_text("`$Ich muﬂ erst die Magie erlernen, bevor ich dies ausprobieren kann..",h,0);
-	  if (randy == 2) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-	  if (randy == 3) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-	  if (randy == 4) say_text("`$Ich gestikuliere hier wie wirr!",h,0);
-	  if (randy == 5) say_text("`$Nichts ist passiert.",h,0);
-	  if (randy == 6) say_text("`$Hokus pokus!",h,0);
-#endif
-#ifdef __ENGLISH
-	  if (randy == 1) say_text("`$I don't know any magic.",h,0);
-	  if (randy == 2) say_text("`$I'm no wizard!",h,0);
-	  if (randy == 3) say_text("`$I need to learn magic before trying this.",h,0);
-	  if (randy == 4) say_text("`$I'm gesturing wildly to no avail!",h,0);
-	  if (randy == 5) say_text("`$Nothing happened.",h,0);
-	  if (randy == 6) say_text("`$Hocus pocus!",h,0);
-#endif
+	  if (randy == 1) say_text(_("`$I don't know any magic."), h, 0);
+	  if (randy == 2) say_text(_("`$I'm no wizard!"), h, 0);
+	  if (randy == 3) say_text(_("`$I need to learn magic before trying this."), h, 0);
+	  if (randy == 4) say_text(_("`$I'm gesturing wildly to no avail!"), h, 0);
+	  if (randy == 5) say_text(_("`$Nothing happened."), h, 0);
+	  if (randy == 6) say_text(_("`$Hocus pocus!"), h, 0);
 	  goto b1end;
 	}
 		

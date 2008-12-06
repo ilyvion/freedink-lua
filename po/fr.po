@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20080920\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2008-12-06 20:15+0100\n"
-"PO-Revision-Date: 2008-12-06 20:58+0100\n"
+"POT-Creation-Date: 2008-12-06 21:55+0100\n"
+"PO-Revision-Date: 2008-12-06 21:42+0100\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -98,26 +98,64 @@ msgstr ""
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
 
-#: src/freedink.c:2751
+#: src/freedink.c:2742
 msgid "`$I don't see anything here."
-msgstr ""
+msgstr "`$Je ne vois rien par ici."
 
-#: src/freedink.c:2752
+#: src/freedink.c:2743
 msgid "`$Huh?"
-msgstr ""
+msgstr "`$Hein?"
 
-#: src/freedink.c:2753
+#: src/freedink.c:2744
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr ""
+msgstr "`$Je ne pense pas pouvoir parler à ce truc-là, ou l'utiliser."
 
-#: src/freedink.c:2754
+#: src/freedink.c:2745
 msgid "`$What?"
-msgstr ""
+msgstr "`$Quoi?"
 
-#: src/freedink.c:2755
+#: src/freedink.c:2746
 msgid "`$I'm bored."
+msgstr "`$Je m'ennuie."
+
+#: src/freedink.c:2747
+msgid "`$Not much happening here."
+msgstr "`$Pas grand chose par ici."
+
+#: src/freedink.c:2841
+msgid "`$I don't know any magic."
+msgstr "`$Je ne connais aucun sort."
+
+#: src/freedink.c:2842
+msgid "`$I'm no wizard!"
+msgstr "`$Je ne suis pas magicien!"
+
+#: src/freedink.c:2843
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Je dois apprendre un sort avant d'essayer ça."
+
+#: src/freedink.c:2844
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Je m'excite bêtement pour rien!"
+
+#: src/freedink.c:2845
+msgid "`$Nothing happened."
+msgstr "`$Rien n'est arrivé."
+
+#: src/freedink.c:2846
+msgid "`$Hocus pocus!"
+msgstr "`$Hocus pocus!"
+
+#: src/dinkc.c:702
+msgid "Error: not mapped"
 msgstr ""
 
-#: src/freedink.c:2756
-msgid "`$Not much happening here."
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr ""
+
+#: src/dinkc.c:718
+#, c-format
+msgid "Slot %d - Empty"
 msgstr ""

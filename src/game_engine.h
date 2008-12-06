@@ -34,12 +34,6 @@
 #define MAX_SPRITES_AT_ONCE 300
 
 
-//set language
-#ifndef __LANGUAGE
-#define __ENGLISH
-#endif
-
-
 struct seth_joy
 {
   /*BOOL*/int joybit[17]; //is button held down?

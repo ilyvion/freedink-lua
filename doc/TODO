@@ -34,3 +34,11 @@ FreeDinkedit.
 
 
 Also check existing_bugs.txt.
+
+
+i18n
+====
+
+[ ] Use a relocatable LOCALEDIR
+
+[ ] Display translated texts as UTF-8

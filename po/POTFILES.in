@@ -1,3 +1,4 @@
 # List of source files which contain translatable strings.
 src/init.c
 src/freedink.c
+src/dinkc.c
