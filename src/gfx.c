@@ -24,13 +24,13 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h> /* putenv */
+#include <string.h>
+#include <math.h>
+
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_rotozoom.h"
-
-#include <string.h>
-#include <math.h>
-#include <stdlib.h> /* putenv */
 
 #include "freedink_xpm.h"
 #include "io_util.h"

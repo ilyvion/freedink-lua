@@ -43,7 +43,6 @@
 /open.m4
 /openat.m4
 /pathmax.m4
-/putenv.m4
 /readlink.m4
 /relocatable-lib.m4
 /relocatable.m4
