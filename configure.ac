@@ -162,7 +162,7 @@ gl_INIT
 
 # BinReloc, if not cross-compiling (tests do not check for cross-compilation)
 if test "$cross_compiling" = "no"; then
-AM_BINRELOC
+AP_BINRELOC
 fi
 
 

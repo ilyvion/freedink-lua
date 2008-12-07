@@ -25,6 +25,10 @@ To avoid using a redundant AM_CFLAGS=$(BINRELOC_CFLAGS) in
 Makefile.am, I added #include <config.h> in binreloc.c. Both define
 ENABLE_BINRELOC according to ./configure.
 
+AM_BINRELOC was also renamed to AP_BINRELOC to avoid a warning from
+aclocal (configure.ac:165: warning: macro `AM_BINRELOC' not found in
+library), due to the use of reserved 'AM_' prefix.
+
 
 Beware that BinReloc is working for the Linux kernel only. This is not
 a portable way to find where the binary is installed. Under Woe, one

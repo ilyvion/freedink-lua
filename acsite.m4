@@ -1,8 +1,9 @@
 # Check for binary relocation support.
 # Written by Hongli Lai
 # http://autopackage.org/
+# Some local fixes were made for FreeDink, see doc/binreloc.txt
 
-AC_DEFUN([AM_BINRELOC],
+AC_DEFUN([AP_BINRELOC],
 [
 	AC_ARG_ENABLE(binreloc,
 		[  --enable-binreloc       compile with binary relocation support
