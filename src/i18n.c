@@ -27,6 +27,7 @@
 #include "gettext.h"
 
 #include "paths.h"
+#include "str_util.h"
 
 /**
  * Copy a translation for 'latin1_source' in 'utf8_dest' or, if there

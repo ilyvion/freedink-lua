@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = gnits
 # Gnulib:
 ACLOCAL_AMFLAGS = -I gnulib/m4
 
-SUBDIRS = autopackage gnulib/lib gnulib/po intl po src share
+SUBDIRS = autopackage intl gnulib/lib gnulib/po po src share
 
 # Copy those directly and recursively:
 # (don't include debian/ as this displeases debian devs)

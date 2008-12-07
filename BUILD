@@ -28,6 +28,7 @@ aptitude install autoconf automake
 aptitude install pkg-config # for PKG_CHECK_MODULES
 aptitude install libsdl1.2-dev # for sdl.m4
 aptitude install help2man # to rebuild manpages
+aptitude install gettext cvs # for i18n
 sh bootstrap
 
 
@@ -84,6 +85,7 @@ pkcon install autoconf automake
 pkcon install pkg-config # for PKG_CHECK_MODULES
 pkcon install SDL_devel # for sdl.m4
 pkcon install help2man # to rebuild manpages
+pkcon install gettext-devel cvs # for i18n
 sh bootstrap
 
 
@@ -144,6 +146,7 @@ cd freedink
 emerge libsdl # for sdl.m4
 emerge help2man # to rebuild manpages
 emerge pkgconfig # for PKG_CHECK_MODULES
+emerge gettext cvs # for i18n
 sh bootstrap
 
 
@@ -198,6 +201,7 @@ pacman -S base-devel
 
 pacman -S sdl # for sdl.m4
 pacman -S help2man # to rebuild manpages
+pacman -S gettext cvs # for i18n
 sh bootstrap
 
 
@@ -251,6 +255,7 @@ pkg_add -r autoconf261 automake19
 pkg_add -r pkg-config # for PKG_CHECK_MODULES
 pkg_add -r sdl # for sdl.m4
 pkg_add -r help2man # to rebuild manpages
+pkg_add -r gettext # i18n - I assume you have 'cvs' installed :)
 sh bootstrap
 
 

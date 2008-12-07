@@ -83,6 +83,7 @@
 /progname.c
 /progname.h
 /progreloc.c
+/putenv.c
 /readlink.c
 /relocatable.c
 /relocatable.h

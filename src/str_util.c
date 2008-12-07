@@ -27,6 +27,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <strings.h> /* strcasecmp */
 #include <stdlib.h> /* free */
 #include <stdarg.h> /* va_start */
 #include <stdio.h> /* vasprintf */

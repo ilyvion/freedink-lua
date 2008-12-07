@@ -31,6 +31,7 @@
 #include "SDL_mixer.h"
 
 #include <string.h>
+#include <strings.h> /* strcasecmp */
 
 #include "game_engine.h"
 #include "bgm.h"

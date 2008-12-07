@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <stdlib.h> /* putenv */
 
 #include "freedink_xpm.h"
 #include "io_util.h"
