@@ -42,6 +42,11 @@
  */
 void i18n_translate(char* text, int buf_size)
 {
+  /* Don't translate the empty string, which has a special meaning for
+     gettext */
+  if (strlen(text) == 0)
+    return;
+
   char* latin1_source = strdup(text);
   char* utf8_dest = text;
 

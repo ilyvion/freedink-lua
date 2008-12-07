@@ -41,4 +41,9 @@ i18n
 
 [ ] Use a relocatable LOCALEDIR
 
-[ ] Display translated texts as UTF-8
+[ ] Fall back to main Dink .mo if no translations are found
+
+[ ] Try to open files from i18n/LOCALE/ in case the translation is
+    providing a graphic or script replacement
+
+[ ] Have DFArc look at i18n/LOCALE/dmod.diz if available

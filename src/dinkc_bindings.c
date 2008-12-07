@@ -582,7 +582,10 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
     kill_text_owned_by(active_sprite);
 
   /* Translate text (before variable substitution) */
-  i18n_translate(text, 200);
+  if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    i18n_translate(text, 200);
 
   decipher_string(text, script);
   *preturnint = say_text(text, active_sprite, script);
@@ -603,7 +606,10 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
-  i18n_translate(text, 200);
+  if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    i18n_translate(text, 200);
 
   decipher_string(text, script);
   int sprite = say_text(text, active_sprite, script);
@@ -629,7 +635,10 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
-  i18n_translate(text, 200);
+  if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    i18n_translate(text, 200);
 
   decipher_string(text, script);
   int sprite = say_text(text, active_sprite, script);
@@ -644,7 +653,13 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
-  i18n_translate(text, 200);
+  if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    i18n_translate(text, 200);
 
   Msg("Say_stop_xy: Adding %s", text);
   decipher_string(text, script);
@@ -660,7 +675,10 @@ void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
-  i18n_translate(text, 200);
+  if (strlen(text) >= 2 && text[0] == '`')
+    i18n_translate(text+2, 200-2);
+  else
+    i18n_translate(text, 200);
 
   decipher_string(text, script);
   int sprite = say_text_xy(text, x, y, script);
@@ -2266,13 +2284,8 @@ void attach(void)
 	  goto redo;
         }
       
-      if (compare(line, "\n")) goto redo;
-      if (compare(line, "\\\\")) goto redo;
-      
       strip_beginning_spaces(line);
-      //Msg("Comparing to %s.", line);
       if (compare(line, "\n")) goto redo;
-      if (compare(line, "\\\\")) goto redo;
 
 morestuff:
       separate_string(line, 1, '(', check);
@@ -2295,11 +2308,12 @@ morestuff:
 		  goto redo;
 		}
 	      
-	      line[strlen(line)] = '\0';
-	      //Msg("LINE IS: %s: Like it?",line);
-	      
+	      /* drop '\n', this messes translations */
+	      line[strlen(line)-1] = '\0';
 	      /* Translate text (before variable substitution) */
-	      i18n_translate(line, 3000);
+	      i18n_translate(line, 200-1);
+	      /* put '\n' back, just in case */
+	      strcat(line, "\n");
 
 	      decipher_string(line, script);
 	      strcat(talk.buffer, line);

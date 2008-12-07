@@ -1,4 +1,8 @@
 #!/bin/bash
+# Dirty-convert a hard-coded translation to a proper external .po file
+# 
+# Copyright (C) 2008 Sylvain Beucler
+
 (
     echo 'msgid ""'
     echo 'msgstr ""'
@@ -10,32 +14,67 @@
     echo '"MIME-Version: 1.0\n"'
     echo '"Content-Type: text/plain; charset=UTF-8\n"'
     echo '"Content-Transfer-Encoding: 8bit\n"'
-
     echo
     
     (
-	diff -ur islandstory islandstoryfr/ \
+	a=0
+	b=0
+	i=0
+	j=0
+	diff -bwBur islandstory islandstoryfr/ \
 	    | grep -E '^(\+|-)[^+-]' \
-	    | grep -vE '^(\+|-)[[:space:]]*//' \
+	    | grep -vE '//' \
 	    | grep -vE '^(\+|-)[[:space:]]*$' \
+	    | grep -ivE 'debug\("' \
 	    | sed 's/\r//' \
 	    | iconv -f latin1 -t utf-8 \
-	    | grep -i -E 'say[a-zA-Z_]+\(' \
-	    | while read saycall; do
-	    str=$(  echo -n "$saycall" \
-		| sed -e 's/.*say[a-zA-Z_]*("\(.*\)".*/\1/i' -e 's/^`.//'  );
-	    echo $saycall | grep '^-' > /dev/null
-	    if [ $? = 0 ]; then
-		echo msgid \""$msgid"\"
-		echo msgstr \""$trans"\"
-		echo 
-		msgid=$str; trans="";
+	    | while read line; do
+	    if echo "$line" | grep -i -E 'say[a-zA-Z_]*\(' > /dev/null; then
+		if [ -n "$msgids" ]; then
+		    k=0
+		    while [ $k -lt $i ]; do
+			echo "${msgids[$k]}"
+			echo "${msgstrs[$k]}"
+			echo
+			((k++))
+		    done
+		    i=0
+		    j=0
+		fi
+		str=$( echo -n "$line" \
+		    | sed -e 's/.*say[a-zA-Z_]*("\?\(.*\)".*/\1/i' -e 's/^`.//' );
+		echo "$line" | grep '^-' > /dev/null
+		if [ $? = 0 ]; then # "-"
+		    k=0
+		    if [ $b -gt 0 ]; then
+			while [ $k -lt $a ]; do
+			    echo "${smsgids[k]}"
+			    echo "msgstr \"${smsgstrs[k]}\""
+			    echo 
+			    ((k++))
+			done
+			a=0
+			b=0
+		    fi
+		    smsgids[a]="msgid \"$str\""
+		    ((a++))
+		else # "+"
+		    if [ $b -eq $a ]; then
+			smsgstrs[b-1]="${smsgstrs[a]} $str"
+		    else
+			smsgstrs[b]="$str"
+			((b++))
+		    fi
+		fi
 	    else
-		if [ -z "$trans" ]
-		then
-		    trans="$str"
+		# dialogs
+		str=$(echo "$line" | sed -e 's/^.//' -e 's/^[[:space:]]*\(.*\)[[:space:]]*$/\1/' -e 's/^[^"].*$/"&"/')
+		if echo "$line" | grep '^-' > /dev/null; then
+		    msgids[i]="msgid $str"
+		    ((i++))
 		else
-		    trans="$trans $str"
+		    msgstrs[j]="msgstr $str"
+		    ((j++))
 		fi
 	    fi
 	done

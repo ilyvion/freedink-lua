@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20080920\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2008-12-06 22:27+0100\n"
+"POT-Creation-Date: 2008-12-07 15:22+0100\n"
 "PO-Revision-Date: 2008-12-07 11:19+0100\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French\n"
@@ -16,69 +16,69 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/init.c:99
+#: src/init.c:100
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
 msgstr ""
 
-#: src/init.c:101
+#: src/init.c:102
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
 msgstr "Lance le jeu Dink Smallwood ou un de ses D-Mods."
 
-#: src/init.c:103
+#: src/init.c:104
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
 msgstr ""
 
-#: src/init.c:106
+#: src/init.c:107
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
 msgstr ""
 
-#: src/init.c:107
+#: src/init.c:108
 #, c-format
 msgid "  -v, --version         Display the version\n"
 msgstr ""
 
-#: src/init.c:109
+#: src/init.c:110
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
 msgstr ""
 
-#: src/init.c:110
+#: src/init.c:111
 #, c-format
 msgid ""
 "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
 "etc.\n"
 msgstr ""
 
-#: src/init.c:112
+#: src/init.c:113
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
 msgstr ""
 
-#: src/init.c:113
+#: src/init.c:114
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
 msgstr ""
 
-#: src/init.c:114
+#: src/init.c:115
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
 msgstr ""
 
-#: src/init.c:115
+#: src/init.c:116
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
 msgstr ""
 
-#: src/init.c:116
+#: src/init.c:117
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
 msgstr ""
 
-#: src/init.c:117
+#: src/init.c:118
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
 msgstr ""
@@ -88,12 +88,12 @@ msgstr ""
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:127
+#: src/init.c:128
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
 
-#: src/init.c:277
+#: src/init.c:278
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
