@@ -48,6 +48,7 @@
 #include "paths.h"
 #include "log.h"
 #include "dinkc_console.h"
+#include "i18n.h"
 
 /* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
@@ -550,24 +551,6 @@ void dc_stop_wait_for_button(int script, int* yield, int* preturnint)
   wait4b.active = /*false*/0;
 }
 
-void dc_say(int script, int* yield, int* preturnint, char* text, int active_sprite)
-{
-  /* 1000 is a valid value, and bad values don't trigger segfaults
-     in this particular function; so don't validate active_sprite */
-  /* STOP_IF_BAD_SPRITE(active_sprite); */
-
-  if (active_sprite == 0)
-    {
-      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
-      return;
-    }
-
-  if (active_sprite != 1000)
-    kill_text_owned_by(active_sprite);
-  decipher_string(text, script);
-  *preturnint = say_text(text, active_sprite, script);
-}
-
 void dc_load_screen(int script, int* yield, int* preturnint)
 {
   /* STOP_IF_BAD_SPRITE(active_sprite); */
@@ -583,6 +566,28 @@ void dc_load_screen(int script, int* yield, int* preturnint)
   return;
 }
 
+void dc_say(int script, int* yield, int* preturnint, char* text, int active_sprite)
+{
+  /* 1000 is a valid value, and bad values don't trigger segfaults
+     in this particular function; so don't validate active_sprite */
+  /* STOP_IF_BAD_SPRITE(active_sprite); */
+
+  if (active_sprite == 0)
+    {
+      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
+      return;
+    }
+
+  if (active_sprite != 1000)
+    kill_text_owned_by(active_sprite);
+
+  /* Translate text (before variable substitution) */
+  i18n_translate(text, 200);
+
+  decipher_string(text, script);
+  *preturnint = say_text(text, active_sprite, script);
+}
+
 void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
 {
   /* STOP_IF_BAD_SPRITE(active_sprite); */
@@ -596,6 +601,9 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
   kill_text_owned_by(active_sprite);
   kill_text_owned_by(1);
   kill_returning_stuff(script);
+
+  /* Translate text (before variable substitution) */
+  i18n_translate(text, 200);
 
   decipher_string(text, script);
   int sprite = say_text(text, active_sprite, script);
@@ -619,6 +627,10 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
     }
     
   kill_returning_stuff(script);
+
+  /* Translate text (before variable substitution) */
+  i18n_translate(text, 200);
+
   decipher_string(text, script);
   int sprite = say_text(text, active_sprite, script);
   *preturnint = sprite;
@@ -629,8 +641,12 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
 
 void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
 {
-  Msg("Say_stop_xy: Adding %s", text);
   kill_returning_stuff(script);
+
+  /* Translate text (before variable substitution) */
+  i18n_translate(text, 200);
+
+  Msg("Say_stop_xy: Adding %s", text);
   decipher_string(text, script);
   int sprite = say_text_xy(text, x, y, script);
   spr[sprite].callback = script;
@@ -642,6 +658,10 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
 void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
 {
   kill_returning_stuff(script);
+
+  /* Translate text (before variable substitution) */
+  i18n_translate(text, 200);
+
   decipher_string(text, script);
   int sprite = say_text_xy(text, x, y, script);
   *preturnint = sprite;
@@ -1228,8 +1248,12 @@ void dc_load_sound(int script, int* yield, int* preturnint,
 void dc_debug(int script, int* yield, int* preturnint,
 	      char* text)
 {
-  decipher_string(text, script);
-  Msg(text);
+  char buf[350]; /* cf. 'Msg' */
+  /* Convert from Latin-1 (.c) to UTF-8 (SDL) since the message is
+     shown on the screen in debug mode */
+  latin1_to_utf8(text, buf, 350);
+  decipher_string(buf, script);
+  Msg(buf);
 }
 
 void dc_busy(int script, int* yield, int* preturnint,
@@ -2212,167 +2236,151 @@ void attach(void)
  */
 /*bool*/int talk_get(int script)
 {
-        char line[200], check[200], checker[200];
-        int cur = 1;
-        char *p;
-        int retnum = 0;
-        clear_talk();
-        talk.newy = -5000;
-        while(1)
+  char line[200], check[200], checker[200];
+  int cur = 1;
+  char *p;
+  int retnum = 0;
+  clear_talk();
+  talk.newy = -5000;
+  while(1)
+    {
+    redo:
+      read_next_line(script, line);
+      
+      strip_beginning_spaces(line);
+      //Msg("Comparing to %s.", line);
+      
+      get_word(line, 1, checker);
+      
+      if (compare(checker, "set_y"))
         {
-redo:
-
-        read_next_line(script, line);
-
-
-
-        strip_beginning_spaces(line);
-        //Msg("Comparing to %s.", line);
-
-        get_word(line, 1, checker);
-
-        if (compare(checker, "set_y"))
-        {
-
-                get_word(line, 2, checker);
-                talk.newy = atol(checker);
-
-                goto redo;
+	  get_word(line, 2, checker);
+	  talk.newy = atol(checker);
+	  goto redo;
         }
-
-        if (compare(checker, "set_title_color"))
+      
+      if (compare(checker, "set_title_color"))
         {
-
-                get_word(line, 2, checker);
-                talk.color = atol(checker);
-                goto redo;
+	  get_word(line, 2, checker);
+	  talk.color = atol(checker);
+	  goto redo;
         }
-
-
-        if (compare(line, "\n")) goto redo;
-        if (compare(line, "\\\\")) goto redo;
-
-
-        strip_beginning_spaces(line);
-        //Msg("Comparing to %s.", line);
-        if (compare(line, "\n")) goto redo;
-        if (compare(line, "\\\\")) goto redo;
+      
+      if (compare(line, "\n")) goto redo;
+      if (compare(line, "\\\\")) goto redo;
+      
+      strip_beginning_spaces(line);
+      //Msg("Comparing to %s.", line);
+      if (compare(line, "\n")) goto redo;
+      if (compare(line, "\\\\")) goto redo;
 
 morestuff:
-
-        separate_string(line, 1, '(', check);
-        strip_beginning_spaces(check);
-
-        if (compare(check, "title_start"))
+      separate_string(line, 1, '(', check);
+      strip_beginning_spaces(check);
+      
+      if (compare(check, "title_start"))
         {
+	  while(read_next_line(script, line))
+	    {
+	      strcpy(check, line);
+	      strip_beginning_spaces(line);
+	      get_word(line, 1, checker);
+	      separate_string(line, 1, '(', check);
+	      strip_beginning_spaces(check);
+	      
+	      if (compare(check, "title_end"))
+		{
+		  replace("\n\n\n\n","\n \n", talk.buffer);
+		  replace("\n\n","\n", talk.buffer);
+		  goto redo;
+		}
+	      
+	      line[strlen(line)] = '\0';
+	      //Msg("LINE IS: %s: Like it?",line);
+	      
+	      /* Translate text (before variable substitution) */
+	      i18n_translate(line, 3000);
 
-                while(read_next_line(script, line))
-                {
-
-                        strcpy(check, line);
-                        strip_beginning_spaces(line);
-                        get_word(line, 1, checker);
-                        separate_string(line, 1, '(', check);
-                        strip_beginning_spaces(check);
-
-                        if (compare(check, "title_end"))
-                        {
-                                replace("\n\n\n\n","\n \n", talk.buffer);
-
-                                replace("\n\n","\n", talk.buffer);
-
-                                goto redo;
-                        }
-
-                        line[strlen(line)] = 0;
-                        //Msg("LINE IS: %s: Like it?",line);
-
-                        decipher_string(line, script);
-                        strcat(talk.buffer, line);
-                        //talk.buffer[strlen(talk.buffer)-1] = 0;
-                }
-
-                goto redo;
+	      decipher_string(line, script);
+	      strcat(talk.buffer, line);
+	      //talk.buffer[strlen(talk.buffer)-1] = 0;
+	    }
+	  
+	  goto redo;
         }
-
-        if (compare(check, "choice_end"))
+      
+      if (compare(check, "choice_end"))
         {
-                if (cur-1 == 0)
-                {
-                        Msg("Error: choice() has 0 options in script %s, offset %d.",
-                                rinfo[script]->name, rinfo[script]->current);
-
-                        return(/*false*/0);
-                }
-                //all done, lets jam
-                //Msg("found choice_end, leaving!");
-                talk.last = cur-1;
-                talk.cur = 1;
-                talk.active = /*true*/1;
-                talk.page = 1;
-                talk.cur_view = 1;
-                talk.script = script;
-                return(/*true*/1);
-
-        }
-
-
-
-        separate_string(line, 1, '\"', check);
-        strip_beginning_spaces(check);
-
-        //Msg("Check is %s.",check);
-
-        if (strlen(check) > 2)
+	  if (cur-1 == 0)
+	    {
+	      Msg("Error: choice() has 0 options in script %s, offset %d.",
+		  rinfo[script]->name, rinfo[script]->current);
+	      return(/*false*/0);
+	    }
+	  //all done, lets jam
+	  //Msg("found choice_end, leaving!");
+	  talk.last = cur-1;
+	  talk.cur = 1;
+	  talk.active = /*true*/1;
+	  talk.page = 1;
+	  talk.cur_view = 1;
+	  talk.script = script;
+	  return(/*true*/1);
+	}
+      
+      separate_string(line, 1, '\"', check);
+      strip_beginning_spaces(check);
+      
+      //Msg("Check is %s.",check);
+      
+      if (strlen(check) > 2)
         {
-                //found conditional statement
-                if (strchr(check, '(') == NULL)
-
-                {
-                        Msg("Error with choice() statement in script %s, offset %d. (%s?)",
-                                rinfo[script]->name, rinfo[script]->current, check);
-                        return(/*false*/0);
-                }
-
-                separate_string(check, 2, '(', checker);
-                separate_string(checker, 1, ')', check);
-
-                //Msg("Running %s through var figure..", check);
-                if (var_figure(check, script) == 0)
-                {
-                        Msg("Answer is no.");
-                        retnum++;
-                        goto redo;
-                        //said NO to statement
-                }
-                //Msg("Answer is yes.");
-                separate_string(line, 1, ')', check);
-
-                p = &line[strlen(check)+1];
-
-                strcpy(check, p);
-
-
-                strcpy(line, check);
-
-                //Msg("new line is %s, happy?", line);
-                goto morestuff;
+	  //found conditional statement
+	  if (strchr(check, '(') == NULL)
+	    {
+	      Msg("Error with choice() statement in script %s, offset %d. (%s?)",
+		  rinfo[script]->name, rinfo[script]->current, check);
+	      return(/*false*/0);
+	    }
+	  
+	  separate_string(check, 2, '(', checker);
+	  separate_string(checker, 1, ')', check);
+	  
+	  //Msg("Running %s through var figure..", check);
+	  if (var_figure(check, script) == 0)
+	    {
+	      Msg("Answer is no.");
+	      retnum++;
+	      goto redo;
+	      //said NO to statement
+	    }
+	  //Msg("Answer is yes.");
+	  separate_string(line, 1, ')', check);
+	  
+	  p = &line[strlen(check)+1];
+	  
+	  strcpy(check, p);
+	  strcpy(line, check);
+	  
+	  //Msg("new line is %s, happy?", line);
+	  goto morestuff;
         }
+      
+      separate_string(line, 2, '\"', check);
+      strip_beginning_spaces(check);
 
+      /* Translate text (before variable substitution) */
+      i18n_translate(check, 101);
 
-
-        separate_string(line, 2, '\"', check);
-        strip_beginning_spaces(check);
-        // Msg("Line %d is %s.",cur,check);
-        retnum++;
-        decipher_savegame = retnum;
-        decipher_string(check, script);
-        decipher_savegame = 0;
-        strcpy(talk.line[cur], check);
-    talk.line_return[cur] = retnum;
-        cur++;
-        }
-
+      // Msg("Line %d is %s.",cur,check);
+      retnum++;
+      decipher_savegame = retnum;
+      decipher_string(check, script);
+      decipher_savegame = 0;
+      strcpy(talk.line[cur], check);
+      talk.line_return[cur] = retnum;
+      cur++;
+    }
 }
 
 

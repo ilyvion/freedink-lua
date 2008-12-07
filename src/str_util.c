@@ -177,7 +177,7 @@ void strchar(char *string, char ch)
 }
 
 
-void replace(const char *this1, char *that, char *line)
+void replace(const char *this1, const char *that, char *line)
 {
 
         char hold[500];
@@ -232,3 +232,54 @@ doit:
                 }
         }
 }
+
+/**
+ * Convert Latin-1-encoded 'source' to UTF-8-encoded 'dest'. 'dest'
+ * will always be NULL-terminated, and won't be longer than max_size
+ * bytes (including trailing '\0').
+ */
+void latin1_to_utf8(char* source, char* dest, int dest_size)
+{
+      unsigned char *pcs = (unsigned char *)source;
+      unsigned char *pcd = (unsigned char *)dest;
+      unsigned char *pcd_limit = pcd + (dest_size-1-1);
+      while(*pcs != '\0' && pcd < pcd_limit)
+	{
+	  if (*pcs < 128)
+	    {
+	      *pcd = *pcs;
+	      pcs++;
+	      pcd++;
+	    }
+	  else
+	    {
+	      *pcd = 0xc2 + ((*pcs - 128) / 64);
+	      pcd++;
+	      *pcd = 0x80 + ((*pcs - 128) % 64);
+	      pcd++;
+	      pcs++;
+	    }
+	}
+      *pcd = '\0';
+}
+
+/* Here's a small Python script to explain the above formula: */
+/*
+# Static charset conversion table from Latin-1 to UTF-8:
+print 'unsigned char conv[][2] = {\n', ',\n'.join(
+    ['\/\*%d:\*\/ {%s}' % (
+        c,
+        ', '.join(
+            [hex(ord(i)) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
+            )
+        ) for c in range(128,256)]
+    ), '};'
+
+# Test computed (!= static) table:
+for c in range(128,256):
+    method1 = [ord(i) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
+    method2 = [0xc2 + ((c - 128) / 64), 0x80 + ((c - 128) % 64)]
+    #print method1, method2
+    if method1[0] != method2[0] or method1[1] != method2[1]:
+        print "Mismatch at %c"
+*/

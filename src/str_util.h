@@ -38,7 +38,8 @@ extern "C"
   extern void strchar(char *string, char ch);
   extern /*bool*/int separate_string (char str[255], int num, char liney, char *return1);
   extern /*bool*/int compare(char *orig, char *comp);
-  extern void replace(const char *this1, char *that, char *line);
+  extern void replace(const char *this1, const char *that, char *line);
+  extern void latin1_to_utf8(char* source, char* dest, int dest_size);
 
 #ifdef __cplusplus
 }

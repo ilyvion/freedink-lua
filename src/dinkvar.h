@@ -103,9 +103,9 @@ struct small_map
 
 struct talk_struct
 {
-  char line[21][101];
-  int line_return[21];
-  char buffer[3000];
+  char line[21][101];  /* dialog choices */
+  int line_return[21]; /* return this number if chosen */
+  char buffer[3000];   /* title */
   int cur;
   int last;
   /*bool*/int active;

@@ -36,6 +36,10 @@ dink
 ABOUT-NLS
 intl/
 # gnulib
-gnulib/po/*.po
+gnulib/po
+gnulib/lib/*.h
+gnulib/lib/sys/
 # emacs
 TAGS
+# gprof
+gmon.out

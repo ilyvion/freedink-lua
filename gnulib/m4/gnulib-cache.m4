@@ -28,7 +28,7 @@ gl_MODULES([
   hash
   relocatable-prog
   strcase
-  strdup
+  strdup-posix
   vasprintf
 ])
 gl_AVOID([])

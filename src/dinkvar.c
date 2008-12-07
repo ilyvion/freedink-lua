@@ -136,8 +136,9 @@ int push_active = 1;
 
 
 /*bool*/int turn_on_plane = /*FALSE*/0;
-const int text_timer = 77;
-const int text_min = 2700;
+#define TEXT_MIN 2700
+#define TEXT_TIMER 77
+
 int stop_entire_game;
 const int max_game = 20;
 /*bool*/int in_enabled = /*false*/0;
@@ -3150,63 +3151,61 @@ void check_sprite_status_full(int sprite_no)
 
 
 /* say_text, say_text_xy: used by the game only (not the editor) */
-int say_text(char text[200], int h, int script)
+int add_text_sprite(char text[200], int script, int sprite_owner, int mx, int my)
 {
-        int crap2;
-        //Msg("Creating new sprite with %s connect to %d.",text, h);
-        if (h == 1000) crap2 = add_sprite(100,100,8,0,0);
-        else crap2 = add_sprite(spr[h].x,spr[h].y,8,0,0);
+  int tsprite = add_sprite(mx, my, 8, 0, 0);
+  if (tsprite == 0)
+    {
+      Msg("Couldn't say something, out of sprites.");
+      return(0);
+    }
 
-        if (crap2 == 0)
-        {
-                Msg("Couldn't say something, out of sprites.");
-                return(0);
+  strncpy(spr[tsprite].text, text, 200-1);
+  spr[tsprite].text[200-1] = '\0';
 
-        }
-        *plast_text = crap2;
-        strcpy(spr[crap2].text, text);
-        spr[crap2].kill = strlen(text) * text_timer;
-        if (spr[crap2].kill < text_min) spr[crap2].kill = text_min;
-        spr[crap2].damage = -1;
-        spr[crap2].owner = h;
-        spr[crap2].hard = 1;
-        spr[crap2].script = script;
-        //set X offset for text, using strength var since it's unused
-        spr[crap2].strength = 75;
-        //spr[h].x - spr[crap2;
-        spr[crap2].nohit = 1;
-        check_seq_status(spr[spr[crap2].owner].seq);
-        spr[crap2].defense = ( ((k[getpic(spr[crap2].owner)].box.bottom) - k[getpic(spr[crap2].owner)].yoffset) + 100);
+  *plast_text = tsprite;
+  spr[tsprite].kill = strlen(text) * TEXT_TIMER;
+  if (spr[tsprite].kill < TEXT_MIN)
+    spr[tsprite].kill = TEXT_MIN;
+  spr[tsprite].damage = -1;
+  spr[tsprite].owner = sprite_owner;
+  spr[tsprite].hard = 1;
+  spr[tsprite].script = script;
+  spr[tsprite].nohit = 1;
 
-        spr[crap2].x = spr[spr[crap2].owner].x - spr[crap2].strength;
-        spr[crap2].y = spr[spr[crap2].owner].y - spr[crap2].defense;
+  return tsprite;
+}
 
-        return(crap2);
+int say_text(char text[200], int sprite_owner, int script)
+{
+  int tsprite;
+  if (sprite_owner == 1000)
+    tsprite = add_text_sprite(text, script, 1000, 100, 100);
+  else
+    tsprite = add_text_sprite(text, script, sprite_owner,
+			      spr[sprite_owner].x, spr[sprite_owner].y);
+  
+  if (tsprite == 0)
+    return 0;
+  
+  //set X offset for text, using strength var since it's unused
+  spr[tsprite].strength = 75;
+  check_seq_status(spr[spr[tsprite].owner].seq);
+  spr[tsprite].defense = ( ( k[getpic(spr[tsprite].owner)].box.bottom
+			     - k[getpic(spr[tsprite].owner)].yoffset )
+			   + 100 );
+  
+  spr[tsprite].x = spr[spr[tsprite].owner].x - spr[tsprite].strength;
+  spr[tsprite].y = spr[spr[tsprite].owner].y - spr[tsprite].defense;
+  
+  return tsprite;
 }
 
 
 int say_text_xy(char text[200], int mx, int my, int script)
 {
-        int crap2;
-        //Msg("Creating new sprite with %s connect to %d.",text, h);
-        crap2 = add_sprite(mx,my,8,0,0);
-
-        if (crap2 == 0)
-        {
-                Msg("Couldn't say something, out of sprites.");
-                return(0);
-
-        }
-        *plast_text = crap2;
-        strcpy(spr[crap2].text, text);
-        spr[crap2].kill = strlen(text) * text_timer;
-        if (spr[crap2].kill < text_min) spr[crap2].kill = text_min;
-        spr[crap2].damage = -1;
-        spr[crap2].nohit = 1;
-        spr[crap2].owner = 1000;
-        spr[crap2].hard = 1;
-        spr[crap2].script = script;
-        return(crap2);
+  int sprite_owner = 1000;
+  return add_text_sprite(text, script, sprite_owner, mx, my);
 }
 
 

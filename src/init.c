@@ -31,6 +31,7 @@
 #include <getopt.h>
 #include <unistd.h> /* chdir */
 
+#include <locale.h>
 #include "gettext.h"
 #define _(String) gettext (String)
 
@@ -316,9 +317,28 @@ int init(int argc, char *argv[])
   bindtextdomain(PACKAGE, LOCALEDIR);
   bindtextdomain(PACKAGE "-gnulib", LOCALEDIR);
   textdomain(PACKAGE);
+  
+  /* SDL can display messages in either ASCII or UTF-8. Thus we need
+     gettext to output translations in UTF-8. */
+  /* That's a problem for console messages in locales that are not
+     UTF-8-encoded. If this is really a problem, we'll have to perform
+     some character conversion directly. We can't create a separate
+     message catalog for those, because several console messages are
+     also displayed on the SDL screen and need a separate conversion
+     anyway. */
+  bind_textdomain_codeset(PACKAGE, "UTF-8");
+
 
   if (!check_arg(argc, argv))
     return 0;
+
+
+  /* Same for this D-Mod's .mo (after options are parsed) */
+  char* dmod_localedir = paths_dmodfile("i18n");
+  bindtextdomain(paths_getdmodname(), dmod_localedir);
+  bind_textdomain_codeset(paths_getdmodname(), "UTF-8");
+  free(dmod_localedir);
+
 
   /* Engine */
   /* Start with this initialization as it resets structures that are

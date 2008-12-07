@@ -371,7 +371,7 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
   /* Transparent, low quality - closest to the original engine. */
   /* Besides, we do need a monochrome render, since we're doing nasty
      tricks to set the color appropriately */
-  tmp = TTF_RenderText_Solid(font, str, color);
+  tmp = TTF_RenderUTF8_Solid(font, str, color);
 
   /* Bigger, with a box background */
   // SDL_Color background = {0, 0, 0};
@@ -401,7 +401,7 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
       printf("Error rendering text: %s; font is %p\n", TTF_GetError(), font);
     }
 
-  TTF_SizeText (font, str, &text_w, &text_h);
+  TTF_SizeUTF8 (font, str, &text_w, &text_h);
   new_x = x;
   if (hcenter)
     {
@@ -433,7 +433,7 @@ font_len (TTF_Font *font, char *str, int len)
   strncpy (tmp, str, len);
   tmp[len] = 0;
 
-  TTF_SizeText (font, tmp, &text_w, NULL);
+  TTF_SizeUTF8 (font, tmp, &text_w, NULL);
   free (tmp);
 
   return text_w;
@@ -628,7 +628,7 @@ print_text_wrap_debug(char *text, int x, int y)
 	*pc= '\0';
 
       SDL_Rect dst = {x, y + res_height, -1, -1};
-      SDL_Surface *rendered_text = TTF_RenderText_Shaded(system_font, pline, text_color, bgcolor);
+      SDL_Surface *rendered_text = TTF_RenderUTF8_Shaded(system_font, pline, text_color, bgcolor);
       SDL_BlitSurface(rendered_text, NULL, GFX_lpDDSBack, &dst);
       SDL_FreeSurface(rendered_text);
 

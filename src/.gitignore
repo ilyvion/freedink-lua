@@ -8,3 +8,6 @@ freedinkedit
 .tmp.c
 freedink_res_stamp
 freedinkedit_res_stamp
+# manpages
+freedink.6
+freedinkedit.6

@@ -244,6 +244,9 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 	    exit(1);
 	  }
       }
+    /* Strip slashes */
+    while (strlen(dmoddir) > 0 && dmoddir[strlen(dmoddir) - 1] == '/')
+      dmoddir[strlen(dmoddir) - 1] = '\0';
   }
 
   /** dmodname (e.g. "island") **/
@@ -303,6 +306,10 @@ const char *paths_getpkgdatadir(void)
 const char *paths_getdmoddir(void)
 {
   return dmoddir;
+}
+const char *paths_getdmodname(void)
+{
+  return dmodname;
 }
 
 const char *paths_getfallbackdir(void)
