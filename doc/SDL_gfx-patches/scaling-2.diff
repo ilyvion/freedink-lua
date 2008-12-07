@@ -1,0 +1,67 @@
+Index: SDL_gfx-2.0.17/SDL_rotozoom.c
+===================================================================
+--- SDL_gfx-2.0.17.orig/SDL_rotozoom.c	2008-08-02 20:40:10.000000000 +0200
++++ SDL_gfx-2.0.17/SDL_rotozoom.c	2008-08-02 22:47:36.000000000 +0200
+@@ -369,17 +369,12 @@
+ 
+ int zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
+ {
+-    Uint32 x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy;
++    Uint32 x, y, *sax, *say, *csax, *csay;
++    int csx, csy;
+     Uint8 *sp, *dp, *csp;
+     int dgap;
+ 
+     /*
+-     * Variable setup 
+-     */
+-    sx = (Uint32) (65536.0 * (float) src->w / (float) dst->w);
+-    sy = (Uint32) (65536.0 * (float) src->h / (float) dst->h);
+-
+-    /*
+      * Allocate memory for row increments 
+      */
+     if ((sax = (Uint32 *) malloc(dst->w * sizeof(Uint32))) == NULL) {
+@@ -398,30 +393,23 @@
+     csx = 0;
+     csax = sax;
+     for (x = 0; x < dst->w; x++) {
+-	csx += sx;
+-	*csax = (csx >> 16);
+-	csx &= 0xffff;
+-	csax++;
+-    }
+-    csy = 0;
+-    csay = say;
+-    for (y = 0; y < dst->h; y++) {
+-	csy += sy;
+-	*csay = (csy >> 16);
+-	csy &= 0xffff;
+-	csay++;
+-    }
+-
+-    csx = 0;
+-    csax = sax;
+-    for (x = 0; x < dst->w; x++) {
+-	csx += (*csax);
++	csx += src->w;
++	*csax = 0;
++	while (csx >= dst->w) {
++	    csx -= dst->w;
++	    (*csax)++;
++	}
+ 	csax++;
+     }
+     csy = 0;
+     csay = say;
+     for (y = 0; y < dst->h; y++) {
+-	csy += (*csay);
++	csy += src->h;
++	*csay = 0;
++	while (csy >= dst->h) {
++	  csy -= dst->h;
++	  (*csay)++;
++	}
+ 	csay++;
+     }
+ 

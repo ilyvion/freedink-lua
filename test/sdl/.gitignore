@@ -8,3 +8,4 @@ keycodes
 videoinfo
 fade
 sdl_stretch
+sdlgfx_resize
