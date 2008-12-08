@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20080920
+Version:	1.08.20080932
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -69,8 +69,10 @@ make %{?_smp_mflags}
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
-%find_lang freedink
-%find_lang freedink-gnulib
+%find_lang %{name}
+%find_lang %{name}-gnulib
+# %files only support one '-f' argument (see below)
+cat %{name}-gnulib.lang >> %{name}.lang
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}edit.desktop
 %if 0%{?suse_version}
@@ -90,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 
-%files engine
+%files engine -f %{name}.lang
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING NEWS README THANKS TROUBLESHOOTING ChangeLog
 %{_bindir}/*
@@ -101,6 +103,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec  8 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080932-1
+- In progress
+- Declare .mo translation catalogs
+
 * Sun Oct  5 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-4
 - Use liberation-fonts in all distro versions
 

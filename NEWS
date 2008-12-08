@@ -1,7 +1,9 @@
-1.08.200XXXXX
+1.08.20080932
 =============
 
 * User-visible changes:
+
+- ***UNRELEASED***
 
 - i18n ("internationalization") - or support for translating D-Mods.
 
@@ -14,8 +16,6 @@
 - DinkC functions are now called dynamically using libffi, for cleaner
   bindings to the C engine core.  The DinkC parser code was also
   clarified and a few string functions were optimized.
-
-- In progress.
 
 
 1.08.20080920
