@@ -78,5 +78,5 @@ foreach my $file (@ARGV) {
     }
     close(FILE);
     close(TMP);
-    rename('tmp.c', $file);
+    rename('tmp.tag', $file);
 }
