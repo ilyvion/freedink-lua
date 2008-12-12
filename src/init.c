@@ -334,7 +334,7 @@ int init(int argc, char *argv[])
 
 
   /* Same for this D-Mod's .mo (after options are parsed) */
-  char* dmod_localedir = paths_dmodfile("i18n");
+  char* dmod_localedir = paths_dmodfile("l10n");
   bindtextdomain(paths_getdmodname(), dmod_localedir);
   bind_textdomain_codeset(paths_getdmodname(), "UTF-8");
   free(dmod_localedir);
