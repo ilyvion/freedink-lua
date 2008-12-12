@@ -8,18 +8,20 @@ msgstr ""
 "Project-Id-Version: freedink 1.08.20080920\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
 "POT-Creation-Date: 2008-12-08 22:43+0100\n"
-"PO-Revision-Date: 2008-12-07 11:19+0100\n"
+"PO-Revision-Date: 2008-12-12 21:55+0000\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Pootle 1.2.1\n"
 
 #: src/init.c:100
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr ""
+msgstr "Usage: %s [OPTIONS]...\n"
 
 #: src/init.c:102
 #, c-format
@@ -29,22 +31,22 @@ msgstr "Lance le jeu Dink Smallwood ou un de ses D-Mods."
 #: src/init.c:104
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr ""
+msgstr "Modifie le jeu Dink Smallwood ou un de ses D-Mods."
 
 #: src/init.c:107
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr ""
+msgstr "  -h, --help            Affiche cet écran d'aide\n"
 
 #: src/init.c:108
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr ""
+msgstr "  -v, --version         Affiche la version\n"
 
 #: src/init.c:110
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr ""
+msgstr "  -g, --game <dir>      Specifie le dossier d'un D-Mod\n"
 
 #: src/init.c:111
 #, c-format
