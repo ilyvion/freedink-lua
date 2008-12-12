@@ -1,4 +1,3 @@
-
 /**
  * DinkC script engine
 
@@ -866,21 +865,21 @@ void kill_all_scripts_for_real(void)
   char *pc = line;
 
   int k;
-  for (k = rinfo[script]->current;  (k < rinfo[script]->end); k++)
+  for (k = rinfo[script]->current; k < rinfo[script]->end; k++)
     {
       *pc = rbuf[script][k];
       pc++;
       rinfo[script]->current++;
       
-      if ((rbuf[script][k] == '\n') || (rbuf[script][k] == '\r'))
+      if (rbuf[script][k] == '\n') // \r were replaced in decompress()
 	{
-	  *pc= '\0';
+	  *pc = '\0';
 	  return /*true*/1;
 	}
     }
 
   //at end of buffer
-  *pc= '\0';
+  *pc = '\0';
   return /*false*/0;
 }
 
@@ -1125,6 +1124,11 @@ void run_script(int script)
     }
 }
 
+/**
+ * Copy the word number 'word' present in 'line' to the 'result'
+ * string. Words are separated by one or more spaces and count from 1
+ * (i.e. not 0).
+ */
 void get_word(char line[300], int word, char *result)
 {
   int cur_word = 1;
@@ -1139,7 +1143,7 @@ void get_word(char line[300], int word, char *result)
       if (*pc == ' ')
 	{
 	  cur_word++;
-	  while(*pc == ' ')
+	  while(*pc == ' ' && *pc != '\0')
 	    pc++;
 	}
       else
@@ -1148,7 +1152,8 @@ void get_word(char line[300], int word, char *result)
 	    pc++;
 	}
     }
-  /* copy word */
+  /* copy word - either we're on the right word and will copy it,
+     either we're at the end of string and will copy an empty word */
   char* pcr = result;
   while(*pc != '\0' && *pc != ' ')
     {

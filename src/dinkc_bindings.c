@@ -2371,12 +2371,14 @@ morestuff:
 	  //Msg("Answer is yes.");
 	  separate_string(line, 1, ')', check);
 	  
-	  p = &line[strlen(check)+1];
+	  p = line + strlen(check) + 1;
 	  
 	  strcpy(check, p);
 	  strcpy(line, check);
 	  
-	  //Msg("new line is %s, happy?", line);
+	  /* Resume processing stripping the first condition (there
+	     may be several conditions on a single dialog ligne, which
+	     are AND'ed) */
 	  goto morestuff;
         }
       
