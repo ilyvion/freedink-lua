@@ -27,7 +27,7 @@
 use strict;
 foreach my $file (@ARGV) {
     open(FILE, "<$file");
-    open(TMP, '>tmp.c');
+    open(TMP, '>tmp.tag');
     while (my $line = <FILE>) {
 	if ($line =~ /^ *choice_start[ (]/) {
 	    print TMP $line;
