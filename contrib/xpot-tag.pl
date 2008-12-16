@@ -29,11 +29,11 @@ foreach my $file (@ARGV) {
     open(FILE, "<$file");
     open(TMP, '>tmp.tag');
     while (my $line = <FILE>) {
-	if ($line =~ /^ *choice_start[ (]/) {
+	if ($line =~ /^ *choice_start[ (]/i) {
 	    print TMP $line;
 	    # dialog mode
 	    while (my $lined = <FILE>) {
-		if ($lined =~ /^ *title_start\(/) {
+		if ($lined =~ /^ *title_start\(/i) {
 		    print TMP $lined;
 		    # dialog title - I attempted merging all lines,
 		    # but the Dink engine is pretty messy there,
@@ -42,7 +42,7 @@ foreach my $file (@ARGV) {
 		    # to line-by-line msgids.
 		    my $title = '';
 		    while (my $linet = <FILE>) {
-			if ($linet =~ /^ *title_end\(/) {
+			if ($linet =~ /^ *title_end\(/i) {
 			    print TMP $linet;
 			    last;
 			} elsif ($linet =~ /./) {
@@ -54,25 +54,30 @@ foreach my $file (@ARGV) {
 			}
 		    }
 		} elsif (
-		    $lined =~ /^ *set_y( |$)/ or
-		    $lined =~ /^ *set_title_color( |$)/ or
+		    $lined =~ /^ *set_y( |$)/i or
+		    $lined =~ /^ *set_title_color( |$)/i or
 		    $lined =~ /^ *$/) {
 		    # non translatable dialog directives
 		    print TMP $lined;
-		} elsif ($lined =~ /^ *choice_end( |$)/) {
+		} elsif ($lined =~ /^ *choice_end\(/i) {
 		    print TMP $lined;
 		    last;
 		} else {
 		    # Optional conditional statementS followed by a
 		    # quoted string - but skip &savegameinfo lines
-		    if ($lined !~ /"&savegameinfo"/) {
-			$lined =~ s/^ *(\([^)]*\) *)*("[^"]*"?)/_($2);/;
+		    if ($lined !~ /"&savegameinfo"/i) {
+			my $nb_repl = ($lined =~ s/^ *(\([^)]*\) *)*("[^"]*"?)/_($2);/);
+			if ($nb_repl == 0)
+			{
+			    # Probably a parser problem
+			    print STDERR "Unexpected line during choice_start...choice_end: [$lined]\n";
+			}
 		    }
 		    print TMP $lined;
 		}
 	    }
 	} else {
-	    $line =~ s/(.*say[a-zA-Z_]*\()"?(`.)?(.*)",(.*)$/$1_("$3"),$4/i;
+	    $line =~ s/(.*say[a-z_]*\()"?(`.)?(.*)",(.*)$/$1_("$3"),$4/i;
 	    print TMP $line;
 	}
     }
