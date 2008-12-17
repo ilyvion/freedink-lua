@@ -70,6 +70,7 @@ foreach my $file (@ARGV) {
 			if ($nb_repl == 0)
 			{
 			    # Probably a parser problem
+			    chomp($lined);
 			    print STDERR "Unexpected line during choice_start...choice_end: [$lined]\n";
 			}
 		    }
@@ -77,7 +78,7 @@ foreach my $file (@ARGV) {
 		}
 	    }
 	} else {
-	    $line =~ s/(.*say[a-z_]*\()"?(`.)?(.*)",(.*)$/$1_("$3"),$4/i;
+	    $line =~ s/(.*say[a-z_]*\()"?(`.)?(.+)",(.*)$/$1_("$3"),$4/i;
 	    print TMP $line;
 	}
     }
