@@ -84,7 +84,8 @@
 		fi
 	    else
 		# dialogs
-		str=$(echo "$line" | sed -e 's/^.//' -e 's/^[[:space:]]*\(.*\)[[:space:]]*$/\1/' -e 's/^[^"].*$/"&"/')
+		str=$(echo "$line" | sed -e 's/^.//' -e 's/^[[:space:]]*\(.*\)[[:space:]]*$/\1/' \
+		                         -e 's/^([^"]*)[[:space:]]*"/"/' -e 's/^[^"].*$/"&"/')
 		if echo "$line" | grep '^-' > /dev/null; then
 		    msgids[i]="msgid $str"
 		    ((i++))
