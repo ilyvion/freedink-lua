@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20080932\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2008-12-11 21:26+0100\n"
+"POT-Creation-Date: 2009-01-09 20:17+0100\n"
 "PO-Revision-Date: 2008-12-11 21:26+0100\n"
 "Last-Translator: Alexander Krivács Schrøder <alexschrod@gmail.com>\n"
 "Language-Team: Norwegian\n"
@@ -52,8 +52,8 @@ msgid ""
 "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
 "etc.\n"
 msgstr ""
-"  -r, --refdir <dir>    Angi søkesti for «dink/graphics», D-Moder, "
-"og så videre.\n"
+"  -r, --refdir <dir>    Angi søkesti for «dink/graphics», D-Moder, og så "
+"videre.\n"
 
 #: src/init.c:113
 #, c-format
@@ -78,7 +78,8 @@ msgstr "  -s, --nosound         Slå av lyd\n"
 #: src/init.c:117
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Vis spillet i et vindu istedet for i fullskjerm\n"
+msgstr ""
+"  -w, --window          Vis spillet i et vindu istedet for i fullskjerm\n"
 
 #: src/init.c:118
 #, c-format
@@ -93,13 +94,15 @@ msgstr "  -7, --v1.07           Bruk v1.07-kompatibilitetsmodus\n"
 #: src/init.c:128
 #, c-format
 msgid "Report bugs to %s.\n"
-msgstr "Rapporter programfeil til %s.\n"
+msgstr ""
+"Rapporter programfeil til %s.\n"
 "Rapporter feil ved oversettelsen til <alexschrod@gmail.com>\n"
 
 #: src/init.c:278
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Merk: -nomovie aksepteres av kompatibilitetsårsaker, men har ingen effekt.\n"
+msgstr ""
+"Merk: -nomovie aksepteres av kompatibilitetsårsaker, men har ingen effekt.\n"
 
 #: src/freedink.c:2742
 msgid "`$I don't see anything here."
@@ -149,16 +152,16 @@ msgstr "`$Ingen ting skjedde."
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 
-#: src/dinkc.c:705
+#: src/dinkc.c:704
 msgid "Error: not mapped"
 msgstr "Feil: Ikke assosiert"
 
-#: src/dinkc.c:715
+#: src/dinkc.c:714
 #, c-format
 msgid "Slot %d - %d:%02d - %s"
 msgstr "Plass %d - %d:%02d - %s"
 
-#: src/dinkc.c:721
+#: src/dinkc.c:720
 #, c-format
 msgid "Slot %d - Empty"
 msgstr "Plass %d - Tomt"

@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20080932
+Version:	1.08.20090109
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -103,8 +103,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Dec  8 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080932-1
-- In progress
+* Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-1
+- New upstream release
 - Declare .mo translation catalogs
 
 * Sun Oct  5 2008 Sylvain Beucler <beuc@beuc.net> - 1.08.20080920-4

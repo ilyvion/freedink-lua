@@ -1,3 +1,3239 @@
-2007-**-**  Sylvain Beucler  <beuc@beuc.net>
+2008-12-28  Sylvain Beucler <beuc@beuc.net>
 
-	* In progress.
+	* contrib/xtrans.sh: Support conditional dialogs when extracting
+	existing translations
+
+2008-12-17  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl: Don't tag empty strings for translation
+
+2008-12-16  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl: Fix choice_start...choice_end parsing and
+	print an error when the dialog structure isn't properly formatted
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* po/fr.po: Testing Pootle
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl: Changed the temporary filename from tmp.c to
+	tmp.tag, just in case a D-Mod has a tmp.c script
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl: Changed the temporary filename from tmp.c to
+	tmp.tag, just in case a D-Mod has a tmp.c script
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* autotools/.gitignore: recreated autotools/
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* po/LINGUAS, po/nb.po: Add Norwegian translation by Alexander
+	Krivács Schrøder
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c: Change locale dir from 'i18n' to 'l10n' which seems
+	more logical
+
+2008-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl, contrib/xpot.sh, contrib/xtrans.sh,
+	src/dinkc.c, src/dinkc_bindings.c: Reimplement strings tagger in
+	Perl (rather than bash+sed); some clarifications
+
+2008-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, contrib/xpot.sh, contrib/xtrans.sh,
+	freedink.spec, po/de.po, po/fr.po: Find a work-around to support 2
+	PO domains in the .spec file
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, gnulib/m4/.gitignore: Update NEWS
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap, gnulib/lib/.gitignore, gnulib/m4/.gitignore,
+	gnulib/m4/gnulib-cache.m4, src/gfx.c: Remove 'putenv' gnulib module
+	- issues with mingw (reported at bug-gnulib@gnu.org)
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/SDL_gfx-patches/scaling-2.diff,
+	doc/SDL_gfx-patches/scaling.diff, test/sdl/.gitignore,
+	test/sdl/sdlgfx_resize.c: Add some work on fixing a SDL_gfx bug that
+	shows in FreeDinkedit
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* acsite.m4, configure.ac, doc/binreloc.txt: Rename AM_BINRELOC to
+	AP_BINRELOC to avoid aclocal warning
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, Makefile.am, configure.ac, freedink.spec,
+	gnulib/lib/.gitignore, gnulib/m4/.gitignore,
+	gnulib/m4/gnulib-cache.m4, src/bgm.c, src/gfx.c, src/i18n.c,
+	src/str_util.c: Build fixes
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap, contrib/xpot.sh, contrib/xtrans.sh, doc/TODO,
+	po/de.po, po/fr.po, src/dinkc_bindings.c, src/i18n.c: More
+	translation fixes
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot.sh, contrib/xtrans.sh: Extract translatable strings
+	(xpot.sh) and existing translations (xtrans.sh) from a D-Mod: draft
+	versions
+
+2008-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, Makefile.am, configure.ac, gnulib/m4/gnulib-cache.m4,
+	po/.gitignore, po/de.po, po/fr.po, src/.gitignore, src/Makefile.am,
+	src/dinkc_bindings.c, src/dinkvar.c, src/dinkvar.h,
+	src/gfx_fonts.c, src/i18n.c, src/i18n.h, src/init.c, src/paths.c,
+	src/paths.h, src/str_util.c, src/str_util.h: DinkC translation
+	support; UTF-8 display support
+
+2008-12-06  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, po/POTFILES.in, po/de.po, po/fr.po, src/dinkc.c,
+	src/freedink.c, src/game_engine.h: Migrate German translations from
+	#ifdef's to 'de.po'
+
+2008-12-06  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD: Explain why not replace our gnulib with Debian's
+
+2008-12-06  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, Makefile.am, bootstrap, configure.ac,
+	gnulib/lib/.gitignore, gnulib/m4/.gitignore,
+	gnulib/m4/gnulib-cache.m4, gnulib/po/.gitignore, po/.gitignore,
+	po/ChangeLog, po/LINGUAS, po/Makevars, po/POTFILES.in, po/de.po,
+	po/fr.po, src/Makefile.am, src/freedink.c, src/init.c: Add gettext
+	to the build system
+
+2008-12-05  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, doc/cross.txt, src/dinkc_bindings.c: Doc fixes
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Clarify process_line, and avoid permanent
+	parameters warnings when trying to run a possible custom procedure
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert all remaining bindings - yay!
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert 9 more bindings
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert 8 more bindings
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert editor_ bindings
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert all remaining v1.08 bindings
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert 18 more bindings
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4,
+	src/dinkc_bindings.c: update gnulib, cross.txt instructions
+	(SDL_image and libpng), and fix alloca usage
+
+2008-11-30  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, configure.ac, debian/control, doc/cross.txt,
+	freedink.spec,
+	gentoo/games-rpg/freedink-engine/freedink-engine-1.08.20080920.ebui
+	ld, src/Makefile.am: Add libffi dependency to the build systems
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h: get_word: rewrite for efficiency
+	(mainly: don't call strchar)
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c: Avoid another quadratic strchar usage
+	(read_next_line)
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/str_util.c: Slightly optimize .c and .d loading
+	(avoid quadratic strchar usage)
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Convert 21 v1.08-only functions
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Reorder functions (take ev[2] processing
+	order into account) + really fix case-insensitive lookup + convert
+	bindings that don't have parameters
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: sp_editor_num, sp_kill_wait, sp_script
+	(different than other sp_*) functions
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: sp_base_die + its sp_base_death alias
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c: Convert similar sp_* bindings
+	(using some Perl text manipulation)
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c: More bindings + group sp_*
+	functions together
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: More bindings + lookup case-insensitively
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: More bindings conversion. 'returnint' is now
+	an in/out parameter.
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/dinkvar.h: Convert a
+	first batch of functions to the new binding system
+
+2008-11-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c,
+	src/dinkc_bindings.h, src/init.c: libffi-based system to declare,
+	lookup and call DinkC bindings
+
+2008-11-28  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/HACKING_dinkc.txt, src/dinkc.c, src/dinkc_bindings.c,
+	src/dinkc_bindings.h: Clarify DinkC parser + documentation
+
+2008-11-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/HACKING_dinkc.txt, doc/cleanup.txt, doc/v1.08.txt,
+	src/dinkc.c, src/dinkc_bindings.c, src/dinkvar.c, src/str_util.c: 
+	More DinkC parser documentation/study
+
+2008-11-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix crash when sp_editor_num(1000) - bug
+	report by Andreas Berg
+
+2008-11-25  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: kill_game: exit more cleanly (reported by
+	Andreas Berg)
+
+2008-11-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix crash when freeze(1000) - bug report by
+	Andreas Berg
+
+2008-11-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/hardware_surfaces.txt, src/gfx.c: Precisions about hardware
+	surfaces
+
+2008-11-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h: Clarify sprite placement some more
+
+2008-11-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Clarify the placement of resized sprites a little
+	bit
+
+2008-11-15  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/videoinfo.c: Add test for 24bit mode
+
+2008-11-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/game_libraries.txt, doc/hardware_surfaces.txt: Precision on
+	hardware 2D surfacse
+
+2008-10-10  Sylvain Beucler <beuc@beuc.net>
+
+	* share/Makefile.am: Don't install .desktop files in share/ subdirs
+	(such as share/games)
+
+2008-10-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/fade.txt: More info on fades: fade_up() time
+
+2008-10-06  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/copyright, debian/rules, debian/watch: 
+	Sync nitpicking from pkg-games
+
+2008-10-06  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Update spec file
+
+2008-10-06  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/copyright, src/freedink_xpm.c: Some licensing clarification
+
+2008-10-05  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/fade.txt: Add doc about fade_down() time
+
+2008-10-05  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: Build instructions for ArchLinux
+
+2008-09-24  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: .spec fixes
+
+2008-09-23  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: freedink.spec: remove attempt at proper BuildArch
+	support + fix typos
+
+2008-09-23  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, freedink.spec: .spec fixes (clarify help2man dev
+	dep, s/fedora_version/fedora/, meta package depends on same version
+	of freedink-engine
+
+2008-09-22  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Some fixes in the spec file
+
+2008-09-22  Sylvain Beucler <beuc@beuc.net>
+
+	* : Add alternate icon, temporarily used for Fedora packaging
+
+2008-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* gentoo/games-rpg/freedink/freedink-1.08.20080914.ebuild,
+	gentoo/games-rpg/freedink/freedink-1.08.20080920.ebuild: Also rename
+	Gentoo meta-package
+
+2008-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog, freedink.spec,
+	gentoo/games-rpg/freedink-engine/freedink-engine-1.08.20080914.ebui
+	ld,
+	gentoo/games-rpg/freedink-engine/freedink-engine-1.08.20080920.ebui
+	ld: Release
+
+2008-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* dev-cpp/.gitignore, dev-cpp/Makefile.win, dev-cpp/freedink.dev,
+	dev-cpp/freedink_private.h, dev-cpp/freedink_private.rc,
+	dev-cpp/freedinkedit.dev, dev-cpp/freedinkedit_private.h,
+	dev-cpp/freedinkedit_private.rc, dev-cpp/readme.txt: Remove obsolete
+	dev-cpp project files
+
+2008-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	*
+	gentoo/games-rpg/freedink-engine/freedink-engine-1.08.20080914.ebui
+	ld, gentoo/games-rpg/freedink-engine/metadata.xml,
+	gentoo/games-rpg/freedink/freedink-1.08.20080914.ebuild,
+	gentoo/games-rpg/freedink/metadata.xml: Gentoo ebuilds
+
+2008-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD, debian/control: Fix one-line description for
+	'freedink' meta-package
+
+2008-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Fix opensuse build
+
+2008-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: Precise Gentoo compilation
+
+2008-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* test/fontconfig.c: Add fontconfig standalone test (previously
+	forgot to include it)
+
+2008-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Validate DinkC sp_speed() parameter (in
+	particular, don't crash if sprite==1000)
+
+2008-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Explicitely call PKG_PROG_PKG_CONFIG since we're
+	calling PKG_CHECK_MODULES conditionaly
+
+2008-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control: Mention Debian Games Team in debian/control
+
+2008-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/copyright: Mention fonts in debian/copyright
+
+2008-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, NEWS, configure.ac, debian/control, doc/fonts.txt,
+	freedink.spec, src/gfx_fonts.c: Implement system font search for
+	GNU/Linux
+
+2008-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c: Remove debug trace
+
+2008-09-06  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS: Precise zzlib-based files in AUTHORS
+
+2008-09-06  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/.gitignore, gnulib/m4/.gitignore: gnulib update
+
+2008-09-06  Sylvain Beucler <beuc@beuc.net>
+
+	* src/paths.c: Also search savegames case-insensitively in ~/.dink
+	(in case the player copied existing savegames there)
+
+2008-09-06  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c: Also look for .ogg before .mid when music is played
+	through DinkC playmidi()
+
+2008-09-05  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, debian/copyright, src/SDL_rwops_libzip.c,
+	src/SDL_rwops_zzip.c: Mention zzip sample code in copyright files
+	(asked by Debian)
+
+2008-09-05  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/bgm.c: Ogg vorbis support, to play free sound
+	replacements
+
+2008-09-05  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control, debian/menu, debian/rules, freedink.spec: New
+	package naming scheme (freedink -> freedink-engine + freedink-dfarc)
+	- Debian implementation; compile-time data prefix is now
+	/usr/share/games per Debian Games Team recommendation
+
+2008-09-04  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: New package naming scheme (freedink ->
+	freedink-engine + freedink-dfarc) - RPM implementation
+
+2008-09-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/paths.c: Support datadir/games/dink path, and improve error
+	messages related to --refdir
+
+2008-08-31  Sylvain Beucler <beuc@beuc.net>
+
+	* acsite.m4, doc/binreloc.txt: Add backported SVN fix to binreloc to
+	properly detect paths in autoconf >= 2.60
+
+2008-08-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Fix misleading error message about 'test.wav'
+
+2008-08-31  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Fix typo in version number
+
+2008-08-31  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README, share/freedink/Makefile.am, share/freedink/stop.aup: 
+	Add replacements for Dinkedit sounds
+
+2008-08-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dinkini.txt: Not going to introduce COMPAT_DIRFF after all (no
+	real advantage in repackaging graphics)
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dinkini.txt, src/dinkini.h, src/dinkvar.c, src/gfx_sprites.c,
+	src/gfx_sprites.h: dink.in processing clean-up: more documentation
+	and make code more readable
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dinkini.txt, src/dinkc_bindings.c, src/dinkvar.c,
+	src/dinkvar.h, src/freedink.c, src/game_engine.h, src/gfx_utils.c: 
+	dink.in processing clean-up: remove no-op starting_dinkx and
+	starting_dink_y, document bug, remove extra unused parameter to
+	pre_figure_out and figure_out
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: gfx_sprite.c: indent fixes
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog, freedink.spec: Switch back
+	to snapshot releases
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Don't include any .gitignore file in releases
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Rename dfarc->freedink-dfarc and use ftp.gnu.org as
+	official release location
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/control, debian/watch: Debian packaging   * Reflect dfarc -> freedink-dfarc rename   * Watch official ftp.gnu.org release location   * Point Vcs-* to the Debian packaging rather than the development     repository
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dmod.txt: Fix typo in minimal dmod start.c
+
+2008-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/copyright: Precise that the Debian packaging is GPL'd
+	(suggestion by Ansgar Burchardt)
+
+2008-08-28  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog, debian/watch, freedink.spec: 
+	Release 1.08.20080828
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c, src/msgbox.c, src/str_util.c: Properly pair remaining
+	va_start/va_end
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Depend on timidity (+ doc/justification)
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* THANKS, freedink.spec: Add opensuse-specific .desktop files
+	installation (patch by Stefan Dirsch)
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c, src/gfx_sprites.c: Fix fastfile.c so it reads
+	dir.ff files portably (reported by Stefan Dirsch)
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/control, freedink.spec, src/io_util.c: Don't
+	attempt to link zzlib or libzip when embedded resources are disabled
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: Explicitely recommend to install pkg-config before
+	compiling freedink, otherwise cryptic errors appears in ./configure
+
+2008-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/log.c, src/log.h: Reset va_list after using it (causes crash
+	under amd64, reported by Stefan Dirsch)
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: rpmlint
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, debian/BUILD, doc/TODO, doc/changes.txt, doc/data.txt,
+	doc/dfarc.txt, doc/existing_bugs.txt, doc/keycodes.txt,
+	doc/troubleshootings.txt, doc/v1.08.txt: Properly document NEWS and
+	otherwise clean-up doc
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c: Revert mistaken changes related to CD support
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/copyright: Precise earlier copyright in Debian packaging
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Update spec file
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* DEB, Makefile.am: Include specfile in tarballs and mention where
+	to get debian/
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, freedink.spec: Add specfile for Fedora
+
+2008-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Remove debian/ from tarballs to avoid trolls; add
+	BUILD in tarballs (embarrasing oversight)
+
+2008-08-21  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control, src/gfx_fonts.c, src/io_util.c, src/paths.c,
+	src/paths.h: Try to load resource from compile-time pkgdatadir, in
+	case run-time prefix detection goes wrong (working version)
+
+2008-08-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt, src/io_util.c: Try to load resource from
+	compile-time pkgdatadir, in case run-time prefix detection goes
+	wrong
+
+2008-08-21  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/rules: Remove commented dh_* that don't
+	belong to the Debian package type (suggested by Miriam Ruiz) + don't
+	try to embed resources
+
+2008-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/control: zziplib->libzip in the Debian
+	package: zziplib is available in 2 different versions depending on
+	distros and prevents building a distro-neutral .deb
+
+2008-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, README, debian/control, debian/docs: Clean-up
+	descriptions and packaging; mention new game data package
+
+2008-08-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/autopackage.txt: Note how to analyse ELF binary deps
+
+2008-08-18  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix array-out-of-bounds in sp_kill and
+	sp_kill_wait (unrelated)
+
+2008-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/data.txt: Precisions after noticing credits.txt in the
+	official game archive -_-'
+
+2008-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/default.apspec.in: Mention the SDL_gfx library version
+	ni Fedora 7 and Gentoo
+
+2008-08-16  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/default.apspec.in: Fix SDL_ttf version in autopackage
+
+2008-08-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Avoid array-out-of-bounds in
+	compare_sprite_script (avoid checking sprite #1000, fixes crash in
+	Dink Goes Hunting)
+
+2008-08-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c: Avoid array-out-of-bounds when checking adjacent
+	screens presence
+
+2008-08-16  Sylvain Beucler <beuc@beuc.net>
+
+	* THANKS: Thank testers
+
+2008-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/skeletons/@libsdl.org/sdl_ttf/skeleton.1: Fix typo in
+	sdl_ttf autopackage skeleton
+
+2008-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/Makefile.am, autopackage/default.apspec.in,
+	autopackage/extract-package.sh,
+	autopackage/skeletons/@libsdl.org/sdl_ttf/skeleton.1: Improve/update
+	autopackage spec file
+
+2008-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/static-build.txt: Mention Statifier for independent packages
+
+2008-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/binreloc.txt, src/binreloc.c: Document the origin of binreloc
+	some more
+
+2008-08-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Mention Vorbis cross-compilation bug report
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Use more common location for cross-compilation
+	libraries
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Another help2man fix
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/str_util.c: Add rule to build libgnu.a from
+	src/ (new version)
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Add rule to build libgnu.a from src/
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/control, doc/cross.txt, src/Makefile.am: 
+	configure.ac and help2man clean-up
+
+2008-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Fix manpages/make dist/help2man presence/etc.
+	combination
+
+2008-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control: Add help2man to buidl-depends
+
+2008-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, configure.ac, debian/BUILD, debian/changelog,
+	debian/control, debian/freedink.1, debian/manpages, debian/rules,
+	src/Makefile.am, src/dink.6, src/dinkedit.6, src/init.c: Fix Debian
+	lintian errors/warnings: separate -dbg, help2man manpages
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README.fonts, src/gfx_fonts.c: Revert LiberationSans to
+	original version - new one has some rendering quality issues
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fix array-out-of-bounds if the change_sprite_*
+	procedures (in particular, beware that sprite may be #1000). This
+	fixed a crash in Prelude.
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control: Recommend dfarc instead of dfarc2 (package rename)
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* share/freedink/Makefile.am: Remove editor sounds with unclear
+	legal status (build system)
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, share/README, src/Makefile.am: Remove editor sounds with
+	unclear legal status
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README.fonts: Update Liberation font to 1.04 (2008-07-13)
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/rules: Include separate debugging info in Debian package -
+	and make it work under Etch too
+
+2008-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Fixes in building cross-compilation environment
+
+2008-08-09  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: Cross-compilation: work on shared/dll
+	support
+
+2008-08-08  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/rules, doc/cross.txt: More cross-compilation instructions:
+	zlib shared, libpng, libtiff. Still some issues.
+
+2008-08-08  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/rules: Include separate debugging info in Debian package
+
+2008-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c: Note that full-screen toggle only works under X11
+	(no woe support)
+
+2008-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: More cross-compilation info / clean-up
+
+2008-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c: Explain 1.08 8bit-fade increment value
+
+2008-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Tested and fixed the cross-building instructions
+	while recreating my build environment from scratch
+
+2008-08-06  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Add TROUBLESHOOTING to EXTRA_DIST
+
+2008-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* TROUBLESHOOTING, debian/docs: Mention sound issues and
+	work-arounds; also add TROUBLESHOOTING in the Debian package
+
+2008-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c: FreeDinkedit:
+	properly apply palette to the physical screen
+
+2008-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog: Bump version
+
+2008-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c: Don't choke on -nomovie for compatiblity with DFArc2.0
+	(incompatibility noticed by Sparrowhawk)
+
+2008-08-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c: Fix crash when using debug mode - attempts to write in
+	<dmod>/DEBUG.txt before paths_init()
+
+2008-08-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dmod.txt: Update minimal D-Mod so we can actually play (not
+	just 'Hello World' :))
+
+2008-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/data.txt, src/freedinkedit.c, src/gfx.c: 
+	Fixes and more documentation in FreeDinkedit's hardness mode
+
+2008-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, src/dinkvar.c, src/freedinkedit.c, src/gfx.c,
+	src/gfx_tiles.c: Fixes and more documentation in FreeDinkedit's
+	hardness mode
+
+2008-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD, debian/control: Make timidity a dependency in the
+	Debian package to avoid SDL_mixer issues
+
+2008-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/game_libraries.txt, test/sdl/.gitignore,
+	test/sdl/sdl_stretch.c: Test SDL_stretch
+
+2008-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/SDL_gfx-patches/asm_gcc4.3.diff,
+	doc/SDL_gfx-patches/asm_win32_nomingw.diff,
+	doc/SDL_gfx-patches/debian_020_gcc4.3.diff,
+	doc/SDL_gfx-patches/libtool_crosscompile.diff,
+	doc/SDL_gfx-patches/libtool_static.diff,
+	doc/SDL_gfx-patches/series, doc/cross.txt: (cross-)Build instructions for new SDL_gfx 2.0.17
+
+2008-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Fix drawing current hardness tile
+	(s/dst.y/dst.h/)
+
+2008-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, doc/changes.txt, src/dinkvar.h, src/freedinkedit.c,
+	src/gfx.c, src/sfx.c: Editor: fixed bugs introduced by
+	layout-independant input, fixed known hardness-mode selector bug
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control: Fix syntax in debian/control
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, README, configure.ac, debian/changelog, debian/control,
+	debian/copyright: Fix description/copyright + bump version
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Still need to do something wrt woe registry key
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c, src/game_engine.h, test/sdl/keycodes.c: Use
+	keyboard-layout-independant input system for FreeDinkedit, allowing
+	to use it with a non-English layout
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/input.c, src/input.h: Remove unused function 'keypressed'
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/sfx.c, src/update_frame.c: 
+	clean-up
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_console.c, src/dinkc_console.h: Declare function
+	'dinkc_console_process_key' in the module header
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/control: Recommend 'dfarc2' in the Debian package
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Use relative path for the 'dink' and 'dinkedit'
+	symlinks (instead of absolute path to the build dir..)
+
+2008-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* TROUBLESHOOTING, src/dinkc_console.c, src/dinkc_console.h,
+	src/dinkc_sp_custom.c, src/freedink.c, src/freedinkedit.c,
+	src/game_engine.h, src/input.c, test/sdl/keycodes.c: Clean-up:
+	FreeDinkedit keyboard state
+
+2008-07-30  Sylvain Beucler <beuc@beuc.net>
+
+	* README: Update README
+
+2008-07-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/v1.08.txt, doc/v1.08_dink.diff,
+	doc/v1.08_dinkvar.diff, doc/v1.08_update_frame.diff,
+	src/Makefile.am, src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c,
+	src/dinkc_console.c, src/dinkc_console.h, src/freedink.c,
+	src/freedinkedit.c, src/gfx.c, src/gfx_fonts.c, src/gfx_fonts.h,
+	src/init.c, src/input.c, src/update_frame.c: v1.08: DinkC
+	show_console
+
+2008-07-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt: Document changes&fixes specific to FreeDink
+
+2008-07-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedinkedit.c, src/gfx.c, src/gfx.h: Fix
+	transparency issue with scaled sprites in truecolor mode
+
+2008-07-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c, src/gfx.c,
+	src/gfx.h: Ignore sprite transparency in a few cases, namely when
+	drawing status and screenlock
+
+2008-07-29  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog: Bump version
+
+2008-07-29  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/data.txt: Suggest replacement for Roland's 'Ave Maria' midi
+
+2008-07-28  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c: Fix some overflow issues in up_cycle (fade_up)
+	causing artifacts during a fadeup
+
+2008-07-28  Sylvain Beucler <beuc@beuc.net>
+
+	* src/game_engine.c, src/init.c: Clean-up version display
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c, src/gfx_fonts.h, src/update_frame.c: In debug
+	mode, print a white background behind debug text
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/midi.txt, doc/roadmap.txt: Doc fixes
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Checked PJ's bug list
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: v1.08: new
+	time-based paletted fadedown
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c,
+	src/dinkvar.c: v1.08: various clean-ups
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc.c, src/dinkc.h,
+	src/dinkc_bindings.c: v1.08: callback_kill()
+
+2008-07-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: 
+	v1.08: set_dink_speed(0) is no-op
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: 
+	v1.08: with v1.07 hurt(&sthing, -1) would run hit(), with v1.08 it
+	doesn't
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkvar.c: v1.08:
+	level-up no longer lost if in inventory screen, fixed another other
+	experience count issue
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkvar.c: v1.08: fix
+	crash when &magic_cost < 100
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c,
+	src/dinkvar.c, src/dinkvar.h: v1.08: add_exp will work with any
+	active_sprite
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkc_bindings.c, src/freedink.c: v1.08: &missle_source is
+	defined for all attacks, not just missiles.
+
+2008-07-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff: v1.08
+	diffs clean-up: remove a couple non-changes
+
+2008-07-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkc.c, src/dinkvar.c, src/freedink.c: v1.08: sp_move_nohard()
+	has effect all the time
+
+2008-07-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: 
+	v1.08: screenlock() returns the current screenlock value if value is
+	-1
+
+2008-07-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: 
+	v1.08: compare_magic() works correctly
+
+2008-07-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff, src/freedink.c,
+	src/game_engine.c: v1.08 diffs clean-up
+
+2008-07-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c: Fix woe header issue
+
+2008-07-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/Makefile.am,
+	src/dinkc_bindings.c, src/dinkc_sp_custom.c, src/dinkc_sp_custom.h,
+	src/dinkc_sp_custom_hash.c, src/dinkc_sp_custom_hash.h,
+	src/dinkvar.c, src/game_engine.c, src/game_engine.h, src/init.c: 
+	DinkC sp_custom
+
+2008-07-20  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/gnulib-cache.m4, src/dinkc_sp_custom_hash.c,
+	src/dinkc_sp_custom_hash.h: Add hashtable to be used by DinkC
+	sp_custom support
+
+2008-07-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: Corpses appear
+	as the same size as the living sprite.
+
+2008-07-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: DinkC
+	sp_move_x and sp_move_y
+
+2008-07-20  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: 
+	Enable new v1.08 button scripts (buttonX.c, dnotalk, dnomagic)
+
+2008-07-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/init.c: Init game structs before other inits, to
+	avoid resetting data (e.g. play.button)
+
+2008-07-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: Fixed issue of
+	a phantom keyboard key causing the Map to not be displayed.
+
+2008-07-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fade.c, test/sdl/fade.c: Fix fade in 15bits mode (SDL says
+	bbp=16 instead of 15)
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: Fix map
+	indicator when the current screen is on the last row of the map
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: More clean-up
+	in v1.08 diffs
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	doc/v1.08_update_frame.diff, src/dinkc_bindings.c, src/freedink.c,
+	src/game_engine.c, src/game_engine.h, src/update_frame.c: DinkC
+	set_dink_base_push(int dinkbasepush)
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: 
+	Dink's map position appears correctly after warps. (2)
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkvar.c, src/dinkvar.h, src/freedink.c, src/game_engine.c,
+	src/init.c, src/update_frame.c: Clean-up v1.08 diffs
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: DinkC
+	var_used()
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: DinkC
+	show_inventory()
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS: Precise Dan's part.
+
+2008-07-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/existing_bugs.txt, src/gfx_sprites.c,
+	src/gfx_sprites.h: Allow abusing sequences into loading than 50
+	frames (backward compatibility)
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	doc/v1.08_update_frame.diff, src/freedink.c: Dink's map position
+	appears correctly after warps.
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/bgm.c, src/bgm.h, src/dinkc_bindings.c: DinkC
+	loopmidi()
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c: Improve warp semi-fade effect under truecolor mode
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_fade.c, test/sdl/fade.c: Fix bad cache
+	declaration; remove 15bit test
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/dinkc_bindings.c, src/freedink.c,
+	src/game_engine.c, src/game_engine.h, src/gfx.c, src/gfx.h,
+	src/gfx_fade.c, src/gfx_fade.h, test/sdl/fade.c,
+	test/sdl/videoinfo.c: Fadedown/fadeup in truecolor mode (integration
+	in the engine)
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/fade.c: Fadedown/fadeup separate test: trying different
+	approaches to efficiency (done)
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/fade.c: Fadedown/fadeup separate test: trying different
+	approaches to efficiency
+
+2008-07-17  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/.gitignore, test/sdl/Makefile, test/sdl/videoinfo.c: 
+	Fadedown/fadeup separate test: trying different approaches to
+	efficiency
+
+2008-07-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_dinkvar.diff, src/dinkvar.c: Fix sprite lazy-loading; in
+	some situations it only worked get_box ran fine on uninitialized
+	sequence #0, which apparently only worked in v1.07 ;)
+
+2008-07-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/update_frame.c: More performance tests with
+	truecolor
+
+2008-07-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/freedink.c, src/gfx.c,
+	src/gfx_sprites.c, src/update_frame.c: Truecolor fixes: memory leak,
+	keep altering dir.ff bmps, prepare for different fade, have
+	load_palette() also modify the reference palette, experiment with
+	speed and memory usage
+
+2008-07-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_dink.diff, src/Makefile.am, src/dinkvar.c,
+	src/dinkvar.h, src/freedink.c, src/freedink.h, src/game_engine.c,
+	src/game_engine.h, src/gfx.c, src/gfx.h, src/update_frame.c: First
+	attempt at truecolor fades, sadly incomplete because we have to
+	support _not_ fading white pixels
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_update_frame.diff: Delete already merged changes from
+	update_frame.cpp
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_update_frame.diff: Add diff for v1.08's update_frame.cpp
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c,
+	src/update_frame.c: More truecolor support (dinkedit, fill_screen)
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkc_bindings.c, src/dinkvar.c, src/freedink.c,
+	src/freedinkedit.c, src/gfx.c, src/gfx.h, src/gfx_sprites.c,
+	src/init.c, test/sdl/.gitignore, test/sdl/Makefile,
+	test/sdl/videoinfo.c: Basic truecolor mode (lacks dinkedit,
+	fadedown/fadeup, fill_screen)
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/gfx_sprites.c: s/&/&&/ in
+	boolean tests, this can introduce bugs when operand are different
+	than 0 and 1
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog: Bump version
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Fix "erase all sprites" with alt+delete in the
+	editor
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/freedinkedit.c, src/gfx_utils.c: 
+	Load alternate editor map.dat in a portable way
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkvar.c: Load data (savegames, map.dat,
+	dink.dat, hard.dat) in a portable way
+
+2008-07-15  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/dinkdat_inspect.c, src/dinkvar.c, src/dinkvar.h,
+	src/game_engine.h, src/io_util.c, src/io_util.h: Save data
+	(savegames, map.dat, dink.dat, hard.dat) in a portable way
+
+2008-07-14  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/dextract, doc/data.txt: Note that dextract/7-Zip misses
+	some files when extracting dinksmallwood108.exe
+
+2008-07-14  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/dextract: Note that dextract/7-Zip misses some files when
+	extracting dinksmallwood108.exe
+
+2008-07-13  Sylvain Beucler <beuc@beuc.net>
+
+	* TROUBLESHOOTING: Document issues with SDL + /dev/sequencer -
+	timidity
+
+2008-07-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/freedink.c: Conditionally
+	fix sp_flying
+
+2008-07-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkc_bindings.c, src/freedink.c, src/game_engine.c,
+	src/game_engine.h: v1.08 DinkC functions: set_smooth_follow()
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c,
+	src/dinkvar.c: v1.08 DinkC functions: sp_clip_top, sp_clip_left,
+	sp_clip_bottom, sp_clip_right
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkc_bindings.c: v1.08 DinkC functions:
+	get_next_sprite_with_this_brain()
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/dinkc_bindings.c, src/freedink.c, src/gfx_fonts.c,
+	src/gfx_fonts.h: v1.08 DinkC functions: set_font_color()
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: v1.08
+	DinkC functions: get_item(), get_magic(), load_map()
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c: v1.08
+	DinkC functions: clear_editor_info()
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, doc/v1.08.txt, doc/v1.08_dinkvar.diff,
+	src/dinkc_bindings.c, src/dinkvar.c, src/freedink.c,
+	src/freedinkedit.c, src/gfx.c, src/gfx_tiles.c, src/gfx_tiles.h: 
+	v1.08 DinkC functions: load_palette, load_tile, map_hard_tile,
+	map_tile
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c,
+	src/dinkvar.c, src/game_engine.c, src/game_engine.h: 
+	set_save_game_info() + prepare other savegame changes
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, src/dinkvar.c, src/freedink.c: 
+	Fix which sprites blood to use when hit (attackee rather than
+	attacker)
+
+2008-07-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/io_util.c: Fix crash (array out of bounds) when --game is a
+	relative path
+
+2008-07-06  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_dink.diff: Remove merged code from v1.08_dink.diff
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Don't try to include vgasys.fon in executables -
+	it's already done via linking.
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Clean-up in custom procedure launch + print
+	appropriate debug info (instead of uninitialized string)
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dinkvar.diff, src/dinkc_bindings.c,
+	src/dinkvar.c, src/game_engine.h: sp_blood_seq and sp_blood_num
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/str_util.c: doc
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Add infos on when v1.08 features were merged
+
+2008-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/HACKING_dinkc.txt, doc/v1.08.txt, doc/v1.08_dinkvar.diff,
+	src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c, src/game_engine.h: 
+	v1.08 DinkC syntax changes: variables (scope, prefix clash) and
+	functions (globals, user parameters)
+
+2008-07-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/HACKING_dinkc.txt, doc/v1.08.txt, doc/v1.08_dinkvar.diff,
+	src/bgm.c, src/dinkc_bindings.c: Continue merging small v1.08
+	changes and strip v1.08_dinkvar.diff accordingly
+
+2008-06-30  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, gnulib/lib/.gitignore, gnulib/m4/.gitignore: Update
+	Gnulib; include gnulib/m4/gnulib-cache.m4 in dist tarballs so users
+	can update gnulib too
+
+2008-06-29  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff,
+	src/freedinkedit.c: Remove already merged code from the 1.08 diffs
+
+2008-06-29  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff: Remake v1.08 diff
+	(commented some C++ constructs that confusd 'indent')
+
+2008-06-26  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/.gitignore, doc/v1.08_dink.diff, doc/v1.08_dinkvar.diff: 
+	Add v1.07->v1.08 diffs; we'll trim them down as we merge (or reject)
+	the changes
+
+2008-06-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/HACKING_dinkc.txt: Add study of DinkC original implementation
+
+2008-06-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkini.c, src/dinkini.h: Forgot to add new files dinkini.c
+	and dinkini.h
+
+2008-06-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h, src/dinkvar.c, src/dinkvar.h: Move
+	var_figure to dinkc.c
+
+2008-06-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Cross-build instructions for libffi
+
+2008-06-25  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4, src/Makefile.am,
+	src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c, src/dinkvar.c,
+	src/str_util.c: gnulib update + clean-ups in DinkC-related functions
+
+2008-06-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c: Fail if there are extra command line arguments
+
+2008-06-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/dinkvar.c, src/init.c: The number of sprite
+	information (idata) is now configurable at runtime: 600 in v1.07,
+	1000 in v1.08
+
+2008-06-24  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, doc/v1.08.txt, src/dinkc_bindings.c, src/dinkvar.c,
+	src/str_util.c: Start introducing v1.08 new DinkC commands
+
+2008-06-23  Sylvain Beucler <beuc@beuc.net>
+
+	* README, doc/v1.08.txt, src/game_engine.c, src/game_engine.h,
+	src/init.c, src/update_frame.c: Set v108 mode by default; add option
+	to use v107 mode. Now we only need to actually implement v108 ;)
+
+2008-06-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/compress.c: Precise copyright notice for compress.c
+
+2008-06-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/midi.txt: Update MIDI instructions
+
+2008-06-22  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, contrib/dextract, doc/v1.08.txt: Doc fixes
+
+2008-06-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkc.c: Time for save game correctly displayed
+	(2:05 instead of 2:5).
+
+2008-06-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkvar.c, src/gfx_tiles.c: The first tile on
+	the fire and water tile pages animate correctly.
+
+2008-06-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkvar.c, src/dinkvar.h, src/freedink.c: Dink
+	can no longer walk around the edges of the screen during a
+	screenlock.
+
+2008-06-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkc_bindings.c: Removed screenlock on restart
+	game
+
+2008-06-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkvar.c, src/dinkvar.h, src/freedink.c,
+	src/update_frame.c: Scrolling now appears on 1-pixel rows and
+	columns near status bar.
+
+2008-06-02  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fixed crash when ordering 99 (=max) sprites for
+	display in screen load (place_sprites_game)
+
+2008-06-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, src/dinkvar.c: Describe how the engine temporarily
+	disable monsters
+
+2008-06-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_utils.c: Fix crash with show_bmp() and
+	non-paletted BMPs; make palette conversion code clearer along the
+	way
+
+2008-06-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc_bindings.c, src/str_util.c: Fixed 2
+	crashes: temp 'crap' buffer too short (100 chars);
+	compare_sprite_script: attemps to access a potential deleted script
+
+2008-05-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sound_resources.txt: Reference other games that provide freely
+	licensed sounds
+
+2008-05-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/roadmap.txt, src/gfx.c: Remove references to Doppelganger's
+	disappearing slayer corpses in the context of background gfx's
+	overwritten by tile animation - that effect was done differently
+	(with a sprite floor)
+
+2008-05-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: More guile cross-compile instructions
+
+2008-05-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fix crash in FreeDinkedit when a non-existent
+	sequence is used ('introduced' when seq[x].ini became a pointer
+	instead of a fixed-length string)
+
+2008-05-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_sprites.c, src/update_frame.c: Blit surface to
+	be RLE-encoded on Trick2 instead of Trick2, this messes the screen
+	transition
+
+2008-05-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Add preliminary notes about cross-compiling Guile
+
+2008-05-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/bgm.c, src/dinkc.c, src/dinkc.h,
+	src/dinkc_bindings.c, src/dinkc_bindings.h, src/dinkvar.c,
+	src/dinkvar.h, src/freedink.c, src/freedink.h, src/freedinkedit.c,
+	src/game_engine.c, src/game_engine.h, src/gfx_sprites.h,
+	src/gfx_tiles.c, src/init.c, src/init.h, src/input.c,
+	src/io_util.h, src/paths.h, src/sfx.c, src/str_util.c,
+	src/str_util.h, src/update_frame.c: Messy clean-up: extract
+	DinkC-related functions from dinkvar.c
+
+2008-05-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Add safety checks in the game .d decompression and
+	fix a buffer overflow in stack[]
+
+2008-05-23  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/d2c.c: Clean-room stack-based BPE decompression
+
+2008-05-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/hardcoded_sequences.txt, src/dinkvar.c: Properly fixed
+	hard.dat reset
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fixed hard.dat reset in the editor (bug introduced
+	with refdir support in load_hard)
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/dinkvar.c: The 1-pixel row above the status bar
+	now draws sprite graphics.
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, src/gfx_sprites.c: Add Seth in gfx_sprites.c
+	copyright holders (ahem)
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Fix copyright notice; remove reference to
+	s_index (merged)
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Always close dir.ff files.
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_sprites.c: Attempt at RLE encoding/compression
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog: Bump version
+
+2008-05-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/v1.08.txt, src/dinkvar.h, src/gfx_sprites.c: 
+	Clean sequence reload: no sequence overwriting, no memory leak
+
+2008-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Precise comment about palettes
+
+2008-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/memory_usage.txt, doc/valgrind.txt: Tools for analyzing memory
+	usage
+
+2008-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/c_canonicalize.sh, doc/v1.08.txt: Minimize differences when
+	comparing 1.07 and 1.08 using a canonical form for C source code
+
+2008-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Alter pure white and black colors when reading
+	sprites from a dir.ff; this reproduces the original game behavior
+	and prevent white pixels from appearing in the status bar during a
+	fade_down()
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/existing_bugs.txt, src/dinkvar.c,
+	src/dinkvar.h, src/gfx_sprites.c: Some clean-up in pre_figure_out,
+	figure_out, make_idata, program_idata
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c, src/gfx_sprites.h: Rename org ->
+	seq_path_prefix for clarity
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Remove cur_sprite -> next_slot for clarity
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/gfx_sprites.c,
+	src/gfx_sprites.h: Fix memory overwrite because of a too short
+	'data' field in struct sequence; replaced by malloc'd string
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/.gitignore, src/dinkvar.c, src/gfx_sprites.c,
+	src/gfx_sprites.h: Clean-up load_sprite_pak + add safety checks to
+	avoid sprites with a too much greater index
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/hardcoded_sequences.txt: Start referencing sequences numbers
+	that are hardcoded in the game engine
+
+2008-05-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h, src/gfx_sprites.c: Some clean-up in load_sprites
+	and load_sprite_pak
+
+2008-05-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/freedink.c, src/gfx_sprites.c,
+	src/update_frame.c: Merge s_index and seq structures, they both
+	describe graphic sequences and are identically indexed
+
+2008-05-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h, src/gfx_sprites.c: Sequence-related comments;
+	remove sprite_index.x and sprite_index.y (unused)
+
+2008-05-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/gfx_sprites.c, src/gfx_sprites.h: Move
+	load_sprite_pak and load_sprites: dinkvar.c->gfx_sprites.c
+
+2008-05-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Ensured that cvt.buf wasn't realloc'd by SDL and could
+	be free'd normally
+
+2008-05-15  Sylvain Beucler <beuc@beuc.net>
+
+	* THANKS, src/sfx.c: Fix sound memory leak found by José and add
+	safety checks to avoid playing NULL sounds
+
+2008-05-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dmod.txt: Fix DinkC mistake in minimal D-Mod
+
+2008-05-15  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/.gitignore, contrib/d2c.c: Warn that d2c.c segfaulst and
+	is to be reimplemented
+
+2008-05-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Remove unused and pointless function 'refigure_out'
+
+2008-05-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c: Fix small leak (pathname not freed) in PlayMidi
+
+2008-05-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fix memory lead in load_sprites; unlike
+	load_sprite_pak, it didn't free the surface in the graphics slot it
+	used.
+
+2008-05-13  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Improve cross-build instructions
+
+2008-05-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog: Bump version (it's been a
+	while)
+
+2008-05-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/gfx.c, src/paths.c: - Close file pointers used by load_bmp_from_fp   (reported by José María Pavón Núñez)   Actually, close all RWops after image is loaded in
+	  load_bmp_internal - Fix a small memory leak in paths_init
+
+2008-05-08  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/README, debian/README.Debian,
+	debian/changelog, debian/control, debian/copyright, debian/menu,
+	debian/rules: Fix a couple (Debian) packaging warnings.
+
+2008-05-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/existing_bugs.txt, doc/v1.08.txt, src/freedink.c: More v1.08
+	analysis
+
+2008-05-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt, src/freedinkedit.c: Apply 1.08 editor grammar fixes
+
+2008-05-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/existing_bugs.txt, src/dinkvar.c: Add v1.07/v1.08 bug reported
+	by Someone
+
+2008-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c, src/io_util.c: No error return code when
+	exiting FreeDinkedit from the window manager; doc fixes
+
+2008-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD, debian/control, debian/rules: Improve Debian
+	packaging: explain dpkg-shlibdeps warnings; add homepage,
+	vcs-browser and vcs-git control fields; rename the tmp build
+	directory from 'build' to 'build.tmp', to avoid case-insensitive
+	clash with 'BUILD', which prevents FreeDink from finding resources.
+
+2008-03-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/v1.08.txt, src/dinkvar.c: Disable playavi()
+	DinkC command
+
+2008-03-09  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, src/Makefile.am: Overwrite 'dink' and 'freedink'
+	symlinks if already exist
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c, src/dinkvar.c, src/freedinkedit.c, src/gfx.c,
+	src/gfx.h, src/gfx_fonts.c, src/gfx_tiles.c, src/gfx_utils.c,
+	src/init.c, src/io_util.c, src/log.c, src/paths.c, src/paths.h,
+	src/sfx.c: Simplify case-insensitiveness (fopen wrapper rathan than
+	path wrapper)
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c, src/dinkvar.c, src/dinkvar.h, src/freedinkedit.c,
+	src/gfx.c, src/gfx_utils.c, src/io_util.c, src/io_util.h,
+	src/sfx.c, src/update_frame.c: Make it clearer that ciconvert works
+	in-place
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO: Remove FreeDinkedit fixed bug from TODO
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt: Add basic fullscreen<->window toggle
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/gfx.c, src/init.c: Add
+	basic fullscreen<->window toggle
+
+2008-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/cross.txt, src/dinkvar.h,
+	src/freedinkedit.c, src/input.c, test/sdl/.gitignore,
+	test/sdl/keycodes.c: Improve non-US support and input dialogs in the
+	editor
+
+2008-02-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Add a link to a v1.08 bugs list (thanks to Phoenix
+	for the link)
+
+2008-02-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Remove references to now-unused stamp files
+
+2008-02-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h: Identify data structures
+
+2008-02-15  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/Makefile, test/sdl/keycodes.c: Add test for SDL keycodes
+
+2008-02-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/keycodes.txt: Fix mistake in test results
+
+2008-02-02  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README, share/freedink/Makefile.am,
+	share/freedink/system.sfd, src/Makefile.am, src/freedink_xpm.c,
+	src/freedink_xpm.h, src/gfx.c, src/gfx_fonts.c, src/init.c,
+	src/init.h, src/media/README, src/media/system.sfd, src/msgbox.c,
+	src/paths.c, src/str_util.c, src/str_util.h, src/vgasys_fon.h,
+	src/woeres.rc.in: Finish error handling for graphics initialization
+	+ move non-installed media out of share/
+
+2008-02-02  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx.h, src/gfx_fonts.c, src/gfx_fonts.h,
+	src/gfx_utils.c, src/init.c, src/init.h, src/msgbox.c, src/paths.c,
+	src/vgasys_fon.c, src/vgasys_fon.h: More on initialization error
+	handling
+
+2008-02-02  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README.fonts, src/Makefile.am, src/gfx.c, src/gfx_fonts.h,
+	src/init.c, src/msgbox.c, src/msgbox.h, src/paths.c,
+	src/vgasys_fon.c: Start implementing message box functions
+
+2008-02-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/gettext.txt, gnulib/lib/.gitignore, gnulib/m4/.gitignore,
+	gnulib/m4/gnulib-cache.m4, src/log.c, src/paths.c: Import asprintf,
+	to build string that could be passed to GUI message boxes.
+
+2008-02-01  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Change bug report e-mail
+	(beuc@beuc.net->bug-freedink@gnu.org)
+
+2008-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sdl_existing_window.txt: Confirm migration of the SDL_WINDOWID
+	doc to the wiki
+
+2008-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: Move dfarc documentation to DFArc2 repository
+
+2008-01-20  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, configure.ac, debian/control, doc/data.txt: FreeBSD build
+	instructions
+
+2008-01-19  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, configure.ac, doc/cross.txt, src/Makefile.am: Build
+	system fixes
+
+2008-01-19  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap: Add copyright notice to 'bootstrap'
+
+2008-01-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Add 'dink' and 'dinkedit' aliases, to please
+	3rd-party tools
+
+2008-01-16  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/bmpinspect.c, contrib/bmpinvertpalette.c, contrib/d2c.c,
+	contrib/dextract, contrib/dinkdat_inspect.c, contrib/ffinspect.c,
+	contrib/ffrextract.c, doc/data.txt, utils/bmpinspect.c,
+	utils/bmpinvertpalette.c, utils/d2c.c, utils/dinkdat_inspect.c,
+	utils/ffinspect.c, utils/ffrextract.c: Add script to extract game
+	data from the official .exe package
+
+2008-01-13  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt, src/init.c, src/paths.c, src/paths.h: 
+	Moved non-FreeDink-specific paths from .../freedink/ to .../dink/
+
+2008-01-13  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: Precisions about DFArc and DFArc2
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/dinkdat_inspect.c: typo
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/dinkdat_inspect.c: More doc on dink.dat
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h: doc
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* src/SDL_rwops_zzip.c, src/bgm.c, src/gfx.c, src/log.c: Reorder
+	#include's -
+	http://lists.gnu.org/archive/html/bug-gnulib/2008-01/msg00133.html
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/data.txt: hard.dat is a prerequisite for tiles
+
+2008-01-11  Sylvain Beucler <beuc@beuc.net>
+
+	* src/paths.c: Don't try to free static string
+
+2008-01-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/freedink.c, src/freedink.h: 
+	Start implementing a early error message box
+
+2008-01-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c, src/input.c: Move keyboard initialization code to
+	input.c
+
+2008-01-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c, src/bgm.h: Music clean-up
+
+2008-01-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sdl_existing_window.txt: More on integrating SDL in an
+	existing GUI
+
+2008-01-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/data.txt: More info on original data copyright
+
+2008-01-02  Sylvain Beucler <beuc@beuc.net>
+
+	* THANKS, src/paths.c: More fixes in paths detection (thanks again
+	Alex\!)
+
+2007-12-30  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Simplify outrageously complex dos2unix-like sed
+	script
+
+2007-12-29  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Check SDL_ttf >= 2.0.9 in ./configure
+
+2007-12-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c: Don't free the current font if initfont() failed
+	to load a new one (thanks again for the report Alex!).
+
+2007-12-29  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/paths.c: Fix a double-free error, and don't
+	look in ./dink for a D-Mod unless that's explicitely specified with
+	-game (thanks to Alex Schrøder for hitting the bug\!)
+
+2007-12-29  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sdl_existing_window.txt: More on using SDL along with a
+	widgets set
+
+2007-12-28  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/data.txt: Reference data from the original game commonly
+	needed by D-Mods
+
+2007-12-28  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/d2c.c, utils/ffinspect.c, utils/ffrextract.c: Fix
+	ffrextract.c and support some broken dir.ff files
+
+2007-12-28  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c, utils/ffrextract.c: ffrextract.c cleanup; attempt
+	to process command line arguments as well
+
+2007-12-28  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Found v1.08's changelog
+
+2007-12-28  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/.gitignore: Gnulib refresh
+
+2007-12-26  sylvain <sylvain@sylvain.(none)>
+
+	* src/dinkvar.c, src/paths.c, valgrind/suppressions-debian_etch.txt: 
+	A couple more one-shot memory leaks fixed.
+
+2007-12-24  sylvain <sylvain@sylvain.(none)>
+
+	* src/Makefile.am, src/dinkvar.c, src/freedink.c,
+	src/freedinkedit.c, src/gfx_sprites.c, src/gfx_sprites.h,
+	src/gfx_tiles.c, src/gfx_tiles.h, src/init.c, src/io_util.c,
+	valgrind/suppressions-debian_etch.txt: Free graphics from memory on
+	shutdown (avoid noise when using Valgrind)
+
+2007-12-24  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, debian/changelog, doc/cross.txt: version bump
+
+2007-12-24  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/game_libraries.txt, src/sfx.c: Don't reallocate (and move)
+	shared memory in the sound subsystem (fix crash)
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/valgrind.txt, src/bgm.c, src/bgm.h, src/dinkvar.c,
+	src/freedink.c, src/gfx_fonts.c, src/init.c, src/input.c,
+	src/input.h, src/paths.c, src/paths.h, src/sfx.c, src/str_util.c,
+	src/str_util.h, valgrind/suppressions-debian_testing.txt: Fix some
+	Valgrind-detected memory leaks + cleaner engine shutdown
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap: Check for pkg-config presence in bootstrap (needed by
+	some autoconf tests)
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: Dependencies documentation
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, configure.ac, doc/cross.txt, src/Makefile.am,
+	src/SDL_rwops_libzip.c, src/SDL_rwops_libzip.h, src/io_util.c,
+	test/sdl/SDL_rwops_libzip.c: Can use either libzip or zziplib to
+	load resources
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, test/sdl/Makefile, test/sdl/SDL_rwops_libzip.c,
+	test/sdl/SDL_rwops_libzip.h, test/sdl/SDL_rwops_zzip.c,
+	test/sdl/embedded_font.c, test/sdl/embedded_font2.c: New test: load
+	font from resource using libzip instead of zziplib (libzip is more
+	portable, a.k.a. does not crash under woe)
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/paths.c: dirname -> dir_name (doesn't modify argument)
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, src/Makefile.am, src/SDL_rwops_zzip.c,
+	src/paths.c: More cross compilation fixes
+
+2007-12-23  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4,
+	src/SDL_rwops_zzip.c, src/bgm.c, src/dinkvar.c, src/fastfile.c,
+	src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c,
+	src/gfx_fonts.h, src/paths.c, src/update_frame.c: Cross compilation
+	fixes
+
+2007-12-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4, src/dinkvar.c,
+	src/dinkvar.h, src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c,
+	src/gfx_utils.c, src/io_util.c, src/log.c, src/paths.c,
+	src/paths.h, test/woepaths.c: Save games in ~/.freedink//saveX.dat
+	when there's no write access to the D-Mod; some search path fixes
+
+2007-12-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/io_util.c, src/io_util.h: Fix dir.ff search
+	path
+
+2007-12-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c, src/dinkvar.c, src/freedink.c, src/freedinkedit.c,
+	src/gfx_tiles.c, src/gfx_utils.c, src/init.c, src/io_util.c,
+	src/paths.c, src/paths.h, src/sfx.c: Implement refdir-based search
+	path (done)
+
+2007-12-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am, src/bgm.c, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c,
+	src/gfx_tiles.c, src/gfx_utils.c, src/gfx_utils.h, src/init.c,
+	src/init.h, src/input.c, src/io_util.c, src/io_util.h, src/log.c,
+	src/log.h, src/paths.c, src/paths.h, src/sfx.c, src/update_frame.c: 
+	Implement refdir-based search path (WIP) + factored out some
+	initialization code
+
+2007-12-21  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/.gitignore: gnulib update
+
+2007-12-21  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/init.c, src/io_util.c, src/io_util.h: 
+	Introduce --refdir to refer to the directory containing 'dink/' and
+	dmods
+
+2007-12-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt, src/io_util.c: Compute base directories
+	locations (not tested)
+
+2007-12-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, doc/directory_layout.txt, src/freedink.c,
+	src/freedinkedit.c, src/init.c, src/sfx.c, src/sfx.h: Load editor
+	sounds as resources
+
+2007-12-12  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/embedded_font.c: Test for embedded font: use the same
+	font parameters as in the game
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c,
+	src/gfx_fonts.h, src/update_frame.c: Support use of 2 different
+	fonts (dialog and system). Better font encapsulation/clean-up.
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/default.apspec.in, configure.ac, doc/autopackage.txt,
+	doc/static-build.txt, src/Makefile.am: Reflexions on autopackage and
+	static linking
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/rules: Bump version and ignore 'make
+	clean' error more precisely (fix lintian warning)
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, Makefile.am, autopackage/default.apspec.in, configure.ac,
+	src/Makefile.am: zip and upx are done at 'make install' time now.
+	Improve ./configure to display missing dependencies at once (instead
+	of stopping on first error)
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: More clean-up in SFX
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Make sure all sound buffer pointers are initially NULL
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac: Bump version
+
+2007-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c, src/dinkvar.c, src/freedink.c, src/freedinkedit.c,
+	src/sfx.c, src/sfx.h: Integrate sound sample rate support in the
+	engine. Plus more code clean-up / encapsulation.
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* autotools/.gitignore, bootstrap: Don't remove
+	autotools/link-warning.h on 'sh bootstrap clean', it would force to
+	reimport Gnulib
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap: Continue cleaning if make maintainer-clean fails
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/gnulib.txt, gnulib/m4/gnulib-comp.m4: Refresh Gnulib -
+	documentation
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/.gitignore, gnulib/m4/gnulib-comp.m4: Refresh Gnulib
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/midi.txt: Separate MIDI-related documentation
+
+2007-12-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h: A bit of indent/comments/deletion of
+	extra spaces in dinkvar.c
+
+2007-12-07  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Fix declaration for SetVolume and SetPan
+
+2007-12-02  Sylvain Beucler <beuc@beuc.net>
+
+	* README, doc/cvs.txt, doc/fonts.txt, doc/game_libraries.txt,
+	doc/roadmap.txt, doc/sound.txt, doc/valgrind.txt,
+	doc/woe-compile.txt: Doc updates
+
+2007-11-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sound.txt: Mixing audio libs = bad idea; mention SDL_sound v2
+
+2007-11-27  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: SetVolume/SetPan -> internal/static funcs
+
+2007-11-27  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/sdl_freq.c: Frequency / sample rate shift with a
+	SDL_mixer channel effect
+
+2007-11-27  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/embedded_font.c: Copyright notice
+
+2007-11-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sound.txt, src/sfx.c: Sound: implement volume&panning
+
+2007-11-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c,
+	src/gfx_fonts.h, src/update_frame.c: Fix title placement for text
+	choices: remove font vertical alignement (never worked in the
+	original game actually), take leading newlines into account.
+
+2007-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/embed_resources.txt, doc/fonts.txt, doc/game_libraries.txt,
+	share/README.fonts, share/freedink/Makefile.am,
+	share/freedink/system.sfd, src/freedink.c, src/freedinkedit.c,
+	src/gfx_fonts.c, src/gfx_fonts.h, src/update_frame.c,
+	test/woefont.c: Improved font support in progress: include alternate
+	font used by FreeDinkedit (not used in the code yet), fix bugs in
+	text wrapping, fix bugs in dialog positioning (not finished), more
+	documentation, minimal test for printing fonts like Dink does under
+	Woe
+
+2007-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt: Document (fixed) issues with compressed BMPs
+
+2007-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/hardware_surfaces.txt: Doc about enabling hardware surface -
+	difficult for end user
+
+2007-11-04  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: AC_LIB_PROG_LD issue promptly fixed in Gnulib, removing
+	workaround
+
+2007-11-04  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, doc/game_libraries.txt, doc/sound.txt: Doc updates: more on
+	using TiMidity++ and about game libraries
+
+2007-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, doc/cross.txt, doc/roadmap.txt: Docs update: build info for
+	Fedora, warning about FreeType compilation, update roadmap with
+	today's progresses
+
+2007-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dependencies.txt: Remove doc/dependencies.txt, replaced by
+	BUILD
+
+2007-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c: More efficient implementation of text coloring
+	using the final screen palette.
+
+2007-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_fonts.c: Fix text color during fade_down() and
+	palette change - but it's terribly slow\!
+
+2007-10-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt: Precise main objectives for search path
+
+2007-10-27  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap, gnulib/lib/.gitignore: Auto-install gnulib if not
+	present, and don't hard-code its PATH. Updated gnulib while I was
+	there.
+
+2007-10-27  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Add -lzzip to static libs
+
+2007-10-27  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: Gentoo 'from scratch' build instructions. Don't use their
+	gnulib package for now.
+
+2007-10-26  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: More BUILD explanations
+
+2007-10-26  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, NEWS, configure.ac, debian/control, src/.gitignore,
+	src/Makefile.am: Add BUILD documentation, small build fixes, bump
+	version
+
+2007-10-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Fix build system bug when using zip resources
+	without upx compression
+
+2007-10-22  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/control, doc/.gitignore,
+	doc/directory_layout.txt, doc/gnulib.txt, doc/roadmap.txt,
+	gnulib/lib/.gitignore, gnulib/lib/Makefile.am, gnulib/lib/dummy.c,
+	gnulib/lib/getopt.c, gnulib/lib/getopt1.c, gnulib/lib/getopt_.h,
+	gnulib/lib/getopt_int.h, gnulib/lib/gettext.h,
+	gnulib/lib/unistd_.h, gnulib/m4/.gitignore, gnulib/m4/getopt.m4,
+	gnulib/m4/gnulib-cache.m4, gnulib/m4/gnulib-common.m4,
+	gnulib/m4/gnulib-comp.m4, gnulib/m4/gnulib-tool.m4,
+	gnulib/m4/include_next.m4, gnulib/m4/onceonly_2_57.m4,
+	gnulib/m4/unistd_h.m4, src/Makefile.am, src/SDL_rwops_zzip.c,
+	src/SDL_rwops_zzip.h, src/bgm.c, src/dinkvar.c, src/fastfile.c,
+	src/freedink.c, src/freedinkedit.c, src/gfx.c, src/gfx_fonts.c,
+	src/gfx_fonts.h, src/gfx_utils.c, src/gfx_utils.h, src/init.c,
+	src/input.c, src/io_util.c, src/io_util.h, src/sfx.c,
+	test/sdl/Makefile: Support embedded resources and loading default
+	font from them + clean-up
+
+2007-10-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, test/sdl/embedded_font.c: More doc on zziplib
+
+2007-10-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/embed_resources.txt, test/getmodulefilename.c,
+	test/sdl/.gitignore, test/sdl/Makefile, test/sdl/SDL_rwops_zzip.c,
+	test/sdl/SDL_rwops_zzip.h, test/sdl/embedded_font.c: Embed a zip of
+	resources in the executable: test and doc
+
+2007-10-20  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README: Explain how to extract WAVs from dinkedit.exe v1.06
+
+2007-10-20  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_utils.c, src/init.c: Replace SDL_LoadBMP by
+	IMG_Load. This supports compressed BMPs used in some D-Mods.
+	Curiously my dink.exe from 1.07 doesn't support those either - maybe
+	it's just a matter of DX version.
+
+2007-10-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/embed_resources.txt: Summary of how to bundle data within the
+	executable
+
+2007-10-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Another key bindings fix in the editor
+	(next/previous page in the sprite chooser went too fast, needs to
+	stop until the key is released)
+
+2007-10-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h, src/freedinkedit.c: Fix some key bindings in the
+	editor (precise positionning Ctrl+Arrow, trim with X+Arrow and
+	Z+Arrow)
+
+2007-10-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c: Print the SDL error when a graphic cannot be found.
+	This allowed to explain why some POTA graphics weren't loaded
+	('Compressed BMP files not supported', already occured in original
+	Dink btw)
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Add maximum framerate in freedinkedit as well
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h: Fix bool/int alignment; caused sprites to
+	disappear, namely in Prophecy of the Ancients and Red Jacket Murders
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.h, src/input.c: Fix array out-of-bounds condition that
+	made the editor believe '0' was pressed continuously
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: cleanup/indent
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/freedinkedit.txt, doc/v1.08.txt: doc updates
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore: Ignore more files
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* test/x11_messagebox.c: will need a basic X11 message for bootstrap
+	errors
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dmod.txt: How to create a minimal dmod
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: References to v1.08 changes can be found in
+	dinkc.chm
+
+2007-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: autoupdate
+
+2007-10-13  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/d2c.c: Added .d to .c decompressor
+
+2007-10-07  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, autopackage/default.apspec.in, configure.ac,
+	doc/freedesktop.txt, share/Makefile.am, share/README,
+	share/README.fonts, share/applications/freedink.desktop,
+	share/applications/freedinkedit.desktop,
+	share/freedink/Makefile.am, share/freedink/README.fonts,
+	share/freedink/README.txt: Add freedesktop.org-compliant menu entry
+	and icon
+
+2007-10-07  Sylvain Beucler <beuc@beuc.net>
+
+	* bootstrap, configure.ac, src/Makefile.am, src/freedink_xpm.c,
+	src/freedink_xpm.h, src/init.c: Embed icon in XPM format (loaded
+	with SDL_image)
+
+2007-10-07  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, autotools/.gitignore, bootstrap, configure.ac: Small
+	build system fixes
+
+2007-10-04  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: More on cross-compilation: DX-enabled
+	buils, SLD_image, libjpeg
+
+2007-10-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/binreloc.txt: Mention 'relocatable-prog' from Gnulib
+
+2007-10-04  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, doc/sdl_existing_window.txt: doc updates
+
+2007-10-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt: Fix the use cases
+
+2007-10-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/directory_layout.txt: Try hard to get simple and intuitive
+	search paths, not so simple
+
+2007-10-02  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sdl_existing_window.txt: List various tricks to include SDL in
+	an existing window (to be tested)
+
+2007-10-02  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, debian/rules, gnulib/m4/gnulib-comp.m4: Make Gnulib
+	tidy + update
+
+2007-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, README, README.txt, autopackage/Makefile.am,
+	debian/.gitignore, debian/docs: During 'make dist', include
+	directories not tracked using Automake
+
+2007-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* share/freedink/Makefile.am, src/init.c: dink.bmp -> freedink.bmp
+
+2007-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, debian/.gitignore, debian/BUILD,
+	debian/README, debian/README.Debian, debian/changelog,
+	debian/compat, debian/control, debian/copyright, debian/docs,
+	debian/freedink.1, debian/freedink.xpm, debian/install,
+	debian/manpages, debian/menu, debian/rules,
+	debian/update-autotools-config.sh, debian/watch: Basic Debian
+	package
+
+2007-09-28  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, autotools/.gitignore, configure.ac, doc/cross.txt,
+	doc/static-build.txt, src/Makefile.am: Implement --enable-shared in
+	the build system
+
+2007-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: More static cross-compilation, with SDL_ttf and
+	FreeType2
+
+2007-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: SDL_gfx patch for static builds + doc clean-up
+
+2007-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Note from Claudio Fontana about gnulib
+
+2007-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, doc/static-build.txt: Work on static compilation
+
+2007-09-26  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/joytest.c, test/sdl/mousetest.c: Use the canonical form
+	for main() - SDL won't be able to override it under Woe otherwise.
+
+2007-09-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, src/Makefile.am: More cross-compilation notes
+
+2007-09-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Note about SDL_RLEACCEL
+
+2007-09-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/palettes.txt, src/freedink.c, src/init.c: Clean-up some old
+	TODO notes
+
+2007-09-25  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/gfx.c: Clarify the palette work
+
+2007-09-25  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c, src/gfx.c,
+	src/gfx.h, src/gfx_tiles.c, src/gfx_utils.c: Wrap LoadBMP - now all
+	loaded sprites and tiles use the final screen's palette once in
+	memory
+
+2007-09-24  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_utils.c: Add \n to the error message
+
+2007-09-24  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Define CPPFLAGS using sdl-config --cflags -- this
+	makes AC_CHECK_HEADERS work (tip: Claudio Fontana)
+
+2007-09-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c, src/gfx.c,
+	src/gfx.h, src/init.c: Use only lpDDSBack - get rid of lpDDSPrimary
+	which is superfluous with SDL (backbuffer and physical screen are
+	managed through a unique SDL_Surface)
+
+2007-09-23  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Save SDL_CONFIG between ./configure invokations
+	(useful when cross-compiling)
+
+2007-09-23  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fix display of the 'PleaseWait' animation
+
+2007-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, gnulib/lib/.gitignore,
+	src/.gitignore, src/Makefile.am, src/freedink.c,
+	src/freedinkedit.c, src/resource.h, src/woeres.rc, src/woeres.rc.in: 
+	Build system clean-ups, so we can cross-compile with a separate
+	build dir.
+
+2007-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/framerate.txt, doc/roadmap.txt, doc/v1.08.txt: Update
+	documentation
+
+2007-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, src/dinkvar.c, src/dinkvar.h, src/init.c,
+	src/update_frame.c, test/sdl/.gitignore: Use SDL_gfx to limit
+	framerate to 60, plus v1.08 Dink speed adjustments.
+
+2007-09-19  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/Makefile, test/sdl/joytest.c, test/sdl/mousetest.c,
+	test/sdl/ticks.c: Add a test for waiting for a very small time (1ms)
+
+2007-09-18  Sylvain Beucler <beuc@beuc.net>
+
+	* src/update_frame.c: First attempt to port v108's fixed game speed.
+
+2007-09-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Remember to clean old native object files before
+	cross-compiling ;)
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Check for SDL headers
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Additional notes
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, src/.gitignore: Move up some exclusions to match
+	gnulib
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/Makefile.am, gnulib/lib/dummy.c, gnulib/lib/getopt.c,
+	gnulib/lib/getopt1.c, gnulib/lib/getopt_.h,
+	gnulib/lib/getopt_int.h, gnulib/lib/gettext.h,
+	gnulib/lib/unistd_.h, gnulib/m4/getopt.m4,
+	gnulib/m4/gnulib-common.m4, gnulib/m4/gnulib-tool.m4,
+	gnulib/m4/include_next.m4, gnulib/m4/onceonly_2_57.m4,
+	gnulib/m4/unistd_h.m4: Add Gnulib files that were missed due to the
+	default .gitignore (?)
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, autotools/.gitignore, autotools/.gitignore~,
+	configure.ac, doc/gnulib.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4,
+	gnulib/m4/gnulib-comp.m4, src/Makefile.am: Add getopt (not in mingw)
+	via Gnulib
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* autopackage/default.apspec: Remove generated file
+
+2007-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, autopackage/.gitignore, configure.ac, src/Makefile.am,
+	src/freedink.c, src/freedinkedit.c, src/init.c, src/io_util.c: Use
+	getopt (distcheck happy)
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, freedink.rc,
+	share/freedink/Makefile.am, src/Makefile.am, src/woeres.rc: Add
+	support for windres (i.e. Woe .exe icons) in the build system.
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/autopackage.txt: More Autopackage doc
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, Makefile.am, autopackage/Makefile.am,
+	autopackage/Makefile.autopackage, autopackage/default.apspec,
+	autopackage/default.apspec.in, autopackage/extract-package.sh,
+	bootstrap, configure.ac, doc/autopackage.txt: Autopackage basic
+	support
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, src/Makefile.am, src/io_util.c: Small build
+	system fixes
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt, src/Makefile.am, src/freedink.c,
+	src/freedinkedit.c, src/io_util.c: HOWTO cross-compile
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/CPP2C.txt: Copy some C++->C notes from the previous port,
+	which are still relevant in this one.
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/init.c, test/sdl/.gitignore, test/sdl/Makefile,
+	test/sdl/msb.c: Implement transparency for the application icon
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* vc6/.gitignore, vc6/freedink.dsp, vc6/freedink.dsw,
+	vc6/freedinkedit.dsp, vc6/readme.txt: Remove VC6 workspace files.
+	FreeDink needs MinGW as part of the portability layer.
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/ffrextract.c: Add FastFile recursive extractor, an old
+	program of mine.
+
+2007-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, acsite.m4, configure.ac, configure.sh,
+	doc/binreloc.txt, share/Makefile.am, share/README.fonts,
+	share/README.txt, share/freedink/Makefile.am,
+	share/freedink/README.fonts, share/freedink/README.txt,
+	src/Makefile.am, src/binreloc.c, src/binreloc.h, src/dinkvar.c,
+	src/freedink.c, src/init.c, src/io_util.c, src/io_util.h: Add
+	BinReloc support
+
+2007-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, ChangeLog, Makefile, Makefile.am, NEWS, README,
+	README.fonts, THANKS, autotools/.gitignore, autotools/.gitignore~,
+	bgm.c, bgm.h, bootstrap, compress.c, configure.ac, configure.sh,
+	dev-cpp/.cvsignore, dev-cpp/.gitignore, dinkedit_res/README.txt,
+	dinkvar.c, dinkvar.h, doc/ncc.txt, doc/valgrind.txt, fastfile.c,
+	fastfile.h, freedink.c, freedink.h, freedinkedit.c, gfx.c, gfx.h,
+	gfx_fonts.c, gfx_fonts.h, gfx_tiles.c, gfx_tiles.h, gfx_utils.c,
+	gfx_utils.h, init.c, init.h, input.c, input.h, io_util.c,
+	io_util.h, rect.c, rect.h, resource.h, sfx.c, sfx.h,
+	share/Makefile.am, share/README.fonts, share/README.txt,
+	src/.gitignore, src/Makefile.am, src/bgm.c, src/bgm.h,
+	src/compress.c, src/dinkvar.c, src/dinkvar.h, src/fastfile.c,
+	src/fastfile.h, src/freedink.c, src/freedink.h, src/freedinkedit.c,
+	src/gfx.c, src/gfx.h, src/gfx_fonts.c, src/gfx_fonts.h,
+	src/gfx_tiles.c, src/gfx_tiles.h, src/gfx_utils.c, src/gfx_utils.h,
+	src/init.c, src/init.h, src/input.c, src/input.h, src/io_util.c,
+	src/io_util.h, src/rect.c, src/rect.h, src/resource.h, src/sfx.c,
+	src/sfx.h, src/str_util.c, src/str_util.h, src/update_frame.c,
+	src/update_frame.h, str_util.c, str_util.h, update_frame.c,
+	update_frame.h, vc6/.cvsignore, vc6/.gitignore: First steps of
+	autoconfiscation
+
+2007-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore, doc/ncc.txt: Instructions for using NCC
+
+2007-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* .cvsignore, .gitignore: Converted .cvsignore to .gitignore
+
+2007-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, bgm.c, dinkvar.c, dinkvar.h, doc/valgrind.txt,
+	freedink.c, freedink.h, freedinkedit.c, gfx_fonts.c, gfx_tiles.c,
+	init.c, input.c, input.h, sfx.c, sfx.h, update_frame.c: Switch from
+	C++ to C
+
+2007-09-15  Sylvain Beucler <beuc@beuc.net>
+
+	* bgm.c, bgm.cpp, dinkvar.c, dinkvar.cpp, freedink.c, freedink.cpp,
+	freedinkedit.c, freedinkedit.cpp, gfx.c, gfx.cpp, gfx_fonts.c,
+	gfx_fonts.cpp, gfx_tiles.c, gfx_tiles.cpp, gfx_utils.c,
+	gfx_utils.cpp, init.c, init.cpp, sfx.c, sfx.cpp, update_frame.c,
+	update_frame.cpp: Renamed *.ccpp->*.c
+
+2007-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, bgm.cpp, dinkvar.cpp, freedink.cpp, freedinkedit.cpp,
+	gfx.cpp, gfx_fonts.cpp, gfx_tiles.cpp, init.cpp, sfx.cpp,
+	update_frame.cpp: Pedantic fixes to compile under FC5
+
+2007-09-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dependencies.txt: SDL packages names.
+
+2007-09-12  Sylvain Beucler <beuc@beuc.net>
+
+	* README.fonts: Precisions on Liberation fonts license
+
+2007-09-12  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp, gfx_fonts.cpp, rect.c: Fixed rect_inflate (and bomb
+	range). Fixed a crash in debug mode (font not initialized yet).
+
+2007-09-09  Sylvain Beucler <beuc@beuc.net>
+
+	* freedinkedit.cpp: Mouse+keyboard basically working under
+	FreeDinkedit
+
+2007-09-09  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, dinkvar.h, freedink.cpp, init.cpp: Better input
+	handling: cursor can be controlled by keyboard; clean exit through
+	SDL_QUIT events and modified evens loop; respect 200ms delay between
+	a-z keys invokations.
+
+2007-09-09  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/Makefile, test/sdl/README, test/sdl/joytest.c,
+	test/sdl/mousetest.c: Fixes in joytest, add mousetest for
+	mouse+keyboard cursor.
+
+2007-09-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt: Made joystick threshold greater.
+
+2007-09-08  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, freedinkedit.cpp, gfx_utils.cpp,
+	init.cpp: Tidy file opening mode (text vs. binary). Implement
+	joystick support.
+
+2007-09-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/portability.txt: Answer from bug-gnulib about MAX_PATH
+
+2007-09-07  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/Makefile, test/sdl/README, test/sdl/joytest.c: Add a
+	simple program to test your gamepad.
+
+2007-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: Precisions.
+
+2007-08-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: More details on DFArc's bugs in the Tar format.
+
+2007-08-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: Precisions after working on DFArc15 some more.
+
+2007-08-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: 2 other sources of information
+
+2007-08-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/portability.txt: Note on ciconvert()
+
+2007-08-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/portability.txt: Notes on portability decisions.
+
+2007-08-24  Sylvain Beucler <beuc@beuc.net>
+
+	* COPYING: Update copy of the GNU GPL to version 3
+
+2007-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp: Use the original engine's key-%d.c keycodes (for
+	letters only)
+
+2007-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* gfx_tiles.cpp: More info in an error message
+
+2007-08-23  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp: Fixed a crash
+
+2007-08-22  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dfarc.txt: A small analysis of v108's frontend.
+
+2007-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, freedink.rc: TODO already done: adding metadata to .exe
+
+2007-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/keycodes.txt: Notes and tests with SDL and keycodes.
+
+2007-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* : Convert the .ico in BMP for SDL to use as Window icon.
+
+2007-08-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/roadmap.txt, doc/sound.txt, doc/tests.txt, freedinkedit.cpp,
+	init.cpp, sfx.cpp: A couple fixes.
+
+2007-08-18  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, doc/changes.txt, freedink.cpp: Interestingly enough,
+	Dink loads a sprite after it failed drawing it for the first time.
+	Tough bug.
+
+2007-08-18  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp: Fix array-out-of-bound condition that made
+	script_attach(1000) lose the current position in the script
+
+2007-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, dinkvar.h, freedink.cpp, freedinkedit.cpp,
+	gfx_fonts.cpp, gfx_fonts.h, rect.c, rect.h, str_util.c, str_util.h,
+	update_frame.cpp: Make it compile under Woe again.
+
+2007-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* freedinkedit.cpp: The editor runs - now we gotta find a solution
+	for keycodes madness.
+
+2007-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cleanup.txt, freedinkedit.cpp: The editor compiles under
+	GNU/Linux - not that it runs yet :)
+
+2007-08-17  Sylvain Beucler <beuc@beuc.net>
+
+	* freedinkedit.cpp: Comment out DX code in the editor
+
+2007-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sound.txt: Notes on MIDI
+
+2007-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, dinkvar.cpp, doc/troubleshootings.txt, freedink.cpp,
+	freedinkedit.cpp, gfx_fonts.cpp, init.cpp, io_util.c: The game can
+	be played fine - except essentially for sound pitch shift.
+
+2007-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, bgm.cpp, dinkvar.cpp, freedink.cpp, gfx_fonts.cpp,
+	gfx_tiles.cpp, gfx_utils.cpp, gfx_utils.h, init.cpp, io_util.c,
+	io_util.h, rect.c, sfx.cpp, str_util.h: The game runs - with bugs.
+	Implemented wrapper for filesystem case-insensitivity.
+
+2007-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, Makefile, dinkvar.cpp, dinkvar.h, fastfile.c,
+	fastfile.h, freedink.cpp, gfx.cpp, gfx.h, gfx_fonts.cpp,
+	gfx_fonts.h, gfx_tiles.cpp, gfx_tiles.h, rect.c, rect.h, sfx.cpp,
+	sfx.h, str_util.c, str_util.h, string_util.c, string_util.h,
+	update_frame.cpp: The game compiles under GNU/Linux
+
+2007-08-15  Sylvain Beucler <beuc@beuc.net>
+
+	* : Recommit LiberationSans-Regular.ttf as binary
+
+2007-08-14  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, dinkvar.h, doc/roadmap.txt, freedink.cpp,
+	freedink.h, freedinkedit.cpp, gfx.cpp, gfx_fonts.cpp, gfx_fonts.h,
+	gfx_tiles.cpp, update_frame.cpp, update_frame.h: Commented DX code -
+	game working, editor currently broken
+
+2007-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, freedinkedit.cpp: FreeDinkEdit partially converted to the
+	SDL input system; code should be ready for portability work now
+
+2007-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, dinkvar.cpp, dinkvar.h, freedink.cpp, freedinkedit.cpp,
+	init.cpp, update_frame.cpp: FreeDink converted to the SDL input
+	system. Keycodes still differ from the original.
+
+2007-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/roadmap.txt, doc/tests.txt: Doc update
+
+2007-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, freedinkedit.cpp, gfx_fonts.cpp: 
+	freedinkedit.cpp graphics ported to SDL
+
+2007-08-12  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.h, freedinkedit.cpp: Improved readability of
+	freedinkedit.cpp, mainly by translating keycodes to constants
+
+2007-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* freedinkedit.cpp, update_frame.h: More FreeDinkEdit comments
+
+2007-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, freedinkedit.cpp: More progress on the editor
+
+2007-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* freedinkedit.cpp: Progress on sprites support for the editor
+
+2007-08-11  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, Makefile, README.fonts, dinkvar.cpp, doc/cleanup.txt,
+	doc/game_libraries.txt, doc/roadmap.txt, doc/tests.txt,
+	freedink.cpp, freedinkedit.cpp, gfx_fonts.cpp, gfx_fonts.h,
+	init.cpp, update_frame.cpp: Font support in the game, abeilt not
+	perfect; editor crashing
+
+2007-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, dinkvar.cpp: Scaling; bugfixes; indentation
+
+2007-08-10  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, fastfile.c, freedink.cpp, update_frame.cpp: More
+	sprite displayed with SDL - needs testing
+
+2007-08-09  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp: Fix clipping; more blits converted to
+	SDL
+
+2007-08-08  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, dinkvar.cpp, dinkvar.h, freedink.cpp, freedinkedit.cpp,
+	update_frame.cpp: Sprite support, the beginning
+
+2007-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/sound.txt: Precise the sound implementation options.
+
+2007-08-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/changes.txt, doc/sound.txt, doc/tests.txt: Explanation of a
+	palette bug; details for volume and panning unit conversion for the
+	sound
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp, init.cpp, update_frame.cpp: Fixes/clean-up
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, doc/changes.txt, doc/cleanup.txt,
+	doc/existing_bugs.txt, doc/game_libraries.txt, doc/palettes.txt,
+	doc/roadmap.txt, doc/tests.txt, doc/woe-compile.txt: Update/complete
+	developer documentation
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedinkedit.cpp: Replicate changes in the background
+	system to FreeDinkEdit
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp: Fixes for fading and splash screen
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, update_frame.cpp: Palettes work better
+	again
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/bmpinspect.c, utils/bmpinvertpalette.c: BMP debug utilities
+
+2007-08-05  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, gfx.cpp, gfx_tiles.cpp, gfx_utils.cpp: 
+	Better understanding of how palettes work
+
+2007-08-04  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, gfx.cpp, gfx.h, gfx_utils.cpp,
+	init.cpp, update_frame.cpp: More work on palettes (fades, better
+	model) - white/black inversion not resolved yet, so Lyna's Story
+	shadow mode is ugly.
+
+2007-08-04  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp, init.cpp: Enable back DX fullscreen mode for
+	testing; start a SDL window only in windowed mode
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, init.cpp: A bit of clean-up
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, freedink.cpp, gfx.cpp, gfx.h: Better palette handling
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, dinkvar.h, freedink.cpp, gfx.cpp, gfx_tiles.cpp,
+	gfx_tiles.h: More encapsulation for tiles; work on palette changes
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* dinkvar.cpp, fastfile.c, freedink.cpp, utils/ffinspect.c: Fix in
+	fastfile to support Mystery Island's bad dir.ff
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* utils/ffinspect.c: Added dir.ff inspector
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, dinkvar.cpp, dinkvar.h, freedink.cpp, freedinkedit.cpp,
+	gfx_tiles.cpp, gfx_tiles.h, gfx_utils.cpp: Background tiles now work
+	with SDL under FreeDinkEdit
+
+2007-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.cpp: Temporarily fix freeze probably due to simultaneous
+	use of DX and SDL
+
+2007-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, Makefile, dinkvar.cpp, dinkvar.h, freedink.cpp,
+	freedinkedit.cpp, gfx.cpp, gfx.h, gfx_utils.cpp, gfx_utils.h,
+	init.cpp, update_frame.cpp, vc6/freedink.dsp: Background now works,
+	with screen transition and palette.
+
+2007-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, dinkvar.cpp, dinkvar.h, freedink.cpp, freedinkedit.cpp,
+	gfx.cpp, gfx.h, gfx_tiles.cpp, gfx_tiles.h, update_frame.cpp,
+	update_frame.h: Separated graphics and tile-related functions + a
+	bit of clean-up
+
+2007-08-02  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile, dinkvar.cpp, dinkvar.h, freedink.cpp, init.cpp, init.h,
+	update_frame.cpp: Draw backgrounds in a separate SDL window
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/game_libraries.txt, doc/sound.txt, doc/troubleshootings.txt,
+	doc/woe-compile.txt: Describe recommended installation path.
+	Describe how to compile libSDL with DX support to avoid sound lags.
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/roadmap.txt, doc/woe-compile.txt: A couple documentation
+	precisions
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile: Use sdl-config to determine paths to libsdl
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/game_libraries.txt, doc/roadmap.txt, doc/sdl.txt,
+	doc/woe-compile.txt: Update and complete compilation documentation.
+	More info about game libraries.
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cvs.txt: update Savannah CVS instructions
+
+2007-08-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cleanup_g++.txt: translate remaining French comment
+
+2007-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/v1.08.txt: Diffs v1.07<->v1.08: HOWTO and first glance
+
+2007-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dink_versions.txt, doc/v1.08.txt: More about v1.08
+
+2007-07-31  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/dink_versions.txt: Sum-up all the source code derivates around
+
+2005-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/roadmap.txt, doc/sdl.txt: Precisions
+
+2005-09-29  Sylvain Beucler <beuc@beuc.net>
+
+	* vc6/freedinkedit.dsp: [no log message]
+
+2005-09-29  Sylvain Beucler <beuc@beuc.net>
+
+	* unused.cpp: [no log message]
+
+2005-09-29  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, bgm.cpp, dinkvar.cpp, dinkvar.h, freedink.cpp,
+	freedink.h, freedinkedit.cpp, sfx.cpp: Clean-up
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* .cvsignore: Ignored executables.
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* .cvsignore: Added .res files.
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* README.txt, doc/GNU-integration.txt: Doc fixes.
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile: Removed references to ffent.h
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* README.txt: Typos.
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cvs.txt, doc/woe-compile.txt: Added docs for Savannah CVS
+	access.
+
+2005-09-27  Sylvain Beucler <beuc@beuc.net>
+
+	* Second port from original source. Initial import. Compiles with
+	mingw, uses SDL for audio CDs and GetTicks, SDL_Mixer for MIDIs and
+	SFX, sabetts' fastfile, separate compilation (no .cpp #include's).
+
