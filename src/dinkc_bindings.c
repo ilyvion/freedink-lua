@@ -1358,6 +1358,7 @@ void dc_sp(int script, int* yield, int* preturnint,
   if (last_sprite_created == 1)
     Msg("warning - you can't call SP() from a screen-ref,"
 	" no sprites have been created yet.");
+  *preturnint = 0; /* not found */
 }
 
 void dc_is_script_attached(int script, int* yield, int* preturnint,
@@ -1380,6 +1381,7 @@ void dc_get_sprite_with_this_brain(int script, int* yield, int* preturnint,
 	  return;
 	}
     }
+  *preturnint = 0; /* not found */
 }
 
 void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
@@ -1414,6 +1416,7 @@ void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
 	    }
 	}
     }
+  *preturnint = 0; /* not found */
 }
 
 void dc_set_button(int script, int* yield, int* preturnint,
@@ -1829,6 +1832,7 @@ void dc_get_next_sprite_with_this_brain(int script, int* yield, int* preturnint,
 	  }
     }
   Msg ("Ok, sprite with brain %d is 0", brain);
+  *returnint = 0; /* not found */
 }
 
 void dc_set_smooth_follow(int script, int* yield, int* preturnint, int smooth_p)
