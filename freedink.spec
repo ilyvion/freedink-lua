@@ -1,6 +1,6 @@
 Name:		freedink
 Version:	1.08.20090109
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-2
+- Bump version to fix build tag issue
+
 * Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-1
 - New upstream release
 - Declare .mo translation catalogs

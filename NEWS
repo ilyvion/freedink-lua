@@ -1,3 +1,13 @@
+1.08.20080932
+=============
+
+** UNRELEASED **
+
+* Fix game freeze in Pilgrim Quest (return value for DinkC functions
+  get_sprite_with_this_brain, get_rand_sprite_with_this_brain,
+  get_next_sprite_with_this_brain and sp)
+
+
 1.08.20090109
 =============
 
