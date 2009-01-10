@@ -1832,7 +1832,7 @@ void dc_get_next_sprite_with_this_brain(int script, int* yield, int* preturnint,
 	  }
     }
   Msg ("Ok, sprite with brain %d is 0", brain);
-  *returnint = 0; /* not found */
+  *preturnint = 0; /* not found */
 }
 
 void dc_set_smooth_follow(int script, int* yield, int* preturnint, int smooth_p)
