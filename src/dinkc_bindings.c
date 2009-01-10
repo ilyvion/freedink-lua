@@ -1982,6 +1982,9 @@ void dinkc_bindings_init()
 			     dinkc_bindings_hasher, dinkc_bindings_comparator,
 			     free);
 
+
+  /* funcname, params, badparams_dcps, badparams_returnint_p, badparams_returnint */
+
   DCBD_ADD(sp_active,                 {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_attack_hit_sound,       {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
   DCBD_ADD(sp_attack_hit_sound_speed, {1,1,0,0,0,0,0,0,0,0}, DCPS_GOTO_NEXTLINE, 1, -1);
