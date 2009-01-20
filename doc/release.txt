@@ -1,0 +1,80 @@
+On the developer computer:
+--------------------------
+VERSION=1.08.$(date +%Y%m%d)
+git checkout -b v$VERSION
+git2cl > ChangeLog
+# edit NEWS
+# edit configure.ac (AC_INIT)
+# edit freedink.spec (Version/Release + %changelog)
+make distcheck
+git commit -am "Release $VERSION"
+git tag v$VERSION
+git push --all
+git push --tags
+# TODO: pristine-tar
+# TODO: how to cleanly merge stable branch back to trunk
+
+
+On the autobuilder:
+-------------------
+./freedink-snapshot.sh release
+./freedink-exe.sh
+./freedink-debs.sh # as root
+./freedink-rpms.sh # in a Fedora vserver
+
+
+On the maintainer computer:
+---------------------------
+# http://www.gnu.org/prep/maintain/html_node/FTP-Upload-Directive-File-_002d-v1_002e1.html
+gpg --sign -b freedink-$VERSION.tar.gz
+cat <<EOF | gpg --clearsign -a > freedink-$VERSION.tar.gz.directive.asc
+version: 1.1
+directory: freedink
+filename: freedink-$VERSION.tar.gz
+EOF
+lftp -e "mput freedink-$VERSION*; exit" -u anonymous, ftp-upload.gnu.org/incoming/ftp/
+# Check ftp://ftp.gnu.org/gnu/freedink/
+
+
+On the website:
+---------------
+cd www/releases/
+    for f in ../snapshots/freedink-*$VERSION*; do
+        ln -nfs $f
+    done
+for dir in debian fedora; do 
+    pushd $dir
+    for f in ../../snapshots/$dir/freedink-*$VERSION*; do
+        ln -nfs $f
+    done
+    make
+    popd
+done
+pushd fedora
+cp -a ../../snapshots/fedora/freedink.spec .
+
+Submit the release to:
+----------------------
+- GNU
+  info-gnu@gnu.org
+- Savannah / GNU Planet
+  http://savannah.gnu.org/p/freedink
+- freshmeat
+  http://freshmeat.net/projects/freedink/
+- Translation Project
+  http://translationproject.org/html/maintainers.html
+- Dink Network
+  http://www.dinknetwork.com/contribute/version/new/gnu_freedink/
+- Debian GNU/Linux
+  http://wiki.debian.org/Games/VCS
+- Fedora GNU/Linux
+  http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo
+- OpenSUSE GNU/Linux
+  tell Stefan about the latest official srpm
+- ArchLinux GNU/Linux
+  contact Petteri
+- FreeBSD
+  contact Stephen
+- Ubuntu GNU/Linux (Debian merge request)
+  contact shirish
+- Press...
