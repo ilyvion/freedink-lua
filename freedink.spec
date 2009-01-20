@@ -1,6 +1,6 @@
 Name:		freedink
-Version:	1.08.20090109
-Release:	2%{?dist}
+Version:	1.08.20090120
+Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 20 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090120-1
+- New upstream release (fix engine freeze in some DinkC scripts)
+
 * Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-2
 - Bump version to fix build tag issue
 
