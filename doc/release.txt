@@ -42,7 +42,7 @@ cd www/releases/
     for f in ../snapshots/freedink-*$VERSION*; do
         ln -nfs $f
     done
-for dir in debian fedora; do 
+for dir in debian fedora woe; do
     pushd $dir
     for f in ../../snapshots/$dir/freedink-*$VERSION*; do
         ln -nfs $f
