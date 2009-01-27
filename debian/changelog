@@ -1,4 +1,4 @@
-freedink (1.08.20080920-1) unstable; urgency=low
+freedink (1.08.20080920.dfsg-1) unstable; urgency=low
 
   * Initial package (Closes: #492760)
   * Reflect dfarc -> freedink-dfarc rename

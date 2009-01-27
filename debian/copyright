@@ -126,5 +126,42 @@ On Debian systems, the complete text of the GNU General
 Public License version 2.1 can be found in `/usr/share/common-licenses/LGPL-2.1'.
 
 
+The gnulib directory is an embedded copy of gnulib:
+
+Copyright (C) 1992,1995-1999,2000-2003,2005-2008 Free Software Foundation, Inc.
+License:
+
+        GNULib is a collection of unrelated source files. Each source file is
+        provided under a different license (including GPL, LGPL, GFDL and
+        others) and includes a license headers stating the terms that apply to
+        that particular file.
+
+On Debian systems, the complete text of the GNU General Public License
+can be found in /usr/share/common-licenses/GPL file,
+the GNU Lesser General Public License in /usr/share/common-licenses/LGPL,
+and the GNU Free Document License in /usr/share/common-licenses/GFDL.
+
+The SDL_rwops_libzip.c, SDL_rwops_libzip.h, SDL_rwops_zzip.c and SDL_rwops_zzip.h
+in ./src and ./test/sdl are covered by the ZLIB license:
+      Copyright (c) 2001 Guido Draheim <guidod@gmx.de>
+
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+
 The Debian packaging is (C) 2008, Sylvain Beucler <beuc@beuc.net> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
