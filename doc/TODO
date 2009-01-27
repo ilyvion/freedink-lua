@@ -43,7 +43,9 @@ i18n
 
 [ ] Fall back to main Dink .mo if no translations are found
 
-[ ] Try to open files from i18n/LOCALE/ in case the translation is
+[ ] Try to open files from l10n/LOCALE/ in case the translation is
     providing a graphic or script replacement
 
-[ ] Have DFArc look at i18n/LOCALE/dmod.diz if available
+[ ] Have DFArc look at l10n/LOCALE/dmod.diz if available
+    => No, rather add dmod.diz to the .pot file, so translators have
+    as much text as possible in their .po file.
