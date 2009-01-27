@@ -53,6 +53,7 @@ done
 pushd fedora
 cp -a ../../snapshots/fedora/freedink.spec .
 
+
 Submit the release to:
 ----------------------
 - GNU
@@ -66,7 +67,7 @@ Submit the release to:
 - Dink Network
   http://www.dinknetwork.com/contribute/version/new/gnu_freedink/
 - Debian GNU/Linux
-  http://wiki.debian.org/Games/VCS
+  http://wiki.debian.org/Games/Sponsors/Queue
 - Fedora GNU/Linux
   http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo
 - OpenSUSE GNU/Linux
@@ -78,3 +79,18 @@ Submit the release to:
 - Ubuntu GNU/Linux (Debian merge request)
   contact shirish
 - Press...
+
+
+Debian notes:
+-------------
+
+# http://wiki.debian.org/Games/VCS
+git-checkout master
+git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
+# Fix stuff...
+git commit -am "New upstream release - ..."
+git-buildpackage --git-tag --git-pristine-tar
+git push --all
+git push --tags
+# http://mentors.debian.net/cgi-bin/maintainer-intro
+dput mentors ../freedink_$VERSION-1_i386.changes

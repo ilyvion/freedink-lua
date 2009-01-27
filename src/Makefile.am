@@ -50,7 +50,8 @@ freedinkedit_SOURCES = $(COMMON_OBJS) freedinkedit.c
 nodist_freedink_SOURCES = $(WOERES)
 nodist_freedinkedit_SOURCES = $(WOERES)
 
-EXTRA_DIST = media/freedink.ico media/system.sfd media/vgasys.fon
+EXTRA_DIST = media/freedink.ico media/system.sfd media/vgasys.fon	\
+	media/README
 
 resdir=$(top_srcdir)/share/freedink
 install-exec-hook:
