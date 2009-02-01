@@ -62,7 +62,7 @@ clean:
 	debian/update-autotools-config.sh autotools/
 
 	rm -rf $(BUILD)
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
