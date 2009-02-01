@@ -958,7 +958,7 @@ past:
 		//let's add the key info to it.
 		for (x = 0; x < 256; x++)
 		  if (GetKeyboard(x))
-		    sprintf(msg, "%s (Key %i)",msg,x);
+		    sprintf(msg + strlen(msg), " (Key %i)", x);
 	      }
 	    if (mode == 3)
 	      {

@@ -4622,7 +4622,7 @@ void updateFrame(void)
 	  {
 	    if (getkeystate(x))
 	      {
-		sprintf(msg, "%s (Key %i)",msg,x);
+		sprintf(msg + strlen(msg), " (Key %i)", x);
 	      }
 	  }
       }
@@ -4922,7 +4922,7 @@ void updateFrame(void)
       else if (strlen(in_temp) < in_max)
 	{
 	  if (isprint(sjoy.last_unicode))
-	    sprintf(in_temp, "%s%c", in_temp, sjoy.last_unicode);
+	    sprintf(in_temp + strlen(in_temp), "%c", sjoy.last_unicode);
 	}
 
       if (in_enabled)
