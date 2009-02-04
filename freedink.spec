@@ -1,6 +1,6 @@
 Name:		freedink
 Version:	1.08.20090120
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -35,13 +35,18 @@ front-end to manage game options and D-Mods.
 %package engine
 Summary:	Adventure and role-playing game (engine)
 Group:		Amusements/Games
-Requires:	freedink-data liberation-fonts
+Requires:	freedink-data
 # TiMidity++ is useful to play midis when /dev/sequencer isn't
 # functional (most of the case) and installing it prevents some
 # SDL_mixer freezes (see TROUBLESHOOTING).  In Fedora this is done
 # through SDL_mixer dependencies.
 %if 0%{?suse_version}
 Requires: timidity
+%endif
+%if 0%{?fedora}
+Requires: liberation-sans-fonts
+%else
+Requires: liberation-fonts
 %endif
 
 %description engine
@@ -103,6 +108,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb  4 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090120-2
+- Apply Fedora font rename: liberation-fonts -> liberation-sans-fonts
+
 * Tue Jan 20 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090120-1
 - New upstream release (fix engine freeze in some DinkC scripts)
 
