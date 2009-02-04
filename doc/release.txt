@@ -11,8 +11,16 @@ git commit -am "Release $VERSION"
 git tag v$VERSION
 git push --all
 git push --tags
+
 # TODO: pristine-tar
-# TODO: how to cleanly merge stable branch back to trunk
+
+# Cleanly merge stable branch back to trunk
+git checkout master
+git merge v$VERSION --no-commit
+# Don't apply version changes:
+git checkout configure.ac
+emacs NEWS
+git commit
 
 
 On the autobuilder:
