@@ -3,9 +3,19 @@
 
 ** UNRELEASED **
 
-* Fix game freeze in Pilgrim Quest (return value for DinkC functions
-  get_sprite_with_this_brain, get_rand_sprite_with_this_brain,
-  get_next_sprite_with_this_brain and sp)
+
+1.08.20090120
+=============
+
+* User-visible changes:
+
+- Fix game freeze in Pilgrim Quest (return value for DinkC functions
+  'get_sprite_with_this_brain', 'get_rand_sprite_with_this_brain',
+  'get_next_sprite_with_this_brain' and 'sp')
+
+* Developer notes:
+
+- Added scripts to rebuild snapshots, .deb, .rpm and .exe unattended
 
 
 1.08.20090109

@@ -1,3 +1,36 @@
+2009-01-20  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-debs.sh, autobuild/freedink-exe.sh,
+	autobuild/freedink-rpms.sh, autobuild/freedink-snapshot.sh: Include
+	some scripts used to build snapshots and binary packages unattended
+
+2009-01-10  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, freedink.spec, po/de.po, po/fr.po, po/nb.po: 
+	Sync last release
+
+2009-01-10  Sylvain Beucler <beuc@beuc.net>
+
+	* : commit e6c54d824d104ed630ffbffce4b0d4d5392e8d7c Author: Sylvain
+	Beucler <beuc@beuc.net> Date:   Sat Jan 10 15:56:26 2009 +0100
+
+2009-01-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Return 0 (*preturnint = 0) when
+	get_sprite_with_this_brain, get_rand_sprite_with_this_brain,
+	get_next_sprite_with_this_brain and sp DinkC functions don't find
+	any match.
+
+2009-01-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Add a reminder for the sp_binding data
+	structure
+
+2009-01-09  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, freedink.spec, po/de.po, po/fr.po,
+	po/nb.po: Release 1.08.20090109
+
 2008-12-28  Sylvain Beucler <beuc@beuc.net>
 
 	* contrib/xtrans.sh: Support conditional dialogs when extracting
