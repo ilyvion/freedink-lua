@@ -1,0 +1,63 @@
+We need a way to make installer for woe.
+
+Constraints:
+
+- free software license
+
+- ability to generate the installer automatically
+
+- runnable from GNU/Linux
+
+
+NSIS - Nullsoft Scriptable Install System
+http://nsis.sourceforge.net/Main_Page
+License: zlib
+Used by Mozilla Firefox (itself uncompressed from a 7zip SFX)
+Used by dinksmallwood108.exe :)
+Debian has package 'nsis' which lacks a few features that requires
+  MSVC to compile.
+Generation from GNU/Linux reported successful at:
+http://www.xdevsoftware.com/blog/post/How-to-Install-the-Nullsoft-Installer---NSIS-on-Linux-.aspx
+
+
+7-Zip
+http://www.7-zip.org/
+License: LGPL
+Some automated generation is possible:
+http://www.msfn.org/board/How-to-make-a-7-Zip-Switchless-Installer-t39048.html
+Essentially:
+cat <<EOF > config.txt
+;!@Install@!UTF-8!
+RunProgram="program.exe –switch"
+;!@InstallEnd@!
+EOF
+cat 7zS.sfx config.txt myarchive.7z > myinstaller.exe
+
+
+War Setup 3
+http://warsetup.jgaa.com/
+License: CPL
+Written in C# + VS (can it run with .GNU?)
+
+
+WiX
+http://wix.sourceforge.net/
+License: CPL
+Authored by Microsoft
+Claims to run only under woe (maybe through Wine?)
+
+
+Non-free dependencies:
+
+Inno Setup
+http://www.innosetup.com/
+Written in Delphi
+License: mBSD
+Used by Gimp..
+
+
+izfree
+http://izfree.sourceforge.net/
+License: GPLv2+ (and LGPL?)
+v1 (2001) is written in C++ and MFC
+v2 (SVN) is written in C# + VS.NET 2003 (can it run with .GNU?)
