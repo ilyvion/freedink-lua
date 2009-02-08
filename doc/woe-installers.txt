@@ -19,6 +19,24 @@ Debian has package 'nsis' which lacks a few features that requires
 Generation from GNU/Linux reported successful at:
 http://www.xdevsoftware.com/blog/post/How-to-Install-the-Nullsoft-Installer---NSIS-on-Linux-.aspx
 
+Examples: http://nsis.sourceforge.net/Category:Real_World_Installers
+- FileZilla:
+  http://nsis.sourceforge.net/FileZilla
+- Pidgin:
+  http://nsis.sourceforge.net/Pidgin
+- VLC:
+  http://nsis.sourceforge.net/VLC_media_player
+- Battle for Wesnoth:
+  http://nsis.sourceforge.net/Battle_for_Wesnoth
+- Lilypond:
+  http://nsis.sourceforge.net/LilyPond
+- LyX:
+  http://nsis.sourceforge.net/LyX
+- Windemere test:
+  http://dink.cvs.sourceforge.net/viewvc/dink/dink/contrib/Install.nsi?view=markup
+
+Reference: http://nsis.sourceforge.net/Docs/
+
 
 7-Zip
 http://www.7-zip.org/
