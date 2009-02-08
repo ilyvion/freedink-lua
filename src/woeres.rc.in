@@ -4,8 +4,8 @@
 IDI_ICON1               ICON    DISCARDABLE     "@srcdir@/media/freedink.ico"
 
 1 VERSIONINFO
-FILEVERSION 1,0,7,0
-PRODUCTVERSION 1,0,7,0
+FILEVERSION 1,0,8,0
+PRODUCTVERSION 1,0,8,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -14,13 +14,13 @@ FILETYPE VFT_APP
 		 {
 			 VALUE "CompanyName", ""
 			 VALUE "FileVersion", ""
-			 VALUE "FileDescription", "GNU FreeDink"
-			 VALUE "InternalName", ""
+			 VALUE "FileDescription", "@PACKAGE_STRING@"
+			 VALUE "InternalName", "@PACKAGE@"
 			 VALUE "LegalCopyright", "Collective"
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", ""
-			 VALUE "ProductName", "GNU FreeDink"
-			 VALUE "ProductVersion", "1.07"
+			 VALUE "ProductName", "@PACKAGE_NAME@"
+			 VALUE "ProductVersion", "@PACKAGE_VERSION@"
 		 }
 	 }
 }
