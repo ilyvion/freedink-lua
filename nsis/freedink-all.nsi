@@ -45,13 +45,14 @@ SetCompressor /SOLID lzma
 !include "registerExtension.nsh"
 
 ; Precise uninstall
+; http://nsis.sourceforge.net/Advanced_Uninstall_Log_NSIS_Header
 !define INSTDIR_REG_ROOT "HKLM"
 !define INSTDIR_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\FreeDink"
 !include "AdvUninstLog.nsh"
 !insertmacro INTERACTIVE_UNINSTALL
 
 Name "GNU FreeDink"
-OutFile "FreeDink-installer.exe"
+OutFile "freedink-all-installer.exe"
 
 
 ; Default install dir
@@ -67,6 +68,18 @@ RequestExecutionLevel user
 
 ; User-selected subfolder in the woe Start menu
 Var StartMenuFolder
+
+
+;---------------------
+; Callbacks - .onInit
+;---------------------
+; Placed early so resources are located at the beginning of the
+; archive - apparently MULTIUSER_INIT stores some resource here.
+; Per-user|system-wide install support
+Function .onInit
+  !insertmacro MULTIUSER_INIT
+  !insertmacro UNINSTALL.LOG_PREPARE_INSTALL
+FunctionEnd
 
 
 ;----------
@@ -240,12 +253,9 @@ Section "Uninstall"
 SectionEnd
 
 
-; Per-user|system-wide install support
-Function .onInit
-  !insertmacro MULTIUSER_INIT
-  !insertmacro UNINSTALL.LOG_PREPARE_INSTALL
-FunctionEnd
-
+;-----------------------
+; Callbacks - continued
+;-----------------------
 Function .onInstSuccess
   !insertmacro UNINSTALL.LOG_UPDATE_INSTALL
 FunctionEnd
