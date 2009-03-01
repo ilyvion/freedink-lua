@@ -214,9 +214,12 @@ if (link_version->major < 2)
 }
 else if (link_version->major == 2)
 {
-  /* if (link_version->minor >= 0) */
-  if (link_version->patch < 9)
-    return 1;
+  if (link_version->minor == 0)
+  {
+    if (link_version->patch < 9)
+      return 1;
+  }
+  /* v2.x.x && >=v2.0.9 */
   return 0;
 }
 else
