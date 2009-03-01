@@ -1,0 +1,159 @@
+# The reference material is at pspdev.org
+# List of available tools and libraries:
+# svn ls svn://svn.pspdev.org/psp/trunk/
+
+mkdir psp
+cd psp
+
+# Grab the source from SVN, because the last releases are old
+# (2007). It's likely that they don't make proper releases anymore.
+svn co svn://svn.pspdev.org/psp/trunk/psptoolchain
+cd psptoolchain
+
+# Create the install directory
+sudo mkdir /usr/local/pspdev
+sudo chown `id`: /usr/local/pspdev
+
+# Follow readme-ubuntu.txt:
+cat <<'EOF' >> ~/.bashrc
+export PSPDEV="/usr/local/pspdev"
+export PSPSDK="$PSPDEV/psp/sdk"
+export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
+EOF
+# Reload .bashrc:
+. ~/.bashrc
+
+sudo apt-get install build-essential autoconf automake bison flex \
+  libncurses5-dev libreadline-dev libusb-dev texinfo libgmp3-dev   \
+  libmpfr-dev subversion gcc-4.2
+
+# try to:
+#cp /usr/share/libtool/config/missing build/newlib-1.15.0
+# in 004-newlib-1.15.0.sh, if it complains about 'makeinfo'
+
+# add
+#export CC=/usr/bin/gcc-4.2
+# in toolchain-sudo.sh
+
+./toolchain-sudo.sh
+
+
+# Now compile libraries
+# SDL
+svn co svn://svn.pspdev.org/psp/trunk/SDL
+pushd SDL
+# Follow README.PSP:
+./autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host psp --prefix=$(psp-config --psp-prefix)
+make
+make install
+popd
+
+# SDL_mixer
+svn co svn://svn.pspdev.org/psp/trunk/SDL_mixer
+pushd SDL_mixer
+# Follow README.PSP:
+./autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host psp --with-sdl-prefix=$(psp-config --psp-prefix) \
+  --disable-music-mp3 --prefix=$(psp-config --psp-prefix) \
+  --disable-music-libmikmod --enable-music-mod
+make
+make install
+popd
+
+# libjpeg (SDL_image dependency)
+svn co svn://svn.pspdev.org/psp/trunk/jpeg
+pushd jpeg
+# Follow README.PSP:
+make
+make install
+popd
+
+# zlib (libpng dependency)
+svn co svn://svn.pspdev.org/psp/trunk/zlib
+pushd zlib
+# Follow README.PSP:
+make
+make install
+popd
+
+# libpng (SDL_image dependency)
+svn co svn://svn.pspdev.org/psp/trunk/libpng
+pushd libpng
+# Follow README.PSP:
+# (note the presence of example PSP source code)
+make
+make install
+popd
+
+# SDL_image
+svn co svn://svn.pspdev.org/psp/trunk/SDL_image
+pushd SDL_image
+# Follow README.PSP:
+./autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host psp --with-sdl-prefix=$(psp-config --psp-prefix) \
+  --prefix=$(psp-config --psp-prefix)
+make
+make install
+popd
+
+
+# FreeType (SDL_ttf dependency)
+svn co svn://svn.pspdev.org/psp/trunk/freetype
+pushd freetype
+# Follow README.PSP:
+sh autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+   ./configure --host psp --prefix=$(psp-config --psp-prefix)
+make
+make install
+popd
+
+# SDL_ttf
+svn co svn://svn.pspdev.org/psp/trunk/SDL_ttf
+pushd SDL_ttf
+# Follow README.PSP:
+# Note: there's an error with libtool 2, use libtool 1.5
+./autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host psp --with-sdl-prefix=$(psp-config --psp-prefix) \
+  --with-freetype-prefix=$(psp-config --psp-prefix) \
+  --without-x --prefix=$(psp-config --psp-prefix)
+make
+make install
+popd
+
+# ...
+
+exit
+
+
+#####
+
+Then you have a classic cross-compilation environment. There's a
+PSP-specific post-compilation operation to convert the executable to a
+PSP EBOOT.PBP file, as implemented in
+/usr/local/pspdev/psp/sdk/lib/build.mak
+
+The SDL version from pspdev can hide all PSP-specific code. Remember
+to use -Dmain=SDL_main (or use its `sdl-config --cflags`).
+
+Emulation: you can try "Sam", "Potemkin" (note that it requires "VC++
+2005 SP1") and "PSPE". Only "Sam" worked for me, but not fully
+(e.g. SDL_GetTicks() was erratic). To run a program, open EBOOT.BPB,
+with external media files in the same directory. Beware: Sam allows
+the game to remove files from your computer!
+
+
+Links:
+http://ps2dev.org/psp/Tools/Toolchain
+- download the latest from their repository
+
+http://gueux-forum.net/index.php?showtopic=77275
+- complete tutorial to compile and run an homebrew, from start to finish
+
+http://zx81.zx81.free.fr/serendipity/index.php?/categories/51-Development
+- pre-compiled SDKs and GNU/Linux disk images to run in VirtualBox
