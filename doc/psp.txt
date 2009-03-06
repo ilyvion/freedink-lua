@@ -126,6 +126,25 @@ make
 make install
 popd
 
+# libffi?
+VERSION=3.0.8
+wget ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
+tar xzf libffi-$VERSION.tar.gz
+cp .../psp/SDL_ttf/config.sub ./config.sub
+mkdir cross-psp && cd cross-psp
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" CFLAGS="-I$(psp-config --pspsdk-path)/include" \
+  ../configure --host psp --prefix=$(psp-config --psp-prefix)
+# Patch configure:
+#  mipsallegrexel-psp-elf)
+#        TARGET=MIPS; TARGETDIR=mips
+#        ;;
+make
+# => doesn't detect architecture properly
+
+# dyncall has PSP binaries, and it mentions it's using "32bit MIPS" +
+# a special "eabi" calling convention...
+# http://sources.redhat.com/ml/libffi-discuss/2009/msg00014.html
+
 # ...
 
 exit
@@ -157,3 +176,49 @@ http://gueux-forum.net/index.php?showtopic=77275
 
 http://zx81.zx81.free.fr/serendipity/index.php?/categories/51-Development
 - pre-compiled SDKs and GNU/Linux disk images to run in VirtualBox
+
+
+Docs:
+
+- How to detect PSP firmware version
+  Parameters > System Settings > System Information
+  e.g.
+    3.80 M33-5 -> custom firmware
+    3.80 -> official firmware
+
+- Access recovery menu
+  * long press on power / suspend (button on the right side)
+  * keep R pressed (index finger button on the right)
+  * press power button
+
+- How to plug:
+  * plug with a standard USB cable, outlet on the top of the PSP
+  * go to Parameters -> USB Connection, press X
+  * wait a few seconds
+  * you can mount /dev/sdb1 like a normal USB reader
+  * if this isn't done automatically, use 'pmount /dev/sdb1'
+  * umount /dev/sdb1
+  * press O on the PSP (don't do that before umounting, there's no check!!)
+
+- Where to install games:
+  * original phat firmware 1.50: 2 directories to install:
+    /media/sdb1/PSP/GAME/__SCE__yourgame/EBOOT.PBP
+    /media/sdb1/PSP/GAME/%__SCE__yourgame/EBOOT.PBP
+  * newer firmware:
+    /media/sdb1/PSP/GAME/yourgame/EBOOT.PBP
+
+- Install ScummVM:
+  http://wiki.scummvm.org/index.php/PlayStation_Portable
+  * cp -a scummvm-0.12.0-psp/single-eboot/scummvm-0.12.0-psp /media/sdb1/PSP/GAME/
+  * cp -a bass /media/sdb1/
+  * mv /media/sdb1/PSP/GAME/scummvm-0.12.0-psp/sky.cpt /media/sdb1/bass/
+  => v0.13 doesn't work? (quits immediately)
+
+- Create a Pandora Battery
+  http://www.pspgen.com/despertar-del-cementerio-debricker-downgrade-custom-firmware-article-184615-4.html
+  * Install HellCat's Pandora Installer R4b
+    cp -a hellcat-pandora-installer-4rb/PSP/GAME/pan3xx /media/sdb1/PSP/GAME/
+  * MemStick and MS-IPL Options > Repartition and format MemStick (DESTRUCTIVE!) (give more space to boot sector)
+  * Battery Options > make battery Pandora
+  * Install Despertar del cementerio v8 to PSP/GAME/pc8
+  * Install 500.PBP (link from http://alek.dark-alex.org/pspwiki/index.php/Official_Firmware) to /

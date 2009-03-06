@@ -90,12 +90,11 @@ dnl TODO: check for pkg-config's presence manually?
 PKG_PROG_PKG_CONFIG()
 
 case "${host}" in
-# (cf. (autoconf.info)Using System Type)
-# Modified to accept "biplet" instead of "triplet", because at
-# least Debian's MinGW package uses i586-mingw32msvc (instead of
-# i586-pc-mingw32msvc)
-*-*-go32* | *-mingw32* | *-*-cygwin* | *-*-windows*)
+# (cf. (autoconf.info)Using System Type) (2002)
+*-*-msdos* | *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows* \
+| mipsallegrexel-psp-elf)
     # Can't search fonts using fontconfig under ms woe
+    # Nor under a PSP
     use_fontconfig="no"
     ;;
 *)
