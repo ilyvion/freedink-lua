@@ -222,3 +222,19 @@ Docs:
   * Battery Options > make battery Pandora
   * Install Despertar del cementerio v8 to PSP/GAME/pc8
   * Install 500.PBP (link from http://alek.dark-alex.org/pspwiki/index.php/Official_Firmware) to /
+
+- Install screenshot-taking utility
+  http://www.pspgen.com/divers/telecharger-185222.html?secours
+
+  unzip -d /media/sdb1 pct-prx-v2_1233312675.zip
+  echo "ms0:/seplugins/PCT2.PRX" >> VSH.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> GAME.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> GAME150.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> POPS.TXT
+  
+  Stop the console and boot while pressing R to go to the recovery
+  menu (see above) and enable the plugins.
+
+  Press the "Notes" key to take a screenshots. I takes between 10 and
+  30 seconds depending on hardware, as far as I could see on the
+  forums.
