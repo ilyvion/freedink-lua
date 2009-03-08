@@ -31,10 +31,12 @@
 /* MessageBox */
 #include <windows.h>
 #else
+#  ifdef HAVE_WORKING_FORK
 /* fork, waitpid, execlp */
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#  endif
 #endif
 
 #include "SDL.h"
@@ -113,7 +115,7 @@ void msgbox_os(char *msg)
   MessageBox(NULL, msg, PACKAGE_NAME, MB_OK);
 
 #else
-
+#  ifdef HAVE_WORKING_FORK
   /* 'xmessage' basic (and ugly) X utility */
   pid_t pid = 0;
   if ((pid = fork()) < 0)
@@ -135,7 +137,9 @@ void msgbox_os(char *msg)
       int status = 0;
       waitpid(child_pid, &status, 0);
     }
-
+#  else
+  /* Add more OS-specific fallbacks here. */
+#  endif
 #endif
 }
 

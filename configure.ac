@@ -43,6 +43,8 @@ CFLAGS="$CFLAGS -Wall -std=c99"
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
 gl_EARLY
 
+# Check if we can fork&exec (for fallback xmessage errors)
+AC_FUNC_FORK
 
 # gettext
 AM_GNU_GETTEXT
