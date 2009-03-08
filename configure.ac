@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (C) 2007, 2008  Sylvain Beucler
+# Copyright (C) 2007, 2008, 2009  Sylvain Beucler
 
 # This file is part of GNU FreeDink
 
@@ -131,17 +131,6 @@ fi
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
 
-PKG_CHECK_MODULES([LIBFFI], [libffi >= 3],
-  AC_DEFINE([HAVE_LIBFFI], [], [libffi library (-lffi)]),
-  AC_MSG_WARN($LIBFFI_PKG_ERRORS); LACK_LIBFFI=1)
-CFLAGS="$CFLAGS $LIBFFI_CFLAGS"
-LIBS="$LIBS $LIBFFI_LIBS"
-# Support libffi4 which is bundled with GCC and doesn't have a libffi.pc:
-if test $LACK_LIBFFI = 1; then
-   LACK_LIBFFI=0
-   AC_CHECK_LIB(ffi,ffi_prep_cif,,AC_MSG_WARN([You need to install libffi]);LACK_LIBFFI=1)
-fi
-
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
@@ -172,17 +161,21 @@ AC_ARG_ENABLE([static],
 
 if test x"$enable_static" = x"yes"; then
     case "${host}" in
-    # (cf. (autoconf.info)Using System Type)
-    # Modified to accept "biplet" instead of "triplet", because at
-    # least Debian's MinGW package uses i586-mingw32msvc (instead of
-    # i586-pc-mingw32msvc)
-    *-*-go32* | *-mingw32* | *-*-cygwin* | *-*-windows*)
+    # (cf. (autoconf.info)Using System Type) (2002)
+    *-*-mingw32* | *-*-cygwin* | *-*-windows*)
         # Light version, if dependencies are compiled minimaly
-        LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
+        #LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
         # Full version, if planning to support more formats
         LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lwinmm -ldxguid"
         LDFLAGS="$LDFLAGS -static"
         ;;
+    mipsallegrexel-psp-elf)
+	# (Only static builds are possible for this architecture AFAIK)
+        # Light version, if dependencies are compiled minimaly
+        #LIBS="$LIBS -lfreetype -lz"
+        # Full version, if planning to support more formats
+	LIBS="-lfreetype -lpng -ljpeg -lz $LIBS"
+        #LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg"
     esac
 fi
 # TODO: check with Cygwin + -mno-cygwin
@@ -249,7 +242,7 @@ CPPFLAGS="$old_CPPFLAGS"
 
 if test x"$static" = x"1"; then
     case "${host}" in
-    *-*-go32* | *-*-mingw32* | *-*-cygwin* | *-*-windows*)
+    *-*-mingw32* | *-*-cygwin* | *-*-windows*)
         # See above
         ;;
     *)
@@ -328,11 +321,6 @@ if test x"$enable_embedded_resources" = x"yes"; then
     echo "* The 'zip' utility cannot be found. Please install it (or --disable-embedded-resources)."
     error=1
   fi
-fi
-
-if test "$LACK_LIBFFI" = 1; then
-  echo "* You need to install the libffi library."
-  error=1
 fi
 
 if test "$error" = 0 -a "$LACK_HELP2MAN" = 1; then

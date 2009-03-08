@@ -126,6 +126,19 @@ make
 make install
 popd
 
+# SDL_gfx
+svn co svn://svn.pspdev.org/psp/trunk/SDL_gfx
+pushd SDL_gfx
+# Follow README.PSP:
+./autogen.sh
+AR=psp-ar \
+  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host psp --with-sdl-prefix=$(psp-config --psp-prefix) \
+  --prefix=$(psp-config --psp-prefix) --disable-mmx --disable-shared
+make
+make install
+popd
+
 # libffi?
 VERSION=3.0.8
 wget ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
@@ -149,6 +162,20 @@ make
 
 exit
 
+# FreeDink
+mkdir cross-psp && cd cross-psp
+# - remove /usr/local/pspdev/psp/include/getopt.h which defines non-standard constants
+# - fix /usr/local/pspdev/psp/include/sys/unistd.h: readlink, 3rd argument is "unsigned int" rather then "int"
+# '-G0' is needed to avoid errors such as:
+#   relocation truncated to fit: R_MIPS_GPREL16 against `__ctype_ptr'
+SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
+  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
+  CFLAGS="-G0"
+  ../configure --host psp --prefix=$(psp-config --psp-prefix) \
+    --disable-embedded-resources --enable-static --disable-nls
+# - edit gnulib/lib/strings.h and get rid of #include_next
+make
 
 #####
 
@@ -219,6 +246,7 @@ Docs:
   * Install HellCat's Pandora Installer R4b
     cp -a hellcat-pandora-installer-4rb/PSP/GAME/pan3xx /media/sdb1/PSP/GAME/
   * MemStick and MS-IPL Options > Repartition and format MemStick (DESTRUCTIVE!) (give more space to boot sector)
+    PSP S&L (all models) can boot on a JigKick, however version TA-085-v2 and later can't _create_ one anymore.
   * Battery Options > make battery Pandora
   * Install Despertar del cementerio v8 to PSP/GAME/pc8
   * Install 500.PBP (link from http://alek.dark-alex.org/pspwiki/index.php/Official_Firmware) to /

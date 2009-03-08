@@ -21,8 +21,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "gfx_sprites.h"
 
+#include <stdlib.h>
+#include <string.h>
 #include "SDL_image.h"
 
 #include "gfx.h"

@@ -21,8 +21,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <string.h>  /* memset */
 #include "game_engine.h"
-#include "dinkvar.h" /* hmap, pam */
+#include "dinkvar.h"  /* hmap, pam */
 
 struct sp spr[MAX_SPRITES_AT_ONCE]; //max sprite control systems at once
 int last_sprite_created;

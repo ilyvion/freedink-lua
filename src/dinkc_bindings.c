@@ -22,14 +22,19 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "dinkc_bindings.h"
 
 #include <stdio.h>
+#include <stdlib.h> /* atol */
 #include <time.h>
 #include <math.h>
 #include <alloca.h>
-
-#include <ffi.h>
+#include <string.h>
+#include <ctype.h> /* tolower */
 
 /* Gnulib */
 #include "hash.h"
@@ -1869,8 +1874,6 @@ struct binding
   enum dinkc_parser_state badparams_dcps; /* if the DinkC script has bad arguments, skip line or yield? */
   int badparams_returnint_p; /* overwrite returnint if bad arguments? */
   int badparams_returnint;   /* value for returnint if badparams_returnint_p is 1 */
-  ffi_cif cif;                           /* libffi function struct */
-  ffi_type* cif_args[NB_COMMON_ARGS+10]; /* libffi argument types, referenced by 'cif' */
 };
 
 /* Hash table of bindings, build dynamically (depending on 'dversion',
@@ -1896,17 +1899,21 @@ static bool dinkc_bindings_comparator(const void* a, const void* b)
 struct binding* dinkc_bindings_lookup(dinkc_sp_custom hash, char* funcname)
 {
   struct binding search;
+  struct binding *result;
   char* lcfuncname = strdup(funcname);
   char* pc;
   for (pc = lcfuncname; *pc != '\0'; pc++)
     *pc = tolower(*pc);
   search.funcname = lcfuncname;
-  return hash_lookup(hash, &search);
+
+  result = hash_lookup(hash, &search);
+
+  free(lcfuncname);
+  return result;
 }
 
 /**
- * Initialize the libffi structures of binding pointer 'pbd' and add
- * it to hash table 'hash'
+ * Add a new binding to hash table 'hash'.
  */
 static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
 {
@@ -1921,46 +1928,6 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
   struct binding* newslot = malloc(sizeof(struct binding));
   *newslot = *pbd;
   hash_insert(hash, newslot);
-  /* Only use 'newslot' now, otherwise 'args' may refer to the wrong
-     place */
-  pbd = NULL;
-
-  /* Initialize the argument info vectors */
-  ffi_type** args = newslot->cif_args;
-  /* Common arguments */
-  args[0] = &ffi_type_sint;
-  args[1] = &ffi_type_pointer;
-  args[2] = &ffi_type_pointer;
-  
-  /* prepare call interface */
-  int nb_dc_args = 0;
-  int* p = newslot->params;
-  if (p[0] != -1)
-    {
-      int i = 0;
-      while (p[i] != 0 && i < 10)
-	{
-	  switch(p[i])
-	    {
-	    case 1: /* int */
-	      args[NB_COMMON_ARGS+i] = &ffi_type_sint;
-	      break;
-	    case 2:
-	      args[NB_COMMON_ARGS+i] = &ffi_type_pointer;
-	    }
-	  i++;
-	}
-      nb_dc_args = i;
-    }
-      
-  /* Initialize the cif */
-  ffi_type* rt = &ffi_type_void;
-  if (ffi_prep_cif(&newslot->cif, FFI_DEFAULT_ABI, NB_COMMON_ARGS+nb_dc_args,
-		   rt, args) != FFI_OK)
-    {
-      printf("Internal error: couldn't initialize binding %s\n", newslot->funcname);
-      exit(EXIT_FAILURE);
-    }
 }
 
 
@@ -2511,6 +2478,17 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
   return 1;
 }
 
+/**
+ * Are these 2 function signatures identical?
+ */
+static int signatures_eq_p(int* params1, int* params2)
+{
+  int i = 0;
+  for (; i < 10; i++)
+    if (params1[i] != params2[i])
+      return 0;
+  return 1;
+}
 
 /**
  * Process one line of DinkC and returns directive to the DinkC
@@ -2934,45 +2912,15 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
     
   if (pbd != NULL)
     {
-      /** Call binding **/
-      void *values[NB_COMMON_ARGS+10];
-	
       /* Common arguments */
-      values[0] = &script;
       int* yield = alloca(sizeof(int)*1);
       yield[0] = 0; /* don't yield by default) */
-      values[1] = &yield;
-      int* preturnint = &returnint;
-      values[2] = &preturnint;
-	
+
       /* Specific arguments */
       int* params = pbd->params;
       if (params[0] != -1) /* no args == no checks*/
 	{
-	  if (get_parms(funcname, script, str_args, params))
-	    {
-	      int i = 0;
-	      while (params[i] != 0 && i < 10)
-		{
-		  switch(params[i])
-		    {
-		    case 1: /* int */
-		      {
-			values[NB_COMMON_ARGS+i] = &nlist[i];
-			break;
-		      }
-		    case 2: /* string */
-		      {
-			char** pointer = alloca(sizeof(char*)*1);
-			*pointer = slist[i];
-			values[NB_COMMON_ARGS+i] = pointer;
-			break;
-		      }
-		    }
-		  i++;
-		}
-	    }
-	  else
+	  if (!get_parms(funcname, script, str_args, params))
 	    {
 	      /* Invalid parameters in the DinkC script - output an
 		 error message */
@@ -2991,9 +2939,91 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	}
 	
       /* Call C function */
-      int rc;
       cur_funcname = pbd->funcname; /* for error messages */
-      ffi_call(&pbd->cif, pbd->func, &rc, values);
+      int sig_void[10]        = {-1,0,0,0,0,0,0,0,0,0};
+      int sig_int[10]         =  {1,0,0,0,0,0,0,0,0,0};
+      int sig_str[10]         =  {2,0,0,0,0,0,0,0,0,0};
+      int sig_int_int[10]     =  {1,1,0,0,0,0,0,0,0,0};
+      int sig_int_str[10]     =  {1,2,0,0,0,0,0,0,0,0};
+      int sig_str_int[10]     =  {2,1,0,0,0,0,0,0,0,0};
+      int sig_str_str[10]     =  {2,2,0,0,0,0,0,0,0,0};
+      int sig_str_int_int[10] =  {2,1,1,0,0,0,0,0,0,0};
+      int sig_int_int_int_int[10] =  {1,1,1,1,0,0,0,0,0,0};
+      int sig_int_int_int_int_int[10] =  {1,1,1,1,1,0,0,0,0,0};
+      int sig_int_int_int_int_int_int[10] =  {1,1,1,1,1,1,0,0,0,0};
+
+      /* {-1,0,0,0,0,0,0,0,0,0} */
+      if (signatures_eq_p(pbd->params, sig_void))
+	{
+	  void (*pf)(int, int*, int*) = pbd->func;
+	  (*pf)(script, yield, &returnint);
+	}
+      /* {1,0,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int))
+	{
+	  void (*pf)(int, int*, int* , int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0]);
+	}
+      /* {2,0,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_str))
+	{
+	  void (*pf)(int, int*, int* , char*) = pbd->func;
+	  (*pf)(script, yield, &returnint , slist[0]);
+	}
+      /* {1,1,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_int))
+	{
+	  void (*pf)(int, int*, int* , int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], nlist[1]);
+	}
+      /* {1,2,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_str))
+	{
+	  void (*pf)(int, int*, int* , int, char*) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], slist[1]);
+	}
+      /* {2,1,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_str_int))
+	{
+	  void (*pf)(int, int*, int* , char*, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , slist[0], nlist[1]);
+	}
+      /* {2,2,0,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_str_str))
+	{
+	  void (*pf)(int, int*, int* , char*, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , slist[0], nlist[1]);
+	}
+      /* {2,2,1,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_str_int_int))
+	{
+	  void (*pf)(int, int*, int* , char*, int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , slist[0], nlist[1], nlist[2]);
+	}
+      /* {1,1,1,1,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_int_int_int))
+	{
+	  void (*pf)(int, int*, int* , int, int, int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], nlist[1], nlist[2], nlist[3]);
+	}
+      /* {1,1,1,1,1,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_int_int_int_int))
+	{
+	  void (*pf)(int, int*, int* , int, int, int, int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], nlist[1], nlist[2], nlist[3], nlist[4]);
+	}
+      /* {1,1,1,1,1,1,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_int_int_int_int_int))
+	{
+	  void (*pf)(int, int*, int* , int, int, int, int, int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], nlist[1], nlist[2], nlist[3], nlist[4], nlist[5]);
+	}
+      else
+	{
+	  fprintf(stderr, "Internal error: DinkC function %s has unknown signature",
+		  pbd->funcname);
+	  exit(EXIT_FAILURE);
+	}
       cur_funcname = "";
       /* the function can manipulation returnint through argument #3 */
 	

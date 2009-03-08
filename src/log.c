@@ -21,6 +21,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "io_util.h"
 #include "paths.h"
 

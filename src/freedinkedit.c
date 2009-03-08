@@ -21,6 +21,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 /*
  * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
  * sprites(6), screen hardness initialization (9, switches to 8
@@ -54,9 +58,7 @@
 #define INPUT_SCREEN_MIDI   33
 #define INPUT_SCREEN_TYPE   34
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+
 #include "progname.h"
 
 /* #define WIN32_LEAN_AND_MEAN */

@@ -149,7 +149,7 @@ int gfx_init(enum gfx_windowed_state windowed)
       }
   }
 
-  SDL_putenv("SDL_VIDEO_CENTERED=1");
+  putenv("SDL_VIDEO_CENTERED=1");
 
   /* SDL_HWSURFACE is supposed to give direct memory access */
   /* SDL_HWPALETTE makes sure we can use all the colors we need
@@ -271,7 +271,7 @@ int gfx_init_failsafe()
   if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     return -1;
 
-  SDL_putenv("SDL_VIDEO_CENTERED=1");
+  putenv("SDL_VIDEO_CENTERED=1");
   SDL_WM_SetCaption(PACKAGE_STRING " - Initialization error", NULL);
   SDL_Surface *icon = IMG_ReadXPMFromArray(freedink_xpm);
   if (icon != NULL)

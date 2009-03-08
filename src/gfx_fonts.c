@@ -20,6 +20,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0401
@@ -66,8 +70,7 @@ struct font_color
 };
 static struct font_color font_colors[16];
 
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-#else
+#ifdef HAVE_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 /* Get filename for canonical font name 'fontname'. Return NULL if the
    font cannot be found (for correctness, no alternate font will be
@@ -203,8 +206,7 @@ static TTF_Font *load_default_font() {
     {
       rwops = find_resource_as_rwops("LiberationSans-Regular.ttf");
     }
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
-#else
+#ifdef HAVE_FONTCONFIG
   if (rwops == NULL)
     {
       char *path = get_fontconfig_path("Liberation Sans:style=Regular");
@@ -216,8 +218,11 @@ static TTF_Font *load_default_font() {
       init_set_error_msg("Could not open font 'LiberationSans-Regular.ttf'. I tried:\n"
 			 "- loading from executable's resources\n"
 			 "- loading from '%s'\n"
-			 "- loading from '%s'\n",
-			 "- querying fontconfig",
+			 "- loading from '%s'\n"
+#ifdef HAVE_FONTCONFIG
+			 "- querying fontconfig"
+#endif
+			 ,
 			 paths_getpkgdatadir(), paths_getdefaultpkgdatadir());
       return NULL;
     }
@@ -253,7 +258,11 @@ int initfont(char* fontname) {
       strcat(path, "\\");
       strcat(path, filename);
 #else
+#  ifdef HAVE_FONTCONFIG
       path = get_fontconfig_path(fontname);
+#  else
+      path = NULL;
+#  endif
 #endif
       if (path != NULL)
 	new_font = TTF_OpenFont(path, FONT_SIZE);

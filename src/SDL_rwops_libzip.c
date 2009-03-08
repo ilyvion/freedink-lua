@@ -6,6 +6,10 @@
  *      (this example uses errno which might not be multithreaded everywhere)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "SDL_rwops_libzip.h"
 #include <zip.h>
 #include <string.h> /* strchr */

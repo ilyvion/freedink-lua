@@ -23,10 +23,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DEMO
-#define __REAL_THING
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

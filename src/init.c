@@ -168,7 +168,7 @@ void finiObjects()
 	}
 	
 	kill_all_scripts_for_real();
-	FastFileFini();
+/* 	FastFileFini(); */
 
 	g_b_kill_app = 1;
 /* 	ShowWindow(hWndMain, SW_HIDE); */

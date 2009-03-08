@@ -2,7 +2,7 @@
  * Free fastfile.cpp replacement
 
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2003, 2004, 2008  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -21,22 +21,32 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#undef HAVE_MMAP
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #ifdef _WIN32
-#include <windows.h>
-#include <io.h>
+#  include <windows.h>
+#  include <io.h>
 /* #define strcasecmp(a,b) stricmp(a,b) */
 #else
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#  include <unistd.h>
+#  ifdef HAVE_MMAP
+#    include <sys/mman.h>
+#  endif
+#  include <sys/types.h>
+#  include <sys/stat.h>
+#  include <fcntl.h>
 #endif
 #include "str_util.h"
+#include "io_util.h"
+
+#define HEADER_NB_ENTRIES_LEN 4
 
 struct FF_Entry
 {
@@ -48,6 +58,10 @@ struct FF_Handle
 {
   int alive;
   long pos, off, len;
+#if defined HAVE_MMAP || defined _WIN32
+#else
+  unsigned char* buf;
+#endif
 };
 
 void FastFileFini (void);
@@ -55,53 +69,88 @@ void FastFileFini (void);
 static struct FF_Entry *g_Entries = 0;
 static struct FF_Handle *g_Handles = 0;
 
-size_t g_FileSize = 0, g_numEntries = 0, g_numHandles = 0;
+static unsigned int g_FileSize = 0;
+static unsigned int g_numEntries = 0;
+static unsigned int g_numHandles = 0;
 
-#ifndef _WIN32
+#ifdef HAVE_MMAP
 static int g_File = 0;
 #else
+#  ifdef _WIN32
 HANDLE g_File;
 HANDLE g_FileMap;
+#  else
+FILE* g_File = NULL;
+#  endif
 #endif
 
-
+#if defined HAVE_MMAP || defined _WIN32
 unsigned char *g_MemMap = 0;
+#endif
 
 int
 FastFileInit(char *filename, int max_handles)
 {
   long count = 0;
+  FastFileFini();
+
+#if _WIN32 | HAVE_MMAP
   unsigned char *buf = NULL;
+#endif
 
-  FastFileFini ();
-
-#ifndef _WIN32
-  /* Open and mmap the file(Unix) */
-  g_File = open (filename, O_RDONLY);
-  g_FileSize = lseek (g_File, 0, SEEK_END);
+#ifdef HAVE_MMAP
+  /* Open and mmap the file (Unix) */
+  g_File = open(filename, O_RDONLY);
+  if (g_File < 0)
+    return 0/*false*/;
+  g_FileSize = lseek(g_File, 0, SEEK_END); /* needed by munmap */
   lseek (g_File, 0, SEEK_SET);
 
-  g_MemMap = mmap (NULL, g_FileSize, PROT_READ, MAP_PRIVATE, g_File, 0);
+  g_MemMap = mmap(NULL, g_FileSize, PROT_READ, MAP_PRIVATE, g_File, 0);
 #else
-  /* Open and mmap the file(Windows) */
-  g_File =
-    CreateFile (filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-		FILE_FLAG_RANDOM_ACCESS, 0);
+#  ifdef _WIN32
+  /* Open and mmap the file (Windows) */
 
+  /* first: file size (for later sanity checks) */
+  FILE* t = fopen(filename, "rb");
+  if (t == NULL)
+    return FALSE;
+  fseek(t, 0, SEEK_END);
+  g_FileSize = ftell(t);
+  fseek(t, 0, SEEK_SET);
+  fclose(f);
+
+  g_File =
+    CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+	       FILE_FLAG_RANDOM_ACCESS, 0);
   if (g_File == NULL)
-    {
-      return FALSE;
-    }
+    return FALSE;
 
   g_FileMap = CreateFileMapping (g_File, NULL, PAGE_READONLY, 0, 0, NULL);
   g_MemMap = MapViewOfFile (g_FileMap, FILE_MAP_READ, 0, 0, 0);
+#  else
+  /* C stdio (portable) */
+  g_File = fopen(filename, "rb");
+  if (g_File == NULL)
+    return 0/*false*/;
+  
+  fseek(g_File, 0, SEEK_END);
+  g_FileSize = ftell(g_File);
+  fseek(g_File, 0, SEEK_SET);
+#  endif
 #endif
 
-  /* Get the number of entries (from stored LSB int32) */
-  buf = g_MemMap;
-  g_numEntries = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
   g_numHandles = max_handles;
+  /* Get the number of entries (from stored LSB int32) */
+#if defined HAVE_MMAP || defined _WIN32
+  buf = g_MemMap;
+  g_numEntries =
+    (buf[3] << 24) | (buf[2] << 16)
+    | (buf[1] << 8) | (buf[0]);
   buf += 4;
+#else
+  g_numEntries = read_lsb_int(g_File);
+#endif
 
   /* Allocate the memory */
   g_Entries = calloc(sizeof(struct FF_Entry), g_numEntries);
@@ -109,10 +158,17 @@ FastFileInit(char *filename, int max_handles)
 
   for (count = 0; count < g_numEntries; count++)
     {
+#if defined HAVE_MMAP || defined _WIN32
       g_Entries[count].off = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
       buf += 4;
       strncpy (g_Entries[count].name, (char*)buf, 13);
       buf += 13;
+#else
+      g_Entries[count].off = read_lsb_int(g_File);
+      fread(g_Entries[count].name, 13, 1, g_File);
+#endif
+      /* Ensure string is null-terminated */
+      g_Entries[count].name[12] = '\0';
     }
 
   return 1;
@@ -124,47 +180,58 @@ FastFileFini (void)
 {
   if (g_Entries)
     {
-      free (g_Entries);
+      free(g_Entries);
       g_Entries = 0;
     }
   if (g_Handles)
     {
-      free (g_Handles);
+      free(g_Handles);
       g_Handles = 0;
     }
 
+#if defined HAVE_MMAP || defined _WIN32
   if (!g_MemMap)
     return;
-#ifndef _WIN32
-  /* Unmap and close the file(Unix) */
-  munmap (g_MemMap, g_FileSize);
-  close (g_File);
-  g_File = -1;
-#else
-  /* Unmap and close the file(Windows) */
-  CloseHandle (g_FileMap);
-  CloseHandle (g_File);
 #endif
 
-  g_MemMap = 0;
+#ifdef HAVE_MMAP
+  /* Unmap and close the file (Unix) */
+  munmap(g_MemMap, g_FileSize);
+  close(g_File);
+  g_File = -1;
+#else
+#  ifdef _WIN32
+  /* Unmap and close the file (Windows) */
+  CloseHandle(g_FileMap);
+  CloseHandle(g_File);
+#  else
+  if (g_File != NULL)
+    {
+      fclose(g_File);
+      g_File = NULL;
+    }
+#  endif
+#endif
+
+#if _WIN32 | HAVE_MMAP
+  g_MemMap = NULL;
+#endif
 }
 
 
-
-
 void *
-FastFileOpen (char *name)
+FastFileOpen(char *name)
 {
   struct FF_Handle *i;
   long fCount;
   long hCount;
 
   /* Check for the file, dont' include directory */
-  for (fCount = 0; fCount < (long) g_numEntries - 1; fCount++)
+  for (fCount = 0; fCount < (long)g_numEntries - 1; fCount++)
     {
-      if (string_icompare (g_Entries[fCount].name, name) == 0)
+      if (string_icompare(g_Entries[fCount].name, name) == 0)
 	{
-	  for (hCount = 0; hCount < (long) g_numHandles; hCount++)
+	  for (hCount = 0; hCount < (long)g_numHandles; hCount++)
 	    {
 	      i = &g_Handles[hCount];
 
@@ -173,40 +240,104 @@ FastFileOpen (char *name)
 		  i->alive = 1;
 		  i->off = g_Entries[fCount].off;
 		  i->pos = 0;
-		  if (g_Entries[fCount + 1].off != 0)
-		    /* Normal offset, tells where next the image bytes
-		       start */
-		    i->len = g_Entries[fCount + 1].off - i->off;
+		  /* Normal offset, tells where next the image bytes
+		     start */
+		  int next_off = g_Entries[fCount + 1].off;
+		  if (next_off == 0)
+		    /* Support badly generated dir.ff such as Mystery
+		       Island's (skip 1 empty entry) */
+		    /* TODO: check that fCount+2 is valid. */
+		    next_off = g_Entries[fCount + 2].off;
+		  /* Watch for buffer overflows - check that 'off' is
+		     in a reasonable range [0, len(file)], and doesn't
+		     overlap another fastfile */
+		  if ((i->off < 0 || i->off > g_FileSize)
+		      || i->off > next_off)
+		    i->len = 0;
 		  else
-		    /* Support badly generated dir.ff such as Mystery Island's */
-		    i->len = g_Entries[fCount + 2].off - i->off;
-		  /* TODO: watch for buffer overflows - check that
-		     'off' is in a reasonable range [0, len(file)]
-		     without overlapping existing pictures */
-		  return (void *) i;
+		    i->len = next_off - i->off;
+		  return (void*)i;
 		}
 	    }
-	  return 0;
+	  return NULL;
 	}
     }
-  return 0;
+  return NULL;
 }
 
 
 int
 FastFileClose (struct FF_Handle *i)
 {
-  if (!i || !g_MemMap)
+  if (!i)
     return 0;
+
+#if defined HAVE_MMAP || defined _WIN32
+  if (!g_MemMap)
+    return 0;
+#else
+  if (i->buf != NULL)
+    free(i->buf);
+#endif
 
   i->alive = 0;
   return 1;
 }
 
 
+void *
+FastFileLock (struct FF_Handle *i, int off, int len)
+{
+  if (!i)
+    return NULL;
+
+#if defined HAVE_MMAP || defined _WIN32
+  char *buffer = NULL;
+  if(!g_MemMap)
+    return NULL;
+#endif
+
+  if (off < 0 || len < 0)
+    {
+      return NULL;
+    }
+  if (len > i->len)
+    {
+      printf("FastFileLock: len = %d > i->len = %ld - exiting.\n", len, i->len);
+      fflush(stdout);
+      return NULL;
+    }
+
+#if defined HAVE_MMAP || defined _WIN32
+  buffer = (char*)g_MemMap;
+  buffer += i->off;
+  buffer += off;
+  return (void*)buffer;
+#else
+  fseek(g_File, i->off, SEEK_SET);
+  i->buf = malloc(i->len);
+  fread(i->buf, i->len, 1, g_File);
+  return i->buf;
+#endif
+}
+
+
+int
+FastFileUnlock(struct FF_Handle *i, int off, int len)
+{
+  return 1;
+}
+
+int
+FastFileLen(struct FF_Handle *i)
+{
+  return i->len;
+}
 
 
 
+/* comment out unused functions to ease portability */
+#if 0
 int
 FastFileSeek (struct FF_Handle *i, int offset, int whence)
 {
@@ -270,46 +401,5 @@ FastFileTell (struct FF_Handle *i)
     return 0;
   return i->pos;
 }
+#endif
 
-
-
-void *
-FastFileLock (struct FF_Handle *i, int off, int len)
-{
-  char *buffer;
-
-
-  if (!i || !g_MemMap)
-    {
-      return NULL;
-    }
-  if (off < 0 || len < 0)
-    {
-      return NULL;
-    }
-  if (len > i->len)
-    {
-      printf("FastFileLock: len = %d > i->len = %ld - exiting.\n", len, i->len);
-      fflush(stdout);
-      return NULL;
-    }
-
-  buffer = (char*)g_MemMap;
-  buffer += i->off;
-  buffer += off;
-
-  return (void*)buffer;
-}
-
-
-int
-FastFileUnlock (struct FF_Handle *i, int off, int len)
-{
-  return 1;
-}
-
-int
-FastFileLen (struct FF_Handle *i)
-{
-  return i->len;
-}

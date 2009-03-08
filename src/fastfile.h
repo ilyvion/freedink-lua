@@ -35,12 +35,14 @@ extern "C"
   extern void FastFileFini (void);
   extern void *FastFileOpen (char *name);
   extern int FastFileClose (void *pfe);
-  extern int FastFileRead (void *pfh, void *ptr, int size);
-  extern int FastFileSeek (void *pfe, int off, int how);
-  extern long FastFileTell (void *pfe);
   extern void *FastFileLock (void *pfe, int off, int len);
   extern int FastFileUnlock (void *pfe, int off, int len);
   extern int FastFileLen (void *i);
+#if 0
+  extern int FastFileRead (void *pfh, void *ptr, int size);
+  extern int FastFileSeek (void *pfe, int off, int how);
+  extern long FastFileTell (void *pfe);
+#endif
 
 #ifdef __cplusplus
 }

@@ -20,6 +20,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "gfx_fade.h"
+
+#include <stdlib.h>
 #include "SDL.h"
 #include "gfx.h"
 

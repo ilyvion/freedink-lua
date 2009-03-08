@@ -23,6 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <stdlib.h>
 
 #include "io_util.h"
 #include "paths.h"

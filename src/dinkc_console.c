@@ -21,6 +21,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "dinkc_console.h"
+
+#include <string.h>
 #include "str_util.h"
 #include "dinkc.h"
 

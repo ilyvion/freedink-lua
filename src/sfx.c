@@ -22,6 +22,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <stdlib.h>
+#include <string.h>  /* memset, memcpy */
+
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include "game_engine.h"

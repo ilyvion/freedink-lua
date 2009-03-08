@@ -22,6 +22,13 @@
  * 02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "gfx_utils.h"
+
+#include <stdlib.h>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "io_util.h"
