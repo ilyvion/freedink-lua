@@ -44,7 +44,7 @@ CFLAGS="$CFLAGS -Wall -std=c99"
 gl_EARLY
 
 # Check if we can fork&exec (for fallback xmessage errors)
-AC_FUNC_FORK
+AC_CHECK_FUNCS(execlp)
 
 # gettext
 AM_GNU_GETTEXT
@@ -108,7 +108,7 @@ if test x"$use_fontconfig" = x"yes"; then
     AC_DEFINE([HAVE_FONTCONFIG], [], [fontconfig library (-lfontconfig)]),
     AC_MSG_WARN($FONTCONFIG_PKG_ERRORS); LACK_FONTCONFIG=1)
   CFLAGS="$CFLAGS $FONTCONFIG_CFLAGS"
-  LIBS="$LIBS $FONTCONFIG_LIBS"
+  LIBS="$FONTCONFIG_LIBS $LIBS"
 fi
 
 if test x"$enable_embedded_resources" = x"yes"; then
@@ -117,7 +117,7 @@ if test x"$enable_embedded_resources" = x"yes"; then
     AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
     AC_MSG_WARN($LIBZIP_PKG_ERRORS [(non-fatal if there's zziplib)]); LACK_LIBZIP=1)
   CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
-  LIBS="$LIBS $LIBZIP_LIBS"
+  LIBS="$LIBZIP_LIBS $LIBS"
   # ZZipLib - doesn't cross-compile well and unstable under woe, but
   #   functional and more widespread under GNU/Linux
   #AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
@@ -125,7 +125,7 @@ if test x"$enable_embedded_resources" = x"yes"; then
     AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),
     AC_MSG_WARN($ZZIPLIB_PKG_ERRORS [(non-fatal if there's libzip)]); LACK_ZZIPLIB=1)
   CFLAGS="$CFLAGS $ZZIPLIB_CFLAGS"
-  LIBS="$LIBS $ZZIPLIB_LIBS"
+  LIBS="$ZZIPLIB_LIBS $LIBS"
 else
    LACK_LIBZIP=1
    LACK_ZZIPLIB=1
@@ -133,27 +133,6 @@ fi
 AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
 
-
-dnl Check for SDL
-SDL_VERSION=1.2.0
-AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
-  be redefined (and saved by autoconf) for cross-compilation.])
-AM_PATH_SDL($SDL_VERSION,
-  :,
-  AC_MSG_WARN([*** SDL version $SDL_VERSION not found!]); LACK_LIBSDL=1
-)
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS"
-
-
-# Lengthy Gnulib checks
-gl_INIT
-
-
-# BinReloc, if not cross-compiling (tests do not check for cross-compilation)
-if test "$cross_compiling" = "no"; then
-AP_BINRELOC
-fi
 
 
 # Dynamic and static builds
@@ -168,7 +147,7 @@ if test x"$enable_static" = x"yes"; then
         # Light version, if dependencies are compiled minimaly
         #LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
         # Full version, if planning to support more formats
-        LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lwinmm -ldxguid"
+        LIBS="-lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lwinmm -ldxguid $LIBS"
         LDFLAGS="$LDFLAGS -static"
         ;;
     mipsallegrexel-psp-elf)
@@ -184,6 +163,27 @@ fi
 # From SDL_mixer:
 ## We build SDL on cygwin without the UNIX emulation layer
 ##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
+
+dnl Check for SDL
+SDL_VERSION=1.2.0
+AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
+  be redefined (and saved by autoconf) for cross-compilation.])
+AM_PATH_SDL($SDL_VERSION,
+  :,
+  AC_MSG_WARN([*** SDL version $SDL_VERSION not found!]); LACK_LIBSDL=1
+)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$SDL_LIBS $LIBS"
+
+
+# Lengthy Gnulib checks
+gl_INIT
+
+
+# BinReloc, if not cross-compiling (tests do not check for cross-compilation)
+if test "$cross_compiling" = "no"; then
+AP_BINRELOC
+fi
 
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)

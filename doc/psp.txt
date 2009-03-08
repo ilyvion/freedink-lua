@@ -160,22 +160,34 @@ make
 
 # ...
 
-exit
-
 # FreeDink
 mkdir cross-psp && cd cross-psp
 # - remove /usr/local/pspdev/psp/include/getopt.h which defines non-standard constants
 # - fix /usr/local/pspdev/psp/include/sys/unistd.h: readlink, 3rd argument is "unsigned int" rather then "int"
 # '-G0' is needed to avoid errors such as:
 #   relocation truncated to fit: R_MIPS_GPREL16 against `__ctype_ptr'
+# - use HAVE_PATHCONF in pathmax.h
+# - trim fchdir so it doesn't reference dup and dup2
+# - alter getcwd so it doesn't use rewinddir
 SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
-  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  LDFLAGS="-L$(psp-config --pspsdk-path)/lib" \
+  LIBS="-lc -lpspuser" \
   CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
   CFLAGS="-G0"
   ../configure --host psp --prefix=$(psp-config --psp-prefix) \
     --disable-embedded-resources --enable-static --disable-nls
 # - edit gnulib/lib/strings.h and get rid of #include_next
 make
+cd src/
+psp-fixup-imports freedink -o freedink.elf
+mksfo freedink PARAM.SFO
+psp-strip freedink.elf -o freedink_strip.elf
+pack-pbp EBOOT.PBP PARAM.SFO NULL  \
+		NULL NULL NULL  \
+		NULL  freedink_strip.elf NULL
+rm -f freedink_strip.elf
+
+exit
 
 #####
 
@@ -266,3 +278,23 @@ Docs:
   Press the "Notes" key to take a screenshots. I takes between 10 and
   30 seconds depending on hardware, as far as I could see on the
   forums.
+
+
+Harware:
+
+- Apparently only 480x272x32
+
+- By default the screen is a hardware surface, which means you're
+  writing to the video video directly - and this also means you'll get
+  a flicker effects if you don't do it properly.
+
+- AFAIK there's hardware double-buffer mode, that is, it swaps the
+  buffer's video memory on SDL_Flip(screen). Thus you need to redraw
+  your screen after each flip(), unless you're not using double-buffer
+  mode.
+
+- The memory stick's path is "ms0:/" (e.g. "ms0:/PSP/GAME/yourgame")
+
+- Accessing "/" goes to "ms0:/", at least when running homebrew from
+  the memory stick. This is similar to woe's "/" -> "C:\" (replacing C
+  with the current drive's letter).
