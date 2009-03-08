@@ -117,7 +117,7 @@ FastFileInit(char *filename, int max_handles)
   fseek(t, 0, SEEK_END);
   g_FileSize = ftell(t);
   fseek(t, 0, SEEK_SET);
-  fclose(f);
+  fclose(t);
 
   g_File =
     CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
