@@ -24,7 +24,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#undef HAVE_MMAP
 
 #include <stdio.h>
 #include <string.h>
