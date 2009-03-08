@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2005, 2007  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

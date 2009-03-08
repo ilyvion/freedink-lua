@@ -2,7 +2,7 @@
  * Dink.ini - loading graphics
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

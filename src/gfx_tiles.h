@@ -1,7 +1,7 @@
 /**
  * Draw background from tiles
 
- * Copyright (C) 2007  Sylvain Beucler
+ * Copyright (C) 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

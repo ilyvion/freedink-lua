@@ -1,7 +1,7 @@
 /**
  * Hash table to be used by DinkC's 'sp_custom' function
 
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

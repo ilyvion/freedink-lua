@@ -2,7 +2,7 @@
  * Free fastfile.cpp replacement
 
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2003, 2004, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2007, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

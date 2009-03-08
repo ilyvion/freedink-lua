@@ -2,7 +2,7 @@
  * Various string functions mainly used for controlling text output
 
  * Copyright (C) 2003  Shawn Betts
- * Copyright (C) 2004, 2007  Sylvain Beucler
+ * Copyright (C) 2004, 2007, 2008  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

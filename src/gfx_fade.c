@@ -1,7 +1,7 @@
 /**
  * Fade down / fade up, preserving white pixels
 
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 

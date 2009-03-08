@@ -2,7 +2,7 @@
  * DinkC interactive console
 
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
