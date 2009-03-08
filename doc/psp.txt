@@ -179,6 +179,7 @@ SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
 # - edit gnulib/lib/strings.h and get rid of #include_next
 make
 cd src/
+# Cf. /usr/local/pspdev/psp/sdk/lib/build.mak
 psp-fixup-imports freedink -o freedink.elf
 mksfo freedink PARAM.SFO
 psp-strip freedink.elf -o freedink_strip.elf
@@ -267,10 +268,10 @@ Docs:
   http://www.pspgen.com/divers/telecharger-185222.html?secours
 
   unzip -d /media/sdb1 pct-prx-v2_1233312675.zip
-  echo "ms0:/seplugins/PCT2.PRX" >> VSH.TXT
-  echo "ms0:/seplugins/PCT2.PRX" >> GAME.TXT
-  echo "ms0:/seplugins/PCT2.PRX" >> GAME150.TXT
-  echo "ms0:/seplugins/PCT2.PRX" >> POPS.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> /media/sdb1/VSH.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> /media/sdb1/GAME.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> /media/sdb1/GAME150.TXT
+  echo "ms0:/seplugins/PCT2.PRX" >> /media/sdb1/POPS.TXT
   
   Stop the console and boot while pressing R to go to the recovery
   menu (see above) and enable the plugins.
