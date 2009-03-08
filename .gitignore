@@ -26,6 +26,8 @@ freedink.xml.old
 *.package.meta
 # my build dirs:
 cross
+cross-psp
+cross-woe
 native
 # links to dinkdir for testing
 dink
