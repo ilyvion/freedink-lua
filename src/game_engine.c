@@ -25,6 +25,9 @@
 #include <config.h>
 #endif
 
+
+#include <stdlib.h>  /* srand */
+#include <time.h>  /* time */
 #include <string.h>  /* memset */
 #include "game_engine.h"
 #include "dinkvar.h"  /* hmap, pam */
@@ -98,6 +101,11 @@ Uint32 truecolor_fade_lasttick = -1;
 /* Base for Dink's push sequences */
 unsigned int dink_base_push = 310;
 
+
+/* hardness */
+struct hit_map hm;
+
+
 void game_init()
 {
   /* Clean the game state structure - done by C++ but not
@@ -110,10 +118,14 @@ void game_init()
   memset(&pam, 0, sizeof(pam));
   memset(&spr, 0, sizeof(spr));
 
+  memset(&hm, 0, sizeof(hm));
+
   if (dversion >= 108)
     dversion_string = "v1.08";
   else
     dversion_string = "v1.07";
+
+  srand((unsigned)time(NULL));
 }
 
 void game_quit()

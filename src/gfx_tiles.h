@@ -30,7 +30,7 @@
 
 /* extern LPDIRECTDRAWSURFACE tiles[]; */
 /* extern RECT tilerect[]; */
-extern SDL_Surface *GFX_tiles[];
+extern SDL_Surface *GFX_tiles[NB_TILE_SCREENS+1];
 
 extern void tiles_load_default(void);
 extern void tiles_load_slot(char* relpath, int slot);

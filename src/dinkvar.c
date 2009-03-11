@@ -176,7 +176,6 @@ char dir[80];
 
 int  show_dot = /*FALSE*/0;
 int  plane_process = /*TRUE*/1;
-struct hit_map hm;
 
 int last_sprite_added = 0;
 unsigned long timer = 0;

@@ -120,19 +120,6 @@ struct talk_struct
   int timer;
 };
 
-//sub struct for hardness map
-struct mega_y
-{
-	unsigned char y[401];
-};
-
-//struct for hardness map
-struct hit_map
-{
-	struct mega_y x[601];
-};
-
-
 //sub struct for tile hardness
 
 struct block_y
@@ -284,8 +271,6 @@ extern unsigned char get_hard_play(int h, int x1, int y1);
 extern void load_hard(void);
 extern int load_info_to(char* path, struct map_info *mymap);
 extern void load_info(void);
-
-extern struct hit_map hm;
 
 /* Dunno */
 extern /*bool*/int mouse1;

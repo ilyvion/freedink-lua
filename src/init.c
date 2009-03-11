@@ -188,6 +188,8 @@ void finiObjects()
 	
 	if (init_error_msg != NULL)
 	  free(init_error_msg);
+
+	SDL_Quit();
 }
 
 /**
@@ -306,6 +308,11 @@ static int check_arg(int argc, char *argv[])
    subsystem as needed (eg InitSound) */
 int init(int argc, char *argv[])
 {
+#ifdef _PSP
+  freopen("stdout.txt", "w", stdout);
+  freopen("stderr.txt", "w", stderr);
+#endif
+
   /** i18n **/
   /* Only using LC_MESSAGES because LC_CTYPE (part of LC_ALL) may
      bring locale-specific behavior in the DinkC parsers. If that's a
@@ -406,8 +413,8 @@ int init(int argc, char *argv[])
   /* - SDL_KEYDOWN: we want the keydown events for text input
        (show_console and editor input dialog) */
 
-
-  /* Maybe use SDL_QuitSubSystem instead */
+  /* Quits in case we couldn't do it properly first (i.e. attempt to
+     avoid stucking the user in 640x480 when crashing) */
   atexit(SDL_Quit);
 
   return 1;

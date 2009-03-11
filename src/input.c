@@ -117,7 +117,8 @@ void input_quit(void)
 {
   if (joystick == 1)
     {
-      SDL_JoystickClose(jinfo);
+      if (jinfo != NULL)
+	SDL_JoystickClose(jinfo);
       SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
 }

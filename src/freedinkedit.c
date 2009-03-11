@@ -5113,10 +5113,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
      (to handle '[' and ']' in a layout-independant way, namely) */
   SDL_EventState(SDL_KEYUP, SDL_ENABLE);
 
-  // TODO: move to game_init() ?
-  memset(&hm, 0, sizeof(struct hit_map));
-  srand((unsigned)time(NULL));
-
   // GFX
   char *base_bmp = "tiles/esplash.bmp";
   fullpath = paths_dmodfile(base_bmp);
@@ -5155,8 +5151,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
   
   load_batch();
   load_hard();
-  // Load the tiles from the BMPs
-  tiles_load_default();
 
   {
     int i = 1;

@@ -257,6 +257,20 @@ struct map_info
 extern struct map_info map;
 
 
+// sub struct for hardness map
+struct mega_y
+{
+	unsigned char y[401];
+};
+
+// struct for hardness map
+struct hit_map
+{
+	struct mega_y x[601];
+};
+extern struct hit_map hm;
+
+
 /* Joystick */
 extern /*BOOL*/int joystick;
 /* extern JOYINFOEX jinfo; */

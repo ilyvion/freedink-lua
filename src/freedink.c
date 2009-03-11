@@ -32,9 +32,6 @@
 #include <string.h>
 #include <math.h>
 
-/* for time(): */
-#include <time.h>
-
 #include "gettext.h"
 #define _(String) gettext (String)
 
@@ -5122,11 +5119,6 @@ static int doInit(int argc, char *argv[])
   if (init(argc, argv) == 0)
     exit(1);
 
-  /* Load the tiles from the BMPs */
-  tiles_load_default();
-
-  srand((unsigned)time(NULL));
-  
   char *base_bmp = "Tiles/Splash.bmp";
   fullpath = paths_dmodfile(base_bmp);
   if (!exist(fullpath))

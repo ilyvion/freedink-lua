@@ -85,12 +85,12 @@ endif
 dist_man_MANS = freedink.6 freedinkedit.6 dink.6 dinkedit.6
 freedink.6: init.c $(top_srcdir)/configure.ac Makefile.am
 	$(MAKE) $(AM_MAKEFLAGS) freedink$(EXEEXT)
-	$(HELP2MAN) -s6 -n "adventure and role-playing game (engine)"	\
-	--no-info --output=freedink.6 ./freedink$(EXEEXT)
+	-$(HELP2MAN) -s6 -n "adventure and role-playing game (engine)"	\
+	  --no-info --output=freedink.6 ./freedink$(EXEEXT)
 freedinkedit.6: init.c $(top_srcdir)/configure.ac Makefile.am
 	$(MAKE) $(AM_MAKEFLAGS) freedinkedit$(EXEEXT)
-	$(HELP2MAN) -s6 -n "adventure and role-playing game (editor)"	\
-	--no-info --output=freedinkedit.6 ./freedinkedit$(EXEEXT)
+	-$(HELP2MAN) -s6 -n "adventure and role-playing game (editor)"	\
+	  --no-info --output=freedinkedit.6 ./freedinkedit$(EXEEXT)
 distclean-local:
 	rm -f freedink.6 freedinkedit.6
 

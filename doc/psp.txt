@@ -280,8 +280,15 @@ Docs:
   30 seconds depending on hardware, as far as I could see on the
   forums.
 
+- To get standard output and standart error output, in C:
+  freopen("stdout.txt", "w", stdout);
+  freopen("stderr.txt", "w", stderr);
+  ...
+  fflush(stdout); // shortly before the studied crash
+  fflush(stderr);
 
-Harware:
+
+Hardware:
 
 - Apparently only 480x272x32
 
@@ -299,3 +306,9 @@ Harware:
 - Accessing "/" goes to "ms0:/", at least when running homebrew from
   the memory stick. This is similar to woe's "/" -> "C:\" (replacing C
   with the current drive's letter).
+
+
+TODO:
+
+- can we check the inavailability of 8-bit mode in a generic way
+  (rather then #ifdef _PSP)?
