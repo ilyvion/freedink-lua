@@ -39,7 +39,7 @@
 /* Tiles */
 /* Game pieces */
 /* +1 to avoid the -1 in array indexes.. */
-SDL_Surface *GFX_tiles[NB_TILE_SCREENS+1];
+SDL_Surface* GFX_tiles[NB_TILE_SCREENS+1];
 
 /* Animated tiles current status */
 int water_timer;

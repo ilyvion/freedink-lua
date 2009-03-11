@@ -151,6 +151,12 @@ int gfx_init(enum gfx_windowed_state windowed)
 
   putenv("SDL_VIDEO_CENTERED=1");
 
+#ifdef _PSP
+  /* Some architectures do not support paletted/8-bit modes */
+  truecolor = 1;
+#endif
+
+
   /* SDL_HWSURFACE is supposed to give direct memory access */
   /* SDL_HWPALETTE makes sure we can use all the colors we need
      (override system palette reserved colors?) */
@@ -181,7 +187,11 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
   /* 				       0, 0, 0, 0); */
   printf("Requesting depth %d\n", bits_per_pixel);
+#ifdef _PSP
+  GFX_lpDDSBack = SDL_SetVideoMode(480, 272, bits_per_pixel, flags);
+#else
   GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
+#endif
   if (GFX_lpDDSBack == NULL)
     {
       init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
@@ -257,6 +267,10 @@ int gfx_init(enum gfx_windowed_state windowed)
   /* So it's not portable and it blocks Alt+Tab, so let's try
      something else - maybe enable it as a command line option. */
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
+
+  /* Load the tiles from the BMPs */
+  memset(&GFX_tiles, 0, sizeof(GFX_tiles)); /* make all pointers to NULL first */
+  tiles_load_default();
   
   init_state = GFX_INITIALIZED;
   return 0;
@@ -280,7 +294,7 @@ int gfx_init_failsafe()
       SDL_FreeSurface(icon);
     }
 
-  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF);
+  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 0, SDL_DOUBLEBUF);
   if (GFX_lpDDSBack == NULL)
     return -1;
 
