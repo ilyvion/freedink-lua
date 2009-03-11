@@ -173,8 +173,8 @@ SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
   LDFLAGS="-L$(psp-config --pspsdk-path)/lib" \
   LIBS="-lc -lpspuser" \
   CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
-  CFLAGS="-G0"
-  ../configure --host psp --prefix=$(psp-config --psp-prefix) \
+  CFLAGS="-G0" \
+  ../configure --host psp \
     --disable-embedded-resources --enable-static --disable-nls
 # - edit gnulib/lib/strings.h and get rid of #include_next
 make

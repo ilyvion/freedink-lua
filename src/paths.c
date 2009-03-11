@@ -71,7 +71,6 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 
   /* relocatable_prog */
   set_program_name(argv0);
-  printf("Hi, I'm '%s'\n", get_full_program_name());
 
   /** default pkgdatadir (e.g. "/usr/share/freedink") **/
   {
@@ -101,7 +100,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       {
 	datadir_binreloc = br_find_data_dir(datadir_relocatable);
       }
-      
+    
     /* Free relocable-prog's path, if necessary */
     if (datadir_relocatable != default_data_dir)
       free((char *)datadir_relocatable);
@@ -118,7 +117,18 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
 
   /** exedir (e.g. "C:/Program Files/Dink Smallwood") **/
   {
-    exedir = dir_name(get_full_program_name());
+    char* fullprogname = get_full_program_name();
+    if (fullprogname != NULL)
+      {
+	printf("Hi, I'm '%s'\n", fullprogname);
+	/* gnulib's dir_name always returns a newly xalloc'd string */
+	exedir = dir_name(fullprogname);
+      }
+    else
+      {
+	printf("Hi, I'm '%s'\n", argv0);
+	exedir = dir_name(argv0);
+      }
   }
 
   /** refdir  (e.g. "/usr/share/dink") **/
@@ -270,15 +280,26 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
     /* C:\Documents and Settings\name\Application Data */
     SHGetSpecialFolderPath(NULL, userappdir, CSIDL_APPDATA, 1);
 #else
-    userappdir = strdup(getenv("HOME"));
+    char* envhome = getenv("HOME");
+    if (envhome != NULL)
+      userappdir = strdup(getenv("HOME"));
 #endif
-    userappdir = realloc(userappdir, strlen(userappdir) + 1 + 1 + strlen(PACKAGE) + 1);
-    strcat(userappdir, "/");
+    if (userappdir != NULL)
+      {
+	userappdir = realloc(userappdir, strlen(userappdir) + 1 + 1 + strlen(PACKAGE) + 1);
+	strcat(userappdir, "/");
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #else
-    strcat(userappdir, ".");
+	strcat(userappdir, ".");
 #endif
-    strcat(userappdir, "dink");
+	strcat(userappdir, "dink");
+      }
+    else
+      {
+	// No detected home directory - saving in the reference
+	// directory
+	userappdir = strdup(refdir);
+      }
   }
 
   printf("exedir = %s\n", exedir);
