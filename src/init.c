@@ -45,8 +45,9 @@
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
-#include "gfx_tiles.h"
 #include "gfx_sprites.h"
+#include "gfx_tiles.h"
+#include "gfx_utils.h"
 #include "fastfile.h"
 #include "sfx.h"
 #include "bgm.h"
@@ -306,7 +307,7 @@ static int check_arg(int argc, char *argv[])
 /* The goal is to replace freedink and freedinkedit's doInit() by a
    common init procedure. This procedure will also initialize each
    subsystem as needed (eg InitSound) */
-int init(int argc, char *argv[])
+int init(int argc, char *argv[], char* splash_path)
 {
 #ifdef _PSP
   freopen("stdout.txt", "w", stdout);
@@ -338,12 +339,17 @@ int init(int argc, char *argv[])
   if (!check_arg(argc, argv))
     return 0;
 
-
   /* Same for this D-Mod's .mo (after options are parsed) */
   char* dmod_localedir = paths_dmodfile("l10n");
   bindtextdomain(paths_getdmodname(), dmod_localedir);
   bind_textdomain_codeset(paths_getdmodname(), "UTF-8");
   free(dmod_localedir);
+
+
+  /* GFX */
+  if (gfx_init(windowed ? GFX_WINDOWED : GFX_FULLSCREEN,
+	       splash_path) < 0)
+    return initFail(init_error_msg);
 
 
   /* Engine */
@@ -365,6 +371,8 @@ int init(int argc, char *argv[])
       if (sound_on)
 	bgm_init();
     }
+  if (cd_inserted)
+    PlayCD(7);
 
 
   /* SDL */
@@ -383,18 +391,17 @@ int init(int argc, char *argv[])
   SDL_setFramerate(&framerate_manager, 60);
 
 
-  int gfx_init_success = 0;
-  if (windowed)
-    gfx_init_success = gfx_init(GFX_WINDOWED);
-  else
-    gfx_init_success = gfx_init(GFX_FULLSCREEN);
-  if (gfx_init_success < 0)
-    return initFail(init_error_msg);
-
-
   /* Joystick */
   input_init();
 
+  //dinks normal walk
+  Msg("Loading batch...");
+  load_batch();
+  Msg(" done!");
+  
+  Msg("Loading hard...");
+  load_hard();
+  Msg(" done!");
 
   /* We'll handle those events manually */
   SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);

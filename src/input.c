@@ -49,7 +49,8 @@ void input_init(void)
      the console (game) and the input dialogs (editor). */
   SDL_EnableUNICODE(1);
 
-  /* Clear keyboard buffer */
+  /* Clear keyboard/joystick buffer */
+  memset(&sjoy,0,sizeof(sjoy));
   {
     int x, u, x1;
     for (x = 0; x < 256; x++)

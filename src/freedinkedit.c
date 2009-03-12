@@ -88,7 +88,6 @@
 #include "game_engine.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
-#include "gfx_utils.h"
 #include "gfx_fonts.h"
 #include "sfx.h"
 #include "io_util.h"
@@ -197,13 +196,6 @@ void draw_minimap(void);
 /* void dderror(HRESULT hErr); */
 
 void finiObjects(void);
-
-
-/* Refresh physical screen. Only used in Dinkedit */
-void flip_it_editor()
-{
-  SDL_Flip(GFX_lpDDSBack);
-}
 
 
 void draw_sprite(SDL_Surface *GFX_lpdest, int h)
@@ -1070,7 +1062,7 @@ void draw15(int num)
 
   Say("Please wait, loading sprite data into SmartCache system...", 147,160);
 
-  flip_it_editor();
+  flip_it();
 
   /* Draw sprites */
   for (x1 = 0; x1 <= 11; x1++)
@@ -5038,8 +5030,7 @@ void updateFrame(void)
 
 /*     } else */
 /*     { */
-      /* Replaced by a call to flip_it_editor() */
-      flip_it_editor();
+      flip_it();
       /*
       //windowed mode, no flipping
       p.x = 0; p.y = 0;
@@ -5100,58 +5091,19 @@ int load_editor_sounds()
  */
 static /*BOOL*/int doInit(int argc, char *argv[])
 {
-  rect rcRect;
-  char *fullpath = NULL;
   dinkedit = 1;
 
   /* New initialization */
-  if (init(argc, argv) == 0)
-    {
-      exit(1);
-    }
+  if (init(argc, argv, "tiles/esplash.bmp") == 0)
+    exit(1);
+
   /* Difference with the game: attempt to get a Unicode key state
      (to handle '[' and ']' in a layout-independant way, namely) */
   SDL_EventState(SDL_KEYUP, SDL_ENABLE);
-
-  // GFX
-  char *base_bmp = "tiles/esplash.bmp";
-  fullpath = paths_dmodfile(base_bmp);
-  if (!exist(fullpath))
-    {
-      free(fullpath);
-      fullpath = paths_fallbackfile(base_bmp);
-    }
-  SDL_Surface* splash = load_bmp(fullpath);
-  free(fullpath);
-  if (!GFX_lpDDSTwo)
-    {
-      fprintf(stderr, "Couldn't load esplash.bmp\n");
-    }
-  else
-    {
-      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
-      SDL_FreeSurface(splash);
-    }
-
-  /* Copy splash screen to the screen during loading time */
-  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-
-  /* Manually apply palette (done in flip_it() in the game) */
-  if (!truecolor && trigger_palette_change)
-    {
-      // Apply the logical palette to the physical screen. This
-      // may trigger a Flip (so don't do that until Back is
-      // ready), but not necessarily (so do a Flip anyway).
-      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
-		     cur_screen_palette, 0, 256);
-      trigger_palette_change = 0;
-    }
-
-  flip_it_editor();
   
-  load_batch();
-  load_hard();
 
+  /** SETUP **/
+  /* Manually setup basic sequences */
   {
     int i = 1;
     for (; i <= 4; i++)
@@ -5170,7 +5122,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
       }
   }
 
-  // ** SETUP **
   spr[1].active = /*TRUE*/1;
   spr[1].x = 0;
   spr[1].y = 0;
@@ -5182,11 +5133,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
   spr[1].seq = 0;
   spr[1].seq = 2;
   
-  rcRect.left = 0;
-  rcRect.top = 0;
-  rcRect.right = 639;
-  rcRect.bottom = 79;
-
   //sprite sequence setup
   seq[1].frame[1] = seq[10].frame[1];
   seq[1].frame[2] = seq[10].frame[2];
@@ -5236,7 +5182,6 @@ static /*BOOL*/int doInit(int argc, char *argv[])
   mode = MODE_DIALOG;
   cur_tile = 1;
   load_info();
-  memset(&sjoy,0,sizeof(sjoy)); //clear key/joystick values
   
   playl = 20;
   playx = 620;

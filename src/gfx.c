@@ -41,6 +41,7 @@
 #include "gfx_utils.h"
 #include "gfx_fade.h"
 #include "init.h"
+#include "paths.h"
 
 
 /* Is the screen depth more than 8bit? */
@@ -107,6 +108,11 @@ SDL_Color GFX_real_pal[256];
 int trigger_palette_change = 0;
 SDL_Color cur_screen_palette[256];
 
+/* True color fade in [0,256]; 0 is completely dark, 256 is unaltered */
+double truecolor_fade_brightness = 256;
+/* Time elapsed since last fade computation; -1 is disabled */
+Uint32 truecolor_fade_lasttick = -1;
+
 
 /**
  * Check if the graphics system is initialized, so we know if we can
@@ -122,7 +128,7 @@ enum gfx_init_state gfx_get_init_state()
 /**
  * Graphics subsystem initalization
  */
-int gfx_init(enum gfx_windowed_state windowed)
+int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 {
   /* Initialization in progress */
   init_state = GFX_INITIALIZING_VIDEO;
@@ -242,6 +248,36 @@ int gfx_init(enum gfx_windowed_state windowed)
   GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
+
+
+  /* Display splash picture, as early as possible */
+  {
+    char* fullpath = paths_dmodfile(splash_path);
+    if (!exist(fullpath))
+      {
+	free(fullpath);
+	fullpath = paths_fallbackfile(splash_path);
+      }
+    SDL_Surface* splash = load_bmp(fullpath);
+    free(fullpath);
+    if (splash == NULL)
+      {
+	fprintf(stderr, "Cannot load base graphics %s\n", splash_path);
+      }
+    else
+      {
+	/* Copy splash to the background buffer so that D-Mod can
+	   start an effect from it (e.g. Pilgrim Quest's burning
+	   splash screen effect) */
+	SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
+	SDL_FreeSurface(splash);
+      }
+    
+    /* Copy splash screen (again) to the screen during loading time */
+    SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+
+    flip_it();
+  }
 
 
   /* Fonts system, default fonts */
@@ -553,4 +589,32 @@ int gfx_blit_stretch(SDL_Surface *src_surf, SDL_Rect *src_rect,
       retval = SDL_BlitSurface(src_surf, src_rect, dst_surf, dst_rect);
     }
   return retval;
+}
+
+
+/**
+ * Refresh the physical screen, and apply a new palette or fade effect
+ * if needed
+ */
+void flip_it(void)
+{
+  /* We work directly on either lpDDSBack (no lpDDSPrimary as in
+     the original game): the double buffer (Back) is directly
+     managed by SDL; SDL_Flip is used to refresh the physical
+     screen. */
+  if (!truecolor && trigger_palette_change)
+    {
+      // Apply the logical palette to the physical screen. This
+      // may trigger a Flip (so don't do that until Back is
+      // ready), but not necessarily (so do a Flip anyway).
+      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
+		     cur_screen_palette, 0, 256);
+      trigger_palette_change = 0;
+    }
+  if (truecolor_fade_brightness < 256)
+    {
+      gfx_fade_apply(truecolor_fade_brightness);
+    }
+
+  SDL_Flip(GFX_lpDDSBack);
 }

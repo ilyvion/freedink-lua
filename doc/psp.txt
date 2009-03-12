@@ -307,6 +307,228 @@ Hardware:
   the memory stick. This is similar to woe's "/" -> "C:\" (replacing C
   with the current drive's letter).
 
+- Results of testvidinfo.c from the SDL examples:
+Video driver: psp
+Current display: ?x?, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+No special fullscreen video modes
+Hardware surfaces are available (0K video memory)
+Copy blits between hardware surfaces are accelerated
+Colorkey blits between hardware surfaces are accelerated
+===================================
+Setting video mode: 640x480 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 640x480 at 8 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 11.85 seconds, 64.84 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 17.50 seconds, 28.57 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 18.50 seconds, 27.02 FPS
+Running display format blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 11.91 seconds, 41.97 FPS
+Running display format cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 10.66 seconds, 46.91 FPS
+===================================
+Setting video mode: 640x480 at 8 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 640x480 at 8 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 640x480 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 640x480 at 16 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 7.59 seconds, 101.13 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 16.14 seconds, 30.98 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 16.45 seconds, 30.40 FPS
+Running display format blit test: 408x167 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 12.62 seconds, 39.62 FPS
+Running display format cc blit test: 408x167 at 16 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 10.05 seconds, 49.78 FPS
+Running display format alpha blit test: 408x167 at 16 bpp, flags: 0x00010000 SDL_SWSURFACE | SDL_SRCALPHA
+5000 alpha blits / 500 updates in 30.58 seconds, 16.35 FPS
+Running display format cc+alpha blit test: 408x167 at 16 bpp, flags: 0x00013000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_SRCALPHA | SDL_RLEACCELOK
+5000 cc+alpha blits / 500 updates in 22.79 seconds, 21.94 FPS
+===================================
+Setting video mode: 640x480 at 16 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 640x480 at 16 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 640x480 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 640x480 at 32 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 15.74 seconds, 48.80 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 21.93 seconds, 22.80 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 21.44 seconds, 23.32 FPS
+Running display format blit test: 408x167 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 21.77 seconds, 22.97 FPS
+Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 17.29 seconds, 28.93 FPS
+Running display format alpha blit test: 408x167 at 32 bpp, flags: 0x00010000 SDL_SWSURFACE | SDL_SRCALPHA
+5000 alpha blits / 500 updates in 45.06 seconds, 11.10 FPS
+Running display format cc+alpha blit test: 408x167 at 32 bpp, flags: 0x00013000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_SRCALPHA | SDL_RLEACCELOK
+5000 cc+alpha blits / 500 updates in 32.47 seconds, 15.40 FPS
+===================================
+Setting video mode: 640x480 at 32 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 640x480 at 32 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 640x480
+===================================
+Setting video mode: 800x600 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 800x600 at 8 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 18.14 seconds, 42.34 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 21.11 seconds, 23.68 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 22.10 seconds, 22.63 FPS
+Running display format blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 15.51 seconds, 32.24 FPS
+Running display format cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 14.24 seconds, 35.12 FPS
+===================================
+Setting video mode: 800x600 at 8 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 800x600 at 8 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 800x600 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 800x600 at 16 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 11.97 seconds, 64.15 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 17.75 seconds, 28.18 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 18.04 seconds, 27.72 FPS
+Running display format blit test: 408x167 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 13.84 seconds, 36.14 FPS
+Running display format cc blit test: 408x167 at 16 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 11.52 seconds, 43.40 FPS
+Running display format alpha blit test: 408x167 at 16 bpp, flags: 0x00010000 SDL_SWSURFACE | SDL_SRCALPHA
+5000 alpha blits / 500 updates in 31.94 seconds, 15.66 FPS
+Running display format cc+alpha blit test: 408x167 at 16 bpp, flags: 0x00013000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_SRCALPHA | SDL_RLEACCELOK
+5000 cc+alpha blits / 500 updates in 24.35 seconds, 20.53 FPS
+===================================
+Setting video mode: 800x600 at 16 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 800x600 at 16 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 800x600 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 800x600 at 32 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 24.33 seconds, 31.56 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 25.48 seconds, 19.63 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 24.95 seconds, 20.04 FPS
+Running display format blit test: 408x167 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 25.32 seconds, 19.75 FPS
+Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 20.84 seconds, 24.00 FPS
+Running display format alpha blit test: 408x167 at 32 bpp, flags: 0x00010000 SDL_SWSURFACE | SDL_SRCALPHA
+5000 alpha blits / 500 updates in 48.53 seconds, 10.30 FPS
+Running display format cc+alpha blit test: 408x167 at 32 bpp, flags: 0x00013000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_SRCALPHA | SDL_RLEACCELOK
+5000 cc+alpha blits / 500 updates in 36.02 seconds, 13.88 FPS
+===================================
+Setting video mode: 800x600 at 32 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 800x600 at 32 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 800x600
+===================================
+Setting video mode: 1024x768 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 1024x768 at 8 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 29.42 seconds, 26.10 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 27.37 seconds, 18.27 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 28.37 seconds, 17.63 FPS
+Running display format blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 21.79 seconds, 22.95 FPS
+Running display format cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 20.54 seconds, 24.34 FPS
+===================================
+Setting video mode: 1024x768 at 8 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 1024x768
+===================================
+Setting video mode: 1024x768 at 8 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 1024x768
+===================================
+Setting video mode: 1024x768 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 1024x768 at 16 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 20.10 seconds, 38.21 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 21.40 seconds, 23.37 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 21.70 seconds, 23.04 FPS
+Running display format blit test: 408x167 at 16 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 17.87 seconds, 27.98 FPS
+Running display format cc blit test: 408x167 at 16 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 15.29 seconds, 32.71 FPS
+Running display format alpha blit test: 408x167 at 16 bpp, flags: 0x00010000 SDL_SWSURFACE | SDL_SRCALPHA
+5000 alpha blits / 500 updates in 35.80 seconds, 13.97 FPS
+Running display format cc+alpha blit test: 408x167 at 16 bpp, flags: 0x00013000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_SRCALPHA | SDL_RLEACCELOK
+5000 cc+alpha blits / 500 updates in 28.03 seconds, 17.84 FPS
+===================================
+Setting video mode: 1024x768 at 16 bpp, flags: 0x80000001 SDL_HWSURFACE | SDL_FULLSCREEN
+Setting video mode failed: No video mode large enough for 1024x768
+===================================
+Setting video mode: 1024x768 at 16 bpp, flags: 0xc0000001 SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF
+Setting video mode failed: No video mode large enough for 1024x768
+===================================
+Setting video mode: 1024x768 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+Flags didn't match: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+===================================
+Setting video mode: 1024x768 at 32 bpp, flags: 0x80000000 SDL_SWSURFACE | SDL_FULLSCREEN
+Running color fill and fullscreen update test
+768 fills and flips in 39.65 seconds, 19.37 FPS
+Running freshly loaded blit test: 408x167 at 8 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 31.83 seconds, 15.71 FPS
+Running freshly loaded cc blit test: 408x167 at 8 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 31.31 seconds, 15.97 FPS
+Running display format blit test: 408x167 at 32 bpp, flags: 0x00000000 SDL_SWSURFACE
+5000 blits / 500 updates in 31.65 seconds, 15.80 FPS
+Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SWSURFACE | SDL_SRCCOLORKEY | SDL_RLEACCELOK
+5000 cc blits / 500 updates in 27.16 secon
+<<output truncated here - either crash or missing stdout flush>>
+
+- Requesting an hardware surface (SDL_HWSURFACE) fails unless it's
+  480x272x32
+
+- Requesting a fullscreen software surface
+  (SDL_SWSURFACE|SDL_FULLSCREEN) succeeds in a number of situations,
+  in which case the screen can be auto-resized (e.g. 640x480x32), or
+  it can just be messed (overlaps).
 
 TODO:
 

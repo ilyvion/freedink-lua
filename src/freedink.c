@@ -38,7 +38,6 @@
 #include "fastfile.h"
 
 #include "gfx.h"
-#include "gfx_utils.h"
 #include "gfx_fonts.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
@@ -3646,31 +3645,6 @@ void draw_box(rect box, int color)
 			    cur_screen_palette[color].b));
   }
 }
-	
-	
-	
-void flip_it(void)
-{
-  /* We work directly on either lpDDSBack (no lpDDSPrimary as in
-     the original game): the double buffer (Back) is directly
-     managed by SDL; SDL_Flip is used to refresh the physical
-     screen. */
-  if (!truecolor && trigger_palette_change)
-    {
-      // Apply the logical palette to the physical screen. This
-      // may trigger a Flip (so don't do that until Back is
-      // ready), but not necessarily (so do a Flip anyway).
-      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
-		     cur_screen_palette, 0, 256);
-      trigger_palette_change = 0;
-    }
-  if (truecolor_fade_brightness < 256)
-    {
-      gfx_fade_apply(truecolor_fade_brightness);
-    }
-
-  SDL_Flip(GFX_lpDDSBack);
-}
 
 
 /**
@@ -5113,57 +5087,17 @@ void drawscreenlock( void )
  */
 static int doInit(int argc, char *argv[])
 {
-  char *fullpath = NULL;
-  
   /* New initialization */
-  if (init(argc, argv) == 0)
+  if (init(argc, argv, "Tiles/Splash.bmp") == 0)
     exit(1);
-
-  char *base_bmp = "Tiles/Splash.bmp";
-  fullpath = paths_dmodfile(base_bmp);
-  if (!exist(fullpath))
-    {
-      free(fullpath);
-      fullpath = paths_fallbackfile(base_bmp);
-    }
-  SDL_Surface* splash = load_bmp(fullpath);
-  free(fullpath);
-  if (splash == NULL)
-    {
-      fprintf(stderr, "Cannot load base graphics splash.bmp\n");
-    }
-  else
-    {
-      SDL_BlitSurface(splash, NULL, GFX_lpDDSTwo, NULL);
-      SDL_FreeSurface(splash);
-    }
-  
-  /* Copy splash screen to the screen during loading time */
-  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-  
-  flip_it();
-
-  if (cd_inserted)
-    PlayCD(7);
-	
-  //dinks normal walk
-  Msg("Loading batch...");
-  load_batch();
-  Msg(" done!");
-  
-  Msg("Loading hard...");
-  load_hard();
-  Msg(" done!");
 
 
   //Activate dink, but don't really turn him on
   //spr[1].active = TRUE;
   spr[1].timer = 33;
 	
-
   // ** SETUP **
   last_sprite_created = 1;
-	
   mode = 0;
     
   load_info();
@@ -5173,7 +5107,8 @@ static int doInit(int argc, char *argv[])
   locate(script, "main");
   run_script(script);
 
-  //lets attach our vars to the scripts
+  /* lets attach our vars to the scripts, they must be declared in the
+     main.c DinkC script */
   attach();
 	
   return 1;

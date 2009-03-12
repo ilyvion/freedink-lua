@@ -50,9 +50,12 @@ extern int trigger_palette_change;
 extern SDL_Color GFX_real_pal[256];
 extern SDL_Color cur_screen_palette[256];
 
+extern double truecolor_fade_brightness;
+extern Uint32 truecolor_fade_lasttick;
+
 extern enum gfx_init_state gfx_get_init_state(void);
 
-extern int gfx_init(enum gfx_windowed_state);
+extern int gfx_init(enum gfx_windowed_state, char* splash_path);
 extern int gfx_init_failsafe();
 extern void gfx_quit(void);
 extern void change_screen_palette(SDL_Color* new_palette);
@@ -62,5 +65,6 @@ extern SDL_Surface* load_bmp_from_mem(SDL_RWops *rw);
 extern SDL_Surface* load_bmp_setpal(FILE *in);
 extern int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect);
 extern int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect);
+extern void flip_it(void);
 
 #endif
