@@ -31,14 +31,14 @@ extern "C"
 
   typedef void *HFASTFILE;
 
-  extern int FastFileInit (char *filename, int max_handles);
-  extern void FastFileFini (void);
-  extern void *FastFileOpen (char *name);
-  extern int FastFileClose (void *pfe);
-  extern void *FastFileLock (void *pfe, int off, int len);
-  extern int FastFileUnlock (void *pfe, int off, int len);
-  extern int FastFileLen (void *i);
+  extern int FastFileInit(char *filename, int max_handles);
+  extern void FastFileFini(void);
+  extern void* FastFileOpen(char *name);
+  extern int FastFileClose(void *pfe);
+  extern SDL_RWops* FastFileLock(void *pfe);
+  extern int FastFileLen(void *i);
 #if 0
+  extern int FastFileUnlock(void *pfe, int off, int len);
   extern int FastFileRead (void *pfh, void *ptr, int size);
   extern int FastFileSeek (void *pfe, int off, int how);
   extern long FastFileTell (void *pfe);

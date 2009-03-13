@@ -57,10 +57,6 @@ struct FF_Handle
 {
   int alive;
   long pos, off, len;
-#if defined HAVE_MMAP || defined _WIN32
-#else
-  unsigned char* buf;
-#endif
 };
 
 void FastFileFini (void);
@@ -274,9 +270,6 @@ FastFileClose (struct FF_Handle *i)
 #if defined HAVE_MMAP || defined _WIN32
   if (!g_MemMap)
     return 0;
-#else
-  if (i->buf != NULL)
-    free(i->buf);
 #endif
 
   i->alive = 0;
@@ -284,8 +277,8 @@ FastFileClose (struct FF_Handle *i)
 }
 
 
-void *
-FastFileLock (struct FF_Handle *i, int off, int len)
+SDL_RWops*
+FastFileLock(struct FF_Handle *i)
 {
   if (!i)
     return NULL;
@@ -296,36 +289,16 @@ FastFileLock (struct FF_Handle *i, int off, int len)
     return NULL;
 #endif
 
-  if (off < 0 || len < 0)
-    {
-      return NULL;
-    }
-  if (len > i->len)
-    {
-      printf("FastFileLock: len = %d > i->len = %ld - exiting.\n", len, i->len);
-      fflush(stdout);
-      return NULL;
-    }
-
 #if defined HAVE_MMAP || defined _WIN32
   buffer = (char*)g_MemMap;
   buffer += i->off;
-  buffer += off;
-  return (void*)buffer;
+  return SDL_RWFromMem(buffer, i->len);
 #else
   fseek(g_File, i->off, SEEK_SET);
-  i->buf = malloc(i->len);
-  fread(i->buf, i->len, 1, g_File);
-  return i->buf;
+  return SDL_RWFromFP(g_File, /*autoclose=*/0);
 #endif
 }
 
-
-int
-FastFileUnlock(struct FF_Handle *i, int off, int len)
-{
-  return 1;
-}
 
 int
 FastFileLen(struct FF_Handle *i)
@@ -337,6 +310,12 @@ FastFileLen(struct FF_Handle *i)
 
 /* comment out unused functions to ease portability */
 #if 0
+int
+FastFileUnlock(struct FF_Handle *i, int off, int len)
+{
+  return 1;
+}
+
 int
 FastFileSeek (struct FF_Handle *i, int offset, int whence)
 {
@@ -401,4 +380,3 @@ FastFileTell (struct FF_Handle *i)
   return i->pos;
 }
 #endif
-

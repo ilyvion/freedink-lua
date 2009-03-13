@@ -191,14 +191,11 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	break;
       
       // GFX
-      Uint8 *buffer;
-      SDL_RWops *rw;
-      buffer = (Uint8 *) FastFileLock (pfile, 0, 0);
-      if (buffer != NULL)
+      SDL_RWops *rw = FastFileLock(pfile);
+      if (rw != NULL)
 	{
-	  rw = SDL_RWFromMem (buffer, FastFileLen (pfile));
 	  /* We use IMG_Load_RW instead of SDL_LoadBMP because there
-	     is no _RW access in plain SDL. However there is not
+	     is no _RW access in plain SDL. However there is no
 	     intent to support anything else than 8bit BMPs. */
 	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
 	}
