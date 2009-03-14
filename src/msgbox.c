@@ -25,6 +25,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
@@ -44,7 +45,7 @@
 
 #include "gfx.h"
 #include "gfx_fonts.h"
-
+#include "game_engine.h"
 
 /**
  * Display a message on the current SDL screen
@@ -72,7 +73,8 @@ void msgbox_sdl(char* msg)
     int border = 5;
     rect dst = {margin_h+border, margin_v+border, 640-margin_h-border, 480-margin_v-border}; /* centered with margin */
     FONTS_SetTextColor(0, 0, 0); /* black */
-    print_text_wrap(msg, &dst, 0, 0, FONT_SYSTEM);
+    if (msg != NULL)
+      print_text_wrap(msg, &dst, 0, 0, FONT_SYSTEM);
   }
   {
     int margin_h = 50;
@@ -85,6 +87,13 @@ void msgbox_sdl(char* msg)
   SDL_Flip(GFX_lpDDSBack);
 
   /* Wait for user to press a key */
+  if (jinfo == NULL
+      && SDL_InitSubSystem(SDL_INIT_JOYSTICK) != -1
+      && SDL_NumJoysticks() > 0)
+    jinfo = SDL_JoystickOpen(0);
+  if (jinfo != NULL)
+    SDL_JoystickEventState(SDL_ENABLE);
+
   SDL_Event e;
   while (SDL_WaitEvent(&e))
     {
@@ -94,9 +103,13 @@ void msgbox_sdl(char* msg)
 	      || e.key.keysym.sym == SDLK_SPACE
 	      || e.key.keysym.sym == SDLK_RETURN
 	      || e.key.keysym.sym == 'q')
+	    break;
+	}
+      else if (e.type == SDL_QUIT)
+	{
 	  break;
 	}
-      else if(e.type == SDL_QUIT)
+      else if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP)
 	{
 	  break;
 	}
@@ -150,18 +163,23 @@ void msgbox(char* msg)
   int graphics_on = 0;
   switch (gfx_get_init_state())
     {
+    /* No screen */
     case GFX_NOT_INITIALIZED:
+    case GFX_INITIALIZING_VIDEO:
       graphics_on = !(gfx_init_failsafe() < 0);
       break;
-    case GFX_INITIALIZING_VIDEO:
-      graphics_on = 0;
-      break;
+
+    /* Screen initialized, no fonts */
     case GFX_INITIALIZING_FONTS:
       graphics_on = !(gfx_fonts_init_failsafe() < 0);
       break;
+
+    /* Screen and fonts initialized */
     case GFX_INITIALIZED:
       graphics_on = 1;
       break;
+
+    /* Unknown state, internal error */
     default:
       graphics_on = 0;
       break;
@@ -186,6 +204,11 @@ void msgbox_init_error(char* fmt, ...)
 
   char *buf = NULL;
   va_start(ap, fmt);
+
+  if (fmt == NULL)
+    fmt = "Unknown error!\n"
+      "This means there's an internal error in FreeDink.\n"
+      "Please report this bug to " PACKAGE_BUGREPORT " .";
   vasprintf(&buf, fmt, ap);
   va_end(ap);
 

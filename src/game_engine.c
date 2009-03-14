@@ -108,6 +108,11 @@ void game_init()
      automatically done by C, and this causes errors. TODO: fix the
      errors properly instead of using this dirty trick. */
   memset(&play, 0, sizeof(play));
+  /* Set default button->action mapping */
+  int i = 1;
+  for (; i <= 10; i++)
+    play.button[i] = i;
+    
 
   /* Precaution */
   memset(&hmap, 0, sizeof(hmap));

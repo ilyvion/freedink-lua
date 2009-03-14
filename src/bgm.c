@@ -83,6 +83,8 @@ PlayCD(int cd_track)
   last_cd_track = cd_track;
 
   /* Play track #cd_track */
+  if (cdrom == NULL)
+    return -1;
   if (CD_INDRIVE(SDL_CDStatus(cdrom)))
     return SDL_CDPlayTracks(cdrom, cd_track - 1, 0, 1, 0);
   else
@@ -312,9 +314,10 @@ void bgm_init(void)
     }
   
   /* Check for CD drives */
-  if(!SDL_CDNumDrives()){
+  if (!SDL_CDNumDrives()){
     /* None found */
     Msg (("No CDROM devices available\n"));
+    return;
   }
   
   /* Open the default drive */

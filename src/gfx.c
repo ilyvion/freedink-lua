@@ -201,13 +201,8 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 
   putenv("SDL_VIDEO_CENTERED=1");
 
-#ifdef _PSP
-  /* Some architectures do not support paletted/8-bit modes */
-  truecolor = 1;
-#endif
 
-
-  /* SDL_HWSURFACE is supposed to give direct memory access */
+  /* SDL_HWSURFACE gives direct 2D memory access if that's possible */
   /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
      and is a pre-requisite for SDL_Flip to use hardware, see
      http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
@@ -215,6 +210,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 
   if (windowed != GFX_WINDOWED)
     flags |= SDL_FULLSCREEN;
+
 
   int bits_per_pixel = 8;
   if (truecolor)
@@ -246,32 +242,35 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 	 (override system palette reserved colors?) */
       flags |= SDL_HWPALETTE;
     }
-
   printf("Requesting depth %d\n", bits_per_pixel);
-  printf("Requesting video flags: "); gfx_dumpflags(flags);
-#ifdef _PSP
-  GFX_lpDDSBack = SDL_SetVideoMode(480, 272, bits_per_pixel, flags);
-#else
-  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
-#endif
+
   if (GFX_lpDDSBack == NULL)
     {
-      /* Some architectures, such as PSP, don't support 640x480 in
-	 hardware mode and do not automatically fallback to software
-	 mode */
-      fprintf(stderr, "Unable to use hardware surface: %s\n", SDL_GetError());
-
-      /* Let's try a SW_SURFACE */
+      /* Hardware mode */
+      printf("Requesting video flags: "); gfx_dumpflags(flags);
+      GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
+      if (GFX_lpDDSBack == NULL)
+	fprintf(stderr, "Unable to use hardware mode: %s\n", SDL_GetError());
+    }
+  if (GFX_lpDDSBack == NULL)
+    {
+      /* Software mode - in theory SDL automatically fallbacks to
+	 software mode if hardware mode isn't available, but some
+	 architectures need to do it explicitely, e.g. PSP's
+	 640x480stretch mode that only work with
+	 SDL_SWSURFACE|SDL_FULLSCREEN */
       flags &= ~SDL_HWSURFACE;
-      flags &= ~SDL_FULLSCREEN;
+      flags &= ~SDL_DOUBLEBUF;
       flags |= SDL_SWSURFACE;
       printf("Requesting video flags: "); gfx_dumpflags(flags);
       GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
       if (GFX_lpDDSBack == NULL)
-	{
-	  init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
-	  return -1;
-	}
+	fprintf(stderr, "Unable to use software fullscreen mode: %s\n", SDL_GetError());
+    }
+  if (GFX_lpDDSBack == NULL)
+    {
+      init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
+      return -1;
     }
   printf("Obtained video flags:   "); gfx_dumpflags(flags);
 
@@ -391,7 +390,10 @@ int gfx_init_failsafe()
 {
   /* Init graphics subsystem */
   if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
-    return -1;
+    {
+      fprintf(stderr, "Unable to init failsafe video: %s\n", SDL_GetError());
+      return -1;
+    }
 
   putenv("SDL_VIDEO_CENTERED=1");
   SDL_WM_SetCaption(PACKAGE_STRING " - Initialization error", NULL);
@@ -402,9 +404,18 @@ int gfx_init_failsafe()
       SDL_FreeSurface(icon);
     }
 
+#ifdef _PSP
+  //GFX_lpDDSBack = SDL_SetVideoMode(480, 272, 32, SDL_HWSURFACE | SDL_FULLSCREEN);
+  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE | SDL_FULLSCREEN);
+  /* Note: if already set to 480x272, it won't change back */
+#else
   GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 0, SDL_DOUBLEBUF);
+#endif
   if (GFX_lpDDSBack == NULL)
-    return -1;
+    {
+      fprintf(stderr, "Unable to set failsafe video mode: %s\n", SDL_GetError());
+      return -1;
+    }
 
   setup_palette(cur_screen_palette);
   setup_palette(GFX_real_pal);

@@ -52,13 +52,10 @@ void input_init(void)
   /* Clear keyboard/joystick buffer */
   memset(&sjoy,0,sizeof(sjoy));
   {
-    int x, u, x1;
+    int x, x1;
     for (x = 0; x < 256; x++)
       GetKeyboard(x);
 	
-    for (u = 1; u <= 10; u++)
-      play.button[u] = u;
-    
     for (x1 = 1; x1 <= 10; x1++) 
       sjoy.letgo[x1] = /*TRUE*/1;
   }
@@ -88,8 +85,8 @@ void input_init(void)
 	      printf("Picking the first one...\n");
 	      jinfo = SDL_JoystickOpen(0);
 	      /* Don't activate joystick events, Dink polls joystick
-		 manually. */
-	      /* SDL_JoystickEventState(SDL_ENABLE); */
+		 manually.  Plus events would pile up in the queue. */
+	      SDL_JoystickEventState(SDL_IGNORE);
 	      
 	      if (jinfo) {
 		printf("Name: %s\n", SDL_JoystickName(0));

@@ -106,6 +106,7 @@ void check_joystick(void)
 	
   if (joystick)
     {
+      SDL_JoystickUpdate();
       Sint16 x_pos, y_pos;
       int i;
       for (i = 0; i < 10; i++)

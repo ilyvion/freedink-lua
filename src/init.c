@@ -151,8 +151,6 @@ void finiObjects()
 	
 	log_path(/*false*/0);
 
-	input_quit();
-
 	if (sound_on)
 	{
 	//lets kill the cdaudio too
@@ -177,6 +175,8 @@ void finiObjects()
 	dinkini_quit();
 
 	game_quit();
+
+	input_quit();
 
 	gfx_quit();
 
@@ -352,12 +352,13 @@ int init(int argc, char *argv[], char* splash_path)
     return initFail(init_error_msg);
   }
 
-
   /* GFX */
   if (gfx_init(windowed ? GFX_WINDOWED : GFX_FULLSCREEN,
 	       splash_path) < 0)
     return initFail(init_error_msg);
 
+  /* Joystick */
+  input_init();
 
   /* Engine */
   /* Start with this initialization as it resets structures that are
@@ -388,10 +389,6 @@ int init(int argc, char *argv[], char* splash_path)
      documented intent of running 83 FPS (or 12ms delay). */
   /* SDL_setFramerate(manager, 83); */
   SDL_setFramerate(&framerate_manager, 60);
-
-
-  /* Joystick */
-  input_init();
 
   //dinks normal walk
   Msg("Loading batch...");

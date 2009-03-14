@@ -147,7 +147,7 @@ void load_batch(void)
       while(fgets(line, 255, in) != NULL) 
 	{
 	  pre_figure_out(line);
-	  printf("[pre_figure_out] %s", line);
+	  /* printf("[pre_figure_out] %s", line); */
 	}
       fclose(in);
     }
