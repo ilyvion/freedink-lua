@@ -39,5 +39,6 @@ extern void dinkini_init(void);
 extern void dinkini_quit(void);
 extern void make_idata(enum idata_type type, int myseq, int myframe, int xoffset, int yoffset, rect crect);
 extern void program_idata(void);
+extern void load_batch(void);
 
 #endif

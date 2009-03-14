@@ -1,4 +1,4 @@
-Bugs that existed in v1.07 and needs to be fixed:
+Bugs that existed in v1.07/v1.08 and needs to be fixed:
 
 - [UNCONFIRMED] repeating sounds are kept alive when you "restart from
   scratch"
@@ -23,5 +23,25 @@ Bugs that existed in v1.07 and needs to be fixed:
   WDE 1.1-1.4. Try using an older version of Dinkedit, such as that
   included with the v1.07 patch, or use WinDinkedit."
   (http://www.dinknetwork.com/forum.cgi?MID=59442)
+
+- The new 'custom' field in 'struct sp' is initialized with 'new'
+  ('malloc' for FreeDink) but isn't freed. In addition it may not be
+  initialized in all situations.
+
+  In dinkvar.c, the following functions need to free it:
+  - kill_text_owned_by
+  - kill_sprite_all
+  - update_play_changes
+  - place_sprites_game
+  - kill_last_sprite
+  - place_sprites_game_background
+  - fill_back_sprites
+  and this function need to initialize it:
+  - add_item (set to 1 but without filling in .custom)
+
+  Fix it directly looks error-prone. Maybe we could implement some
+  wrapper function to create and remove sprites, rather than
+  manipulate one 'active' field directly. Then we might try and find a
+  way to enforce this for the programmer.
 
 For fixed bugs, see NEWS.

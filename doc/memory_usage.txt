@@ -4,6 +4,8 @@ GNU/Linux: http://ktown.kde.org/~seli/memory/analysis.html
 exmap
 =====
 
+http://www.berthels.co.uk/exmap/
+
 The memory usage can be checked with exmap. This requires compiling a
 kernel module::
 
@@ -16,6 +18,10 @@ Now:
 * run FreeDink and wait until it's loaded
 
 * run "gexmap" and check Resident Mapped in particular
+
+Note: exmap hasn't been updated since 2006, so it doesn't compile with
+recent kernels. Drop a word of encouragement to the author - or even
+better send him a patch :)
 
 
 memprof

@@ -75,6 +75,5 @@ extern void text_brain(int h);
 extern void text_draw(int h);
 extern /*bool*/int transition(void);
 extern void up_cycle(void);
-extern void finiObjects();
 
 #endif

@@ -153,8 +153,6 @@ void finiObjects()
 
 	input_quit();
 
-	gfx_quit();
-
 	if (sound_on)
 	{
 	//lets kill the cdaudio too
@@ -180,17 +178,17 @@ void finiObjects()
 
 	game_quit();
 
-	SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	gfx_quit();
 
+	//SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 
-	paths_quit();
-	
+	SDL_Quit();
+
 	if (init_error_msg != NULL)
 	  free(init_error_msg);
 
-	SDL_Quit();
+	paths_quit();
 }
 
 /**
@@ -199,8 +197,7 @@ void finiObjects()
 int initFail(char *message)
 {
   msgbox_init_error(message);
-  finiObjects();
-  return 0; /* used when "return initFail(...);" */
+  return -1; /* used when "return initFail(...);" */
 }
 
 
@@ -312,6 +309,8 @@ int init(int argc, char *argv[], char* splash_path)
 #ifdef _PSP
   freopen("stdout.txt", "w", stdout);
   freopen("stderr.txt", "w", stderr);
+  setlinebuf(stdout);
+  setlinebuf(stderr);
 #endif
 
   /** i18n **/
@@ -337,13 +336,21 @@ int init(int argc, char *argv[], char* splash_path)
 
 
   if (!check_arg(argc, argv))
-    return 0;
+    return -1;
 
   /* Same for this D-Mod's .mo (after options are parsed) */
   char* dmod_localedir = paths_dmodfile("l10n");
   bindtextdomain(paths_getdmodname(), dmod_localedir);
   bind_textdomain_codeset(paths_getdmodname(), "UTF-8");
   free(dmod_localedir);
+
+
+  /* SDL */
+  /* Init timer subsystem */
+  if (SDL_Init(SDL_INIT_TIMER) == -1) {
+    init_set_error_msg("Timer initialization error: %s\n", SDL_GetError());
+    return initFail(init_error_msg);
+  }
 
 
   /* GFX */
@@ -360,6 +367,7 @@ int init(int argc, char *argv[], char* splash_path)
   dinkini_init();
   dinkc_init();
 
+  /* SFX & BGM */
   if (sound_on) 
     {
       Msg("Initting sound");
@@ -373,15 +381,6 @@ int init(int argc, char *argv[], char* splash_path)
     }
   if (cd_inserted)
     PlayCD(7);
-
-
-  /* SDL */
-  /* Init timer subsystem */
-  if (SDL_Init(SDL_INIT_TIMER) == -1)
-    {
-      Msg("Timer initialization error: %s\n", SDL_GetError());
-      return 0;
-    }
 
 
   SDL_initFramerate(&framerate_manager);
@@ -424,7 +423,7 @@ int init(int argc, char *argv[], char* splash_path)
      avoid stucking the user in 640x480 when crashing) */
   atexit(SDL_Quit);
 
-  return 1;
+  return 0;
 }
 
 

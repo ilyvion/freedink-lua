@@ -195,8 +195,6 @@ void draw_map(void);
 void draw_minimap(void);
 /* void dderror(HRESULT hErr); */
 
-void finiObjects(void);
-
 
 void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 {
@@ -3925,8 +3923,10 @@ void updateFrame(void)
 		      {
 			save_hard();
 			Msg("Info saved.");
-			finiObjects();
-			exit(0);
+			SDL_Event ev;
+			ev.type = SDL_QUIT;
+			SDL_PushEvent(&ev);
+			return;
 		      }
 
 		    if ( (sjoy.button[2]) && (mode == MODE_MINIMAP))
@@ -5089,13 +5089,13 @@ int load_editor_sounds()
  * doInit - do work required for every instance of the application:
  *                create the window, initialize data
  */
-static /*BOOL*/int doInit(int argc, char *argv[])
+static int doInit(int argc, char *argv[])
 {
   dinkedit = 1;
 
   /* New initialization */
-  if (init(argc, argv, "tiles/esplash.bmp") == 0)
-    exit(1);
+  if (init(argc, argv, "tiles/esplash.bmp") < 0)
+    return -1;
 
   /* Difference with the game: attempt to get a Unicode key state
      (to handle '[' and ']' in a layout-independant way, namely) */
@@ -5188,32 +5188,41 @@ static /*BOOL*/int doInit(int argc, char *argv[])
   playy = 480;
   sp_seq = 0;
 
-  return /*TRUE*/1;
-} /* doInit */
+  return 0;
+}
 
 
 int main(int argc, char *argv[])
 {
-  if(!doInit(argc, argv))
-    return /*FALSE*/0;
+  /* Initialize/setup */
+  int init_ret = doInit(argc, argv);
 
-  while(1)
+  if (init_ret == 0)
     {
-      SDL_Event event;
-      SDL_PumpEvents();
-      if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-			 SDL_EVENTMASK(SDL_QUIT)) > 0)
+      /* Main loop */
+      while(1)
 	{
-	  finiObjects();
-	  break;
+	  SDL_Event event;
+	  SDL_PumpEvents();
+	  
+	  /* Check if we need to quit */
+	  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			     SDL_EVENTMASK(SDL_QUIT)) > 0)
+	    break;
+	  
+	  /* Fullscreen <-> window */
+	  if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
+	    SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
+	  
+	  updateFrame();
 	}
-
-      /* Fullscreen <-> window */
-      if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
-	SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
-
-      updateFrame();
     }
 
-  return EXIT_SUCCESS;
+  /* Uninitialize/clean-up */
+  finiObjects();
+
+  if (init_ret < 0)
+    return EXIT_FAILURE;
+  else
+    return EXIT_SUCCESS;
 }

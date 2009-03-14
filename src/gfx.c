@@ -125,6 +125,50 @@ enum gfx_init_state gfx_get_init_state()
 }
 
 
+void gfx_dumpflags(Uint32 flags)
+{
+  printf("0x%8.8x", flags);
+
+  printf(" ");
+  int i = 0;
+  for (; i < 32; i++)
+    {
+      unsigned int tflag = 1 << i;
+      if ((flags & tflag) == tflag)
+	printf("1");
+      else
+	printf("0");
+    }
+
+  if (flags & SDL_HWSURFACE)
+    printf(" SDL_HWSURFACE");
+  else
+    printf(" SDL_SWSURFACE");
+	
+  if (flags & SDL_HWPALETTE)
+    printf(" | SDL_HWPALETTE");
+  
+  if (flags & SDL_FULLSCREEN)
+    printf(" | SDL_FULLSCREEN");
+  
+  if (flags & SDL_DOUBLEBUF)
+    printf(" | SDL_DOUBLEBUF");
+  
+  if (flags & SDL_SRCCOLORKEY)
+    printf(" | SDL_SRCCOLORKEY");
+  
+  if (flags & SDL_SRCALPHA)
+    printf(" | SDL_SRCALPHA");
+  
+  if (flags & SDL_RLEACCEL)
+    printf(" | SDL_RLEACCEL");
+  
+  if (flags & SDL_RLEACCELOK)
+    printf(" | SDL_RLEACCELOK");
+
+  printf("\n");
+}
+
 /**
  * Graphics subsystem initalization
  */
@@ -164,12 +208,11 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 
 
   /* SDL_HWSURFACE is supposed to give direct memory access */
-  /* SDL_HWPALETTE makes sure we can use all the colors we need
-     (override system palette reserved colors?) */
   /* SDL_DOUBLEBUF is supposed to enable hardware double-buffering
      and is a pre-requisite for SDL_Flip to use hardware, see
      http://www.libsdl.org/cgi/docwiki.cgi/FAQ_20Hardware_20Surfaces_20Flickering */
-  int flags = SDL_HWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
+  int flags = SDL_HWSURFACE | SDL_DOUBLEBUF;
+
   if (windowed != GFX_WINDOWED)
     flags |= SDL_FULLSCREEN;
 
@@ -178,21 +221,34 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
     {
       /* Recommended depth: */
       const SDL_VideoInfo* info = SDL_GetVideoInfo();
-      printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
-      bits_per_pixel = info->vfmt->BitsPerPixel;
-
-      if (bits_per_pixel < 15)
+      if (info == NULL)
 	{
-	  /* Running truecolor mode in 8bit resolution? Let's emulate,
-	     the user must know what he's doing. */
-	  bits_per_pixel = 15;
-	  printf("Notice: emulating truecolor mode\n");
+	  printf("Video information not available!\n");
+	  bits_per_pixel = 32;
+	}
+      else
+	{
+	  printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
+	  bits_per_pixel = info->vfmt->BitsPerPixel;
+	  
+	  if (bits_per_pixel < 15)
+	    {
+	      /* Running truecolor mode in 8bit resolution? Let's emulate,
+		 the user must know what he's doing. */
+	      bits_per_pixel = 15;
+	      printf("Notice: emulating truecolor mode within 8bit mode\n");
+	    }
 	}
     }
+  else
+    {
+      /* SDL_HWPALETTE makes sure we can use all the colors we need
+	 (override system palette reserved colors?) */
+      flags |= SDL_HWPALETTE;
+    }
 
-  /* GFX_lpDDSBack = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, */
-  /* 				       0, 0, 0, 0); */
   printf("Requesting depth %d\n", bits_per_pixel);
+  printf("Requesting video flags: "); gfx_dumpflags(flags);
 #ifdef _PSP
   GFX_lpDDSBack = SDL_SetVideoMode(480, 272, bits_per_pixel, flags);
 #else
@@ -200,9 +256,25 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 #endif
   if (GFX_lpDDSBack == NULL)
     {
-      init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
-      return -1;
+      /* Some architectures, such as PSP, don't support 640x480 in
+	 hardware mode and do not automatically fallback to software
+	 mode */
+      fprintf(stderr, "Unable to use hardware surface: %s\n", SDL_GetError());
+
+      /* Let's try a SW_SURFACE */
+      flags &= ~SDL_HWSURFACE;
+      flags &= ~SDL_FULLSCREEN;
+      flags |= SDL_SWSURFACE;
+      printf("Requesting video flags: "); gfx_dumpflags(flags);
+      GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
+      if (GFX_lpDDSBack == NULL)
+	{
+	  init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
+	  return -1;
+	}
     }
+  printf("Obtained video flags:   "); gfx_dumpflags(flags);
+
   char buf[1024];
   if (SDL_VideoDriverName(buf, 1024) != NULL)
     printf("INFO: Video driver is '%s'\n", buf);
@@ -361,6 +433,7 @@ void gfx_quit()
   if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
 
   init_state = GFX_NOT_INITIALIZED;
+  SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 

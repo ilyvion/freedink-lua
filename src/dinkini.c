@@ -27,6 +27,8 @@
 
 #include <stdlib.h>
 #include "game_engine.h"
+#include "paths.h"
+#include "dinkvar.h"
 #include "dinkini.h"
 
 #include "gfx_sprites.h"
@@ -126,4 +128,29 @@ void program_idata(void)
 	    seq[id[i].seq].frame[id[i].frame] = seq[id[i].xoffset].frame[id[i].yoffset];
 	}
     }
+}
+
+
+/* Parse dink.ini */
+void load_batch(void)
+{
+  FILE *in = NULL;
+  char line[255];
+  
+  printf("Loading dink.ini\n");
+  /* Open the text file in binary mode, so it's read the same way
+     under different OSes (Unix has no text mode) */
+  if ((in = paths_dmodfile_fopen("dink.ini", "rb")) == NULL)
+    fprintf(stderr, "Error opening dink.ini for reading.\n");
+  else
+    {
+      while(fgets(line, 255, in) != NULL) 
+	{
+	  pre_figure_out(line);
+	  printf("[pre_figure_out] %s", line);
+	}
+      fclose(in);
+    }
+
+  program_idata();
 }

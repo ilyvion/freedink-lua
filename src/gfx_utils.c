@@ -33,30 +33,6 @@
 #include "io_util.h"
 #include "paths.h"
 #include "log.h"
-#include "dinkvar.h"
-#include "dinkini.h"
-
-/* Parse dink.ini */
-void load_batch(void)
-{
-  FILE *in = NULL;
-  char line[255];
-  
-  printf("Loading dink.ini\n");
-
-  /* Open the text file in binary mode, so it's read the same way
-     under different OSes (Unix has no text mode) */
-  if ((in = paths_dmodfile_fopen("dink.ini", "rb")) == NULL)
-    fprintf(stderr, "Error opening dink.ini for reading.\n");
-  else
-    {
-      while(fgets(line, 255, in) != NULL) 
-	pre_figure_out(line);
-      fclose(in);
-    }
-
-  program_idata();
-}
 
 /* Get a colors palette from the specified image */
 int

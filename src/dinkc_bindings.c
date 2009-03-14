@@ -2167,7 +2167,8 @@ void dinkc_bindings_init()
 
 void dinkc_bindings_quit()
 {
-  hash_free(bindings);
+  if (bindings != NULL)
+    hash_free(bindings);
 }
 
 

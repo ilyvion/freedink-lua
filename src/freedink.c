@@ -5088,10 +5088,10 @@ void drawscreenlock( void )
 static int doInit(int argc, char *argv[])
 {
   /* New initialization */
-  if (init(argc, argv, "Tiles/Splash.bmp") == 0)
-    exit(1);
+  if (init(argc, argv, "Tiles/Splash.bmp") < 0)
+    return -1;
 
-
+  /* Game-specific initialization */
   //Activate dink, but don't really turn him on
   //spr[1].active = TRUE;
   spr[1].timer = 33;
@@ -5100,6 +5100,7 @@ static int doInit(int argc, char *argv[])
   last_sprite_created = 1;
   mode = 0;
     
+  /* TODO: move load_info() to 'init' */
   load_info();
 
   //lets run our init script
@@ -5111,8 +5112,8 @@ static int doInit(int argc, char *argv[])
      main.c DinkC script */
   attach();
 	
-  return 1;
-} /* doInit */
+  return 0;
+}
 
 
 /**
@@ -5120,53 +5121,64 @@ static int doInit(int argc, char *argv[])
  */
 int main(int argc, char* argv[])
 {
-  int last_console_active = 0;
+  /* Initialize/setup */
+  int init_ret = doInit(argc, argv);
 
-  doInit(argc, argv);
-  
-  /* Notify other apps that FreeDink is playing */
-  log_path(/*true*/1);
-
-  /* Windows event loop */
-  while(!g_b_kill_app)
+  if (init_ret == 0)
     {
-      SDL_Event event;
-      SDL_PumpEvents();
+      /* Main loop */
+
+      /* Notify other apps that FreeDink is playing */
+      log_path(/*true*/1);
       
-      /* Check for unprocessed clicks */
-      if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-			 SDL_EVENTMASK(SDL_QUIT)) > 0)
-	finiObjects();
-
-      /* Fullscreen <-> window */
-      /* Note: as of 2008-08-07, only works under X11 */
-      if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
-	SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
-
-      /* TODO: maybe check for application active/background state and
-	 pause the game accordingly - but this may be an annoying
-	 behavior. */
-      if (g_b_kill_app == /*false*/0)
-	updateFrame();
-
-      if (console_active == 0 || last_console_active == 0)
-	/* Get rid of keyboard events, otherwise they'll pile-up. Also
-	   purge them just when console is turned on. We poll the
-	   keyboard state directly in the rest of the game, so no
-	   keystroke will be lost. */
-	while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-			      SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
-
-      if (console_active == 1)
+      /* Windows event loop */
+      int last_console_active = 0;
+      while(!g_b_kill_app)
 	{
-	  SDL_KeyboardEvent kev;
-	  if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
-			     SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
-	    dinkc_console_process_key(kev);
+	  SDL_Event event;
+	  SDL_PumpEvents();
+	  
+	  /* Check if we need to quit */
+	  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			     SDL_EVENTMASK(SDL_QUIT)) > 0)
+	    break;
+	  
+	  /* Fullscreen <-> window */
+	  /* Note: as of 2008-08-07, only works under X11 */
+	  if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
+	    SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
+	  
+	  /* TODO: maybe check for application active/background state and
+	     pause the game accordingly - but this may be an annoying
+	     behavior. */
+	  if (g_b_kill_app == /*false*/0)
+	    updateFrame();
+	  
+	  if (console_active == 0 || last_console_active == 0)
+	    /* Get rid of keyboard events, otherwise they'll pile-up. Also
+	       purge them just when console is turned on. We poll the
+	       keyboard state directly in the rest of the game, so no
+	       keystroke will be lost. */
+	    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+				  SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
+	  
+	  if (console_active == 1)
+	    {
+	      SDL_KeyboardEvent kev;
+	      if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
+				 SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
+		dinkc_console_process_key(kev);
+	    }
+	  
+	  last_console_active = console_active;
 	}
-
-      last_console_active = console_active;
     }
 
-  return 0;
+  /* Uninitialize/clean-up */
+  finiObjects();
+
+  if (init_ret < 0)
+    return EXIT_FAILURE;
+  else
+    return EXIT_SUCCESS;
 }

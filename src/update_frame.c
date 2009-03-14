@@ -131,10 +131,12 @@ trigger_start:
 	
 	if (GetKeyboard('q') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
 	{
-		//shutdown game
-	//	PostMessage(hWndMain, WM_CLOSE, 0, 0);
-		finiObjects();
-	    return;
+	  //shutdown game
+	  //	PostMessage(hWndMain, WM_CLOSE, 0, 0);
+	  SDL_Event ev;
+	  ev.type = SDL_QUIT;
+	  SDL_PushEvent(&ev);
+	  return;
 	}
 	
 	if (mode == 1) Scrawl_OnMouseInput(); else
