@@ -149,6 +149,10 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       *default6 = NULL, *default7 = NULL;
     /* FHS mentions optional 'share/games' which some Debian packagers
        seem to be found of */
+    /* Packagers: don't alter these paths. FreeDink must run in a
+       _consistent_ way across platforms. If you need an alternate
+       path, consider using ./configure --prefix=..., or contact
+       bug-freedink@gnu.org to discuss it. */
     default3 = br_build_path(datadir, "dink");
     default4 = "/usr/local/share/games/dink";
     default5 = "/usr/local/share/dink";
