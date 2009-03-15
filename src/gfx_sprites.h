@@ -36,6 +36,7 @@ extern "C"
 #define MAX_FRAMES_PER_SEQUENCE 50
 /* Max number of sequences the engine could be abused to load */
 #define MAX_FRAMES_PER_ABUSED_SEQUENCE 1000
+#define MAX_SEQUENCES 1000 /* Max # of sprite animations */
   
   /* Store sprites info */
   struct pic_info
@@ -74,9 +75,9 @@ extern "C"
     unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
   };
 
-  extern struct pic_info k[];
-  extern struct GFX_pic_info GFX_k[];
-  extern struct sequence seq[];
+  extern struct pic_info k[MAX_SPRITES];
+  extern struct GFX_pic_info GFX_k[MAX_SPRITES];
+  extern struct sequence seq[MAX_SEQUENCES];
 
   extern void sprites_unload(void);
   extern void load_sprite_pak(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,

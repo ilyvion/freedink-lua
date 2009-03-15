@@ -296,7 +296,6 @@ extern int burn_revision;
 /*
  * Editor
  */
-#define MAX_SEQUENCES 1000 /* Max # of sprite animations */
 
 /*bool*/int get_box (int h, rect * box_crap, rect * box_real);
 extern void check_sprite_status(int h);

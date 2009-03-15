@@ -212,16 +212,11 @@ rect math,box_crap,box_real;
 
 int mode;
 
-struct sequence seq[MAX_SEQUENCES];
 struct small_map pam;
 
 
 /*bool*/int trig_man = /*false*/0;
 /*bool*/int total_trigger = /*false*/0;
-
-/* TODO: get rid of either k or GFX_k */
-struct pic_info     k[MAX_SPRITES];       // Sprite data
-struct GFX_pic_info GFX_k[MAX_SPRITES];   // Sprite data (SDL)
 
 struct player_info play;
 
@@ -1342,7 +1337,8 @@ void save_info(void)
       fread(play.func[i].file, 10, 1, f);
       fread(play.func[i].func, 20, 1, f);
     }
-  fread(play.cbuff, 750, 1, f);
+  /* Remains 750 unused chars at the end of the file. */
+  /* fread(play.cbuff, 750, 1, f); */
 
   fclose(f);
       
@@ -1648,7 +1644,8 @@ void save_game(int num)
       fwrite(play.func[i].file, 10, 1, f);
       fwrite(play.func[i].func, 20, 1, f);
     }
-  fwrite(play.cbuff, 750, 1, f);
+  /* fwrite(play.cbuff, 750, 1, f); */
+  fseek(f, 750, SEEK_CUR);
 
   fclose(f);
 }

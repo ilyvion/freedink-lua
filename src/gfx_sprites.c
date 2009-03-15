@@ -45,6 +45,12 @@
   seq[], GFX_k[], k[], no_running_main
 */
 
+/* TODO: get rid of either k or GFX_k */
+struct pic_info     k[MAX_SPRITES];       // Sprite data
+struct GFX_pic_info GFX_k[MAX_SPRITES];   // Sprite data (SDL)
+
+struct sequence seq[MAX_SEQUENCES];
+
 
 static int please_wait = 0;
 
@@ -165,8 +171,8 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       free(seq_dirname);
       return;
     }
-  free(fullpath);
   free(seq_dirname);
+  /* keep 'fullpath' for error messages, free() it later */
 
 
   int oo;
@@ -188,27 +194,37 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       HFASTFILE pfile = FastFileOpen(crap);
 
       if (pfile == NULL)
+	/* File not present in this fastfile - either missing file or
+	   end of sequence */
 	break;
       
       // GFX
       SDL_RWops *rw = FastFileLock(pfile);
-      if (rw != NULL)
+      if (rw == NULL)
+	{
+	  /* rwops error? */
+	  fprintf(stderr, "Failed to open %s in fastfile %s: %s\n", crap, fullpath, SDL_GetError());
+	}
+      else
 	{
 	  /* We use IMG_Load_RW instead of SDL_LoadBMP because there
 	     is no _RW access in plain SDL. However there is no
 	     intent to support anything else than 8bit BMPs. */
 	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
+	  if (GFX_k[myslot].k == NULL)
+	    fprintf(stderr, "Failed to load %s from fastfile %s: %s\n", crap, fullpath, SDL_GetError());
 	}
       if (GFX_k[myslot].k == NULL)
 	{
-	  fprintf(stderr, "Failed to load %s from fastfile\n", crap);
+	  fprintf(stderr, "Failed to load %s from fastfile %s (see error above)\n", crap, fullpath);
 	  FastFileClose(pfile);
 	  break;
 	}
       if (GFX_k[myslot].k->format->BitsPerPixel != 8)
 	{
-	  fprintf(stderr, "Failed to load %s from fastfile:"
-		  " only 8bit paletted bitmaps are supported in dir.ff archives.\n", crap);
+	  fprintf(stderr, "Failed to load %s from fastfile %s:"
+		  " only 8bit paletted bitmaps are supported in dir.ff archives.\n",
+		  crap, fullpath);
 	  SDL_FreeSurface(GFX_k[myslot].k);
 	  continue;
 	}
@@ -373,7 +389,8 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
   seq[seq_no].len = oo - 1;
   
   if (oo == 1)
-    fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s.\n", crap);
+    fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s in %s.\n", crap, fullpath);
+  free(fullpath);
 }
 
 

@@ -375,8 +375,13 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
      something else - maybe enable it as a command line option. */
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
+  /* make all pointers to NULL */
+  memset(&GFX_tiles, 0, sizeof(GFX_tiles));
+  memset(&k, 0, sizeof(k));
+  memset(&GFX_k, 0, sizeof(GFX_k));
+  memset(&seq, 0, sizeof(seq));
+
   /* Load the tiles from the BMPs */
-  memset(&GFX_tiles, 0, sizeof(GFX_tiles)); /* make all pointers to NULL first */
   tiles_load_default();
   
   init_state = GFX_INITIALIZED;

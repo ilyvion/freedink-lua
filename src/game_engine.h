@@ -218,7 +218,6 @@ struct player_info
   char palette[50];
   struct player_info_tile tile[NB_TILE_SCREENS+1];
   struct global_function func[100];
-  char cbuff[750];
 };
 
 extern struct seth_joy sjoy;
