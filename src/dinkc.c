@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h> /* compare */
+#include <xalloc.h>
 
 #include "gettext.h"
 #define _(String) gettext (String)
@@ -65,8 +66,6 @@ static struct call_back callback[MAX_CALLBACKS];
 /* TODO: Used 1->100 in the game, should it be MAX_CALLBACKS+1 ? */
 
 /* DinkC script buffer */
-static char cbuf[64000]; /* TODO: don't use a fixed limit, vulnerable to
-		     buffer overflow */
 static char *rbuf[MAX_SCRIPTS]; //pointers to buffers we may need
 
 /* Number of reserved ASCII indexes in .d BPE compression format */
@@ -80,8 +79,13 @@ struct refinfo *rinfo[MAX_SCRIPTS];
  * Decompress a .d DinkC script; also clean newlines. Check
  * contrib/d2c.c for more explanation about the decompression process.
  */
-void decompress(FILE *in)
+static void decompress(FILE *in, int script)
 {
+  int step = 512;
+  int nb_read = 0;
+  rbuf[script] = xmalloc(step);
+  rbuf[script][0] = '\0';
+
   unsigned char stack[NB_PAIRS_MAX+1], pairs[NB_PAIRS_MAX][2];
   short c, top = -1;
   int nb_pairs = 0;
@@ -100,11 +104,15 @@ void decompress(FILE *in)
 	      if (c == EOF)
 		{
 		  fprintf(stderr, "decompress: invalid header: truncated pair table\n");
+		  free(rbuf[script]);
+		  rbuf[script] = NULL;
 		  return;
 		}
 	      if (c > i+128)
 		{
 		  fprintf(stderr, "decompress: invalid header: reference to a pair that is not registered yet\n");
+		  free(rbuf[script]);
+		  rbuf[script] = NULL;
 		  return;
 		}
 	      pairs[i][j] = c;
@@ -117,7 +125,6 @@ void decompress(FILE *in)
       ungetc(c, in);
     }
   
-  char* pc = cbuf + strlen(cbuf);
   for (;;)
     {
       /* Pop byte from stack or read byte from file */
@@ -141,25 +148,37 @@ void decompress(FILE *in)
 	{
 	  if (c == '\r') c = '\n';
 	  if (c == '\t') c = ' ';
-	  *pc = c;
-	  pc++;
+	  rbuf[script][nb_read] = c;
+	  nb_read++;
+	  if ((nb_read % step) == 0)
+	    rbuf[script] = xrealloc(rbuf[script], nb_read + step);
 	}
     }
-  *pc = '\0';
+  rinfo[script]->end = nb_read;
+  rbuf[script][nb_read] = '\0'; /* safety */
+  rbuf[script] = xrealloc(rbuf[script], nb_read+1);
 }
 
-void decompress_nocomp(FILE *in)
+static void decompress_nocomp(FILE *in, int script)
 {
+  int step = 512;
+  int nb_read = 0;
+  rbuf[script] = xmalloc(step);
+  rbuf[script][0] = '\0';
+
   int c;
-  char* pc = cbuf + strlen(cbuf);
   while ((c = getc(in)) != EOF)
     {
       if (c == '\r') c = '\n';
       if (c == '\t') c = ' ';
-      *pc = c;
-      pc++;
+      rbuf[script][nb_read] = c;
+      nb_read++;
+      if ((nb_read % step) == 0)
+	rbuf[script] = xrealloc(rbuf[script], nb_read + step);
     }
-  *pc = '\0';
+  rinfo[script]->end = nb_read;
+  rbuf[script][nb_read] = '\0'; /* safety */
+  rbuf[script] = xrealloc(rbuf[script], nb_read+1);
 }
 
 
@@ -199,13 +218,11 @@ static /*bool*/int load_game_small(int num, char *line, int *mytime)
 int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
 {
   char temp[100];
-  int script;
-  FILE *in;
+  int script = 0;
+  FILE *in = NULL;
   /*bool*/int comp = /*false*/0;
-  char tab[10];
   
-  Msg("LOADING %s",filename);
-  sprintf(tab, "%c",9);
+  Msg("LOADING %s", filename);
   
   sprintf(temp, "story/%s.d", filename);
   in = paths_dmodfile_fopen(temp, "rb");
@@ -237,69 +254,52 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   else
     comp = 0;
   
-  int k;
-  for (k = 1; k < MAX_SCRIPTS; k++)
-    {
+  {
+    int k = 1;
+    for (; k < MAX_SCRIPTS; k++)
       if (rbuf[k] == NULL)
-	{
-	  //found one not being used
-	  goto found;
-	}
+	break;
+    script = k;
+  }
+  
+  if (script == MAX_SCRIPTS)
+    {
+      Msg("Couldn't find unused buffer for script.");
+      fclose(in);
+      return 0;
     }
-  
-  Msg("Couldn't find unused buffer for script.");
-  fclose(in);
-  return 0;
-  
 
- found:
-  Msg("Loading script %s..", temp);
-
-  script = k;
-  rinfo[script] = (struct refinfo *) malloc( sizeof(struct refinfo));
+  Msg("Loading script %s.. (slot %d)", temp, script);
+  rinfo[script] = XZALLOC(struct refinfo);
+  if (rinfo[script] == NULL)
+    {
+      Msg("Couldn't allocate rscript %d.", script);
+      return 0;
+    }
   memset(rinfo[script], 0, sizeof(struct refinfo));
   
-  //if compiled
-  {
-    //load compiled script
-    cbuf[0] = 0;
-
-    //Msg("decompressing!");
-    if (comp)
-      decompress(in);
-    else
-      decompress_nocomp(in);
-    
-    fclose(in);
-    
-    //Msg("done decompressing!");
-    //file is now in cbuf!!
-
-    rinfo[script]->end = (strlen(cbuf));
-    //Msg("dlength is %d!", rinfo[script]->end);
-    
-    rbuf[script] = (char *) malloc(rinfo[script]->end);
-    
-    //rbuf[script] = new [script]->end;
-    
-    if (rbuf[script] == NULL)
-      {
-	Msg("Couldn't allocate rbuff %d.",script);
-	return 0;
-      }
-    
-    memcpy(rbuf[script], &cbuf, rinfo[script]->end);
-    
-    if (rinfo[script] == NULL)
-      {
-	Msg("Couldn't allocate rscript %d.",script);
-	return 0;
-      }
-  }
-  //Msg("Script %s loaded by sprite %d into space %d.",temp, sprite,script);
-  strcpy(rinfo[script]->name, filename);
-  rinfo[script]->sprite = sprite;
+  if (comp)
+    {
+      Msg("decompressing!");
+      decompress(in, script);
+    }
+  else
+    {
+      Msg("reading from disk!");
+      decompress_nocomp(in, script);
+    }
+  fclose(in);
   
+  if (rbuf[script] == NULL)
+    {
+      Msg("Couldn't allocate rbuff %d.", script);
+      free(rinfo[script]);
+      rinfo[script] = NULL;
+      return 0;
+    }
+
+  rinfo[script]->name = strdup(filename);
+  rinfo[script]->sprite = sprite;
   
   if (set_sprite && sprite != 0 && sprite != 1000)
     spr[sprite].script = script;
@@ -318,7 +318,9 @@ int dinkc_execute_one_liner(char* line)
 
   if (k < MAX_SCRIPTS)
     {
-      rinfo[k] = (struct refinfo*) calloc(1, sizeof(struct refinfo));
+      rinfo[k] = XZALLOC(struct refinfo);
+      rinfo[k]->name = xmalloc(1);
+      rinfo[k]->name[0] = '\0';
       rinfo[k]->sprite = 1000; /* survice screen change */
       rinfo[k]->level = 1; /* skip 'void main(void) {' parsing */
       rbuf[k] = (char*) malloc(255);
@@ -798,9 +800,13 @@ void kill_script(int k)
       if (debug_mode)
 	Msg("Killed script %s. (num %d)", rinfo[k]->name, k);
       
-      free(rinfo[k]);
+      if (rinfo[k]->name != NULL)
+	free(rinfo[k]->name);
+      if (rinfo[k] != NULL)
+	free(rinfo[k]);
       rinfo[k] = NULL;
-      free(rbuf[k]);
+      if (rbuf[k] != NULL)
+	free(rbuf[k]);
       rbuf[k] = NULL;
     }
 }
@@ -912,10 +918,6 @@ void process_callbacks(void)
 	      if (debug_mode)
 		Msg("Killing script %s, owner sprite %d is dead.", rinfo[i]->name, rinfo[i]->sprite);
 	      kill_script(i);
-	      /*free(rinfo[i]);
-		rinfo[i] = NULL;
-		free(rbuf[i]);
-		rbuf[i] = NULL;*/
 	    }
 	}
     }

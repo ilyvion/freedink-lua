@@ -29,6 +29,7 @@
 #include <math.h>
 #include <getopt.h>
 #include <unistd.h> /* chdir */
+#include <xalloc.h>
 
 #include <locale.h>
 #include "gettext.h"
@@ -299,6 +300,13 @@ static int check_arg(int argc, char *argv[])
   return 1;
 }
 
+
+/* What to do if running out of memory */
+void xalloc_die (void) {
+  fprintf(stderr, "Memory exhausted!");
+  finiObjects();
+  abort();
+}
 
 
 /* The goal is to replace freedink and freedinkedit's doInit() by a

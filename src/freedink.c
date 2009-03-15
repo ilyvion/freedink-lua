@@ -5103,6 +5103,37 @@ static int doInit(int argc, char *argv[])
     
   /* TODO: move load_info() to 'init' */
   load_info();
+  
+  {
+    int i = 0;
+    int sum = 0;
+    for (; i < MAX_SPRITES; i++)
+      {
+	if (GFX_k[i].k != NULL)
+	  sum += GFX_k[i].k->h * GFX_k[i].k->pitch * GFX_k[i].k->format->BytesPerPixel;
+      }
+    sum += GFX_lpDDSBack->h * GFX_lpDDSBack->pitch * GFX_lpDDSBack->format->BytesPerPixel;
+    sum += GFX_lpDDSTrick->h * GFX_lpDDSTrick->pitch * GFX_lpDDSTrick->format->BytesPerPixel;
+    sum += GFX_lpDDSTrick2->h * GFX_lpDDSTrick2->pitch * GFX_lpDDSTrick2->format->BytesPerPixel;
+    sum += GFX_lpDDSTwo->h * GFX_lpDDSTwo->pitch * GFX_lpDDSTwo->format->BytesPerPixel;
+    printf("Graphics memory used: %dkB\n", sum / 1024);
+  }
+
+  {
+    #include <malloc.h>
+    struct mallinfo minfo;
+    minfo = mallinfo();
+    printf("arena: %d\n", minfo.arena);
+    printf("ordblks: %d\n", minfo.ordblks);
+    printf("smblks: %d\n", minfo.smblks);
+    printf("hblks: %d\n", minfo.hblks);
+    printf("hblkhd: %d\n", minfo.hblkhd);
+    printf("usmblks: %d\n", minfo.usmblks);
+    printf("fsmblks: %d\n", minfo.fsmblks);
+    printf("uordblks: %d\n", minfo.uordblks);
+    printf("fordblks: %d\n", minfo.fordblks);
+    printf("keepcost: %d\n", minfo.keepcost);
+  }
 
   //lets run our init script
   int script = load_script("main", 0, /*true*/1);

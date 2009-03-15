@@ -15,7 +15,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --po-base=gnulib/po --doc-base=doc --tests-base=tests --aux-dir=autotools --no-libtool --macro-prefix=gl --po-domain=freedink alloca canonicalize dirname getopt gettext hash relocatable-prog strcase strdup-posix strings vasprintf
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --po-base=gnulib/po --doc-base=doc --tests-base=tests --aux-dir=autotools --no-libtool --macro-prefix=gl --po-domain=freedink alloca canonicalize dirname getopt gettext hash relocatable-prog strcase strdup-posix strings vasprintf xalloc
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -31,6 +31,7 @@ gl_MODULES([
   strdup-posix
   strings
   vasprintf
+  xalloc
 ])
 gl_AVOID([])
 gl_SOURCE_BASE([gnulib/lib])

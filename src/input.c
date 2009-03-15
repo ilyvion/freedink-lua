@@ -25,6 +25,8 @@
 #include <config.h>
 #endif
 
+#include <string.h>
+
 #include "SDL.h"
 #include "game_engine.h"
 #include "log.h"

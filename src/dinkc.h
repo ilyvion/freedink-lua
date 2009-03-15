@@ -49,11 +49,11 @@ struct global_function
 
 struct refinfo
 {
-  char name[10];
+  char* name;
   long location;
   long current;
   int level;
-  long end;
+  long end; // size of the text, == strlen(rbuf[i])
   int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
   /*bool*/int skipnext;
   int onlevel;
@@ -73,8 +73,6 @@ extern struct refinfo *rinfo[];
 
 extern void dinkc_init();
 extern void dinkc_quit();
-extern void decompress(FILE *in);
-extern void decompress_nocomp(FILE *in);
 extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 extern int dinkc_execute_one_liner(char* line);
 extern void strip_beginning_spaces(char *str);
