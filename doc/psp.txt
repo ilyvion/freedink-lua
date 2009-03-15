@@ -183,12 +183,15 @@ make
 cd src/
 # Cf. /usr/local/pspdev/psp/sdk/lib/build.mak
 psp-fixup-imports freedink -o freedink.elf
-mksfo freedink PARAM.SFO
+#mksfo freedink PARAM.SFO
+mksfoex -d MEMSIZE=1 $(PSP_EBOOT_TITLE) PARAM.SFO
 psp-strip freedink.elf -o freedink_strip.elf
 pack-pbp EBOOT.PBP PARAM.SFO NULL  \
 		NULL NULL NULL  \
 		NULL  freedink_strip.elf NULL
 rm -f freedink_strip.elf
+# or:
+#make && make -f ~/freedink/psp/Makefile.PSP.EBOOT clean all install
 
 exit
 
