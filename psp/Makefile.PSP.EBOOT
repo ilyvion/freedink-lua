@@ -1,0 +1,28 @@
+TARGET = freedink
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+PSPBIN = $(PSPSDK)/../bin
+
+PSP_LARGE_MEMORY=1
+
+# <icon0.png> <icon1.pmf> <pic0.png> <pic1.png> <snd0.at3> <data.psp> <data.psar>
+EXTRA_TARGETS = EBOOT.PBP
+PSP_EBOOT_TITLE = freedink
+PSP_EBOOT_ICON=freedink.png
+#PSP_EBOOT_ICON1=
+PSP_EBOOT_UNKPNG=icon1.png
+PSP_EBOOT_PIC1=splash.png
+#PSP_EBOOT_SND0
+#PSP_EBOOT_PSAR
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak
+
+$(TARGET).elf: $(TARGET)
+	psp-fixup-imports $(TARGET) -o $(TARGET).elf
+	mksfo $(PSP_EBOOT_TITLE) PARAM.SFO
+
+install:
+	-pmount /dev/sda1
+	cp -a EBOOT.PBP /media/sda1/psp/game/$(TARGET)/
+	pumount /dev/sda1
