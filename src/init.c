@@ -360,6 +360,10 @@ int init(int argc, char *argv[], char* splash_path)
     return initFail(init_error_msg);
   }
 
+  /* Quits in case we couldn't do it properly first (i.e. attempt to
+     avoid stucking the user in 640x480 when crashing) */
+  atexit(SDL_Quit);
+
   /* GFX */
   if (gfx_init(windowed ? GFX_WINDOWED : GFX_FULLSCREEN,
 	       splash_path) < 0)
@@ -423,10 +427,6 @@ int init(int argc, char *argv[], char* splash_path)
        doesn't work at all */
   /* - SDL_KEYDOWN: we want the keydown events for text input
        (show_console and editor input dialog) */
-
-  /* Quits in case we couldn't do it properly first (i.e. attempt to
-     avoid stucking the user in 640x480 when crashing) */
-  atexit(SDL_Quit);
 
   return 0;
 }
