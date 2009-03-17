@@ -50,6 +50,16 @@ make
 make install
 popd
 
+# Tremor (SDL_mixer dependency)
+svn co svn://svn.pspdev.org/psp/trunk/libTremor
+pushd libTremor
+# Follow README.PSP:
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" ./autogen.sh \
+     --host psp --prefix=$(psp-config --psp-prefix)
+make
+make install
+popd
+
 # SDL_mixer
 svn co svn://svn.pspdev.org/psp/trunk/SDL_mixer
 pushd SDL_mixer

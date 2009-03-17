@@ -155,7 +155,7 @@ if test x"$enable_static" = x"yes"; then
         # Light version, if dependencies are compiled minimaly
         #LIBS="$LIBS -lfreetype -lz"
         # Full version, if planning to support more formats
-	LIBS="-lfreetype -lpng -ljpeg -lz $LIBS"
+	LIBS="-lvorbisidec -lfreetype -lpng -ljpeg -lz $LIBS"
         #LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg"
     esac
 fi
