@@ -32,6 +32,11 @@
 #include "log.h"
 #include "input.h"
 
+/* maps joystick buttons to action IDs (attack/attack/map/...). */
+/* 10 buttons (indices), 6 different actions + 4 static buttons (values) */
+static int buttons_map[10];
+
+
 /* TODO: maybe it's not necessary to SDL_PumpEvents every time, since
    it's usually done before this function is called */
 int GetKeyboard(int key)
@@ -61,6 +66,9 @@ void input_init(void)
     for (x1 = 1; x1 <= 10; x1++) 
       sjoy.letgo[x1] = /*TRUE*/1;
   }
+
+  /* Define default button->action mapping */
+  input_set_default_buttons();
 
   /* JOY */
   /* Joystick initialization never makes Dink fail for now. */
@@ -120,5 +128,65 @@ void input_quit(void)
       if (jinfo != NULL)
 	SDL_JoystickClose(jinfo);
       SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+    }
+}
+
+void input_set_default_buttons(void)
+{
+  /* Set default button->action mapping */
+  int i = 1;
+  for (; i <= NB_BUTTONS; i++)
+    input_set_button_action(i, i);
+#ifdef _PSP
+  /* Alternate mapping, more consistent with other apps on PSP */
+  /* static const enum PspCtrlButtons button_map[] = { */
+  /* 	PSP_CTRL_TRIANGLE, PSP_CTRL_CIRCLE, PSP_CTRL_CROSS, PSP_CTRL_SQUARE, */
+  /* 	PSP_CTRL_LTRIGGER, PSP_CTRL_RTRIGGER, */
+  /* 	PSP_CTRL_DOWN, PSP_CTRL_LEFT, PSP_CTRL_UP, PSP_CTRL_RIGHT, */
+  /* 	PSP_CTRL_SELECT, PSP_CTRL_START, PSP_CTRL_HOME, PSP_CTRL_HOLD };   */
+  input_set_button_action(1,  ACTION_INVENTORY); // triangle
+  input_set_button_action(2,  ACTION_MAGIC);     // circle
+  input_set_button_action(3,  ACTION_ATTACK);    // cross
+  input_set_button_action(4,  ACTION_TALK);      // square
+  input_set_button_action(5,  ACTION_MENU);      // ltrigger
+  input_set_button_action(6,  ACTION_MAP);       // rtrigger
+  // TODO: make these also work like d/l/u/r:
+  input_set_button_action(7,  ACTION_NOOP);      // down
+  input_set_button_action(8,  ACTION_NOOP);      // left
+  input_set_button_action(9,  ACTION_NOOP);      // up
+  input_set_button_action(10, ACTION_NOOP);      // right
+#endif
+}
+
+/* BIG FAT WARNING: in DinkC, buttons are in [1, 10] (not [0, 9]) */
+/* Current return range: [1-10] inclusive */
+int input_get_button_action(int button_index)
+{
+  button_index--;
+  if (button_index >= 0 && button_index < NB_BUTTONS)
+    {
+      int action = buttons_map[button_index];
+      return action;
+    }
+  return -1; /* error */
+}
+
+/**
+ * Set what action will be triggered when button 'button_index' is
+ * pressed. Action '0' currently means 'do nothing'.
+ */
+void input_set_button_action(int button_index, int action_index)
+{
+  button_index--;
+  if (button_index >= 0 && button_index < NB_BUTTONS)
+    {
+      if (action_index >= ACTION_FIRST && action_index < ACTION_LAST)
+	buttons_map[button_index] = action_index;
+      else
+	fprintf(stderr, "Attempted to set invalid action %d\n", action_index);
+    }
+  else
+    {
+      fprintf(stderr, "Attempted to set invalid button %d\n", button_index+1);
     }
 }

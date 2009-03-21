@@ -31,6 +31,7 @@
 #include <string.h>  /* memset */
 #include "game_engine.h"
 #include "dinkvar.h"  /* hmap, pam */
+#include "input.h"
 
 struct sp spr[MAX_SPRITES_AT_ONCE]; //max sprite control systems at once
 int last_sprite_created;
@@ -108,11 +109,6 @@ void game_init()
      automatically done by C, and this causes errors. TODO: fix the
      errors properly instead of using this dirty trick. */
   memset(&play, 0, sizeof(play));
-  /* Set default button->action mapping */
-  int i = 1;
-  for (; i <= 10; i++)
-    play.button[i] = i;
-    
 
   /* Precaution */
   memset(&hmap, 0, sizeof(hmap));

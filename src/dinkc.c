@@ -38,6 +38,7 @@
 #include "dinkc.h"
 #include "dinkc_bindings.h"
 #include "game_engine.h"
+#include "input.h"
 #include "paths.h"
 #include "str_util.h"
 #include "log.h"
@@ -697,16 +698,17 @@ void decipher_string(char line[200], int script)
 
       if (decipher_savegame != 0)
 	{
-	  if      (play.button[decipher_savegame] == 1)   replace("&buttoninfo", "Attack", line);
-	  else if (play.button[decipher_savegame] == 2)   replace("&buttoninfo", "Talk/Examine", line);
-	  else if (play.button[decipher_savegame] == 3)   replace("&buttoninfo", "Magic", line);
-	  else if (play.button[decipher_savegame] == 4)   replace("&buttoninfo", "Item Screen", line);
-	  else if (play.button[decipher_savegame] == 5)   replace("&buttoninfo", "Main Menu", line);
-	  else if (play.button[decipher_savegame] == 6)   replace("&buttoninfo", "Map", line);
-	  else if (play.button[decipher_savegame] == 7)   replace("&buttoninfo", "Unused", line);
-	  else if (play.button[decipher_savegame] == 8)   replace("&buttoninfo", "Unused", line);
-	  else if (play.button[decipher_savegame] == 9)   replace("&buttoninfo", "Unused", line);
-	  else if (play.button[decipher_savegame] == 10)  replace("&buttoninfo", "Unused", line);
+	  int button_action = input_get_button_action(decipher_savegame);
+	  if      (button_action == 1)   replace("&buttoninfo", "Attack", line);
+	  else if (button_action == 2)   replace("&buttoninfo", "Talk/Examine", line);
+	  else if (button_action == 3)   replace("&buttoninfo", "Magic", line);
+	  else if (button_action == 4)   replace("&buttoninfo", "Item Screen", line);
+	  else if (button_action == 5)   replace("&buttoninfo", "Main Menu", line);
+	  else if (button_action == 6)   replace("&buttoninfo", "Map", line);
+	  else if (button_action == 7)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == 8)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == 9)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == 10)  replace("&buttoninfo", "Unused", line);
 	  else replace("&buttoninfo", _("Error: not mapped"), line);
 	}
     }

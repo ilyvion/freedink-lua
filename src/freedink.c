@@ -107,39 +107,38 @@ void check_joystick(void)
   if (joystick)
     {
       SDL_JoystickUpdate();
-      Sint16 x_pos, y_pos;
-      int i;
-      for (i = 0; i < 10; i++)
+      Sint16 x_pos = 0, y_pos = 0;
+      /* SDL counts buttons from 0, not from 1 */
+      int i = 0;
+      for (; i < NB_BUTTONS; i++)
 	if (SDL_JoystickGetButton(jinfo, i))
-	  /* TODO: play.button ranges from 1 to 6, not 0 to 9
-	     (cf. Dink's ESCAPE.C) */
-	  sjoy.joybit[play.button[i+1]] = 1;
+	  sjoy.joybit[input_get_button_action(i+1)] = 1;
 
-	x_pos = SDL_JoystickGetAxis(jinfo, 0);
-	y_pos = SDL_JoystickGetAxis(jinfo, 1);
-	/* Using thresold=10% (original game) is just enough to get
-	   rid of the noise. Let's use 30% instead, otherwise Dink
-	   will go diags too easily. */
-	{
-	  Sint16 threshold = 32767 * 30/100;
-	  if (x_pos < -threshold) sjoy.left  = 1;
-	  if (x_pos > +threshold) sjoy.right = 1;
-	  if (y_pos < -threshold) sjoy.up    = 1;
-	  if (y_pos > +threshold) sjoy.down  = 1;
-	}
+      x_pos = SDL_JoystickGetAxis(jinfo, 0);
+      y_pos = SDL_JoystickGetAxis(jinfo, 1);
+      /* Using thresold=10% (original game) is just enough to get rid
+	 of the noise. Let's use 30% instead, otherwise Dink will go
+	 diags too easily. */
+      {
+	Sint16 threshold = 32767 * 30/100;
+	if (x_pos < -threshold) sjoy.left  = 1;
+	if (x_pos > +threshold) sjoy.right = 1;
+	if (y_pos < -threshold) sjoy.up    = 1;
+	if (y_pos > +threshold) sjoy.down  = 1;
+      }
     }
   
   /* Only accept keyboard input when console is not active. */
   if (console_active == 0)
     {
-      if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[1] = 1;
-      if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[2] = 1;
-      if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[3] = 1;
-      if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[4] = 1;
-      if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[5] = 1;
-      if (GetKeyboard('6')) sjoy.joybit[6] = 1;
-      if (GetKeyboard('m')) sjoy.joybit[6] = 1;
-      if (GetKeyboard('7')) sjoy.joybit[7] = 1;
+      if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[ACTION_ATTACK] = 1;
+      if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[ACTION_TALK] = 1;
+      if (GetKeyboard(SDLK_LSHIFT) || GetKeyboard(SDLK_RSHIFT)) sjoy.joybit[ACTION_MAGIC] = 1;
+      if (GetKeyboard(SDLK_RETURN)) sjoy.joybit[ACTION_INVENTORY] = 1;
+      if (GetKeyboard(SDLK_ESCAPE)) sjoy.joybit[ACTION_MENU] = 1;
+      if (GetKeyboard('6')) sjoy.joybit[ACTION_MAP] = 1;
+      if (GetKeyboard('m')) sjoy.joybit[ACTION_MAP] = 1;
+      if (GetKeyboard('7')) sjoy.joybit[ACTION_BUTTON7] = 1;
     }
   
   {
@@ -2806,7 +2805,7 @@ void human_brain(int h)
       // button6.c, button7.c, ..., button10.c
       if (sjoy.button[i] == 1)
 	{
-	  char script_filename[6+2+1];
+	  char script_filename[6+2+1]; // 'button' + '7'..'10' + '\0' (no '.c')
 	  sprintf(script_filename, "button%d", i);
 	  int mycrap = load_script(script_filename, 1, /*false*/0);
 	  if (locate(mycrap, "MAIN"))
@@ -2815,10 +2814,10 @@ void human_brain(int h)
 	}
     }
   
-  if (magic_script != 0 && sjoy.joybit[3])
+  if (magic_script != 0 && sjoy.joybit[ACTION_MAGIC])
     goto shootm;
 
-  if (sjoy.button[3] == 1)
+  if (sjoy.button[ACTION_MAGIC] == 1)
     {
       if (magic_script == 0)
 	{
@@ -2855,7 +2854,7 @@ shootm:
 	} 
     }
   
-  if (sjoy.button[4])
+  if (sjoy.button[ACTION_INVENTORY])
     {
       if (dversion >= 108)
 	{
@@ -2873,7 +2872,7 @@ shootm:
       return;
     }
   
-  if (sjoy.button[5] == 1)
+  if (sjoy.button[ACTION_MENU] == 1)
     {
       if (!showb.active && !bow.active && !talk.active)
 	{

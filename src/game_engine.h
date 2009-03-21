@@ -36,9 +36,9 @@
 
 struct seth_joy
 {
-  /*BOOL*/int joybit[17]; //is button held down?
-  /*BOOL*/int letgo[17]; //copy of old above
-  /*BOOL*/int button[17]; //has button been pressed recently?
+  /*BOOL*/int joybit[1+10]; // is this action active?
+  /*BOOL*/int letgo[1+10]; //copy of old above
+  /*BOOL*/int button[1+10]; //has button been pressed recently?
 
   /* Only used in the editor (for now): */
   /* State of the keyboard, SDL-supported keys */
@@ -189,10 +189,6 @@ struct player_info
   int counter;
   BOOL_1BYTE idle;
   struct mydata spmap[769];
-  int button[10]; /* maps joystick buttons to action IDs
-		     (attack/attack/map/...). TODO: 10 elements, but
-		     counting from 1, used up to 6 (ESCAPE.C) and up
-		     to 10 (see check_joystick()). */
   struct varman var[MAX_VARS];
   
   

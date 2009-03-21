@@ -56,6 +56,7 @@
 
 #include "game_engine.h"
 #include "dinkini.h"
+#include "input.h"
 
 /* #include "ddutil.h" */
 #include "fastfile.h"
@@ -1292,10 +1293,19 @@ void save_info(void)
       play.spmap[i].last_time = read_lsb_int(f);
     }
 
+  /* Here's we'll perform a few tricks to respect a misconception in
+     the original savegame format */
+  // skip first originally unused play.button entry
+  fseek(f, 4, SEEK_CUR);
+  // first play.var entry (cf. below) was overwritten by
+  // play.button[10], writing 10 play.button entries:
   for (i = 0; i < 10; i++)
-    play.button[i] = read_lsb_int(f);
+    input_set_button_action(i+1, read_lsb_int(f));
+  // skip the rest of first unused play.var entry
+  fseek(f, 32-4, SEEK_CUR);
 
-  for (i = 0; i < MAX_VARS; i++)
+  // reading the rest of play.var
+  for (i = 1; i < MAX_VARS; i++)
     {
       play.var[i].var = read_lsb_int(f);
       fread(play.var[i].name, 20, 1, f);
@@ -1599,10 +1609,19 @@ void save_game(int num)
       write_lsb_int(play.spmap[i].last_time, f);
     }
 
+  /* Here's we'll perform a few tricks to respect a misconception in
+     the original savegame format */
+  // skip first originally unused play.button entry
+  fseek(f, 4, SEEK_CUR);
+  // first play.var entry (cf. below) was overwritten by
+  // play.button[10], writing 10 play.button entries:
   for (i = 0; i < 10; i++)
-    write_lsb_int(play.button[i], f);
+    write_lsb_int(input_get_button_action(i+1), f);
+  // skip the rest of first unused play.var entry
+  fseek(f, 32-4, SEEK_CUR);
 
-  for (i = 0; i < MAX_VARS; i++)
+  // writing the rest of play.var
+  for (i = 1; i < MAX_VARS; i++)
     {
       write_lsb_int(play.var[i].var, f);
       fwrite(play.var[i].name, 20, 1, f);

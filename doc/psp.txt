@@ -256,7 +256,7 @@ Docs:
   * press O on the PSP (don't do that before umounting, there's no check!!)
 
 - Where to install games:
-  * original phat firmware 1.50: 2 directories to install:
+  * original fat firmware 1.50: 2 directories to install:
     /media/sdb1/PSP/GAME/__SCE__yourgame/EBOOT.PBP
     /media/sdb1/PSP/GAME/%__SCE__yourgame/EBOOT.PBP
   * newer firmware:
@@ -269,7 +269,7 @@ Docs:
   * mv /media/sdb1/PSP/GAME/scummvm-0.12.0-psp/sky.cpt /media/sdb1/bass/
   => v0.13 doesn't work? (quits immediately)
 
-- Create a Pandora Battery
+- Create a Pandora Battery - http://www.freedink.org/doc/psp/
   http://www.pspgen.com/despertar-del-cementerio-debricker-downgrade-custom-firmware-article-184615-4.html
   * Install HellCat's Pandora Installer R4b
     cp -a hellcat-pandora-installer-4rb/PSP/GAME/pan3xx /media/sdb1/PSP/GAME/
@@ -555,11 +555,19 @@ Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SW
   Pilgrim Quest takes 22MB. On truecolor mode this goes to 18 and 30MB
   (though both don't have truecolor graphics).
 
+- Buttons: the numbering is defined in SDL/src/joystick/psp/SDL_sysjoystick.c:
 
-TODO:
+  static const enum PspCtrlButtons button_map[] = {
+  	PSP_CTRL_TRIANGLE, PSP_CTRL_CIRCLE, PSP_CTRL_CROSS, PSP_CTRL_SQUARE,
+  	PSP_CTRL_LTRIGGER, PSP_CTRL_RTRIGGER,
+  	PSP_CTRL_DOWN, PSP_CTRL_LEFT, PSP_CTRL_UP, PSP_CTRL_RIGHT,
+  	PSP_CTRL_SELECT, PSP_CTRL_START, PSP_CTRL_HOME, PSP_CTRL_HOLD };
 
-- can we check the inavailability of 8-bit mode in a generic way
-  (rather then #ifdef _PSP)?
+  (starting from zero)
+
+  Note that down/left/up/right are considered buttons (not joystick
+  events). In addition, "home" and "hold" are apparently not usable
+  directly (I read that it needs kernel mode?).
 
 
 Links:

@@ -49,6 +49,7 @@
 #include "gfx_tiles.h"
 #include "bgm.h"
 #include "sfx.h"
+#include "input.h"
 #include "str_util.h"
 #include "paths.h"
 #include "log.h"
@@ -773,7 +774,6 @@ void dc_arm_magic(int script, int* yield, int* preturnint)
 
 void dc_restart_game(int script, int* yield, int* preturnint)
 {
-  int u;
   int mainscript;
   while (kill_last_sprite());
   kill_repeat_sounds_all();
@@ -782,8 +782,8 @@ void dc_restart_game(int script, int* yield, int* preturnint)
   screenlock = 0;
   kill_all_vars();
   memset(&hm, 0, sizeof(hm));
-  for (u = 1; u <= 10; u++)
-    play.button[u] = u;
+  input_set_default_buttons();
+
   mainscript = load_script("main", 0, /*true*/1);
     
   locate(mainscript, "main");
@@ -1427,7 +1427,7 @@ void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
 void dc_set_button(int script, int* yield, int* preturnint,
 		   int button, int function)
 {
-  play.button[button] = function;
+  input_set_button_action(button, function);
 }
 
 void dc_hurt(int script, int* yield, int* preturnint,
