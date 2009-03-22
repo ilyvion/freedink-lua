@@ -34,34 +34,6 @@
 #define MAX_SPRITES_AT_ONCE 300
 
 
-struct seth_joy
-{
-  /*BOOL*/int joybit[1+10]; // is this action active?
-  /*BOOL*/int letgo[1+10]; //copy of old above
-  /*BOOL*/int button[1+10]; //has button been pressed recently?
-
-  /* Only used in the editor (for now): */
-  /* State of the keyboard, SDL-supported keys */
-  int keystate[SDLK_LAST]; /* current GetAsyncKeyState value, in
-			      cache */
-  int keyjustpressed[SDLK_LAST]; /* true if key was just pressed, false
-				 if kept pressed or released */
-
-  /* Idem, but with unicode characters - layout-independant */
-  char charstate[65536];
-  char charjustpressed[65536];
-  char key2char[65536]; /* to retrieve matching unicode on SDL_KEYUP,
-			   if possible */
-  Uint16 last_unicode; /* last character typed by the user, used for
-			  text input */
-  Uint16 last_nokey_unicode; /* char with no key match, so no KEYUP
-				support - reset it next time */
-
-  /*BOOL*/int right,left,up,down;
-  /*BOOL*/int rightd,leftd,upd,downd;
-  /*BOOL*/int rightold,leftold,upold,downold;
-};
-
 struct sp
 {
   int x,moveman;
@@ -216,7 +188,6 @@ struct player_info
   struct global_function func[100];
 };
 
-extern struct seth_joy sjoy;
 extern struct sp spr[];
 extern struct player_info play;
 extern int last_sprite_created;

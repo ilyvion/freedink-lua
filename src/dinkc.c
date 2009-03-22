@@ -698,7 +698,7 @@ void decipher_string(char line[200], int script)
 
       if (decipher_savegame != 0)
 	{
-	  int button_action = input_get_button_action(decipher_savegame);
+	  int button_action = input_get_button_action(decipher_savegame-1);
 	  if      (button_action == 1)   replace("&buttoninfo", "Attack", line);
 	  else if (button_action == 2)   replace("&buttoninfo", "Talk/Examine", line);
 	  else if (button_action == 3)   replace("&buttoninfo", "Magic", line);

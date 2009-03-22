@@ -1299,8 +1299,8 @@ void save_info(void)
   fseek(f, 4, SEEK_CUR);
   // first play.var entry (cf. below) was overwritten by
   // play.button[10], writing 10 play.button entries:
-  for (i = 0; i < 10; i++)
-    input_set_button_action(i+1, read_lsb_int(f));
+  for (i = 0; i < 10; i++) // use fixed 10 rather than NB_BUTTONS
+    input_set_button_action(i, read_lsb_int(f));
   // skip the rest of first unused play.var entry
   fseek(f, 32-4, SEEK_CUR);
 
@@ -1615,8 +1615,8 @@ void save_game(int num)
   fseek(f, 4, SEEK_CUR);
   // first play.var entry (cf. below) was overwritten by
   // play.button[10], writing 10 play.button entries:
-  for (i = 0; i < 10; i++)
-    write_lsb_int(input_get_button_action(i+1), f);
+  for (i = 0; i < 10; i++) // use fixed 10 rather than NB_BUTTONS
+    write_lsb_int(input_get_button_action(i), f);
   // skip the rest of first unused play.var entry
   fseek(f, 32-4, SEEK_CUR);
 

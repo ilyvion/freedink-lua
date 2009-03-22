@@ -1424,10 +1424,11 @@ void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
   *preturnint = 0; /* not found */
 }
 
+/* BIG FAT WARNING: in DinkC, buttons are in [1, 10] (not [0, 9]) */
 void dc_set_button(int script, int* yield, int* preturnint,
 		   int button, int function)
 {
-  input_set_button_action(button, function);
+  input_set_button_action(button-1, function);
 }
 
 void dc_hurt(int script, int* yield, int* preturnint,

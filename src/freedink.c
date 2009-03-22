@@ -87,9 +87,9 @@ void check_joystick(void)
   /* Clean-up */
   /* Buttons */
   {
-    int e2;
-    for (e2=1; e2 <=10; e2++) 
-      sjoy.joybit[e2] = 0;
+    int a = ACTION_FIRST;
+    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
+      sjoy.joybit[a] = 0;
   }
   
   /* Arrows*/
@@ -110,9 +110,9 @@ void check_joystick(void)
       Sint16 x_pos = 0, y_pos = 0;
       /* SDL counts buttons from 0, not from 1 */
       int i = 0;
-      for (; i < NB_BUTTONS; i++)
+      for (i = 0; i < NB_BUTTONS; i++)
 	if (SDL_JoystickGetButton(jinfo, i))
-	  sjoy.joybit[input_get_button_action(i+1)] = 1;
+	  sjoy.joybit[input_get_button_action(i)] = 1;
 
       x_pos = SDL_JoystickGetAxis(jinfo, 0);
       y_pos = SDL_JoystickGetAxis(jinfo, 1);
@@ -142,21 +142,16 @@ void check_joystick(void)
     }
   
   {
-    int x5;
-    int x;
-
-    for (x5 = 1; x5 <=10; x5++)
-      sjoy.button[x5] = 0;
-	
-    for (x = 1; x <= 10; x++)
+    int a = ACTION_FIRST;
+    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
+      sjoy.button[a] = 0;
+    
+    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
       {
-	if (sjoy.joybit[x])
+	if (sjoy.joybit[a] && sjoy.letgo[a] == 1)
 	  {
-	    if (sjoy.letgo[x] == 1)
-	      {
-		sjoy.button[x] = 1;
-		sjoy.letgo[x] = 0;
-	      }
+	    sjoy.button[a] = 1;
+	    sjoy.letgo[a] = 0;
 	  }
       }
   }
@@ -171,12 +166,12 @@ void check_joystick(void)
     }
   
   {
-    int x2;
-    for (x2 = 1; x2 <= 10; x2++) 
-      if (sjoy.joybit[x2])
-	sjoy.letgo[x2] = 0;
+    int a = ACTION_FIRST;
+    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
+      if (sjoy.joybit[a])
+	sjoy.letgo[a] = 0;
       else
-	sjoy.letgo[x2] = 1;
+	sjoy.letgo[a] = 1;
   }
   
   if (sjoy.right && sjoy.rightold == 1)
@@ -229,9 +224,9 @@ void check_joystick(void)
       //check for dirs
       
       if (sjoy.rightd) wait4b.button = 16;
-      if (sjoy.leftd) wait4b.button = 14;
-      if (sjoy.upd) wait4b.button = 18;
-      if (sjoy.downd) wait4b.button = 12;
+      if (sjoy.leftd)  wait4b.button = 14;
+      if (sjoy.upd)    wait4b.button = 18;
+      if (sjoy.downd)  wait4b.button = 12;
       
       sjoy.rightd = /*false*/0;
       sjoy.downd = /*false*/0;
@@ -240,15 +235,13 @@ void check_joystick(void)
       
       //check buttons
       {
-	int ll;
-	for (ll=1; ll <= 10; ll++)
+	int a = ACTION_FIRST;
+	for (a = ACTION_FIRST; a < ACTION_LAST; a++)
 	  {
-	    if (sjoy.button[ll])
-	      {
-		//button was pressed
-	      wait4b.button = ll;
-	      }
-	    sjoy.button[ll] = /*false*/0;
+	    if (sjoy.button[a])
+	      //button was pressed
+	      wait4b.button = a;
+	    sjoy.button[a] = /*false*/0;
 	  }
       }
       
@@ -2525,12 +2518,12 @@ void mouse_brain(int h)
 	
 	
 	
-	if ( (sjoy.button[1] == /*TRUE*/1) | (mouse1) )
+	if ( (sjoy.button[ACTION_ATTACK] == /*TRUE*/1) | (mouse1) )
 	{
 		
 		Msg("running through mouse list..");
 		run_through_mouse_list(h, /*true*/1);
-		sjoy.button[1] = /*false*/0;
+		sjoy.button[ACTION_ATTACK] = /*false*/0;
 							 mouse1 = /*false*/0;
 							 
 	}
@@ -2590,7 +2583,7 @@ void process_bow( int h)
 	}
 	
 	
-	if (sjoy.letgo[1])
+	if (sjoy.letgo[ACTION_ATTACK])
 	{
 		bow.active = /*false*/0;
 		bow.last_power = bow.time;
@@ -2676,7 +2669,7 @@ void human_brain(int h)
   if (spr[h].freeze)
     {
       //they are frozen
-      if (sjoy.button[2] == 1)
+      if (sjoy.button[ACTION_TALK] == 1)
 	{
 	  //they hit the talk button while frozen, lets hurry up the process
 	  int jj;
@@ -2715,7 +2708,7 @@ void human_brain(int h)
       return;
     }
   
-  if ((sjoy.button[2] == 1))
+  if ((sjoy.button[ACTION_TALK] == 1))
     {
       if (!run_through_tag_list_talk(h))
 	{
@@ -2745,7 +2738,7 @@ void human_brain(int h)
 	}
     }
 	
-  if ((sjoy.button[1] == 1) && (weapon_script != 0))
+  if ((sjoy.button[ACTION_ATTACK] == 1) && (weapon_script != 0))
     {
       if (spr[h].base_hit > 0)
 	{
@@ -2796,17 +2789,31 @@ void human_brain(int h)
 	}
     }
   
-  int i;
-  int last_key = 6;
+  enum buttons_actions actions[5];
+  enum buttons_actions actions_script[5];
+  int nb_actions = 1;
+  actions[0] = ACTION_MAP;
+  actions_script[0] = 6;
   if (dversion >= 108)
-    last_key = 10;
-  for (i = 6; i <= last_key; i++)
+    {
+      nb_actions = 5;
+      actions[1] = ACTION_BUTTON7;
+      actions_script[1] = 7;
+      actions[2] = ACTION_BUTTON8;
+      actions_script[2] = 8;
+      actions[3] = ACTION_BUTTON9;
+      actions_script[3] = 9;
+      actions[4] = ACTION_BUTTON10;
+      actions_script[4] = 10;
+    }
+  int i = 0;
+  for (i = 0; i < nb_actions; i++)
     {
       // button6.c, button7.c, ..., button10.c
-      if (sjoy.button[i] == 1)
+      if (sjoy.button[actions[i]] == 1)
 	{
 	  char script_filename[6+2+1]; // 'button' + '7'..'10' + '\0' (no '.c')
-	  sprintf(script_filename, "button%d", i);
+	  sprintf(script_filename, "button%d", actions_script[i]);
 	  int mycrap = load_script(script_filename, 1, /*false*/0);
 	  if (locate(mycrap, "MAIN"))
 	    run_script(mycrap);
@@ -4455,7 +4462,7 @@ void process_talk()
 /*   } */
   
   
-  if ((sjoy.button[1]) | (mouse1))
+  if ((sjoy.button[ACTION_ATTACK]) | (mouse1))
     {
       mouse1 = /*false*/0;
       talk.active = /*false*/0;
@@ -4818,7 +4825,7 @@ void process_item( void )
 		
 		//choosing weapon/item
 		
-		if (sjoy.button[1])
+		if (sjoy.button[ACTION_ATTACK])
 		{
 			if (play.item[play.curitem].active)
 			{
@@ -4892,7 +4899,7 @@ void process_item( void )
 		hor = (play.curitem - (((play.curitem-1) / 2) * 2));
 		virt = ((play.curitem-1) / 2);
 		
-		if (sjoy.button[1])
+		if (sjoy.button[ACTION_ATTACK])
 		{
 			if (play.mitem[play.curitem].active)
 			{
@@ -4972,7 +4979,7 @@ void process_item( void )
 	// process_callbacks_special();
 	flip_it(); 
 	
-	if (sjoy.button[4])
+	if (sjoy.button[ACTION_INVENTORY])
 	{
 		SoundPlayEffect(17, 22050,0,0,0);
 		
@@ -4985,18 +4992,10 @@ void process_item( void )
 
 void process_show_bmp( void )
 {
-/*   RECT rcRect; */
-/*   SetRect(&rcRect, 0,0,x, y); */
-  
   // We could disable this Blit (work is already done in show_bmp())
   // but we want to display the shiny mark on the map below. Besides,
   // after show_bmp(), other parts of the code drew sprites on
   // lpDDSBack, so we need to regenerate it anyway.
-/*  again: */
-/*   ddrval = lpDDSBack->BltFast(0, 0, lpDDSTrick, */
-/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
-/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
-  // GFX
   SDL_BlitSurface(GFX_lpDDSTrick, NULL, GFX_lpDDSBack, NULL);
   
   if (showb.showdot)
@@ -5009,25 +5008,20 @@ void process_show_bmp( void )
       if (showb.picframe > seq[mseq].len) showb.picframe = 1;
       int mframe = showb.picframe;
       
-/*       lpDDSBack->BltFast( ((x) * 20 - ((x / 32) * 640))-20, (x / 32) * 20, k[seq[mseq].frame[mframe]].k, */
-/* 			  &k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY| DDBLTFAST_WAIT ); */
-      // GFX
-      {
-	SDL_Rect dst;
-	// convert map# to a (x,y) position on a FreeDinkEdit minimap
-	dst.x = (x % 32) * 20;
-	dst.y = (x / 32) * 20;
-	SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
-      }
+      SDL_Rect dst;
+      // convert map# to a (x,y) position on a FreeDinkedit minimap
+      dst.x = (x % 32) * 20;
+      dst.y = (x / 32) * 20;
+      SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
     }
   
   
-  if ((sjoy.button[1])
-      || (sjoy.button[2])
-      || (sjoy.button[3])
-      || (sjoy.button[4])
-      || (sjoy.button[5])
-      || (sjoy.button[6]))
+  if ((sjoy.button[ACTION_ATTACK])
+      || (sjoy.button[ACTION_TALK])
+      || (sjoy.button[ACTION_MAGIC])
+      || (sjoy.button[ACTION_INVENTORY])
+      || (sjoy.button[ACTION_MENU])
+      || (sjoy.button[ACTION_MAP]))
     {
       showb.active = /*false*/0;
       if (showb.script != 0)
@@ -5040,12 +5034,6 @@ void process_show_bmp( void )
       
       
       // Return to canonical game palette
-/*       if(lpDDPal->SetEntries(0,0,256,real_pal) !=DD_OK) */
-/* 	{ */
-/* 	  Msg("error with setting entries"); */
-/* 	  return; */
-/* 	} */
-      // GFX
       change_screen_palette(GFX_real_pal);
       // The main flip_it() will be called, skip it - lpDDSBack is
       // not matching the palette anymore, it needs to be redrawn

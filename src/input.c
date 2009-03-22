@@ -34,7 +34,7 @@
 
 /* maps joystick buttons to action IDs (attack/attack/map/...). */
 /* 10 buttons (indices), 6 different actions + 4 static buttons (values) */
-static int buttons_map[10];
+static enum buttons_actions buttons_map[NB_BUTTONS];
 
 
 /* TODO: maybe it's not necessary to SDL_PumpEvents every time, since
@@ -59,12 +59,13 @@ void input_init(void)
   /* Clear keyboard/joystick buffer */
   memset(&sjoy,0,sizeof(sjoy));
   {
-    int x, x1;
-    for (x = 0; x < 256; x++)
-      GetKeyboard(x);
-	
-    for (x1 = 1; x1 <= 10; x1++) 
-      sjoy.letgo[x1] = /*TRUE*/1;
+    int k = 0;
+    for (k = 0; k < 256; k++)
+      GetKeyboard(k);
+    
+    int a = ACTION_FIRST;
+    for (a = ACTION_FIRST; a < ACTION_LAST; a++) 
+      sjoy.letgo[a] = /*TRUE*/1;
   }
 
   /* Define default button->action mapping */
@@ -134,39 +135,62 @@ void input_quit(void)
 void input_set_default_buttons(void)
 {
   /* Set default button->action mapping */
-  int i = 1;
-  for (; i <= NB_BUTTONS; i++)
-    input_set_button_action(i, i);
+  int i = 0;
+  for (i = 0; i < NB_BUTTONS; i++)
+    input_set_button_action(i, ACTION_NOOP);
+
+  input_set_button_action( 1-1, ACTION_ATTACK);
+  input_set_button_action( 2-1, ACTION_TALK);
+  input_set_button_action( 3-1, ACTION_MAGIC);
+  input_set_button_action( 4-1, ACTION_INVENTORY);
+  input_set_button_action( 5-1, ACTION_MENU);
+  input_set_button_action( 6-1, ACTION_MAP);
+  input_set_button_action( 7-1, ACTION_BUTTON7);
+  input_set_button_action( 8-1, ACTION_BUTTON8);
+  input_set_button_action( 9-1, ACTION_BUTTON9);
+  input_set_button_action(10-1, ACTION_BUTTON10);
+
 #ifdef _PSP
-  /* Alternate mapping, more consistent with other apps on PSP */
-  /* static const enum PspCtrlButtons button_map[] = { */
-  /* 	PSP_CTRL_TRIANGLE, PSP_CTRL_CIRCLE, PSP_CTRL_CROSS, PSP_CTRL_SQUARE, */
-  /* 	PSP_CTRL_LTRIGGER, PSP_CTRL_RTRIGGER, */
-  /* 	PSP_CTRL_DOWN, PSP_CTRL_LEFT, PSP_CTRL_UP, PSP_CTRL_RIGHT, */
-  /* 	PSP_CTRL_SELECT, PSP_CTRL_START, PSP_CTRL_HOME, PSP_CTRL_HOLD };   */
-  input_set_button_action(1,  ACTION_INVENTORY); // triangle
-  input_set_button_action(2,  ACTION_MAGIC);     // circle
-  input_set_button_action(3,  ACTION_ATTACK);    // cross
-  input_set_button_action(4,  ACTION_TALK);      // square
-  input_set_button_action(5,  ACTION_MENU);      // ltrigger
-  input_set_button_action(6,  ACTION_MAP);       // rtrigger
+  /* Alternate mapping, more consistent with other apps on PSP; in
+     addition, the buttons numbering/placement is different than on
+     PC, so it needs to be redefined anyway. */
+  /* Here are names for the button indices returned by SDL, 12 buttons
+     in [0,11], plus (apparently non-usable) HOME and HOLD [can 'note'
+     be mapped too?] */
+  enum buttons_psp {
+    BUTTON_TRIANGLE=0, BUTTON_CIRCLE, BUTTON_CROSS, BUTTON_SQUARE,
+    BUTTON_LTRIGGER, BUTTON_RTRIGGER,
+    BUTTON_DOWN, BUTTON_LEFT, BUTTON_UP, BUTTON_RIGHT,
+    BUTTON_SELECT, BUTTON_START, BUTTON_HOME, BUTTON_HOLD };
+  input_set_button_action(BUTTON_TRIANGLE,  ACTION_INVENTORY);
+  input_set_button_action(BUTTON_CIRCLE,    ACTION_MAGIC);
+  input_set_button_action(BUTTON_CROSS,     ACTION_ATTACK);
+  input_set_button_action(BUTTON_SQUARE,    ACTION_TALK);
+  input_set_button_action(BUTTON_LTRIGGER,  ACTION_MENU);
+  input_set_button_action(BUTTON_RTRIGGER,  ACTION_MAP);
   // TODO: make these also work like d/l/u/r:
-  input_set_button_action(7,  ACTION_NOOP);      // down
-  input_set_button_action(8,  ACTION_NOOP);      // left
-  input_set_button_action(9,  ACTION_NOOP);      // up
-  input_set_button_action(10, ACTION_NOOP);      // right
+  input_set_button_action(BUTTON_DOWN,      ACTION_NOOP);
+  input_set_button_action(BUTTON_LEFT,      ACTION_NOOP);
+  input_set_button_action(BUTTON_UP,        ACTION_NOOP);
+  input_set_button_action(BUTTON_RIGHT,     ACTION_NOOP);
+  /* TODO: we could also map:
+     - debug (Alt+D),
+     - pause/resume midi (Alt+N/B)
+     - fast-quit (Alt+Q) - fast-quit is somewhat already available
+     through the classic Home key, although handled differently. */
+  /* Let's also try to get a free key to possibly implement a
+     zooming/switch-view function for small screens, as well as a
+     virtual keyboard feature (like ScummVM)... */
+  /* Maybe also map inventory to start instead of Triangle. */
+  input_set_button_action(BUTTON_START,     ACTION_INVENTORY);
 #endif
 }
 
-/* BIG FAT WARNING: in DinkC, buttons are in [1, 10] (not [0, 9]) */
-/* Current return range: [1-10] inclusive */
-int input_get_button_action(int button_index)
+enum buttons_actions input_get_button_action(int button_index)
 {
-  button_index--;
   if (button_index >= 0 && button_index < NB_BUTTONS)
     {
-      int action = buttons_map[button_index];
-      return action;
+      return buttons_map[button_index];
     }
   return -1; /* error */
 }
@@ -175,9 +199,8 @@ int input_get_button_action(int button_index)
  * Set what action will be triggered when button 'button_index' is
  * pressed. Action '0' currently means 'do nothing'.
  */
-void input_set_button_action(int button_index, int action_index)
+void input_set_button_action(int button_index, enum buttons_actions action_index)
 {
-  button_index--;
   if (button_index >= 0 && button_index < NB_BUTTONS)
     {
       if (action_index >= ACTION_FIRST && action_index < ACTION_LAST)
@@ -187,6 +210,7 @@ void input_set_button_action(int button_index, int action_index)
     }
   else
     {
-      fprintf(stderr, "Attempted to set invalid button %d\n", button_index+1);
+      fprintf(stderr, "Attempted to set invalid button %d (internal index %d)\n",
+	      button_index+1, button_index);
     }
 }

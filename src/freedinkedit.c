@@ -90,6 +90,7 @@
 #include "gfx_tiles.h"
 #include "gfx_fonts.h"
 #include "sfx.h"
+#include "input.h"
 #include "io_util.h"
 #include "paths.h"
 #include "log.h"

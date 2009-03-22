@@ -29,8 +29,13 @@ extern "C"
 {
 #endif
 
-#define NB_BUTTONS 10
+#define NB_BUTTONS 12
 
+  /* Actions that can be dynamically mapped on joystick buttons (and
+     statically mapped to keyboard keys). The indices are important:
+     they are used in the savegame format and in DinkC's
+     wait_for_button() - note that indices 12/14/16/18 are reserved
+     for down/left/right/up in that function. */
   enum buttons_actions {
     ACTION_FIRST  = 0, // min constant for loops, like SDLKey
     ACTION_NOOP = 0,
@@ -48,12 +53,42 @@ extern "C"
     ACTION_LAST // max+1 constant for loops
   };
 
+  struct seth_joy
+  {
+    int joybit[ACTION_LAST]; // is this action currently pressed?
+    int button[ACTION_LAST]; // was this action just pressed (not maintained pressed)?
+    int letgo[ACTION_LAST];  // was this action released (!pressed) last loop?
+                             // (used to compute .button and to release an arrow with the bow)
+    
+    /* Only used in the editor (for now): */
+    /* State of the keyboard, SDL-supported keys */
+    int keystate[SDLK_LAST]; /* current GetAsyncKeyState value, in
+				cache */
+    int keyjustpressed[SDLK_LAST]; /* true if key was just pressed, false
+				      if kept pressed or released */
+    
+    /* Idem, but with unicode characters - layout-independant */
+    char charstate[65536];
+    char charjustpressed[65536];
+    char key2char[65536]; /* to retrieve matching unicode on SDL_KEYUP,
+			     if possible */
+    Uint16 last_unicode; /* last character typed by the user, used for
+			    text input */
+    Uint16 last_nokey_unicode; /* char with no key match, so no KEYUP
+				  support - reset it next time */
+    
+    /*BOOL*/int right,left,up,down;
+    /*BOOL*/int rightd,leftd,upd,downd;
+    /*BOOL*/int rightold,leftold,upold,downold;
+  };
+  extern struct seth_joy sjoy;
+
   extern int GetKeyboard(int key);
   extern void input_init(void);
   extern void input_quit(void);
   extern void input_set_default_buttons(void);
-  extern int input_get_button_action(int button_index);
-  extern void input_set_button_action(int button_index, int action_index);
+  extern enum buttons_actions input_get_button_action(int button_index);
+  extern void input_set_button_action(int button_index, enum buttons_actions action_index);
 
 #ifdef __cplusplus
 }

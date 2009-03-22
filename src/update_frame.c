@@ -47,6 +47,7 @@
 #include "log.h"
 #include "rect.h"
 #include "dinkc_console.h"
+#include "input.h"
 
 #include "update_frame.h"
 
