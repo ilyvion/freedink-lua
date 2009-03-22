@@ -175,10 +175,10 @@ void input_set_default_buttons(void)
   input_set_button_action(BUTTON_LTRIGGER,  ACTION_MENU);
   input_set_button_action(BUTTON_RTRIGGER,  ACTION_MAP);
   // TODO: make these also work like d/l/u/r:
-  input_set_button_action(BUTTON_DOWN,      ACTION_NOOP);
-  input_set_button_action(BUTTON_LEFT,      ACTION_NOOP);
-  input_set_button_action(BUTTON_UP,        ACTION_NOOP);
-  input_set_button_action(BUTTON_RIGHT,     ACTION_NOOP);
+  input_set_button_action(BUTTON_DOWN,      ACTION_DOWN);
+  input_set_button_action(BUTTON_LEFT,      ACTION_LEFT);
+  input_set_button_action(BUTTON_UP,        ACTION_UP);
+  input_set_button_action(BUTTON_RIGHT,     ACTION_RIGHT);
   /* TODO: we could also map:
      - debug (Alt+D),
      - pause/resume midi (Alt+N/B)

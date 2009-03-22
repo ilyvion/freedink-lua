@@ -50,7 +50,14 @@ extern "C"
     ACTION_BUTTON8,
     ACTION_BUTTON9,
     ACTION_BUTTON10,
-    ACTION_LAST // max+1 constant for loops
+    // To map buttons to arrow keys
+    // Using the same keys than in wait_for_button()
+    ACTION_DOWN  = 12,
+    ACTION_LEFT  = 14,
+    ACTION_RIGHT = 16,
+    ACTION_UP    = 18,
+    // max+1 constant for loops
+    ACTION_LAST
   };
 
   struct seth_joy

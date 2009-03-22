@@ -156,10 +156,10 @@ void check_joystick(void)
   /* Only accept keyboard input when console is not active. */
   if (console_active == 0)
     {
-      if (GetKeyboard(SDLK_RIGHT)) sjoy.right = 1;
-      if (GetKeyboard(SDLK_LEFT))  sjoy.left  = 1;
-      if (GetKeyboard(SDLK_DOWN))  sjoy.down  = 1;
-      if (GetKeyboard(SDLK_UP))    sjoy.up    = 1;
+      if (GetKeyboard(SDLK_RIGHT) || sjoy.joybit[ACTION_RIGHT]) sjoy.right = 1;
+      if (GetKeyboard(SDLK_LEFT)  || sjoy.joybit[ACTION_LEFT])  sjoy.left  = 1;
+      if (GetKeyboard(SDLK_DOWN)  || sjoy.joybit[ACTION_DOWN])  sjoy.down  = 1;
+      if (GetKeyboard(SDLK_UP)    || sjoy.joybit[ACTION_UP])    sjoy.up    = 1;
     }
   
   if (sjoy.right && sjoy.rightold == 0)
