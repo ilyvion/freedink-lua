@@ -5092,9 +5092,14 @@ int main(int argc, char* argv[])
 	    break;
 	  
 	  /* Fullscreen <-> window */
-	  /* Note: as of 2008-08-07, only works under X11 */
 	  if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard(SDLK_RETURN))
-	    SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
+	    {
+	      /* Note: as of 2008-08-07, only works under X11 */
+	      int success = SDL_WM_ToggleFullScreen(GFX_lpDDSBack);
+	      if (!success)
+		/* Try using a more portable way: */
+		gfx_toggle_fullscreen();
+	    }
 	  
 	  /* TODO: maybe check for application active/background state and
 	     pause the game accordingly - but this may be an annoying

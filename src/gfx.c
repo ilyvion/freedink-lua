@@ -114,6 +114,8 @@ double truecolor_fade_brightness = 256;
 Uint32 truecolor_fade_lasttick = -1;
 
 
+static int cur_video_flags = 0;
+
 /**
  * Check if the graphics system is initialized, so we know if we can
  * use it to display error messages to the user
@@ -273,6 +275,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
       return -1;
     }
   printf("Obtained video flags:   "); gfx_dumpflags(flags);
+  cur_video_flags = flags;
 
   char buf[1024];
   if (SDL_VideoDriverName(buf, 1024) != NULL)
@@ -698,12 +701,29 @@ void flip_it(void)
       // ready), but not necessarily (so do a Flip anyway).
       SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
 		     cur_screen_palette, 0, 256);
-      trigger_palette_change = 0;
     }
+  trigger_palette_change = 0;
+
   if (truecolor_fade_brightness < 256)
     {
       gfx_fade_apply(truecolor_fade_brightness);
     }
 
   SDL_Flip(GFX_lpDDSBack);
+}
+
+/* Like SDL_WM_ToggleFullScreen(), except that it works under more
+   platforms */
+void gfx_toggle_fullscreen(void)
+{
+  if ((cur_video_flags & SDL_FULLSCREEN) == SDL_FULLSCREEN)
+    cur_video_flags &= ~SDL_FULLSCREEN;
+  else
+    cur_video_flags |= SDL_FULLSCREEN;
+  GFX_lpDDSBack = SDL_SetVideoMode(640, 480, GFX_lpDDSBack->format->BitsPerPixel, cur_video_flags);
+
+  /* Palette was lost in the process */
+  if (!truecolor)
+    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
+  trigger_palette_change = 1;
 }

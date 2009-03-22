@@ -3,6 +3,23 @@
 
 ** UNRELEASED **
 
+* User-visible changes:
+
+- NSIS (NullSoft Install System) script to generate a complete ms woe
+  installer (with FreeDink, DFArc and freedink-data)
+
+- Toggle fullscreen works on more platforms (not just X11)
+
+- New architecture: PSP
+
+* Developer notes:
+
+- Dropped libffi dependency to support more architectures
+
+- Fixed SDL_ttf version check (it failed for macport's 2.1.0)
+
+- Code clean-ups, namely in the input subsystem (joystick, etc.)
+
 
 1.08.20090120
 =============
