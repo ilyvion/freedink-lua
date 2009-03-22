@@ -32,6 +32,9 @@
 #include "log.h"
 #include "input.h"
 
+/* Input state */
+struct seth_joy sjoy;
+
 /* maps joystick buttons to action IDs (attack/attack/map/...). */
 /* 10 buttons (indices), 6 different actions + 4 static buttons (values) */
 static enum buttons_actions buttons_map[NB_BUTTONS];
@@ -65,8 +68,12 @@ void input_init(void)
     
     int a = ACTION_FIRST;
     for (a = ACTION_FIRST; a < ACTION_LAST; a++) 
-      sjoy.letgo[a] = /*TRUE*/1;
+      sjoy.joybitold[a] = 0;
   }
+  sjoy.rightold = 0;
+  sjoy.leftold  = 0;
+  sjoy.upold    = 0;
+  sjoy.downold  = 0;
 
   /* Define default button->action mapping */
   input_set_default_buttons();

@@ -25,40 +25,6 @@
 #include <config.h>
 #endif
 
-/*
- * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
- * sprites(6), screen hardness initialization (9, switches to 8
- * immediately), screen hardness(8), tile hardness(4), sprite
- * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
- * dialog(0). */
-/* TODO: The goal is to split the big keybinding functions into these
- * modes, and in each mode, call a function instead of inlining the
- * code. And we may use 'else if', or even a hashmap to do the
- * bindings.
-*/
-
-/* Use constants for readability */
-#define MODE_MINIMAP 1
-#define MODE_TILE_PICKER 2
-#define MODE_SPRITE_PICKER 5
-
-#define MODE_SCREEN_TILES 3
-#define MODE_SCREEN_SPRITES 6
-#define MODE_SCREEN_HARDNESS 8
-#define MODE_SCREEN_HARDNESS_INIT 9
-
-#define MODE_TILE_HARDNESS 4
-#define MODE_SPRITE_HARDNESS 7
-
-#define MODE_DIALOG 0
-
-
-#define INPUT_MINIMAP_LOAD  30
-#define INPUT_SCREEN_VISION 32
-#define INPUT_SCREEN_MIDI   33
-#define INPUT_SCREEN_TYPE   34
-
-
 #include "progname.h"
 
 /* #define WIN32_LEAN_AND_MEAN */
@@ -96,6 +62,51 @@
 #include "log.h"
 
 //Dinkedit-only vars
+
+
+/*
+ * I count 10 modes in Dinkedit: map(1), screen tiles(3), screen
+ * sprites(6), screen hardness initialization (9, switches to 8
+ * immediately), screen hardness(8), tile hardness(4), sprite
+ * chooser(5), tile chooser(2), sprite hardness editor(7), plus input
+ * dialog(0). */
+/* TODO: The goal is to split the big keybinding functions into these
+ * modes, and in each mode, call a function instead of inlining the
+ * code. And we may use 'else if', or even a hashmap to do the
+ * bindings.
+*/
+
+/* Use constants for readability */
+#define MODE_MINIMAP 1
+#define MODE_TILE_PICKER 2
+#define MODE_SPRITE_PICKER 5
+
+#define MODE_SCREEN_TILES 3
+#define MODE_SCREEN_SPRITES 6
+#define MODE_SCREEN_HARDNESS 8
+#define MODE_SCREEN_HARDNESS_INIT 9
+
+#define MODE_TILE_HARDNESS 4
+#define MODE_SPRITE_HARDNESS 7
+
+#define MODE_DIALOG 0
+
+
+#define INPUT_MINIMAP_LOAD  30
+#define INPUT_SCREEN_VISION 32
+#define INPUT_SCREEN_MIDI   33
+#define INPUT_SCREEN_TYPE   34
+
+enum editor_buttons {
+  EDITOR_ACTION_FIRST  = 0, // min constant for loops, like SDLKey
+  EDITOR_ACTION_NOOP = 0,
+  EDITOR_ACTION_ESCAPE = 1,
+  EDITOR_ACTION_RETURN,
+  EDITOR_ACTION_X,
+  EDITOR_ACTION_Z,
+  EDITOR_ACTION_TAB,
+  EDITOR_ACTION_LAST // max+1 constant for loops
+};
 
 struct map_info buffmap;
 /*bool*/int buf_mode = /*false*/0;
@@ -761,13 +772,15 @@ void check_keyboard()
 
 void check_joystick(void)
 {
-  /* int total; */
-  int x = 1;
-  
-  for (x = 1; x <= 10; x++)
-    {
-      sjoy.joybit[x] = 0;
-    }
+  /* Clean-up */
+  /* Actions */
+  {
+    int a = EDITOR_ACTION_FIRST;
+    for (a = EDITOR_ACTION_FIRST; a < EDITOR_ACTION_LAST; a++)
+      sjoy.joybit[a] = 0;
+  }
+
+  /* Arrows */
   sjoy.right = 0;
   sjoy.left = 0;
   sjoy.up = 0;
@@ -775,103 +788,63 @@ void check_joystick(void)
 
   if (joystick)
     {
-      /* TODO: enable joystick support */
-// memset(&jinfo,0,sizeof(JOYINFOEX));
-// jinfo.dwSize=sizeof(JOYINFOEX);
-// jinfo.dwFlags=JOY_RETURNALL;
-// ddrval = joyGetPosEx(JOYSTICKID1,&jinfo);
+      SDL_JoystickUpdate();
+      Sint16 x_pos = 0, y_pos = 0;
+      /* SDL counts buttons from 0, not from 1 */
+      int i = 0;
+      for (i = 0; i < NB_BUTTONS; i++)
+	if (SDL_JoystickGetButton(jinfo, i))
+	  {
+	    if (i == 1-1)
+	      sjoy.joybit[EDITOR_ACTION_ESCAPE] = 1;
+	    else if (i == 2-1)
+	      sjoy.joybit[EDITOR_ACTION_RETURN] = 1;
+	    else if (i == 3-1)
+	      sjoy.joybit[EDITOR_ACTION_X] = 1;
+	    else if (i == 4-1)
+	      sjoy.joybit[EDITOR_ACTION_Z] = 1;
+	    else if (i == 5-1)
+	      sjoy.joybit[EDITOR_ACTION_TAB] = 1;
+	  }
 
-// total = jinfo.dwButtons;
-
-//  if ((total - 512) >= 0)
-//  {
-//  	 sjoy.joybit[10] = TRUE;
-// 	 total = total - 512;
-//  }
-
-//  if ((total - 256) >= 0)
-//  {
-//  	 sjoy.joybit[9] = TRUE;
-// 	 total = total - 256;
-//  }
-
-//  if ((total - 128) >= 0)
-//  {
-//  	 sjoy.joybit[8] = TRUE;
-// 	 total = total - 128;
-//  }
-
-//  if ((total - 64) >= 0)
-//  {
-//  	 sjoy.joybit[7] = TRUE;
-// 	 total = total - 64;
-//  }
-
-//  if ((total - 32) >= 0)
-//  {
-//  	 sjoy.joybit[6] = TRUE;
-// 	 total = total - 32;
-//  }
-
-//  if ((total - 16) >= 0)
-//  {
-//  	 sjoy.joybit[5] = TRUE;
-// 	 total = total - 16;
-//  }
-
-//  if ((total - 8) >= 0)
-//  {
-//  	 sjoy.joybit[4] = TRUE;
-// 	 total = total - 8;
-//  }
-
-//  if ((total - 4) >= 0)
-//  {
-//  	 sjoy.joybit[3] = TRUE;
-// 	 total = total - 4;
-//  }
-
-//  if ((total - 2) >= 0)
-//  {
-//  	 sjoy.joybit[2] = TRUE;
-// 	 total = total - 2;
-//  }
-
-//  if ((total - 1) >= 0)
-//  {
-//  	 sjoy.joybit[1] = TRUE;
-// 	 total = total - 1;
-//  }
-
-
-
-//  if (jinfo.dwXpos > 40000) sjoy.right = TRUE;
-//  if (jinfo.dwXpos < 25000) sjoy.left = TRUE;
-//  if (jinfo.dwYpos > 40000) sjoy.down = TRUE;
-//  if (jinfo.dwYpos < 25000) sjoy.up = TRUE;
+      x_pos = SDL_JoystickGetAxis(jinfo, 0);
+      y_pos = SDL_JoystickGetAxis(jinfo, 1);
+      /* Using thresold=10% (original game) is just enough to get rid
+	 of the noise. Let's use 30% instead, otherwise Dink will go
+	 diags too easily. */
+      {
+	Sint16 threshold = 32767 * 30/100;
+	if (x_pos < -threshold) sjoy.left  = 1;
+	if (x_pos > +threshold) sjoy.right = 1;
+	if (y_pos < -threshold) sjoy.up    = 1;
+	if (y_pos > +threshold) sjoy.down  = 1;
+      }
     }
 
   /* Refresh keyboard state */
   check_keyboard();
 
-  if (getkeystate(SDLK_ESCAPE)) sjoy.joybit[1] = 1;
-  if (getkeystate(SDLK_RETURN)) sjoy.joybit[2] = 1;
-  if (getcharstate('x')) sjoy.joybit[3] = 1;
-  if (getcharstate('z')) sjoy.joybit[4] = 1;
-  if (getkeystate(SDLK_TAB)) sjoy.joybit[5] = 1;
+  if (getkeystate(SDLK_ESCAPE)) sjoy.joybit[EDITOR_ACTION_ESCAPE] = 1;
+  if (getkeystate(SDLK_RETURN)) sjoy.joybit[EDITOR_ACTION_RETURN] = 1;
+  if (getcharstate('x')) sjoy.joybit[EDITOR_ACTION_X] = 1;
+  if (getcharstate('z')) sjoy.joybit[EDITOR_ACTION_Z] = 1;
+  if (getkeystate(SDLK_TAB)) sjoy.joybit[EDITOR_ACTION_TAB] = 1;
   if (getkeystate(SDLK_RIGHT)) sjoy.right = 1;
   if (getkeystate(SDLK_LEFT)) sjoy.left = 1;
   if (getkeystate(SDLK_DOWN)) sjoy.down = 1;
   if (getkeystate(SDLK_UP)) sjoy.up = 1;
   
-  for (x = 1; x <= 10; x++)
-    {
-      sjoy.button[x] = 0;
-      if (sjoy.joybit[x] && sjoy.letgo[x] == 1)
-	/* Button was just pressed */
-	sjoy.button[x] = 1;
-      sjoy.letgo[x] = !sjoy.joybit[x];
-    }
+  {
+    int a = EDITOR_ACTION_FIRST;
+    for (a = EDITOR_ACTION_FIRST; a < EDITOR_ACTION_LAST; a++)
+      {
+	sjoy.button[a] = 0;
+	if (sjoy.joybit[a] && sjoy.joybitold[a] == 0)
+	  /* Button was just pressed */
+	  sjoy.button[a] = 1;
+	sjoy.joybitold[a] = !sjoy.joybit[a];
+      }
+  }
 }
 
 /* Human-readable representation of the keycode, used to display which
@@ -2276,7 +2249,7 @@ void updateFrame(void)
 			spr[1].pseq = 1;
 			spr[1].pframe = 1;
 
-			if (sjoy.button[1])
+			if (sjoy.button[EDITOR_ACTION_ESCAPE])
 			  {
 			    //they want out
 			    //mode = 5;
@@ -2675,7 +2648,7 @@ void updateFrame(void)
 				draw_map();
 			      }
 
-			    if ( (sjoy.button[2]) | (mouse1) )
+			    if ( (sjoy.button[EDITOR_ACTION_RETURN]) | (mouse1) )
 			      {
 				smart_add();
 				draw_map();
@@ -2835,7 +2808,7 @@ void updateFrame(void)
 			  fail:
 
 
-			    if ( (sjoy.button[2]) | (mouse1))
+			    if ( (sjoy.button[EDITOR_ACTION_RETURN]) | (mouse1))
 			      {
 				//pick up a sprite already placed by hitting enter
 				int uu;
@@ -3086,7 +3059,7 @@ void updateFrame(void)
 
 
 
-			if (  (sjoy.button[1]) )
+			if (  (sjoy.button[EDITOR_ACTION_ESCAPE]) )
 			  {
 			    //return to edit mode or drop sprite, depending..
 			    if (((spr[1].pseq == 10) && (spr[1].pframe == 8))  )
@@ -3134,7 +3107,7 @@ void updateFrame(void)
 			    goto sp_edit_end;
 
 			  }
-			if (sjoy.button[5])
+			if (sjoy.button[EDITOR_ACTION_TAB])
 			  {
 			    //they hit tab, return to tile edit mode
 			    if (    !((spr[1].pseq == 10) && (spr[1].pframe == 8))  )
@@ -3163,7 +3136,8 @@ void updateFrame(void)
 		      }
 
 
-		    if ( (mode == MODE_SCREEN_TILES) && (sjoy.button[5]))
+		    if ( (mode == MODE_SCREEN_TILES)
+			 && (sjoy.button[EDITOR_ACTION_TAB]))
 		      {
 
 			//they chose sprite picker mode
@@ -3232,7 +3206,7 @@ void updateFrame(void)
 
 				}
 
-			      if (  (sjoy.button[1]) )
+			      if ((sjoy.button[EDITOR_ACTION_ESCAPE]))
 				{
 
 
@@ -3246,7 +3220,7 @@ void updateFrame(void)
 				  goto sp_edit_end;
 				}
 
-			      if (sjoy.button[5])
+			      if (sjoy.button[EDITOR_ACTION_TAB])
 				{
 				  //leave to screen editor
 				sp_fin:
@@ -3266,7 +3240,7 @@ void updateFrame(void)
 
 				}
 
-			      if (sjoy.button[2])
+			      if (sjoy.button[EDITOR_ACTION_RETURN])
 				{
 
 				  // go to mode 6, sprite placement
@@ -3295,7 +3269,7 @@ void updateFrame(void)
 			    }
 
 
-			  if (   (sjoy.button[5]) | (sjoy.button[1]) )
+			  if (sjoy.button[EDITOR_ACTION_TAB] || sjoy.button[EDITOR_ACTION_ESCAPE])
 			    {
 
 			      //exit to main editor
@@ -3339,7 +3313,7 @@ void updateFrame(void)
 			      draw15(sp_picker);
 			    }
 
-			  if (sjoy.button[2])
+			  if (sjoy.button[EDITOR_ACTION_RETURN])
 			    {
 
 			      //they chose a catagory, switch to phase 2, it will know cuz sp_seq > 0.
@@ -3559,7 +3533,8 @@ void updateFrame(void)
 
 			draw_hard();
 
-			if (sjoy.button[1] == 1 || sjoy.button[2] == 1)
+			if (sjoy.button[EDITOR_ACTION_ESCAPE] == 1
+			    || sjoy.button[EDITOR_ACTION_RETURN] == 1)
 			  {
 			    //quit hardness edit
 
@@ -3619,7 +3594,7 @@ void updateFrame(void)
 
 
 
-		    if (((mode == MODE_SCREEN_TILES) && (sjoy.button[2]))
+		    if (((mode == MODE_SCREEN_TILES) && (sjoy.button[EDITOR_ACTION_RETURN]))
 			|| ((mode == MODE_TILE_PICKER) && (getkeystate(SDLK_SPACE))))
 
 		      {
@@ -3838,7 +3813,7 @@ void updateFrame(void)
 		    //if ( (GetKeyboard(48)) && ( (mode == 3) | (mode ==2)) ) loadtile(11);
 
 
-		    if ((sjoy.button[2]) && (mode == MODE_TILE_PICKER))
+		    if ((sjoy.button[EDITOR_ACTION_RETURN]) && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
@@ -3859,7 +3834,7 @@ void updateFrame(void)
 
 
 
-		    if (sjoy.button[1] && (mode == MODE_TILE_PICKER))
+		    if (sjoy.button[EDITOR_ACTION_ESCAPE] && (mode == MODE_TILE_PICKER))
 		      {
 			// cut to map editer from tile selection
 			spr[h].seq = 3;
@@ -3930,7 +3905,7 @@ void updateFrame(void)
 			return;
 		      }
 
-		    if ( (sjoy.button[2]) && (mode == MODE_MINIMAP))
+		    if ( (sjoy.button[EDITOR_ACTION_RETURN]) && (mode == MODE_MINIMAP))
 		      {
 
 			if (buf_mode)
@@ -3942,10 +3917,8 @@ void updateFrame(void)
 
 			    if (!load_map_buf(buffmap.loc[(((spr[1].y+1)*32) / 20)+(spr[1].x / 20)]))
 			      {
-
-
 				draw_minimap();
-				sjoy.button[2] = /*false*/0;
+				sjoy.button[EDITOR_ACTION_RETURN] = /*false*/0;
 				return;
 			      }
 
@@ -4172,7 +4145,7 @@ void updateFrame(void)
 			return;
 		      }
 
-		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[1]))
+		    if ((mode == MODE_SCREEN_TILES) && (sjoy.button[EDITOR_ACTION_ESCAPE]))
 		      {
 			// jump to map selector selector from map mode
 			save_map(map.loc[cur_map]);

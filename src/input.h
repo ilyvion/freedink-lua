@@ -57,8 +57,9 @@ extern "C"
   {
     int joybit[ACTION_LAST]; // is this action currently pressed?
     int button[ACTION_LAST]; // was this action just pressed (not maintained pressed)?
-    int letgo[ACTION_LAST];  // was this action released (!pressed) last loop?
-                             // (used to compute .button and to release an arrow with the bow)
+    int joybitold[ACTION_LAST];  // copy of previous joybit state
+                                 // (used to compute .button and to release an arrow with the bow)
+    // Note: also used by Dinkedit, but with fewer different actions
     
     /* Only used in the editor (for now): */
     /* State of the keyboard, SDL-supported keys */
@@ -77,9 +78,9 @@ extern "C"
     Uint16 last_nokey_unicode; /* char with no key match, so no KEYUP
 				  support - reset it next time */
     
-    /*BOOL*/int right,left,up,down;
-    /*BOOL*/int rightd,leftd,upd,downd;
-    /*BOOL*/int rightold,leftold,upold,downold;
+    int right,left,up,down; // is this arrow currently pressed?
+    int rightd,leftd,upd,downd; // was this arrow just pressed (not maintained pressed)?
+    int rightold,leftold,upold,downold; // copy of previous state (used to compute *d)
   };
   extern struct seth_joy sjoy;
 

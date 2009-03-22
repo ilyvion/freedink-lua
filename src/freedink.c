@@ -85,20 +85,20 @@ int speed;
 void check_joystick(void)
 {
   /* Clean-up */
-  /* Buttons */
+  /* Actions */
   {
     int a = ACTION_FIRST;
     for (a = ACTION_FIRST; a < ACTION_LAST; a++)
       sjoy.joybit[a] = 0;
   }
   
-  /* Arrows*/
+  /* Arrows */
   sjoy.right = 0;
   sjoy.left = 0;
   sjoy.up = 0;
   sjoy.down = 0;
 
-  /* ? */
+  /* Arrows triggered (not maintained pressed) */
   sjoy.rightd = 0;
   sjoy.leftd = 0;
   sjoy.upd = 0;
@@ -144,15 +144,12 @@ void check_joystick(void)
   {
     int a = ACTION_FIRST;
     for (a = ACTION_FIRST; a < ACTION_LAST; a++)
-      sjoy.button[a] = 0;
-    
-    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
       {
-	if (sjoy.joybit[a] && sjoy.letgo[a] == 1)
-	  {
-	    sjoy.button[a] = 1;
-	    sjoy.letgo[a] = 0;
-	  }
+	sjoy.button[a] = 0;
+	if (sjoy.joybit[a] && sjoy.joybitold[a] == 0)
+	  /* Button was just pressed */
+	  sjoy.button[a] = 1;
+	sjoy.joybitold[a] = sjoy.joybit[a];
       }
   }
   
@@ -160,63 +157,26 @@ void check_joystick(void)
   if (console_active == 0)
     {
       if (GetKeyboard(SDLK_RIGHT)) sjoy.right = 1;
-      if (GetKeyboard(SDLK_LEFT)) sjoy.left = 1;
-      if (GetKeyboard(SDLK_DOWN)) sjoy.down = 1;
-      if (GetKeyboard(SDLK_UP)) sjoy.up = 1;
+      if (GetKeyboard(SDLK_LEFT))  sjoy.left  = 1;
+      if (GetKeyboard(SDLK_DOWN))  sjoy.down  = 1;
+      if (GetKeyboard(SDLK_UP))    sjoy.up    = 1;
     }
   
-  {
-    int a = ACTION_FIRST;
-    for (a = ACTION_FIRST; a < ACTION_LAST; a++)
-      if (sjoy.joybit[a])
-	sjoy.letgo[a] = 0;
-      else
-	sjoy.letgo[a] = 1;
-  }
-  
-  if (sjoy.right && sjoy.rightold == 1)
-    {
-      sjoy.rightd = /*true*/1;
-      sjoy.rightold = /*false*/0;
-    }
-  
-  if (sjoy.right)
-    sjoy.rightold = /*false*/0;
-  else
-    sjoy.rightold = /*true*/1;
+  if (sjoy.right && sjoy.rightold == 0)
+    sjoy.rightd = 1;
+  sjoy.rightold = sjoy.right;
 	
-  if (sjoy.left && sjoy.leftold == 1)
-    {
-      sjoy.leftd = /*true*/1;
-      sjoy.leftold = /*false*/0;
-    }
-	
-  if (sjoy.left)
-    sjoy.leftold = /*false*/0;
-  else
-    sjoy.leftold = /*true*/1;
+  if (sjoy.left && sjoy.leftold == 0)
+    sjoy.leftd = 1;
+  sjoy.leftold = sjoy.left;
   
-  if (sjoy.up && sjoy.upold == 1)
-    {
-      sjoy.upd = /*true*/1;
-      sjoy.upold = /*false*/0;
-    }
-  
-  if (sjoy.up)
-    sjoy.upold = /*false*/0;
-  else
-    sjoy.upold = /*true*/1;
+  if (sjoy.up && sjoy.upold == 0)
+    sjoy.upd = 1;
+  sjoy.upold = sjoy.up;
 	
-  if (sjoy.down && sjoy.downold == 1)
-    {
-      sjoy.downd = /*true*/1;
-      sjoy.downold = /*false*/0;
-    }
-	
-  if (sjoy.down)
-    sjoy.downold = /*false*/0;
-  else
-    sjoy.downold = /*true*/1;
+  if (sjoy.down && sjoy.downold == 0)
+    sjoy.downd = 1;
+  sjoy.downold = sjoy.down;
   
   
   if (wait4b.active)
@@ -228,10 +188,10 @@ void check_joystick(void)
       if (sjoy.upd)    wait4b.button = 18;
       if (sjoy.downd)  wait4b.button = 12;
       
-      sjoy.rightd = /*false*/0;
-      sjoy.downd = /*false*/0;
-      sjoy.upd = /*false*/0;
-      sjoy.leftd = /*false*/0;
+      sjoy.rightd = 0;
+      sjoy.downd = 0;
+      sjoy.upd = 0;
+      sjoy.leftd = 0;
       
       //check buttons
       {
@@ -2583,7 +2543,7 @@ void process_bow( int h)
 	}
 	
 	
-	if (sjoy.letgo[ACTION_ATTACK])
+	if (!sjoy.joybitold[ACTION_ATTACK])
 	{
 		bow.active = /*false*/0;
 		bow.last_power = bow.time;

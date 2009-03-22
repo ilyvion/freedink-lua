@@ -200,7 +200,6 @@ int playl = 20;
 /*bool*/int mouse1 = /*false*/0;
 int playy = 400;
 int cur_map,cur_tile;
-struct seth_joy sjoy;
 
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount;
