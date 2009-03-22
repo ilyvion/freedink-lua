@@ -306,24 +306,40 @@ Docs:
 
 Hardware:
 
-- Apparently only 480x272x32
-
 - By default the screen is a hardware surface, which means you're
   writing to the video video directly - and this also means you'll get
   a flicker effects if you don't do it properly.
 
-- AFAIK there's hardware double-buffer mode, that is, it swaps the
-  buffer's video memory on SDL_Flip(screen). Thus you need to redraw
-  your screen after each flip(), unless you're not using double-buffer
-  mode.
+- There's hardware double-buffer mode available
+  (SDL_HWSURFACE|SDL_DOUBLEBUF), that is, it swaps the buffer's video
+  memory on SDL_Flip(screen). Thus you need to redraw your screen
+  after each flip(), unless you're not using double-buffer mode.
 
-- The memory stick's path is "ms0:/" (e.g. "ms0:/PSP/GAME/yourgame")
+- Requesting an hardware surface (SDL_HWSURFACE) fails unless it's
+  480x272.
 
-- Accessing "/" goes to "ms0:/", at least when running homebrew from
-  the memory stick. This is similar to woe's "/" -> "C:\" (replacing C
-  with the current drive's letter).
+  Hardware video memory (direct or double-buffer):
+  Mode	   Pitch 	272*pitch  272*480*mode/8
+  32bit	   2048		544kB	   510kB
+  16bit	   1024		272kB	   255kB
 
-- Results of testvidinfo.c from the SDL examples:
+  8bit mode doesn't seem to work (it runs, pitch=512B, but screen
+  stays black, with or without SDL_HWPALETTE, with or without
+  SDL_SetPalette).
+
+- Requesting a fullscreen software surface
+  (SDL_SWSURFACE|SDL_FULLSCREEN) succeeds in a number of situations,
+  in which case the screen can be auto-resized (e.g. 640x480), or it
+  can just be messed (overlaps). 640x480 supports 32/16/8bit modes (I
+  didn't test 15bit).
+
+- Results of testvidinfo.c from the SDL examples. Notes:
+  - it doesn't list available video modes
+  - 'info->current_w' and 'info->current_h' are not present in the
+    SDL_VideoInfo structure
+  - while hardware video modes are available, there's no hardware
+    video memory ("0K")
+
 Video driver: psp
 Current display: ?x?, 32 bits-per-pixel
 	Red Mask = 0x00ff0000
@@ -538,13 +554,11 @@ Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SW
 5000 cc blits / 500 updates in 27.16 secon
 <<output truncated here - either crash or missing stdout flush>>
 
-- Requesting an hardware surface (SDL_HWSURFACE) fails unless it's
-  480x272x32
+- The memory stick's path is "ms0:/" (e.g. "ms0:/PSP/GAME/yourgame")
 
-- Requesting a fullscreen software surface
-  (SDL_SWSURFACE|SDL_FULLSCREEN) succeeds in a number of situations,
-  in which case the screen can be auto-resized (e.g. 640x480x32), or
-  it can just be messed (overlaps).
+- Accessing "/" goes to "ms0:/", at least when running homebrew from
+  the memory stick. This is similar to woe's "/" -> "C:\" (replacing C
+  with the current drive's letter).
 
 - By default heap size is around 21-22MB. When using PSP_LARGE_MEM=1
   in a pspdev Makefile, or using "mksfoex -d MEMSIZE=1 'mymodule'
@@ -567,7 +581,8 @@ Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SW
 
   Note that down/left/up/right are considered buttons (not joystick
   events). In addition, "home" and "hold" are apparently not usable
-  directly (I read that it needs kernel mode?).
+  directly (I read that it needs kernel mode?), nor are
+  note/screen/vol+/vol-.
 
 
 Links:

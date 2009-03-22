@@ -187,7 +187,7 @@ fi
 
 
 AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
-AC_CHECK_LIB(SDL_ttf,TTF_Init,,AC_MSG_WARN([You need to install SDL_ttf]); LACK_LIBSDL_TTF=1)
+AC_CHECK_LIB(SDL_ttf,TTF_Linked_Version,,AC_MSG_WARN([You need to install SDL_ttf]); LACK_LIBSDL_TTF=1)
 AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
 AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
 

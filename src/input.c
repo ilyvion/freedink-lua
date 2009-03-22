@@ -162,8 +162,7 @@ void input_set_default_buttons(void)
      addition, the buttons numbering/placement is different than on
      PC, so it needs to be redefined anyway. */
   /* Here are names for the button indices returned by SDL, 12 buttons
-     in [0,11], plus (apparently non-usable) HOME and HOLD [can 'note'
-     be mapped too?] */
+     in [0,11]; home/hold/note/screen/vol+/vol- can't be used */
   enum buttons_psp {
     BUTTON_TRIANGLE=0, BUTTON_CIRCLE, BUTTON_CROSS, BUTTON_SQUARE,
     BUTTON_LTRIGGER, BUTTON_RTRIGGER,
