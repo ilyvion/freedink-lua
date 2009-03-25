@@ -24,7 +24,7 @@ EOF
 . ~/.bashrc
 
 sudo apt-get install build-essential autoconf automake bison flex \
-  libncurses5-dev libreadline-dev libusb-dev texinfo libgmp3-dev   \
+  libncurses5-dev libreadline5-dev libusb-dev texinfo libgmp3-dev   \
   libmpfr-dev subversion gcc-4.2
 
 # try to:

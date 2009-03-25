@@ -127,3 +127,5 @@
 /xsize.h
 /xstrndup.c
 /xstrndup.h
+/close-hook.c
+/close-hook.h

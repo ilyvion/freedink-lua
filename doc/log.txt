@@ -1,0 +1,5 @@
+http://sourceforge.net/projects/dclog/
+http://log4c.sourceforge.net/
+http://home.gna.org/lwl/
+
+log4c is well packaged.
