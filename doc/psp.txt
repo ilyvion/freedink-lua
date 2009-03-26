@@ -1,3 +1,34 @@
+#!/bin/bash -ex
+# Cross-compilation instructions
+
+# Copyright (C) 2009  Sylvain Beucler
+
+# This file is part of GNU FreeDink
+
+# GNU FreeDink is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+
+# GNU FreeDink is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+
+# Time: < 90mn
+# Space: < 1.2GB final + temporary ?MB during compilation
+#        /usr/local/pspdev = ~180MB
+
+# Super-user commands can be disabled using 'SUDO=: ./cross.sh'
+# Idem for wget if you already downloaded the tarballs
+SUDO=${SUDO=sudo}
+WGET=${WGET=wget}
+
 # The reference material is at pspdev.org
 # List of available tools and libraries:
 # svn ls svn://svn.pspdev.org/psp/trunk/
@@ -8,34 +39,42 @@ cd psp
 # Grab the source from SVN, because the last releases are old
 # (2007). It's likely that they don't make proper releases anymore.
 svn co svn://svn.pspdev.org/psp/trunk/psptoolchain
-cd psptoolchain
+pushd psptoolchain
 
 # Create the install directory
-sudo mkdir /usr/local/pspdev
-sudo chown `id`: /usr/local/pspdev
+$SUDO mkdir /usr/local/pspdev
+$SUDO chown `id`: /usr/local/pspdev
 
 # Follow readme-ubuntu.txt:
-cat <<'EOF' >> ~/.bashrc
+if ! grep -q PSPDEV ~/.bashrc; then
+    cat <<'EOF' >> ~/.bashrc
 export PSPDEV="/usr/local/pspdev"
 export PSPSDK="$PSPDEV/psp/sdk"
 export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin"
 EOF
-# Reload .bashrc:
-. ~/.bashrc
+    # Reload .bashrc:
+    .  ~/.bashrc
+fi
 
-sudo apt-get install build-essential autoconf automake bison flex \
+$SUDO apt-get install build-essential autoconf automake bison flex \
   libncurses5-dev libreadline5-dev libusb-dev texinfo libgmp3-dev   \
   libmpfr-dev subversion gcc-4.2
-
-# try to:
-#cp /usr/share/libtool/config/missing build/newlib-1.15.0
-# in 004-newlib-1.15.0.sh, if it complains about 'makeinfo'
 
 # add
 #export CC=/usr/bin/gcc-4.2
 # in toolchain-sudo.sh
 
 ./toolchain-sudo.sh
+
+# Fix-up a couple errors:
+# - getopt.h is non-standard (different names for constants)
+rm /usr/local/pspdev/psp/include/getopt.h
+# - readlink isn't available and prototype is lacking 'unsigned'
+sed -i -e 's/.*_EXFUN(readlink.*//' /usr/local/pspdev/psp/include/sys/unistd.h
+# - strings.h is missing
+echo '#include <string.h>' > /usr/local/pspdev/psp/include/strings.h
+
+popd
 
 
 # Now compile libraries
@@ -126,7 +165,12 @@ popd
 svn co svn://svn.pspdev.org/psp/trunk/SDL_ttf
 pushd SDL_ttf
 # Update to 2.0.9 (2.0.7 has a bug with strong style)
-svn diff -r 1454:3284 http://svn.libsdl.org/trunk/SDL_ttf/ | patch -p0
+# Cf. http://www.libsdl.org/cgi/viewvc.cgi/trunk/SDL_ttf/CHANGES?view=log
+$SUDO apt-get --assume-yes install patchutils
+svn diff -r 1454:3284 http://svn.libsdl.org/trunk/SDL_ttf/ > 2.0.7-2.0.9.patch
+filterdiff -x mkinstalldirs -x missing -x .cvsignore -x install-sh \
+  -x config.guess -x config.sub 2.0.7-2.0.9.patch \
+  | patch -p0
 # Follow README.PSP:
 # Note: there's an error with libtool 2, use libtool 1.5
 ./autogen.sh
@@ -151,27 +195,18 @@ make
 make install
 popd
 
-# libffi?
-VERSION=3.0.8
-wget ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
-tar xzf libffi-$VERSION.tar.gz
-cp .../psp/SDL_ttf/config.sub ./config.sub
-mkdir cross-psp && cd cross-psp
-LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" CFLAGS="-I$(psp-config --pspsdk-path)/include" \
-  ../configure --host psp --prefix=$(psp-config --psp-prefix)
-# Patch configure:
-#  mipsallegrexel-psp-elf)
-#        TARGET=MIPS; TARGETDIR=mips
-#        ;;
+svn co svn://svn.ps2dev.org/psp/trunk/psplinkusb
+pushd psplinkusb
+# Check psplink_manual.pdf
 make
-# => doesn't detect architecture properly
+(cd release/pc/usbhostfs_pc/ && $SUDO ./mod.sh )
 
-# dyncall has PSP binaries, and it mentions it's using "32bit MIPS" +
-# a special "eabi" calling convention...
-# http://sources.redhat.com/ml/libffi-discuss/2009/msg00014.html
+popd
 
-# ...
 
+exit
+
+svn co svn://svn.ps2dev.org/psp/branches/psplinkusb
 # FreeDink
 mkdir cross-psp && cd cross-psp
 # - remove /usr/local/pspdev/psp/include/getopt.h which defines non-standard constants
@@ -203,7 +238,30 @@ rm -f freedink_strip.elf
 # or:
 #make && make -f ~/freedink/psp/Makefile.PSP.EBOOT clean all install
 
-exit
+
+# Misc:
+
+# libffi?
+VERSION=3.0.8
+$WGET ftp://sourceware.org/pub/libffi/libffi-$VERSION.tar.gz
+tar xzf libffi-$VERSION.tar.gz
+cp .../psp/SDL_ttf/config.sub ./config.sub
+mkdir cross-psp && cd cross-psp
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" CFLAGS="-I$(psp-config --pspsdk-path)/include" \
+  ../configure --host psp --prefix=$(psp-config --psp-prefix)
+# Patch configure:
+#  mipsallegrexel-psp-elf)
+#        TARGET=MIPS; TARGETDIR=mips
+#        ;;
+make
+# => doesn't detect architecture properly
+
+# dyncall has PSP binaries, and it mentions it's using "32bit MIPS" +
+# a special "eabi" calling convention...
+# http://sources.redhat.com/ml/libffi-discuss/2009/msg00014.html
+
+# ...
+
 
 #####
 
@@ -269,9 +327,13 @@ Docs:
   * mv /media/sdb1/PSP/GAME/scummvm-0.12.0-psp/sky.cpt /media/sdb1/bass/
   => v0.13 doesn't work? (quits immediately)
 
+- All releases from Dark_Alex: http://alek.dark-alex.org/filez/dax/
+  (links isn't available from the homepage)
+
 - Create a Pandora Battery - http://www.freedink.org/doc/psp/
   http://www.pspgen.com/despertar-del-cementerio-debricker-downgrade-custom-firmware-article-184615-4.html
-  * Install HellCat's Pandora Installer R4b
+  * Install HellCat's Pandora Installer R4b (GPL)
+    http://forums.qj.net/showthread.php?t=122449
     cp -a hellcat-pandora-installer-4rb/PSP/GAME/pan3xx /media/sdb1/PSP/GAME/
   * MemStick and MS-IPL Options > Repartition and format MemStick (DESTRUCTIVE!) (give more space to boot sector)
     PSP S&L (all models) can boot on a JigKick, however version TA-085-v2 and later can't _create_ one anymore.
@@ -302,6 +364,77 @@ Docs:
   ...
   fflush(stdout); // shortly before the studied crash
   fflush(stderr);
+
+- LEDA - Legacy Software Loader
+  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=8942
+  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=9153
+
+  It's a tool to run old homebrews meant for kernels 1.00 and 1.50.
+  Unlike "1.50 kernel addon", it works on S&L.  However, it's not
+  compatible with all homebrews, in particular it doesn't seem
+  compatible with PSPLink.
+
+- Downgrading: HellCat's CFW RecoveryFlasher (GPL)
+  http://forums.qj.net/showthread.php?t=143300
+
+  It can revert to versions 3.71-M33-4 or 4.01-M33-2.  3.71-M33 is the
+  first firmware that works both on Fat and Slim (3.60-M33 is the
+  first firmware that works on Slim but it doesn't work on Fat).
+  4.01-M33 was the latest version at the time of the release.
+
+- Downgrading: 1.50 kernel
+  addon. http://www.dark-alex.org/forum/viewtopic.php?f=44&t=1612
+
+  It adds support for homebrews that only work with a 1.50 kernel.
+  I'm not sure how exactly later kernels break those homebrews.  It
+  refuses to work on Slim ("This program only for the standard psp.").
+  I'm not sure how easily you can switch back and forth between the
+  normal and the 1.50 kernel.  It works by adding new files from 1.50
+  firmware in the flash, and if using a default partitionning for the
+  flash drives, it needs to remove some applications from the current
+  firmware to make room.
+
+- Downgrading: 1.50 kernel for Slim: using TimeMachine
+  http://downloads.exophase.com/pub/440
+  http://rapidshare.com/files/148928450/timemachine_0.1.rar
+
+  Grab firmware 150.PBP, 340.PBP (see locations above).  Also grab
+  360.PSAR, which is the result of running 360DUMPER on a verbatim PSP
+  S&L - I found a copy from
+  http://www.pspgen.com/installer-time-machine-article-2172-1.html in
+  the RTU ("Ready To Use") pack.
+
+  Run TIMEMACHINE on the PSP. Choose option 1 "Install iplloader on
+  PSP MS boot sector".  The TM installs a GRUB-like boot loader that
+  runs a ipl.bin according to a key pressed before turning the PSP on
+  and the content of TM/config.txt.  You may need to reinstall
+  Despertar del Cementerio to assign a TM key so you can still run it.
+
+  To run 1.50, shutdown the PSP, press and maintain 'circle', plug the
+  JigKick battery (keep 'circle' pressed), wait while it access the
+  memory card, until the SCE logo appears on screen (then you can
+  release 'circle').  You're now temporarily running 1.50 from the
+  memory card.
+
+- Debugging: http://forums.ps2dev.org/viewtopic.php?p=63165
+  Run psplink on the PSP
+  
+  pmount /dev/sdb1
+  cp -a release_oe/psplink /media/sdb1/PSP/GAME/
+  pumount /dev/sdb1
+  # Run PSPLink from the XBM
+  release/pc/usbhostfs_pc/usbhostfs_pc
+  release/pc/pspsh/pspsh
+
+  http://forums.ps2dev.org/viewtopic.php?t=11193 : Apparently there
+  are issues when running classic .elf (non-relocatable) with a recent
+  firmware (i.e. > 1.00/1.50). Recompile the homebrew as .prx
+  (relocatable) works. Running with 1.50(+3.40hw) works.
+
+  host0:/> debug freedink
+  ~> gdb freedink
+  gdb> target remote localhost:10001
+  # what next?...
 
 
 Hardware:

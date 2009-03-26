@@ -1,4 +1,4 @@
-# -*- shell-script -*-
+#!/bin/bash -ex
 # Cross-compilation instructions
 
 # Copyright (C) 2007, 2008  Sylvain Beucler
