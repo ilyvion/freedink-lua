@@ -64,6 +64,13 @@
 #include <windows.h>
 #endif
 
+#ifdef _PSP
+/* The following is necessary if you're running in PRX format, whose
+   default heap size is only 64kB... */
+#include <pspmoduleinfo.h>
+PSP_HEAP_SIZE_MAX();
+#endif
+
 static int g_b_no_write_ini = 0; // -noini passed to command line?
 static char* init_error_msg = NULL;
 
@@ -140,56 +147,47 @@ print_help (int argc, char *argv[])
 */
 void finiObjects()
 {
-	//wDeviceID = mciGetDeviceID("MCI_ALL_DEVICE_ID"); 
+  if (last_saved_game > 0)
+    {
+      Msg("Modifying saved game.");
+      
+      if (!add_time_to_saved_game(last_saved_game))
+	Msg("Error modifying saved game.");
+      last_saved_game = 0;
+    }
 	
-	if (last_saved_game > 0)
-	{
-		Msg("Modifying saved game.");
-		
-		if (!add_time_to_saved_game(last_saved_game))
-			Msg("Error modifying saved game.");
-	}
+  log_path(/*false*/0);
+  
+  if (sound_on)
+    {
+      //lets kill the cdaudio too
+      bgm_quit();
+      QuitSound();
+    }
 	
-	log_path(/*false*/0);
+  kill_all_scripts_for_real();
+  FastFileFini();
 
-	if (sound_on)
-	{
-	//lets kill the cdaudio too
-/* 	if (mciSendString("close all", NULL, 0, NULL) != 0) */
-/* 	{ */
-/* 		Msg("Couldn't close all MCI events.."); */
-/* 		//	return(FALSE); */
-/* 	} */
-	  bgm_quit();
-	  QuitSound();
-	}
-	
-	kill_all_scripts_for_real();
-/* 	FastFileFini(); */
+  g_b_kill_app = 1;
+  
+  dinkc_quit();
+  dinkini_quit();
 
-	g_b_kill_app = 1;
-/* 	ShowWindow(hWndMain, SW_HIDE); */
-/* 	SendMessage(hWndMain, WM_IMDONE, 0,0); */
-	//PostQuitMessage(0);
+  game_quit();
+  
+  input_quit();
+  
+  gfx_quit();
+  
+  //SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
+  SDL_QuitSubSystem(SDL_INIT_TIMER);
+  
+  SDL_Quit();
 
-	dinkc_quit();
-	dinkini_quit();
-
-	game_quit();
-
-	input_quit();
-
-	gfx_quit();
-
-	//SDL_QuitSubSystem(SDL_INIT_EVENTTHREAD);	
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
-
-	SDL_Quit();
-
-	if (init_error_msg != NULL)
-	  free(init_error_msg);
-
-	paths_quit();
+  if (init_error_msg != NULL)
+    free(init_error_msg);
+  
+  paths_quit();
 }
 
 /**
@@ -362,7 +360,7 @@ int init(int argc, char *argv[], char* splash_path)
 
   /* Quits in case we couldn't do it properly first (i.e. attempt to
      avoid stucking the user in 640x480 when crashing) */
-  atexit(SDL_Quit);
+  atexit(finiObjects);
 
   /* GFX */
   if (gfx_init(windowed ? GFX_WINDOWED : GFX_FULLSCREEN,

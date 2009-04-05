@@ -60,7 +60,9 @@ void dinkini_init()
  */
 void dinkini_quit()
 {
-  free(id);
+  if (id != NULL)
+    free(id);
+  id = NULL;
 }
 
 /**

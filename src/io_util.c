@@ -70,7 +70,7 @@ end_of_elt(char *str)
 void
 ciconvert (char *filename)
 {
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__ || defined _PSP
+#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
   return;
 #else
   /* Parse all the directories that composes filename */

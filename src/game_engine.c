@@ -129,8 +129,11 @@ void game_quit()
 {
   int i = 0;
   for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
-    if (spr[i].custom != NULL)
-      dinkc_sp_custom_free(spr[i].custom);
+    {
+      if (spr[i].custom != NULL)
+	dinkc_sp_custom_free(spr[i].custom);
+      spr[i].custom = NULL;
+    }
 }
 
 /* Sound - SFX */

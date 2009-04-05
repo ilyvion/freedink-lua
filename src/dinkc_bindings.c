@@ -2170,6 +2170,7 @@ void dinkc_bindings_quit()
 {
   if (bindings != NULL)
     hash_free(bindings);
+  bindings = NULL;
 }
 
 

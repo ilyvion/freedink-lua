@@ -740,15 +740,17 @@ int InitSound()
  */
 void QuitSound(void)
 {
-  int idxKill;
-  
+  if (SDL_WasInit(SDL_INIT_AUDIO) == 0)
+    return;
+
   /* Stops all SFX channels */
   Mix_HaltChannel(-1);
   
   /**
    * Frees up resources associated with a sound effect
    */
-  for (idxKill = 0; idxKill < MAX_SOUNDS; idxKill++)
+  int idxKill = 0;  
+  for (; idxKill < MAX_SOUNDS; idxKill++)
     FreeRegisteredSound(idxKill);
 
   Mix_CloseAudio();

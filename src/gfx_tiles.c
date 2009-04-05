@@ -105,7 +105,11 @@ void tiles_load_slot(char* relpath, int slot)
 void tiles_unload_all(void) {
   int h = 0;
   for (h=1; h <= NB_TILE_SCREENS; h++)
-    SDL_FreeSurface(GFX_tiles[h]);
+    {
+      if (GFX_tiles[h] != NULL)
+	SDL_FreeSurface(GFX_tiles[h]);
+      GFX_tiles[h] = NULL;
+    }
 }
 
 /* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */

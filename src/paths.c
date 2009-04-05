@@ -473,4 +473,12 @@ void paths_quit(void)
   free(dmoddir);
   free(dmodname);
   free(userappdir);
+
+  defaultpkgdatadir = NULL;
+  pkgdatadir        = NULL;
+  exedir            = NULL;
+  fallbackdir       = NULL;
+  dmoddir           = NULL;
+  dmodname          = NULL;
+  userappdir        = NULL;
 }

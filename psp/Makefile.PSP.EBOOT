@@ -4,6 +4,7 @@ PSPSDK=$(shell psp-config --pspsdk-path)
 PSPBIN = $(PSPSDK)/../bin
 
 # <icon0.png> <icon1.pmf> <pic0.png> <pic1.png> <snd0.at3> <data.psp> <data.psar>
+BUILD_PRX=1
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = freedink
 PSP_EBOOT_ICON=freedink.png

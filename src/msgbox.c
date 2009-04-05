@@ -87,7 +87,7 @@ void msgbox_sdl(char* msg)
   SDL_Flip(GFX_lpDDSBack);
 
   /* Wait for user to press a key */
-  if (jinfo == NULL
+  if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0
       && SDL_InitSubSystem(SDL_INIT_JOYSTICK) != -1
       && SDL_NumJoysticks() > 0)
     jinfo = SDL_JoystickOpen(0);

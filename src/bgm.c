@@ -348,8 +348,10 @@ void bgm_quit(void)
   killcd();
   if (last_midi != NULL)
     free(last_midi);
+  last_midi = NULL;
   if (cdrom != NULL)
     SDL_CDClose(cdrom);
+  cdrom = NULL;
   SDL_QuitSubSystem(SDL_INIT_CDROM);
 }
 

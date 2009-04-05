@@ -180,28 +180,29 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
   init_state = GFX_INITIALIZING_VIDEO;
 
   /* Init graphics subsystem */
-  if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
+  if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     {
       init_set_error_msg("Video initialization error: %s", SDL_GetError());
       return -1;
     }
 
-  {
-    SDL_Surface *icon = NULL;
-    SDL_WM_SetCaption(PACKAGE_STRING, NULL);
+  const SDL_VideoInfo* info = SDL_GetVideoInfo();
 
-    if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
-      {
-	fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
-      }
-    else
-      {
-	SDL_WM_SetIcon(icon, NULL);
-	SDL_FreeSurface(icon);
-      }
-  }
-
-  putenv("SDL_VIDEO_CENTERED=1");
+  if (info->wm_available)
+    {
+      SDL_Surface *icon = NULL;
+      SDL_WM_SetCaption(PACKAGE_STRING, NULL);
+      
+      if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
+	{
+	  fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
+	}
+      else
+	{
+	  SDL_WM_SetIcon(icon, NULL);
+	  SDL_FreeSurface(icon);
+	}
+    }
 
 
   /* SDL_HWSURFACE gives direct 2D memory access if that's possible */
@@ -218,24 +219,15 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
   if (truecolor)
     {
       /* Recommended depth: */
-      const SDL_VideoInfo* info = SDL_GetVideoInfo();
-      if (info == NULL)
+      printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
+      bits_per_pixel = info->vfmt->BitsPerPixel;
+      
+      if (bits_per_pixel < 15)
 	{
-	  printf("Video information not available!\n");
-	  bits_per_pixel = 32;
-	}
-      else
-	{
-	  printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
-	  bits_per_pixel = info->vfmt->BitsPerPixel;
-	  
-	  if (bits_per_pixel < 15)
-	    {
-	      /* Running truecolor mode in 8bit resolution? Let's emulate,
-		 the user must know what he's doing. */
-	      bits_per_pixel = 15;
-	      printf("Notice: emulating truecolor mode within 8bit mode\n");
-	    }
+	  /* Running truecolor mode in 8bit resolution? Let's emulate,
+	     the user must know what he's doing. */
+	  bits_per_pixel = 15;
+	  printf("Notice: emulating truecolor mode within 8bit mode\n");
 	}
     }
   else
@@ -246,6 +238,8 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
     }
   printf("Requesting depth %d\n", bits_per_pixel);
 
+  putenv("SDL_VIDEO_CENTERED=1");
+  putenv("SDL_ASPECT_RATIO=4:3"); /* used by PSP to keep aspect ratio */
   if (GFX_lpDDSBack == NULL)
     {
       /* Hardware mode */
@@ -397,25 +391,29 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 int gfx_init_failsafe()
 {
   /* Init graphics subsystem */
-  if (SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
+  if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     {
       fprintf(stderr, "Unable to init failsafe video: %s\n", SDL_GetError());
       return -1;
     }
 
-  putenv("SDL_VIDEO_CENTERED=1");
-  SDL_WM_SetCaption(PACKAGE_STRING " - Initialization error", NULL);
-  SDL_Surface *icon = IMG_ReadXPMFromArray(freedink_xpm);
-  if (icon != NULL)
+  const SDL_VideoInfo* info = SDL_GetVideoInfo();
+  if (info->wm_available)
     {
-      SDL_WM_SetIcon(icon, NULL);
-      SDL_FreeSurface(icon);
+      SDL_WM_SetCaption(PACKAGE_STRING " - Initialization error", NULL);
+      SDL_Surface *icon = IMG_ReadXPMFromArray(freedink_xpm);
+      if (icon != NULL)
+	{
+	  SDL_WM_SetIcon(icon, NULL);
+	  SDL_FreeSurface(icon);
+	}
     }
 
+  putenv("SDL_VIDEO_CENTERED=1");
+  putenv("SDL_ASPECT_RATIO=4:3"); /* used by PSP to keep aspect ratio */
 #ifdef _PSP
   //GFX_lpDDSBack = SDL_SetVideoMode(480, 272, 32, SDL_HWSURFACE | SDL_FULLSCREEN);
   GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE | SDL_FULLSCREEN);
-  /* Note: if already set to 480x272, it won't change back */
 #else
   GFX_lpDDSBack = SDL_SetVideoMode(640, 480, 0, SDL_DOUBLEBUF);
 #endif
@@ -450,6 +448,11 @@ void gfx_quit()
   if (GFX_lpDDSTwo    != NULL) SDL_FreeSurface(GFX_lpDDSTwo);
   if (GFX_lpDDSTrick  != NULL) SDL_FreeSurface(GFX_lpDDSTrick);
   if (GFX_lpDDSTrick2 != NULL) SDL_FreeSurface(GFX_lpDDSTrick2);
+
+  GFX_lpDDSBack = NULL;
+  GFX_lpDDSTwo = NULL;
+  GFX_lpDDSTrick = NULL;
+  GFX_lpDDSTrick2 = NULL;
 
   init_state = GFX_NOT_INITIALIZED;
   SDL_QuitSubSystem(SDL_INIT_VIDEO);

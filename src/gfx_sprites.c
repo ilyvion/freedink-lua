@@ -64,11 +64,17 @@ void sprites_unload(void)
 {
   int i = 0;
   for (i = 0; i < MAX_SPRITES; i++)
-    if (GFX_k[i].k != NULL)
-      SDL_FreeSurface(GFX_k[i].k);
+    {
+      if (GFX_k[i].k != NULL)
+	SDL_FreeSurface(GFX_k[i].k);
+      GFX_k[i].k = NULL;
+    }
   for (i = 0; i < MAX_SEQUENCES; i++)
-    if (seq[i].ini != NULL)
-      free(seq[i].ini);
+    {
+      if (seq[i].ini != NULL)
+	free(seq[i].ini);
+      seq[i].ini = NULL;
+    }
 }
 
 

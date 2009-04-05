@@ -238,6 +238,22 @@ rm -f freedink_strip.elf
 # or:
 #make && make -f ~/freedink/psp/Makefile.PSP.EBOOT clean all install
 
+# Variant for building a .prx (relocatable, compatible with PSPLink OE):
+# (LDFLAGS += -specs=... -Wl-q,-T.../linkfile.prx)
+# Optional: CPPFLAGS += "-DPSPFW3X -D_PSP_FW_VERSION=303"
+SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
+  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -specs=/usr/local/pspdev/psp/sdk/lib/prxspecs -Wl,-q,-T/usr/local/pspdev/psp/sdk/lib/linkfile.prx" \
+  LIBS="-lc -lpspuser" \
+  CPPFLAGS="-I$(psp-config --pspsdk-path)/include -DPSPFW3X -D_PSP_FW_VERSION=303" \
+  CFLAGS="-g -O0 -G0" \
+  ../configure --host psp \
+    --disable-embedded-resources --enable-static --disable-nls
+make
+cd src/
+psp-fixup-imports freedink -o freedink.elf
+psp-prxgen freedink.elf freedink.prx  # also strips
+pack-pbp ...
+
 
 # Misc:
 
@@ -372,9 +388,9 @@ Docs:
   It's a tool to run old homebrews meant for kernels 1.00 and 1.50.
   Unlike "1.50 kernel addon", it works on S&L.  However, it's not
   compatible with all homebrews, in particular it doesn't seem
-  compatible with PSPLink.
+  compatible with old versions of PSPLink (those with ELF support).
 
-- Downgrading: HellCat's CFW RecoveryFlasher (GPL)
+- Downgrading: HellCat's CFW RecoveryFlasher
   http://forums.qj.net/showthread.php?t=143300
 
   It can revert to versions 3.71-M33-4 or 4.01-M33-2.  3.71-M33 is the
@@ -397,6 +413,9 @@ Docs:
 - Downgrading: 1.50 kernel for Slim: using TimeMachine
   http://downloads.exophase.com/pub/440
   http://rapidshare.com/files/148928450/timemachine_0.1.rar
+
+  TimeMachine is essentially the combination of a dual-boot and a set
+  of LiveCD's (or LiveMemoryStick's) for PSP.
 
   Grab firmware 150.PBP, 340.PBP (see locations above).  Also grab
   360.PSAR, which is the result of running 360DUMPER on a verbatim PSP
@@ -428,13 +447,80 @@ Docs:
 
   http://forums.ps2dev.org/viewtopic.php?t=11193 : Apparently there
   are issues when running classic .elf (non-relocatable) with a recent
-  firmware (i.e. > 1.00/1.50). Recompile the homebrew as .prx
-  (relocatable) works. Running with 1.50(+3.40hw) works.
+  firmware (i.e. > 1.00/1.50). Recompiling the homebrew as .prx
+  (relocatable) works.  Running on firmware 1.50(+3.40hw) works.  Note
+  that when compiling a .prx, the default heap size is only 64kB, so
+  you need to modify it (e.g. using PSP_HEAP_SIZE_MAX()).
 
-  host0:/> debug freedink
-  ~> gdb freedink
+  host0:/> debug freedink.prx
+  ~> psp-gdb freedink.elf  # not stripped
   gdb> target remote localhost:10001
-  # what next?...
+  gdb> break SDL_main
+  gdb> c
+  ...
+  gdb> kill
+  gdb> detach
+  ...
+  host0:/> reset
+  host0:/> exit
+
+  If you get " Reply contains invalid hex digit 59", you probably ran
+  'gdb' instead of 'psp-gdb' :)
+
+  Note that there's no source for the initial break point (_start) nor
+  for the initial main (SDL_main) - that's not an error.
+
+  When debugging FreeDink I got several errors apparently due to null
+  malloc-ed pointers. I'm not sure it's really stable.
+
+- Remote display:
+  http://www.ngine.de/index.jsp?pageid=4292
+  http://www.metagames-eu.com/forums/psp/tuto-remotejoy-psplink-ou-comment-afficher-lecran-de-votre-psp-sur-le-pc-linux-87533.html
+
+  pmount /dev/sdb1
+  mkdir /media/sdb1/joy
+  cp tools/remotejoy/remotejoy.prx /media/sdb1/joy
+  pumount /dev/sdb1
+  host0:/> ldstart ms0:/joy/remotejoy.prx
+  host0:/> ./myapp.prx
+
+  The documentation asks to run vshmain.prx in order to start the XMB
+  (the main PSP interface), but this doesn't work for me - so the app
+  needs to be run manually.
+
+  Going further:
+
+  pmount /dev/sdb1
+  pushd /media/sdb1/SEPLUGINS
+  cp ../PSP/GAME/psplink/usbhostfs.prx .
+  cp ../PSP/GAME/psplink/psplink.prx .
+  cp ../PSP/GAME/psplink/psplink_user.prx .
+  cp ../PSP/GAME/psplink/remotejoy.prx  .
+  cat <<EOF >> vsh.txt
+ms0:/seplugins/usbhostfs.prx
+ms0:/seplugins/psplink.prx
+ms0:/seplugins/psplink_user.prx
+ms0:/seplugins/remotejoy.prx"
+EOF
+  cat <<EOF >> game.txt
+ms0:/seplugins/usbhostfs.prx
+ms0:/seplugins/psplink.prx
+ms0:/seplugins/psplink_user.prx
+ms0:/seplugins/remotejoy.prx"
+EOF
+  popd
+  pumount /dev/sdb1
+
+  Enable the following plugin in the on-boot recovery menu:
+  psplink.prx [GAME]
+  psplink_user.prx [GAME]
+  remotejoy.prx [GAME]
+
+  $ pc/usbhostfs_pc/usbhostfs_pc
+  $ ./remotejoy -d -c
+
+  At this point the remote display should be activated when running a
+  game. It doesn't work for me..
 
 
 Hardware:
