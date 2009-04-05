@@ -147,6 +147,8 @@ print_help (int argc, char *argv[])
 */
 void finiObjects()
 {
+  g_b_kill_app = 1;
+  
   if (last_saved_game > 0)
     {
       Msg("Modifying saved game.");
@@ -168,8 +170,6 @@ void finiObjects()
   kill_all_scripts_for_real();
   FastFileFini();
 
-  g_b_kill_app = 1;
-  
   dinkc_quit();
   dinkini_quit();
 
@@ -299,7 +299,9 @@ static int check_arg(int argc, char *argv[])
 }
 
 
-/* What to do if running out of memory */
+/**
+ * What to do if running out of memory
+ */
 void xalloc_die (void) {
   fprintf(stderr, "Memory exhausted!");
   finiObjects();

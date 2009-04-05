@@ -179,12 +179,12 @@ int gfx_fonts_init()
  */
 void gfx_fonts_quit(void)
 {
-  if (dialog_font)
+  if (dialog_font != NULL)
     {
       TTF_CloseFont(dialog_font);
       dialog_font = NULL;
     }
-  if (system_font)
+  if (system_font != NULL)
     {
       TTF_CloseFont(system_font);
       system_font = NULL;

@@ -5128,7 +5128,9 @@ int main(int argc, char* argv[])
     }
 
   /* Uninitialize/clean-up */
-  finiObjects();
+  /* (unless already uninitializing, e.g. called from xalloc_die()) */
+  if (g_b_kill_app == 0)
+    finiObjects();
 
   if (init_ret < 0)
     return EXIT_FAILURE;
