@@ -699,16 +699,20 @@ void decipher_string(char line[200], int script)
       if (decipher_savegame != 0)
 	{
 	  int button_action = input_get_button_action(decipher_savegame-1);
-	  if      (button_action == 1)   replace("&buttoninfo", "Attack", line);
-	  else if (button_action == 2)   replace("&buttoninfo", "Talk/Examine", line);
-	  else if (button_action == 3)   replace("&buttoninfo", "Magic", line);
-	  else if (button_action == 4)   replace("&buttoninfo", "Item Screen", line);
-	  else if (button_action == 5)   replace("&buttoninfo", "Main Menu", line);
-	  else if (button_action == 6)   replace("&buttoninfo", "Map", line);
-	  else if (button_action == 7)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == 8)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == 9)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == 10)  replace("&buttoninfo", "Unused", line);
+	  if      (button_action == ACTION_ATTACK)    replace("&buttoninfo", "Attack", line);
+	  else if (button_action == ACTION_TALK)      replace("&buttoninfo", "Talk/Examine", line);
+	  else if (button_action == ACTION_MAGIC)     replace("&buttoninfo", "Magic", line);
+	  else if (button_action == ACTION_INVENTORY) replace("&buttoninfo", "Item Screen", line);
+	  else if (button_action == ACTION_MENU)      replace("&buttoninfo", "Main Menu", line);
+	  else if (button_action == ACTION_MAP)       replace("&buttoninfo", "Map", line);
+	  else if (button_action == ACTION_BUTTON7)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == ACTION_BUTTON8)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == ACTION_BUTTON9)   replace("&buttoninfo", "Unused", line);
+	  else if (button_action == ACTION_BUTTON10)  replace("&buttoninfo", "Unused", line);
+	  else if (button_action == ACTION_DOWN)      replace("&buttoninfo", "Down", line);
+	  else if (button_action == ACTION_LEFT)      replace("&buttoninfo", "Left", line);
+	  else if (button_action == ACTION_RIGHT)     replace("&buttoninfo", "Right", line);
+	  else if (button_action == ACTION_UP)        replace("&buttoninfo", "Up", line);
 	  else replace("&buttoninfo", _("Error: not mapped"), line);
 	}
     }
