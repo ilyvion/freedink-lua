@@ -195,18 +195,53 @@ make
 make install
 popd
 
-svn co svn://svn.ps2dev.org/psp/trunk/psplinkusb
-pushd psplinkusb
-# Check psplink_manual.pdf
+
+# pkgconfig (used to detect ziplib and zzip in the build system)
+VERSION=0.23
+cd /usr/src/
+$WGET -P depsources/ http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
+tar xzf depsources/pkg-config-$VERSION.tar.gz
+cd pkg-config-$VERSION
+./configure --prefix=$(psp-config --psp-prefix)
 make
-(cd release/pc/usbhostfs_pc/ && $SUDO ./mod.sh )
+make install-strip
+$SUDO ln -nfs $(psp-config --psp-prefix)/bin/pkg-config \
+  /usr/local/bin/psp-pkg-config
+# or set
+# PKG_CONFIG="$PREFIX/bin/pkg-config"
 
-popd
+# zziplib
+# Currently it crashes at run time, there a 32bit-alignment issue to
+# patch:
+# http://forums.ps2dev.org/viewtopic.php?p=80775
+#svn co svn://svn.pspdev.org/psp/trunk/zziplib
+#pushd zziplib
+## Follow README.PSP:
+#LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+#   ./configure --host psp --prefix=$(psp-config --psp-prefix) \
+#     --disable-mmap
+#make
+#make install
+#popd
 
+# libzip
+# It doesn't link as there are missing POSIX functions
+#VERSION=0.9
+#cd /usr/src/
+#$WGET -P depsources/ http://www.nih.at/libzip/libzip-$VERSION.tar.gz
+#tar xzf depsources/libzip-$VERSION.tar.gz
+#cd libzip-$VERSION/
+#cp ../SDL_ttf/config.sub ./config.sub  # to support host='psp'
+#CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
+#  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+#  ./configure --host=psp \
+#    --prefix=$(psp-config --psp-prefix)
+#make
+#make install
 
 exit
 
-svn co svn://svn.ps2dev.org/psp/branches/psplinkusb
+
 # FreeDink
 mkdir cross-psp && cd cross-psp
 # - remove /usr/local/pspdev/psp/include/getopt.h which defines non-standard constants
@@ -279,6 +314,28 @@ make
 # ...
 
 
+# log4c
+VERSION=1.2.1
+$WGET http://prdownloads.sourceforge.net/log4c/log4c-$VERSION.tar.gz
+tar xzf log4c-$VERSION.tar.gz
+cd log4c-$VERSION
+cp ../SDL_ttf/config.sub config/config.sub
+CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
+  CFLAGS="-G0" \
+  LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+  ./configure --host=psp \
+    --prefix=$(psp-config --psp-prefix) --without-expat
+make
+# -> error related to missing mmap, I think it just needs to be
+#    excluded from the compilation in src/log4c/Makefile.am, as this
+#    case is handled in init.c.
+#    AM_CONDITIONAL(HAVE_MMAP, test $HAVE_MMAP = 1)
+#    + ifdef HAVE_MMAP in src/log4c/Makefile.am
+# -> also add a missing #ifdef WITH_ROLLINGFILE in init.c
+# -> also remove examples/ from Makefile.am:SUBDIRS, otherwise
+#    there're issues with missing rpl_malloc and rpl_realloc
+make install
+
 #####
 
 Then you have a classic cross-compilation environment. There's a
@@ -344,7 +401,7 @@ Docs:
   => v0.13 doesn't work? (quits immediately)
 
 - All releases from Dark_Alex: http://alek.dark-alex.org/filez/dax/
-  (links isn't available from the homepage)
+  (the link isn't available from the homepage)
 
 - Create a Pandora Battery - http://www.freedink.org/doc/psp/
   http://www.pspgen.com/despertar-del-cementerio-debricker-downgrade-custom-firmware-article-184615-4.html
@@ -436,14 +493,20 @@ Docs:
   memory card.
 
 - Debugging: http://forums.ps2dev.org/viewtopic.php?p=63165
-  Run psplink on the PSP
+  Using PSPLink
   
+  svn co svn://svn.ps2dev.org/psp/trunk/psplinkusb
+  pushd psplinkusb
+  # Check psplink_manual.pdf
+  make -f Makefile.oe release
+  (cd release_oe/pc/usbhostfs_pc/ && $SUDO ./mod.sh )
+
   pmount /dev/sdb1
   cp -a release_oe/psplink /media/sdb1/PSP/GAME/
   pumount /dev/sdb1
   # Run PSPLink from the XBM
-  release/pc/usbhostfs_pc/usbhostfs_pc
-  release/pc/pspsh/pspsh
+  release_oe/pc/usbhostfs_pc/usbhostfs_pc
+  release_oe/pc/pspsh/pspsh
 
   http://forums.ps2dev.org/viewtopic.php?t=11193 : Apparently there
   are issues when running classic .elf (non-relocatable) with a recent
@@ -470,12 +533,28 @@ Docs:
   Note that there's no source for the initial break point (_start) nor
   for the initial main (SDL_main) - that's not an error.
 
-  When debugging FreeDink I got several errors apparently due to null
-  malloc-ed pointers. I'm not sure it's really stable.
-
 - Remote display:
   http://www.ngine.de/index.jsp?pageid=4292
   http://www.metagames-eu.com/forums/psp/tuto-remotejoy-psplink-ou-comment-afficher-lecran-de-votre-psp-sur-le-pc-linux-87533.html
+  http://forums.ps2dev.org/viewtopic.php?p=80792 (my own notes :))
+
+  Replace Makefile (TODO: needed? It adds -pthreads and actually uses $(CFLAGS))
+  cat <<EOF > tools/remotejoy/pcsdl/Makefile
+OUTPUT=remotejoy
+OBJS=remotejoy.o font.o
+
+CFLAGS=-O2 -pthread -Wall -g $(shell sdl-config --cflags)
+
+all: remotejoy
+
+$(OUTPUT): $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(shell sdl-config --libs)
+
+clean:
+	rm -f $(OUTPUT) *.o
+EOF
+  make -C tools/remotejoy/
+  make -C tools/remotejoy/pcsdl/
 
   pmount /dev/sdb1
   mkdir /media/sdb1/joy

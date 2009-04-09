@@ -62,6 +62,7 @@ static char* fallbackdir = NULL;
 static char* dmoddir = NULL;
 static char* dmodname = NULL;
 static char* userappdir = NULL;
+static char* exefile = NULL;
 
 
 void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
@@ -119,16 +120,12 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
   {
     char* fullprogname = get_full_program_name();
     if (fullprogname != NULL)
-      {
-	printf("Hi, I'm '%s'\n", fullprogname);
-	/* gnulib's dir_name always returns a newly xalloc'd string */
-	exedir = dir_name(fullprogname);
-      }
+      exefile = strdup(fullprogname);
     else
-      {
-	printf("Hi, I'm '%s'\n", argv0);
-	exedir = dir_name(argv0);
-      }
+      exefile = strdup(argv0);
+    printf("Hi, I'm '%s'\n", exefile);
+    /* gnulib's dir_name always returns a newly xalloc'd string */
+    exedir = dir_name(exefile);
   }
 
   /** refdir  (e.g. "/usr/share/dink") **/
@@ -348,6 +345,11 @@ const char *paths_getexedir(void)
   return exedir;
 }
 
+const char *paths_getexefile(void)
+{
+  return exefile;
+}
+
 
 char* paths_dmodfile(char *file)
 {
@@ -473,6 +475,7 @@ void paths_quit(void)
   free(dmoddir);
   free(dmodname);
   free(userappdir);
+  free(exefile);
 
   defaultpkgdatadir = NULL;
   pkgdatadir        = NULL;
@@ -481,4 +484,5 @@ void paths_quit(void)
   dmoddir           = NULL;
   dmodname          = NULL;
   userappdir        = NULL;
+  exefile           = NULL;
 }

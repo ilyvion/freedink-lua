@@ -315,10 +315,10 @@ void xalloc_die (void) {
 int init(int argc, char *argv[], char* splash_path)
 {
 #ifdef _PSP
-  freopen("stdout.txt", "w", stdout);
-  freopen("stderr.txt", "w", stderr);
-  setlinebuf(stdout);
-  setlinebuf(stderr);
+/*   freopen("stdout.txt", "w", stdout); */
+/*   freopen("stderr.txt", "w", stderr); */
+/*   setlinebuf(stdout); */
+/*   setlinebuf(stderr); */
 #endif
 
   /** i18n **/

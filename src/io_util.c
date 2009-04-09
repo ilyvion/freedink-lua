@@ -229,17 +229,17 @@ SDL_RWops* find_resource_as_rwops(char *name)
   /* Look in appended ZIP archive */
   SDL_RWops* rwops = NULL;
 
-  /* get_full_program_name() checks /proc (Linux), then argv[0] +
+  /* paths_getexefile() checks /proc (Linux), then argv[0] +
      PATH. Under Woe it uses GetModuleFileName(). The only way to make
      it fail is to execl("./freedink", "idontexist", 0); */
 
 #ifdef HAVE_LIBZIP
-  char *myself = strdup(get_full_program_name());
+  char *myself = strdup(paths_getexefile());
   rwops = SDL_RWFromZIP(myself, name);
   free(myself);
 #else
 #  ifdef HAVE_ZZIPLIB
-  char *myself = get_full_program_name();
+  char *myself = paths_getexefile();
   char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
   sprintf(zippath, "%s/%s", myself, name);
   /* sample zippath: "/usr/bin/freedink/LiberationSans-Regular.ttf" */

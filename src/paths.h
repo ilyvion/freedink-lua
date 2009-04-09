@@ -37,6 +37,7 @@ extern "C"
   extern const char *paths_getdefaultpkgdatadir(void);
   extern const char *paths_getpkgdatadir(void);
   extern const char *paths_getexedir(void);
+  extern const char *paths_getexefile(void);
   extern char* paths_dmodfile(char* file);
   extern char* paths_fallbackfile(char* file);
   extern char* paths_pkgdatafile(char* file);

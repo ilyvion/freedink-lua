@@ -10,13 +10,16 @@
 #include <config.h>
 #endif
 
-#include "SDL_rwops_zzip.h"
-#include <SDL_rwops.h>
-
 /* Order headers appropriately:
    http://lists.gnu.org/archive/html/bug-gnulib/2007-12/msg00152.html */
+#include <unistd.h> /* close->rpl_close */
+#include <zzip/zzip.h> /* also sources unistd.h */
+#include <SDL_rwops.h> /* has a 'close' member, replaced by
+			  'rpl_close' */
+
+#include "SDL_rwops_zzip.h"
 #include <string.h> /* strchr */
-#include <zzip/zzip.h>
+
 
 /* MSVC can not take a casted variable as an lvalue ! */
 #define SDL_RWOPS_ZZIP_DATA(_context) \
