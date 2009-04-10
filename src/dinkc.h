@@ -51,7 +51,9 @@ struct refinfo
 {
   char* name;
   long location;
-  long current;
+  long current; // current offset
+  int cur_line; // current line
+  int cur_col;  // current column (position within ligne)
   int level;
   long end; // size of the text, == strlen(rbuf[i])
   int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die

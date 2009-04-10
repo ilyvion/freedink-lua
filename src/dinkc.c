@@ -147,8 +147,6 @@ static void decompress(FILE *in, int script)
 	}
       else
 	{
-	  if (c == '\r') c = '\n';
-	  if (c == '\t') c = ' ';
 	  rbuf[script][nb_read] = c;
 	  nb_read++;
 	  if ((nb_read % step) == 0)
@@ -170,8 +168,6 @@ static void decompress_nocomp(FILE *in, int script)
   int c;
   while ((c = getc(in)) != EOF)
     {
-      if (c == '\r') c = '\n';
-      if (c == '\t') c = ' ';
       rbuf[script][nb_read] = c;
       nb_read++;
       if ((nb_read % step) == 0)
@@ -278,6 +274,11 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
       return 0;
     }
   memset(rinfo[script], 0, sizeof(struct refinfo));
+  /* For clarity: */
+  rinfo[script]->current  = 0;
+  rinfo[script]->cur_line = 1;
+  rinfo[script]->cur_col  = 0;
+
   
   if (comp)
     {
@@ -361,76 +362,74 @@ void strip_beginning_spaces(char *str)
 
 
 
+/**
+ * Locate a procedure (such as "void hit()")
+ */
 /*bool*/int locate(int script, char proc[20])
 {
+  if (rinfo[script] == NULL)
+    return 0;
 
-        if (rinfo[script] == NULL)
-        {
-                return(/*false*/0);
+  int save_current  = rinfo[script]->current;
+  int save_cur_line = rinfo[script]->cur_line;
+  int save_cur_col  = rinfo[script]->cur_col;
+  rinfo[script]->current  = 0;
+  rinfo[script]->cur_line = 1;
+  rinfo[script]->cur_col  = 0;
 
-        }
-        int saveme = rinfo[script]->current;
-        rinfo[script]->current = 0;
-        char line[200];
-        char ev[3][100];
-        char temp[100];
+  char line[200];
+  char ev[3][100];
+  char temp[100];
 
-
-        //Msg("locate is looking for %s in %s", proc, rinfo[script]->name);
-
-        while(read_next_line(script, line))
-        {
-                strip_beginning_spaces(line);
-                memset(&ev, 0, sizeof(ev));
-
-                get_word(line, 1, ev[1]);
-                if (compare(ev[1], "VOID"))
-                {
-                        get_word(line, 2, ev[2]);
-
-                        separate_string(ev[2], 1,'(',temp);
-
-                        //              Msg("Found procedure %s.",temp);
-                        if (compare(temp,proc))
-                        {
-                                //                              Msg("Located %s",proc);
-                                //clean up vars so it is ready to run
-                                if (rinfo[script]->sprite != 1000)
-                                {
-                                        spr[rinfo[script]->sprite].move_active = 0;
-                                        if (dversion >= 108)
-					  spr[rinfo[script]->sprite].move_nohard = 0;
-                                }
-                                rinfo[script]->skipnext = /*false*/0;
-                                rinfo[script]->onlevel = 0;
-                                rinfo[script]->level = 0;
-
-                                return(/*true*/1);
-                                //this is desired proc
-
-                        }
-                }
-
-        }
-
-        //Msg("Locate ended on %d.", saveme);
-        rinfo[script]->current = saveme;
-        return(/*false*/0);
-
+  while(read_next_line(script, line))
+    {
+      strip_beginning_spaces(line);
+      memset(&ev, 0, sizeof(ev));
+      
+      get_word(line, 1, ev[1]);
+      if (compare(ev[1], "VOID"))
+	{
+	  get_word(line, 2, ev[2]);
+	  separate_string(ev[2], 1,'(',temp);
+	  
+	  if (compare(temp,proc))
+	    {
+	      //clean up vars so it is ready to run
+	      if (rinfo[script]->sprite != 1000)
+		{
+		  spr[rinfo[script]->sprite].move_active = 0;
+		  if (dversion >= 108)
+		    spr[rinfo[script]->sprite].move_nohard = 0;
+		}
+	      rinfo[script]->skipnext = /*false*/0;
+	      rinfo[script]->onlevel = 0;
+	      rinfo[script]->level = 0;
+	      
+	      return 1;
+	      //this is desired proc
+	    }
+	}
+    }
+  
+  // Not found, restoring position
+  rinfo[script]->current  = save_current;
+  rinfo[script]->cur_line = save_cur_line;
+  rinfo[script]->cur_col  = save_cur_col;
+  return 0;
 }
 
 /**
- * Look for the 'proc' label (e.g. 'loop:'), that is used by a "goto"
+ * Look for the 'label' label (e.g. 'loop:'), that is used by a "goto"
  * instruction. This sets the script->current field appropriately.
  **/
-/*bool*/int locate_goto(char proc[50], int script)
+/*bool*/int locate_goto(char label[50], int script)
 {
   rinfo[script]->current = 0;
   char line[200];
   char ev[3][100];
-  replace(";", "", proc);
-  strchar(proc, ':');
-  // Msg("locate is looking for %s", proc);
+  replace(";", "", label);
+  strchar(label, ':');
+  // Msg("locate is looking for %s", label);
   
   while (read_next_line(script, line))
     {
@@ -439,7 +438,7 @@ void strip_beginning_spaces(char *str)
       get_word(line, 1, ev[1]);
       replace("\n", "",ev[1]);
       
-      if (compare(ev[1], proc))
+      if (compare(ev[1], label))
 	{
 	  log_debug("Found goto : Line is %s, word is %s.", line, ev[1]);
 	  
@@ -447,12 +446,12 @@ void strip_beginning_spaces(char *str)
 	  rinfo[script]->onlevel = 0;
 	  rinfo[script]->level = 0;
 	  
-	  return /*true*/1;
-	  //this is desired proc
+	  return 1;
+	  //this is desired label
 	}
     }
-  log_warn("ERROR:  Cannot goto %s in %s.", proc, rinfo[script]->name);
-  return /*false*/0;
+  log_warn("%s: cannot goto %s", rinfo[script]->name, label);
+  return 0;
 }
 
 /**
@@ -739,7 +738,7 @@ void decipher_string(char line[200], int script)
  * name: name of the procedure() to call
  * n1: wait at least n1 milliseconds before callback
  * n2: wait at most n1+n2 milliseconds before callback
- * script: number of script currently interpreted
+ * script: number of the script currently running
  **/
 int add_callback(char name[20], int n1, int n2, int script)
 {
@@ -881,19 +880,27 @@ void kill_all_scripts_for_real(void)
   for (k = rinfo[script]->current; k < rinfo[script]->end; k++)
     {
       *pc = rbuf[script][k];
+      if (rbuf[script][k] == '\t') *pc = ' ';
+      if (rbuf[script][k] == '\r') *pc = '\n';
       pc++;
       rinfo[script]->current++;
+      rinfo[script]->cur_col++;
       
-      if (rbuf[script][k] == '\n') // \r were replaced in decompress()
+      if (rbuf[script][k] == '\n')
 	{
-	  *pc = '\0';
-	  return /*true*/1;
+	  rinfo[script]->cur_line++;
+	  rinfo[script]->cur_col = 0;
+	}
+      if (rbuf[script][k] == '\n' || rbuf[script][k] == '\r')
+	{
+	  *pc = '\0'; /* for safety */
+	  return 1;
 	}
     }
 
   //at end of buffer
   *pc = '\0';
-  return /*false*/0;
+  return 0;
 }
 
 /**
@@ -959,12 +966,12 @@ void process_callbacks(void)
 			  //kill this callback
 			  callback[k].active = /*false*/0;
 			  run_script(callback[k].owner);
-			  log_debug("Called script %d with callback %d.",
+			  log_debug("Called script %d from callback %d.",
 				    callback[k].owner, k);
 			}
 		      else
 			{
-			  log_debug("Called proc %s with callback %d.", callback[k].name, k);
+			  log_debug("Called proc %s from callback %d.", callback[k].name, k);
 			  
 			  //callback defined a proc name
 			  if (locate(callback[k].owner,callback[k].name))
@@ -1076,11 +1083,14 @@ void run_script(int script)
 
   if (rinfo[script] != NULL)
     {
-      log_debug("Script %s is entered at offset %d.", rinfo[script]->name, rinfo[script]->current);
+      log_debug("Script %s is entered at %d:%d (offset %d).",
+		rinfo[script]->name,
+		rinfo[script]->cur_line, rinfo[script]->cur_col,
+		rinfo[script]->current);
     }
   else
     {
-      log_error("Error:  Tried to run a script that doesn't exist in memory.  Nice work.");
+      log_error("Tried to run a script that doesn't exist in memory.  Nice work.");
     }
 
   int doelse_once = 0;
@@ -1230,8 +1240,10 @@ void make_int(char name[80], int value, int scope, int script)
         if (strlen(name) > 19)
         {
 
-                log_error("Varname %s is too long in script %s.",
-			  name, rinfo[script]->name);
+                log_error("[dinkc] %s:%d:%d: varname %s is too long in script",
+			  rinfo[script]->name,
+			  rinfo[script]->cur_line, rinfo[script]->cur_col,
+			  name);
                 return;
         }
         dupe = var_exists(name, scope);
@@ -1247,7 +1259,10 @@ void make_int(char name[80], int value, int scope, int script)
 	      }
 	    else
 	      {
-		log_error("Var %s is already a global, not changing value.", name);
+		log_error("[dinkc] %s:%d:%d: var %s is already a global, not changing value.",
+			  rinfo[script]->name,
+			  rinfo[script]->cur_line, rinfo[script]->cur_col,
+			  name);
 	      }
 	    return;
         }
@@ -1269,7 +1284,10 @@ void make_int(char name[80], int value, int scope, int script)
                 }
         }
 
-        log_error("Out of var space, all %d used.", MAX_VARS);
+        log_error("[dinkc] %s:%d:%d: out of var space, all %d used.",
+		  rinfo[script]->name,
+		  rinfo[script]->cur_line, rinfo[script]->cur_col,
+		  MAX_VARS);
 }
 
 /**
@@ -1289,8 +1307,10 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   /** Ensure left-hand side is an existing variable **/
   if (name[0] != '&')
     {
-      log_error("var equals: Unknown var %s in %s offset %d.",
-		name, rinfo[script]->name, rinfo[script]->current);
+      log_error("[dinkc] %s:%d:%d: var equals: Unknown var %s",
+		rinfo[script]->name,
+		rinfo[script]->cur_line, rinfo[script]->cur_col,
+		name);
       return;
     }
   /* Find the variable slot */
@@ -1301,8 +1321,10 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
     
     if (lhs_var == NULL) /* not found */
       {
-	log_error("var equals: Unknown var %s in %s offset %d.",
-	    name, rinfo[script]->name, rinfo[script]->current);
+	log_error("[dinkc] %s:%d:%d: var equals: unknown var %s",
+		  rinfo[script]->name,
+		  rinfo[script]->cur_line, rinfo[script]->cur_col,
+		  name);
 	return;
       }
   }
@@ -1513,7 +1535,9 @@ int var_figure(char h[200], int script)
 
                 if (name[0] != '&')
                 {
-		  log_error("Can't create var %s, should be &%s.",
+		  log_error("[dinkc] %s:%d:%d: can't create var %s, should be &%s.",
+			    rinfo[script]->name,
+			    rinfo[script]->cur_line, rinfo[script]->cur_col,
 			    name, name);
 		  return;
                 }

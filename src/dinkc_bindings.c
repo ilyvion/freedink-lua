@@ -75,8 +75,9 @@ static char* cur_funcname;
 #define STOP_IF_BAD_SPRITE(sprite)                                             \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
-      log_error("[dinkc] %s:%s: invalid sprite %d (offset %d)",           \
-          rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current);  \
+      log_error("[dinkc] %s:%d:%s: invalid sprite %d (offset %d)",             \
+                rinfo[script]->name, rinfo[script]->cur_line,                  \
+                cur_funcname, sprite, rinfo[script]->current);                 \
       return;                                                                  \
     }
 
@@ -89,8 +90,9 @@ static char* cur_funcname;
 #define RETURN_NEG_IF_BAD_SPRITE(sprite)                                       \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
-      log_error("[dinkc] %s:%s: invalid sprite %d (offset %d)",	       \
-		rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current); \
+      log_error("[dinkc] %s:%d:%s: invalid sprite %d (offset %d)",             \
+                rinfo[script]->name, rinfo[script]->cur_line,                  \
+                cur_funcname, sprite, rinfo[script]->current);                 \
       *preturnint = -1;                                                        \
       return;                                                                  \
     }
