@@ -278,6 +278,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   rinfo[script]->current  = 0;
   rinfo[script]->cur_line = 1;
   rinfo[script]->cur_col  = 0;
+  rinfo[script]->debug_line = 1;
 
   
   if (comp)
@@ -373,9 +374,11 @@ void strip_beginning_spaces(char *str)
   int save_current  = rinfo[script]->current;
   int save_cur_line = rinfo[script]->cur_line;
   int save_cur_col  = rinfo[script]->cur_col;
+  int save_debug_line = rinfo[script]->debug_line;
   rinfo[script]->current  = 0;
   rinfo[script]->cur_line = 1;
   rinfo[script]->cur_col  = 0;
+  rinfo[script]->debug_line = 1;
 
   char line[200];
   char ev[3][100];
@@ -415,6 +418,7 @@ void strip_beginning_spaces(char *str)
   rinfo[script]->current  = save_current;
   rinfo[script]->cur_line = save_cur_line;
   rinfo[script]->cur_col  = save_cur_col;
+  rinfo[script]->debug_line = save_debug_line;
   return 0;
 }
 
@@ -875,11 +879,16 @@ void kill_all_scripts_for_real(void)
 
   line[0] = '\0';
   char *pc = line;
+  /* remember the beginning of the line to be parsed, we'll use it in
+     the debugging messages */
+  rinfo[script]->debug_line = rinfo[script]->cur_line;
 
   int k;
   for (k = rinfo[script]->current; k < rinfo[script]->end; k++)
     {
       *pc = rbuf[script][k];
+      /* Compatibility substitutions, important when parsing
+	 title_start/title_end, namely */
       if (rbuf[script][k] == '\t') *pc = ' ';
       if (rbuf[script][k] == '\r') *pc = '\n';
       pc++;
@@ -1240,10 +1249,8 @@ void make_int(char name[80], int value, int scope, int script)
         if (strlen(name) > 19)
         {
 
-                log_error("[DinkC] %s:%d:%d: varname %s is too long in script",
-			  rinfo[script]->name,
-			  rinfo[script]->cur_line, rinfo[script]->cur_col,
-			  name);
+                log_error("[DinkC] %s:%d: varname %s is too long",
+			  rinfo[script]->name, rinfo[script]->debug_line, name);
                 return;
         }
         dupe = var_exists(name, scope);
@@ -1252,17 +1259,16 @@ void make_int(char name[80], int value, int scope, int script)
 	  {
 	    if (scope != DINKC_GLOBAL_SCOPE)
 	      {
-		log_warn("Local var %s already used in this procedure in script %s.",
+		log_warn("[DinkC] %s:%d: Local var %s already used in this procedure",
+			 rinfo[script]->name, rinfo[script]->debug_line,
 			 name, rinfo[script]->name);
 		
 		play.var[dupe].var = value;
 	      }
 	    else
 	      {
-		log_error("[DinkC] %s:%d:%d: var %s is already a global, not changing value.",
-			  rinfo[script]->name,
-			  rinfo[script]->cur_line, rinfo[script]->cur_col,
-			  name);
+		log_error("[DinkC] %s:%d: var %s is already a global, not changing value",
+			  rinfo[script]->name, rinfo[script]->debug_line, name);
 	      }
 	    return;
         }
@@ -1284,10 +1290,8 @@ void make_int(char name[80], int value, int scope, int script)
                 }
         }
 
-        log_error("[DinkC] %s:%d:%d: out of var space, all %d used.",
-		  rinfo[script]->name,
-		  rinfo[script]->cur_line, rinfo[script]->cur_col,
-		  MAX_VARS);
+        log_error("[DinkC] %s:%d: out of var space, all %d used",
+		  rinfo[script]->name, rinfo[script]->debug_line, MAX_VARS);
 }
 
 /**
@@ -1307,10 +1311,8 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   /** Ensure left-hand side is an existing variable **/
   if (name[0] != '&')
     {
-      log_error("[DinkC] %s:%d:%d: var equals: Unknown var %s",
-		rinfo[script]->name,
-		rinfo[script]->cur_line, rinfo[script]->cur_col,
-		name);
+      log_error("[DinkC] %s:%d:[var_equals]: unknown var %s",
+		rinfo[script]->name, rinfo[script]->debug_line, name);
       return;
     }
   /* Find the variable slot */
@@ -1321,10 +1323,8 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
     
     if (lhs_var == NULL) /* not found */
       {
-	log_error("[DinkC] %s:%d:%d: var equals: unknown var %s",
-		  rinfo[script]->name,
-		  rinfo[script]->cur_line, rinfo[script]->cur_col,
-		  name);
+	log_error("[DinkC] %s:%d:[var_equals]: unknown var %s",
+		  rinfo[script]->name, rinfo[script]->debug_line, name);
 	return;
       }
   }
@@ -1535,9 +1535,8 @@ int var_figure(char h[200], int script)
 
                 if (name[0] != '&')
                 {
-		  log_error("[DinkC] %s:%d:%d: can't create var %s, should be &%s.",
-			    rinfo[script]->name,
-			    rinfo[script]->cur_line, rinfo[script]->cur_col,
+		  log_error("[DinkC] %s:%d: can't create var %s, should be &%s.",
+			    rinfo[script]->name, rinfo[script]->debug_line,
 			    name, name);
 		  return;
                 }

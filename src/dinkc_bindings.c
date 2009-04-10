@@ -76,7 +76,7 @@ static char* cur_funcname;
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
       log_error("[DinkC] %s:%d:%s: invalid sprite %d (offset %d)",             \
-                rinfo[script]->name, rinfo[script]->cur_line,                  \
+                rinfo[script]->name, rinfo[script]->debug_line,                \
                 cur_funcname, sprite, rinfo[script]->current);                 \
       return;                                                                  \
     }
@@ -91,7 +91,7 @@ static char* cur_funcname;
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
       log_error("[DinkC] %s:%d:%s: invalid sprite %d (offset %d)",             \
-                rinfo[script]->name, rinfo[script]->cur_line,                  \
+                rinfo[script]->name, rinfo[script]->debug_line,                \
                 cur_funcname, sprite, rinfo[script]->current);                 \
       *preturnint = -1;                                                        \
       return;                                                                  \
