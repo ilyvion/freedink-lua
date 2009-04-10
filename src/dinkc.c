@@ -380,11 +380,11 @@ void strip_beginning_spaces(char *str)
   rinfo[script]->cur_col  = 0;
   rinfo[script]->debug_line = 1;
 
-  char line[200];
+  char* line = NULL;
   char ev[3][100];
   char temp[100];
 
-  while(read_next_line(script, line))
+  while((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);
       memset(&ev, 0, sizeof(ev));
@@ -395,7 +395,7 @@ void strip_beginning_spaces(char *str)
 	  get_word(line, 2, ev[2]);
 	  separate_string(ev[2], 1,'(',temp);
 	  
-	  if (compare(temp,proc))
+	  if (compare(temp, proc))
 	    {
 	      //clean up vars so it is ready to run
 	      if (rinfo[script]->sprite != 1000)
@@ -408,10 +408,12 @@ void strip_beginning_spaces(char *str)
 	      rinfo[script]->onlevel = 0;
 	      rinfo[script]->level = 0;
 	      
+	      free(line);
 	      return 1;
 	      //this is desired proc
 	    }
 	}
+      free(line);
     }
   
   // Not found, restoring position
@@ -429,13 +431,13 @@ void strip_beginning_spaces(char *str)
 /*bool*/int locate_goto(char label[50], int script)
 {
   rinfo[script]->current = 0;
-  char line[200];
+  char* line = NULL;
   char ev[3][100];
   replace(";", "", label);
   strchar(label, ':');
   // Msg("locate is looking for %s", label);
   
-  while (read_next_line(script, line))
+  while ((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);
       
@@ -450,9 +452,11 @@ void strip_beginning_spaces(char *str)
 	  rinfo[script]->onlevel = 0;
 	  rinfo[script]->level = 0;
 	  
+	  free(line);
 	  return 1;
 	  //this is desired label
 	}
+      free(line);
     }
   log_warn("%s: cannot goto %s", rinfo[script]->name, label);
   return 0;
@@ -670,7 +674,7 @@ void var_replace(char* line, int scope)
  * - it can replace several variables in the same string
  * - with v1.07 it has a prefix bug (see var_replace_107)
  */
-void decipher_string(char line[200], int script)
+void decipher_string(char* line, int script)
 {
   char buffer[20];
   char crab[100];
@@ -863,35 +867,28 @@ void kill_all_scripts_for_real(void)
         }
 }
 
-/*bool*/int read_next_line(int script, char *line)
+char* read_next_line(int script)
 {
   if (rinfo[script] == NULL || rbuf == NULL)
     {
       log_error("Tried to read script %d, it doesn't exist.", script);
-      return /*false*/0;
+      return NULL;
     }
 
   if (rinfo[script]->current >= rinfo[script]->end)
     {
       //at end of buffer
-      return /*false*/0;
+      return NULL;
     }
 
-  line[0] = '\0';
-  char *pc = line;
   /* remember the beginning of the line to be parsed, we'll use it in
      the debugging messages */
   rinfo[script]->debug_line = rinfo[script]->cur_line;
 
-  int k;
-  for (k = rinfo[script]->current; k < rinfo[script]->end; k++)
+  int k = rinfo[script]->current;
+  int start = k;
+  for (; k < rinfo[script]->end; k++)
     {
-      *pc = rbuf[script][k];
-      /* Compatibility substitutions, important when parsing
-	 title_start/title_end, namely */
-      if (rbuf[script][k] == '\t') *pc = ' ';
-      if (rbuf[script][k] == '\r') *pc = '\n';
-      pc++;
       rinfo[script]->current++;
       rinfo[script]->cur_col++;
       
@@ -901,15 +898,33 @@ void kill_all_scripts_for_real(void)
 	  rinfo[script]->cur_col = 0;
 	}
       if (rbuf[script][k] == '\n' || rbuf[script][k] == '\r')
-	{
-	  *pc = '\0'; /* for safety */
-	  return 1;
-	}
+	break;
     }
 
-  //at end of buffer
-  *pc = '\0';
-  return 0;
+  if (k < rinfo[script]->end)
+    {
+      int len = rinfo[script]->current - start;
+      char* buf = xmalloc(len + 1);
+
+      char* pc = buf;
+      int k = start;
+	for (; k < rinfo[script]->current; k++, pc++)
+	{
+	  *pc = rbuf[script][k];
+
+	  /* Compatibility substitutions, important when parsing
+	     title_start/title_end, namely */
+	  if (*pc == '\t') *pc = ' ';
+	  if (*pc == '\r') *pc = '\n';
+	}
+      *pc = '\0'; /* for safety */
+      return buf;
+    }
+  else
+    {
+      //at end of buffer
+      return NULL;
+    }
 }
 
 /**
@@ -1069,7 +1084,7 @@ void kill_returning_stuff(int script)
 void run_script(int script)
 {
   int result;
-  char line[200];
+  char* line = NULL;
 
   /* keep 'return' value? */
   if (dversion >= 108)
@@ -1103,7 +1118,7 @@ void run_script(int script)
     }
 
   int doelse_once = 0;
-  while (read_next_line(script, line))
+  while ((line = read_next_line(script)) != NULL)
     {
       while (1)
 	{
@@ -1131,6 +1146,7 @@ void run_script(int script)
 	    {
 	      /* Quit script: */
 	      log_debug("giving script the boot");
+	      free(line);
 	      return;
 	    }
 	  
@@ -1139,6 +1155,7 @@ void run_script(int script)
 
 	  /* else result == DCPS_CONTINUE */
 	}
+      free(line);
     }
 
   if (rinfo[script] != NULL && rinfo[script]->proc_return != 0)

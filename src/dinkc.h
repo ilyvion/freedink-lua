@@ -89,7 +89,7 @@ extern void kill_callbacks_owned_by_script(int script);
 extern void kill_script(int k);
 extern void kill_all_scripts(void);
 extern void kill_all_scripts_for_real(void);
-extern /*bool*/int read_next_line(int script, char *line);
+extern char* read_next_line(int script);
 extern void process_callbacks(void);
 extern void init_scripts(void);
 extern int var_exists(char name[20], int scope);

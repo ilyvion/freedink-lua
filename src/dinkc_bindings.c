@@ -2228,7 +2228,8 @@ void attach(void)
  */
 /*bool*/int talk_get(int script)
 {
-  char line[200], check[200], checker[200];
+  char* line = NULL;
+  char check[200], checker[200];
   int cur = 1;
   char *p;
   int retnum = 0;
@@ -2237,7 +2238,7 @@ void attach(void)
   while(1)
     {
     redo:
-      read_next_line(script, line);
+      line = read_next_line(script);
       
       strip_beginning_spaces(line);
       //Msg("Comparing to %s.", line);
@@ -2248,6 +2249,7 @@ void attach(void)
         {
 	  get_word(line, 2, checker);
 	  talk.newy = atol(checker);
+	  free(line);
 	  goto redo;
         }
       
@@ -2255,11 +2257,16 @@ void attach(void)
         {
 	  get_word(line, 2, checker);
 	  talk.color = atol(checker);
+	  free(line);
 	  goto redo;
         }
       
       strip_beginning_spaces(line);
-      if (compare(line, "\n")) goto redo;
+      if (compare(line, "\n"))
+	{
+	  free(line);
+	  goto redo;
+	}
 
 morestuff:
       separate_string(line, 1, '(', check);
@@ -2267,7 +2274,8 @@ morestuff:
       
       if (compare(check, "title_start"))
         {
-	  while(read_next_line(script, line))
+	  free(line);
+	  while((line = read_next_line(script)) != NULL)
 	    {
 	      strcpy(check, line);
 	      strip_beginning_spaces(line);
@@ -2279,6 +2287,7 @@ morestuff:
 		{
 		  replace("\n\n\n\n","\n \n", talk.buffer);
 		  replace("\n\n","\n", talk.buffer);
+		  free(line);
 		  goto redo;
 		}
 	      
@@ -2292,8 +2301,9 @@ morestuff:
 	      decipher_string(line, script);
 	      strcat(talk.buffer, line);
 	      //talk.buffer[strlen(talk.buffer)-1] = 0;
+	      free(line);
 	    }
-	  
+
 	  goto redo;
         }
       
@@ -2303,7 +2313,9 @@ morestuff:
 	    {
 	      log_debug("Error: choice() has 0 options in script %s, offset %d.",
 		  rinfo[script]->name, rinfo[script]->current);
-	      return(/*false*/0);
+
+	      free(line);
+	      return /*false*/0;
 	    }
 	  //all done, lets jam
 	  //Msg("found choice_end, leaving!");
@@ -2313,7 +2325,9 @@ morestuff:
 	  talk.page = 1;
 	  talk.cur_view = 1;
 	  talk.script = script;
-	  return(/*true*/1);
+
+	  free(line);
+	  return /*true*/1;
 	}
       
       separate_string(line, 1, '\"', check);
@@ -2328,7 +2342,9 @@ morestuff:
 	    {
 	      log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
 			rinfo[script]->name, rinfo[script]->current, check);
-	      return(/*false*/0);
+
+	      free(line);
+	      return /*false*/0;
 	    }
 	  
 	  separate_string(check, 2, '(', checker);
@@ -2339,6 +2355,8 @@ morestuff:
 	    {
 	      log_debug("Answer is no.");
 	      retnum++;
+
+	      free(line);
 	      goto redo;
 	      //said NO to statement
 	    }
@@ -2370,6 +2388,7 @@ morestuff:
       strcpy(talk.line[cur], check);
       talk.line_return[cur] = retnum;
       cur++;
+      free(line);
     }
 }
 
