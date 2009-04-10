@@ -1240,7 +1240,7 @@ void make_int(char name[80], int value, int scope, int script)
         if (strlen(name) > 19)
         {
 
-                log_error("[dinkc] %s:%d:%d: varname %s is too long in script",
+                log_error("[DinkC] %s:%d:%d: varname %s is too long in script",
 			  rinfo[script]->name,
 			  rinfo[script]->cur_line, rinfo[script]->cur_col,
 			  name);
@@ -1259,7 +1259,7 @@ void make_int(char name[80], int value, int scope, int script)
 	      }
 	    else
 	      {
-		log_error("[dinkc] %s:%d:%d: var %s is already a global, not changing value.",
+		log_error("[DinkC] %s:%d:%d: var %s is already a global, not changing value.",
 			  rinfo[script]->name,
 			  rinfo[script]->cur_line, rinfo[script]->cur_col,
 			  name);
@@ -1284,7 +1284,7 @@ void make_int(char name[80], int value, int scope, int script)
                 }
         }
 
-        log_error("[dinkc] %s:%d:%d: out of var space, all %d used.",
+        log_error("[DinkC] %s:%d:%d: out of var space, all %d used.",
 		  rinfo[script]->name,
 		  rinfo[script]->cur_line, rinfo[script]->cur_col,
 		  MAX_VARS);
@@ -1307,7 +1307,7 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   /** Ensure left-hand side is an existing variable **/
   if (name[0] != '&')
     {
-      log_error("[dinkc] %s:%d:%d: var equals: Unknown var %s",
+      log_error("[DinkC] %s:%d:%d: var equals: Unknown var %s",
 		rinfo[script]->name,
 		rinfo[script]->cur_line, rinfo[script]->cur_col,
 		name);
@@ -1321,7 +1321,7 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
     
     if (lhs_var == NULL) /* not found */
       {
-	log_error("[dinkc] %s:%d:%d: var equals: unknown var %s",
+	log_error("[DinkC] %s:%d:%d: var equals: unknown var %s",
 		  rinfo[script]->name,
 		  rinfo[script]->cur_line, rinfo[script]->cur_col,
 		  name);
@@ -1535,7 +1535,7 @@ int var_figure(char h[200], int script)
 
                 if (name[0] != '&')
                 {
-		  log_error("[dinkc] %s:%d:%d: can't create var %s, should be &%s.",
+		  log_error("[DinkC] %s:%d:%d: can't create var %s, should be &%s.",
 			    rinfo[script]->name,
 			    rinfo[script]->cur_line, rinfo[script]->cur_col,
 			    name, name);
