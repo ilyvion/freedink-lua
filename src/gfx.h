@@ -26,19 +26,19 @@
 #include "SDL.h"
 
 enum gfx_init_state
-{
+  {
     GFX_NOT_INITIALIZED = 0,
     GFX_INITIALIZING_VIDEO,
     GFX_INITIALIZING_FONTS,
     GFX_INITIALIZED,
     GFX_QUITTING,
-};
+  };
 
 enum gfx_windowed_state
-{
+  {
     GFX_WINDOWED = 0,
     GFX_FULLSCREEN,
-};
+  };
 
 extern int truecolor;
 extern SDL_Surface *GFX_lpDDSBack;

@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>  /* memset, memcpy */
+#include <errno.h>
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -37,6 +38,7 @@
 #include "log.h"
 #include "math.h"
 #include "sfx.h"
+#include "log.h"
 
 
 /* Channel metadata */
@@ -296,7 +298,7 @@ int CreateBufferFromWaveFile(char* filename, int index)
     in = paths_fallbackfile_fopen(path, "rb");
   if (in == NULL)
     {
-      perror("CreateBufferFromWaveFile");
+      log_debug("CreateBufferFromWaveFile: %s", strerror(errno));
       return 0;
     }
 
@@ -312,7 +314,7 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   // Safety check
   if (index >= MAX_SOUNDS)
     {
-      fprintf(stderr, "SCRIPTING ERROR: sound index %d is too big.\n", index);
+      log_error("SCRIPTING ERROR: sound index %d is too big.", index);
       return 0;
     }
 
@@ -322,12 +324,12 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
 
   if (SDL_LoadWAV_RW(rwops, rwfreesrc, &wav_spec, &wav_buf, &wav_len) == NULL)
     {
-      fprintf(stderr, "Could not open sound file: %s\n", SDL_GetError());
+      log_error("Could not open sound file: %s", SDL_GetError());
       return 0;
     }
-  printf("info: frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes\n",
-	 wav_spec.freq, format2string(wav_spec.format),
-	 wav_spec.channels, wav_len);
+  log_info("frequency=%dHz\tformat=%s\tchannels=%d\tlength=%d bytes",
+	   wav_spec.freq, format2string(wav_spec.format),
+	   wav_spec.channels, wav_len);
 
 
   /* Converting some WAV data to hardware format - except for sample
@@ -346,7 +348,7 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   
   /* Check that the convert was built */
   if (ret == -1) {
-    fprintf(stderr, "Couldn't build converter: %s\n", SDL_GetError());
+    log_error("Couldn't build converter: %s", SDL_GetError());
     SDL_FreeWAV(wav_buf);
   }
 
@@ -362,7 +364,7 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   /* And now we're ready to convert */
   ret = SDL_ConvertAudio(&cvt);
   if (ret == -1) {
-    fprintf(stderr, "Couldn't convert audiox: %s\n", SDL_GetError());
+    log_error("Couldn't convert audiox: %s", SDL_GetError());
     SDL_FreeWAV(wav_buf);
   }
   
@@ -413,8 +415,8 @@ int playing(int sound)
 {
   if (sound >= MAX_SOUNDS)
     {
-      Msg("Attempting to get the status of sound %d (> MAX_SOUNDS=%d)",
-          sound, MAX_SOUNDS);
+      log_error("Attempting to get the status of sound %d (> MAX_SOUNDS=%d)",
+		sound, MAX_SOUNDS);
       return 0;
     }
 
@@ -431,7 +433,7 @@ void kill_repeat_sounds(void)
   if (!sound_on)
     return;
   
-  Msg("Killing repeating sound");
+  log_info("Killing repeating sound");
 
   for (i = 0; i < NUM_CHANNELS; i++)
     {
@@ -441,7 +443,7 @@ void kill_repeat_sounds(void)
           && (channelinfo[i].survive == 0))
         {
           Mix_HaltChannel(i);
-	  Msg("Killed repeating sound %d", i);
+	  log_info("Killed repeating sound %d", i);
           channelinfo[i].repeat = 0;
         }
     }
@@ -570,7 +572,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
   // Safety check
   if (registered_sounds[sound].cvt.buf == NULL)
     {
-      fprintf(stderr, "Error: attempting to play empty sound %d.\n", sound);
+      log_warn("Attempting to play empty sound %d.", sound);
       return 0;
     }
 
@@ -615,8 +617,8 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     channel = Mix_PlayChannel(explicit_channel, chunk, repeat ? -1 : 0);
     if (channel < 0)
       {
-	fprintf(stderr, "Mix_PlayChannel: Error playing sound %d - %s\n",
-		sound, Mix_GetError());
+	log_error("Mix_PlayChannel: Error playing sound %d - %s",
+		  sound, Mix_GetError());
 	return 0;
       }
     channelinfo[channel].fake_buf = fake_buf;
@@ -659,8 +661,8 @@ int SoundStopEffect(int sound)
 
   if (sound >= MAX_SOUNDS)
     {
-      fprintf(stderr, "Attempting to get stop sound %d (> MAX_SOUNDS=%d)",
-	      sound, MAX_SOUNDS);
+      log_error("Attempting to get stop sound %d (> MAX_SOUNDS=%d)",
+		sound, MAX_SOUNDS);
       return 0;
     }
 
@@ -680,11 +682,11 @@ int SoundStopEffect(int sound)
  */
 int InitSound()
 {
-  Msg("initting sound");
+  log_info("initting sound");
 
   if (SDL_Init(SDL_INIT_AUDIO) == -1)
     {
-      Msg("SDL_Init: %s\n", SDL_GetError());
+      log_error("SDL_Init(SDL_INIT_AUDIO): %s", SDL_GetError());
       return -1;
     }
   
@@ -697,7 +699,7 @@ int InitSound()
      4096 is considered too big for SFX */
   if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
     {
-      Msg("Mix_OpenAudio: %s", Mix_GetError());
+      log_error("Mix_OpenAudio: %s", Mix_GetError());
       return -1;
     }
 
@@ -714,10 +716,10 @@ int InitSound()
     int numtimesopened;
     numtimesopened = Mix_QuerySpec(&hw_freq, &hw_format, &hw_channels);
     if (!numtimesopened)
-      printf("Mix_QuerySpec: %s\n", Mix_GetError());
+      log_error("Mix_QuerySpec: %s", Mix_GetError());
     else
-      printf("Audio hardware info: frequency=%dHz\tformat=%s\tchannels=%d\topened=%d times\n",
-	     hw_freq, format2string(hw_format), hw_channels, numtimesopened);
+      log_info("Audio hardware info: frequency=%dHz\tformat=%s\tchannels=%d\topened=%d times",
+	       hw_freq, format2string(hw_format), hw_channels, numtimesopened);
   }
 
   /* No sound playing yet - initialize the lookup table: */
@@ -786,7 +788,7 @@ static void CleanupChannel(int channel)
   Mix_Chunk *chunk = Mix_GetChunk(channel);
   if (chunk == NULL)
     {
-      printf("Internal error: cannot free channel %d's chunk (where did it disappear?)\n", channel);
+      log_fatal("Internal error: cannot free channel %d's chunk (where did it disappear?)", channel);
       exit(1);
     }
   Mix_FreeChunk(chunk);

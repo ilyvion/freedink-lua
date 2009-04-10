@@ -43,6 +43,7 @@ extern "C"
   extern /*bool*/int exist(char *name);
   extern int is_directory(char *name);
   extern char* pdirname(char *filename);
+  extern void add_text(char *tex ,char *filename);
 
   extern int read_lsb_int(FILE *f);
   extern void write_lsb_int(int n, FILE *f);

@@ -172,7 +172,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 
   if (!FastFileInit(fullpath, 5))
     {
-      Msg("Could not load dir.ff art file %s", crap);
+      log_error("Could not load dir.ff art file %s", crap);
       free(fullpath);
       free(seq_dirname);
       return;
@@ -187,8 +187,8 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       int myslot = next_slot();
       if (myslot >= MAX_SPRITES)
 	{
-	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  myslot, MAX_SPRITES);
+	  log_error("No sprite slot available! Index %d out of %d.",
+		    myslot, MAX_SPRITES);
 	  break;
 	}
 
@@ -209,7 +209,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       if (rw == NULL)
 	{
 	  /* rwops error? */
-	  fprintf(stderr, "Failed to open %s in fastfile %s: %s\n", crap, fullpath, SDL_GetError());
+	  log_error("Failed to open %s in fastfile %s: %s", crap, fullpath, SDL_GetError());
 	}
       else
 	{
@@ -218,19 +218,19 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	     intent to support anything else than 8bit BMPs. */
 	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
 	  if (GFX_k[myslot].k == NULL)
-	    fprintf(stderr, "Failed to load %s from fastfile %s: %s\n", crap, fullpath, SDL_GetError());
+	    log_error("Failed to load %s from fastfile %s: %s", crap, fullpath, SDL_GetError());
 	}
       if (GFX_k[myslot].k == NULL)
 	{
-	  fprintf(stderr, "Failed to load %s from fastfile %s (see error above)\n", crap, fullpath);
+	  log_error("Failed to load %s from fastfile %s (see error above)", crap, fullpath);
 	  FastFileClose(pfile);
 	  break;
 	}
       if (GFX_k[myslot].k->format->BitsPerPixel != 8)
 	{
-	  fprintf(stderr, "Failed to load %s from fastfile %s:"
-		  " only 8bit paletted bitmaps are supported in dir.ff archives.\n",
-		  crap, fullpath);
+	  log_error("Failed to load %s from fastfile %s:"
+		    " only 8bit paletted bitmaps are supported in dir.ff archives.",
+		    crap, fullpath);
 	  SDL_FreeSurface(GFX_k[myslot].k);
 	  continue;
 	}
@@ -395,7 +395,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
   seq[seq_no].len = oo - 1;
   
   if (oo == 1)
-    fprintf(stderr, "Sprite_load_pak error:  Couldn't load %s in %s.\n", crap, fullpath);
+    log_error("Sprite_load_pak error:  Couldn't load %s in %s.", crap, fullpath);
   free(fullpath);
 }
 
@@ -479,8 +479,8 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       int myslot = next_slot();
       if (myslot >= MAX_SPRITES)
 	{
-	  fprintf(stderr, "No sprite slot available! Index %d out of %d.\n",
-		  myslot, MAX_SPRITES);
+	  log_error("No sprite slot available! Index %d out of %d.",
+		    myslot, MAX_SPRITES);
 	  break;
 	}
 
@@ -606,8 +606,8 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   if (oo == 1)
     {
       /* First frame didn't load! */
-      fprintf(stderr, "load_sprites: couldn't open %s: %s\n", crap, SDL_GetError());
-      Msg("load_sprites:  Anim %s not found.",seq_path_prefix);
+      log_error("load_sprites: couldn't open %s: %s", crap, SDL_GetError());
+      log_error("load_sprites:  Anim %s not found.", seq_path_prefix);
     }
 }
 

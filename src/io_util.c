@@ -239,7 +239,7 @@ SDL_RWops* find_resource_as_rwops(char *name)
   free(myself);
 #else
 #  ifdef HAVE_ZZIPLIB
-  char *myself = paths_getexefile();
+  const char *myself = paths_getexefile();
   char *zippath = malloc(strlen(myself) + 1 + strlen(name) + 1);
   sprintf(zippath, "%s/%s", myself, name);
   /* sample zippath: "/usr/bin/freedink/LiberationSans-Regular.ttf" */
@@ -267,6 +267,26 @@ SDL_RWops* find_resource_as_rwops(char *name)
     return NULL;
   rwops = SDL_RWFromFP(in, /*autoclose=*/1);
   return rwops;
+}
+
+/**
+ * Append a line of text at the end of a file
+ */
+void add_text(char *text, char *filename)
+{
+  if (strlen(text) < 1)
+    return;
+  
+  FILE *fp = paths_dmodfile_fopen(filename, "ab");
+  if (fp != NULL)
+    {
+      fwrite(text, strlen(text), 1, fp);
+      fclose(fp);
+    }
+  else
+    {
+      perror("add_text");
+    }
 }
 
 

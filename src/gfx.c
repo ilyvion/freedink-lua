@@ -42,6 +42,7 @@
 #include "gfx_fade.h"
 #include "init.h"
 #include "paths.h"
+#include "log.h"
 
 
 /* Is the screen depth more than 8bit? */
@@ -129,46 +130,48 @@ enum gfx_init_state gfx_get_init_state()
 
 void gfx_dumpflags(Uint32 flags)
 {
-  printf("0x%8.8x", flags);
+  char buf[256]; // enough to display all flags
 
-  printf(" ");
+  sprintf(buf, "0x%8.8x", flags);
+
+  strcat(buf, " ");
   int i = 0;
   for (; i < 32; i++)
     {
       unsigned int tflag = 1 << i;
       if ((flags & tflag) == tflag)
-	printf("1");
+	strcat(buf, "1");
       else
-	printf("0");
+	strcat(buf, "0");
     }
 
   if (flags & SDL_HWSURFACE)
-    printf(" SDL_HWSURFACE");
+    strcat(buf, " SDL_HWSURFACE");
   else
-    printf(" SDL_SWSURFACE");
+    strcat(buf, " SDL_SWSURFACE");
 	
   if (flags & SDL_HWPALETTE)
-    printf(" | SDL_HWPALETTE");
+    strcat(buf, " | SDL_HWPALETTE");
   
   if (flags & SDL_FULLSCREEN)
-    printf(" | SDL_FULLSCREEN");
+    strcat(buf, " | SDL_FULLSCREEN");
   
   if (flags & SDL_DOUBLEBUF)
-    printf(" | SDL_DOUBLEBUF");
+    strcat(buf, " | SDL_DOUBLEBUF");
   
   if (flags & SDL_SRCCOLORKEY)
-    printf(" | SDL_SRCCOLORKEY");
+    strcat(buf, " | SDL_SRCCOLORKEY");
   
   if (flags & SDL_SRCALPHA)
-    printf(" | SDL_SRCALPHA");
+    strcat(buf, " | SDL_SRCALPHA");
   
   if (flags & SDL_RLEACCEL)
-    printf(" | SDL_RLEACCEL");
+    strcat(buf, " | SDL_RLEACCEL");
   
   if (flags & SDL_RLEACCELOK)
-    printf(" | SDL_RLEACCELOK");
+    strcat(buf, " | SDL_RLEACCELOK");
 
-  printf("\n");
+  log_info(buf);
 }
 
 /**
@@ -195,7 +198,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
       
       if ((icon = IMG_ReadXPMFromArray(freedink_xpm)) == NULL)
 	{
-	  fprintf(stderr, "Error loading icon: %s\n", IMG_GetError());
+	  log_error("Error loading icon: %s", IMG_GetError());
 	}
       else
 	{
@@ -219,7 +222,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
   if (truecolor)
     {
       /* Recommended depth: */
-      printf("INFO: recommended depth is %d\n", info->vfmt->BitsPerPixel);
+      log_info("Recommended depth is %d", info->vfmt->BitsPerPixel);
       bits_per_pixel = info->vfmt->BitsPerPixel;
       
       if (bits_per_pixel < 15)
@@ -227,7 +230,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 	  /* Running truecolor mode in 8bit resolution? Let's emulate,
 	     the user must know what he's doing. */
 	  bits_per_pixel = 15;
-	  printf("Notice: emulating truecolor mode within 8bit mode\n");
+	  log_info("Emulating truecolor mode within 8bit mode");
 	}
     }
   else
@@ -236,17 +239,17 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 	 (override system palette reserved colors?) */
       flags |= SDL_HWPALETTE;
     }
-  printf("Requesting depth %d\n", bits_per_pixel);
+  log_info("Requesting depth %d", bits_per_pixel);
 
   putenv("SDL_VIDEO_CENTERED=1");
   putenv("SDL_ASPECT_RATIO=4:3"); /* used by PSP to keep aspect ratio */
   if (GFX_lpDDSBack == NULL)
     {
       /* Hardware mode */
-      printf("Requesting video flags: "); gfx_dumpflags(flags);
+      log_info("Requesting video flags: "); gfx_dumpflags(flags);
       GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
       if (GFX_lpDDSBack == NULL)
-	fprintf(stderr, "Unable to use hardware mode: %s\n", SDL_GetError());
+	log_warn("Unable to use hardware mode: %s", SDL_GetError());
     }
   if (GFX_lpDDSBack == NULL)
     {
@@ -258,29 +261,29 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
       flags &= ~SDL_HWSURFACE;
       flags &= ~SDL_DOUBLEBUF;
       flags |= SDL_SWSURFACE;
-      printf("Requesting video flags: "); gfx_dumpflags(flags);
+      log_info("Requesting video flags: "); gfx_dumpflags(flags);
       GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
       if (GFX_lpDDSBack == NULL)
-	fprintf(stderr, "Unable to use software fullscreen mode: %s\n", SDL_GetError());
+	log_error("Unable to use software fullscreen mode: %s", SDL_GetError());
     }
   if (GFX_lpDDSBack == NULL)
     {
       init_set_error_msg("Unable to set 640x480 video: %s\n", SDL_GetError());
       return -1;
     }
-  printf("Obtained video flags:   "); gfx_dumpflags(flags);
+  log_info("Obtained video flags:   "); gfx_dumpflags(flags);
   cur_video_flags = flags;
 
   char buf[1024];
   if (SDL_VideoDriverName(buf, 1024) != NULL)
-    printf("INFO: Video driver is '%s'\n", buf);
+    log_info("INFO: Video driver is '%s'", buf);
   else
-    printf("INFO: Unable to determine video driver name\n");
+    log_info("INFO: Unable to determine video driver name");
   if (GFX_lpDDSBack->flags & SDL_HWSURFACE)
-    printf("INFO: Using hardware video mode.\n");
+    log_info("INFO: Using hardware video mode.");
   else
-    printf("INFO: Not using a hardware video mode.\n");
-  printf("INFO: SDL depth is %d\n", bits_per_pixel);
+    log_info("INFO: Not using a hardware video mode.");
+  log_info("INFO: SDL depth is %d", bits_per_pixel);
 
 
   /* Hide mouse */
@@ -299,7 +302,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
 
   /* Create and set the reference palette */
   if (load_palette_from_bmp("Tiles/Ts01.bmp", GFX_real_pal) < 0)
-    fprintf(stderr, "Failed to load default palette from Tiles/Ts01.bmp\n");
+    log_error("Failed to load default palette from Tiles/Ts01.bmp");
 
   /* Physical palette (the one we can change to make visual effects) */
   change_screen_palette(GFX_real_pal);
@@ -330,7 +333,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
     free(fullpath);
     if (splash == NULL)
       {
-	fprintf(stderr, "Cannot load base graphics %s\n", splash_path);
+	log_error("Cannot load base graphics %s", splash_path);
       }
     else
       {
@@ -393,7 +396,7 @@ int gfx_init_failsafe()
   /* Init graphics subsystem */
   if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
     {
-      fprintf(stderr, "Unable to init failsafe video: %s\n", SDL_GetError());
+      log_fatal("Unable to init failsafe video: %s", SDL_GetError());
       return -1;
     }
 
@@ -419,7 +422,7 @@ int gfx_init_failsafe()
 #endif
   if (GFX_lpDDSBack == NULL)
     {
-      fprintf(stderr, "Unable to set failsafe video mode: %s\n", SDL_GetError());
+      log_fatal("Unable to set failsafe video mode: %s", SDL_GetError());
       return -1;
     }
 

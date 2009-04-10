@@ -133,8 +133,7 @@ int PlayMidi(char *midi_filename)
   if (last_midi != NULL && compare(last_midi, midi_filename)
       && something_playing())
     {
-      Msg("I think %s is already playing, I should skip it...",
-	  midi_filename);
+      log_info("I think %s is already playing, I should skip it...", midi_filename);
       return 0;
     }
 
@@ -184,7 +183,7 @@ int PlayMidi(char *midi_filename)
   if (!exist(fullpath))
     {
       free(fullpath);
-      Msg("Error playing midi %s, doesn't exist in any dir.", midi_filename);
+      log_warn("Error playing midi %s, doesn't exist in any dir.", midi_filename);
       return 0;
     }
 
@@ -195,7 +194,7 @@ int PlayMidi(char *midi_filename)
   last_midi = strdup(midi_filename);
 
   /* Stop CD track */
-  Msg("Killing cd...");
+  log_info("Killing cd...");
   killcd();
 
 
@@ -205,7 +204,7 @@ int PlayMidi(char *midi_filename)
   /* Load the file */
   if ((music_data = Mix_LoadMUS(fullpath)) == NULL)
     {
-      Msg("Unable to play '%s': %s", fullpath, Mix_GetError());
+      log_warn("Unable to play '%s': %s", fullpath, Mix_GetError());
       free(fullpath);
       return 0;
     }
@@ -271,7 +270,7 @@ void check_midi(void)
   if (map.music[*pmap] == -1)
     /* Kill cd music */
     {
-      Msg("Stopped cd");
+      log_info("Stopped cd");
       killcd();
     }
   else if (map.music[*pmap] > 1000)
@@ -309,14 +308,14 @@ void bgm_init(void)
 {
   if (SDL_Init(SDL_INIT_CDROM) == -1)
     {
-      Msg("SDL_Init: %s\n", SDL_GetError());
+      log_error("SDL_Init: %s", SDL_GetError());
       return;
     }
   
   /* Check for CD drives */
   if (!SDL_CDNumDrives()){
     /* None found */
-    Msg (("No CDROM devices available\n"));
+    log_info("No CDROM devices available");
     return;
   }
   
@@ -326,7 +325,7 @@ void bgm_init(void)
   /* Did if open? Check if cdrom is NULL */
   if (cdrom == NULL)
     {
-      Msg("Couldn't open drive: %s\n", SDL_GetError());
+      log_error("Couldn't open drive: %s", SDL_GetError());
       return;
     }
   
@@ -344,7 +343,7 @@ void bgm_init(void)
 void bgm_quit(void)
 {
   Mix_HaltMusic();
-  Msg("Shutting down CD stuff.");
+  log_info("Shutting down CD stuff.");
   killcd();
   if (last_midi != NULL)
     free(last_midi);

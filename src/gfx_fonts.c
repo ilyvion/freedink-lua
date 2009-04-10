@@ -43,6 +43,7 @@
 #include "gfx_fonts.h"
 #include "vgasys_fon.h"
 #include "init.h"
+#include "log.h"
 
 
 /* Default size was 18 in the original game, but it refers to a
@@ -84,14 +85,14 @@ char* get_fontconfig_path(char* fontname)
 
   if (!FcInit())
     {
-      fprintf(stderr, "get_fontconfig_path: cannot initialize fontconfig\n");
+      log_error("get_fontconfig_path: cannot initialize fontconfig");
       return NULL;
     }
 
   p = FcNameParse((FcChar8*)fontname);
   if (p == NULL)
     {
-      fprintf(stderr, "get_fontconfig_path: invalid font pattern: %s\n", fontname);
+      log_error("get_fontconfig_path: invalid font pattern: %s", fontname);
       return NULL;
     }
   /* Grab filename attribute */
@@ -100,13 +101,13 @@ char* get_fontconfig_path(char* fontname)
   FcFontSet *fs = FcFontList (0, p, attr);
   if (fs->nfont == 0)
     {
-      fprintf(stderr, "get_fontconfig_path: no matching font\n");
+      log_error("get_fontconfig_path: no matching font");
       return NULL;
     }
   if (FcPatternGetString(fs->fonts[0], FC_FILE, 0, &strval) == FcResultTypeMismatch
       || strval == NULL)
     {
-      fprintf(stderr, "get_fontconfig_path: cannot find font filename\n");
+      log_error("get_fontconfig_path: cannot find font filename");
       return NULL;
     }
 
@@ -269,7 +270,7 @@ int initfont(char* fontname) {
     }
 
   if (new_font == NULL) {
-    printf("TTF_OpenFont: %s\n", TTF_GetError());
+    log_error("TTF_OpenFont: %s", TTF_GetError());
     return -1;
   }
 
@@ -308,18 +309,18 @@ setup_font(TTF_Font *font)
 {
   char *familyname = TTF_FontFaceFamilyName(font);
   if(familyname)
-    printf("The family name of the face in the font is: %s\n", familyname);
+    log_info("The family name of the face in the font is: %s", familyname);
   char *stylename = TTF_FontFaceStyleName(font);
   if(stylename)
-    printf("The name of the face in the font is: %s\n", stylename);
-  printf("The font max height is: %d\n", TTF_FontHeight(font));
-  printf("The font ascent is: %d\n", TTF_FontAscent(font));
-  printf("The font descent is: %d\n", TTF_FontDescent(font));
-  printf("The font line skip is: %d\n", TTF_FontLineSkip(font));
+    log_info("The name of the face in the font is: %s", stylename);
+  log_info("The font max height is: %d", TTF_FontHeight(font));
+  log_info("The font ascent is: %d", TTF_FontAscent(font));
+  log_info("The font descent is: %d", TTF_FontDescent(font));
+  log_info("The font line skip is: %d", TTF_FontLineSkip(font));
   if(TTF_FontFaceIsFixedWidth(font))
-    printf("The font is fixed width.\n");
+    log_info("The font is fixed width.");
   else
-    printf("The font is not fixed width.\n");
+    log_info("The font is not fixed width.");
 
   TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 }
@@ -407,7 +408,7 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
 
   if (tmp == NULL)
     {
-      printf("Error rendering text: %s; font is %p\n", TTF_GetError(), font);
+      log_error("Error rendering text: %s; font is %p", TTF_GetError(), font);
     }
 
   TTF_SizeUTF8 (font, str, &text_w, &text_h);
@@ -549,7 +550,7 @@ print_text_wrap (char *str, rect* box,
     font = system_font;
   else
     {
-      fprintf(stderr, "Error: unknown font type %d\n", font_type);
+      log_error("Error: unknown font type %d", font_type);
       exit(1);
     }
 

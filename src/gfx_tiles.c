@@ -62,7 +62,7 @@ void tiles_load_default() {
   char crap1[10];
   int h;
 
-  Msg("loading tilescreens...");
+  log_info("loading tilescreens...");
   for (h = 1; h <= NB_TILE_SCREENS; h++)
     {
       if (h < 10)
@@ -77,7 +77,7 @@ void tiles_load_default() {
 	exit(0);
     }
   
-  Msg("Done with tilescreens...");
+  log_info("Done with tilescreens...");
 }
 
 void tiles_load_slot(char* relpath, int slot)

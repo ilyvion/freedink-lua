@@ -323,7 +323,7 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 			if (j >= MAX_SPRITES_AT_ONCE)
 			{
           j = 1;
-		  Msg("Trying to process sprite %d, why?",j);
+		  log_warn("Trying to process sprite %d, why?",j);
 			}
 
 			if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == map_vision))
@@ -633,12 +633,12 @@ void load_info_buff(void)
 
   if (load_info_to(crap, &buffmap) < 0)
     {
-      Msg("World not found in %s.", buf_path);
+      log_error("World not found in %s.", buf_path);
       buf_mode = /*false*/0;
     }
   else
     {
-      Msg("World data loaded.");
+      log_info("World data loaded.");
       buf_mode = /*true*/1;
     }
 }
@@ -1228,13 +1228,13 @@ if (spr[1].size == 100)
 
 	if ((spr[1].x - k[getpic(1)].xoffset) + k[getpic(1)].box.right > 620)
 	{
-	Msg("need to add it to the right");
+	log_debug("need to add it to the right");
 
 		//need to add it to the right
 		if (map.loc[cur_map+1] > 0)
 		{
         	save_map(map.loc[cur_map]);
-          Msg("loading right map");
+          log_debug("loading right map");
 			load_map(map.loc[cur_map+1]);
                int holdx = spr[1].x;
                int holdy = spr[1].y;
@@ -1250,13 +1250,13 @@ if (spr[1].size == 100)
 
 	if ((spr[1].x - k[getpic(1)].xoffset) - k[getpic(1)].box.right < 20)
 	{
-	Msg("need to add it to the right");
+	log_debug("need to add it to the right");
 
 		//need to add it to the left
 		if (map.loc[cur_map-1] > 0)
 		{
         	save_map(map.loc[cur_map]);
-          Msg("loading right map");
+          log_debug("loading right map");
 			load_map(map.loc[cur_map-1]);
                int holdx = spr[1].x;
                int holdy = spr[1].y;
@@ -1272,13 +1272,13 @@ if (spr[1].size == 100)
 
 	if ((spr[1].y - k[getpic(1)].yoffset) + k[getpic(1)].box.bottom > 400)
 	{
-	Msg("need to add it to the bottom");
+	log_debug("need to add it to the bottom");
 
 		//need to add it to the bottom
 		if (map.loc[cur_map+32] > 0)
 		{
         	save_map(map.loc[cur_map]);
-          Msg("loading bottom ");
+          log_debug("loading bottom ");
 			load_map(map.loc[cur_map+32]);
                int holdx = spr[1].x;
                int holdy = spr[1].y;
@@ -1294,13 +1294,13 @@ if (spr[1].size == 100)
 
 	if ((spr[1].y - k[getpic(1)].yoffset) - k[getpic(1)].box.bottom < 0)
 	{
-	Msg("need to add it to the top");
+	log_debug("need to add it to the top");
 
 		//need to add it to the left
 		if (map.loc[cur_map-32] > 0)
 		{
         	save_map(map.loc[cur_map]);
-          Msg("loading top map");
+          log_debug("loading top map");
 			load_map(map.loc[cur_map-32]);
                int holdx = spr[1].x;
                int holdy = spr[1].y;
@@ -2835,7 +2835,7 @@ void updateFrame(void)
 									if ( 4 > 9)
 									  {
 									  spwarp:
-									    Msg("Ah yeah, using %d!",realpic);
+									    log_debug("Ah yeah, using %d!", realpic);
 									    uu = realpic;
 									  }
 
@@ -3476,7 +3476,7 @@ void updateFrame(void)
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 2);
-			    Msg("Changing whole tile to 2");
+			    log_debug("Changing whole tile to 2");
 
 			    return;
 			  }
@@ -3485,7 +3485,7 @@ void updateFrame(void)
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 3);
-			    Msg("Chaning whole tile to 3");
+			    log_debug("Chaning whole tile to 3");
 
 			    return;
 			  }
@@ -3493,7 +3493,7 @@ void updateFrame(void)
 			  {
 			    //change ALL to 'low hard'
 			    change_tile(hard_tile, 1);
-			    Msg("Changing whole tile to 1");
+			    log_debug("Changing whole tile to 1");
 
 			    return;
 			  }
@@ -3898,7 +3898,7 @@ void updateFrame(void)
 		    if ( (sjoy.charjustpressed['q']) && (mode == MODE_MINIMAP))
 		      {
 			save_hard();
-			Msg("Info saved.");
+			log_info("Info saved.");
 			SDL_Event ev;
 			ev.type = SDL_QUIT;
 			SDL_PushEvent(&ev);
@@ -3965,7 +3965,7 @@ void updateFrame(void)
 			k[seq[3].frame[1]].xoffset = -playl;
 			//SoundPlayEffect( SOUND_JUMP );
 
-			Msg("Y is %d X is %d", spr[h].y, spr[h].x);
+			log_debug("Y is %d X is %d", spr[h].y, spr[h].x);
 
 			m1x = spr[h].x;
 			m1y = spr[h].y;
@@ -4785,7 +4785,7 @@ void updateFrame(void)
 	      if (in_string != NULL)
 		strcpy(in_string, in_temp);
 	      else
-		Msg("Error, in_char pointer not set, can't issue a value.");
+		log_error("Error, in_char pointer not set, can't issue a value.");
 	    }
 
 	  if (in_command == 1)
@@ -4807,7 +4807,7 @@ void updateFrame(void)
 		}
 	      else
 		{
-		  Msg("Error, in_int pointer not set, can't issue a value.");
+		  log_error("in_int pointer not set, can't issue a value.");
 		}
 	    }
 
@@ -5044,7 +5044,7 @@ int load_editor_sounds()
     {
       int result = 0;
       char *filename = szSoundEffects[i];
-      Msg("Loading sound %s [%d]", filename, i);
+      log_info("Loading sound %s [%d]", filename, i);
       
       /* Try from resources */
       SDL_RWops* rwops;
@@ -5052,8 +5052,8 @@ int load_editor_sounds()
       if (rwops != NULL)
 	result = CreateBufferFromWaveFile_RW(rwops, 1, i);
       else
-	fprintf(stderr, "Cannot load sound effect %s, from resources or from %s\n",
-		filename, paths_getpkgdatadir());
+	log_error("Cannot load sound effect %s, from resources or from %s",
+		  filename, paths_getpkgdatadir());
     }
   return 1;
 }

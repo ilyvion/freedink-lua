@@ -75,7 +75,7 @@ static char* cur_funcname;
 #define STOP_IF_BAD_SPRITE(sprite)                                             \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
-      Msg("%s:%s: DinkC error: invalid sprite %d (offset %d)",                 \
+      log_error("[dinkc] %s:%s: invalid sprite %d (offset %d)",           \
           rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current);  \
       return;                                                                  \
     }
@@ -89,8 +89,8 @@ static char* cur_funcname;
 #define RETURN_NEG_IF_BAD_SPRITE(sprite)                                       \
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
-      Msg("%s:%s: DinkC error: invalid sprite %d (offset %d)",                 \
-          rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current);  \
+      log_error("[dinkc] %s:%s: invalid sprite %d (offset %d)",	       \
+		rinfo[script]->name, cur_funcname, sprite, rinfo[script]->current); \
       *preturnint = -1;                                                        \
       return;                                                                  \
     }
@@ -406,7 +406,7 @@ void dc_sp_editor_num(int script, int* yield, int* preturnint, int sprite)
   if (sprite > 0 && sprite < MAX_SPRITES_AT_ONCE)
     *preturnint = spr[sprite].sp_index;
   else
-    Msg("Error: sp_editor_num: invalid sprite %d", sprite);
+    log_error("[dinkc] sp_editor_num: invalid sprite %d", sprite);
 }
 
 
@@ -415,7 +415,7 @@ void dc_sp_kill_wait(int script, int* yield, int* preturnint, int sprite)
   if (sprite > 0 && sprite < MAX_SPRITES_AT_ONCE)
     spr[sprite].wait = 0;
   else
-    Msg("Error: sp_kill_wait: invalid sprite %d", sprite);
+    log_error("[dinkc] sp_kill_wait: invalid sprite %d", sprite);
 }
 
 void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcscript)
@@ -423,7 +423,7 @@ void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcs
   // (sprite, direction, until, nohard);
   if (sprite <= 0 || (sprite >= MAX_SPRITES_AT_ONCE && sprite != 1000))
     {
-      Msg("Error: sp_script cannot process sprite %d??", sprite);
+      log_error("[dinkc] sp_script cannot process sprite %d??", sprite);
       return;
     }
   kill_scripts_owned_by(sprite);
@@ -437,7 +437,7 @@ void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcs
   if (sprite != 1000)
     {
       if (no_running_main == /*true*/1)
-	Msg("Not running %s until later..", rinfo[spr[sprite].script]->name);
+	log_info("Not running %s until later..", rinfo[spr[sprite].script]->name);
       if (no_running_main == /*false*/0 && sprite != 1000)
 	locate(spr[sprite].script, "MAIN");
     
@@ -458,7 +458,7 @@ void dc_unfreeze(int script, int* yield, int* preturnint, int sprite)
   if (spr[sprite].active)
     spr[sprite].freeze = 0;
   else
-    Msg("Couldn't unfreeze sprite %d in script %d, it doesn't exist.", sprite, script);
+    log_error("[dinkc] Couldn't unfreeze sprite %d in script %d, it doesn't exist.", sprite, script);
 }
 
 void dc_freeze(int script, int* yield, int* preturnint, int sprite)
@@ -468,7 +468,7 @@ void dc_freeze(int script, int* yield, int* preturnint, int sprite)
   if (spr[sprite].active)
     spr[sprite].freeze = script;
   else
-    Msg("Couldn't freeze sprite %d in script %d, it doesn't exist.", sprite, script);
+    log_error("[dinkc] Couldn't freeze sprite %d in script %d, it doesn't exist.", sprite, script);
 }
 
 void dc_set_callback_random(int script, int* yield, int* preturnint, char* procedure, int base, int range)
@@ -531,7 +531,7 @@ void dc_kill_this_magic(int script, int* yield, int* preturnint, char* dcscript)
 
 void dc_show_bmp(int script, int* yield, int* preturnint, char* bmp_file, int show_map_dot, int unused)
 {
-  Msg("showing BMP");
+  log_info("showing BMP");
   wait4b.active = /*false*/0;
   show_bmp(bmp_file, show_map_dot, script);
   *yield = 1;
@@ -539,13 +539,13 @@ void dc_show_bmp(int script, int* yield, int* preturnint, char* bmp_file, int sh
 
 void dc_copy_bmp_to_screen(int script, int* yield, int* preturnint, char* bmp_file)
 {
-  Msg("copying BMP");
+  log_info("copying BMP");
   copy_bmp(bmp_file);
 }
 
 void dc_wait_for_button(int script, int* yield, int* preturnint)
 {
-  Msg("waiting for button with script %d", script);
+  log_info("waiting for button with script %d", script);
   wait4b.script = script;
   wait4b.active = /*true*/1;
   wait4b.button = 0;
@@ -580,7 +580,7 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
 
   if (active_sprite == 0)
     {
-      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
+      log_error("[dinkc] say_stop: Sprite 0 can talk? Yeah, didn't think so.");
       return;
     }
 
@@ -603,7 +603,7 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
 
   if (active_sprite == 0)
     {
-      Msg("Say_stop error:  Sprite 0 can talk? Yeah, didn't think so.");
+      log_error("[dinkc] say_stop: Sprite 0 can talk? Yeah, didn't think so.");
       return;
     }
     
@@ -667,7 +667,7 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
   else
     i18n_translate(text, 200);
 
-  Msg("Say_stop_xy: Adding %s", text);
+  log_info("say_stop_xy: Adding %s", text);
   decipher_string(text, script);
   int sprite = say_text_xy(text, x, y, script);
   spr[sprite].callback = script;
@@ -862,7 +862,7 @@ void dc_draw_background(int script, int* yield, int* preturnint)
 void dc_draw_hard_map(int script, int* yield, int* preturnint)
 {
   // (sprite, direction, until, nohard);
-  Msg("Drawing hard map..");
+  log_info("Drawing hard map..");
   update_play_changes();
   fill_whole_hard();
   fill_hard_sprites();
@@ -915,7 +915,7 @@ void dc_kill_all_sounds(int script, int* yield, int* preturnint)
 
 void dc_kill_game(int script, int* yield, int* preturnint)
 {
-  Msg("Was told to kill game, so doing it like a good boy.");
+  log_info("Was told to kill game, so doing it like a good boy.");
   /* Send QUIT event to the main game loop,
      which will cleanly exit */
   SDL_Event ev;
@@ -946,8 +946,7 @@ void dc_scripts_used(int script, int* yield, int* preturnint)
 
 void dc_stopcd(int script, int* yield, int* preturnint)
 {
-  // mciSendCommand(CD_ID, MCI_CLOSE, 0, NULL);
-  Msg("Stopped cd");
+  log_debug("Stopped cd");
   killcd();
 }
 
@@ -1000,13 +999,13 @@ void dc_compare_sprite_script(int script, int* yield, int* preturnint, int sprit
     {
       if (spr[sprite].script == 0)
 	{
-	  Msg("Compare sprite script says: Sprite %d has no script.", sprite);
+	  log_error("[dinkc] compare_sprite_script: Sprite %d has no script.", sprite);
 	  return;
 	}
       if (rinfo[spr[sprite].script] == NULL)
 	{
-	  Msg("Compare sprite script says: script %d for sprite %d was already killed!.",
-	      sprite, spr[sprite].script);
+	  log_error("[dinkc] compare_sprite_script: script %d for sprite %d was already killed!.",
+		    sprite, spr[sprite].script);
 	  return;
 	}
       if (compare(dcscript, rinfo[spr[sprite].script]->name))
@@ -1017,7 +1016,7 @@ void dc_compare_sprite_script(int script, int* yield, int* preturnint, int sprit
     }
   else
     {
-      Msg("Can't compare sprite script, sprite not active.");
+      log_error("[dinkc] compare_sprite_script: Can't compare sprite script, sprite not active.");
     }
 }
 
@@ -1109,8 +1108,7 @@ void dc_move(int script, int* yield, int* preturnint,
   spr[sprite].move_num = destination_limit;
   spr[sprite].move_nohard = ignore_hardness_p;
   spr[sprite].move_script = 0;
-  if (debug_mode)
-    Msg("Moving: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
+  log_debug("Moving: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
 }
 
 void dc_spawn(int script, int* yield, int* preturnint,
@@ -1140,12 +1138,12 @@ void dc_playmidi(int script, int* yield, int* preturnint,
 {
   //StopMidi();
   int regm = atol(midi_file);
-  Msg("Processing playmidi command.");
+  log_debug("Processing playmidi command.");
   if (regm > 1000)
     //cd directive
     {
       int cd_track = regm - 1000;
-      Msg("playmidi - cd play command detected.");
+      log_info("playmidi - cd play command detected.");
       
       if (cd_inserted)
 	{
@@ -1156,12 +1154,12 @@ void dc_playmidi(int script, int* yield, int* preturnint,
 	      return;
 	    }
 	  
-	  Msg("Playing CD track %d.", cd_track);
+	  log_info("Playing CD track %d.", cd_track);
 	  if (PlayCD(cd_track) >= 0)
 	    return;
 	}
     }
-  Msg("Playing midi %s.", midi_file);
+  log_info("Playing midi %s.", midi_file);
   PlayMidi(midi_file);
 }
 
@@ -1222,9 +1220,9 @@ void dc_load_game(int script, int* yield, int* preturnint, int game_slot)
 {
   kill_all_scripts_for_real();
   *preturnint = load_game(game_slot);
-  Msg("load completed. ");
+  log_info("load completed.");
   if (rinfo[script] == NULL)
-    Msg("Script %d is suddenly null!", script);
+    log_error("[dinkc] Script %d is suddenly null!", script);
   *pupdate_status = 1;
   draw_status_all();
   *yield = 1;
@@ -1253,8 +1251,7 @@ void dc_move_stop(int script, int* yield, int* preturnint,
   spr[sprite].move_num = destination_limit;
   spr[sprite].move_nohard = ignore_hardness_p;
   spr[sprite].move_script = script;
-  if (debug_mode)
-    Msg("Move_stop: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
+  log_debug("Move_stop: Sprite %d, dir %d, num %d", sprite, direction, destination_limit);
   *yield = 1;
 }
 
@@ -1263,7 +1260,7 @@ void dc_load_sound(int script, int* yield, int* preturnint,
 {
   if (sound_on)
     {
-      Msg("getting %s..", wav_file);
+      log_info("getting %s..", wav_file);
       CreateBufferFromWaveFile(wav_file, sound_index);
     }
 }
@@ -1276,7 +1273,7 @@ void dc_debug(int script, int* yield, int* preturnint,
      shown on the screen in debug mode */
   latin1_to_utf8(text, buf, 350);
   decipher_string(buf, script);
-  Msg(buf);
+  log_debug(buf);
 }
 
 void dc_busy(int script, int* yield, int* preturnint,
@@ -1284,8 +1281,8 @@ void dc_busy(int script, int* yield, int* preturnint,
 {
   STOP_IF_BAD_SPRITE(sprite);
   *preturnint = does_sprite_have_text(nlist[0]);
-  Msg("Busy: Return int is %d and %d.  Nlist got %d.",
-      *preturnint, does_sprite_have_text(sprite), sprite);
+  log_debug("Busy: Return int is %d and %d.  Nlist got %d.",
+	    *preturnint, does_sprite_have_text(sprite), sprite);
 }
 
 
@@ -1301,8 +1298,7 @@ void dc_inside_box(int script, int* yield, int* preturnint,
   rect myrect;
   rect_set(&myrect, left, right, top, bottom);
   *preturnint = inside_box(x, y, myrect);
-  if (debug_mode)
-    Msg("Inbox is int is %d and %d.  Nlist got %d.", *preturnint, x, y);
+  log_debug("Inbox is int is %d and %d.  Nlist got %d.", *preturnint, x, y);
 }
 
 void dc_random(int script, int* yield, int* preturnint,
@@ -1315,7 +1311,7 @@ void dc_initfont(int script, int* yield, int* preturnint,
 		 char* fontname)
 {
   initfont(fontname);
-  Msg("Initted font %s", fontname);
+  log_info("Initted font %s", fontname);
 }
 
 void dc_set_mode(int script, int* yield, int* preturnint,
@@ -1353,16 +1349,15 @@ void dc_sp(int script, int* yield, int* preturnint,
     {
       if (spr[ii].sp_index == editor_sprite)
 	{
-	  if (debug_mode)
-	    Msg("Sp returned %d.", ii);
+	  log_debug("Sp returned %d.", ii);
 	  *preturnint = ii;
 	  return;
 	}
       
     }
   if (last_sprite_created == 1)
-    Msg("warning - you can't call SP() from a screen-ref,"
-	" no sprites have been created yet.");
+    log_warn("you can't call SP() from a screen-ref,"
+	     " no sprites have been created yet.");
   *preturnint = 0; /* not found */
 }
 
@@ -1381,7 +1376,7 @@ void dc_get_sprite_with_this_brain(int script, int* yield, int* preturnint,
     {
       if (spr[i].brain == brain && i != sprite_ignore && spr[i].active == 1)
 	{
-	  Msg("Ok, sprite with brain %d is %d", brain, i);
+	  log_debug("Ok, sprite with brain %d is %d", brain, i);
 	  *preturnint = i;
 	  return;
 	}
@@ -1401,9 +1396,9 @@ void dc_get_rand_sprite_with_this_brain(int script, int* yield, int* preturnint,
     }
   if (nb_matches == 0)
     {
-      Msg("Get rand brain can't find any brains with %d.", brain);
-	    *preturnint = 0;
-	    return;
+      log_debug("Get rand brain can't find any brains with %d.", brain);
+      *preturnint = 0;
+      return;
     }
   
   int mypick = (rand() % nb_matches) + 1;
@@ -1769,7 +1764,7 @@ void dc_load_palette(int script, int* yield, int* preturnint, char* bmp_file)
   SDL_Surface* image = NULL;
   FILE *in = paths_dmodfile_fopen(name, "rb");
   if (in == NULL)
-    fprintf(stderr, "Error: Can't open palette '%s'.", name);
+    log_error("[dinkc] Can't open palette '%s'.", name);
   else
     {
       /* Set palette */
@@ -1778,7 +1773,7 @@ void dc_load_palette(int script, int* yield, int* preturnint, char* bmp_file)
     }
   
   if (image == NULL)
-    fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+    log_error("[dinkc] Couldn't load palette from '%s'.", name);
   else
     {
       //Store in save game
@@ -1832,12 +1827,12 @@ void dc_get_next_sprite_with_this_brain(int script, int* yield, int* preturnint,
       if ((spr[i].brain == brain) && (i != sprite_ignore))
 	if (spr[i].active == 1)
 	  {
-	    Msg ("Ok, sprite with brain %d is %d", brain, i);
+	    log_debug("Ok, sprite with brain %d is %d", brain, i);
 	    *preturnint = i;
 	    return;
 	  }
     }
-  Msg ("Ok, sprite with brain %d is 0", brain);
+  log_debug("Ok, sprite with brain %d is 0", brain);
   *preturnint = 0; /* not found */
 }
 
@@ -1855,7 +1850,7 @@ void dc_set_dink_base_push(int script, int* yield, int* preturnint, int base_seq
 
 void dc_callback_kill(int script, int* yield, int* preturnint, int callback_index)
 {
-  Msg ("setting callback random");
+  log_debug("setting callback random");
   kill_callback(callback_index);
 }
 
@@ -1921,8 +1916,8 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
   void* slot = dinkc_bindings_lookup(hash, pbd->funcname);
   if (slot != NULL)
     {
-      fprintf(stderr, "Internal error: attempting to redeclare binding %s\n", pbd->funcname);
-      exit(1);
+      log_fatal("Internal error: attempting to redeclare binding %s", pbd->funcname);
+      exit(EXIT_FAILURE);
     }
 
   /* Copy uninitialized binding in hash table */
@@ -2304,7 +2299,7 @@ morestuff:
         {
 	  if (cur-1 == 0)
 	    {
-	      Msg("Error: choice() has 0 options in script %s, offset %d.",
+	      log_debug("Error: choice() has 0 options in script %s, offset %d.",
 		  rinfo[script]->name, rinfo[script]->current);
 	      return(/*false*/0);
 	    }
@@ -2329,8 +2324,8 @@ morestuff:
 	  //found conditional statement
 	  if (strchr(check, '(') == NULL)
 	    {
-	      Msg("Error with choice() statement in script %s, offset %d. (%s?)",
-		  rinfo[script]->name, rinfo[script]->current, check);
+	      log_error("[dinkc] Error with choice() statement in script %s, offset %d. (%s?)",
+			rinfo[script]->name, rinfo[script]->current, check);
 	      return(/*false*/0);
 	    }
 	  
@@ -2340,7 +2335,7 @@ morestuff:
 	  //Msg("Running %s through var figure..", check);
 	  if (var_figure(check, script) == 0)
 	    {
-	      Msg("Answer is no.");
+	      log_debug("Answer is no.");
 	      retnum++;
 	      goto redo;
 	      //said NO to statement
@@ -2409,7 +2404,7 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
     }
   else
     {
-      Msg("Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+      log_error("[dinkc] Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
       return 0;
     }
 
@@ -2660,7 +2655,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(line, p);
 	  process_line(script, h, /*false*/0);
 	  
-	  Msg("Returned %d for the returnint", returnint);
+	  log_debug("Returned %d for the returnint", returnint);
 	  h = s;
 	  strcpy(s, line);
 	  
@@ -2770,7 +2765,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 
   if (compare(ev[1], "void"))
     {
-      Msg("ERROR: Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
+      log_error("[dinkc] Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
       strcpy_nooverlap(s, h);
       return(DCPS_YIELD);
     }
@@ -2786,15 +2781,13 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	
       if (returnint != 0)
 	{
-	  if (debug_mode)
-	    Msg("If returned true");
+	  log_debug("If returned true");
 	}
       else
 	{
 	  //don't do it!
 	  rinfo[script]->skipnext = /*true*/1;
-	  if (debug_mode)
-	    Msg("If returned false, skipping next thing");
+	  log_debug("If returned false, skipping next thing");
 	}
 	
       strcpy_nooverlap(s, h);
@@ -2867,8 +2860,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   /** "return;" and "return something;" **/
   if (compare(ev[1], "return;"))
     {
-      if (debug_mode)
-	Msg("Found return; statement");
+      log_debug("Found return; statement");
 	
       if (rinfo[script]->proc_return != 0)
 	{
@@ -2887,8 +2879,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
       /* see also "return;" above */
       if (compare (ev[1], "return"))
 	{
-	  if (debug_mode)
-	    Msg ("Found return; statement");
+	  log_debug("Found return; statement");
 	  h += strlen(ev[1]);
 	  strip_beginning_spaces (h);
 	  process_line (script, h, 0);
@@ -2930,8 +2921,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	      int i = 0;
 	      while (params[i] != 0 && i < 10)
 		i++;
-	      Msg("%s: DinkC error: procedure '%s' takes %d parameters (offset %d)",
-		  rinfo[script]->name, funcname, i, rinfo[script]->current);
+	      log_error("[dinkc] %s: procedure '%s' takes %d parameters (offset %d)",
+			rinfo[script]->name, funcname, i, rinfo[script]->current);
 
 	      /* Set 'returnint' if necessary */
 	      if (pbd->badparams_returnint_p == 1)
@@ -3023,8 +3014,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	}
       else
 	{
-	  fprintf(stderr, "Internal error: DinkC function %s has unknown signature",
-		  pbd->funcname);
+	  log_fatal("Internal error: DinkC function %s has unknown signature",
+		    pbd->funcname);
 	  exit(EXIT_FAILURE);
 	}
       cur_funcname = "";
@@ -3036,8 +3027,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	return DCPS_YIELD;
       else
 	{
-	  fprintf(stderr, "Internal error: DinkC function %s requested invalid state %d",
-		  pbd->funcname, *yield);
+	  log_fatal("Internal error: DinkC function %s requested invalid state %d",
+		    pbd->funcname, *yield);
 	  exit(EXIT_FAILURE);
 	}
     }
@@ -3142,7 +3133,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, 0);
 	      if (myscript1 == 0)
 		{
-		  Msg ("Error:  Couldn't find %s.c (for procedure %s)",
+		  log_error("[dinkc] external: Couldn't find %s.c (for procedure %s)",
 		       slist[0], slist[1]);
 		  return (0);
 		}
@@ -3162,8 +3153,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 		}
 	      else
 		{
-		  Msg ("Error:  Couldn't find procedure %s in %s.",
-		       slist[1], slist[0]);
+		  log_error("[dinkc] external: Couldn't find procedure %s in %s.",
+			    slist[1], slist[0]);
 		  kill_script (myscript1);
 		}
 	    }
@@ -3224,7 +3215,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 		      break;
 		    }
 		}
-	      Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s)",
+	      log_error("[dinkc] Procedure void %s( void ); not found in script %s. (word 2 was %s)",
 		  ev[1], ev[2], rinfo[myscript]->name);
 	      kill_script (myscript);
 	    }
@@ -3259,7 +3250,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	      int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
 	      if (myscript1 == 0)
 		{
-		  Msg("Error:  Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
+		  log_error("[dinkc] external: Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
 		  return(0);
 		}
 	      if (locate( myscript1, slist[1]))
@@ -3270,14 +3261,14 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 		}
 	      else
 		{
-		  Msg("Error:  Couldn't find procedure %s in %s.", slist[1], slist[0]);
+		  log_error("[dinkc] external: Couldn't find procedure %s in %s.", slist[1], slist[0]);
 		  kill_script(myscript1);
 		}
 	    }
 	  else
 	    {
-	      Msg("%s: DinkC error: procedure 'external' takes 2 parameters (offset %d)",
-		  rinfo[script]->name, rinfo[script]->current);
+	      log_error("[dinkc] %s: procedure 'external' takes 2 parameters (offset %d)",
+			rinfo[script]->name, rinfo[script]->current);
 	    }
 	  strcpy_nooverlap(s, h);
 	  return(0);
@@ -3297,14 +3288,15 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	    }
 	  else
 	    {
-	      Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
-		  ev[2], rinfo[myscript]->name);
+	      log_error("[dinkc] Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
+			line, ev[2], rinfo[myscript]->name);
 	      kill_script(myscript);
 	    }
 	  return(0);
 	}
 	
-      Msg("MERROR: \"%s\" unknown in %s, offset %d.",ev[1], rinfo[script]->name,rinfo[script]->current);
+      log_error("[dinkc] \"%s\" unknown in %s, offset %d.",
+		ev[1], rinfo[script]->name,rinfo[script]->current);
       //in a thingie, ready to go
     }
 

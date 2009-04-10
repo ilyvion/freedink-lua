@@ -104,14 +104,14 @@ static void decompress(FILE *in, int script)
 	      int c = fgetc(in);
 	      if (c == EOF)
 		{
-		  fprintf(stderr, "decompress: invalid header: truncated pair table\n");
+		  log_error("decompress: invalid header: truncated pair table");
 		  free(rbuf[script]);
 		  rbuf[script] = NULL;
 		  return;
 		}
 	      if (c > i+128)
 		{
-		  fprintf(stderr, "decompress: invalid header: reference to a pair that is not registered yet\n");
+		  log_error("decompress: invalid header: reference to a pair that is not registered yet");
 		  free(rbuf[script]);
 		  rbuf[script] = NULL;
 		  return;
@@ -139,7 +139,7 @@ static void decompress(FILE *in, int script)
 	{
 	  if ((c-128) >= nb_pairs)
 	    {
-	      fprintf(stderr, "decompress: invalid body: references non-existent pair\n");
+	      log_error("decompress: invalid body: references non-existent pair");
 	      break;
 	    }
 	  stack[++top] = pairs[c-128][1];
@@ -192,7 +192,7 @@ static /*bool*/int load_game_small(int num, char *line, int *mytime)
   FILE *f = paths_savegame_fopen(num, "rb");
   if (f == NULL)
     {
-      Msg("Couldn't quickload save game %d", num);
+      log_info("Couldn't quickload save game %d", num);
       return(/*false*/0);
     }
   else
@@ -223,7 +223,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   FILE *in = NULL;
   /*bool*/int comp = /*false*/0;
   
-  Msg("LOADING %s", filename);
+  log_info("LOADING %s", filename);
   
   sprintf(temp, "story/%s.d", filename);
   in = paths_dmodfile_fopen(temp, "rb");
@@ -241,7 +241,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
 	      in = paths_fallbackfile_fopen(temp, "rb");
 	      if (in == NULL)
 		{
-		  Msg("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
+		  log_warn("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
 		  return 0;
 		}
 	    }
@@ -249,7 +249,7 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
     }
   
   strtoupper(temp);
-  Msg("Temp thingie is %c", temp[strlen(temp)-1]);
+  log_debug("Temp thingie is %c", temp[strlen(temp)-1]);
   if (temp[strlen(temp)-1] == 'D')
     comp = 1;
   else
@@ -265,35 +265,35 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   
   if (script == MAX_SCRIPTS)
     {
-      Msg("Couldn't find unused buffer for script.");
+      log_error("Couldn't find unused buffer for script.");
       fclose(in);
       return 0;
     }
 
-  Msg("Loading script %s.. (slot %d)", temp, script);
+  log_info("Loading script %s.. (slot %d)", temp, script);
   rinfo[script] = XZALLOC(struct refinfo);
   if (rinfo[script] == NULL)
     {
-      Msg("Couldn't allocate rscript %d.", script);
+      log_error("Couldn't allocate rscript %d.", script);
       return 0;
     }
   memset(rinfo[script], 0, sizeof(struct refinfo));
   
   if (comp)
     {
-      Msg("decompressing!");
+      log_debug("Decompressing...");
       decompress(in, script);
     }
   else
     {
-      Msg("reading from disk!");
+      log_debug("Reading from disk...");
       decompress_nocomp(in, script);
     }
   fclose(in);
   
   if (rbuf[script] == NULL)
     {
-      Msg("Couldn't allocate rbuff %d.", script);
+      log_error("Couldn't allocate rbuff %d.", script);
       free(rinfo[script]);
       rinfo[script] = NULL;
       return 0;
@@ -441,7 +441,7 @@ void strip_beginning_spaces(char *str)
       
       if (compare(ev[1], proc))
 	{
-	  if (debug_mode) Msg("Found goto : Line is %s, word is %s.", line, ev[1]);
+	  log_debug("Found goto : Line is %s, word is %s.", line, ev[1]);
 	  
 	  rinfo[script]->skipnext = /*false*/0;
 	  rinfo[script]->onlevel = 0;
@@ -451,7 +451,7 @@ void strip_beginning_spaces(char *str)
 	  //this is desired proc
 	}
     }
-  Msg("ERROR:  Cannot goto %s in %s.", proc, rinfo[script]->name);
+  log_warn("ERROR:  Cannot goto %s in %s.", proc, rinfo[script]->name);
   return /*false*/0;
 }
 
@@ -756,14 +756,13 @@ int add_callback(char name[20], int n1, int n2, int script)
 	  callback[k].owner = script;
 	  strcpy(callback[k].name, name);
 	  
-	  if (debug_mode)
-	    Msg("Callback added to %d.", k);
+	  log_debug("Callback added to %d.", k);
 	  return(k);
 	}
     }
   
-  Msg("Couldn't add callback, all out of space");
-  return(0);
+  log_error("Couldn't add callback, all out of space");
+  return 0;
 }
 
 void kill_callback(int cb)
@@ -774,18 +773,16 @@ void kill_callback(int cb)
 
 void kill_callbacks_owned_by_script(int script)
 {
-  int i;
-        for (i = 1; i < MAX_CALLBACKS; i++)
-        {
-        if (callback[i].owner == script)
-                {
-                        if (debug_mode) Msg("Kill_all_callbacks just killed %d for script %d", i, script);
-                        //killed callback
-                        callback[i].active = /*false*/0;
-                }
-        }
-
-
+  int i = 1;
+  for (; i < MAX_CALLBACKS; i++)
+    {
+      if (callback[i].owner == script)
+	{
+	  log_debug("Kill_all_callbacks just killed %d for script %d", i, script);
+	  //killed callback
+	  callback[i].active = /*false*/0;
+	}
+    }
 }
 
 
@@ -803,8 +800,7 @@ void kill_script(int k)
 	  if (play.var[i].active && play.var[i].scope == k)
 	    play.var[i].active = /*false*/0;
 	}
-      if (debug_mode)
-	Msg("Killed script %s. (num %d)", rinfo[k]->name, k);
+      log_debug("Killed script %s. (num %d)", rinfo[k]->name, k);
       
       if (rinfo[k]->name != NULL)
 	free(rinfo[k]->name);
@@ -839,7 +835,8 @@ void kill_all_scripts(void)
 
                         } else
                         {
-                                if (debug_mode) Msg("Killed callback %d.  (was attached to script %d.)",k, callback[k].owner);
+                                log_debug("Killed callback %d.  (was attached to script %d)",
+					  k, callback[k].owner);
                                 callback[k].active = 0;
                         }
                 }
@@ -867,7 +864,7 @@ void kill_all_scripts_for_real(void)
 {
   if (rinfo[script] == NULL || rbuf == NULL)
     {
-      Msg("  ERROR:  Tried to read script %d, it doesn't exist.", script);
+      log_error("Tried to read script %d, it doesn't exist.", script);
       return /*false*/0;
     }
 
@@ -921,8 +918,7 @@ void process_callbacks(void)
 	  if (rinfo[i]->sprite > 0 && rinfo[i]->sprite != 1000 && spr[rinfo[i]->sprite].active == /*false*/0)
 	    {
 	      //kill this script, owner is dead
-	      if (debug_mode)
-		Msg("Killing script %s, owner sprite %d is dead.", rinfo[i]->name, rinfo[i]->sprite);
+	      log_debug("Killing script %s, owner sprite %d is dead.", rinfo[i]->name, rinfo[i]->sprite);
 	      kill_script(i);
 	    }
 	}
@@ -935,8 +931,8 @@ void process_callbacks(void)
 	  if (callback[k].owner > 0 && rinfo[callback[k].owner] == NULL)
 	    {
 	      //kill this process, it's owner sprite is 'effin dead.
-	      if (debug_mode)
-		Msg("Killed callback %s because script %d is dead.", k, callback[k].owner);
+	      log_debug("Killed callback %s because script %d is dead.",
+			k, callback[k].owner);
 	      callback[k].active = /*false*/0;
 	    }
 	  else
@@ -963,13 +959,12 @@ void process_callbacks(void)
 			  //kill this callback
 			  callback[k].active = /*false*/0;
 			  run_script(callback[k].owner);
-			  if (debug_mode)
-			    Msg("Called script %d with callback %d.", callback[k].owner, k);
+			  log_debug("Called script %d with callback %d.",
+				    callback[k].owner, k);
 			}
 		      else
 			{
-			  if (debug_mode)
-			    Msg("Called proc %s with callback %d.", callback[k].name, k);
+			  log_debug("Called proc %s with callback %d.", callback[k].name, k);
 			  
 			  //callback defined a proc name
 			  if (locate(callback[k].owner,callback[k].name))
@@ -998,7 +993,7 @@ void init_scripts(void)
 	{
 	  if (locate(k,"main"))
 	    {
-	      if (debug_mode) Msg("Screendraw: running main of script %s..", rinfo[k]->name);
+	      log_debug("Screendraw: running main of script %s..", rinfo[k]->name);
 	      run_script(k);
 	    }
 	}
@@ -1037,7 +1032,7 @@ void kill_returning_stuff(int script)
       if (callback[i].active && callback[i].owner == script)
 	//      if (compare(callback[i].name, ""))
 	{
-	  Msg("killed a returning callback, ha!");
+	  log_debug("killed a returning callback, ha!");
 	  callback[i].active = /*false*/0;
 	}
 
@@ -1048,7 +1043,7 @@ void kill_returning_stuff(int script)
     {
       if (spr[i].active && spr[i].brain == 8 && spr[i].callback == script)
 	{
-	  Msg("Killed sprites callback command");
+	  log_debug("Killed sprites callback command");
 	  spr[i].callback = 0;
 	}
     }
@@ -1081,12 +1076,11 @@ void run_script(int script)
 
   if (rinfo[script] != NULL)
     {
-      if (debug_mode)
-	Msg("Script %s is entered at offset %d.", rinfo[script]->name, rinfo[script]->current);
+      log_debug("Script %s is entered at offset %d.", rinfo[script]->name, rinfo[script]->current);
     }
   else
     {
-      Msg("Error:  Tried to run a script that doesn't exist in memory.  Nice work.");
+      log_error("Error:  Tried to run a script that doesn't exist in memory.  Nice work.");
     }
 
   int doelse_once = 0;
@@ -1117,8 +1111,7 @@ void run_script(int script)
 	  if (result == DCPS_YIELD)
 	    {
 	      /* Quit script: */
-	      if (debug_mode)
-		Msg("giving script the boot");
+	      log_debug("giving script the boot");
 	      return;
 	    }
 	  
@@ -1237,23 +1230,26 @@ void make_int(char name[80], int value, int scope, int script)
         if (strlen(name) > 19)
         {
 
-                Msg("ERROR:  Varname %s is too long in script %s.",name, rinfo[script]->name);
+                log_error("Varname %s is too long in script %s.",
+			  name, rinfo[script]->name);
                 return;
         }
         dupe = var_exists(name, scope);
 
         if (dupe > 0)
-        {
-                if (scope != DINKC_GLOBAL_SCOPE)
-                {
-                        Msg("Local var %s already used in this procedure in script %s.",name, rinfo[script]->name);
-
-                        play.var[dupe].var = value;
-
-                } else
-                        Msg("Var %s is already a global, not changing value.",name);
-
-                return;
+	  {
+	    if (scope != DINKC_GLOBAL_SCOPE)
+	      {
+		log_warn("Local var %s already used in this procedure in script %s.",
+			 name, rinfo[script]->name);
+		
+		play.var[dupe].var = value;
+	      }
+	    else
+	      {
+		log_error("Var %s is already a global, not changing value.", name);
+	      }
+	    return;
         }
 
 
@@ -1273,8 +1269,7 @@ void make_int(char name[80], int value, int scope, int script)
                 }
         }
 
-
-        Msg("ERROR: Out of var space, all %d used.", MAX_VARS);
+        log_error("Out of var space, all %d used.", MAX_VARS);
 }
 
 /**
@@ -1294,8 +1289,8 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   /** Ensure left-hand side is an existing variable **/
   if (name[0] != '&')
     {
-      Msg("ERROR (var equals): Unknown var %s in %s offset %d.",
-	  name, rinfo[script]->name, rinfo[script]->current);
+      log_error("var equals: Unknown var %s in %s offset %d.",
+		name, rinfo[script]->name, rinfo[script]->current);
       return;
     }
   /* Find the variable slot */
@@ -1306,7 +1301,7 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
     
     if (lhs_var == NULL) /* not found */
       {
-	Msg("ERROR: (var equals2) Unknown var %s in %s offset %d.",
+	log_error("var equals: Unknown var %s in %s offset %d.",
 	    name, rinfo[script]->name, rinfo[script]->current);
 	return;
       }
@@ -1461,8 +1456,7 @@ int var_figure(char h[200], int script)
         n2 = atol(crap);
 
         get_word(h, 2, crap);
-        if (debug_mode)
-                Msg("Compared %d to %d",n1, n2);
+        log_debug("Compared %d to %d",n1, n2);
 
         if (compare(crap, "=="))
         {
@@ -1519,8 +1513,9 @@ int var_figure(char h[200], int script)
 
                 if (name[0] != '&')
                 {
-                        Msg("ERROR:  Can't create var %s, should be &%s.", name,name);
-                        return;
+		  log_error("Can't create var %s, should be &%s.",
+			    name, name);
+		  return;
                 }
 
 

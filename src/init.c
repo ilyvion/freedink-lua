@@ -151,10 +151,10 @@ void finiObjects()
   
   if (last_saved_game > 0)
     {
-      Msg("Modifying saved game.");
+      log_info("Modifying saved game.");
       
       if (!add_time_to_saved_game(last_saved_game))
-	Msg("Error modifying saved game.");
+	log_error("Error modifying saved game.");
       last_saved_game = 0;
     }
 	
@@ -209,6 +209,7 @@ static int check_arg(int argc, char *argv[])
   int c;
   char *refdir_opt = NULL;
   char *dmoddir_opt = NULL;
+  int debug_p = 0;
 
   /* Options '-debug', '-game', '-noini', '-nojoy', '-nosound' and
      '-window' (with one dash '-' only) are required to maintain
@@ -237,10 +238,8 @@ static int check_arg(int argc, char *argv[])
     {
       switch (c) {
       case 'd':
-	  debug_mode = 1;
-	  /* TODO: use global path */
-	  remove("dink/debug.txt");
-	  break;
+	debug_p = 1;
+	break;
       case 'r':
 	refdir_opt = strdup(optarg);
 	break;
@@ -294,7 +293,16 @@ static int check_arg(int argc, char *argv[])
   free(refdir_opt);
   free(dmoddir_opt);
 
-  Msg("Game directory is '%s'.", paths_getdmoddir());
+  if (debug_p == 1)
+    {
+      char* fullpath = paths_dmodfile("DEBUG.TXT");
+      remove(fullpath);
+      free(fullpath);
+
+      log_debug_on();
+    }
+
+  log_info("Game directory is '%s'.", paths_getdmoddir());
   return 1;
 }
 
@@ -314,13 +322,6 @@ void xalloc_die (void) {
    subsystem as needed (eg InitSound) */
 int init(int argc, char *argv[], char* splash_path)
 {
-#ifdef _PSP
-/*   freopen("stdout.txt", "w", stdout); */
-/*   freopen("stderr.txt", "w", stderr); */
-/*   setlinebuf(stdout); */
-/*   setlinebuf(stderr); */
-#endif
-
   /** i18n **/
   /* Only using LC_MESSAGES because LC_CTYPE (part of LC_ALL) may
      bring locale-specific behavior in the DinkC parsers. If that's a
@@ -383,7 +384,7 @@ int init(int argc, char *argv[], char* splash_path)
   /* SFX & BGM */
   if (sound_on) 
     {
-      Msg("Initting sound");
+      log_info("Initting sound");
       if (InitSound() < 0)
 	sound_on = 0;
       else
@@ -403,13 +404,13 @@ int init(int argc, char *argv[], char* splash_path)
   SDL_setFramerate(&framerate_manager, 60);
 
   //dinks normal walk
-  Msg("Loading batch...");
+  log_info("Loading batch...");
   load_batch();
-  Msg(" done!");
+  log_info(" done!");
   
-  Msg("Loading hard...");
+  log_info("Loading hard...");
   load_hard();
-  Msg(" done!");
+  log_info(" done!");
 
   /* We'll handle those events manually */
   SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);

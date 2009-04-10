@@ -93,7 +93,6 @@ void add_exp(int num, int h);
 void draw_status_all(void);
 void check_seq_status(int h);
 
-void add_text(char *tex ,char *filename);
 int map_vision = 0;
 int realhard(int tile);
 int flub_mode = -500;
@@ -525,7 +524,7 @@ int getpic(int sprite_no)
   
   if (spr[sprite_no].pseq >= MAX_SEQUENCES)
     {
-      Msg("Sequence %d?  But max is %d!", spr[sprite_no].pseq, MAX_SEQUENCES);
+      log_error("Sequence %d?  But max is %d!", spr[sprite_no].pseq, MAX_SEQUENCES);
       return 0;
     }
 
@@ -914,7 +913,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   f = paths_dmodfile_fopen(path, "rb");
   if (!f)
     {
-      Msg("Cannot find %s file!!!", path);
+      log_error("Cannot find %s file!!!", path);
       return;
     }
   lsize = 31280; // sizeof(struct small_map); // under ia32, not portable
@@ -1050,7 +1049,7 @@ void save_map(const int num)
   FILE *f = NULL;
   long holdme,lsize;
 
-  Msg("Saving map data..");
+  log_info("Saving map data..");
   if (num > 0)
     {
       f = paths_dmodfile_fopen(current_map, "r+b");
@@ -1163,7 +1162,7 @@ void save_map(const int num)
       fclose(f);
     }
 
-  Msg("Done saving map data..");
+  log_info("Done saving map data..");
 }
 
 
@@ -1220,16 +1219,16 @@ void save_info(void)
   
   if (last_saved_game > 0)
     {
-      Msg("Modifying saved game.");
+      log_info("Modifying saved game.");
       if (!add_time_to_saved_game(last_saved_game))
-	Msg("Error modifying saved game.");
+	log_error("Error modifying saved game.");
     }
   StopMidi();
   
   f = paths_savegame_fopen(num, "rb");
   if (!f)
     {
-      Msg("Couldn't load save game %d", num);
+      log_error("Couldn't load save game %d", num);
       return /*false*/0;
     }
 
@@ -1369,13 +1368,13 @@ void save_info(void)
 	  SDL_Surface* image = NULL;
 	  FILE *in = paths_dmodfile_fopen(name, "rb");
 	  if (in == NULL)
-	    fprintf(stderr, "Error: Can't open palette '%s'.", name);
+	    log_error("Error: Can't open palette '%s'.", name);
 	  else
 	    /* Set palette */
 	    image = load_bmp_setpal(in);
 	  
 	  if (image == NULL)
-	    fprintf(stderr, "Couldn't load palette from '%s'.\n", name);
+	    log_error("Couldn't load palette from '%s'.", name);
 	  else
 	    SDL_FreeSurface(image);
 	}
@@ -1416,7 +1415,7 @@ void save_info(void)
   //lets attach our vars to the scripts
   
   attach();
-  Msg("Attached vars.");
+  log_debug("Attached vars.");
   dinkspeed = 3;
   
   if (*pcur_weapon != 0)
@@ -1425,7 +1424,7 @@ void save_info(void)
 	{
 	  *pcur_weapon = 1;
 	  weapon_script = 0;
-	  Msg("Loadgame error: Player doesn't have armed weapon - changed to 1.");
+	  log_error("Loadgame error: Player doesn't have armed weapon - changed to 1.");
 	}
       else
 	{
@@ -1443,7 +1442,7 @@ void save_info(void)
 	{
 	  *pcur_magic = 0;
 	  magic_script = 0;
-	  Msg("Loadgame error: Player doesn't have armed magic - changed to 0.");
+	  log_error("Loadgame error: Player doesn't have armed magic - changed to 0.");
 	}
       else
 	{
@@ -1458,9 +1457,9 @@ void save_info(void)
     }
   kill_repeat_sounds_all();
   load_map(map.loc[*pmap]);
-  Msg("Loaded map.");
+  log_info("Loaded map.");
   draw_map_game();
-  Msg("Map drawn.");
+  log_info("Map drawn.");
   
   last_saved_game = num;
   
@@ -1474,7 +1473,7 @@ void save_info(void)
   f = paths_savegame_fopen(num, "rb");
   if (!f)
     {
-      Msg("Couldn't load save game %d", num);
+      log_error("Couldn't load save game %d", num);
       return /*false*/0;
     }
 
@@ -1485,7 +1484,7 @@ void save_info(void)
   fclose(f);
   
   //great, now let's resave it with added time
-  Msg("Ok, adding time.");
+  log_info("Ok, adding time.");
   time_t ct;
   
   time(&ct);
@@ -1498,7 +1497,7 @@ void save_info(void)
       write_lsb_int(minutes, f);
       fclose(f);
     }
-  Msg("Wrote it.(%d of time)", minutes);
+  log_info("Wrote it.(%d of time)", minutes);
   
   return /*true*/1;
 }
@@ -1693,7 +1692,7 @@ void kill_cur_item( void )
                         weapon_script = 0;
                 } else
                 {
-                        Msg("Error:  Can't kill cur item, none armed.");
+                        log_error("Can't kill cur item, none armed.");
                 }
         }
 }
@@ -1801,7 +1800,7 @@ void kill_cur_magic( void )
                         magic_script = 0;
                 } else
                 {
-                        Msg("Error:  Can't kill cur magic, none armed.");
+                        log_error("Can't kill cur magic, none armed.");
                 }
         }
 }
@@ -1831,7 +1830,7 @@ int load_info_to(char* path, struct map_info *mymap)
   if (!f)
     return -1;
 
-  Msg("World data loaded.");
+  log_info("World data loaded.");
 
   /* Portably load struct map_info from disk */
   int i = 0;
@@ -2158,7 +2157,7 @@ void figure_out(char* line)
       special = atol(ev[4]);
       
       seq[myseq].special[myframe] = special;
-      Msg("Set special.  %d %d %d", myseq, myframe, special);
+      log_debug("Set special.  %d %d %d", myseq, myframe, special);
     }
 
   if (compare(command, "SET_FRAME_DELAY"))
@@ -2169,7 +2168,7 @@ void figure_out(char* line)
       special = atol(ev[4]);
       
       seq[myseq].delay[myframe] = special;
-      Msg("Set delay.  %d %d %d",myseq, myframe, special);
+      log_debug("Set delay.  %d %d %d",myseq, myframe, special);
     }
 
   if (compare(command, "SET_FRAME_FRAME"))
@@ -2184,7 +2183,7 @@ void figure_out(char* line)
 	seq[myseq].frame[myframe] = special;
       else
 	seq[myseq].frame[myframe] = seq[special].frame[special2];
-      Msg("Set frame.  %d %d %d", myseq, myframe, special);
+      log_debug("Set frame.  %d %d %d", myseq, myframe, special);
     }
 }
 
@@ -2816,9 +2815,11 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
   if (getpic(h) < 1)
     {
       if (dinkedit)
-	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h, cur_map, spr[h].pseq, spr[h].pframe);
+	log_warn("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",
+		 h, cur_map, spr[h].pseq, spr[h].pframe);
       else
-	Msg("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",h, *pmap, spr[h].pseq, spr[h].pframe);
+	log_warn("Yo, sprite %d has a bad pic. (Map %d) Seq %d, Frame %d",
+		 h, *pmap, spr[h].pseq, spr[h].pframe);
       goto nodraw;
     }
 
@@ -3052,8 +3053,8 @@ void check_sprite_status(int h)
 		  if (seq[spr[h].pseq].is_active)
 		    figure_out(seq[spr[h].pseq].ini);
 		  else
-		    fprintf(stderr, "Error: sprite %d on map %d references non-existent sequence %d \n",
-			    h, cur_map, spr[h].pseq);
+		    log_error("Error: sprite %d on map %d references non-existent sequence %d",
+			      h, cur_map, spr[h].pseq);
                 }
                 else
                 {
@@ -3131,7 +3132,7 @@ void check_seq_status(int seq_no)
     }
   else if (seq_no > 0)
     {
-      fprintf(stderr, "Warning: check_seq_status: invalid sequence %d\n", seq_no);
+      log_error("Warning: check_seq_status: invalid sequence %d", seq_no);
     }
 }
 
@@ -3166,8 +3167,8 @@ int add_text_sprite(char text[200], int script, int sprite_owner, int mx, int my
   int tsprite = add_sprite(mx, my, 8, 0, 0);
   if (tsprite == 0)
     {
-      Msg("Couldn't say something, out of sprites.");
-      return(0);
+      log_error("Couldn't say something, out of sprites.");
+      return 0;
     }
 
   strncpy(spr[tsprite].text, text, 200-1);
@@ -3295,7 +3296,7 @@ int change_sprite(int h, int val, int *change)
   //Msg("Searching sprite %s with val %d.  Cur is %d", h, val, *change);
   if (h < 1 || h >= MAX_SPRITES_AT_ONCE)
     {
-      Msg("Error with an SP command - Sprite %d is invalid.", h);
+      log_error("Error with an SP command - Sprite %d is invalid.", h);
       return -1;
     }
 
@@ -3389,7 +3390,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
       retval = gfx_blit_stretch(GFX_k[getpic(h)].k, &src, GFX_lpdest, &dst);
       
       if (retval < 0) {
-	fprintf(stderr, "Could not draw sprite %d: %s\n", getpic(h), SDL_GetError());
+	log_error("Could not draw sprite %d: %s", getpic(h), SDL_GetError());
 	/* If we failed, then maybe the sprite was actually loaded
 	   yet, let's try now */
 	if (spr[h].pseq != 0)
@@ -3412,7 +3413,7 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                         hspeed = spr[k].speed * (base_timing / 4);
                         if (hspeed > 49)
                         {
-                                Msg("Speed was %d", hspeed);
+                                log_debug("Speed was %d", hspeed);
                                 spr[k].speed = 49;
                         } else
                                 spr[k].speed = hspeed;
@@ -3910,7 +3911,7 @@ void place_sprites_game(void)
 	      if (pam.sprite[j].prop == 0 && spr[sprite].sound != 0)
 		{
 		  //make looping sound
-		  Msg("making sound with sprite %d..", sprite);
+		  log_debug("making sound with sprite %d..", sprite);
 		  SoundPlayEffect( spr[sprite].sound,22050, 0,sprite, 1);
 		}
 	      if (spr[sprite].brain == 3)
@@ -3992,14 +3993,14 @@ void show_bmp(char name[80], int showdot, int script)
   in = paths_dmodfile_fopen(name, "rb");
   if (in == NULL)
     {
-      Msg("Error: Can't open bitmap '%s'.", name);
+      log_error("Error: Can't open bitmap '%s'.", name);
       return;
     }
 
   image = load_bmp_setpal(in);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load '%s'.\n", name);
+      log_error("Couldn't load '%s'.", name);
       return;
     }
 
@@ -4044,7 +4045,7 @@ void copy_bmp( char name[80])
   in = paths_dmodfile_fopen(name, "rb");
   if (in == NULL)
     {
-      Msg("Error: Can't open bitmap '%s'.", name);
+      log_error("Error: Can't open bitmap '%s'.", name);
       return;
     }
 
@@ -4059,7 +4060,7 @@ void copy_bmp( char name[80])
   image = load_bmp_setpal(in);
   if (image == NULL)
     {
-      fprintf(stderr, "Couldn't load '%s'.\n", name);
+      log_error("Couldn't load '%s'.", name);
       return;
     }
 
@@ -4304,8 +4305,7 @@ void copy_bmp( char name[80])
                         {
                                 if (play.item[i].active == /*false*/0)
                                 {
-                                        if (debug_mode)
-                                                Msg("Weapon/item %s added to inventory.",name);
+				  log_info("Weapon/item %s added to inventory.",name);
                                         play.item[i].seq = mseq;
                                         play.item[i].frame = mframe;
                                         strcpy(play.item[i].name, name);
@@ -4326,8 +4326,7 @@ void copy_bmp( char name[80])
                         {
                                 if (play.mitem[i].active == /*false*/0)
                                 {
-                                        if (debug_mode)
-                                                Msg("Magic %s added to inventory.",name);
+				  log_info("Magic %s added to inventory.",name);
                                         play.mitem[i].seq = mseq;
                                         play.mitem[i].frame = mframe;
                                         strcpy(play.mitem[i].name, name);

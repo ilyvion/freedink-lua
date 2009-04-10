@@ -545,7 +545,7 @@ int autoreverse_diag(int j)
 		
 	}
 	
-	Msg("Auto Reverse Diag was sent a dir %d sprite, base %d walk.",spr[j].dir, spr[j].base_walk);
+	log_debug("Auto Reverse Diag was sent a dir %d sprite, base %d walk.",spr[j].dir, spr[j].base_walk);
 	return(0);
 }
 
@@ -574,7 +574,7 @@ void add_kill_sprite(int h)
 {
 	if ( (spr[h].dir > 9) || (spr[h].dir < 1) )
 	{
-		Msg("Error:  Changing sprites dir from %d (!?) to 3.", spr[h].dir);
+		log_error("Changing sprites dir from %d (!?) to 3.", spr[h].dir);
 		spr[h].dir = 3;
 		
 	}
@@ -625,7 +625,7 @@ void add_kill_sprite(int h)
 	if (!seq[base+dir].is_active)
 		
 	{
-		Msg("Can't make a death sprite for dir %d!", base+dir);
+		log_error("Can't make a death sprite for dir %d!", base+dir);
 	}
 	
 	
@@ -788,13 +788,13 @@ void process_follow(int h)
 	
 	if (spr[h].follow > 299)
 	{
-		Msg("ERROR:  Sprite %d cannot 'follow' sprite %d??",h,spr[h].follow);
+		log_error("Sprite %d cannot 'follow' sprite %d??",h,spr[h].follow);
 		return;
 	}
 	
 	if (spr[spr[h].follow].active == /*false*/0)
 	{
-		Msg("Killing follow");
+		log_debug("Killing follow");
 		spr[h].follow = 0;
 		return;
 	}
@@ -820,13 +820,13 @@ void process_target(int h)
 	
 	if (spr[h].target > 299)
 	{
-		Msg("ERROR:  Sprite %d cannot 'target' sprite %d??",h,spr[h].follow);
+		log_error("Sprite %d cannot 'target' sprite %d??",h,spr[h].follow);
 		return;
 	}
 	
 	if (spr[spr[h].target].active == /*false*/0)
 	{
-		Msg("Killing target");
+		log_debug("Killing target");
 		spr[h].target = 0;
 		return;
 	}
@@ -1358,7 +1358,7 @@ void find_action(int h)
 	}
 	
 	
-	Msg("Internal error:  Brain 16, unknown action.");
+	log_error("Internal error:  Brain 16, unknown action.");
 }
 
 
@@ -1646,7 +1646,7 @@ recal:
 			
 			changedir(mydir,h,spr[h].base_walk);
 			
-			Msg("real dir changed to %d",spr[h].dir);
+			log_debug("real dir changed to %d", spr[h].dir);
 		}
 		
 }
@@ -2359,14 +2359,14 @@ void run_through_mouse_list(int h, /*bool*/int special)
 				
 				if ((spr[i].touch_damage == -1) && (spr[i].script != 0))
 				{
-					Msg("running %d's script..",spr[i].script);
+					log_info("running %d's script..", spr[i].script);
 					if (locate(spr[i].script, "CLICK")) run_script(spr[i].script);
 				} 
 				else
 				{
 					if (spr[i].touch_damage == -1)
 					{
-						Msg("Sprites touch damage is set to -1 but there is no script set!");
+						log_error("Sprites touch damage is set to -1 but there is no script set!");
 					} else
 					{
 						//lets hurt the guy
@@ -2481,7 +2481,7 @@ void mouse_brain(int h)
 	if ( (sjoy.button[ACTION_ATTACK] == /*TRUE*/1) | (mouse1) )
 	{
 		
-		Msg("running through mouse list..");
+		log_info("running through mouse list..");
 		run_through_mouse_list(h, /*true*/1);
 		sjoy.button[ACTION_ATTACK] = /*false*/0;
 							 mouse1 = /*false*/0;
@@ -3846,7 +3846,7 @@ void run_through_touch_damage_list(int h)
 				{
 					if (spr[i].touch_damage == -1)
 					{
-						Msg("Sprites touch damage is set to -1 but there is no script set!");
+						log_error("Sprites touch damage is set to -1 but there is no script set!");
 					} else
 					{
 						//lets hurt the guy
@@ -4150,7 +4150,7 @@ void process_talk()
     SDL_Rect dst;
     dst.x = px+169+180; dst.y = py+1;
     if (SDL_BlitSurface(GFX_k[seq[30].frame[4]].k, NULL, GFX_lpDDSBack, &dst) < 0)
-      fprintf(stderr, "Could not draw sprite %d: %s\n", seq[30].frame[4], SDL_GetError());
+      log_error("Could not draw sprite %d: %s", seq[30].frame[4], SDL_GetError());
   }
   
   
@@ -4304,7 +4304,7 @@ void process_talk()
 	    // talk.cur = 1;
 	    
 	    talk.page--;
-	    Msg("Page backed to %d.", talk.page);
+	    log_info("Page backed to %d.", talk.page);
 	    fake_page = 1;
 	    for (i = 1; i < talk.last; i++)
 	      {
@@ -4665,13 +4665,13 @@ void draw_item(int num, /*bool*/int magic, int mseq, int mframe)
 		
 		if (!magic)
 		{
-			Msg("Whups, item %d seq %d frame %d not loaded, killed it",
-				num, mseq, mframe);
+			log_debug("Whups, item %d seq %d frame %d not loaded, killed it",
+				  num, mseq, mframe);
 			play.item[num].active = /*false*/0;
 		} else
 		{
-			Msg("Whups, magic %d seq %d frame %d not loaded, killed it",
-				num, mseq, mframe);
+			log_debug("Whups, magic %d seq %d frame %d not loaded, killed it",
+				  num, mseq, mframe);
 			play.mitem[num].active = /*false*/0;
 			
 		}

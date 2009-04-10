@@ -15,6 +15,8 @@
 #include <string.h> /* strchr */
 #include <errno.h>
 
+#include "log.h"
+
 #if 0
 static int rwops_libzip_seek(SDL_RWops *context, int offset, int whence)
 {
@@ -77,14 +79,14 @@ SDL_RWops *SDL_RWFromZIP(const char* archivename, const char* filename)
 	len = zip_error_to_str(errorbuf, len, errorp, errno);
 	errorbuf = realloc(errorbuf, len + 1);
 	len = zip_error_to_str(errorbuf, len, errorp, errno);
-	fprintf(stderr, "zip_open: %s\n", errorbuf);
+	log_warn("zip_open: %s", errorbuf);
 	free(errorbuf);
 	return NULL;
       }
     zfile = zip_fopen(zarchive, filename, 0);
     if (zfile == NULL)
       {
-	fprintf(stderr, "zip_open: %s\n", zip_strerror(zarchive));
+	log_error("zip_open: %s", zip_strerror(zarchive));
 	zip_close(zarchive);
 	return NULL;
       }
@@ -110,7 +112,7 @@ SDL_RWops *SDL_RWFromZIP(const char* archivename, const char* filename)
     struct zip_stat zfilestat;
     if (zip_stat(zarchive, filename, 0, &zfilestat) < 0)
       {
-	fprintf(stderr, "zip_open: %s\n", zip_strerror(zarchive));
+	log_warn("zip_open: %s", zip_strerror(zarchive));
 	zip_close(zarchive);
 	return NULL;
       }

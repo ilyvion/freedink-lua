@@ -27,52 +27,92 @@
 
 #include "io_util.h"
 #include "paths.h"
+#include "log.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 char last_debug[200];
-/*bool*/int debug_mode = /*false*/0;
+int debug_mode = 0;
+static enum log_priority cur_priority  = LOG_PRIORITY_ERROR;
+static enum log_priority orig_priority = LOG_PRIORITY_ERROR;
+FILE* out = NULL;
 
-void add_text(char *text, char *filename)
+char* priority_names[LOG_PRIORITY_OFF] = {
+  "", /* ALL */
+  "[trace] ",
+  "[debug] ",
+  "[info ] ",
+  "[warn ] ",
+  "[ERROR] ",
+  "[FATAL] ",
+};
+
+void log_debug_on()
 {
-  if (strlen(text) < 1)
-    return;
-  
-  FILE *fp = paths_dmodfile_fopen(filename, "ab");
-  if (fp != NULL)
-    {
-      fwrite(text, strlen(text), 1, fp); /* current player */
-      fclose(fp);
-    }
-  else
-    {
-      perror("add_text");
-    }
+  debug_mode = 1;
+  orig_priority = cur_priority;
+  log_set_priority(LOG_PRIORITY_DEBUG);
+  out = paths_dmodfile_fopen("DEBUG.TXT", "ab");
+  /* out might be NULL, e.g. permissions problem */
+  if (out != NULL)
+    setlinebuf(stdout);
 }
 
-void Msg(char *fmt, ...)
+void log_debug_off()
 {
-  char buff[350];
-  va_list ap;
+  strcpy(last_debug, "");
+  cur_priority = orig_priority;
+  if (out != NULL)
+    fclose(out);
+  out = NULL;
+  debug_mode = 0;
+}
 
-  // format message with header
-  strcpy(buff, "Dink:");
+void log_set_priority(enum log_priority priority)
+{
+  if (cur_priority >= LOG_PRIORITY_ALL && cur_priority <= LOG_PRIORITY_OFF)
+    cur_priority = priority;
+}
+
+void log_output(enum log_priority priority, char *fmt, ...)
+{
+  if (priority < cur_priority
+      || priority <= LOG_PRIORITY_ALL
+      || priority >= LOG_PRIORITY_OFF)
+    return;
+
+  char* buf = NULL;
+
+  // format message
+  va_list ap;
   va_start(ap, fmt);
-  vsprintf(&buff[strlen(buff)], fmt, ap);
+  int res = vasprintf(&buf, fmt, ap);
   va_end(ap);
-  strcat(buff, "\r\n");
-  
-  // need to reset 'ap' if using it again:
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  va_end(ap);
-  fprintf(stderr, "\n");
+  if (res < 0)
+    return;
 
   // displayed on screen if user switches to debug mode
-  strcpy(last_debug, buff);
-
   if (debug_mode)
-    add_text(buff, "DEBUG.TXT");
+    {
+      strcpy(last_debug, priority_names[priority]);
+      strncat(last_debug, buf, sizeof(last_debug) - strlen(priority_names[priority]) - 1);
+    }
+
+  // write to DEBUG.TXT
+  if (out != NULL)
+    {
+      fputs(priority_names[priority], out);
+      fputs(buf, out);
+      fputc('\n', out);
+    }
+
+  // write to standard output
+  fputs(priority_names[priority], stdout);
+  fputs(buf, stdout);
+  putchar('\n');
+
+  free(buf);
 }

@@ -28,6 +28,7 @@
 #include "io_util.h"
 #include "paths.h"
 #include "msgbox.h"
+#include "log.h"
 
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
@@ -94,7 +95,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
     BrInitError error;
     if (br_init(&error) == 0 && error != BR_INIT_ERROR_DISABLED)
       {
-	printf("Warning: BinReloc failed to initialize (error code %d)\n", error);
+	log_warn("BinReloc failed to initialize (error code %d)", error);
 	datadir_binreloc = strdup(datadir_relocatable);
       }
     else
@@ -123,7 +124,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       exefile = strdup(fullprogname);
     else
       exefile = strdup(argv0);
-    printf("Hi, I'm '%s'\n", exefile);
+    log_info("Hi, I'm '%s'", exefile);
     /* gnulib's dir_name always returns a newly xalloc'd string */
     exedir = dir_name(exefile);
   }
@@ -303,13 +304,13 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
       }
   }
 
-  printf("exedir = %s\n", exedir);
-  printf("datadir = %s\n", datadir);
-  printf("pkgdatadir = %s\n", pkgdatadir);
-  printf("refdir = %s\n", refdir);
-  printf("dmoddir = %s\n", dmoddir);
-  printf("dmodname = %s\n", dmodname);
-  printf("userappdir = %s\n", userappdir);
+  log_info("exedir = %s", exedir);
+  log_info("datadir = %s", datadir);
+  log_info("pkgdatadir = %s", pkgdatadir);
+  log_info("refdir = %s", refdir);
+  log_info("dmoddir = %s", dmoddir);
+  log_info("dmodname = %s", dmodname);
+  log_info("userappdir = %s", userappdir);
 
   free(datadir);
   free(refdir);

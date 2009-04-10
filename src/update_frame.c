@@ -114,18 +114,15 @@ trigger_start:
 	}
 	
 	if (GetKeyboard('d') && (GetKeyboard(SDLK_LALT) || GetKeyboard(SDLK_RALT)))
-	{	
-		if (debug_mode)
-		{
-			debug_mode = /*false*/0;
-		}
-		else 
-		{
-			strcpy(last_debug, "");
-			debug_mode = /*true*/1;	  	  
-			
-		}
-		
+	  {	
+	    if (debug_mode)
+	      {
+		log_debug_off();
+	      }
+	    else
+	      {
+		log_debug_on();
+	      }
 	}
 		  
 	
@@ -518,7 +515,7 @@ animate:
 				
 				if (flub_mode != -500)
 				{
-					Msg("move result is %d", flub_mode);
+					log_debug("move result is %d", flub_mode);
 					move_result = flub_mode;
 					flub_mode = -500;
 				}
@@ -857,7 +854,7 @@ past:
 		int scr = load_script("START",1000, /*true*/1);
 		if (locate(scr, "MAIN") == /*false*/0)
 		{
-			Msg("Error: Can't locate MAIN in script START!");
+			log_error("Can't locate MAIN in script START!");
 		}
 		run_script(scr);
 		mode = 1;

@@ -30,6 +30,7 @@
 #include "paths.h"
 #include "dinkvar.h"
 #include "dinkini.h"
+#include "log.h"
 
 #include "gfx_sprites.h"
 
@@ -139,11 +140,11 @@ void load_batch(void)
   FILE *in = NULL;
   char line[255];
   
-  printf("Loading dink.ini\n");
+  log_info("Loading dink.ini");
   /* Open the text file in binary mode, so it's read the same way
      under different OSes (Unix has no text mode) */
   if ((in = paths_dmodfile_fopen("dink.ini", "rb")) == NULL)
-    fprintf(stderr, "Error opening dink.ini for reading.\n");
+    log_error("Error opening dink.ini for reading.");
   else
     {
       while(fgets(line, 255, in) != NULL) 

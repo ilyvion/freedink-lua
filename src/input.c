@@ -86,7 +86,7 @@ void input_init(void)
     {
       if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 	{
-	  Msg("Error initializing joystick, skipping: %s\n", SDL_GetError());
+	  log_error("Error initializing joystick, skipping: %s", SDL_GetError());
 	  joystick = 0;
 	}
       else
@@ -96,22 +96,22 @@ void input_init(void)
 	  if (SDL_NumJoysticks() > 0)
 	    {
 	      int i;
-	      printf("%i joysticks were found.\n", SDL_NumJoysticks());
-	      printf("The names of the joysticks are:\n");
+	      log_info("%i joysticks were found.", SDL_NumJoysticks());
+	      log_info("The names of the joysticks are:");
 	      for (i=0; i < SDL_NumJoysticks(); i++)
-		printf("    %s\n", SDL_JoystickName(i));
-	      printf("Picking the first one...\n");
+		log_info("    %s", SDL_JoystickName(i));
+	      log_info("Picking the first one...");
 	      jinfo = SDL_JoystickOpen(0);
 	      /* Don't activate joystick events, Dink polls joystick
 		 manually.  Plus events would pile up in the queue. */
 	      SDL_JoystickEventState(SDL_IGNORE);
 	      
 	      if (jinfo) {
-		printf("Name: %s\n", SDL_JoystickName(0));
-		printf("Number of axes: %d\n", SDL_JoystickNumAxes(jinfo));
-		printf("Number of buttons: %d\n", SDL_JoystickNumButtons(jinfo));
-		printf("Number of balls: %d\n", SDL_JoystickNumBalls(jinfo));
-		printf("Number of hats: %d\n", SDL_JoystickNumHats(jinfo));
+		log_info("Name: %s", SDL_JoystickName(0));
+		log_info("Number of axes: %d", SDL_JoystickNumAxes(jinfo));
+		log_info("Number of buttons: %d", SDL_JoystickNumButtons(jinfo));
+		log_info("Number of balls: %d", SDL_JoystickNumBalls(jinfo));
+		log_info("Number of hats: %d", SDL_JoystickNumHats(jinfo));
 		
 		/* Flush stacked joystick events */
 		{
@@ -121,7 +121,7 @@ void input_init(void)
 		
 		joystick = 1;
 	      } else {
-		printf("Couldn't open Joystick 0\n");
+		log_error("Couldn't open Joystick #0");
 		joystick = 0;
 	      }
 	    }
@@ -215,11 +215,11 @@ void input_set_button_action(int button_index, enum buttons_actions action_index
       if (action_index >= ACTION_FIRST && action_index < ACTION_LAST)
 	buttons_map[button_index] = action_index;
       else
-	fprintf(stderr, "Attempted to set invalid action %d\n", action_index);
+	log_error("Attempted to set invalid action %d", action_index);
     }
   else
     {
-      fprintf(stderr, "Attempted to set invalid button %d (internal index %d)\n",
-	      button_index+1, button_index);
+      log_error("Attempted to set invalid button %d (internal index %d)",
+		button_index+1, button_index);
     }
 }

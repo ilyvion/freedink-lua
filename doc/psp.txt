@@ -214,15 +214,15 @@ $SUDO ln -nfs $(psp-config --psp-prefix)/bin/pkg-config \
 # Currently it crashes at run time, there a 32bit-alignment issue to
 # patch:
 # http://forums.ps2dev.org/viewtopic.php?p=80775
-#svn co svn://svn.pspdev.org/psp/trunk/zziplib
-#pushd zziplib
-## Follow README.PSP:
-#LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
-#   ./configure --host psp --prefix=$(psp-config --psp-prefix) \
-#     --disable-mmap
-#make
-#make install
-#popd
+svn co svn://svn.pspdev.org/psp/trunk/zziplib
+pushd zziplib
+# Follow README.PSP:
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" \
+   ./configure --host psp --prefix=$(psp-config --psp-prefix) \
+     --disable-mmap
+make
+make install
+popd
 
 # libzip
 # It doesn't link as there are missing POSIX functions
