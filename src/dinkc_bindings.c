@@ -2229,7 +2229,7 @@ void attach(void)
 /*bool*/int talk_get(int script)
 {
   char* line = NULL;
-  char check[200], checker[200];
+  char check[200];
   int cur = 1;
   char *p;
   int retnum = 0;
@@ -2243,23 +2243,27 @@ void attach(void)
       strip_beginning_spaces(line);
       //Msg("Comparing to %s.", line);
       
-      get_word(line, 1, checker);
-      
-      if (compare(checker, "set_y"))
+      char* word = get_word(line, 1);
+      if (compare(word, "set_y"))
         {
-	  get_word(line, 2, checker);
-	  talk.newy = atol(checker);
+	  free(word);
+	  word = get_word(line, 2);
+	  talk.newy = atol(word);
+	  free(word);
 	  free(line);
 	  goto redo;
         }
       
-      if (compare(checker, "set_title_color"))
+      if (compare(word, "set_title_color"))
         {
-	  get_word(line, 2, checker);
-	  talk.color = atol(checker);
+	  free(word);
+	  word = get_word(line, 2);
+	  talk.color = atol(word);
+	  free(word);
 	  free(line);
 	  goto redo;
         }
+      free(word);
       
       strip_beginning_spaces(line);
       if (compare(line, "\n"))
@@ -2279,7 +2283,6 @@ morestuff:
 	    {
 	      strcpy(check, line);
 	      strip_beginning_spaces(line);
-	      get_word(line, 1, checker);
 	      separate_string(line, 1, '(', check);
 	      strip_beginning_spaces(check);
 	      
@@ -2347,8 +2350,9 @@ morestuff:
 	      return /*false*/0;
 	    }
 	  
-	  separate_string(check, 2, '(', checker);
-	  separate_string(checker, 1, ')', check);
+	  char temp[200];
+	  separate_string(check, 2, '(', temp);
+	  separate_string(temp, 1, ')', check);
 	  
 	  //Msg("Running %s through var figure..", check);
 	  if (var_figure(check, script) == 0)

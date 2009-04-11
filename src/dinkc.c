@@ -366,7 +366,7 @@ void strip_beginning_spaces(char *str)
 /**
  * Locate a procedure (such as "void hit()")
  */
-/*bool*/int locate(int script, char proc[20])
+/*bool*/int locate(int script, char* proc)
 {
   if (rinfo[script] == NULL)
     return 0;
@@ -381,20 +381,24 @@ void strip_beginning_spaces(char *str)
   rinfo[script]->debug_line = 1;
 
   char* line = NULL;
-  char ev[3][100];
+  char* word = NULL;
   char temp[100];
 
   while((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);
-      memset(&ev, 0, sizeof(ev));
       
-      get_word(line, 1, ev[1]);
-      if (compare(ev[1], "VOID"))
+      int is_proc = 0;
+      word = get_word(line, 1);
+      if (compare(word, "VOID"))
+	is_proc = 1;
+      free(word);
+      if (is_proc)
 	{
-	  get_word(line, 2, ev[2]);
-	  separate_string(ev[2], 1,'(',temp);
-	  
+	  word = get_word(line, 2);
+	  separate_string(word, 1, '(', temp);
+	  free(word);
+
 	  if (compare(temp, proc))
 	    {
 	      //clean up vars so it is ready to run
@@ -432,21 +436,24 @@ void strip_beginning_spaces(char *str)
 {
   rinfo[script]->current = 0;
   char* line = NULL;
-  char ev[3][100];
+  char* word = NULL;
   replace(";", "", label);
   strchar(label, ':');
-  // Msg("locate is looking for %s", label);
   
   while ((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);
       
-      get_word(line, 1, ev[1]);
-      replace("\n", "",ev[1]);
+      int is_right_label = 0;
+      word = get_word(line, 1);
+      replace("\n", "", word);
+      if (compare(word, label))
+	is_right_label = 1;
+      free(word);
       
-      if (compare(ev[1], label))
+      if (is_right_label)
 	{
-	  log_debug("Found goto : Line is %s, word is %s.", line, ev[1]);
+	  log_debug("Found goto : Line is %s, word is %s.", line, label);
 	  
 	  rinfo[script]->skipnext = /*false*/0;
 	  rinfo[script]->onlevel = 0;
@@ -458,6 +465,7 @@ void strip_beginning_spaces(char *str)
 	}
       free(line);
     }
+
   log_warn("%s: cannot goto %s", rinfo[script]->name, label);
   return 0;
 }
@@ -867,6 +875,10 @@ void kill_all_scripts_for_real(void)
         }
 }
 
+/**
+ * Return the next single line from rbuf[script], starting at
+ * rinfo[script]->current. Update line/column counters.
+ */
 char* read_next_line(int script)
 {
   if (rinfo[script] == NULL || rbuf == NULL)
@@ -1166,14 +1178,12 @@ void run_script(int script)
 }
 
 /**
- * Copy the word number 'word' present in 'line' to the 'result'
- * string. Words are separated by one or more spaces and count from 1
- * (i.e. not 0).
+ * Return the word number 'word' present in 'line'. Words are
+ * separated by one or more spaces and count from 1 (i.e. not 0).
  */
-void get_word(char line[300], int word, char *result)
+char* get_word(char* line, int word)
 {
   int cur_word = 1;
-  result[0] = '\0';
 
   /* find word */
   char* pc = line;
@@ -1193,16 +1203,20 @@ void get_word(char line[300], int word, char *result)
 	    pc++;
 	}
     }
+
+  /* find end-of-word */
+  char* start = pc;
+  while(*pc != '\0' && *pc != ' ')
+    pc++;
+
   /* copy word - either we're on the right word and will copy it,
      either we're at the end of string and will copy an empty word */
-  char* pcr = result;
-  while(*pc != '\0' && *pc != ' ')
-    {
-      *pcr = *pc;
-      pcr++;
-      pc++;
-    }
-  *pcr = '\0';
+  int len = pc - start;
+  char* result = xmalloc(len + 1);
+  memcpy(result, start, len);
+  result[len] = '\0';
+
+  return result;
 }
 
 int var_exists(char name[20], int scope)
@@ -1452,118 +1466,124 @@ next2:
     lhs_var->var = lhs_var->var * newval;
 }
 
-
-int var_figure(char h[200], int script)
+/**
+ * Evaluate a value (variable, int, or maths), in the context of
+ * 'script'.
+ */
+int var_figure(char* h, int script)
 {
-        char crap[200];
-        int ret = 0;
-        int n1 = 0, n2 = 0;
-        //Msg("Figuring out %s...", h);
-        get_word(h, 2, crap);
-        //Msg("Word two is %s...", crap);
+  char* word = NULL;
+  int ret = 0;
+  int n1 = 0, n2 = 0;
 
-        if (compare(crap, ""))
-        {
-                //one word equation
+  int is_one_word_equation = 0;
+  word = get_word(h, 2);
+  if (compare(word, ""))
+    is_one_word_equation = 1;
+  free(word);
+  if (is_one_word_equation)
+    {
+      // variable -> integer
+      if (h[0] == '&')
+	decipher_string(h, script);
 
-                if (h[0] == '&')
-                {
-                        //its a var possibly
-                        decipher_string(h, script);
-                }
+      // integer
+      ret = atol(h);
+      return ret;
+    }
 
-                //Msg("truth is %s", h);
-                ret =  atol(h);
-                //      Msg("returning %d, happy?", ret);
-                return(ret);
-        }
+  word = get_word(h, 1);
+  decipher_string(word, script);
+  n1 = atol(word);
+  free(word);
 
+  word = get_word(h, 3);
+  replace(")", "", word);
+  decipher_string(word, script);
+  n2 = atol(word);
+  free(word);
 
-        //
+  word = get_word(h, 2);
+  log_debug("Compared %d to %d", n1, n2);
 
+  if (compare(word, "=="))
+    {
+      if (n1 == n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
 
-        get_word(h, 1, crap);
-        //Msg("Comparing %s...", crap);
+  if (compare(word, ">"))
+    {
+      if (n1 > n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
 
-        decipher_string(crap,script);
-        n1 = atol(crap);
+  if (compare(word, ">="))
+    {
+      if (n1 >= n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
+  
+  
+  if (compare(word, "<"))
+    {
+      if (n1 < n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
 
-        get_word(h, 3, crap);
-        replace(")", "", crap);
-        //Msg("to  %s...", crap);
-        decipher_string(crap,script);
-        n2 = atol(crap);
-
-        get_word(h, 2, crap);
-        log_debug("Compared %d to %d",n1, n2);
-
-        if (compare(crap, "=="))
-        {
-                if (n1 == n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-
-        if (compare(crap, ">"))
-        {
-                if (n1 > n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-
-        if (compare(crap, ">="))
-        {
-                if (n1 >= n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-
-
-        if (compare(crap, "<"))
-        {
-                if (n1 < n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-        if (compare(crap, "<="))
-        {
-                if (n1 <= n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-
-        if (compare(crap, "!="))
-        {
-                if (n1 != n2) ret = 1; else ret = 0;
-                return(ret);
-        }
-
-        return(ret);
-
+  if (compare(word, "<="))
+    {
+      if (n1 <= n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
+  
+  if (compare(word, "!="))
+    {
+      if (n1 != n2) ret = 1; else ret = 0;
+      free(word);
+      return ret;
+    }
+  
+  free(word);
+  return ret;
 }
 
+/**
+ * Check if 'line' is a valid variable declaration, and define the
+ * variable it to 0 (via make_int(...))
+ */
+void int_prepare(char* line, int script)
+{
+  char hold[100];
+  strcpy(hold, line);
 
-        void int_prepare(char line[100], int script)
-        {
-                int def = 0;
-                char hold[100];
-                strcpy(hold, line);
-                char name[100];
-                char crap[100];
-                replace("="," ",line);
-                strcpy(crap, line);
-                separate_string(crap, 1,';',line);
-                get_word(line, 2, name);
+  char* name = NULL;
+  char crap[100];
+  replace("=", " ", line);
+  strcpy(crap, line);
+  separate_string(crap, 1,';', line);
+  name = get_word(line, 2);
+  
+  if (name[0] != '&')
+    {
+      log_error("[DinkC] %s:%d: can't create var %s, should be &%s.",
+		rinfo[script]->name, rinfo[script]->debug_line,
+		name, name);
+    }
+  else
+    {
+      make_int(name, 0, script, script);
 
-                if (name[0] != '&')
-                {
-		  log_error("[DinkC] %s:%d: can't create var %s, should be &%s.",
-			    rinfo[script]->name, rinfo[script]->debug_line,
-			    name, name);
-		  return;
-                }
+      strcpy(line, hold);
+    }
+  free(name);
+}
 
-
-                make_int(name, def,script, script);
-
-                strcpy(line, hold);
-
-        }
 
 void dinkc_init()
 {
