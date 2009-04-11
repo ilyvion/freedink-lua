@@ -254,7 +254,8 @@ extern int last_saved_game;
 
 extern char *dversion_string;
 extern int dversion;
-extern char save_game_info[200];
+#define LEN_SAVE_GAME_INFO 200
+extern char save_game_info[LEN_SAVE_GAME_INFO];
 extern char current_map[50];
 extern char current_dat[50];
 

@@ -437,8 +437,8 @@ void strip_beginning_spaces(char *str)
   rinfo[script]->current = 0;
   char* line = NULL;
   char* word = NULL;
-  replace(";", "", label);
-  strchar(label, ':');
+  replace_norealloc(";", "", label);
+  strchar(label, ':'); // TODO: buffer overflow
   
   while ((line = read_next_line(script)) != NULL)
     {
@@ -446,7 +446,7 @@ void strip_beginning_spaces(char *str)
       
       int is_right_label = 0;
       word = get_word(line, 1);
-      replace("\n", "", word);
+      replace_norealloc("\n", "", word);
       if (compare(word, label))
 	is_right_label = 1;
       free(word);
@@ -615,7 +615,7 @@ void decipher(char *variable, int script)
  * first. Known bug: may replace shorter variables (e.g. &gold instead
  * of &golden).
  */
-void var_replace_107(char* line, int scope)
+void var_replace_107(char** line_p, int scope)
 {
   char crap[20];
   int i;
@@ -624,7 +624,7 @@ void var_replace_107(char* line, int scope)
 	&& ((play.var[i].scope == DINKC_GLOBAL_SCOPE) || (play.var[i].scope == scope)))
       {
 	sprintf(crap, "%d", play.var[i].var);
-	replace(play.var[i].name, crap, line);
+	replace(play.var[i].name, crap, line_p);
       }
 }
 
@@ -640,7 +640,7 @@ void var_replace_107(char* line, int scope)
  *   understanding what exactly is an end-of-variable delimiter, if
  *   such a thing exists)
  */
-void var_replace_108(int i, int script, char *line, char *prevar)
+void var_replace_108(int i, int script, char** line_p, char *prevar)
 {
   while (i < MAX_VARS)
     {
@@ -650,15 +650,15 @@ void var_replace_108(int i, int script, char *line, char *prevar)
       //Then, prevar is null, or if prevar isn't null, see if current variable starts with prevar
       if (play.var[i].active
 	  && i == search_var_with_this_scope_108(play.var[i].name, script)
-	  && strstr (line, play.var[i].name)
+	  && strstr (*line_p, play.var[i].name)
 	  && (prevar == NULL || (prevar != NULL && strstr (play.var[i].name, prevar))))
 	{
 	  //Look for shorter variables
-	  var_replace_108(i + 1, script, line, play.var[i].name);
+	  var_replace_108(i + 1, script, line_p, play.var[i].name);
 	  //we didn't find any, so we replace!
 	  char crap[20];
-	  sprintf (crap, "%d", play.var[i].var);
-	  replace (play.var[i].name, crap, line);
+	  sprintf(crap, "%d", play.var[i].var);
+	  replace(play.var[i].name, crap, line_p);
 	}
       i++;
     }
@@ -667,12 +667,12 @@ void var_replace_108(int i, int script, char *line, char *prevar)
 /**
  * Replace all variables (&something) in 'line', with scope 'scope'
  */
-void var_replace(char* line, int scope)
+void var_replace(char** line_p, int scope)
 {
   if (dversion >= 108)
-    var_replace_108(1, scope, line, NULL);
+    var_replace_108(1, scope, line_p, NULL);
   else
-    var_replace_107(line, scope);
+    var_replace_107(line_p, scope);
 }
 
 
@@ -682,69 +682,70 @@ void var_replace(char* line, int scope)
  * - it can replace several variables in the same string
  * - with v1.07 it has a prefix bug (see var_replace_107)
  */
-void decipher_string(char* line, int script)
+void decipher_string(char** line_p, int script)
 {
   char buffer[20];
   char crab[100];
   int mytime;
   
   /* Replace all valid variables in 'line' */
-  var_replace(line, script);
+  var_replace(line_p, script);
   
-  if ((strchr(line, '&') != NULL) && (script != 0))
+  if ((strchr(*line_p, '&') != NULL) && (script != 0))
     {
-      sprintf(buffer, "%d", rinfo[script]->sprite); replace("&current_sprite", buffer, line);
-      sprintf(buffer, "%d", script);                replace("&current_script", buffer, line);
+      sprintf(buffer, "%d", rinfo[script]->sprite); replace("&current_sprite", buffer, line_p);
+      sprintf(buffer, "%d", script);                replace("&current_script", buffer, line_p);
 
       if (dversion >= 108)
 	{
 	  //v1.08 special variables.
-	  sprintf(buffer, "%d", returnint);           replace("&return", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg1); replace("&arg1", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg2); replace("&arg2", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg3); replace("&arg3", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg4); replace("&arg4", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg5); replace("&arg5", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg6); replace("&arg6", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg7); replace("&arg7", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg8); replace("&arg8", buffer, line);
-	  sprintf(buffer, "%d", rinfo[script]->arg9); replace("&arg9", buffer, line);
+	  sprintf(buffer, "%d", returnint);           replace("&return", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg1); replace("&arg1", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg2); replace("&arg2", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg3); replace("&arg3", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg4); replace("&arg4", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg5); replace("&arg5", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg6); replace("&arg6", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg7); replace("&arg7", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg8); replace("&arg8", buffer, line_p);
+	  sprintf(buffer, "%d", rinfo[script]->arg9); replace("&arg9", buffer, line_p);
 	}
 
       if (decipher_savegame != 0)
 	{
 	  int button_action = input_get_button_action(decipher_savegame-1);
-	  if      (button_action == ACTION_ATTACK)    replace("&buttoninfo", "Attack", line);
-	  else if (button_action == ACTION_TALK)      replace("&buttoninfo", "Talk/Examine", line);
-	  else if (button_action == ACTION_MAGIC)     replace("&buttoninfo", "Magic", line);
-	  else if (button_action == ACTION_INVENTORY) replace("&buttoninfo", "Item Screen", line);
-	  else if (button_action == ACTION_MENU)      replace("&buttoninfo", "Main Menu", line);
-	  else if (button_action == ACTION_MAP)       replace("&buttoninfo", "Map", line);
-	  else if (button_action == ACTION_BUTTON7)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == ACTION_BUTTON8)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == ACTION_BUTTON9)   replace("&buttoninfo", "Unused", line);
-	  else if (button_action == ACTION_BUTTON10)  replace("&buttoninfo", "Unused", line);
-	  else if (button_action == ACTION_DOWN)      replace("&buttoninfo", "Down", line);
-	  else if (button_action == ACTION_LEFT)      replace("&buttoninfo", "Left", line);
-	  else if (button_action == ACTION_RIGHT)     replace("&buttoninfo", "Right", line);
-	  else if (button_action == ACTION_UP)        replace("&buttoninfo", "Up", line);
-	  else replace("&buttoninfo", _("Error: not mapped"), line);
+	  if      (button_action == ACTION_ATTACK)    replace("&buttoninfo", _("Attack"), line_p);
+	  else if (button_action == ACTION_TALK)      replace("&buttoninfo", _("Talk/Examine"), line_p);
+	  else if (button_action == ACTION_MAGIC)     replace("&buttoninfo", _("Magic"), line_p);
+	  else if (button_action == ACTION_INVENTORY) replace("&buttoninfo", _("Item Screen"), line_p);
+	  else if (button_action == ACTION_MENU)      replace("&buttoninfo", _("Main Menu"), line_p);
+	  else if (button_action == ACTION_MAP)       replace("&buttoninfo", _("Map"), line_p);
+	  else if (button_action == ACTION_BUTTON7)   replace("&buttoninfo", _("Unused"), line_p);
+	  else if (button_action == ACTION_BUTTON8)   replace("&buttoninfo", _("Unused"), line_p);
+	  else if (button_action == ACTION_BUTTON9)   replace("&buttoninfo", _("Unused"), line_p);
+	  else if (button_action == ACTION_BUTTON10)  replace("&buttoninfo", _("Unused"), line_p);
+	  else if (button_action == ACTION_DOWN)      replace("&buttoninfo", _("Down"), line_p);
+	  else if (button_action == ACTION_LEFT)      replace("&buttoninfo", _("Left"), line_p);
+	  else if (button_action == ACTION_RIGHT)     replace("&buttoninfo", _("Right"), line_p);
+	  else if (button_action == ACTION_UP)        replace("&buttoninfo", _("Up"), line_p);
+	  else replace("&buttoninfo", _("Error: not mapped"), line_p);
 	}
     }
 
-  if ((decipher_savegame != 0) && compare(line, "&savegameinfo"))
+  if ((decipher_savegame != 0) && compare(*line_p, "&savegameinfo"))
     {
       char crap[20];
       sprintf(crap, "save%d.dat", decipher_savegame);
+      // TODO: check for buffer overflow in 'line'
       if (load_game_small(decipher_savegame, crab, &mytime) == 1)
 	{
-	  sprintf(line, _("Slot %d - %d:%02d - %s"), decipher_savegame, (mytime / 60),
+	  sprintf(*line_p, _("Slot %d - %d:%02d - %s"), decipher_savegame, (mytime / 60),
 		  mytime - ((mytime / 60) * 60) , crab);
 	  //sprintf(line, "In Use");
 	}
       else
 	{
-	  sprintf(line, _("Slot %d - Empty"), decipher_savegame);
+	  sprintf(*line_p, _("Slot %d - Empty"), decipher_savegame);
 	}
     }
 }
@@ -1334,7 +1335,7 @@ void make_int(char name[80], int value, int scope, int script)
  * script: in-memory script identifier
  * rest: text of the script after the operator (left-trimmed)
  */
-void var_equals(char name[20], char newname[20], char math, int script, char rest[200])
+void var_equals(char* name, char* newname, char math, int script, char rest[200])
 {
   int newval = 0;
   struct varman *lhs_var = NULL;
@@ -1372,7 +1373,7 @@ void var_equals(char name[20], char newname[20], char math, int script, char res
   /* check if right-hand side is a variable to copy */
   /* remove trailing ';' */
   if (strchr(newname, ';') != NULL)
-    replace(";", "", newname);
+    replace_norealloc(";", "", newname);
   /* look for existing variable */
   {
     int k2 = search_var_with_this_scope(newname, script);
@@ -1485,7 +1486,7 @@ int var_figure(char* h, int script)
     {
       // variable -> integer
       if (h[0] == '&')
-	decipher_string(h, script);
+	decipher_string(&h, script);
 
       // integer
       ret = atol(h);
@@ -1493,13 +1494,13 @@ int var_figure(char* h, int script)
     }
 
   word = get_word(h, 1);
-  decipher_string(word, script);
+  decipher_string(&word, script);
   n1 = atol(word);
   free(word);
 
   word = get_word(h, 3);
-  replace(")", "", word);
-  decipher_string(word, script);
+  replace_norealloc(")", "", word);
+  decipher_string(&word, script);
   n2 = atol(word);
   free(word);
 
@@ -1564,9 +1565,9 @@ void int_prepare(char* line, int script)
 
   char* name = NULL;
   char crap[100];
-  replace("=", " ", line);
+  replace_norealloc("=", " ", line);
   strcpy(crap, line);
-  separate_string(crap, 1,';', line);
+  separate_string(crap, 1, ';', line);
   name = get_word(line, 2);
   
   if (name[0] != '&')

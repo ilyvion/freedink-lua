@@ -1535,10 +1535,11 @@ void save_game(int num)
 
   // set_save_game_info() support:
   {
-    char info_temp[200];
-    strcpy (info_temp, save_game_info);
-    decipher_string (info_temp, 0);
-    strncpy (play.gameinfo, info_temp, 77);
+    char* info_temp = strdup(save_game_info);
+    decipher_string(&info_temp, 0);
+    strncpy(play.gameinfo, info_temp, 77);
+    play.gameinfo[77] = '\0';
+    free(info_temp);
   }
   
   last_saved_game = num;

@@ -31,7 +31,9 @@
 #include <stdlib.h> /* free */
 #include <stdarg.h> /* va_start */
 #include <stdio.h> /* vasprintf */
+#include <xalloc.h>
 #include "str_util.h"
+#include "log.h"
 
 /**
  * Compare two strings ignoring case
@@ -156,8 +158,8 @@ void strchar(char *string, char ch)
 
   if (l >= num)
     {
-      replace("\r", "", return1); //Take the /r off it.
-      replace("\n", "", return1); //Take the /n off it.
+      replace_norealloc("\r", "", return1); //Take the /r off it.
+      replace_norealloc("\n", "", return1); //Take the /n off it.
       return 1;
     }
   else /* less than 'num' tokens */
@@ -177,62 +179,103 @@ void strchar(char *string, char ch)
   return (strcasecmp(orig, comp) == 0);
 }
 
-
-void replace(const char *this1, const char *that, char *line)
+/**
+ * Move chars between 'start' and the end of 'line' to the left, with
+ * a postponement of 'shift' chars. Copy the trailing '\0'.
+ */
+void shift_left(char* line, int start, int shift)
 {
-
-        char hold[500];
-        char thisup[200],lineup[500];
-        int u,i;
-        int checker;
-start:
-        strcpy(hold,"");
-
-        strcpy(lineup,line);
-        strcpy(thisup,this1);
-
-        strtoupper(lineup);
-        strtoupper(thisup);
-        if (strstr(lineup,thisup) == NULL) return;
-        checker = -1;
-        strcpy(hold,"");
-        for (u = 0; u < strlen(line); u++)
-        {
-                if (checker > -1)
-                {
-                        if (toupper(line[u]) == toupper(this1[checker]))
-                        {
-                                if (checker+1 == strlen(this1))
-                                {
-doit:
-                                u = u - strlen(this1);
-                                u++;
-                                for (i = 0; i < u; i++) hold[i] = line[i];
-                                for (i = 0; i < strlen(that); i++) hold[(u)+i]=that[i];
-                                hold[strlen(that)+u] = 0;
-                                for (i = 0; i < (strlen(line)-u)-strlen(this1); i++)
-                                {
-                                        hold[(u+strlen(that))+i] = line[(u+strlen(this1))+i];
-                                }
-                                hold[(strlen(line)-strlen(this1))+strlen(that)] = 0;
-                                strcpy(line,hold);
-                                goto start;
-                                }
-                                checker++;
-                          } else { checker = -1;    }
-                }
-                if( checker == -1)
-                {
-                        if (toupper(line[u]) == toupper(this1[0]))
-                        {
-
-                                //      if (line[u] < 97) that[0] = toupper(that[0]);
-                                checker = 1;
-                                if (strlen(this1) == 1) goto doit;
-                        }
-                }
-        }
+  /* Beware of the direction so as not to overwrite */
+  int i = start;
+  int max = strlen(line);
+  for (; i <= max; i++)
+    line[i-shift] = line[i];
 }
+
+/**
+ * Move chars between 'start' and the end of 'line' to the right, with
+ * a postponement of 'shift' chars. Copy the trailing '\0'.
+ */
+void shift_right(char* line, int start, int shift)
+{
+  /* Beware of the direction so as not to overwrite */
+  int i = strlen(line);
+  for (; i >= start; i--)
+    line[i+shift] = line[i];
+}
+
+/**
+ * Replace word 'find' by word 'repl' in 'line', as many times as
+ * possible.
+ * 
+ * Note:
+ * 
+ * - '*line_p' is xrealloc'd only if strlen(repl) > strlen(find), to
+      make the calling code easier.
+ */
+void replace(const char* find, const char* repl, char** line_p)
+{
+  int len_find = strlen(find);
+  int len_repl = strlen(repl);
+  char* line = *line_p;
+  int len_line = strlen(line);
+  
+  int u = -1;
+  int checker = 0;
+  for (u = 0; u < len_line; u++)
+    {
+      if (toupper(line[u]) == toupper(find[checker]))
+	{
+	  checker++;
+	  if (checker == len_find)
+	    {
+	      int pos_repl = u + 1 - len_find;
+
+	      int len_newline = len_line + len_repl - len_find;
+	      /* Only change line_p if there's need to */
+	      if (len_newline > len_line)
+		{
+		  line = xrealloc(line, len_newline + 1);
+		  *line_p = line;
+		}
+
+	      /* Move what's after the replacement, if necessary */
+	      if (len_repl < len_find)
+		shift_left (line, pos_repl + len_find, len_find - len_repl);
+	      else if (len_repl > len_find)
+		shift_right(line, pos_repl + len_find, len_repl - len_find);
+
+	      /* Actually replace */
+	      strncpy(line + pos_repl, repl, len_repl);
+
+	      /* Prepare for next loop */
+	      checker = 0;
+	      len_line += len_repl - len_find;
+	      u += len_repl - len_find;
+	    }
+	}
+      else
+	{
+	  checker = 0;
+	}
+    }
+}
+
+/**
+ * Alias to 'replace' that emphasize that '&line' won't be modified
+ * (i.e. realloc'd). Only valid if the replacement is shorter or as
+ * long as the search term.
+ */
+void replace_norealloc(const char* find, const char* repl, char* line)
+{
+  if (strlen(repl) > strlen(find))
+    {
+      log_fatal("Internal error: invalid string substitution");
+      exit(EXIT_FAILURE);
+    }
+  replace(find, repl, &line);
+}
+
 
 /**
  * Convert Latin-1-encoded 'source' to UTF-8-encoded 'dest'. 'dest'
@@ -265,22 +308,21 @@ void latin1_to_utf8(char* source, char* dest, int dest_size)
 }
 
 /* Here's a small Python script to explain the above formula: */
-/*
-# Static charset conversion table from Latin-1 to UTF-8:
-print 'unsigned char conv[][2] = {\n', ',\n'.join(
-    ['\/\*%d:\*\/ {%s}' % (
-        c,
-        ', '.join(
-            [hex(ord(i)) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
-            )
-        ) for c in range(128,256)]
-    ), '};'
 
-# Test computed (!= static) table:
-for c in range(128,256):
-    method1 = [ord(i) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
-    method2 = [0xc2 + ((c - 128) / 64), 0x80 + ((c - 128) % 64)]
-    #print method1, method2
-    if method1[0] != method2[0] or method1[1] != method2[1]:
-        print "Mismatch at %c"
-*/
+// # Static charset conversion table from Latin-1 to UTF-8:
+// print 'unsigned char conv[][2] = {\n', ',\n'.join(
+//     ['\/*%d:\*/ {%s}' % (
+//         c,
+//         ', '.join(
+//             [hex(ord(i)) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
+//             )
+//         ) for c in range(128,256)]
+//     ), '};'
+// 
+// # Test computed (!= static) table:
+// for c in range(128,256):
+//     method1 = [ord(i) for i in chr(c).decode('ISO-8859-1').encode('utf-8')]
+//     method2 = [0xc2 + ((c - 128) / 64), 0x80 + ((c - 128) % 64)]
+//     #print method1, method2
+//     if method1[0] != method2[0] or method1[1] != method2[1]:
+//         print "Mismatch at %c"

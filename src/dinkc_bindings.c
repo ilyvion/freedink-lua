@@ -35,6 +35,7 @@
 #include <alloca.h>
 #include <string.h>
 #include <ctype.h> /* tolower */
+#include <xalloc.h>
 
 /* Gnulib */
 #include "hash.h"
@@ -59,6 +60,7 @@
 /* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
 /* store current procedure arguments of type 'string' (idem) */
+// TODO: fix potential buffer overflow
 static char slist[10][200];
 static char* cur_funcname;
 
@@ -574,6 +576,32 @@ void dc_load_screen(int script, int* yield, int* preturnint)
   return;
 }
 
+/**
+ * Decipher a copy of 'text' (to avoid potentially realloc'ing it) and
+ * call 'say_text(...)'
+ */
+static int say_text_decipher(char* text, int active_sprite, int script)
+{
+  char* expanded = strdup(text);
+  decipher_string(&expanded, script);
+  int text_sprite = say_text(text, active_sprite, script);
+  free(expanded);
+  return text_sprite;
+}
+
+/**
+ * Decipher a copy of 'text' (to avoid potentially realloc'ing it) and
+ * call 'say_text_xy(...)'
+ */
+static int say_text_xy_decipher(char* text, int x, int y, int script)
+{
+  char* expanded = strdup(text);
+  decipher_string(&expanded, script);
+  int text_sprite = say_text_xy(text, x, y, script);
+  free(expanded);
+  return text_sprite;
+}
+
 void dc_say(int script, int* yield, int* preturnint, char* text, int active_sprite)
 {
   /* 1000 is a valid value, and bad values don't trigger segfaults
@@ -595,8 +623,7 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
   else
     i18n_translate(text, 200);
 
-  decipher_string(text, script);
-  *preturnint = say_text(text, active_sprite, script);
+  *preturnint = say_text_decipher(text, active_sprite, script);
 }
 
 void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
@@ -619,8 +646,7 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
   else
     i18n_translate(text, 200);
 
-  decipher_string(text, script);
-  int sprite = say_text(text, active_sprite, script);
+  int sprite = say_text_decipher(text, active_sprite, script);
   *preturnint = sprite;
   spr[sprite].callback = script;
   play.last_talk = script;
@@ -648,8 +674,7 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
   else
     i18n_translate(text, 200);
 
-  decipher_string(text, script);
-  int sprite = say_text(text, active_sprite, script);
+  int sprite = say_text_decipher(text, active_sprite, script);
   *preturnint = sprite;
   spr[sprite].callback = script;
     
@@ -670,8 +695,7 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
     i18n_translate(text, 200);
 
   log_info("say_stop_xy: Adding %s", text);
-  decipher_string(text, script);
-  int sprite = say_text_xy(text, x, y, script);
+  int sprite = say_text_xy_decipher(text, x, y, script);
   spr[sprite].callback = script;
   spr[sprite].live = /*true*/1;
   play.last_talk = script;
@@ -688,8 +712,7 @@ void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y
   else
     i18n_translate(text, 200);
 
-  decipher_string(text, script);
-  int sprite = say_text_xy(text, x, y, script);
+  int sprite = say_text_xy_decipher(text, x, y, script);
   *preturnint = sprite;
 }
 
@@ -1270,12 +1293,14 @@ void dc_load_sound(int script, int* yield, int* preturnint,
 void dc_debug(int script, int* yield, int* preturnint,
 	      char* text)
 {
-  char buf[350]; /* cf. 'Msg' */
+  int len_text = strlen(text);
+  char* buf = xmalloc(len_text + 1);
   /* Convert from Latin-1 (.c) to UTF-8 (SDL) since the message is
      shown on the screen in debug mode */
-  latin1_to_utf8(text, buf, 350);
-  decipher_string(buf, script);
+  latin1_to_utf8(text, buf, len_text + 1);
+  decipher_string(&buf, script);
   log_debug(buf);
+  free(buf);
 }
 
 void dc_busy(int script, int* yield, int* preturnint,
@@ -1706,7 +1731,8 @@ void dc_make_global_function(int script, int* yield, int* preturnint, char* dcsc
 
 void dc_set_save_game_info(int script, int* yield, int* preturnint, char* info)
 {
-  strcpy (save_game_info, info);
+  strncpy(save_game_info, info, LEN_SAVE_GAME_INFO);
+  save_game_info[LEN_SAVE_GAME_INFO - 1] = '\0';
 }
 
 void dc_load_map(int script, int* yield, int* preturnint, char* mapdat_file, char* dinkdat_file)
@@ -2288,8 +2314,8 @@ morestuff:
 	      
 	      if (compare(check, "title_end"))
 		{
-		  replace("\n\n\n\n","\n \n", talk.buffer);
-		  replace("\n\n","\n", talk.buffer);
+		  replace_norealloc("\n\n\n\n", "\n \n", talk.buffer);
+		  replace_norealloc("\n\n", "\n", talk.buffer);
 		  free(line);
 		  goto redo;
 		}
@@ -2301,7 +2327,7 @@ morestuff:
 	      /* put '\n' back, just in case */
 	      strcat(line, "\n");
 
-	      decipher_string(line, script);
+	      decipher_string(&line, script);
 	      strcat(talk.buffer, line);
 	      //talk.buffer[strlen(talk.buffer)-1] = 0;
 	      free(line);
@@ -2384,10 +2410,15 @@ morestuff:
       /* Translate text (before variable substitution) */
       i18n_translate(check, 101);
 
-      // Msg("Line %d is %s.",cur,check);
       retnum++;
       decipher_savegame = retnum;
-      decipher_string(check, script);
+      // TODO: fix potential buffer overflow in 'check'
+      {
+	char* tmp_workaround = strdup(check);
+	decipher_string(&tmp_workaround, script);
+	strcpy(check, tmp_workaround);
+	free(tmp_workaround);
+      }
       decipher_savegame = 0;
       strcpy(talk.line[cur], check);
       talk.line_return[cur] = retnum;
@@ -2451,7 +2482,7 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 	  
 	  if (crap[0] == '&')
 	    {
-	      replace(" ", "", crap);
+	      replace_norealloc(" ", "", crap);
 	      //      Msg("Found %s, 1st is %c",crap, crap[0]);
 	      decipher(crap, script);
 	    }
@@ -2524,7 +2555,6 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   char *h, *p;
   char line[200];
   char ev[15][100];
-  char temp[100];
   int kk;
   
   if (rinfo[script]->level < 1)
@@ -2581,6 +2611,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   /** Expression between parenthesis **/
   if (ev[1][0] == '(')
     {
+      char temp[100];
+
       //this procedure has been passed a conditional statement finder
       //what kind of conditional statement is it?
       p = h;
@@ -2597,7 +2629,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d == %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
@@ -2609,7 +2641,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d > %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
@@ -2621,7 +2653,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d < %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
@@ -2640,7 +2672,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d <= %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
@@ -2652,7 +2684,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d >= %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
@@ -2664,7 +2696,7 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  h++;
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
-	  replace("==", "", temp);
+	  replace_norealloc("==", "", temp);
 	  sprintf(line, "%d != %s", returnint, temp);
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");

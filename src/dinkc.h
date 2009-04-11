@@ -82,7 +82,7 @@ extern void strip_beginning_spaces(char *str);
 extern /*bool*/int locate(int script, char proc[20]);
 extern /*bool*/int locate_goto(char proc[50], int script);
 extern void decipher(char *crap, int script);
-extern void decipher_string(char line[200], int script);
+extern void decipher_string(char** line_p, int script);
 extern int add_callback(char name[20], int n1, int n2, int script);
 extern void kill_callback(int cb);
 extern void kill_callbacks_owned_by_script(int script);

@@ -12,13 +12,24 @@
 
 - New architecture: PSP
 
+- New logging system, enabled with '-d' (instead of writing debug
+  information on standard output by default), with different
+  priorities (debug/info/warn/error/fatal). You also can easily check
+  for DinkC errors in your scripts by searching for "[DinkC]" in
+  DEBUG.TXT.
+
 * Developer notes:
 
 - Dropped libffi dependency to support more architectures
 
 - Fixed SDL_ttf version check (it failed for macport's 2.1.0)
 
-- Code clean-ups, namely in the input subsystem (joystick, etc.)
+- Code clean-ups, namely in the input subsystem (joystick) and
+  shutdown process.
+
+- Fixed numerous buffer overflows in the DinkC interpreter, and a
+  potential infinite loop during search/replace (when the replacement
+  countained search term).
 
 
 1.08.20090120
