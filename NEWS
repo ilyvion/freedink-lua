@@ -16,7 +16,8 @@
   information on standard output by default), with different
   priorities (debug/info/warn/error/fatal). You also can easily check
   for DinkC errors in your scripts by searching for "[DinkC]" in
-  DEBUG.TXT.
+  DEBUG.TXT. In addition DinkC errors often carry the line number
+  (rather than the binary offset).
 
 * Developer notes:
 

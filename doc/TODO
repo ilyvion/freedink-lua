@@ -53,3 +53,9 @@ i18n
 [ ] This line wasn't included in the .pot, probably something to fix
     in the script:
     ./S1-H3-OF.c:64:	  say_stop("`7I gotta do something about them soon ..." ,&current_sprite);
+
+[ ] Unbreakable spaces are displayed with a square. This breaks the
+    use of unbreakable spaces in front of punctuation in translations
+    (e.g. for French '!'). This is a problem in either Liberation-Sans
+    or SDL_ttf. OOo can display correct unbreakable spaces with
+    Liberation-Sans though.
