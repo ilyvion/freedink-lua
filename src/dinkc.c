@@ -183,27 +183,25 @@ static void decompress_nocomp(FILE *in, int script)
  * Only load game metadata (timetime). Used when displaying the list
  * of saved games (see decipher_string).
  */
-static /*bool*/int load_game_small(int num, char *line, int *mytime)
+static /*bool*/int load_game_small(int num, char line[196], int *mytime)
 {
   FILE *f = paths_savegame_fopen(num, "rb");
   if (f == NULL)
     {
       log_info("Couldn't quickload save game %d", num);
-      return(/*false*/0);
+      return /*false*/0;
     }
   else
     {
       //int version = read_lsb_int(f);
       read_lsb_int(f); // avoid compiler warning
 
-      char gameinfo[196];
-      fread(gameinfo, 196, 1, f);
-      int minutes = read_lsb_int(f);
+      fread(line, 196, 1, f);
+      line[196] = '\0';
+      *mytime = read_lsb_int(f);
       fclose(f);
 
-      *mytime = minutes;
-      strcpy(line, gameinfo);
-      return(/*true*/1);
+      return /*true*/1;
     }
 }
 
@@ -366,7 +364,7 @@ void strip_beginning_spaces(char *str)
 /**
  * Locate a procedure (such as "void hit()")
  */
-/*bool*/int locate(int script, char* proc)
+/*bool*/int locate(int script, char* lookup_proc)
 {
   if (rinfo[script] == NULL)
     return 0;
@@ -382,7 +380,6 @@ void strip_beginning_spaces(char *str)
 
   char* line = NULL;
   char* word = NULL;
-  char temp[100];
 
   while((line = read_next_line(script)) != NULL)
     {
@@ -395,11 +392,17 @@ void strip_beginning_spaces(char *str)
       free(word);
       if (is_proc)
 	{
+	  char* cur_proc = NULL;
 	  word = get_word(line, 2);
-	  separate_string(word, 1, '(', temp);
+	  cur_proc = separate_string(word, 1, '(');
 	  free(word);
 
-	  if (compare(temp, proc))
+	  int is_right_proc = 0;
+	  if (compare(cur_proc, lookup_proc))
+	    is_right_proc = 1;
+	  free(cur_proc);
+
+	  if (is_right_proc)
 	    {
 	      //clean up vars so it is ready to run
 	      if (rinfo[script]->sprite != 1000)
@@ -531,82 +534,48 @@ int search_var_with_this_scope(char* variable, int scope)
 }
 
 /**
- * Expand 'variable' in the scope of 'script'; the result is placed
- * back in 'variable'. Only used in function 'get_parms'.
+ * Expand 'variable' in the scope of 'script' and return the integer
+ * value. Only used in function 'get_parms'.
  */
-void decipher(char *variable, int script)
+long decipher(char* variable, int script)
 {
   // Special vars: &current_sprite and &current_script
   if (compare(variable, "&current_sprite"))
-    {
-      sprintf(variable, "%d",rinfo[script]->sprite);
-      return;
-    }
+    return rinfo[script]->sprite;
   if (compare(variable, "&current_script"))
-    {
-      sprintf(variable, "%d",script);
-      return;
-    }
+    return script;
 
   //v1.08 special variables.
   if (dversion >= 108)
     {
-      if (compare(variable, "&return")) 
-	{
-	  sprintf(variable, "%d", returnint);
-	  return;
-	}
-      if (compare(variable, "&arg1")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg1);
-	  return;
-	}
-      if (compare(variable, "&arg2")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg2);
-	  return;
-	}
-      if (compare(variable, "&arg3")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg3);
-	  return;
-	}
-      if (compare(variable, "&arg4")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg4);
-	  return;
-	}
+      if (compare(variable, "&return"))
+	return returnint;
+      if (compare(variable, "&arg1"))
+	return rinfo[script]->arg1;
+      if (compare(variable, "&arg2"))
+	return rinfo[script]->arg2;
+      if (compare(variable, "&arg3"))
+	return rinfo[script]->arg3;
+      if (compare(variable, "&arg4"))
+	return rinfo[script]->arg4;
       if (compare(variable, "&arg5"))
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg5);
-	  return;
-	}
-      if (compare(variable, "&arg6")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg6);
-	  return;
-	}
-      if (compare(variable, "&arg7")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg7);
-	  return;
-	}
+	return rinfo[script]->arg5;
+      if (compare(variable, "&arg6"))
+	return rinfo[script]->arg6;
+      if (compare(variable, "&arg7"))
+	return rinfo[script]->arg7;
       if (compare(variable, "&arg8"))
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg8);
-	  return;
-	}
-      if (compare(variable, "&arg9")) 
-	{
-	  sprintf(variable, "%d", rinfo[script]->arg9);
-	  return;
-	}
+	return rinfo[script]->arg8;
+      if (compare(variable, "&arg9"))
+	return rinfo[script]->arg9;
     }
 
   // Check in local and global variables
   int i = search_var_with_this_scope(variable, script);
   if (i != -1)
-    sprintf(variable, "%d", play.var[i].var);
+    return play.var[i].var;
+  else
+    return 0; // compatibility
 }
 
 
@@ -684,9 +653,7 @@ void var_replace(char** line_p, int scope)
  */
 void decipher_string(char** line_p, int script)
 {
-  char buffer[20];
-  char crab[100];
-  int mytime;
+  char buffer[20 + 1];
   
   /* Replace all valid variables in 'line' */
   var_replace(line_p, script);
@@ -734,19 +701,15 @@ void decipher_string(char** line_p, int script)
 
   if ((decipher_savegame != 0) && compare(*line_p, "&savegameinfo"))
     {
-      char crap[20];
-      sprintf(crap, "save%d.dat", decipher_savegame);
-      // TODO: check for buffer overflow in 'line'
-      if (load_game_small(decipher_savegame, crab, &mytime) == 1)
-	{
-	  sprintf(*line_p, _("Slot %d - %d:%02d - %s"), decipher_savegame, (mytime / 60),
-		  mytime - ((mytime / 60) * 60) , crab);
-	  //sprintf(line, "In Use");
-	}
+      char gameinfo[196] = "";
+      int mytime = 0;
+
+      free(*line_p);
+      if (load_game_small(decipher_savegame, gameinfo, &mytime) == 1)
+	asprintf(line_p, _("Slot %d - %d:%02d - %s"), decipher_savegame,
+		 mytime/60, mytime%60, gameinfo);
       else
-	{
-	  sprintf(*line_p, _("Slot %d - Empty"), decipher_savegame);
-	}
+	asprintf(line_p, _("Slot %d - Empty"), decipher_savegame);
     }
 }
 
@@ -1178,48 +1141,6 @@ void run_script(int script)
     }
 }
 
-/**
- * Return the word number 'word' present in 'line'. Words are
- * separated by one or more spaces and count from 1 (i.e. not 0).
- */
-char* get_word(char* line, int word)
-{
-  int cur_word = 1;
-
-  /* find word */
-  char* pc = line;
-  while (*pc != '\0')
-    {
-      if (cur_word == word)
-	break;
-      if (*pc == ' ')
-	{
-	  cur_word++;
-	  while(*pc == ' ' && *pc != '\0')
-	    pc++;
-	}
-      else
-	{
-	  while(*pc != ' ' && *pc != '\0')
-	    pc++;
-	}
-    }
-
-  /* find end-of-word */
-  char* start = pc;
-  while(*pc != '\0' && *pc != ' ')
-    pc++;
-
-  /* copy word - either we're on the right word and will copy it,
-     either we're at the end of string and will copy an empty word */
-  int len = pc - start;
-  char* result = xmalloc(len + 1);
-  memcpy(result, start, len);
-  result[len] = '\0';
-
-  return result;
-}
-
 int var_exists(char name[20], int scope)
 {
   int i;
@@ -1556,7 +1477,7 @@ int var_figure(char* h, int script)
 
 /**
  * Check if 'line' is a valid variable declaration, and define the
- * variable it to 0 (via make_int(...))
+ * variable it to 0 (via make_int(...)). 'line' is modified.
  */
 void int_prepare(char* line, int script)
 {
@@ -1564,10 +1485,11 @@ void int_prepare(char* line, int script)
   strcpy(hold, line);
 
   char* name = NULL;
-  char crap[100];
+  char *temp = NULL;
   replace_norealloc("=", " ", line);
-  strcpy(crap, line);
-  separate_string(crap, 1, ';', line);
+  temp = separate_string(line, 1, ';');
+  strcpy(line, temp); // safe as strlen(line) <= strlen(temp)
+  free(temp);
   name = get_word(line, 2);
   
   if (name[0] != '&')

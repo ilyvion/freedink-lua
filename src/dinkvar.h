@@ -161,10 +161,6 @@ extern void run_script (int script);
 extern void update_sound(void);
 extern void update_status_all(void);
 
-/* string_utils */
-extern /*bool*/int compare(char *orig, char *comp);
-/*bool*/int separate_string (char str[255], int num, char liney, char *return1);
-
 extern /*bool*/int abort_this_flip;
 extern int base_timing;
 extern struct attackinfo_struct bow;

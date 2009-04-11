@@ -49,3 +49,7 @@ i18n
 [ ] Have DFArc look at l10n/LOCALE/dmod.diz if available
     => No, rather add dmod.diz to the .pot file, so translators have
     as much text as possible in their .po file.
+
+[ ] This line wasn't included in the .pot, probably something to fix
+    in the script:
+    ./S1-H3-OF.c:64:	  say_stop("`7I gotta do something about them soon ..." ,&current_sprite);

@@ -224,7 +224,7 @@ FastFileOpen(char *name)
   /* Check for the file, dont' include directory */
   for (fCount = 0; fCount < (long)g_numEntries - 1; fCount++)
     {
-      if (string_icompare(g_Entries[fCount].name, name) == 0)
+      if (strcasecmp(g_Entries[fCount].name, name) == 0)
 	{
 	  for (hCount = 0; hCount < (long)g_numHandles; hCount++)
 	    {

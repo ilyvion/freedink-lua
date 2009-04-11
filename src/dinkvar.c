@@ -1945,12 +1945,15 @@ void load_hard(void)
 void pre_figure_out(char* line)
 {
   int i;
-  char ev[15][100];
+  char* ev[15];
   memset(&ev, 0, sizeof(ev));
   for (i = 1; i <= 14; i++)
-    separate_string(line, i, ' ', ev[i]);
+    {
+      ev[i] = separate_string(line, i, ' ');
+      if (ev[i] == NULL)
+	ev[i] = strdup("");
+    }
   char *command = ev[1];
-
 
   // PLAYMIDI  filename
   if (compare(command, "playmidi"))
@@ -1965,7 +1968,7 @@ void pre_figure_out(char* line)
   // LOAD_SEQUENCE_NOW  path  seq  NOTANIM
   // LOAD_SEQUENCE_NOW  path  seq  speed
   // LOAD_SEQUENCE_NOW  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
-  if (compare(command, "LOAD_SEQUENCE_NOW"))
+  else if (compare(command, "LOAD_SEQUENCE_NOW"))
     {
       rect hardbox;
       memset(&hardbox, 0, sizeof(rect));
@@ -2011,7 +2014,6 @@ void pre_figure_out(char* line)
       /* We still call 'make_idata' for compatibility, to use the same
 	 number of idata, hence preserving the same max_idata. */
       make_idata(IDATA_SPRITE_INFO, 0,0, 0,0, hardbox);
-      return;
     }
 
   // LOAD_SEQUENCE  path  seq  BLACK
@@ -2019,15 +2021,14 @@ void pre_figure_out(char* line)
   // LOAD_SEQUENCE  path  seq  NOTANIM
   // LOAD_SEQUENCE  path  seq  speed
   // LOAD_SEQUENCE  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
-  if (compare(command, "LOAD_SEQUENCE"))
+  else if (compare(command, "LOAD_SEQUENCE"))
     {
       int myseq = atol(ev[3]);
       seq_set_ini(myseq, line);
       seq[myseq].is_active = 1;
-      return;
     }
   
-  if (compare(command, "SET_SPRITE_INFO"))
+  else if (compare(command, "SET_SPRITE_INFO"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
       //if (k[seq[myseq].frame[myframe]].frame = 0) Msg("Changing sprite that doesn't exist...");
@@ -2037,32 +2038,29 @@ void pre_figure_out(char* line)
       int myframe = atol(ev[3]);
       rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
       make_idata(IDATA_SPRITE_INFO, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
-      return;
     }
   
-  if (compare(command, "SET_FRAME_SPECIAL"))
+  else if (compare(command, "SET_FRAME_SPECIAL"))
     {
       rect hardbox;
       int myseq = atol(ev[2]);
       int myframe = atol(ev[3]);
       int special = atol(ev[4]);
       make_idata(IDATA_FRAME_SPECIAL, myseq, myframe, special, 0, hardbox);
-      return;
     }
   
-  if (compare(command, "SET_FRAME_DELAY"))
+  else if (compare(command, "SET_FRAME_DELAY"))
     {
       rect hardbox;
       int myseq = atol(ev[2]);
       int myframe = atol(ev[3]);
       int delay = atol(ev[4]);
       make_idata(IDATA_FRAME_DELAY, myseq, myframe, delay, 0, hardbox);
-      return;
     }
   
   // SET_FRAME_FRAME  seq frame  new_seq new_frame
   // SET_FRAME_FRAME  seq frame  -1
-  if (compare(command, "SET_FRAME_FRAME"))
+  else if (compare(command, "SET_FRAME_FRAME"))
     {
       rect hardbox;
       int myseq = atol(ev[2]);
@@ -2072,6 +2070,10 @@ void pre_figure_out(char* line)
       
       make_idata(IDATA_FRAME_FRAME, myseq, myframe, new_seq, new_frame, hardbox);
     }
+
+  /* Clean-up */
+  for (i = 1; i <= 14; i++)
+    free(ev[i]);
 }
 
 /**
@@ -2084,10 +2086,14 @@ void figure_out(char* line)
   int special = 0;
   int special2 = 0;
   int i;
-  char ev[15][100];
+  char* ev[15];
   memset(&ev, 0, sizeof(ev));
   for (i = 1; i <= 14; i++)
-    separate_string(line, i, ' ', ev[i]);
+    {
+      ev[i] = separate_string(line, i, ' ');
+      if (ev[i] == NULL)
+	ev[i] = strdup("");
+    }
   char *command = ev[1];
 
   // LOAD_SEQUENCE_NOW  path  seq  BLACK
@@ -2134,10 +2140,9 @@ void figure_out(char* line)
 		   hardbox, flags);
       
       program_idata();
-      return;
     }
 
-  if (compare(command, "SET_SPRITE_INFO"))
+  else if (compare(command, "SET_SPRITE_INFO"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
       myseq = atol(ev[2]);
@@ -2150,7 +2155,7 @@ void figure_out(char* line)
       k[seq[myseq].frame[myframe]].hardbox.bottom = atol(ev[9]);
     }
   
-  if (compare(command, "SET_FRAME_SPECIAL"))
+  else if (compare(command, "SET_FRAME_SPECIAL"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
       myseq = atol(ev[2]);
@@ -2161,7 +2166,7 @@ void figure_out(char* line)
       log_debug("Set special.  %d %d %d", myseq, myframe, special);
     }
 
-  if (compare(command, "SET_FRAME_DELAY"))
+  else if (compare(command, "SET_FRAME_DELAY"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
       myseq = atol(ev[2]);
@@ -2172,7 +2177,7 @@ void figure_out(char* line)
       log_debug("Set delay.  %d %d %d",myseq, myframe, special);
     }
 
-  if (compare(command, "SET_FRAME_FRAME"))
+  else if (compare(command, "SET_FRAME_FRAME"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
       myseq = atol(ev[2]);
@@ -2186,6 +2191,10 @@ void figure_out(char* line)
 	seq[myseq].frame[myframe] = seq[special].frame[special2];
       log_debug("Set frame.  %d %d %d", myseq, myframe, special);
     }
+
+  /* Clean-up */
+  for (i = 1; i <= 14; i++)
+    free(ev[i]);
 }
 
 
@@ -3163,7 +3172,7 @@ void check_sprite_status_full(int sprite_no)
 
 
 /* say_text, say_text_xy: used by the game only (not the editor) */
-int add_text_sprite(char text[200], int script, int sprite_owner, int mx, int my)
+int add_text_sprite(char* text, int script, int sprite_owner, int mx, int my)
 {
   int tsprite = add_sprite(mx, my, 8, 0, 0);
   if (tsprite == 0)
@@ -3172,7 +3181,7 @@ int add_text_sprite(char text[200], int script, int sprite_owner, int mx, int my
       return 0;
     }
 
-  strncpy(spr[tsprite].text, text, 200-1);
+  strncpy(spr[tsprite].text, text, 200-1); // TODO: currently truncated to 199 chars
   spr[tsprite].text[200-1] = '\0';
 
   *plast_text = tsprite;
@@ -3188,7 +3197,7 @@ int add_text_sprite(char text[200], int script, int sprite_owner, int mx, int my
   return tsprite;
 }
 
-int say_text(char text[200], int sprite_owner, int script)
+int say_text(char* text, int sprite_owner, int script)
 {
   int tsprite;
   if (sprite_owner == 1000)
@@ -3214,7 +3223,7 @@ int say_text(char text[200], int sprite_owner, int script)
 }
 
 
-int say_text_xy(char text[200], int mx, int my, int script)
+int say_text_xy(char* text, int mx, int my, int script)
 {
   int sprite_owner = 1000;
   return add_text_sprite(text, script, sprite_owner, mx, my);

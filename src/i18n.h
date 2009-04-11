@@ -23,6 +23,6 @@
 #ifndef _I18N_H
 #define _I18N_H
 
-  extern void i18n_translate(char* text, int buf_size);
+  extern char* i18n_translate(char* text);
 
 #endif

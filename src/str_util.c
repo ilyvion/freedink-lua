@@ -36,22 +36,6 @@
 #include "log.h"
 
 /**
- * Compare two strings ignoring case
- * TODO: autoconfiscate(strcasecmp)
- */
-int
-string_icompare (char *s1, char *s2)
-{
-  while (*s1 && *s2 && toupper (*s1) == toupper (*s2))
-    {
-      s1++;
-      s2++;
-    }
-
-  return *s1 - *s2;
-}
-
-/**
  * Upcase the string
  */
 void
@@ -124,49 +108,93 @@ void strchar(char *string, char ch)
 }
 
 /**
- * Split 'str' in words separated by 'liney', and copy the #'num' one
- * to 'return1'. The function does not alter 'str'. Return 1 if field
- * #'num' was present, 0 otherwise.
+ * Split 'str' in words separated by _one_ 'sep', and copy the #'num'
+ * one to 'return1'. The function does not alter 'str'. Return 1 if
+ * field #'num' was present, 0 otherwise. Several 'sep' enclose empty
+ * words (e.g. separators are not collapsed, unlike 'get_word(...)').
  */
-/*bool*/int separate_string (char str[255], int num, char sep, char *return1)
+char* separate_string (char* line, int num, char sep)
 {
   int l;
   int k;
-  int len = 0;
+  int line_len = strlen(line);
 
-  len = strlen(str);
   l = 1;
-  strcpy(return1, "");
+  int start = 0;
+  int end = 0;
 
-  for (k = 0; k < len; k++)
+  for (k = 0; k < line_len; k++)
     {
-      if (str[k] == sep)
+      if (line[k] == sep)
 	{
 	  if (l == num)
 	    break;
 	  l++;
-	  strcpy(return1, ""); /* reset */
+	  start = end = (k + 1);
 	}
       else /* (str[k] != sep) */
 	{
-	  char cur_char_as_string[2];
-	  cur_char_as_string[0] = str[k];
-	  cur_char_as_string[1] = '\0';
-	  strcat(return1, cur_char_as_string);
+	  end++;
 	}
     }
 
   if (l >= num)
     {
-      replace_norealloc("\r", "", return1); //Take the /r off it.
-      replace_norealloc("\n", "", return1); //Take the /n off it.
-      return 1;
+      int size = end - start;
+      char* result = xmalloc(size + 1);
+      strncpy(result, line + start, size);
+      result[size] = '\0';
+
+      replace_norealloc("\r", "", result); //Take the /r off it.
+      replace_norealloc("\n", "", result); //Take the /n off it.
+      return result;
     }
   else /* less than 'num' tokens */
     {
-      strcpy(return1, "");
-      return 0;
+      return NULL;
     }
+}
+
+/**
+ * Return the word number 'word' present in 'line'. Words are
+ * separated by one _or more_ spaces and count from 1 (i.e. not 0).
+ */
+char* get_word(char* line, int word)
+{
+  int cur_word = 1;
+
+  /* find word */
+  char* pc = line;
+  while (*pc != '\0')
+    {
+      if (cur_word == word)
+	break;
+      if (*pc == ' ')
+	{
+	  cur_word++;
+	  while(*pc == ' ' && *pc != '\0')
+	    pc++;
+	}
+      else
+	{
+	  while(*pc != ' ' && *pc != '\0')
+	    pc++;
+	}
+    }
+
+  /* find end-of-word */
+  char* start = pc;
+  while(*pc != '\0' && *pc != ' ')
+    pc++;
+
+  /* copy word - either we're on the right word and will copy it,
+     either we're at the end of string and will copy an empty word */
+  int len = pc - start;
+  char* result = xmalloc(len + 1);
+  memcpy(result, start, len);
+  result[len] = '\0';
+
+  return result;
 }
 
 
@@ -183,7 +211,7 @@ void strchar(char *string, char ch)
  * Move chars between 'start' and the end of 'line' to the left, with
  * a postponement of 'shift' chars. Copy the trailing '\0'.
  */
-void shift_left(char* line, int start, int shift)
+static void shift_left(char* line, int start, int shift)
 {
   /* Beware of the direction so as not to overwrite */
   int i = start;
@@ -196,7 +224,7 @@ void shift_left(char* line, int start, int shift)
  * Move chars between 'start' and the end of 'line' to the right, with
  * a postponement of 'shift' chars. Copy the trailing '\0'.
  */
-void shift_right(char* line, int start, int shift)
+static void shift_right(char* line, int start, int shift)
 {
   /* Beware of the direction so as not to overwrite */
   int i = strlen(line);
@@ -278,33 +306,43 @@ void replace_norealloc(const char* find, const char* repl, char* line)
 
 
 /**
- * Convert Latin-1-encoded 'source' to UTF-8-encoded 'dest'. 'dest'
- * will always be NULL-terminated, and won't be longer than max_size
- * bytes (including trailing '\0').
+ * Convert Latin-1-encoded 'source' to UTF-8-encoded. Result will
+ * always be NULL-terminated.
  */
-void latin1_to_utf8(char* source, char* dest, int dest_size)
+char* latin1_to_utf8(char* source)
 {
-      unsigned char *pcs = (unsigned char *)source;
-      unsigned char *pcd = (unsigned char *)dest;
-      unsigned char *pcd_limit = pcd + (dest_size-1-1);
-      while(*pcs != '\0' && pcd < pcd_limit)
+  int cur_size = 256;
+  const int step = 256;
+  unsigned char* dest = xmalloc(cur_size);
+  unsigned char *pcs = (unsigned char *)source;
+  unsigned char *pcd = (unsigned char *)dest;
+  unsigned char *pcd_limit = pcd + cur_size;
+  while(*pcs != '\0')
+    {
+      if (pcd == pcd_limit)
 	{
-	  if (*pcs < 128)
-	    {
-	      *pcd = *pcs;
-	      pcs++;
-	      pcd++;
-	    }
-	  else
-	    {
-	      *pcd = 0xc2 + ((*pcs - 128) / 64);
-	      pcd++;
-	      *pcd = 0x80 + ((*pcs - 128) % 64);
-	      pcd++;
-	      pcs++;
-	    }
+	  cur_size += step;
+	  dest = xrealloc(dest, cur_size);
+	  pcd = dest + cur_size;
+	  pcd_limit = pcd + step;
 	}
-      *pcd = '\0';
+      if (*pcs < 128)
+	{
+	  *pcd = *pcs;
+	  pcs++;
+	  pcd++;
+	}
+      else
+	{
+	  *pcd = 0xc2 + ((*pcs - 128) / 64);
+	  pcd++;
+	  *pcd = 0x80 + ((*pcs - 128) % 64);
+	  pcd++;
+	  pcs++;
+	}
+    }
+  *pcd = '\0';
+  return dest;
 }
 
 /* Here's a small Python script to explain the above formula: */

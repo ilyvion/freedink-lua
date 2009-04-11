@@ -41,29 +41,23 @@
  * which is present in Finnish keyboards and used instead of the more
  * common single quote "'" - check the Milderrr! series for instance).
  */
-void i18n_translate(char* text, int buf_size)
+char* i18n_translate(char* latin1_source)
 {
   /* Don't translate the empty string, which has a special meaning for
      gettext */
-  if (strlen(text) == 0)
-    return;
+  if (strlen(latin1_source) == 0)
+    return strdup("");
 
-  char* latin1_source = strdup(text);
-  char* utf8_dest = text;
-
-  char* translated_text = dgettext(paths_getdmodname(), latin1_source);
-  if (translated_text == latin1_source)
+  char* translation = dgettext(paths_getdmodname(), latin1_source);
+  if (translation == latin1_source)
     {
       /* No translation, let's manually convert from Latin-1 to UTF-8,
 	 so that 'TTF_RenderUTF8_Solid' can parse it correctly. */
-      latin1_to_utf8(latin1_source, utf8_dest, buf_size);
+      return latin1_to_utf8(latin1_source);
     }
   else
     {
       /* Copy the translation */
-      /* TODO: 'max_size' chars max for now */
-      strncpy(utf8_dest, translated_text, buf_size-1);
-      utf8_dest[buf_size-1] = '\0';
+      return strdup(translation);
     }
-  free(latin1_source);
 }

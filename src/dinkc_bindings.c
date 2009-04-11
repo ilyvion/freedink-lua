@@ -584,7 +584,7 @@ static int say_text_decipher(char* text, int active_sprite, int script)
 {
   char* expanded = strdup(text);
   decipher_string(&expanded, script);
-  int text_sprite = say_text(text, active_sprite, script);
+  int text_sprite = say_text(expanded, active_sprite, script);
   free(expanded);
   return text_sprite;
 }
@@ -618,12 +618,14 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
     kill_text_owned_by(active_sprite);
 
   /* Translate text (before variable substitution) */
+  char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
+    translation = i18n_translate(text+2);
   else
-    i18n_translate(text, 200);
+    translation = i18n_translate(text);
 
-  *preturnint = say_text_decipher(text, active_sprite, script);
+  *preturnint = say_text_decipher(translation, active_sprite, script);
+  free(translation);
 }
 
 void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
@@ -641,12 +643,15 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
+  char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
+    translation = i18n_translate(text+2);
   else
-    i18n_translate(text, 200);
+    translation = i18n_translate(text);
 
-  int sprite = say_text_decipher(text, active_sprite, script);
+  int sprite = say_text_decipher(translation, active_sprite, script);
+  free(translation);
+
   *preturnint = sprite;
   spr[sprite].callback = script;
   play.last_talk = script;
@@ -669,12 +674,15 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
+  char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
+    translation = i18n_translate(text+2);
   else
-    i18n_translate(text, 200);
+    translation = i18n_translate(text);
 
-  int sprite = say_text_decipher(text, active_sprite, script);
+  int sprite = say_text_decipher(translation, active_sprite, script);
+  free(translation);
+
   *preturnint = sprite;
   spr[sprite].callback = script;
     
@@ -686,16 +694,15 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
+  char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
+    translation = i18n_translate(text+2);
   else
-    if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
-  else
-    i18n_translate(text, 200);
+    translation = i18n_translate(text);
 
-  log_info("say_stop_xy: Adding %s", text);
-  int sprite = say_text_xy_decipher(text, x, y, script);
+  log_info("say_stop_xy: Adding %s", translation);
+  int sprite = say_text_xy_decipher(translation, x, y, script);
+  free(translation);
   spr[sprite].callback = script;
   spr[sprite].live = /*true*/1;
   play.last_talk = script;
@@ -707,12 +714,14 @@ void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y
   kill_returning_stuff(script);
 
   /* Translate text (before variable substitution) */
+  char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
-    i18n_translate(text+2, 200-2);
+    translation = i18n_translate(text+2);
   else
-    i18n_translate(text, 200);
+    translation = i18n_translate(text);
 
-  int sprite = say_text_xy_decipher(text, x, y, script);
+  int sprite = say_text_xy_decipher(translation, x, y, script);
+  free(translation);
   *preturnint = sprite;
 }
 
@@ -1293,11 +1302,9 @@ void dc_load_sound(int script, int* yield, int* preturnint,
 void dc_debug(int script, int* yield, int* preturnint,
 	      char* text)
 {
-  int len_text = strlen(text);
-  char* buf = xmalloc(len_text + 1);
   /* Convert from Latin-1 (.c) to UTF-8 (SDL) since the message is
      shown on the screen in debug mode */
-  latin1_to_utf8(text, buf, len_text + 1);
+  char* buf = latin1_to_utf8(text);
   decipher_string(&buf, script);
   log_debug(buf);
   free(buf);
@@ -2255,9 +2262,7 @@ void attach(void)
 /*bool*/int talk_get(int script)
 {
   char* line = NULL;
-  char check[200];
   int cur = 1;
-  char *p;
   int retnum = 0;
   clear_talk();
   talk.newy = -5000;
@@ -2265,6 +2270,8 @@ void attach(void)
     {
     redo:
       line = read_next_line(script);
+      if (line == NULL)
+	line = strdup(""); // compatibility
       
       strip_beginning_spaces(line);
       //Msg("Comparing to %s.", line);
@@ -2298,129 +2305,148 @@ void attach(void)
 	  goto redo;
 	}
 
+      char* directive = NULL;
 morestuff:
-      separate_string(line, 1, '(', check);
-      strip_beginning_spaces(check);
-      
-      if (compare(check, "title_start"))
-        {
-	  free(line);
-	  while((line = read_next_line(script)) != NULL)
+      directive = separate_string(line, 1, '(');
+      if (directive != NULL)
+	{
+	  strip_beginning_spaces(directive);
+	  
+	  if (compare(directive, "title_start"))
 	    {
-	      strcpy(check, line);
-	      strip_beginning_spaces(line);
-	      separate_string(line, 1, '(', check);
-	      strip_beginning_spaces(check);
-	      
-	      if (compare(check, "title_end"))
+	      free(line);
+	      while((line = read_next_line(script)) != NULL)
 		{
-		  replace_norealloc("\n\n\n\n", "\n \n", talk.buffer);
-		  replace_norealloc("\n\n", "\n", talk.buffer);
+		  strip_beginning_spaces(line);
+		  free(directive);
+
+		  directive = separate_string(line, 1, '(');
+		  if (directive != NULL)
+		    {
+		      strip_beginning_spaces(directive);
+		      
+		      if (compare(directive, "title_end"))
+			{
+			  replace_norealloc("\n\n\n\n", "\n \n", talk.buffer);
+			  replace_norealloc("\n\n", "\n", talk.buffer);
+			  free(directive);
+			  free(line);
+			  goto redo;
+			}
+		    }
+		  
+		  /* drop '\n', this messes translations */
+		  line[strlen(line)-1] = '\0';
+		  /* Translate text (before variable substitution) */
+		  char* translation = i18n_translate(line);
+		  /* put '\n' back, just in case */
+		  /* strcat(line, "\n"); */ // TODO
+		  
+		  decipher_string(&translation, script);
+		  strcat(talk.buffer, translation); // TODO: buffer overflow
 		  free(line);
-		  goto redo;
 		}
 	      
-	      /* drop '\n', this messes translations */
-	      line[strlen(line)-1] = '\0';
-	      /* Translate text (before variable substitution) */
-	      i18n_translate(line, 200-1);
-	      /* put '\n' back, just in case */
-	      strcat(line, "\n");
-
-	      decipher_string(&line, script);
-	      strcat(talk.buffer, line);
-	      //talk.buffer[strlen(talk.buffer)-1] = 0;
-	      free(line);
+	      free(directive);
+	      goto redo;
 	    }
-
-	  goto redo;
-        }
-      
-      if (compare(check, "choice_end"))
-        {
-	  if (cur-1 == 0)
+	  
+	  if (compare(directive, "choice_end"))
 	    {
-	      log_debug("Error: choice() has 0 options in script %s, offset %d.",
-		  rinfo[script]->name, rinfo[script]->current);
-
+	      if (cur-1 == 0)
+		{
+		  log_debug("Error: choice() has 0 options in script %s, offset %d.",
+			    rinfo[script]->name, rinfo[script]->current);
+		  
+		  free(directive);
+		  free(line);
+		  return /*false*/0;
+		}
+	      //all done, lets jam
+	      //Msg("found choice_end, leaving!");
+	      talk.last = cur-1;
+	      talk.cur = 1;
+	      talk.active = /*true*/1;
+	      talk.page = 1;
+	      talk.cur_view = 1;
+	      talk.script = script;
+	      
+	      free(directive);
 	      free(line);
-	      return /*false*/0;
+	      return /*true*/1;
 	    }
-	  //all done, lets jam
-	  //Msg("found choice_end, leaving!");
-	  talk.last = cur-1;
-	  talk.cur = 1;
-	  talk.active = /*true*/1;
-	  talk.page = 1;
-	  talk.cur_view = 1;
-	  talk.script = script;
+	  free(directive);
+	}
 
-	  free(line);
-	  return /*true*/1;
+      char* condition = separate_string(line, 1, '"');
+      if (condition != NULL)
+	{
+	  strip_beginning_spaces(condition);
+	  
+	  if (strlen(condition) > 2)
+	    {
+	      //found conditional statement
+	      if (strchr(condition, '(') == NULL)
+		{
+		  log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
+			    rinfo[script]->name, rinfo[script]->current, condition);
+		  
+		  free(condition);
+		  free(line);
+		  return /*false*/0;
+		}
+	      
+	      char* temp = separate_string(condition, 2, '(');
+	      free(condition);
+	      condition = separate_string(temp, 1, ')');
+	      free(temp);
+	      
+	      //Msg("Running %s through var figure..", check);
+	      if (var_figure(condition, script) == 0)
+		{
+		  log_debug("Answer is no.");
+		  retnum++;
+		  
+		  free(condition);
+		  free(line);
+		  goto redo;
+		  //said NO to statement
+		}
+	      //Msg("Answer is yes.");
+	      free(condition);
+	      
+	      /* Resume processing stripping the first condition (there
+		 may be several conditions on a single dialog ligne, which
+		 are AND'ed) */
+	      char* p = strchr(line, ')') + 1;
+	      int i = 0;
+	      for (; *p != '\0'; i++, p++)
+		line[i] = *p;
+	      line[i] = '\0';
+	      goto morestuff;
+	    }
+	  free(condition);
 	}
       
-      separate_string(line, 1, '\"', check);
-      strip_beginning_spaces(check);
-      
-      //Msg("Check is %s.",check);
-      
-      if (strlen(check) > 2)
-        {
-	  //found conditional statement
-	  if (strchr(check, '(') == NULL)
-	    {
-	      log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
-			rinfo[script]->name, rinfo[script]->current, check);
-
-	      free(line);
-	      return /*false*/0;
-	    }
-	  
-	  char temp[200];
-	  separate_string(check, 2, '(', temp);
-	  separate_string(temp, 1, ')', check);
-	  
-	  //Msg("Running %s through var figure..", check);
-	  if (var_figure(check, script) == 0)
-	    {
-	      log_debug("Answer is no.");
-	      retnum++;
-
-	      free(line);
-	      goto redo;
-	      //said NO to statement
-	    }
-	  //Msg("Answer is yes.");
-	  separate_string(line, 1, ')', check);
-	  
-	  p = line + strlen(check) + 1;
-	  
-	  strcpy(check, p);
-	  strcpy(line, check);
-	  
-	  /* Resume processing stripping the first condition (there
-	     may be several conditions on a single dialog ligne, which
-	     are AND'ed) */
-	  goto morestuff;
-        }
-      
-      separate_string(line, 2, '\"', check);
-      strip_beginning_spaces(check);
-
-      /* Translate text (before variable substitution) */
-      i18n_translate(check, 101);
-
       retnum++;
-      decipher_savegame = retnum;
-      // TODO: fix potential buffer overflow in 'check'
-      {
-	char* tmp_workaround = strdup(check);
-	decipher_string(&tmp_workaround, script);
-	strcpy(check, tmp_workaround);
-	free(tmp_workaround);
-      }
-      decipher_savegame = 0;
-      strcpy(talk.line[cur], check);
+      char* text = separate_string(line, 2, '"');
+      if (text != NULL)
+	{
+	  /* Translate text (before variable substitution) */
+	  char* translation = i18n_translate(text);
+	  free(text);
+	  strip_beginning_spaces(translation);
+
+	  decipher_savegame = retnum;
+	  decipher_string(&translation, script);
+	  decipher_savegame = 0;
+	  strcpy(talk.line[cur], translation); // TODO: buffer overflow
+	  free(translation);
+	}
+      else
+	{
+	  strcpy(talk.line[cur], "");
+	}
       talk.line_return[cur] = retnum;
       cur++;
       free(line);
@@ -2446,8 +2472,6 @@ morestuff:
  */
 int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 {
-  char crap[1024];
-
   /* Clean-up parameters */
   memset(nlist, 0, 10 * sizeof (int));
   memset(slist, '\0', 10 * 200);
@@ -2472,32 +2496,40 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
       if (spec[i] == 1) // type=int
 	{
 	  // Get next parameter (until ',' or ')' is reached)
+	  char* parm = NULL;
 	  if (strchr(str_params, ',') != NULL)
-	    separate_string(str_params, 1, ',', crap);
+	    parm = separate_string(str_params, 1, ',');
 	  else if (strchr(str_params, ')') != NULL)
-	    separate_string(str_params, 1, ')', crap);
+	    parm = separate_string(str_params, 1, ')');
 
 	  // move to next param
-	  str_params += strlen(crap);
-	  
-	  if (crap[0] == '&')
+	  str_params += strlen(parm);
+
+	  int intval = -1;
+	  if (parm[0] == '&')
 	    {
-	      replace_norealloc(" ", "", crap);
-	      //      Msg("Found %s, 1st is %c",crap, crap[0]);
-	      decipher(crap, script);
+	      replace_norealloc(" ", "", parm);
+	      intval = decipher(parm, script);
+	    }
+	  else
+	    {
+	      intval = atol(parm);
 	    }
 	  // store parameter of type 'int'
-	  nlist[i] = atol(crap);
+	  nlist[i] = intval;
+	  free(parm);
 	}
       else if (spec[i] == 2) // type=string
 	{
-	  // Msg("Checking for string..");
-	  separate_string(str_params, 2, '"', crap);
+	  // Checking for string
+	  char* parm = NULL;
+	  parm = separate_string(str_params, 2, '"');
 	  // move to next param
-	  str_params += strlen(crap)+2;
+	  str_params += strlen(parm) + 2;
 
 	  // store parameter of type 'string'
-	  strcpy(slist[i], crap);
+	  strcpy(slist[i], parm); // TODO: buffer overflow
+	  free(parm);
 	}
 
       if ((i+1) == 10 || spec[i+1] == 0) // this was the last arg
@@ -2550,19 +2582,18 @@ static int signatures_eq_p(int* params1, int* params2)
  * 
  * Cf. doc/HACKING_dinkc.txt for understanding in progress ;)
  **/
-enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
+enum dinkc_parser_state
+process_line(int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
   char line[200];
-  char ev[15][100];
-  int kk;
+  char* ev[4];
   
+  memset(&ev, 0, sizeof(ev));
+
   if (rinfo[script]->level < 1)
     rinfo[script]->level = 1;
 
-
-  for (kk = 1; kk < 15; kk++)
-    ev[kk][0] = 0;
   h = s;
   if (h[0] == '\0')
     return 0;
@@ -2574,12 +2605,16 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
     }
 
   {
-    int i;
-    for (i = 1; i <= 14; i++)
-      if (separate_string(h, i, ' ', ev[i]) == /*false*/0)
-	break;
-  }
-
+    int i = 1;
+    for (; i <= 3; i++)
+      {
+	ev[i] = separate_string(h, i, ' ');
+	if (ev[i] == NULL)
+	  ev[i] = strdup("");
+      }
+  } // TODO: memory leak
+  if (ev[1] == NULL)
+    ev[1] = strdup("");
 
   if (compare(ev[1], "VOID"))
     {
@@ -2611,13 +2646,14 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   /** Expression between parenthesis **/
   if (ev[1][0] == '(')
     {
-      char temp[100];
-
       //this procedure has been passed a conditional statement finder
       //what kind of conditional statement is it?
       p = h;
-      separate_string(h, 2, ')', temp);
-      separate_string(h, 1, ')', ev[1]);
+      char* temp = separate_string(h, 2, ')');
+      if (temp == NULL)
+	temp = strdup("");
+      free(ev[1]);
+      ev[1] = separate_string(h, 1, ')');
 
       // Msg("Ok, turned h %s to  ev1 %s.",h,ev[1]);
       p += strlen(ev[1]) + 1;
@@ -2630,9 +2666,10 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d == %s", returnint, temp);
+	  sprintf(line, "%d == %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
       
@@ -2642,9 +2679,10 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d > %s", returnint, temp);
+	  sprintf(line, "%d > %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
 
@@ -2654,9 +2692,10 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d < %s", returnint, temp);
+	  sprintf(line, "%d < %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
       
@@ -2673,9 +2712,10 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d <= %s", returnint, temp);
+	  sprintf(line, "%d <= %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
       /* if (strchr (temp, '>=') != NULL) */
@@ -2685,9 +2725,10 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d >= %s", returnint, temp);
+	  sprintf(line, "%d >= %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
       /* if (strchr (temp, '!=') != NULL) */
@@ -2697,19 +2738,21 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d != %s", returnint, temp);
+	  sprintf(line, "%d != %s", returnint, temp); // TODO: buffer overflow?
 	  returnint = var_figure(line, script);
 	  strcpy(h, "\n");
+	  free(temp);
 	  return(0);
 	}
-      
+      free(temp);
+
 
       if (p[0] == ')')
 	{
 	  //its a procedure in the if statement!!!
 	  h++;
 	  p++;
-	  strcpy(line, p);
+	  strcpy(line, p); // TODO: buffer overflow
 	  process_line(script, h, /*false*/0);
 	  
 	  log_debug("Returned %d for the returnint", returnint);
@@ -2722,10 +2765,11 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
 	{
 	  h++;
 	  
-	  separate_string(h, 1,')',line);
-	  h += strlen(line) + 1;
-	  returnint = var_figure(line, script);
-	  
+	  char* expr = separate_string(h, 1,')');
+	  h += strlen(expr) + 1;
+	  returnint = var_figure(expr, script);
+	  free(expr);
+
 	  strcpy_nooverlap(s, h);
 	  
 	  return(0);
@@ -2741,7 +2785,8 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
   if (strchr(ev[1], '(') != NULL)
     {
       //Msg("Has a (, lets change it");
-      separate_string(h, 1,'(',ev[1]);
+      free(ev[1]);
+      ev[1] = separate_string(h, 1, '(');
       //Msg("Ok, first is now %s",ev[1]);
     }
 
@@ -3334,21 +3379,23 @@ enum dinkc_parser_state process_line(int script, char *s, /*bool*/int doelse)
       if (strchr(h, '(') != NULL)
 	{
 	  //lets attempt to run a procedure
-	  separate_string(h, 1, '(', line);
+	  char* proc = separate_string(h, 1, '(');
 	  int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, /*false*/0);
 
-	  if (locate(myscript, line))
+	  if (locate(myscript, proc))
 	    {
 	      rinfo[myscript]->proc_return = script;
 	      run_script(myscript);
+	      free(proc);
 	      return(DCPS_YIELD);
 	    }
 	  else
 	    {
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
-			line, ev[2], rinfo[myscript]->name);
+			proc, ev[2], rinfo[myscript]->name);
 	      kill_script(myscript);
 	    }
+	  free(proc);
 	  return(0);
 	}
 	
