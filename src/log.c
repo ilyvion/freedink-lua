@@ -58,7 +58,11 @@ void log_debug_on()
   out = paths_dmodfile_fopen("DEBUG.TXT", "ab");
   /* out might be NULL, e.g. permissions problem */
   if (out != NULL)
-    setlinebuf(stdout);
+    {
+      /* setlinebuf(stdout); */
+      /* This one is equivalent and works with mingw: */
+      setvbuf(stdout, NULL, _IOLBF, 0);
+    }
 }
 
 void log_debug_off()

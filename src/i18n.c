@@ -48,7 +48,7 @@ char* i18n_translate(char* latin1_source)
   if (strlen(latin1_source) == 0)
     return strdup("");
 
-  char* translation = dgettext(paths_getdmodname(), latin1_source);
+  const char* translation = dgettext(paths_getdmodname(), latin1_source);
   if (translation == latin1_source)
     {
       /* No translation, let's manually convert from Latin-1 to UTF-8,
