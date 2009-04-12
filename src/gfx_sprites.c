@@ -58,7 +58,8 @@ static int please_wait = 0;
  * Free memory used by sprites. It's not much useful in itself, since
  * it's only called when we're exiting the game, but it does avoid
  * memory leak warnings when FreeDink is analyzed by Valgrind or other
- * memory checkers.
+ * memory checkers. It also supports loading and unloading the
+ * subsystem several times.
  */
 void sprites_unload(void)
 {

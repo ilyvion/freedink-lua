@@ -2213,7 +2213,7 @@ void dinkc_bindings_quit()
   int i = 0;
   for (; i < 10; i++)
     {
-      if (slist[i] == NULL)
+      if (slist[i] != NULL)
 	free(slist[i]);
       slist[i] = NULL;
     }
@@ -2356,6 +2356,7 @@ morestuff:
 	      decipher_string(&translation, script);
 	      int cur_len = strlen(talk.buffer);
 	      strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
+	      free(translation);
 	      /* put '\n' back */
 	      strcat(talk.buffer, "\n");
 	      talk.buffer[TALK_TITLE_BUFSIZ] = '\0';
@@ -2542,12 +2543,13 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 	  // Checking for string
 	  char* parm = NULL;
 	  parm = separate_string(str_params, 2, '"');
-	  // move to next param
-	  str_params += strlen(parm) + 2;
 
-	  // store parameter of type 'string'
+	  // replace DinkC string paramater
 	  free(slist[i]);
 	  slist[i] = parm;
+
+	  // move to next param
+	  str_params += strlen(parm) + 2;
 	}
 
       if ((i+1) == 10 || spec[i+1] == 0) // this was the last arg
@@ -2604,7 +2606,7 @@ enum dinkc_parser_state
 process_line(int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
-  char* ev[4];
+  char* ev[3];
   
   memset(&ev, 0, sizeof(ev));
 
@@ -2621,53 +2623,54 @@ process_line(int script, char *s, /*bool*/int doelse)
       goto bad;
     }
 
-  {
-    int i = 1;
-    for (; i <= 3; i++)
-      ev[i] = separate_string(h, i, ' ');
-  } // TODO: memory leak
-  if (ev[1] == NULL)
-    ev[1] = strdup("");
+  /* Cut line */
+  ev[0] = separate_string(h, 1, ' ');
+  ev[1] = separate_string(h, 2, ' ');
+  ev[2] = separate_string(h, 3, ' ');
+  /* Prepare free on return */
+#define PL_RETURN(intval) {free(ev[0]), free(ev[1]), free(ev[2]); return intval;}
 
-  if (compare(ev[1], "VOID"))
+  if (compare(ev[0], "VOID"))
     {
       if (rinfo[script]->proc_return != 0)
 	{
 	  run_script(rinfo[script]->proc_return);
 	  kill_script(script);
 	}
-      return(DCPS_YIELD);
+      PL_RETURN(DCPS_YIELD);
     }
 
   /* goto label? */
-  if (ev[1][strlen(ev[1]) -1] == ':' && strlen(ev[2]) < 2)
+  if (ev[0][strlen(ev[0]) -1] == ':' && strlen(ev[1]) < 2)
     {
       if (dversion >= 108)
 	{
 	  /* Attempt to avoid considering:
 			   say("bonus: 5 points", 1); // would not display any text at all!
 			   as a label */
-	  if (strncmp (ev[1], "say", 3) != 0)
-	    return(0); //its a label
+	  if (strncmp (ev[0], "say", 3) != 0)
+	    {
+	      PL_RETURN(0); //its a label
+	    }
 	}
       else
 	{
-	  return(0); //its a label
+	  PL_RETURN(0); //its a label
 	}
     }
 
   /** Expression between parenthesis **/
-  if (ev[1][0] == '(')
+  if (ev[0][0] == '(')
     {
       //this procedure has been passed a conditional statement finder
       //what kind of conditional statement is it?
       p = h;
       char* temp = separate_string(h, 2, ')');
-      free(ev[1]);
-      ev[1] = separate_string(h, 1, ')');
+      free(ev[0]);
+      ev[0] = separate_string(h, 1, ')');
 
-      // Msg("Ok, turned h %s to  ev1 %s.",h,ev[1]);
-      p += strlen(ev[1]) + 1;
+      // Msg("Ok, turned h %s to  ev1 %s.",h,ev[0]);
+      p += strlen(ev[0]) + 1;
 
       strip_beginning_spaces(p);
 
@@ -2683,7 +2686,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
       
       if (strchr(temp, '>') != NULL)
@@ -2698,7 +2701,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
 
       if (strchr(temp, '<') != NULL)
@@ -2713,7 +2716,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
       
       /* Beuc: This should be converted to a set of "if ... else
@@ -2735,7 +2738,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
       /* if (strchr (temp, '>=') != NULL) */
       if (strchr (temp, '=') != NULL)
@@ -2750,7 +2753,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
       /* if (strchr (temp, '!=') != NULL) */
       if (strchr (temp, '=') != NULL)
@@ -2765,7 +2768,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strcpy(h, "\n");
 	  free(expr);
 	  free(temp);
-	  return(0);
+	  PL_RETURN(0);
 	}
       free(temp);
 
@@ -2782,7 +2785,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  free(line_copy);
 	  h = s;
 	  
-	  return(0);
+	  PL_RETURN(0);
 	}
       else
 	{
@@ -2795,26 +2798,26 @@ process_line(int script, char *s, /*bool*/int doelse)
 
 	  strcpy_nooverlap(s, h);
 	  
-	  return(0);
+	  PL_RETURN(0);
 	}
       
       strip_beginning_spaces(h);
-      strip_beginning_spaces(ev[1]);
+      strip_beginning_spaces(ev[0]);
 
       s = h;
     } /* END expression between parenthesis */
 
 
-  if (strchr(ev[1], '(') != NULL)
+  if (strchr(ev[0], '(') != NULL)
     {
       //Msg("Has a (, lets change it");
-      free(ev[1]);
-      ev[1] = separate_string(h, 1, '(');
-      //Msg("Ok, first is now %s",ev[1]);
+      free(ev[0]);
+      ev[0] = separate_string(h, 1, '(');
+      //Msg("Ok, first is now %s",ev[0]);
     }
 
   /** { Bloc } **/
-  char first = ev[1][0];
+  char first = ev[0][0];
   if (first == '{')
     {
       rinfo[script]->level++;
@@ -2840,7 +2843,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  /* Finished skipping the { section }, preparing to run 'else' */
 	  strip_beginning_spaces(h);
 	  strcpy_nooverlap(s, h);
-	  return(DCPS_DOELSE_ONCE);
+	  PL_RETURN(DCPS_DOELSE_ONCE);
 	}
       goto good;
     }
@@ -2853,10 +2856,10 @@ process_line(int script, char *s, /*bool*/int doelse)
 
 
   /* Note: that's the 2nd time we compare with "VOID" -
-     cf. above. However ev[1] was modified in between, so this
+     cf. above. However ev[0] was modified in between, so this
      section may still be called if the first comparison didn't
      match. */
-  if (compare(ev[1], "void"))
+  if (compare(ev[0], "void"))
     {
       //     Msg("Next procedure starting, lets quit");
       strcpy_nooverlap(s, h);
@@ -2866,13 +2869,15 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  kill_script(script);
 	}
       
-      return(DCPS_YIELD);
+      PL_RETURN(DCPS_YIELD);
     }
 
   
   /* Stop processing if we're skipping the current { section } */
   if (rinfo[script]->onlevel > 0 && rinfo[script]->level > rinfo[script]->onlevel)
-    return(0);
+    {
+      PL_RETURN(0);
+    }
     
   rinfo[script]->onlevel = 0;
     
@@ -2882,23 +2887,23 @@ process_line(int script, char *s, /*bool*/int doelse)
       //sorry, can't do it, you were told to skip the next thing
       rinfo[script]->skipnext = /*false*/0;
       strcpy(s, "\n"); /* jump to next line */
-      //return(3);
-      return(DCPS_DOELSE_ONCE);
+      //PL_RETURN(3);
+      PL_RETURN(DCPS_DOELSE_ONCE);
     }
     
 
 
-  if (compare(ev[1], "void"))
+  if (compare(ev[0], "void"))
     {
       log_error("[DinkC] Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
       strcpy_nooverlap(s, h);
-      return(DCPS_YIELD);
+      PL_RETURN(DCPS_YIELD);
     }
     
   /** if **/
-  if (compare(ev[1], "if"))
+  if (compare(ev[0], "if"))
     {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
 	
       process_line(script, h, /*false*/0);
@@ -2918,17 +2923,17 @@ process_line(int script, char *s, /*bool*/int doelse)
       strcpy_nooverlap(s, h);
       //g("continuing to run line %s..", h);
 
-      //return(5);
-      return(DCPS_DOELSE_ONCE);
+      //PL_RETURN(5);
+      PL_RETURN(DCPS_DOELSE_ONCE);
       /* state 5 should actually be state DCPS_CONTINUE, but keeping
 	 it that way (e.g. with doelse=1 for the next line) for
 	 compatibility, just in case somebody abused it */
     }
 
-  if (compare(ev[1], "else"))
+  if (compare(ev[0], "else"))
     {
       //Msg("Found else!");
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
 		
       if (doelse)
 	{
@@ -2941,49 +2946,49 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  rinfo[script]->skipnext = /*true*/1;
 	}
       strcpy_nooverlap(s, h);
-      return(1);
+      PL_RETURN(1);
     }
     
   /** Dialog **/
-  if (compare(ev[1], "choice_start"))
+  if (compare(ev[0], "choice_start"))
     {
       kill_text_owned_by(1);
       if (talk_get(script))
 	{
 	  // Question(s) gathered successfully
-	  return(DCPS_YIELD);
+	  PL_RETURN(DCPS_YIELD);
 	}
-      return(0);
+      PL_RETURN(0);
     }
 
   /** Jump **/
-  if (compare(ev[1], "goto"))
+  if (compare(ev[0], "goto"))
     {
-      locate_goto(ev[2], script);
-      return(0);
+      locate_goto(ev[1], script);
+      PL_RETURN(0);
     }
 
   /** Definition **/
-  if (compare(ev[1], "int"))
+  if (compare(ev[0], "int"))
     {
       int_prepare(h, script);
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
 
       if (strchr(h, '=') != NULL)
 	{
 	  strip_beginning_spaces(h);
 	  //Msg("Found =...continuing equation");
 	  strcpy_nooverlap(s, h);
-	  return(DCPS_CONTINUE);
+	  PL_RETURN(DCPS_CONTINUE);
 	}
       else
 	{
-	  return(DCPS_GOTO_NEXTLINE);
+	  PL_RETURN(DCPS_GOTO_NEXTLINE);
 	}
     }
 
   /** "return;" and "return something;" **/
-  if (compare(ev[1], "return;"))
+  if (compare(ev[0], "return;"))
     {
       log_debug("Found return; statement");
 	
@@ -2994,7 +2999,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  kill_script(script);
 	}
 	
-      return(DCPS_YIELD);
+      PL_RETURN(DCPS_YIELD);
     }
 
   if (dversion >= 108)
@@ -3002,10 +3007,10 @@ process_line(int script, char *s, /*bool*/int doelse)
       /* "return", without trailing ';' */
       /* added so we can have return values and crap. */
       /* see also "return;" above */
-      if (compare (ev[1], "return"))
+      if (compare (ev[0], "return"))
 	{
 	  log_debug("Found return; statement");
-	  h += strlen(ev[1]);
+	  h += strlen(ev[0]);
 	  strip_beginning_spaces (h);
 	  process_line (script, h, 0);
 	  if (rinfo[script]->proc_return != 0)
@@ -3014,7 +3019,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      run_script (rinfo[script]->proc_return);
 	      kill_script (script);
 	    }
-	  return(DCPS_YIELD);
+	  PL_RETURN(DCPS_YIELD);
 	}
     }
 
@@ -3024,8 +3029,8 @@ process_line(int script, char *s, /*bool*/int doelse)
   /********************/
     
   /** Lookup bindings **/
-  char* funcname = ev[1];
-  char* str_args = h + strlen(ev[1]);
+  char* funcname = ev[0];
+  char* str_args = h + strlen(ev[0]);
   struct binding* pbd = NULL;
   pbd = dinkc_bindings_lookup(bindings, funcname);
     
@@ -3053,7 +3058,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      if (pbd->badparams_returnint_p == 1)
 		returnint = pbd->badparams_returnint;
 	      /* Fallback parser state */
-	      return pbd->badparams_dcps;
+	      PL_RETURN(pbd->badparams_dcps);
 	    }
 	}
 	
@@ -3147,9 +3152,13 @@ process_line(int script, char *s, /*bool*/int doelse)
       /* the function can manipulation returnint through argument #3 */
 	
       if (*yield == 0)
-	return DCPS_GOTO_NEXTLINE;
+	{
+	  PL_RETURN(DCPS_GOTO_NEXTLINE);
+	}
       else if (*yield == 1)
-	return DCPS_YIELD;
+	{
+	  PL_RETURN(DCPS_YIELD);
+	}
       else
 	{
 	  log_fatal("Internal error: DinkC function %s requested invalid state %d",
@@ -3164,80 +3173,80 @@ process_line(int script, char *s, /*bool*/int doelse)
   /**           **/
   /***************/
 
-  /* Beware: this works on ev[2], not ev[1]; position in the code is
+  /* Beware: this works on ev[1], not ev[0]; position in the code is
      critical! */
 
-  if (compare(ev[2], "="))
+  if (compare(ev[1], "="))
     {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
       h++;
       strip_beginning_spaces(h);
-      var_equals(ev[1], ev[3], '=', script, h);
+      var_equals(ev[0], ev[2], '=', script, h);
       strcpy_nooverlap(s, h);
-      return(0);
+      PL_RETURN(0);
     }
     
-  if (compare(ev[2], "+="))
+  if (compare(ev[1], "+="))
     {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
       h += 2;
       strip_beginning_spaces(h);
-      var_equals(ev[1], ev[3], '+', script, h);
+      var_equals(ev[0], ev[2], '+', script, h);
       strcpy_nooverlap(s, h);
-      return(0);
+      PL_RETURN(0);
     }
     
-  if (compare(ev[2], "*="))
+  if (compare(ev[1], "*="))
     {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
       h += 2;
       strip_beginning_spaces(h);
-      var_equals(ev[1], ev[3], '*', script, h);
+      var_equals(ev[0], ev[2], '*', script, h);
       strcpy_nooverlap(s, h);
-      return(0);
+      PL_RETURN(0);
     }
     
-  if (compare(ev[2], "-="))
+  if (compare(ev[1], "-="))
     {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
       h += 2;
       strip_beginning_spaces(h);
 	
-      var_equals(ev[1], ev[3], '-', script, h);
+      var_equals(ev[0], ev[2], '-', script, h);
 	
       strcpy_nooverlap(s, h);
-      return(0);
+      PL_RETURN(0);
     }
     
-  if (compare(ev[2], "/")
-      || (dversion >= 108 && compare(ev[2], "/=")))
+  if (compare(ev[1], "/")
+      || (dversion >= 108 && compare(ev[1], "/=")))
     {
-      h += strlen(ev[1]);
-      strip_beginning_spaces(h);
-      h++;
-      strip_beginning_spaces(h);
-	
-      var_equals(ev[1], ev[3], '/', script, h);
-	
-      strcpy_nooverlap(s, h);
-      return(0);
-    }
-    
-  if (compare(ev[2], "*"))
-    {
-      h += strlen(ev[1]);
+      h += strlen(ev[0]);
       strip_beginning_spaces(h);
       h++;
       strip_beginning_spaces(h);
 	
-      var_equals(ev[1], ev[3], '*', script, h);
+      var_equals(ev[0], ev[2], '/', script, h);
 	
       strcpy_nooverlap(s, h);
-      return(0);
+      PL_RETURN(0);
+    }
+    
+  if (compare(ev[1], "*"))
+    {
+      h += strlen(ev[0]);
+      strip_beginning_spaces(h);
+      h++;
+      strip_beginning_spaces(h);
+	
+      var_equals(ev[0], ev[2], '*', script, h);
+	
+      strcpy_nooverlap(s, h);
+      PL_RETURN(0);
     }
     
     
@@ -3247,16 +3256,16 @@ process_line(int script, char *s, /*bool*/int doelse)
   /***************************************/
   if (dversion >= 108)
     {
-      if (compare (ev[1], "external"))
+      if (compare (ev[0], "external"))
 	{
-	  h += strlen(ev[1]);
+	  h += strlen(ev[0]);
 	  int p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
 	  {
 	    int i = 0;
 	    for (; i < 10; i++)
 	      slist[i][0] = '\0';
 	  }
-	  get_parms(ev[1], script, h, p);
+	  get_parms(ev[0], script, h, p);
 	  if (strlen(slist[0]) > 0 && strlen(slist[1]) > 0)
 	    {
 	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, 0);
@@ -3264,7 +3273,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 		{
 		  log_error("[DinkC] external: Couldn't find %s.c (for procedure %s)",
 		       slist[0], slist[1]);
-		  return (0);
+		  PL_RETURN(0);
 		}
 	      rinfo[myscript1]->arg1 = nlist[2];
 	      rinfo[myscript1]->arg2 = nlist[3];
@@ -3278,7 +3287,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 		{
 		  rinfo[myscript1]->proc_return = script;
 		  run_script (myscript1);
-		  return(DCPS_YIELD);
+		  PL_RETURN(DCPS_YIELD);
 		}
 	      else
 		{
@@ -3288,17 +3297,17 @@ process_line(int script, char *s, /*bool*/int doelse)
 		}
 	    }
 	  strcpy (s, h);
-	  return (0);
+	  PL_RETURN(0);
 	}
 
       if (strchr (h, '(') != NULL)
 	{
 	  //lets attempt to run a procedure
 	  int myscript = load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
-	  h += strlen(ev[1]);
+	  h += strlen(ev[0]);
 	  int p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	  get_parms(ev[1], script, h, p);
-	  if (locate(myscript, ev[1]))
+	  get_parms(ev[0], script, h, p);
+	  if (locate(myscript, ev[0]))
 	    {
 	      /* Custom procedure in the current script */
 	      rinfo[myscript]->arg1 = nlist[0];
@@ -3312,7 +3321,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      rinfo[myscript]->arg9 = nlist[8];
 	      rinfo[myscript]->proc_return = script;
 	      run_script(myscript);
-	      return(DCPS_YIELD);
+	      PL_RETURN(DCPS_YIELD);
 	    }
 	  else
 	    {
@@ -3323,7 +3332,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 		  if (strlen (play.func[i].func) == 0)
 		    continue;
 		    
-		  if (compare(play.func[i].func, ev[1]))
+		  if (compare(play.func[i].func, ev[0]))
 		    {
 		      myscript = load_script(play.func[i].file, rinfo[script]->sprite, 0);
 		      rinfo[myscript]->arg1 = nlist[0];
@@ -3335,17 +3344,17 @@ process_line(int script, char *s, /*bool*/int doelse)
 		      rinfo[myscript]->arg7 = nlist[6];
 		      rinfo[myscript]->arg8 = nlist[7];
 		      rinfo[myscript]->arg9 = nlist[8];
-		      if (locate(myscript, ev[1]))
+		      if (locate(myscript, ev[0]))
 			{
 			  rinfo[myscript]->proc_return = script;
 			  run_script (myscript);
-			  return(DCPS_YIELD);
+			  PL_RETURN(DCPS_YIELD);
 			}
 		      break;
 		    }
 		}
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s)",
-		  ev[1], ev[2], rinfo[myscript]->name);
+		  ev[0], ev[1], rinfo[myscript]->name);
 	      kill_script (myscript);
 	    }
 	    
@@ -3357,36 +3366,36 @@ process_line(int script, char *s, /*bool*/int doelse)
 	    {
 	    rinfo[myscript]->proc_return = script;
 	    run_script(myscript);    
-	    return(DCPS_YIELD);
+	    PL_RETURN(DCPS_YIELD);
 	    } else
 	    {
 	    Msg("ERROR:  Procedure void %s( void ); not found in script %s. (word 2 was %s) ", line,
-	    ev[2], rinfo[myscript]->name); 
+	    ev[1], rinfo[myscript]->name); 
 	    kill_script(myscript);          
 	    } */
-	  return (0);
+	  PL_RETURN(0);
 	}
     }
   else
     {
       /* v1.07 function that are implemented differently than in v1.08 */
-      if (compare(ev[1], "external"))
+      if (compare(ev[0], "external"))
 	{
-	  h += strlen(ev[1]);
+	  h += strlen(ev[0]);
 	  int p[20] = {2,2,0,0,0,0,0,0,0,0};
-	  if (get_parms(ev[1], script, h, p))
+	  if (get_parms(ev[0], script, h, p))
 	    {
 	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, /*false*/0);
 	      if (myscript1 == 0)
 		{
 		  log_error("[DinkC] external: Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
-		  return(0);
+		  PL_RETURN(0);
 		}
 	      if (locate(myscript1, slist[1]))
 		{
 		  rinfo[myscript1]->proc_return = script;
 		  run_script(myscript1);
-		  return(DCPS_YIELD);
+		  PL_RETURN(DCPS_YIELD);
 		}
 	      else
 		{
@@ -3400,7 +3409,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 			rinfo[script]->name, rinfo[script]->current);
 	    }
 	  strcpy_nooverlap(s, h);
-	  return(0);
+	  PL_RETURN(0);
 	}
 
       if (strchr(h, '(') != NULL)
@@ -3414,31 +3423,31 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      rinfo[myscript]->proc_return = script;
 	      run_script(myscript);
 	      free(proc);
-	      return(DCPS_YIELD);
+	      PL_RETURN(DCPS_YIELD);
 	    }
 	  else
 	    {
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
-			proc, ev[2], rinfo[myscript]->name);
+			proc, ev[1], rinfo[myscript]->name);
 	      kill_script(myscript);
 	    }
 	  free(proc);
-	  return(0);
+	  PL_RETURN(0);
 	}
 	
       log_error("[DinkC] \"%s\" unknown in %s, offset %d.",
-		ev[1], rinfo[script]->name,rinfo[script]->current);
+		ev[0], rinfo[script]->name,rinfo[script]->current);
       //in a thingie, ready to go
     }
 
 bad:
   strcpy(s, "\n"); /* jump to next line */
-  //return(0);
-  return(DCPS_CONTINUE);
+  //PL_RETURN(0);
+  PL_RETURN(DCPS_CONTINUE);
   
  good:
   strcpy_nooverlap(s, h);
   //s = h
   //Msg("ok, continuing with running %s..",s);
-  return(DCPS_CONTINUE);
+  PL_RETURN(DCPS_CONTINUE);
 }

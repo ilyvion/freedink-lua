@@ -4059,14 +4059,6 @@ void copy_bmp( char name[80])
       return;
     }
 
-  // memory leak?
-  //lpDDSTrick = DDLoadBitmap(lpDD, name, 0, 0);
-
-/*   lpDDPal = DDLoadPalette(lpDD, name); */
-
-/*   if (lpDDPal) */
-/*     lpDDSPrimary->SetPalette(lpDDPal); */
-
   image = load_bmp_setpal(in);
   if (image == NULL)
     {
@@ -4076,24 +4068,8 @@ void copy_bmp( char name[80])
 
   abort_this_flip = /*true*/1;
 
-/*   RECT rcRect; */
-/*   SetRect(&rcRect, 0,0,640, 480); */
-
-
-/*  again: */
-/*   ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick, */
-/* 			       &rcRect, DDBLTFAST_NOCOLORKEY); */
-/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
-/*  again1: */
-  // Beuc: why copy the image twice?
-/*   ddrval = lpDDSTwo->BltFast( 0, 0, lpDDSTrick, */
-/* 			      &rcRect, DDBLTFAST_NOCOLORKEY); */
-/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again1; */
-  // GFX
-  {
-    SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
-    SDL_FreeSurface(image);
-  }
+  SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
+  SDL_FreeSurface(image);
 }
 
         int hurt_thing(int h, int damage, int special)
