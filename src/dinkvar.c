@@ -1949,14 +1949,10 @@ void load_hard(void)
 void pre_figure_out(char* line)
 {
   int i;
-  char* ev[15];
+  char* ev[11];
   memset(&ev, 0, sizeof(ev));
-  for (i = 1; i <= 14; i++)
-    {
-      ev[i] = separate_string(line, i, ' ');
-      if (ev[i] == NULL)
-	ev[i] = strdup("");
-    }
+  for (i = 1; i <= 10; i++)
+    ev[i] = separate_string(line, i, ' ');
   char *command = ev[1];
 
   // PLAYMIDI  filename
@@ -2076,7 +2072,7 @@ void pre_figure_out(char* line)
     }
 
   /* Clean-up */
-  for (i = 1; i <= 14; i++)
+  for (i = 1; i <= 10; i++)
     free(ev[i]);
 }
 
@@ -2090,9 +2086,9 @@ void figure_out(char* line)
   int special = 0;
   int special2 = 0;
   int i;
-  char* ev[15];
+  char* ev[11];
   memset(&ev, 0, sizeof(ev));
-  for (i = 1; i <= 14; i++)
+  for (i = 1; i <= 10; i++)
     {
       ev[i] = separate_string(line, i, ' ');
       if (ev[i] == NULL)
@@ -2197,7 +2193,7 @@ void figure_out(char* line)
     }
 
   /* Clean-up */
-  for (i = 1; i <= 14; i++)
+  for (i = 1; i <= 10; i++)
     free(ev[i]);
 }
 

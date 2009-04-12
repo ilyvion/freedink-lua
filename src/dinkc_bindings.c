@@ -1983,7 +1983,7 @@ void dinkc_bindings_init()
     {
       /* alloc empty strings; will be replaced as needed in
 	 get_parm(...) */
-      slist[i] = XCALLOC(1, char);
+      slist[i] = strdup("");
     }
 
   Hash_tuning* default_tuner = NULL;
@@ -2324,134 +2324,127 @@ void attach(void)
       char* directive = NULL;
 morestuff:
       directive = separate_string(line, 1, '(');
-      if (directive != NULL)
+      strip_beginning_spaces(directive);
+      
+      if (compare(directive, "title_start"))
 	{
-	  strip_beginning_spaces(directive);
-	  
-	  if (compare(directive, "title_start"))
+	  free(line);
+	  while((line = read_next_line(script)) != NULL)
 	    {
-	      free(line);
-	      while((line = read_next_line(script)) != NULL)
+	      strip_beginning_spaces(line);
+	      free(directive);
+	      
+	      directive = separate_string(line, 1, '(');
+	      if (directive != NULL)
 		{
-		  strip_beginning_spaces(line);
-		  free(directive);
-
-		  directive = separate_string(line, 1, '(');
-		  if (directive != NULL)
+		  strip_beginning_spaces(directive);
+		  
+		  if (compare(directive, "title_end"))
 		    {
-		      strip_beginning_spaces(directive);
-		      
-		      if (compare(directive, "title_end"))
-			{
-			  replace_norealloc("\n\n\n\n", "\n \n", talk.buffer);
-			  replace_norealloc("\n\n", "\n", talk.buffer);
-			  free(directive);
-			  free(line);
-			  goto redo;
-			}
+		      replace_norealloc("\n\n\n\n", "\n \n", talk.buffer);
+		      replace_norealloc("\n\n", "\n", talk.buffer);
+		      free(directive);
+		      free(line);
+		      goto redo;
 		    }
-		  
-		  /* drop '\n', this messes translations */
-		  line[strlen(line)-1] = '\0';
-		  /* Translate text (before variable substitution) */
-		  char* translation = i18n_translate(line);
-		  decipher_string(&translation, script);
-		  int cur_len = strlen(talk.buffer);
-		  strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
-		  /* put '\n' back */
-		  strcat(talk.buffer, "\n");
-		  talk.buffer[TALK_TITLE_BUFSIZ] = '\0';
-		  free(line);
 		}
 	      
-	      free(directive);
-	      goto redo;
+	      /* drop '\n', this messes translations */
+	      line[strlen(line)-1] = '\0';
+	      /* Translate text (before variable substitution) */
+	      char* translation = i18n_translate(line);
+	      decipher_string(&translation, script);
+	      int cur_len = strlen(talk.buffer);
+	      strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
+	      /* put '\n' back */
+	      strcat(talk.buffer, "\n");
+	      talk.buffer[TALK_TITLE_BUFSIZ] = '\0';
+	      free(line);
 	    }
 	  
-	  if (compare(directive, "choice_end"))
+	  free(directive);
+	  goto redo;
+	}
+      
+      if (compare(directive, "choice_end"))
+	{
+	  if (cur-1 == 0)
 	    {
-	      if (cur-1 == 0)
-		{
-		  log_debug("Error: choice() has 0 options in script %s, offset %d.",
-			    rinfo[script]->name, rinfo[script]->current);
-		  
-		  free(directive);
-		  free(line);
-		  return /*false*/0;
-		}
-	      //all done, lets jam
-	      //Msg("found choice_end, leaving!");
-	      talk.last = cur-1;
-	      talk.cur = 1;
-	      talk.active = /*true*/1;
-	      talk.page = 1;
-	      talk.cur_view = 1;
-	      talk.script = script;
+	      log_debug("Error: choice() has 0 options in script %s, offset %d.",
+			rinfo[script]->name, rinfo[script]->current);
 	      
 	      free(directive);
 	      free(line);
-	      return /*true*/1;
+	      return /*false*/0;
 	    }
+	  //all done, lets jam
+	  //Msg("found choice_end, leaving!");
+	  talk.last = cur-1;
+	  talk.cur = 1;
+	  talk.active = /*true*/1;
+	  talk.page = 1;
+	  talk.cur_view = 1;
+	  talk.script = script;
+	  
 	  free(directive);
+	  free(line);
+	  return /*true*/1;
 	}
+      free(directive);
 
       char* condition = separate_string(line, 1, '"');
-      if (condition != NULL)
+      strip_beginning_spaces(condition);
+      
+      if (strlen(condition) > 2)
 	{
-	  strip_beginning_spaces(condition);
-	  
-	  if (strlen(condition) > 2)
+	  //found conditional statement
+	  if (strchr(condition, '(') == NULL)
 	    {
-	      //found conditional statement
-	      if (strchr(condition, '(') == NULL)
-		{
-		  log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
-			    rinfo[script]->name, rinfo[script]->current, condition);
-		  
-		  free(condition);
-		  free(line);
-		  return /*false*/0;
-		}
+	      log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
+			rinfo[script]->name, rinfo[script]->current, condition);
 	      
-	      char* temp = separate_string(condition, 2, '(');
 	      free(condition);
-	      condition = separate_string(temp, 1, ')');
-	      free(temp);
-	      
-	      //Msg("Running %s through var figure..", check);
-	      if (var_figure(condition, script) == 0)
-		{
-		  log_debug("Answer is no.");
-		  retnum++;
-		  
-		  free(condition);
-		  free(line);
-		  goto redo;
-		  //said NO to statement
-		}
-	      //Msg("Answer is yes.");
-	      free(condition);
-	      
-	      /* Resume processing stripping the first condition (there
-		 may be several conditions on a single dialog ligne, which
-		 are AND'ed) */
-	      char* p = strchr(line, ')') + 1;
-	      int i = 0;
-	      for (; *p != '\0'; i++, p++)
-		line[i] = *p;
-	      line[i] = '\0';
-	      goto morestuff;
+	      free(line);
+	      return /*false*/0;
 	    }
+	  
+	  char* temp = separate_string(condition, 2, '(');
 	  free(condition);
+	  condition = separate_string(temp, 1, ')');
+	  free(temp);
+	  
+	  //Msg("Running %s through var figure..", check);
+	  if (var_figure(condition, script) == 0)
+	    {
+	      log_debug("Answer is no.");
+	      retnum++;
+	      
+	      free(condition);
+	      free(line);
+	      goto redo;
+	      //said NO to statement
+	    }
+	  //Msg("Answer is yes.");
+	  free(condition);
+	  
+	  /* Resume processing stripping the first condition (there
+	     may be several conditions on a single dialog ligne, which
+	     are AND'ed) */
+	  char* p = strchr(line, ')') + 1;
+	  int i = 0;
+	  for (; *p != '\0'; i++, p++)
+	    line[i] = *p;
+	  line[i] = '\0';
+	  goto morestuff;
 	}
+      free(condition);
       
       retnum++;
       char* text = separate_string(line, 2, '"');
-      if (text != NULL)
+      if (strlen(text) > 0)
 	{
 	  /* Translate text (before variable substitution) */
 	  char* translation = i18n_translate(text);
-	  free(text);
 	  strip_beginning_spaces(translation);
 
 	  decipher_savegame = retnum;
@@ -2463,8 +2456,11 @@ morestuff:
 	}
       else
 	{
+	  /* Handle empty text separately because _("") has a special
+	     meaning (returns .mo meta-data). */
 	  strcpy(talk.line[cur], "");
 	}
+      free(text);
       talk.line_return[cur] = retnum;
       cur++;
       free(line);
@@ -2550,15 +2546,8 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 	  str_params += strlen(parm) + 2;
 
 	  // store parameter of type 'string'
-	  if (parm == NULL)
-	    {
-	      slist[i] = '\0';
-	    }
-	  else
-	    {
-	      free(slist[i]);
-	      slist[i] = parm;
-	    }
+	  free(slist[i]);
+	  slist[i] = parm;
 	}
 
       if ((i+1) == 10 || spec[i+1] == 0) // this was the last arg
@@ -2635,11 +2624,7 @@ process_line(int script, char *s, /*bool*/int doelse)
   {
     int i = 1;
     for (; i <= 3; i++)
-      {
-	ev[i] = separate_string(h, i, ' ');
-	if (ev[i] == NULL)
-	  ev[i] = strdup("");
-      }
+      ev[i] = separate_string(h, i, ' ');
   } // TODO: memory leak
   if (ev[1] == NULL)
     ev[1] = strdup("");
@@ -2678,8 +2663,6 @@ process_line(int script, char *s, /*bool*/int doelse)
       //what kind of conditional statement is it?
       p = h;
       char* temp = separate_string(h, 2, ')');
-      if (temp == NULL)
-	temp = strdup("");
       free(ev[1]);
       ev[1] = separate_string(h, 1, ')');
 

@@ -109,9 +109,9 @@ void strchar(char *string, char ch)
 
 /**
  * Split 'str' in words separated by _one_ 'sep', and copy the #'num'
- * one to 'return1'. The function does not alter 'str'. Return 1 if
- * field #'num' was present, 0 otherwise. Several 'sep' enclose empty
- * words (e.g. separators are not collapsed, unlike 'get_word(...)').
+ * one to 'return1'. The function does not alter 'str'. Return empty
+ * string is not found. Several 'sep' enclose empty words
+ * (e.g. separators are not collapsed, unlike 'get_word(...)').
  */
 char* separate_string (char* line, int num, char sep)
 {
@@ -151,13 +151,14 @@ char* separate_string (char* line, int num, char sep)
     }
   else /* less than 'num' tokens */
     {
-      return NULL;
+      return strdup("");
     }
 }
 
 /**
- * Return the word number 'word' present in 'line'. Words are
- * separated by one _or more_ spaces and count from 1 (i.e. not 0).
+ * Return the word number 'word' present in 'line'. If not present,
+ * returns an empty string. Words are separated by one _or more_
+ * spaces and count from 1 (i.e. not 0).
  */
 char* get_word(char* line, int word)
 {
