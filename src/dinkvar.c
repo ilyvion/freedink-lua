@@ -1949,16 +1949,16 @@ void load_hard(void)
 void pre_figure_out(char* line)
 {
   int i;
-  char* ev[11];
+  char* ev[10];
   memset(&ev, 0, sizeof(ev));
-  for (i = 1; i <= 10; i++)
-    ev[i] = separate_string(line, i, ' ');
-  char *command = ev[1];
+  for (i = 0; i < 10; i++)
+    ev[i] = separate_string(line, i+1, ' ');
+  char *command = ev[0];
 
   // PLAYMIDI  filename
   if (compare(command, "playmidi"))
     {
-      char* midi_filename = ev[2];
+      char* midi_filename = ev[1];
       if (!dinkedit)
 	PlayMidi(midi_filename);
     }
@@ -1973,20 +1973,20 @@ void pre_figure_out(char* line)
       rect hardbox;
       memset(&hardbox, 0, sizeof(rect));
 
-      int myseq = atol(ev[3]);
+      int myseq = atol(ev[2]);
       seq[myseq].is_active = 1;
       seq_set_ini(myseq, line);
 
       int flags = 0;
-      if (compare(ev[4], "BLACK"))
+      if (compare(ev[3], "BLACK"))
 	{
 	  flags = DINKINI_NOTANIM | DINKINI_BLACK;
 	}
-      else if (compare(ev[4], "LEFTALIGN"))
+      else if (compare(ev[3], "LEFTALIGN"))
 	{
 	  flags = DINKINI_LEFTALIGN;
 	}
-      else if (compare(ev[4], "NOTANIM"))
+      else if (compare(ev[3], "NOTANIM"))
 	{
 	  //not an animation!
 	  flags = 0;
@@ -1994,15 +1994,15 @@ void pre_figure_out(char* line)
       else
 	{
 	  //yes, an animation!
-	  hardbox.left = atol(ev[7]);
-	  hardbox.top = atol(ev[8]);
-	  hardbox.right = atol(ev[9]);
-	  hardbox.bottom = atol(ev[10]);
+	  hardbox.left = atol(ev[6]);
+	  hardbox.top = atol(ev[7]);
+	  hardbox.right = atol(ev[8]);
+	  hardbox.bottom = atol(ev[9]);
 
 	  flags = DINKINI_NOTANIM;
 	}
 
-      load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+      load_sprites(ev[1],atol(ev[2]),atol(ev[3]),atol(ev[4]),atol(ev[5]),
 		   hardbox, flags);
 
 
@@ -2023,7 +2023,7 @@ void pre_figure_out(char* line)
   // LOAD_SEQUENCE  path  seq  speed  offsetx offsety  hard.left hard.top hard.right hard.bottom
   else if (compare(command, "LOAD_SEQUENCE"))
     {
-      int myseq = atol(ev[3]);
+      int myseq = atol(ev[2]);
       seq_set_ini(myseq, line);
       seq[myseq].is_active = 1;
     }
@@ -2034,27 +2034,27 @@ void pre_figure_out(char* line)
       //if (k[seq[myseq].frame[myframe]].frame = 0) Msg("Changing sprite that doesn't exist...");
       
       rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      rect_set(&hardbox, atol(ev[6]), atol(ev[7]), atol(ev[8]), atol(ev[9]));
-      make_idata(IDATA_SPRITE_INFO, myseq, myframe,atol(ev[4]), atol(ev[5]),hardbox);
+      int myseq = atol(ev[1]);
+      int myframe = atol(ev[2]);
+      rect_set(&hardbox, atol(ev[5]), atol(ev[6]), atol(ev[7]), atol(ev[8]));
+      make_idata(IDATA_SPRITE_INFO, myseq, myframe,atol(ev[3]), atol(ev[4]),hardbox);
     }
   
   else if (compare(command, "SET_FRAME_SPECIAL"))
     {
       rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int special = atol(ev[4]);
+      int myseq = atol(ev[1]);
+      int myframe = atol(ev[2]);
+      int special = atol(ev[3]);
       make_idata(IDATA_FRAME_SPECIAL, myseq, myframe, special, 0, hardbox);
     }
   
   else if (compare(command, "SET_FRAME_DELAY"))
     {
       rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int delay = atol(ev[4]);
+      int myseq = atol(ev[1]);
+      int myframe = atol(ev[2]);
+      int delay = atol(ev[3]);
       make_idata(IDATA_FRAME_DELAY, myseq, myframe, delay, 0, hardbox);
     }
   
@@ -2063,16 +2063,16 @@ void pre_figure_out(char* line)
   else if (compare(command, "SET_FRAME_FRAME"))
     {
       rect hardbox;
-      int myseq = atol(ev[2]);
-      int myframe = atol(ev[3]);
-      int new_seq = atol(ev[4]);
-      int new_frame = atol(ev[5]);
+      int myseq = atol(ev[1]);
+      int myframe = atol(ev[2]);
+      int new_seq = atol(ev[3]);
+      int new_frame = atol(ev[4]);
       
       make_idata(IDATA_FRAME_FRAME, myseq, myframe, new_seq, new_frame, hardbox);
     }
 
   /* Clean-up */
-  for (i = 1; i <= 10; i++)
+  for (i = 0; i < 10; i++)
     free(ev[i]);
 }
 
@@ -2086,15 +2086,15 @@ void figure_out(char* line)
   int special = 0;
   int special2 = 0;
   int i;
-  char* ev[11];
+  char* ev[10];
   memset(&ev, 0, sizeof(ev));
-  for (i = 1; i <= 10; i++)
+  for (i = 0; i < 10; i++)
     {
-      ev[i] = separate_string(line, i, ' ');
+      ev[i] = separate_string(line, i+1, ' ');
       if (ev[i] == NULL)
 	ev[i] = strdup("");
     }
-  char *command = ev[1];
+  char *command = ev[0];
 
   // LOAD_SEQUENCE_NOW  path  seq  BLACK
   // LOAD_SEQUENCE_NOW  path  seq  LEFTALIGN
@@ -2106,21 +2106,21 @@ void figure_out(char* line)
       rect hardbox;
       memset(&hardbox, 0, sizeof(rect));
 
-      int myseq = atol(ev[3]);
+      int myseq = atol(ev[2]);
       seq[myseq].is_active = 1;
       seq_set_ini(myseq, line);
 
       int flags = 0;
 
-      if (compare(ev[4], "BLACK"))
+      if (compare(ev[3], "BLACK"))
 	{
 	  flags = DINKINI_NOTANIM | DINKINI_BLACK;
 	}
-      else if (compare(ev[4], "LEFTALIGN"))
+      else if (compare(ev[3], "LEFTALIGN"))
 	{
 	  flags = DINKINI_LEFTALIGN;
 	}
-      else if (compare(ev[4], "NOTANIM"))
+      else if (compare(ev[3], "NOTANIM"))
 	{
 	  //not an animation!
 	  flags = 0;
@@ -2128,15 +2128,15 @@ void figure_out(char* line)
       else
 	{
 	  //yes, an animation!
-	  hardbox.left = atol(ev[7]);
-	  hardbox.top = atol(ev[8]);
-	  hardbox.right = atol(ev[9]);
-	  hardbox.bottom = atol(ev[10]);
+	  hardbox.left = atol(ev[6]);
+	  hardbox.top = atol(ev[7]);
+	  hardbox.right = atol(ev[8]);
+	  hardbox.bottom = atol(ev[9]);
 	  
 	  flags = DINKINI_NOTANIM;
 	}
 
-      load_sprites(ev[2],atol(ev[3]),atol(ev[4]),atol(ev[5]),atol(ev[6]),
+      load_sprites(ev[1],atol(ev[2]),atol(ev[3]),atol(ev[4]),atol(ev[5]),
 		   hardbox, flags);
       
       program_idata();
@@ -2145,22 +2145,22 @@ void figure_out(char* line)
   else if (compare(command, "SET_SPRITE_INFO"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
-      myseq = atol(ev[2]);
-      myframe = atol(ev[3]);
-      k[seq[myseq].frame[myframe]].xoffset = atol(ev[4]);
-      k[seq[myseq].frame[myframe]].yoffset = atol(ev[5]);
-      k[seq[myseq].frame[myframe]].hardbox.left = atol(ev[6]);
-      k[seq[myseq].frame[myframe]].hardbox.top = atol(ev[7]);
-      k[seq[myseq].frame[myframe]].hardbox.right = atol(ev[8]);
-      k[seq[myseq].frame[myframe]].hardbox.bottom = atol(ev[9]);
+      myseq = atol(ev[1]);
+      myframe = atol(ev[2]);
+      k[seq[myseq].frame[myframe]].xoffset = atol(ev[3]);
+      k[seq[myseq].frame[myframe]].yoffset = atol(ev[4]);
+      k[seq[myseq].frame[myframe]].hardbox.left = atol(ev[5]);
+      k[seq[myseq].frame[myframe]].hardbox.top = atol(ev[6]);
+      k[seq[myseq].frame[myframe]].hardbox.right = atol(ev[7]);
+      k[seq[myseq].frame[myframe]].hardbox.bottom = atol(ev[8]);
     }
   
   else if (compare(command, "SET_FRAME_SPECIAL"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
-      myseq = atol(ev[2]);
-      myframe = atol(ev[3]);
-      special = atol(ev[4]);
+      myseq = atol(ev[1]);
+      myframe = atol(ev[2]);
+      special = atol(ev[3]);
       
       seq[myseq].special[myframe] = special;
       log_debug("Set special.  %d %d %d", myseq, myframe, special);
@@ -2169,9 +2169,9 @@ void figure_out(char* line)
   else if (compare(command, "SET_FRAME_DELAY"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
-      myseq = atol(ev[2]);
-      myframe = atol(ev[3]);
-      special = atol(ev[4]);
+      myseq = atol(ev[1]);
+      myframe = atol(ev[2]);
+      special = atol(ev[3]);
       
       seq[myseq].delay[myframe] = special;
       log_debug("Set delay.  %d %d %d",myseq, myframe, special);
@@ -2180,10 +2180,10 @@ void figure_out(char* line)
   else if (compare(command, "SET_FRAME_FRAME"))
     {
       //           name   seq    speed       offsetx     offsety       hardx      hardy
-      myseq = atol(ev[2]);
-      myframe = atol(ev[3]);
-      special = atol(ev[4]);
-      special2 = atol(ev[5]);
+      myseq = atol(ev[1]);
+      myframe = atol(ev[2]);
+      special = atol(ev[3]);
+      special2 = atol(ev[4]);
       
       if (special == -1)
 	seq[myseq].frame[myframe] = special;
@@ -2193,7 +2193,7 @@ void figure_out(char* line)
     }
 
   /* Clean-up */
-  for (i = 1; i <= 10; i++)
+  for (i = 0; i < 10; i++)
     free(ev[i]);
 }
 
