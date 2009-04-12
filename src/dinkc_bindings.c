@@ -60,8 +60,7 @@
 /* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
 /* store current procedure arguments of type 'string' (idem) */
-// TODO: fix potential buffer overflow
-static char slist[10][200];
+static char* slist[10];
 static char* cur_funcname;
 
 
@@ -1978,6 +1977,15 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
  */
 void dinkc_bindings_init()
 {
+  /* Set all string params pointers to NULL */
+  int i = 0;
+  for (; i < 10; i++)
+    {
+      /* alloc empty strings; will be replaced as needed in
+	 get_parm(...) */
+      slist[i] = XCALLOC(1, char);
+    }
+
   Hash_tuning* default_tuner = NULL;
   int start_size = 400; /* ~nbfuncs*2 to try and avoid collisions */
   bindings = hash_initialize(start_size, default_tuner,
@@ -2201,6 +2209,14 @@ void dinkc_bindings_quit()
   if (bindings != NULL)
     hash_free(bindings);
   bindings = NULL;
+
+  int i = 0;
+  for (; i < 10; i++)
+    {
+      if (slist[i] == NULL)
+	free(slist[i]);
+      slist[i] = NULL;
+    }
 }
 
 
@@ -2476,7 +2492,11 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 {
   /* Clean-up parameters */
   memset(nlist, 0, 10 * sizeof (int));
-  memset(slist, '\0', 10 * 200);
+  {
+    int i = 0;
+    for (; i < 10; i++)
+      slist[i][0] = '\0';
+  }
 
   strip_beginning_spaces(str_params);
   if (str_params[0] == '(')
@@ -2490,8 +2510,8 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
       return 0;
     }
 
-  int i;
-  for (i = 0; i < 10; i++)
+  int i = 0;
+  for (; i < 10; i++)
     {
       strip_beginning_spaces(str_params);
       
@@ -2530,8 +2550,15 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 	  str_params += strlen(parm) + 2;
 
 	  // store parameter of type 'string'
-	  strcpy(slist[i], parm); // TODO: buffer overflow
-	  free(parm);
+	  if (parm == NULL)
+	    {
+	      slist[i] = '\0';
+	    }
+	  else
+	    {
+	      free(slist[i]);
+	      slist[i] = parm;
+	    }
 	}
 
       if ((i+1) == 10 || spec[i+1] == 0) // this was the last arg
@@ -3241,7 +3268,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	{
 	  h += strlen(ev[1]);
 	  int p[20] = { 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
-	  memset (slist, 0, 10 * 200);
+	  {
+	    int i = 0;
+	    for (; i < 10; i++)
+	      slist[i][0] = '\0';
+	  }
 	  get_parms(ev[1], script, h, p);
 	  if (strlen(slist[0]) > 0 && strlen(slist[1]) > 0)
 	    {
@@ -3362,13 +3393,13 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  int p[20] = {2,2,0,0,0,0,0,0,0,0};
 	  if (get_parms(ev[1], script, h, p))
 	    {
-	      int myscript1 = load_script(slist[0],rinfo[script]->sprite, /*false*/0);
+	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, /*false*/0);
 	      if (myscript1 == 0)
 		{
 		  log_error("[DinkC] external: Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
 		  return(0);
 		}
-	      if (locate( myscript1, slist[1]))
+	      if (locate(myscript1, slist[1]))
 		{
 		  rinfo[myscript1]->proc_return = script;
 		  run_script(myscript1);
