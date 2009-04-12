@@ -311,19 +311,19 @@ void replace_norealloc(const char* find, const char* repl, char* line)
  */
 char* latin1_to_utf8(char* source)
 {
-  int cur_size = 256;
+  int cur_alloc_size = 512;
   const int step = 256;
-  unsigned char* dest = xmalloc(cur_size);
-  unsigned char *pcs = (unsigned char *)source;
-  unsigned char *pcd = (unsigned char *)dest;
-  unsigned char *pcd_limit = pcd + cur_size;
+  unsigned char* dest = xmalloc(cur_alloc_size);
+  unsigned char* pcs = (unsigned char*) source;
+  unsigned char* pcd = (unsigned char*) dest;
+  unsigned char* pcd_limit = pcd + cur_alloc_size;
   while(*pcs != '\0')
     {
       if (pcd == pcd_limit)
 	{
-	  cur_size += step;
-	  dest = xrealloc(dest, cur_size);
-	  pcd = dest + cur_size;
+	  cur_alloc_size += step;
+	  dest = xrealloc(dest, cur_alloc_size);
+	  pcd = dest + cur_alloc_size - step;
 	  pcd_limit = pcd + step;
 	}
       if (*pcs < 128)
@@ -342,7 +342,7 @@ char* latin1_to_utf8(char* source)
 	}
     }
   *pcd = '\0';
-  return dest;
+  return (char*)dest;
 }
 
 /* Here's a small Python script to explain the above formula: */

@@ -409,6 +409,7 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
   if (tmp == NULL)
     {
       log_error("Error rendering text: %s; font is %p", TTF_GetError(), font);
+      return;
     }
 
   TTF_SizeUTF8 (font, str, &text_w, &text_h);

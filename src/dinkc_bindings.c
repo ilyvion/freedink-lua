@@ -2339,11 +2339,12 @@ morestuff:
 		  line[strlen(line)-1] = '\0';
 		  /* Translate text (before variable substitution) */
 		  char* translation = i18n_translate(line);
-		  /* put '\n' back, just in case */
-		  /* strcat(line, "\n"); */ // TODO
-		  
 		  decipher_string(&translation, script);
-		  strcat(talk.buffer, translation); // TODO: buffer overflow
+		  int cur_len = strlen(talk.buffer);
+		  strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
+		  /* put '\n' back */
+		  strcat(talk.buffer, "\n");
+		  talk.buffer[TALK_TITLE_BUFSIZ] = '\0';
 		  free(line);
 		}
 	      
@@ -2440,7 +2441,8 @@ morestuff:
 	  decipher_savegame = retnum;
 	  decipher_string(&translation, script);
 	  decipher_savegame = 0;
-	  strcpy(talk.line[cur], translation); // TODO: buffer overflow
+	  strncpy(talk.line[cur], translation, TALK_LINE_BUFSIZ-1);
+	  talk.line[cur][TALK_LINE_BUFSIZ] = '\0';
 	  free(translation);
 	}
       else
@@ -2586,7 +2588,6 @@ enum dinkc_parser_state
 process_line(int script, char *s, /*bool*/int doelse)
 {
   char *h, *p;
-  char line[200];
   char* ev[4];
   
   memset(&ev, 0, sizeof(ev));
@@ -2666,9 +2667,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d == %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 4 + strlen(temp) + 1);
+	  sprintf(expr, "%d == %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2679,9 +2682,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d > %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 3 + strlen(temp) + 1);
+	  sprintf(expr, "%d > %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2692,9 +2697,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d < %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 3 + strlen(temp) + 1);
+	  sprintf(expr, "%d < %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2712,9 +2719,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d <= %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 4 + strlen(temp) + 1);
+	  sprintf(expr, "%d <= %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2725,9 +2734,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d >= %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 4 + strlen(temp) + 1);
+	  sprintf(expr, "%d >= %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2738,9 +2749,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  strip_beginning_spaces(h);
 	  process_line(script, h, /*false*/0);
 	  replace_norealloc("==", "", temp);
-	  sprintf(line, "%d != %s", returnint, temp); // TODO: buffer overflow?
-	  returnint = var_figure(line, script);
+	  char* expr = xmalloc(20 + 4 + strlen(temp) + 1);
+	  sprintf(expr, "%d != %s", returnint, temp);
+	  returnint = var_figure(expr, script);
 	  strcpy(h, "\n");
+	  free(expr);
 	  free(temp);
 	  return(0);
 	}
@@ -2752,12 +2765,12 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  //its a procedure in the if statement!!!
 	  h++;
 	  p++;
-	  strcpy(line, p); // TODO: buffer overflow
+	  char* line_copy = strdup(p);
 	  process_line(script, h, /*false*/0);
-	  
 	  log_debug("Returned %d for the returnint", returnint);
+	  strcpy(s, line_copy); /* strlen(s) >= strlen(line_copy) */
+	  free(line_copy);
 	  h = s;
-	  strcpy(s, line);
 	  
 	  return(0);
 	}

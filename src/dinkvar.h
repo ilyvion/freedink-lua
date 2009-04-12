@@ -101,11 +101,13 @@ struct small_map
 
 
 
+#define TALK_TITLE_BUFSIZ 3000
+#define TALK_LINE_BUFSIZ 101
 struct talk_struct
 {
-  char line[21][101];  /* dialog choices */
+  char line[21][TALK_LINE_BUFSIZ];  /* dialog choices */
   int line_return[21]; /* return this number if chosen */
-  char buffer[3000];   /* title */
+  char buffer[TALK_TITLE_BUFSIZ];   /* title */
   int cur;
   int last;
   /*bool*/int active;
