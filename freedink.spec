@@ -1,6 +1,6 @@
 Name:		freedink
 Version:	1.08.20090120
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games

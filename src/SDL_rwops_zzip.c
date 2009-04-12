@@ -1,6 +1,6 @@
 /*
  *      Copyright (c) 2001 Guido Draheim <guidod@gmx.de>
- *      Copyright (C) 2007, 2008  Sylvain Beucler
+ *      Copyright (C) 2007, 2008, 2009  Sylvain Beucler
  *      Use freely under the restrictions of the ZLIB License
  *
  *      (this example uses errno which might not be multithreaded everywhere)
