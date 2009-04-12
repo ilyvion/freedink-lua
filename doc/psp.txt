@@ -1,5 +1,6 @@
 #!/bin/bash -ex
 # Cross-compilation instructions
+# See at the end of the file for human-readable documentation
 
 # Copyright (C) 2009  Sylvain Beucler
 
@@ -383,8 +384,9 @@ Docs:
   * wait a few seconds
   * you can mount /dev/sdb1 like a normal USB reader
   * if this isn't done automatically, use 'pmount /dev/sdb1'
-  * umount /dev/sdb1
-  * press O on the PSP (don't do that before umounting, there's no check!!)
+  * pumount /dev/sdb1
+  * press [O] on the PSP (don't do that before umounting, there's no
+    safety check!!)
 
 - Where to install games:
   * original fat firmware 1.50: 2 directories to install:
@@ -398,7 +400,8 @@ Docs:
   * cp -a scummvm-0.12.0-psp/single-eboot/scummvm-0.12.0-psp /media/sdb1/PSP/GAME/
   * cp -a bass /media/sdb1/
   * mv /media/sdb1/PSP/GAME/scummvm-0.12.0-psp/sky.cpt /media/sdb1/bass/
-  => v0.13 doesn't work? (quits immediately)
+  => trouble with v0.13 in some situations, try v0.12 or a snapshot in
+  that case http://forums.scummvm.org/viewtopic.php?t=6975
 
 - All releases from Dark_Alex: http://alek.dark-alex.org/filez/dax/
   (the link isn't available from the homepage)
@@ -431,21 +434,16 @@ Docs:
   30 seconds depending on hardware, as far as I could see on the
   forums.
 
+  PSPLink has a lightning-fast 'scrshot' command, if you manage to run
+  the application from it.
+
 - To get standard output and standart error output, in C:
   freopen("stdout.txt", "w", stdout);
   freopen("stderr.txt", "w", stderr);
-  ...
-  fflush(stdout); // shortly before the studied crash
-  fflush(stderr);
+  setlinebuf(stdout);
+  setlinebuf(stderr);
 
-- LEDA - Legacy Software Loader
-  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=8942
-  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=9153
-
-  It's a tool to run old homebrews meant for kernels 1.00 and 1.50.
-  Unlike "1.50 kernel addon", it works on S&L.  However, it's not
-  compatible with all homebrews, in particular it doesn't seem
-  compatible with old versions of PSPLink (those with ELF support).
+  Or run it from PSPLink :)
 
 - Downgrading: HellCat's CFW RecoveryFlasher
   http://forums.qj.net/showthread.php?t=143300
@@ -454,18 +452,6 @@ Docs:
   first firmware that works both on Fat and Slim (3.60-M33 is the
   first firmware that works on Slim but it doesn't work on Fat).
   4.01-M33 was the latest version at the time of the release.
-
-- Downgrading: 1.50 kernel
-  addon. http://www.dark-alex.org/forum/viewtopic.php?f=44&t=1612
-
-  It adds support for homebrews that only work with a 1.50 kernel.
-  I'm not sure how exactly later kernels break those homebrews.  It
-  refuses to work on Slim ("This program only for the standard psp.").
-  I'm not sure how easily you can switch back and forth between the
-  normal and the 1.50 kernel.  It works by adding new files from 1.50
-  firmware in the flash, and if using a default partitionning for the
-  flash drives, it needs to remove some applications from the current
-  firmware to make room.
 
 - Downgrading: 1.50 kernel for Slim: using TimeMachine
   http://downloads.exophase.com/pub/440
@@ -491,6 +477,27 @@ Docs:
   memory card, until the SCE logo appears on screen (then you can
   release 'circle').  You're now temporarily running 1.50 from the
   memory card.
+
+- Downgrading: 1.50 kernel
+  addon. http://www.dark-alex.org/forum/viewtopic.php?f=44&t=1612
+
+  It adds support for homebrews that only work with a 1.50 kernel.
+  I'm not sure how exactly later kernels break those homebrews.  It
+  refuses to work on Slim ("This program only for the standard psp.").
+  I'm not sure how easily you can switch back and forth between the
+  normal and the 1.50 kernel.  It works by adding new files from 1.50
+  firmware in the flash, and if using a default partitionning for the
+  flash drives, it needs to remove some applications from the current
+  firmware to make room.
+
+- LEDA - Legacy Software Loader
+  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=8942
+  http://www.dark-alex.org/forum/viewtopic.php?f=44&t=9153
+
+  It's a tool to run old homebrews meant for kernels 1.00 and 1.50.
+  Unlike "1.50 kernel addon", it works on S&L.  However, it's not
+  compatible with all homebrews, in particular it doesn't seem
+  compatible with old versions of PSPLink (those with ELF support).
 
 - Debugging: http://forums.ps2dev.org/viewtopic.php?p=63165
   Using PSPLink
@@ -612,6 +619,10 @@ Hardware:
   (SDL_HWSURFACE|SDL_DOUBLEBUF), that is, it swaps the buffer's video
   memory on SDL_Flip(screen). Thus you need to redraw your screen
   after each flip(), unless you're not using double-buffer mode.
+
+- Apparently there are issues to set the video mode if there were some
+  printf(...) earlier in the code. In doubt, don't print anything when
+  testing video modes (or redirect the output to files).
 
 - Requesting an hardware surface (SDL_HWSURFACE) fails unless it's
   480x272.
