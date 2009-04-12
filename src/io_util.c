@@ -226,13 +226,35 @@ pdirname (const char* filename)
 
 SDL_RWops* find_resource_as_rwops(char *name)
 {
-  /* Look in appended ZIP archive */
   SDL_RWops* rwops = NULL;
 
+  /** pkgdatadir, pkgdefaultdatadir, exedir **/
+  FILE *in = NULL;
+  if (in == NULL)
+    in = paths_pkgdatafile_fopen(name, "rb");
+  if (in == NULL)
+    /* When the relocatable datadir fails, it may be worth trying the
+       compile-time datadir nonetheless; in the gNewSense LiveCD, the
+       path is mistakenly detected as /cow/usr/bin/freedink, and hence
+       the datadir becomes /cow/usr/share/freedink, which doesn't
+       exist. */
+    in = paths_defaultpkgdatafile_fopen(name, "rb");
+  if (in == NULL)
+    in = paths_exedirfile_fopen(name, "rb");
+  if (in != NULL)
+    rwops = SDL_RWFromFP(in, /*autoclose=*/1);
+
+  if (rwops != NULL)  
+    return rwops;
+
+
+  /** Bundled resources **/
+  /* Look in appended ZIP archive */
+  /* Looked at last, to avoid confusing the user with invisible
+     files **/
   /* paths_getexefile() checks /proc (Linux), then argv[0] +
      PATH. Under Woe it uses GetModuleFileName(). The only way to make
      it fail is to execl("./freedink", "idontexist", 0); */
-
 #ifdef HAVE_LIBZIP
   char *myself = strdup(paths_getexefile());
   rwops = SDL_RWFromZIP(myself, name);
@@ -252,21 +274,8 @@ SDL_RWops* find_resource_as_rwops(char *name)
   if (rwops != NULL)
      return rwops;
 
-  /* Fallback to pkgdatadir */
-  FILE *in = paths_pkgdatafile_fopen(name, "rb");
-  if (in == NULL)
-    {
-      /* When the relocatable datadir fails, it may be worth trying
-	 the compile-time datadir nonetheless; in the gNewSense
-	 LiveCD, the path is mistakenly detected as
-	 /cow/usr/bin/freedink, and hence the datadir becomes
-	 /cow/usr/share/freedink, which doesn't exist. */
-      in = paths_defaultpkgdatafile_fopen(name, "rb");
-    }
-  if (in == NULL)
-    return NULL;
-  rwops = SDL_RWFromFP(in, /*autoclose=*/1);
-  return rwops;
+  /** Not found! **/
+  return NULL;
 }
 
 /**

@@ -412,6 +412,20 @@ FILE* paths_pkgdatafile_fopen(char *file, char *mode)
   return result;
 }
 
+char* paths_exedirfile(char *file)
+{
+  char *fullpath = br_build_path(exedir, file);
+  ciconvert(fullpath);
+  return fullpath;
+}
+
+FILE* paths_exedirfile_fopen(char *file, char *mode)
+{
+  char *fullpath = paths_exedirfile(file);
+  FILE *result = fopen(fullpath, mode);
+  free(fullpath);
+  return result;
+}
 
 FILE *paths_savegame_fopen(int num, char *mode)
 {
