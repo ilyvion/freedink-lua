@@ -923,7 +923,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
 
   /* Portably load map structure from disk */
   int i = 0;
-  fread(screen->name, 20, 1, f);
+  fseek(f, 20, SEEK_CUR); // unused 'name' field
   for (i = 0; i < 97; i++)
     {
       screen->t[i].num = read_lsb_int(f);
@@ -939,9 +939,8 @@ void load_map_to(char* path, const int num, struct small_map* screen)
     }
   // offset 7780
   
-  for (i = 0; i < 40; i++)
-    screen->v[i] = read_lsb_int(f);
-  fread(screen->s, 80, 1, f);
+  fseek(f, 160, SEEK_CUR); // unused 'v' field
+  fseek(f, 80, SEEK_CUR);  // unused 's' field
   // offset 8020
   
   /* struct sprite_placement sprite[101]; */
@@ -963,10 +962,9 @@ void load_map_to(char* path, const int num, struct small_map* screen)
       screen->sprite[i].special = read_lsb_int(f);
       screen->sprite[i].brain = read_lsb_int(f);
       
-      fread(screen->sprite[i].script, 13, 1, f);
-      fread(screen->sprite[i].hit,    13, 1, f);
-      fread(screen->sprite[i].die,    13, 1, f);
-      fread(screen->sprite[i].talk,   13, 1, f);
+      fread(screen->sprite[i].script, 14, 1, f);
+      screen->sprite[i].script[14-1] = '\0'; // safety
+      fseek(f, 38, SEEK_CUR); // unused hit/die/talk fields
       // offset 92
       
       screen->sprite[i].speed = read_lsb_int(f);
@@ -1010,10 +1008,9 @@ void load_map_to(char* path, const int num, struct small_map* screen)
     }
   // offset 30204
   
-  fread(screen->script, 13, 1, f);
-  fread(screen->random, 13, 1, f);
-  fread(screen->load,   13, 1, f);
-  fread(screen->buffer, 1000, 1, f);
+  fread(screen->script, 21, 1, f);
+  screen->script[21-1] = '\0'; // safety
+  fseek(f, 1018, SEEK_CUR); // unused hit/die/talk fields
   fseek(f, 1, SEEK_CUR); // reproduce memory alignment
   // offset 31280
   
@@ -1065,7 +1062,8 @@ void save_map(const int num)
 
       /* Portably dump map structure */
       int i = 0;
-      fwrite(pam.name, 20, 1, f);
+      char name[20] = "Smallwood";
+      fwrite(name, 20, 1, f);
       for (i = 0; i < 97; i++)
 	{
 	  write_lsb_int(pam.t[i].num, f);
@@ -1081,9 +1079,8 @@ void save_map(const int num)
 	}
       // offset 7780
 
-      for (i = 0; i < 40; i++)
-	write_lsb_int(pam.v[i], f);
-      fwrite(pam.s, 80, 1, f);
+      fseek(f, 160, SEEK_CUR); // unused 'v' field
+      fseek(f, 80, SEEK_CUR);  // unused 's' field
       // offset 8020
 
       /* struct sprite_placement sprite[101]; */
@@ -1105,10 +1102,8 @@ void save_map(const int num)
 	  write_lsb_int(pam.sprite[i].special, f);
 	  write_lsb_int(pam.sprite[i].brain, f);
 
-	  fwrite(pam.sprite[i].script, 13, 1, f);
-	  fwrite(pam.sprite[i].hit,    13, 1, f);
-	  fwrite(pam.sprite[i].die,    13, 1, f);
-	  fwrite(pam.sprite[i].talk,   13, 1, f);
+	  fwrite(pam.sprite[i].script, 14, 1, f);
+	  fseek(f, 38, SEEK_CUR); // reproduce memory alignment
 	  // offset 92
 
 	  write_lsb_int(pam.sprite[i].speed, f);
@@ -1152,10 +1147,8 @@ void save_map(const int num)
 	}
       // offset 30204
       
-      fwrite(pam.script, 13, 1, f);
-      fwrite(pam.random, 13, 1, f);
-      fwrite(pam.load,   13, 1, f);
-      fwrite(pam.buffer, 1000, 1, f);
+      fwrite(pam.script, 21, 1, f);
+      fseek(f, 1018, SEEK_CUR); // unused random/load/buffer fields
       fseek(f, 1, SEEK_CUR); // reproduce memory alignment
       // offset 31280
 
@@ -1181,15 +1174,15 @@ void save_info(void)
   
   /* Portably dump struct map_info to disk */
   int i = 0;
-  strcpy(map.name, "Smallwood");
-  fwrite(map.name, 20, 1, f);
+  char name[20] = "Smallwood";
+  fwrite(name, 20, 1, f);
   for (i = 0; i < 769; i++)
     write_lsb_int(map.loc[i],    f);
   for (i = 0; i < 769; i++)
     write_lsb_int(map.music[i],  f);
   for (i = 0; i < 769; i++)
     write_lsb_int(map.indoor[i], f);
-  fwrite(map.unused, 2240, 1, f);
+  fseek(f, 2240, SEEK_CUR); // unused field
 
   fclose(f);
 }
@@ -1237,6 +1230,7 @@ void save_info(void)
   int i = 0;
   play.version = read_lsb_int(f);
   fread(play.gameinfo, 196, 1, f);
+  play.gameinfo[196-1] = '\0'; // safety
   // offset 200
   play.minutes = read_lsb_int(f);
   spr[1].x = read_lsb_int(f);
@@ -1260,6 +1254,7 @@ void save_info(void)
     {
       play.mitem[i].active = fgetc(f);
       fread(play.mitem[i].name, 10, 1, f);
+      play.mitem[i].name[10-1] = '\0'; // safety
       fseek(f, 1, SEEK_CUR); // reproduce memory alignment
       play.mitem[i].seq = read_lsb_int(f);
       play.mitem[i].frame = read_lsb_int(f);
@@ -1268,6 +1263,7 @@ void save_info(void)
     {
       play.item[i].active = fgetc(f);
       fread(play.item[i].name, 10, 1, f);
+      play.item[i].name[10-1] = '\0'; // safety
       fseek(f, 1, SEEK_CUR); // reproduce memory alignment
       play.item[i].seq = read_lsb_int(f);
       play.item[i].frame = read_lsb_int(f);
@@ -1283,6 +1279,7 @@ void save_info(void)
 
   for (i = 0; i < 769; i++)
     {
+      /* Thoses are char arrays, not null-terminated strings */
       int j = 0;
       fread(play.spmap[i].type, 100, 1, f);
       for (j = 0; j < 100; j++)
@@ -1307,6 +1304,7 @@ void save_info(void)
     {
       play.var[i].var = read_lsb_int(f);
       fread(play.var[i].name, 20, 1, f);
+      play.var[i].name[20-1] = '\0'; // safety
       play.var[i].scope = read_lsb_int(f);
       play.var[i].active = fgetc(f);
       fseek(f, 3, SEEK_CUR); // reproduce memory alignment
@@ -1333,17 +1331,23 @@ void save_info(void)
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
-  /* char cbuff[6000];*/
+  /* char cbuff[6000]; */
+  /* Thoses are char arrays, not null-terminated strings */
   fread(play.mapdat, 50, 1, f);
   fread(play.dinkdat, 50, 1, f);
   fread(play.palette, 50, 1, f);
 
   for (i = 0; i < NB_TILE_SCREENS+1; i++)
-    fread(play.tile[i].file, 50, 1, f);
+    {
+      fread(play.tile[i].file, 50, 1, f);
+      play.tile[i].file[50-1] = '\0'; // safety
+    }
   for (i = 0; i < 100; i++)
     {
       fread(play.func[i].file, 10, 1, f);
+      play.func[i].file[10-1] = '\0'; // safety
       fread(play.func[i].func, 20, 1, f);
+      play.func[i].func[20-1] = '\0'; // safety
     }
   /* Remains 750 unused chars at the end of the file. */
   /* fread(play.cbuff, 750, 1, f); */
@@ -1835,14 +1839,14 @@ int load_info_to(char* path, struct map_info *mymap)
 
   /* Portably load struct map_info from disk */
   int i = 0;
-  fread(mymap->name, 20, 1, f);
+  fseek(f, 20, SEEK_CUR); // unused 'name' field
   for (i = 0; i < 769; i++)
     mymap->loc[i]    = read_lsb_int(f);
   for (i = 0; i < 769; i++)
     mymap->music[i]  = read_lsb_int(f);
   for (i = 0; i < 769; i++)
     mymap->indoor[i] = read_lsb_int(f);
-  fread(mymap->unused, 2240, 1, f);
+  fseek(f, 2240, SEEK_CUR); // unused space
 
   fclose(f);
 

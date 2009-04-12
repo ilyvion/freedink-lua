@@ -67,10 +67,7 @@ struct sprite_placement
   BOOL_1BYTE active;
   int rotation, special, brain;
   
-  char script[13]; /* attached DinkC script */
-  char hit[13];    /* buffer overflow for script.. should rather be script[13+1]/unused[12] */
-  char die[13];    /* unused */
-  char talk[13];   /* unused */
+  char script[13+1]; /* attached DinkC script */
   int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
   int hard;
   rect alt; /* trim left/top/right/bottom */
@@ -87,16 +84,9 @@ struct sprite_placement
 /* one screen from map.dat */
 struct small_map
 {
-  char name[20];
   struct tile t[12*8+1]; // 97 background tiles
-  int v[40];  /* unused */
-  char s[80]; /* unused */
   struct sprite_placement sprite[100+1];
-  
-  char script[13]; /* script to run when entering the script */
-  char random[13]; /* buffer overflow for script.. should rather be script[20+1]/unused[5] */
-  char load[13];     /* unused */
-  char buffer[1000]; /* unused */
+  char script[20+1]; /* script to run when entering the script */
 };
 
 
