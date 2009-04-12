@@ -579,10 +579,27 @@ void dc_load_screen(int script, int* yield, int* preturnint)
  * Decipher a copy of 'text' (to avoid potentially realloc'ing it) and
  * call 'say_text(...)'
  */
-static int say_text_decipher(char* text, int active_sprite, int script)
+static int say_text_from_dc(char* text, int active_sprite, int script)
 {
-  char* expanded = strdup(text);
+  /* Translate text (before variable substitution) */
+  char* translation = NULL;
+  if (strlen(text) >= 2 && text[0] == '`')
+    {
+      char* temp = i18n_translate(text+2);
+      translation = xmalloc(strlen(temp) + 2 + 1);
+      sprintf(translation, "%c%c%s", text[0], text[1], temp);
+      free(temp);
+    }
+  else
+    {
+      translation = i18n_translate(text);
+    }
+
+  /* Substitute variables */
+  char* expanded = strdup(translation);
+  free(translation);
   decipher_string(&expanded, script);
+
   int text_sprite = say_text(expanded, active_sprite, script);
   free(expanded);
   return text_sprite;
@@ -592,10 +609,27 @@ static int say_text_decipher(char* text, int active_sprite, int script)
  * Decipher a copy of 'text' (to avoid potentially realloc'ing it) and
  * call 'say_text_xy(...)'
  */
-static int say_text_xy_decipher(char* text, int x, int y, int script)
+static int say_text_xy_from_dc(char* text, int x, int y, int script)
 {
-  char* expanded = strdup(text);
+  /* Translate text (before variable substitution) */
+  char* translation = NULL;
+  if (strlen(text) >= 2 && text[0] == '`')
+    {
+      char* temp = i18n_translate(text+2);
+      translation = xmalloc(strlen(temp) + 2 + 1);
+      sprintf(translation, "%c%c%s", text[0], text[1], temp);
+      free(temp);
+    }
+  else
+    {
+      translation = i18n_translate(text);
+    }
+
+  /* Substitute variables */
+  char* expanded = strdup(translation);
+  free(translation);
   decipher_string(&expanded, script);
+
   int text_sprite = say_text_xy(text, x, y, script);
   free(expanded);
   return text_sprite;
@@ -616,15 +650,7 @@ void dc_say(int script, int* yield, int* preturnint, char* text, int active_spri
   if (active_sprite != 1000)
     kill_text_owned_by(active_sprite);
 
-  /* Translate text (before variable substitution) */
-  char* translation = NULL;
-  if (strlen(text) >= 2 && text[0] == '`')
-    translation = i18n_translate(text+2);
-  else
-    translation = i18n_translate(text);
-
-  *preturnint = say_text_decipher(translation, active_sprite, script);
-  free(translation);
+  *preturnint = say_text_from_dc(text, active_sprite, script);
 }
 
 void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active_sprite)
@@ -641,17 +667,9 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
   kill_text_owned_by(1);
   kill_returning_stuff(script);
 
-  /* Translate text (before variable substitution) */
-  char* translation = NULL;
-  if (strlen(text) >= 2 && text[0] == '`')
-    translation = i18n_translate(text+2);
-  else
-    translation = i18n_translate(text);
-
-  int sprite = say_text_decipher(translation, active_sprite, script);
-  free(translation);
-
+  int sprite = say_text_from_dc(text, active_sprite, script);
   *preturnint = sprite;
+
   spr[sprite].callback = script;
   play.last_talk = script;
   //Msg("Sprite %d marked callback true.", sprite);
@@ -672,17 +690,7 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
     
   kill_returning_stuff(script);
 
-  /* Translate text (before variable substitution) */
-  char* translation = NULL;
-  if (strlen(text) >= 2 && text[0] == '`')
-    translation = i18n_translate(text+2);
-  else
-    translation = i18n_translate(text);
-
-  int sprite = say_text_decipher(translation, active_sprite, script);
-  free(translation);
-
-  *preturnint = sprite;
+  int sprite = say_text_from_dc(text, active_sprite, script);
   spr[sprite].callback = script;
     
   *yield = 1;
@@ -692,16 +700,8 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
 {
   kill_returning_stuff(script);
 
-  /* Translate text (before variable substitution) */
-  char* translation = NULL;
-  if (strlen(text) >= 2 && text[0] == '`')
-    translation = i18n_translate(text+2);
-  else
-    translation = i18n_translate(text);
-
-  log_info("say_stop_xy: Adding %s", translation);
-  int sprite = say_text_xy_decipher(translation, x, y, script);
-  free(translation);
+  log_info("say_stop_xy: Adding %s", text);
+  int sprite = say_text_xy_from_dc(text, x, y, script);
   spr[sprite].callback = script;
   spr[sprite].live = /*true*/1;
   play.last_talk = script;
@@ -711,17 +711,7 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
 void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
 {
   kill_returning_stuff(script);
-
-  /* Translate text (before variable substitution) */
-  char* translation = NULL;
-  if (strlen(text) >= 2 && text[0] == '`')
-    translation = i18n_translate(text+2);
-  else
-    translation = i18n_translate(text);
-
-  int sprite = say_text_xy_decipher(translation, x, y, script);
-  free(translation);
-  *preturnint = sprite;
+  *preturnint = say_text_xy_from_dc(text, x, y, script);
 }
 
 void dc_draw_screen(int script, int* yield, int* preturnint)
