@@ -217,14 +217,15 @@ static TTF_Font *load_default_font() {
   if (rwops == NULL)
     {
       init_set_error_msg("Could not open font 'LiberationSans-Regular.ttf'. I tried:\n"
+			 "- loading from '%s'\n"
+			 "- loading from '%s'\n"
+			 "- loading from '%s'\n"
 			 "- loading from executable's resources\n"
-			 "- loading from '%s'\n"
-			 "- loading from '%s'\n"
 #ifdef HAVE_FONTCONFIG
 			 "- querying fontconfig"
 #endif
 			 ,
-			 paths_getpkgdatadir(), paths_getdefaultpkgdatadir());
+			 paths_getpkgdatadir(), paths_getdefaultpkgdatadir(), paths_getexedir());
       return NULL;
     }
 
