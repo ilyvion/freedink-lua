@@ -435,20 +435,20 @@ void strip_beginning_spaces(char *str)
  * Look for the 'label' label (e.g. 'loop:'), that is used by a "goto"
  * instruction. This sets the script->current field appropriately.
  **/
-/*bool*/int locate_goto(char label[50], int script)
+/*bool*/int locate_goto(char* expr, int script)
 {
-  rinfo[script]->current = 0;
-  char* line = NULL;
-  char* word = NULL;
-  replace_norealloc(";", "", label);
-  strchar(label, ':'); // TODO: buffer overflow
+  replace_norealloc(";", "", expr);
+  char* label = xmalloc(strlen(expr) + 1 + 1);
+  sprintf(label, "%s:", expr);
   
+  char* line = NULL;
+  rinfo[script]->current = 0;
   while ((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);
       
       int is_right_label = 0;
-      word = get_word(line, 1);
+      char* word = get_word(line, 1);
       replace_norealloc("\n", "", word);
       if (compare(word, label))
 	is_right_label = 1;
@@ -462,6 +462,7 @@ void strip_beginning_spaces(char *str)
 	  rinfo[script]->onlevel = 0;
 	  rinfo[script]->level = 0;
 	  
+	  free(label);
 	  free(line);
 	  return 1;
 	  //this is desired label
@@ -470,6 +471,7 @@ void strip_beginning_spaces(char *str)
     }
 
   log_warn("%s: cannot goto %s", rinfo[script]->name, label);
+  free(label);
   return 0;
 }
 

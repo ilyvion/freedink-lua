@@ -1,7 +1,7 @@
 /**
  * DinkC script engine
 
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2008, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -79,8 +79,8 @@ extern void dinkc_quit();
 extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 extern int dinkc_execute_one_liner(char* line);
 extern void strip_beginning_spaces(char *str);
-extern /*bool*/int locate(int script, char proc[20]);
-extern /*bool*/int locate_goto(char proc[50], int script);
+extern /*bool*/int locate(int script, char* proc_lookup);
+extern /*bool*/int locate_goto(char* expr, int script);
 extern long decipher(char* variable, int script);
 extern void decipher_string(char** line_p, int script);
 extern int add_callback(char name[20], int n1, int n2, int script);
