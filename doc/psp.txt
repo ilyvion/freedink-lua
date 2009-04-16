@@ -538,7 +538,7 @@ Docs:
   'gdb' instead of 'psp-gdb' :)
 
   Note that there's no source for the initial break point (_start) nor
-  for the initial main (SDL_main) - that's not an error.
+  for the initial (SDL's) main - that's not an error.
 
 - Remote display:
   http://www.ngine.de/index.jsp?pageid=4292

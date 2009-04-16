@@ -10,7 +10,7 @@
 
 - Toggle fullscreen works on more platforms (not just X11)
 
-- New architecture: PSP
+- New architecture: PSP (playstation portable)
 
 - New logging system, enabled with '-d' (instead of writing debug
   information on standard output by default), with different

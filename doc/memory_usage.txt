@@ -23,6 +23,10 @@ Note: exmap hasn't been updated since 2006, so it doesn't compile with
 recent kernels. Drop a word of encouragement to the author - or even
 better send him a patch :)
 
+There's a partial patch at
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495335 - apparently
+there are still issues in the client size.
+
 
 memprof
 =======
@@ -46,3 +50,7 @@ development. But we can easily compile it::
 Then you can FreeDink through memprof::
 
   memprof src/freedink -- --window --game ...
+
+Note that memprof only report the heap size (allocated with malloc),
+but there's also the data segment or .bss (Block Started by Symbol,
+e.g. static arrays, allocated on program startup).
