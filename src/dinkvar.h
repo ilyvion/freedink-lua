@@ -52,13 +52,8 @@ struct attackinfo_struct
 /* Background square in a screen */
 struct tile
 {
-  int num, /* tile index */
-    property,   /* unused */
-    althard, /* alternate hardness index, 0 = default tile hardness */
-    more2;      /* unused */
-  unsigned char
-  more3, more4; /* unused */
-  int buff[15]; /* unused */
+  short num; /* tile index */
+  short althard; /* alternate hardness index, 0 = default tile hardness */
 };
 
 struct sprite_placement
@@ -131,7 +126,7 @@ struct ts_block
 struct hardness
 {
   struct ts_block tile[800];
-  int index[8000];
+  short index[8000];
 };
 
 extern int GetKeyboard(int key);

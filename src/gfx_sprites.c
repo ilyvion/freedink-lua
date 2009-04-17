@@ -113,9 +113,10 @@ static void draw_wait()
 static int next_slot()
 {
   /* Start index at 1 instead of 0. A few parts in the game rely on
-     this (e.g. if getpic(...) < 1). I noticed that sprite in slot 0
-     (by default, this would be a small white square) would be
-     displayed temporarily on the screen in some situations . */
+     this (e.g. if getpic(...) < 1). */
+  /* TODO: I noticed that sprite in slot 0 (by default, this would be
+     a small white square) would be displayed temporarily on the
+     screen in some situations.. */
   int i = 1;
   while (i < MAX_SPRITES && GFX_k[i].k != NULL)
     i++;
@@ -131,13 +132,16 @@ static void free_seq(int seq_no)
 {
   int i = 1;
   int slot_index = -1;
-  while ((slot_index = seq[seq_no].frame[i]) != 0)
+  while (i < MAX_FRAMES_PER_ABUSED_SEQUENCE+1
+	 && (slot_index = seq[seq_no].frame[i]) != 0)
     {
       SDL_FreeSurface(GFX_k[slot_index].k);
       GFX_k[slot_index].k = NULL;
       i++;
     }
   /* 0 means end-of-sequence, no more frames */
+  if (i == MAX_FRAMES_PER_ABUSED_SEQUENCE+1)
+    log_error("Invalid sequence %d, just avoided a buffer overflow\n", seq_no);
 }
 
 

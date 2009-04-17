@@ -65,13 +65,13 @@ extern "C"
     int len;        // number of initial frames in this sequence
                     // - inaccurate if the sequence is modified by 'set_frame_frame'
     /* frame: index in GFX_k for the each frame, indexed from 1, ended
-       by '0' if -1, loop from beginning. Now this one is tricky: the
+       by '0'. If -1, loop from beginning. Now this one is tricky: the
        original engine's load_sprite() can load non-animated sequences
        of more than MAX_FRAMES_PER_SEQUENCE (up to 1000) at the
        expense of a non-critical buffer overflow in 'delay' and
        'special'.  */
-    int frame[MAX_FRAMES_PER_ABUSED_SEQUENCE+1+1]; 
-    int delay[MAX_FRAMES_PER_ABUSED_SEQUENCE+1]; // frame duration, indexed from 1
+    short frame[MAX_FRAMES_PER_ABUSED_SEQUENCE+1+1];
+    short delay[MAX_FRAMES_PER_ABUSED_SEQUENCE+1]; // frame duration, indexed from 1
     unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
   };
 

@@ -93,7 +93,13 @@ void tiles_load_slot(char* relpath, int slot)
     }
 
   GFX_tiles[slot] = load_bmp_from_fp(in);
-  
+
+  /* Note: attempting SDL_RLEACCEL showed no improvement for the
+     memory usage, including when using a transparent color and
+     blitting the surface once. It did show a decrease of 400kB (out
+     of 6000kB) when using transparent color 255, but in this case the
+     color is not supposed to be transparent. */
+
   if (GFX_tiles[slot] == NULL) {
     fprintf(stderr, "Couldn't find tilescreen %s: %s\n", relpath, SDL_GetError());
   }

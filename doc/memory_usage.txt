@@ -54,3 +54,19 @@ Then you can FreeDink through memprof::
 Note that memprof only report the heap size (allocated with malloc),
 but there's also the data segment or .bss (Block Started by Symbol,
 e.g. static arrays, allocated on program startup).
+
+
+readelf
+=======
+
+It can inspect an executable and in particular display the size of the
+data segment::
+
+  readelf -S freedink
+
+For example::
+
+  $ readelf -S freedink | grep .bss
+    [24] .bss              NOBITS          0808c0e0 0430c4 71d8e0 00  WA  0   0 32
+
+The third numerical field is the size in hexadecimal, i.e. 7.1MB.

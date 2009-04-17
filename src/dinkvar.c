@@ -927,15 +927,11 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   for (i = 0; i < 97; i++)
     {
       screen->t[i].num = read_lsb_int(f);
-      screen->t[i].property = read_lsb_int(f);
+      fseek(f, 4, SEEK_CUR); // unused 'property' field
       screen->t[i].althard = read_lsb_int(f);
-      screen->t[i].more2 = read_lsb_int(f);
-      screen->t[i].more3 = fgetc(f);
-      screen->t[i].more4 = fgetc(f);
+      fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
       fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-      int j = 0;
-      for (j = 0; j < 15; j++)
-	screen->t[i].buff[j] = read_lsb_int(f);
+      fseek(f, 60, SEEK_CUR); // unused 'buff' field
     }
   // offset 7780
   
@@ -1067,15 +1063,11 @@ void save_map(const int num)
       for (i = 0; i < 97; i++)
 	{
 	  write_lsb_int(pam.t[i].num, f);
-	  write_lsb_int(pam.t[i].property, f);
+	  fseek(f, 4, SEEK_CUR); // unused 'property' field
 	  write_lsb_int(pam.t[i].althard, f);
-	  write_lsb_int(pam.t[i].more2, f);
-	  fputc(pam.t[i].more3, f);
-	  fputc(pam.t[i].more4, f);
+	  fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
 	  fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-	  int j = 0;
-	  for (j = 0; j < 15; j++)
-	    write_lsb_int(pam.t[i].buff[j], f);
+	  fseek(f, 60, SEEK_CUR); // unused 'buff' field
 	}
       // offset 7780
 
