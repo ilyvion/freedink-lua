@@ -50,6 +50,7 @@ struct
   int survive;
   int cur_sound; /* Sound currently played in that channel */
   Uint8 *fake_buf;
+  Uint32 fake_buf_len;
 } channelinfo[NUM_CHANNELS];
 
 
@@ -62,6 +63,7 @@ static struct
   int pos_lastframe; /* index for the last frame */
   int pos_end; /* upper bound (pre-calculated for efficiency&simplicity) */
   SDL_AudioCVT cvt;
+  Uint32 cvt_buf_len;
 } registered_sounds[MAX_SOUNDS];
 
 
@@ -353,7 +355,8 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   }
 
   /* Setup for conversion */
-  cvt.buf = (Uint8 *)malloc(wav_len*cvt.len_mult);
+  Uint32 cvt_buf_len = wav_len*cvt.len_mult;
+  cvt.buf = (Uint8 *)malloc(cvt_buf_len);
   cvt.len = wav_len;
   memcpy(cvt.buf, wav_buf, wav_len);
   
@@ -385,6 +388,7 @@ int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index)
   registered_sounds[index].orig_spec = wav_spec;
   registered_sounds[index].orig_len = wav_len;
   registered_sounds[index].cvt = cvt;
+  registered_sounds[index].cvt_buf_len = cvt_buf_len;
   registered_sounds[index].pos_end = pos_end;
   registered_sounds[index].pos_lastframe = pos_lastframe;
   
@@ -622,6 +626,7 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
 	return 0;
       }
     channelinfo[channel].fake_buf = fake_buf;
+    channelinfo[channel].fake_buf_len = resized_len;
 
     struct callback_data *data = calloc(1, sizeof(struct callback_data));
     data->pos = 0;
@@ -726,7 +731,11 @@ int InitSound()
   memset(channelinfo, 0, sizeof(channelinfo));
   int i;
   for (i = 0; i < NUM_CHANNELS; i++)
-    channelinfo[i].cur_sound = -1;
+    {
+      channelinfo[i].cur_sound = -1;
+      channelinfo[i].fake_buf = NULL;
+      channelinfo[i].fake_buf_len = 0;
+    }
 
   /* No sound loaded yet - initialise the registered sounds: */
   memset(registered_sounds, 0, sizeof(registered_sounds));
@@ -758,6 +767,35 @@ void QuitSound(void)
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
+
+/**
+ * Print SFX memory usage
+ */
+void sfx_log_meminfo()
+{
+  int total = 0;
+  int sum = 0;
+  int i = 0;
+
+  for (i = 0; i < NUM_CHANNELS; i++)
+    {
+      sum += channelinfo[i].fake_buf_len;
+    }
+  log_debug("Channels = %8d\n", sum);
+  total += sum;
+
+  sum = 0;
+  for (i = 0; i < MAX_SOUNDS; i++)
+    {
+      if (registered_sounds[i].cvt.buf != NULL)
+	sum += registered_sounds[i].cvt_buf_len;
+    }
+  log_debug("Sounds   = %8d\n", sum);
+  total += sum;
+
+
+}
+
 
 /**
  * Free memory used by sound #'sound'
@@ -795,6 +833,8 @@ static void CleanupChannel(int channel)
   /* WAV buffer is not freed when Chunk is created using
      Mix_QuickLoad_RAW (cf. chunk->allocated), do it manually. */
   free(channelinfo[channel].fake_buf);
+  channelinfo[channel].fake_buf = NULL;
+  channelinfo[channel].fake_buf_len = 0;
   channelinfo[channel].cur_sound = -1;
 
   /* Revert SetVolume and SetPan effects */

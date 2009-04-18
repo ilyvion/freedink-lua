@@ -52,7 +52,6 @@ extern int initFail(char mess[200]);
 extern void missile_brain( int h, /*bool*/int repeat);
 extern void missile_brain_expire(int h);
 extern void mouse_brain(int h);
-extern void process_animated_tiles(void);
 extern void process_item( void );
 extern void process_show_bmp( void );
 extern void process_talk();

@@ -733,3 +733,62 @@ void gfx_toggle_fullscreen(void)
     SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
   trigger_palette_change = 1;
 }
+
+/**
+ * Print GFX memory usage
+ */
+void gfx_log_meminfo()
+{
+  int total = 0;
+
+  {
+    int sum = 0;
+    sum = GFX_lpDDSBack->h * GFX_lpDDSBack->pitch;
+    log_debug("GFX screen = %8d\n", sum);
+    total += sum;
+  }
+  
+  {
+    int sum = 0;
+    SDL_Surface* s = NULL;
+    s = GFX_lpDDSTwo;
+    sum += s->h * s->pitch;
+    s = GFX_lpDDSTrick;
+    sum += s->h * s->pitch;
+    s = GFX_lpDDSTrick2;
+    sum += s->h * s->pitch;
+    log_debug("GFX buf    = %8d\n", sum);
+    total += sum;
+  }
+  
+  {
+    int sum = 0;
+    int i = 0;
+    SDL_Surface* s = NULL;
+    for (; i < MAX_SPRITES; i++)
+      {
+	s = GFX_k[i].k;
+	if (s != NULL)
+	  sum += s->h * s->pitch;
+	// Note: this does not take SDL_RLEACCEL into account
+      }
+    log_debug("GFX bmp    = %8d\n", sum);
+    total += sum;
+  }
+
+  {
+    int sum = 0;
+    int i = 0;
+    SDL_Surface* s = NULL;
+    for (; i < NB_TILE_SCREENS+1; i++)
+      {
+	s = GFX_tiles[i];
+	if (s != NULL)
+	  sum += s->h * s->pitch;
+      }
+    log_debug("GFX tiles  = %8d\n", sum);
+    total += sum;
+  }
+
+  log_debug("GFX total  = %8d (+ ~150kB fonts)\n", total);
+}

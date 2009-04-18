@@ -247,8 +247,10 @@ exit
 mkdir cross-psp && cd cross-psp
 # - remove /usr/local/pspdev/psp/include/getopt.h which defines non-standard constants
 # - fix /usr/local/pspdev/psp/include/sys/unistd.h: readlink, 3rd argument is "unsigned int" rather then "int"
-# '-G0' is needed to avoid errors such as:
+# '-G0' (up to '-G3', but not '-G4') is needed to avoid errors such as:
 #   relocation truncated to fit: R_MIPS_GPREL16 against `__ctype_ptr'
+# '-O2' works but '-O0' is the easier to debug; '-O3' works but the executable is bigger than '-O2'
+# '--disable-embedded-resources' is optional, but it avoids bundling zziplib
 # - use HAVE_PATHCONF in pathmax.h
 # - trim fchdir so it doesn't reference dup and dup2
 # - alter getcwd so it doesn't use rewinddir
@@ -256,7 +258,7 @@ SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
   LDFLAGS="-L$(psp-config --pspsdk-path)/lib" \
   LIBS="-lc -lpspuser" \
   CPPFLAGS="-I$(psp-config --pspsdk-path)/include" \
-  CFLAGS="-G0" \
+  CFLAGS="-g -O2 -G3" \
   ../configure --host psp \
     --disable-embedded-resources --enable-static --disable-nls
 # - edit gnulib/lib/strings.h and get rid of #include_next
@@ -281,7 +283,7 @@ SDL_CONFIG=$(psp-config --psp-prefix)/bin/sdl-config \
   LDFLAGS="-L$(psp-config --pspsdk-path)/lib -specs=/usr/local/pspdev/psp/sdk/lib/prxspecs -Wl,-q,-T/usr/local/pspdev/psp/sdk/lib/linkfile.prx" \
   LIBS="-lc -lpspuser" \
   CPPFLAGS="-I$(psp-config --pspsdk-path)/include -DPSPFW3X -D_PSP_FW_VERSION=303" \
-  CFLAGS="-g -O0 -G0" \
+  CFLAGS="-g -O2 -G3" \
   ../configure --host psp \
     --disable-embedded-resources --enable-static --disable-nls
 make

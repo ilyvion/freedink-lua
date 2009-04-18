@@ -67,5 +67,6 @@ extern int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect, SDL_Surface
 extern int gfx_blit_stretch(SDL_Surface *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect);
 extern void flip_it(void);
 extern void gfx_toggle_fullscreen(void);
+extern void gfx_log_meminfo(void);
 
 #endif

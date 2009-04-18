@@ -35,6 +35,7 @@
 #include "paths.h"
 #include "sfx.h"
 #include "log.h"
+#include "meminfo.h"
 
 /* Tiles */
 /* Game pieces */
@@ -229,6 +230,11 @@ void draw_map_game(void)
   thisTickCount = SDL_GetTicks();
                 
   init_scripts();
+
+  // Display some memory stats after loading a screen
+  meminfo_log_mallinfo();
+  gfx_log_meminfo();
+  sfx_log_meminfo();
 }
         
         
