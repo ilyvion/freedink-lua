@@ -1246,18 +1246,17 @@ void save_info(void)
   for (i = 0; i < NB_MITEMS+1; i++)
     {
       play.mitem[i].active = fgetc(f);
-      fread(play.mitem[i].name, 10, 1, f);
-      play.mitem[i].name[10-1] = '\0'; // safety
-      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      fread(play.mitem[i].name, 11, 1, f);
+      /* The item script could overflow, overwriting 'seq'; if */
+      play.mitem[i].name[11-1] = '\0'; // safety
       play.mitem[i].seq = read_lsb_int(f);
       play.mitem[i].frame = read_lsb_int(f);
     }
   for (i = 0; i < NB_ITEMS+1; i++)
     {
       play.item[i].active = fgetc(f);
-      fread(play.item[i].name, 10, 1, f);
-      play.item[i].name[10-1] = '\0'; // safety
-      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      fread(play.item[i].name, 11, 1, f);
+      play.item[i].name[11-1] = '\0'; // safety
       play.item[i].seq = read_lsb_int(f);
       play.item[i].frame = read_lsb_int(f);
     }
@@ -1573,16 +1572,14 @@ void save_game(int num)
   for (i = 0; i < NB_MITEMS+1; i++)
     {
       fputc(play.mitem[i].active, f);
-      fwrite(play.mitem[i].name, 10, 1, f);
-      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      fwrite(play.mitem[i].name, 11, 1, f);
       write_lsb_int(play.mitem[i].seq, f);
       write_lsb_int(play.mitem[i].frame, f);
     }
   for (i = 0; i < NB_ITEMS+1; i++)
     {
       fputc(play.item[i].active, f);
-      fwrite(play.item[i].name, 10, 1, f);
-      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      fwrite(play.item[i].name, 11, 1, f);
       write_lsb_int(play.item[i].seq, f);
       write_lsb_int(play.item[i].frame, f);
     }
@@ -3957,7 +3954,7 @@ void copy_bmp( char name[80])
         }
 
 
-        void add_item(char name[10], int mseq, int mframe, enum item_type type)
+        void add_item(char* name, int mseq, int mframe, enum item_type type)
         {
                 if (type == ITEM_REGULAR)
                 {
@@ -3970,7 +3967,8 @@ void copy_bmp( char name[80])
 				  log_info("Weapon/item %s added to inventory.",name);
                                         play.item[i].seq = mseq;
                                         play.item[i].frame = mframe;
-                                        strcpy(play.item[i].name, name);
+                                        strncpy(play.item[i].name, name, sizeof(play.item[i].name));
+					play.item[i].name[sizeof(play.item[i].name)-1] = '\0';
                                         play.item[i].active = /*true*/1;
 
                                         int crap1 = load_script(play.item[i].name, 1000, /*false*/0);
@@ -3991,8 +3989,8 @@ void copy_bmp( char name[80])
 				  log_info("Magic %s added to inventory.",name);
                                         play.mitem[i].seq = mseq;
                                         play.mitem[i].frame = mframe;
-                                        strcpy(play.mitem[i].name, name);
-
+                                        strncpy(play.mitem[i].name, name, sizeof(play.mitem[i].name));
+					play.mitem[i].name[sizeof(play.mitem[i].name)-1] = '\0';
                                         play.mitem[i].active = /*true*/1;
 
                                         int crap = load_script(play.mitem[i].name, 1000, /*false*/0);

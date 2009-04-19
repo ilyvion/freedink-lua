@@ -123,7 +123,7 @@ struct sp
 struct item_struct
 {
   BOOL_1BYTE active;
-  char name[10];
+  char name[10+1];
   int seq;
   int frame;
 };
