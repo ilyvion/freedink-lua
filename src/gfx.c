@@ -376,7 +376,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
   /* make all pointers to NULL */
-  memset(&GFX_tiles, 0, sizeof(GFX_tiles));
+  memset(&gfx_tiles, 0, sizeof(gfx_tiles));
   memset(&k, 0, sizeof(k));
   memset(&GFX_k, 0, sizeof(GFX_k));
   memset(&seq, 0, sizeof(seq));
@@ -780,9 +780,9 @@ void gfx_log_meminfo()
     int sum = 0;
     int i = 0;
     SDL_Surface* s = NULL;
-    for (; i < NB_TILE_SCREENS+1; i++)
+    for (; i < GFX_TILES_NB_SETS+1; i++)
       {
-	s = GFX_tiles[i];
+	s = gfx_tiles[i];
 	if (s != NULL)
 	  sum += s->h * s->pitch;
       }

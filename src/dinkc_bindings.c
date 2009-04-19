@@ -1740,16 +1740,22 @@ void dc_load_map(int script, int* yield, int* preturnint, char* mapdat_file, cha
   load_info();
 }
 
-void dc_load_tile(int script, int* yield, int* preturnint, char* tile_file, int tile_index)
+void dc_load_tile(int script, int* yield, int* preturnint, char* tileset_file, int tileset_index)
 {
   // load new tiles
-  if (tile_index >= 1 && tile_index <= NB_TILE_SCREENS)
+  if (tileset_index >= 1 && tileset_index <= GFX_TILES_NB_SETS)
     {
       //Load in the new tiles...
-      tiles_load_slot(tile_file, tile_index);
+      tiles_load_slot(tileset_file, tileset_index);
       
       //Store in save game
-      strncpy(play.tile[tile_index].file, tile_file, 50);
+      strncpy(play.tile[tileset_index].file, tileset_file, 50);
+    }
+  else
+    {
+      log_error("[DinkC] %s:%d:%s: dc_load_tile: invalid tileset index '%d'",
+		rinfo[script]->name, rinfo[script]->debug_line, cur_funcname,
+		tileset_index);
     }
 }
 
@@ -1757,12 +1763,18 @@ void dc_map_tile(int script, int* yield, int* preturnint, int tile_position, int
 {
   // developers can change or see what tile is at any given position
   // Yeah... they can only modify valid tiles
-  if (tile_position > 0 && tile_position <= 96)
+  if (tile_position >= 1 && tile_position <= 96)
     {
-      //Only change the value if it is greater than 0...
-      if (tile_index > 0)
-	pam.t[tile_position - 1].num = tile_index;
-      *preturnint = pam.t[tile_position - 1].num;
+      int max = GFX_TILES_NB_SQUARES - 1;
+
+      if (tile_index >= 0 && tile_index <= max)
+	pam.t[tile_position - 1].square_full_idx0 = tile_index;
+      else
+	log_error("[DinkC] %s:%d:%s: dc_map_tile: invalid tile index '%d'",
+		  rinfo[script]->name, rinfo[script]->debug_line, cur_funcname,
+		  tile_index);
+
+      *preturnint = pam.t[tile_position - 1].square_full_idx0;
     }
 }
 
@@ -1770,13 +1782,11 @@ void dc_map_hard_tile(int script, int* yield, int* preturnint, int tile_position
 {
   // developers can retrieve/modify a hard tile
   // Yeah... they can only modify valid tiles
-  if (tile_position > 0 && tile_position <= 96)
+  if (tile_position >= 1 && tile_position <= 96)
     {
       //Only change the value if it is greater than 0...
       if (hard_tile_index > 0)
-	{
-	  pam.t[tile_position - 1].althard = hard_tile_index;
-	}
+	pam.t[tile_position - 1].althard = hard_tile_index;
       *preturnint = pam.t[tile_position - 1].althard;
     }
 }

@@ -625,7 +625,7 @@ unsigned char get_hard_map(int h,int x1, int y1)
 
         //Msg("tile %d ",til);
 
-        return( hmap.tile[ realhard(til )  ].x[offx].y[offy]);
+        return( hmap.htile[ realhard(til )  ].x[offx].y[offy]);
 
 }
 
@@ -694,7 +694,7 @@ int realhard(int tile)
   if (pam.t[tile].althard > 0)
     return(pam.t[tile].althard);
   else
-    return(hmap.index[pam.t[tile].num]);
+    return(hmap.btile_default[pam.t[tile].square_full_idx0]);
 }
 
 
@@ -708,7 +708,7 @@ void fill_whole_hard(void)
       int x, y;
       for (x = 0; x < 50; x++)
 	for (y = 0; y < 50; y++)
-	  hm.x[offx +x].y[offy+y] = hmap.tile[  realhard(til)  ].x[x].y[y];
+	  hm.x[offx +x].y[offy+y] = hmap.htile[  realhard(til)  ].x[x].y[y];
     }
 }
 
@@ -927,7 +927,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   fseek(f, 20, SEEK_CUR); // unused 'name' field
   for (i = 0; i < 97; i++)
     {
-      screen->t[i].num = read_lsb_int(f);
+      screen->t[i].square_full_idx0 = read_lsb_int(f);
       fseek(f, 4, SEEK_CUR); // unused 'property' field
       screen->t[i].althard = read_lsb_int(f);
       fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
@@ -1063,7 +1063,7 @@ void save_map(const int num)
       fwrite(name, 20, 1, f);
       for (i = 0; i < 97; i++)
 	{
-	  write_lsb_int(pam.t[i].num, f);
+	  write_lsb_int(pam.t[i].square_full_idx0, f);
 	  fseek(f, 4, SEEK_CUR); // unused 'property' field
 	  write_lsb_int(pam.t[i].althard, f);
 	  fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
@@ -1330,7 +1330,7 @@ void save_info(void)
   fread(play.dinkdat, 50, 1, f);
   fread(play.palette, 50, 1, f);
 
-  for (i = 0; i < NB_TILE_SCREENS+1; i++)
+  for (i = 0; i < GFX_TILES_NB_SETS+1; i++)
     {
       fread(play.tile[i].file, 50, 1, f);
       play.tile[i].file[50-1] = '\0'; // safety
@@ -1380,7 +1380,7 @@ void save_info(void)
       tiles_load_default();
       
       /* Replace with custom tiles if needed */
-      for (i = 1; i <= NB_TILE_SCREENS; i++)
+      for (i = 1; i <= GFX_TILES_NB_SETS; i++)
 	if (strlen(play.tile[i].file) > 0)
 	  tiles_load_slot(play.tile[i].file, i);
     }
@@ -1652,7 +1652,7 @@ void save_game(int num)
   fwrite(play.dinkdat, 50, 1, f);
   fwrite(play.palette, 50, 1, f);
 
-  for (i = 0; i < NB_TILE_SCREENS+1; i++)
+  for (i = 0; i < GFX_TILES_NB_SETS+1; i++)
     fwrite(play.tile[i].file, 50, 1, f);
   for (i = 0; i < 100; i++)
     {
@@ -1875,18 +1875,18 @@ void save_hard(void)
 
   /* Portably dump struct hardness hmap to disk */
   int i = 0;
-  for (i = 0; i < 800; i++)
+  for (i = 0; i < HARDNESS_NB_TILES; i++)
     {
       int j = 0;
       for (j = 0; j < 51; j++)
-	fwrite(hmap.tile[i].x[j].y, 51, 1, f);
-      fputc(hmap.tile[i].used, f);
+	fwrite(hmap.htile[i].x[j].y, 51, 1, f);
+      fputc(hmap.htile[i].used, f);
       fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-
-      write_lsb_int(hmap.tile[i].hold, f);
+      fseek(f, 4, SEEK_CUR); // unused 'hold' field
     }
-  for (i = 0; i < 8000; i++)
-    write_lsb_int(hmap.index[i], f);
+  for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
+    write_lsb_int(hmap.btile_default[i], f);
+  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
 
   fclose(f);
 }
@@ -1917,18 +1917,18 @@ void load_hard(void)
 
   /* Portably load struct hardness hmap from disk */
   int i = 0;
-  for (i = 0; i < 800; i++)
+  for (i = 0; i < HARDNESS_NB_TILES; i++)
     {
       int j = 0;
       for (j = 0; j < 51; j++)
-	fread(hmap.tile[i].x[j].y, 51, 1, f);
-      hmap.tile[i].used = fgetc(f);
+	fread(hmap.htile[i].x[j].y, 51, 1, f);
+      hmap.htile[i].used = fgetc(f);
       fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-
-      hmap.tile[i].hold = read_lsb_int(f);
+      fseek(f, 4, SEEK_CUR); // unused 'hold' field
     }
-  for (i = 0; i < 8000; i++)
-    hmap.index[i] = read_lsb_int(f);
+  for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
+    hmap.btile_default[i] = read_lsb_int(f);
+  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
 
   fclose(f);
 }

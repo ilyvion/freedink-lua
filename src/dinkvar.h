@@ -49,13 +49,6 @@ struct attackinfo_struct
 	int pull_wait;
 };
 
-/* Background square in a screen */
-struct tile
-{
-  short num; /* tile index */
-  short althard; /* alternate hardness index, 0 = default tile hardness */
-};
-
 struct sprite_placement
 {
   int x, y, seq, frame, type, size;
@@ -118,15 +111,18 @@ struct ts_block
 {
   struct block_y x[51];
   BOOL_1BYTE used;
-  int hold;
 };
 
 //struct for hardness info, INDEX controls which hardness each block has.  800 max
 //types available.
+#define HARDNESS_NB_TILES 800
 struct hardness
 {
-  struct ts_block tile[800];
-  short index[8000];
+  struct ts_block htile[HARDNESS_NB_TILES];
+  /* default hardness for each background tile square, 12*8=96 tiles
+     per screen but indexed % 128 in the code (so 128*(41-1)+12*8=5216
+     used indexes instead of 12*8*41=3936). */
+  short btile_default[GFX_TILES_NB_SQUARES];
 };
 
 extern int GetKeyboard(int key);
@@ -202,8 +198,6 @@ extern FPSmanager framerate_manager;
 extern /*bool*/int total_trigger;
 extern /*bool*/int trig_man;
 extern /*bool*/int turn_on_plane;
-extern int x;
-extern int y;
 
 /* extern HRESULT ddrval; */
 /* extern LPDIRECTDRAWPALETTE lpDDPal; /\* The primary surface palette *\/ */

@@ -184,7 +184,7 @@ struct player_info
   char mapdat[50];
   char dinkdat[50];
   char palette[50];
-  struct player_info_tile tile[NB_TILE_SCREENS+1];
+  struct player_info_tile tile[GFX_TILES_NB_SETS+1];
   struct global_function func[100];
 };
 

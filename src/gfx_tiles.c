@@ -41,12 +41,11 @@
 /* Tiles */
 /* Game pieces */
 /* +1 to avoid the -1 in array indexes.. */
-SDL_Surface* GFX_tiles[NB_TILE_SCREENS+1];
+SDL_Surface* gfx_tiles[GFX_TILES_NB_SETS+1];
 
 /* Animated tiles current status */
-int water_timer;
-/*bool*/int fire_forward;
-int fire_flip;
+static int water_timer = 0;
+static int fire_flip = 0;
 
 
 /* Local functions */
@@ -59,7 +58,7 @@ void tiles_load_default() {
   int h;
 
   log_info("loading tilescreens...");
-  for (h = 1; h <= NB_TILE_SCREENS; h++)
+  for (h = 1; h <= GFX_TILES_NB_SETS; h++)
     {
       if (h < 10)
 	strcpy(crap1,"0");
@@ -69,7 +68,7 @@ void tiles_load_default() {
 
       tiles_load_slot(crap, h);
 
-      if (GFX_tiles[h] == NULL)
+      if (gfx_tiles[h] == NULL)
 	exit(0);
     }
   
@@ -82,13 +81,13 @@ void tiles_load_slot(char* relpath, int slot)
   if (in == NULL)
     in = paths_fallbackfile_fopen(relpath, "rb");
   
-  if (GFX_tiles[slot] != NULL)
+  if (gfx_tiles[slot] != NULL)
     {
-      SDL_FreeSurface(GFX_tiles[slot]);
-      GFX_tiles[slot] = NULL;
+      SDL_FreeSurface(gfx_tiles[slot]);
+      gfx_tiles[slot] = NULL;
     }
 
-  GFX_tiles[slot] = load_bmp_from_fp(in);
+  gfx_tiles[slot] = load_bmp_from_fp(in);
 
   /* Note: attempting SDL_RLEACCEL showed no improvement for the
      memory usage, including when using a transparent color and
@@ -96,7 +95,7 @@ void tiles_load_slot(char* relpath, int slot)
      of 6000kB) when using transparent color 255, but in this case the
      color is not supposed to be transparent. */
 
-  if (GFX_tiles[slot] == NULL) {
+  if (gfx_tiles[slot] == NULL) {
     fprintf(stderr, "Couldn't find tilescreen %s: %s\n", relpath, SDL_GetError());
   }
 }
@@ -106,99 +105,61 @@ void tiles_load_slot(char* relpath, int slot)
  */
 void tiles_unload_all(void) {
   int h = 0;
-  for (h=1; h <= NB_TILE_SCREENS; h++)
+  for (h=1; h <= GFX_TILES_NB_SETS; h++)
     {
-      if (GFX_tiles[h] != NULL)
-	SDL_FreeSurface(GFX_tiles[h]);
-      GFX_tiles[h] = NULL;
+      if (gfx_tiles[h] != NULL)
+	SDL_FreeSurface(gfx_tiles[h]);
+      gfx_tiles[h] = NULL;
     }
 }
 
-/* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite) */
-/* { */
-/*     HBITMAP             hbm; */
-/*     BITMAP              bm; */
-/*     DDSURFACEDESC       ddsd; */
-/*     IDirectDrawSurface *pdds; */
-        
-/*     // */
-/*     //  try to load the bitmap as a resource, if that fails, try it as a file */
-/*     // */
-/*     hbm = (HBITMAP)LoadImage(GetModuleHandle(NULL), szBitmap, IMAGE_BITMAP, dx, dy, LR_CREATEDIBSECTION); */
-        
-/*     if (hbm == NULL) */
-/*         hbm = (HBITMAP)LoadImage(NULL, szBitmap, IMAGE_BITMAP, dx, dy, LR_LOADFROMFILE|LR_CREATEDIBSECTION); */
-        
-/*     if (hbm == NULL) */
-/*         return NULL; */
-        
-/*     // */
-/*     // get size of the bitmap */
-/*     // */
-/*     GetObject(hbm, sizeof(bm), &bm);      // get size of bitmap */
-        
-/*     // */
-/*     // create a DirectDrawSurface for this bitmap */
-/*     // */
-/*     ZeroMemory(&ddsd, sizeof(ddsd)); */
-/*     ddsd.dwSize = sizeof(ddsd); */
-/*     ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT |DDSD_WIDTH; */
-/*     ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY; */
-/*     ddsd.dwWidth = bm.bmWidth; */
-/*     ddsd.dwHeight = bm.bmHeight; */
-/*     if (pdd->CreateSurface(&ddsd, &pdds, NULL) != DD_OK) */
-/*         return NULL; */
-        
-/*     DDCopyBitmap(pdds, hbm, 0, 0, 0, 0); */
-/*     tilerect[sprite].bottom = bm.bmHeight; */
-/*         tilerect[sprite].right = bm.bmWidth; */
-    
-/*     DeleteObject(hbm); */
-        
-/*     return pdds; */
-/* } */
+/**
+ * Draw tile number 'dsttile_square_id0x' (in [0, 96-1]) in the
+ * current screen
+ */
+void gfx_tiles_draw(int srctileset_idx0, int srctile_square_idx0, int dsttile_square_idx0)
+{
+  SDL_Rect src;
+  int srctile_square_x = srctile_square_idx0 % GFX_TILES_SCREEN_W;
+  int srctile_square_y = srctile_square_idx0 / GFX_TILES_SCREEN_W;
+  src.x = srctile_square_x * GFX_TILES_SQUARE_SIZE;
+  src.y = srctile_square_y * GFX_TILES_SQUARE_SIZE;
+  src.w = GFX_TILES_SQUARE_SIZE;
+  src.h = GFX_TILES_SQUARE_SIZE;
+  
+  int dsttile_x = dsttile_square_idx0 % GFX_TILES_SCREEN_W;
+  int dsttile_y = dsttile_square_idx0 / GFX_TILES_SCREEN_W;
+  SDL_Rect dst;
+  dst.x = GFX_PLAY_LEFT + dsttile_x * GFX_TILES_SQUARE_SIZE;
+  dst.y = GFX_PLAY_TOP  + dsttile_y * GFX_TILES_SQUARE_SIZE;
 
+  SDL_BlitSurface(gfx_tiles[srctileset_idx0 + 1], &src, GFX_lpDDSTwo, &dst);
+}
+
+/**
+ * Draw all background tiles in the current screen
+ */
+void gfx_tiles_draw_screen()
+{
+  int x = 0;
+  for (; x < GFX_TILES_PER_SCREEN; x++)
+    {
+      int srctileset_idx0 = pam.t[x].square_full_idx0 / 128;
+      int srctile_square_idx0 = pam.t[x].square_full_idx0 % 128;
+      gfx_tiles_draw(srctileset_idx0, srctile_square_idx0, x);
+    }
+}
 
 /* Draw the background from tiles */
 void draw_map_game(void)
 {
-/*   RECT                rcRect; */
-  int pa, cool;
-  int x;
-              
   *pvision = 0;
                 
   while (kill_last_sprite());
   kill_repeat_sounds();
   kill_all_scripts();
 
-  /* 96 = 12 * 8 tile squares; 1 tile square = 50x50 pixels */
-  for (x = 0; x < 96; x++)
-    {
-      cool = pam.t[x].num / 128;
-      pa = pam.t[x].num - (cool * 128);
-
-/*       rcRect.left = (pa * 50- (pa / 12) * 600); */
-/*       rcRect.top = (pa / 12) * 50; */
-/*       rcRect.right = rcRect.left + 50; */
-/*       rcRect.bottom = rcRect.top + 50; */
-/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
-/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-                        
-      // GFX
-      {
-	SDL_Rect src;
-	SDL_Rect dst;
-	src.x = (pa * 50 - (pa / 12) * 600);
-	src.y = (pa / 12) * 50;
-	src.w = 50;
-	src.h = 50;
-	dst.x = (x * 50 - ((x / 12) * 600))+playl;
-	dst.y = (x / 12) * 50;
-	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-      }
-    }
-                
+  gfx_tiles_draw_screen();
                 
   if (strlen(pam.script) > 1)
     {
@@ -212,18 +173,14 @@ void draw_map_game(void)
 	  no_running_main = /*false*/0;
 	}
     }
-                
+
+  // lets add the sprites hardness to the real hardness, adding it's
+  // own uniqueness to our collective.
   place_sprites_game();
-                
-                
-  //lets add the sprites hardness to the real hardness, adding it's own uniqueness to our collective.
-                
-                
-  //if script for overall screen, run it
-                
-  //Msg("Done loading screen.");
+  
   thisTickCount = SDL_GetTicks();
                 
+  // Run active sprites' scripts
   init_scripts();
 
   // Display some memory stats after loading a screen
@@ -237,146 +194,48 @@ void draw_map_game(void)
    stop_entire_game(). What's the difference with draw_map_game()?? */
 void draw_map_game_background(void)
 {
-/*   RECT rcRect; */
-  int pa, cool;
-  int x;
-              
-  for (x = 0; x < 96; x++)
-    {
-      cool = pam.t[x].num / 128;
-      pa = pam.t[x].num - (cool * 128);
-
-/*       rcRect.left = (pa * 50- (pa / 12) * 600); */
-/*       rcRect.top = (pa / 12) * 50; */
-/*       rcRect.right = rcRect.left + 50; */
-/*       rcRect.bottom = rcRect.top + 50; */
-/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
-/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-
-      // GFX
-      {
-	SDL_Rect src;
-	SDL_Rect dst;
-	src.x = (pa * 50- (pa / 12) * 600);
-	src.y = (pa / 12) * 50;
-	src.w = 50;
-	src.h = 50;
-	dst.x = (x * 50 - ((x / 12) * 600))+playl;
-	dst.y = (x / 12) * 50;
-	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-      }
-                        
-    }
-                
+  gfx_tiles_draw_screen();
   place_sprites_game_background();
 }
         
 /* Game-specific: animate background (water, fire, ...) */        
 void process_animated_tiles(void)
 {
-/*   RECT rcRect; */
-  int cool;
   int flip;
-  int pa;
 	
-  //process water tiles
-	
+  // Water:
   if (water_timer < thisTickCount)
     {
-      int x;
 
-      water_timer = thisTickCount + ((rand() % 2000));
-      flip = ((rand() % 2)+1);		
+      water_timer = thisTickCount + (rand() % 2000);
+      flip = rand() % 2;
 		
-      for (x = 0; x < 96; x++)
+      int x = 0;
+      for (; x < 96; x++)
 	{
-	  if (pam.t[x].num >= 896 && pam.t[x].num < (896+128))
-	    {
-				      cool = pam.t[x].num / 128;
-				      pa = pam.t[x].num - (cool * 128);
-/* 				      rcRect.left = (pa * 50- (pa / 12) * 600); */
-/* 				      rcRect.top = (pa / 12) * 50; */
-/* 				      rcRect.right = rcRect.left + 50; */
-/* 				      rcRect.bottom = rcRect.top + 50; */
-				
-				
-/* 				      lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+flip], */
-/* 							 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-
-				      // GFX
-				      {
-					SDL_Rect src;
-					SDL_Rect dst;
-					src.x = (pa * 50- (pa / 12) * 600);
-					src.y = (pa / 12) * 50;
-					src.w = 50;
-					src.h = 50;
-					dst.x = (x * 50 - ((x / 12) * 600))+playl;
-					dst.y = (x / 12) * 50;
-					SDL_BlitSurface(GFX_tiles[cool+flip], &src, GFX_lpDDSTwo, &dst);
-				      }
-				    }	
+	  int screen_square_full_idx0 = pam.t[x].square_full_idx0;
+	  int start_full_idx0 = (8-1) * 128; // 8th tileset -> 896
+	  if (screen_square_full_idx0 >= start_full_idx0
+	      && screen_square_full_idx0 < (start_full_idx0 + 128))
+	    gfx_tiles_draw((8-1) + flip, screen_square_full_idx0 % 128, x);
 	}
-		
     }
 	
-  //end of water processing
 	
-	
-  //if (water_timer < thisTickCount)
+  // Fire:
   {
-    int x;
-    //	water_timer = thisTickCount + ((rand() % 2000)+1000);
+    fire_flip--;
+    if (fire_flip < 0)
+      fire_flip = 4;
 		
-    if (fire_forward) fire_flip++;
-    if (!fire_forward) fire_flip--;
-		
-    if (fire_flip < 1)
+    int x = 0;
+    for (; x < 96; x++)
       {
-	fire_flip = 5;
-	fire_forward = /*false*/0;
+	int screen_square_full_idx0 = pam.t[x].square_full_idx0;
+	int start_full_idx0 = (19-1) * 128; // 19th tileset -> 2304
+	if (screen_square_full_idx0 >= start_full_idx0
+	    && screen_square_full_idx0 < (start_full_idx0 + 128))
+	  gfx_tiles_draw((19-1) + fire_flip, screen_square_full_idx0 % 128, x);
       }
-		
-    //	if (fire_flip > 4)
-    //	{
-    //  fire_flip = 4;
-    //fire_forward = false;
-    //}
-		
-		
-		
-    for (x = 0; x < 96; x++)
-      {
-	if (pam.t[x].num >= 2304 && pam.t[x].num < (2304+128))
-				   {
-				
-				     cool = pam.t[x].num / 128;
-				     pa = pam.t[x].num - (cool * 128);
-/* 				     rcRect.left = (pa * 50- (pa / 12) * 600); */
-/* 				     rcRect.top = (pa / 12) * 50; */
-/* 				     rcRect.right = rcRect.left + 50; */
-/* 				     rcRect.bottom = rcRect.top + 50; */
-				
-				
-/* 				     lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+fire_flip], */
-/* 							&rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-				
-				     // GFX
-				     {
-				       SDL_Rect src;
-				       SDL_Rect dst;
-				       src.x = (pa * 50- (pa / 12) * 600);
-				       src.y = (pa / 12) * 50;
-				       src.w = 50;
-				       src.h = 50;
-				       dst.x = (x * 50 - ((x / 12) * 600))+playl;
-				       dst.y = (x / 12) * 50;
-				       SDL_BlitSurface(GFX_tiles[cool+fire_flip], &src, GFX_lpDDSTwo, &dst);
-				     }
-				   }	
-      }
-		
   }
-	
-  //end of water processing
 }

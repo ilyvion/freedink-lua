@@ -990,17 +990,20 @@ void process_callbacks(void)
 }
 
 
-void init_scripts(void)
+/**
+ * Run main() for all active sprites on screen
+ */
+void init_scripts()
 {
-  int k;
-  for (k = 1; k < MAX_SCRIPTS; k++)
+  int k = 1;
+  for (; k < MAX_SCRIPTS; k++)
     {
       if (rinfo[k] != NULL && rinfo[k]->sprite != 0
 	  /* don't go out of bounds in spr[300], e.g. when sprite == 1000: */
 	  && rinfo[k]->sprite < MAX_SPRITES_AT_ONCE
 	  && spr[rinfo[k]->sprite].active)
 	{
-	  if (locate(k,"main"))
+	  if (locate(k, "main"))
 	    {
 	      log_debug("Screendraw: running main of script %s..", rinfo[k]->name);
 	      run_script(k);

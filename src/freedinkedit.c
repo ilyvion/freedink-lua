@@ -343,79 +343,37 @@ void place_sprites()
 /* Draw background from tiles */
 void draw_map(void)
 {
-  rect rcRect;
-  int pa, cool;
-/*   int crap; */
-  int x;
-
-  /* Replaced by a call to fill_screen(0) */
   fill_screen(0);
-  /*
-  DDBLTFX     ddbltfx;
-  ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-  ddbltfx.dwSize = sizeof( ddbltfx);
-  ddbltfx.dwFillColor = 0;
-  crap = lpDDSTwo->Blt(NULL ,NULL,NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
-  */
   fill_whole_hard();
 
   while (kill_last_sprite());
 
-  for (x = 0; x < 96; x++)
-    {
-      cool = pam.t[x].num / 128;
-      pa = pam.t[x].num - (cool * 128);
-      rcRect.left = (pa * 50- (pa / 12) * 600);
-      rcRect.top = (pa / 12) * 50;
-      rcRect.right = rcRect.left + 50;
-      rcRect.bottom = rcRect.top + 50;
-
-
-/*       lpDDSTwo->BltFast( (x * 50 - ((x / 12) * 600))+playl, (x / 12) * 50, tiles[cool+1], */
-/* 			 &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-      // GFX
-      {
-	SDL_Rect src, dst;
-	src.x = (pa * 50- (pa / 12) * 600);
-	src.y = (pa / 12) * 50;
-	src.w = src.h = 50;
-	dst.x = (x * 50 - ((x / 12) * 600))+playl;
-	dst.y = (x / 12) * 50;
- 	SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-      }
-    }
+  gfx_tiles_draw_screen();
   place_sprites();
 }
 
 
 
 
-/* Draw the currently selected tile square (in the bottom-right corner
-   of the screen) */
-void draw_current( void)
+/**
+ * Draw the currently selected tile square (in the bottom-right corner
+ * of the screen)
+ */
+void draw_current()
 {
-  rect rcRect;
-  int x,cool;
-  cool = cur_tile / 128;
-  x = cur_tile - (cool * 128);
+  int srctileset_idx0 = cur_tile / 128;
+  int srctile_square_idx0 = cur_tile % 128;
 
-  //x = cur_tile;
-  rcRect.left = (x * 50- (x / 12) * 600);
-  rcRect.top = (x / 12) * 50;
-  rcRect.right = rcRect.left + 50;
-  rcRect.bottom = rcRect.top + 50;
-
-  //(((spr[1].y+1)*12) / 50)+(spr[1].x / 50) );
-/*   lpDDSTwo->BltFast( 590,430 , tiles[cool+1], */
-/* 		     &rcRect, DDBLTFAST_NOCOLORKEY| DDBLTFAST_WAIT ); */
-  //GFX
-  {
-    SDL_Rect src, dst = {590, 430};
-    src.x = (x * 50- (x / 12) * 600);
-    src.y = (x / 12) * 50;
-    src.h = src.w = 50;
-    SDL_BlitSurface(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
-  }
+  SDL_Rect src;
+  int srctile_square_x = srctile_square_idx0 % GFX_TILES_SCREEN_W;
+  int srctile_square_y = srctile_square_idx0 / GFX_TILES_SCREEN_W;
+  src.x = srctile_square_x * GFX_TILES_SQUARE_SIZE;
+  src.y = srctile_square_y * GFX_TILES_SQUARE_SIZE;
+  src.w = GFX_TILES_SQUARE_SIZE;
+  src.h = GFX_TILES_SQUARE_SIZE;
+  
+  SDL_Rect dst = {590, 430};
+  SDL_BlitSurface(gfx_tiles[srctileset_idx0 + 1], &src, GFX_lpDDSTwo, &dst);
 }
 
 /* Edit a tile hardness - show semi-transparent red/blue/orange
@@ -430,7 +388,7 @@ void draw_hard( void)
       for (y = 0; y < 50; y++)
 	{
 	  /* red */
-	  if (hmap.tile[hard_tile].x[x].y[y] == 1)
+	  if (hmap.htile[hard_tile].x[x].y[y] == 1)
 	    {
 /* 	      lpDDSBack->BltFast(95+(x*9), y*9, k[seq[10].frame[2]].k, */
 /* 				 &k[seq[10].frame[2]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
@@ -444,7 +402,7 @@ void draw_hard( void)
 	    }
 
 	  /* blue */
-	  if (hmap.tile[hard_tile].x[x].y[y] == 2)
+	  if (hmap.htile[hard_tile].x[x].y[y] == 2)
 	    {
 /* 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[9]].k, */
 /* 				 &k[seq[10].frame[9]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
@@ -458,7 +416,7 @@ void draw_hard( void)
 	    }
 
 	  /* orange */
-	  if (hmap.tile[hard_tile].x[x].y[y] == 3)
+	  if (hmap.htile[hard_tile].x[x].y[y] == 3)
 	    {
 /* 	      lpDDSBack->BltFast(95+(x*9),y*9, k[seq[10].frame[10]].k, */
 /* 				 &k[seq[10].frame[10]].box, DDBLTFAST_SRCCOLORKEY | DDBLTFAST_WAIT); */
@@ -859,7 +817,7 @@ void loadtile(int tileset)
 
 /*   lpDDSTwo->BltFast(0, 0, tiles[tileset], &tilerect[tileset], DDBLTFAST_NOCOLORKEY |DDBLTFAST_WAIT); */
   // GFX
-  SDL_BlitSurface(GFX_tiles[tileset], NULL, GFX_lpDDSTwo, NULL);
+  SDL_BlitSurface(gfx_tiles[tileset], NULL, GFX_lpDDSTwo, NULL);
   cur_screen = tileset;
 
   last_mode = tileset;
@@ -1692,8 +1650,8 @@ void change_tile(int tile, int num)
     {
       int y;
       for (y = 0; y < 50; y++)
-	if (hmap.tile[tile].x[x].y[y] != 0)
-	  hmap.tile[tile].x[x].y[y] = num;
+	if (hmap.htile[tile].x[x].y[y] != 0)
+	  hmap.htile[tile].x[x].y[y] = num;
     }
 }
 
@@ -1982,7 +1940,7 @@ void draw_hard_tile(int x1, int y1, int tile)
       int y = 0;
       for (y = 0; y < 50; y++)
 	{
-	  if (hmap.tile[tile].x[x].y[y] == 1)
+	  if (hmap.htile[tile].x[x].y[y] == 1)
 	    {
 	      //draw it
 	      dst.x = x1 + x
@@ -3394,7 +3352,7 @@ void updateFrame(void)
 				int x;
 				for (x = 0; x < selx; x++)
 				  {
-				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
+				    hmap.htile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 1;
 
 				  }
 			      }
@@ -3410,7 +3368,7 @@ void updateFrame(void)
 				int x;
 				for (x = 0; x < selx; x++)
 				  {
-				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
+				    hmap.htile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 0;
 
 				  }
 			      }
@@ -3452,7 +3410,7 @@ void updateFrame(void)
 				int x;
 				for (x = 0; x < selx; x++)
 				  {
-				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
+				    hmap.htile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 2;
 
 				  }
 			      }
@@ -3466,7 +3424,7 @@ void updateFrame(void)
 				int x;
 				for (x = 0; x < selx; x++)
 				  {
-				    hmap.tile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
+				    hmap.htile[hard_tile].x[((spr[h].x) + (x*9) - 95) / 9].y[(spr[h].y + (y *9)) / 9] = 3;
 
 				  }
 			      }
@@ -3545,7 +3503,7 @@ void updateFrame(void)
 		      {
 
 			if (mode == MODE_SCREEN_TILES)
-			  cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			  cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].square_full_idx0;
 
 			if (mode == MODE_TILE_PICKER)
 			  {
@@ -3558,22 +3516,22 @@ void updateFrame(void)
 
 			if (cur_tile > 0)
 			  {
-			    if (hmap.index[cur_tile] == 0)
+			    if (hmap.btile_default[cur_tile] == 0)
 			      {
 				int j;
 				for (j = 1; j < 799; j++)
 				  {
-				    if (hmap.tile[j].used == /*FALSE*/0)
+				    if (hmap.htile[j].used == /*FALSE*/0)
 				      {
-					hmap.index[cur_tile] = j;
-					hmap.tile[j].used = /*TRUE*/1;
+					hmap.btile_default[cur_tile] = j;
+					hmap.htile[j].used = /*TRUE*/1;
 				    	hard_tile = j;
 					goto tilesel;
 				      }
 				  }
 			      }
 			    else
-			      hard_tile = hmap.index[cur_tile];
+			      hard_tile = hmap.btile_default[cur_tile];
 
 			  tilesel:
 			    xx = cur_tile % 128;
@@ -3617,7 +3575,7 @@ void updateFrame(void)
 			      dst.h = 450;
 			      
 			      cool = cur_tile / 128;
-			      gfx_blit_stretch(GFX_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
+			      gfx_blit_stretch(gfx_tiles[cool+1], &src, GFX_lpDDSTwo, &dst);
 			    }
 
 			    m4x = spr[h].x;
@@ -3691,7 +3649,7 @@ void updateFrame(void)
 			//EditorSoundPlayEffect( SOUND_JUMP );
 
 
-			pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num = cur_tile;
+			pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].square_full_idx0 = cur_tile;
 
 			for (y = 0; y < sely; y++)
 			  {
@@ -3701,7 +3659,7 @@ void updateFrame(void)
 				holdx = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 				holdx += (y * 12);
 				holdx += x;
-				pam.t[holdx].num = (cur_tile + (y * 12) + x);
+				pam.t[holdx].square_full_idx0 = (cur_tile + (y * 12) + x);
 
 			      }
 			  }
@@ -3716,7 +3674,7 @@ void updateFrame(void)
 			spr[h].seq = 3;
 			spr[h].seq_orig = 3;
 			//SoundPlayEffect( SOUND_JUMP );
-			cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].num;
+			cur_tile = pam.t[(((spr[1].y+1)*12) / 50)+(spr[1].x / 50)].square_full_idx0;
 			draw_map();
 		      }
 
@@ -4015,7 +3973,7 @@ void updateFrame(void)
 			if (sjoy.keyjustpressed[SDLK_RETURN])
 			  {
 			    //they want to edit this alt hardness, let's do it
-			    cur_tile = pam.t[xy2screentile(spr[1].x, spr[1].y)].num;
+			    cur_tile = pam.t[xy2screentile(spr[1].x, spr[1].y)].square_full_idx0;
 
 			    xx = cur_tile - (cool * 128);
 			    Rect.left = spr[1].x+20;
@@ -4067,7 +4025,7 @@ void updateFrame(void)
 
 			    kickass = /*TRUE*/1;
 
-			    hmap.tile[hard_tile].used = /*true*/1;
+			    hmap.htile[hard_tile].used = /*true*/1;
 			    last_modereal = 8;
 			  }
 		      }
@@ -4512,8 +4470,8 @@ void updateFrame(void)
       if (mode == MODE_SCREEN_HARDNESS)
 	{
 	  int screentile = xy2screentile(spr[1].x, spr[1].y);
-	  int sourcetile = pam.t[screentile].num;
-	  int defaulthardness = hmap.index[sourcetile];
+	  int sourcetile = pam.t[screentile].square_full_idx0;
+	  int defaulthardness = hmap.btile_default[sourcetile];
 	  int curhardness = realhard(screentile);
 	  char str[100];
 	  if (defaulthardness == curhardness)

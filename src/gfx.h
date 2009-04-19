@@ -40,6 +40,14 @@ enum gfx_windowed_state
     GFX_FULLSCREEN,
   };
 
+#define GFX_RES_W 640
+#define GFX_RES_H 480
+#define GFX_PLAY_W 600
+#define GFX_PLAY_H 400
+#define GFX_PLAY_LEFT 20
+#define GFX_PLAY_TOP  0
+
+
 extern int truecolor;
 extern SDL_Surface *GFX_lpDDSBack;
 extern SDL_Surface *GFX_lpDDSTrick;
