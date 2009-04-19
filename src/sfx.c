@@ -781,7 +781,7 @@ void sfx_log_meminfo()
     {
       sum += channelinfo[i].fake_buf_len;
     }
-  log_debug("Channels = %8d\n", sum);
+  log_debug("Channels = %8d", sum);
   total += sum;
 
   sum = 0;
@@ -790,7 +790,7 @@ void sfx_log_meminfo()
       if (registered_sounds[i].cvt.buf != NULL)
 	sum += registered_sounds[i].cvt_buf_len;
     }
-  log_debug("Sounds   = %8d\n", sum);
+  log_debug("Sounds   = %8d", sum);
   total += sum;
 
 

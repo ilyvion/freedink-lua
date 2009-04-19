@@ -744,7 +744,7 @@ void gfx_log_meminfo()
   {
     int sum = 0;
     sum = GFX_lpDDSBack->h * GFX_lpDDSBack->pitch;
-    log_debug("GFX screen = %8d\n", sum);
+    log_debug("GFX screen = %8d", sum);
     total += sum;
   }
   
@@ -757,7 +757,7 @@ void gfx_log_meminfo()
     sum += s->h * s->pitch;
     s = GFX_lpDDSTrick2;
     sum += s->h * s->pitch;
-    log_debug("GFX buf    = %8d\n", sum);
+    log_debug("GFX buf    = %8d", sum);
     total += sum;
   }
   
@@ -772,7 +772,7 @@ void gfx_log_meminfo()
 	  sum += s->h * s->pitch;
 	// Note: this does not take SDL_RLEACCEL into account
       }
-    log_debug("GFX bmp    = %8d\n", sum);
+    log_debug("GFX bmp    = %8d", sum);
     total += sum;
   }
 
@@ -786,9 +786,9 @@ void gfx_log_meminfo()
 	if (s != NULL)
 	  sum += s->h * s->pitch;
       }
-    log_debug("GFX tiles  = %8d\n", sum);
+    log_debug("GFX tiles  = %8d", sum);
     total += sum;
   }
 
-  log_debug("GFX total  = %8d (+ ~150kB fonts)\n", total);
+  log_debug("GFX total  = %8d (+ ~150kB fonts)", total);
 }

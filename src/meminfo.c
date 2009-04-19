@@ -32,7 +32,7 @@ void meminfo_log_mallinfo()
 {
   struct mallinfo mi;
   mi = mallinfo();
-  log_debug("arena: %d\n", mi.arena);
-  log_debug("uordblks: %d\n", mi.uordblks);
-  log_debug("fordblks: %d\n", mi.fordblks);
+  log_debug("arena: %d", mi.arena);
+  log_debug("uordblks: %d", mi.uordblks);
+  log_debug("fordblks: %d", mi.fordblks);
 }
