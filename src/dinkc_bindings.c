@@ -3072,6 +3072,7 @@ process_line(int script, char *s, /*bool*/int doelse)
       int sig_int_str[10]     =  {1,2,0,0,0,0,0,0,0,0};
       int sig_str_int[10]     =  {2,1,0,0,0,0,0,0,0,0};
       int sig_str_str[10]     =  {2,2,0,0,0,0,0,0,0,0};
+      int sig_int_int_int[10] =  {1,1,1,0,0,0,0,0,0,0};
       int sig_str_int_int[10] =  {2,1,1,0,0,0,0,0,0,0};
       int sig_int_int_int_int[10] =  {1,1,1,1,0,0,0,0,0,0};
       int sig_int_int_int_int_int[10] =  {1,1,1,1,1,0,0,0,0,0};
@@ -3118,6 +3119,12 @@ process_line(int script, char *s, /*bool*/int doelse)
 	{
 	  void (*pf)(int, int*, int* , char*, int) = pbd->func;
 	  (*pf)(script, yield, &returnint , slist[0], nlist[1]);
+	}
+      /* {1,1,1,0,0,0,0,0,0,0} */
+      else if (signatures_eq_p(pbd->params, sig_int_int_int))
+	{
+	  void (*pf)(int, int*, int* , int, int, int) = pbd->func;
+	  (*pf)(script, yield, &returnint , nlist[0], nlist[1], nlist[2]);
 	}
       /* {2,2,1,0,0,0,0,0,0,0} */
       else if (signatures_eq_p(pbd->params, sig_str_int_int))
