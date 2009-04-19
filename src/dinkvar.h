@@ -325,13 +325,6 @@ extern /*bool*/int no_running_main;
 extern void fill_screen(int num);
 
 
-/* Used by gfx_tiles.c only */
-extern void place_sprites_game(void);
-extern void place_sprites_game_background(void);
-extern void kill_all_scripts(void);
-extern void init_scripts(void);
-
-
 /* Used by dinkc_bindings.c only */
 enum item_type { ITEM_REGULAR, ITEM_MAGIC };
 extern void clear_talk(void);
@@ -346,8 +339,6 @@ extern /*bool*/int text_owned_by(int sprite);
 extern void kill_all_vars(void);
 extern void update_play_changes( void );
 extern void fill_hardxy(rect box);
-extern void fill_back_sprites(void );
-extern void fill_hard_sprites(void );
 extern void save_game(int num);
 extern /*bool*/int load_game(int num);
 extern int does_sprite_have_text(int sprite);
@@ -357,5 +348,6 @@ extern int change_edit_char(int h,  int val, unsigned char * change);
 extern int change_edit(int h,  int val, unsigned short * change);
 extern int hurt_thing(int h, int damage, int special);
 extern void random_blood(int mx, int my, int h);
+extern void check_sprite_status_full(int sprite_no);
 
 #endif

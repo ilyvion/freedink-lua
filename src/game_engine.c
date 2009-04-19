@@ -30,6 +30,7 @@
 #include <time.h>  /* time */
 #include <string.h>  /* memset */
 #include "game_engine.h"
+#include "screen.h" /* hm */
 #include "dinkvar.h"  /* hmap, pam */
 #include "input.h"
 

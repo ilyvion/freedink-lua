@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "game_engine.h"
+#include "screen.h"
 #include "dinkvar.h"
 #include "gfx.h"
 #include "gfx_tiles.h"
@@ -49,12 +50,6 @@ int fire_flip;
 
 
 /* Local functions */
-/* extern "C" IDirectDrawSurface * DDTileLoad(IDirectDraw *pdd, LPCSTR szBitmap, int dx, int dy, int sprite); */
-
-/* TODO: move place_sprites_game() and kill_all_scripts() here, if all
-   those sprite-related global variables must be shared with other C
-   modules, otherwise let those functions in the sprite-related C
-   modules. */
 
 
 // Load the tiles from the BMPs

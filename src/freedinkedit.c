@@ -49,9 +49,11 @@
 
 #include "init.h"
 #include "dinkvar.h"
+#include "screen.h"
 #include "fastfile.h"
 #include "gfx.h"
 #include "game_engine.h"
+#include "screen.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
 #include "gfx_fonts.h"
@@ -265,133 +267,76 @@ void draw_sprite(SDL_Surface *GFX_lpdest, int h)
 }
 
 
-	void place_sprites(void )
+/**
+ * Draw all screen sprites, ordered by queue.
+ * 
+ * Also cf. game's place_sprites_game(...) and
+ * place_sprites_game_background(...).
+ */
+void place_sprites()
+{
+  int rank[MAX_SPRITES_EDITOR];
+  screen_rank_map_sprites(rank);
+  
+  int r1 = 0;
+  for (; r1 < MAX_SPRITES_EDITOR && rank[r1] > 0; r1++)
+    {
+      //Msg("Ok, rank[%d] is %d.",oo,rank[oo]);
+      int j = rank[r1];
+      
+      if (pam.sprite[j].active == 1
+	  && (pam.sprite[j].vision == 0 || pam.sprite[j].vision == map_vision))
 	{
-		int sprite;
-		int que;
-	int highest_sprite;
-	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
-	int rank[MAX_SPRITES_AT_ONCE];
-	int r1;
+	  //we have instructions to make a sprite
+	  
+	  if (pam.sprite[j].type == 0 || pam.sprite[j].type == 2)
+	    {
+	      //make it part of the background (much faster)
+	      int sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y, 0,
+					   pam.sprite[j].seq,pam.sprite[j].frame,
+					   pam.sprite[j].size);
 
-	memset(&bs,0,sizeof(bs));
-
-		for (r1 = 1; r1 < 100; r1++)
+	      spr[sprite].hard = pam.sprite[j].hard;
+	      check_sprite_status(sprite);
+	      spr[sprite].sp_index = j;
+	      rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
+	      
+	      if (pam.sprite[j].type == 0)
+		draw_sprite(GFX_lpDDSTwo, sprite);
+	      
+	      if (spr[sprite].hard == 0)
 		{
-		  int h1;
-
-			highest_sprite = 2000; //more than it could ever be
-
-			rank[r1] = 0;
-
-			for (h1 = 1; h1 < 100;  h1++)
-			{
-					if (bs[h1] == /*FALSE*/0)
-					{
-						if (pam.sprite[h1].que == 0) que = pam.sprite[h1].y; else
-
-						{
-							que = pam.sprite[h1].que;
-				//		Msg("hahha.. que is not 0.");
-
-						}
-
-							if ( que < highest_sprite )
-						{
-							highest_sprite = que;
-							rank[r1] = h1;
-						}
-
-					}
-
-
-			}
-			if (rank[r1] != 0)
-				bs[rank[r1]] = /*TRUE*/1;
+		  if (pam.sprite[j].prop == 0)
+		    add_hardness(sprite, 1);
+		  else add_hardness(sprite, 100 + j);
 		}
-
-
-
-
-		int j, oo;
-
-		for (oo =1; rank[oo] > 0; oo++)
+	      
+	      spr[sprite].active = 0;
+	    }
+	  
+	  if (pam.sprite[j].type == 1)
+	    {
+	      //make it a living sprite
+	      
+	      int sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y, 0,
+					   pam.sprite[j].seq,pam.sprite[j].frame,
+					   pam.sprite[j].size);
+	      
+	      spr[sprite].que = pam.sprite[j].que;
+	      check_sprite_status(sprite);
+	      spr[sprite].hard = pam.sprite[j].hard;
+	      
+	      rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
+	      
+	      if (spr[sprite].hard == 0)
 		{
-//Msg("O				k, rank[%d] is %d.",oo,rank[oo]);
-			j = rank[oo];
-
-			if (j >= MAX_SPRITES_AT_ONCE)
-			{
-          j = 1;
-		  log_warn("Trying to process sprite %d, why?",j);
-			}
-
-			if (pam.sprite[j].active == /*true*/1) if ( ( pam.sprite[j].vision == 0) || (pam.sprite[j].vision == map_vision))
-			{
-				//we have instructions to make a sprite
-
-				if (  (pam.sprite[j].type == 0)  | (pam.sprite[j].type == 2) )
-				{
-				//make it part of the background (much faster)
-
-				sprite = add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
-				pam.sprite[j].seq,pam.sprite[j].frame,
-				pam.sprite[j].size);
-				spr[sprite].hard = pam.sprite[j].hard;
-
-			    check_sprite_status(sprite);
-				spr[sprite].sp_index = j;
-
-				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
-
-				if (pam.sprite[j].type == 0)
-				  draw_sprite(GFX_lpDDSTwo, sprite);
-
-
-				if (spr[sprite].hard == 0)
-				{
-				if (pam.sprite[j].prop == 0)
-					add_hardness(sprite, 1); else add_hardness(sprite,100+j);
-
-
-				}
-
-
-				spr[sprite].active = /*false*/0;
-				}
-
-				if (pam.sprite[j].type == 1)
-				{
-				//make it a living sprite
-
-				sprite =	add_sprite_dumb(pam.sprite[j].x,pam.sprite[j].y,0,
-					pam.sprite[j].seq,pam.sprite[j].frame,
-					pam.sprite[	j].size);
-
-				spr[sprite].que = pam.sprite[j].que;
-				check_sprite_status(sprite);
-				spr[sprite].hard = pam.sprite[j].hard;
-
-				rect_copy(&spr[sprite].alt , &pam.sprite[j].alt);
-
-				if (spr[sprite].hard == 0)
-				{
-				if (pam.sprite[j].prop == 0)
-					add_hardness(sprite, 1); else add_hardness(sprite,100+j);
-
-
-				}
-
-
-
-
-				}
-			}
-
+		  if (pam.sprite[j].prop == 0)
+		    add_hardness(sprite, 1); else add_hardness(sprite,100+j);
 		}
-
-
+	    }
 	}
+    }
+}
 
 
 

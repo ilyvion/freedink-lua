@@ -87,11 +87,9 @@ extern int add_callback(char name[20], int n1, int n2, int script);
 extern void kill_callback(int cb);
 extern void kill_callbacks_owned_by_script(int script);
 extern void kill_script(int k);
-extern void kill_all_scripts(void);
 extern void kill_all_scripts_for_real(void);
 extern char* read_next_line(int script);
 extern void process_callbacks(void);
-extern void init_scripts(void);
 extern int var_exists(char name[20], int scope);
 extern void make_int(char name[80], int value, int scope, int script);
 extern void var_equals(char name[20], char newname[20], char math, int script, char rest[200]);
@@ -102,6 +100,10 @@ extern void run_script(int script);
 extern void attach(void);
 extern void int_prepare(char line[100], int script);
 extern void make_function(char file[10], char func[20]);
+
+/* Used by gfx_tiles.c only */
+extern void kill_all_scripts(void);
+extern void init_scripts(void);
 
 extern int returnint;
 extern int bKeepReturnInt; /* v1.08 */

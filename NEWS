@@ -19,6 +19,8 @@
   DEBUG.TXT. In addition DinkC errors often carry the line number
   (rather than the binary offset).
 
+- Dink doesn't crash on very long lines in dink.ini or DinkC scripts
+
 * Developer notes:
 
 - Dropped libffi dependency to support more architectures

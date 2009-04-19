@@ -37,6 +37,7 @@
 
 #include "dinkvar.h"
 #include "game_engine.h"
+#include "screen.h"
 #include "freedink.h"
 #include "gfx.h"
 /* For printing strings in debug mode */
@@ -88,12 +89,8 @@ void updateFrame( void )
        copying the screen to lpDDSTrick2 */
     /*bool*/int get_frame = /*false*/0;
 
-	int h,max_s,j;
-	//HBRUSH brush;
-	/*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
-	
+	int max_s;
 	int rank[MAX_SPRITES_AT_ONCE];
-	int highest_sprite;
 	
 	abort_this_flip = /*false*/0;
 	
@@ -305,89 +302,18 @@ trigger_start:
 	
 	
 	if (plane_process)
-	{
-		
-		memset(&bs,0,sizeof(bs));
-		
-		max_s = last_sprite_created;
-		
-		int height;
-		int r1;
-		for (r1 = 1; r1 < max_s+1; r1++)
-		{
-		  int h1;
-			highest_sprite = 22024; //more than it could ever be
-			
-			rank[r1] = 0;
-			
-			for (h1 = 1; h1 < max_s+1; h1++)
-			{
-				if (spr[h1].active) if (spr[h1].disabled == /*false*/0)
-				{ 
-					if (bs[h1] == /*FALSE*/0)
-					{
-						//Msg( "Ok,  %d is %d", h1,(spr[h1].y + k[spr[h1].pic].yoffset) );
-						if (spr[h1].que != 0) height = spr[h1].que; else height = spr[h1].y;
-						if ( height < highest_sprite )
-						{
-							highest_sprite = height;
-							rank[r1] = h1;
-						}
-						
-					}
-					
-				}
-				
-			}
-			if (rank[r1] != 0)	
-				bs[rank[r1]] = /*TRUE*/1;
-			
-		}
-		
-	} else
-	{
-		//not processing planes
-		max_s = MAX_SPRITES_AT_ONCE;
-	}
+	  {
+	    max_s = last_sprite_created;
+	    screen_rank_game_sprites(rank);
+	  }
+	else
+	  {
+	    //not processing planes
+	    max_s = MAX_SPRITES_AT_ONCE;
+	  }
 	
-/*     rcRect.left = 0; */
-/*     rcRect.top = 0; */
-/*     rcRect.right = x; */
-/*     rcRect.bottom = y; */
-	
-	{
-		
-		
-		//Blit from Two, which holds the base scene.
-/* 		while( 1 ) */
-/* 		{ */
-/* 			ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
-/* 				&rcRect, DDBLTFAST_NOCOLORKEY); */
-			// GFX
-			SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
-			
-/* 			if( ddrval == DD_OK ) */
-/* 			{ */
-/* 				break; */
-/* 			} */
-/* 			if( ddrval == DDERR_SURFACELOST ) */
-/* 			{ */
-/* 				ddrval = restoreAll(); */
-/* 				if( ddrval != DD_OK ) */
-/* 				{ */
-/* 					//    return; */
-/* 				} */
-				
-/* 				goto demon; */
-/* 			} */
-/* 			if( ddrval != DDERR_WASSTILLDRAWING ) */
-/* 			{ */
-/* 				dderror(ddrval); */
-/* 				return; */
-/* 			} */
-/* 		} */
-		
-	}
+	//Blit from Two, which holds the base scene.
+	SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	
 	
 	if (stop_entire_game == 1)
@@ -409,16 +335,19 @@ trigger_start:
 	
 	
 	
-	
-	for ( j = 1; j < max_s+1; j++)
+	int j = 0;
+	for (; j <= max_s; j++)
 	{
 		//h  = 1;
+		int h = 0;
 		if (plane_process)
-			h = rank[j]; else h = j;
+		  h = rank[j];
+		else
+		  h = j;
 		//Msg( "Ok, rank %d is %d", j,h);
 		
 		if (h > 0) 
-			if (spr[h].active)
+			if (spr[h].active && spr[h].disabled == 0)
 			{
 				
 				//check_sprite_status_full(h);
@@ -809,7 +738,7 @@ past:
 					}
 				}         
 }
- }								
+} /* for 0->max_s */
 
  
 	if (mode == 0)
@@ -995,28 +924,17 @@ past:
 	  print_text_wrap_debug(retval, 20, 360);
 	}
 
-		
-		for ( j = 1; j < max_s+1; j++)
-		{
-			if (plane_process)
-				h = rank[j]; else h = j;
-			if (h > 0) 
-				if (spr[h].active)
-				{
-					if (spr[h].brain == 8) 
-					{
-						//Msg("Drawing text %d..", h);
-/*  						text_draw(h,hdc); */
- 						text_draw(h);
-					}
-
-                }
-/*         } */
-        
-        
-/*         lpDDSBack->ReleaseDC(hdc); */
-        
-    }
+	int j2 = 0;
+	for (; j2 <= max_s; j2++)
+	  {
+	    int h = 0;
+	    if (plane_process)
+	      h = rank[j2];
+	    else
+	      h = j2;
+	    if (h > 0 && spr[h].active && spr[h].brain == 8)
+	      text_draw(h);
+	  }
     
     
 	if (talk.active) process_talk();
