@@ -154,10 +154,12 @@ struct player_info
   int die, size, defense, dir, pframe, pseq, seq, frame, strength,
     base_walk, base_idle, base_hit, que;
   
-  struct item_struct mitem[NB_MITEMS+1]; //added one to these, because I don't like referring to a 0 item
-  struct item_struct item[NB_ITEMS+1];
+  struct item_struct mitem[NB_MITEMS];
+  struct item_struct item[NB_ITEMS];
   
-  int curitem, unused;
+  int curitem; // highlighted item in the inventory
+  BOOL_1BYTE item_magic; // 1 if it's a magic item, 0 if regular
+
   int counter;
   BOOL_1BYTE idle;
   struct mydata spmap[769];
@@ -170,7 +172,6 @@ struct player_info
   int last_talk;
   int mouse; /* vertical position of the mouse when selecting a dialog
 		option */
-  BOOL_1BYTE item_magic;
   int last_map;
   int crap;
   int buff[95];

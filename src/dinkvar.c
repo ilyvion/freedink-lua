@@ -85,7 +85,7 @@
 int g_b_kill_app = 0;
 
 int dinkspeed = 3;
-/*bool*/int item_screen = /*false*/0;
+int show_inventory = 0; // display inventory?
 
 void update_status_all(void);
 int add_sprite(int x1, int y, int brain,int pseq, int pframe );
@@ -122,9 +122,6 @@ struct talk_struct talk;
 
 int mbase_timing;
 unsigned long mold;
-
-int item_timer;
-int item_pic;
 
 int mbase_count;
 
@@ -1243,7 +1240,9 @@ void save_info(void)
   play.que = read_lsb_int(f);
   // offset 264
 
-  for (i = 0; i < NB_MITEMS+1; i++)
+  // skip first originally unused mitem entry
+  fseek(f, 20, SEEK_CUR);
+  for (i = 0; i < NB_MITEMS; i++)
     {
       play.mitem[i].active = fgetc(f);
       fread(play.mitem[i].name, 11, 1, f);
@@ -1252,7 +1251,9 @@ void save_info(void)
       play.mitem[i].seq = read_lsb_int(f);
       play.mitem[i].frame = read_lsb_int(f);
     }
-  for (i = 0; i < NB_ITEMS+1; i++)
+  // skip first originally unused item entry
+  fseek(f, 20, SEEK_CUR);
+  for (i = 0; i < NB_ITEMS; i++)
     {
       play.item[i].active = fgetc(f);
       fread(play.item[i].name, 11, 1, f);
@@ -1262,8 +1263,8 @@ void save_info(void)
     }
   // offset 784
 
-  play.curitem = read_lsb_int(f);
-  play.unused = read_lsb_int(f);
+  play.curitem = read_lsb_int(f) - 1;
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
   play.counter = read_lsb_int(f);
   play.idle = fgetc(f);
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
@@ -1414,9 +1415,9 @@ void save_info(void)
   log_debug("Attached vars.");
   dinkspeed = 3;
   
-  if (*pcur_weapon != 0)
+  if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS)
     {
-      if (play.item[*pcur_weapon].active == /*false*/0)
+      if (play.item[*pcur_weapon - 1].active == 0)
 	{
 	  *pcur_weapon = 1;
 	  weapon_script = 0;
@@ -1424,17 +1425,17 @@ void save_info(void)
 	}
       else
 	{
-	  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
 	  if (locate(weapon_script, "DISARM"))
 	    run_script(weapon_script);
-	  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
 	  if (locate(weapon_script, "ARM"))
 	    run_script(weapon_script);
 	}
     }
-  if (*pcur_magic != 0)
+  if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS)
     {
-      if (play.item[*pcur_magic].active == /*false*/0)
+      if (play.item[*pcur_magic - 1].active == /*false*/0)
 	{
 	  *pcur_magic = 0;
 	  magic_script = 0;
@@ -1443,10 +1444,10 @@ void save_info(void)
       else
 	{
 	  
-	  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
 	  if (locate(magic_script, "DISARM"))
 	    run_script(magic_script);
-	  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
 	  if (locate(magic_script, "ARM"))
 	    run_script(magic_script);
 	}
@@ -1569,14 +1570,18 @@ void save_game(int num)
   write_lsb_int(play.que, f);
   // offset 264
 
-  for (i = 0; i < NB_MITEMS+1; i++)
+  // skip first originally unused mitem entry
+  fseek(f, 20, SEEK_CUR);
+  for (i = 0; i < NB_MITEMS; i++)
     {
       fputc(play.mitem[i].active, f);
       fwrite(play.mitem[i].name, 11, 1, f);
       write_lsb_int(play.mitem[i].seq, f);
       write_lsb_int(play.mitem[i].frame, f);
     }
-  for (i = 0; i < NB_ITEMS+1; i++)
+  // skip first originally unused item entry
+  fseek(f, 20, SEEK_CUR);
+  for (i = 0; i < NB_ITEMS; i++)
     {
       fputc(play.item[i].active, f);
       fwrite(play.item[i].name, 11, 1, f);
@@ -1585,8 +1590,8 @@ void save_game(int num)
     }
   // offset 784
 
-  write_lsb_int(play.curitem, f);
-  write_lsb_int(play.unused, f);
+  write_lsb_int(play.curitem + 1, f);
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
   write_lsb_int(play.counter, f);
   fputc(play.idle, f);
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
@@ -1664,41 +1669,39 @@ void save_game(int num)
 
 
 
-void kill_all_vars(void)
+void kill_all_vars()
 {
   memset(&play, 0, sizeof(play));
 }
 
-void kill_cur_item( void )
+void kill_cur_item()
 {
-
-        if (*pcur_weapon != 0)
-        {
-                if (play.item[*pcur_weapon].active == /*true*/1)
-                {
-
-                        if (weapon_script != 0) if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-                        weapon_script = load_script(play.item[*pcur_weapon].name, 0, /*false*/0);
-                        play.item[*pcur_weapon].active = /*false*/0;
-                        *pcur_weapon = 0;
-                        if (weapon_script != 0) if (locate(weapon_script, "HOLDINGDROP")) run_script(weapon_script);
-
-                        if (weapon_script != 0) if (locate(weapon_script, "DROP")) run_script(weapon_script);
-                        weapon_script = 0;
-                } else
-                {
-                        log_error("Can't kill cur item, none armed.");
-                }
-        }
+  if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS)
+    {
+      if (play.item[*pcur_weapon - 1].active == 1)
+	{
+	  if (weapon_script != 0 && locate(weapon_script, "DISARM"))
+	    run_script(weapon_script);
+	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 0, /*false*/0);
+	  play.item[*pcur_weapon - 1].active = 0;
+	  *pcur_weapon = 0;
+	  if (weapon_script != 0 && locate(weapon_script, "HOLDINGDROP"))
+	    run_script(weapon_script);
+	  if (weapon_script != 0 && locate(weapon_script, "DROP"))
+	    run_script(weapon_script);
+	  weapon_script = 0;
+	}
+      else
+	{
+	  log_error("Can't kill cur item, none armed.");
+	}
+    }
 }
 
-
-
-void kill_cur_item_script( char name[20])
+void kill_cur_item_script(char* name)
 {
   int select = 0;
-  int i;
-  for (i = 1; i < 17; i++)
+  for (int i = 0; i < NB_ITEMS; i++)
     {
       if (play.item[i].active)
 	if (compare(play.item[i].name, name))
@@ -1710,36 +1713,32 @@ void kill_cur_item_script( char name[20])
   return;
 
  found:
+  if (*pcur_weapon - 1 == select)
+    {
+      //holding it right now
+      if (locate(weapon_script, "HOLDINGDROP"))
+	run_script(weapon_script);
+      if (locate(weapon_script, "DISARM"))
+	run_script(weapon_script);
+      
+      *pcur_weapon = 0;
+      weapon_script = 0;
+    }
 
-        if (*pcur_weapon == select)
+  int script = load_script(play.item[select].name, 0, /*false*/0);
+  play.item[select].active = /*false*/0;
 
-        {
-                //holding it right now
-                if (locate(weapon_script, "HOLDINGDROP")) run_script(weapon_script);
-                if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-
-
-                *pcur_weapon = 0;
-                weapon_script = 0;
-        }
-
-        int script = load_script(play.item[select].name, 0, /*false*/0);
-        play.item[select].active = /*false*/0;
-
-
-
-        if (locate(script, "DROP")) run_script(script);
-
-        draw_status_all();
-
+  if (locate(script, "DROP"))
+    run_script(script);
+  
+  draw_status_all();
 }
 
 
-void kill_cur_magic_script( char name[20])
+void kill_cur_magic_script(char* name)
 {
   int select = 0;
-  int i;
-  for (i = 1; i < 9; i++)
+  for (int i = 0; i < NB_MITEMS; i++)
     {
       if (play.mitem[i].active)
 	if (compare(play.mitem[i].name, name))
@@ -1749,55 +1748,55 @@ void kill_cur_magic_script( char name[20])
 	  }
     }
   return;
+  
+ found:
+  if (*pcur_magic - 1 == select)
+    {
+      //holding it right now
+      if (locate(magic_script, "HOLDINGDROP"))
+	run_script(magic_script);
+      if (locate(magic_script, "DISARM"))
+	run_script(magic_script);
 
-found:
+      // TODO: this should be *pcur_magic; keeping for compatibility
+      // for now:
+      *pcur_weapon = 0;
+      magic_script = 0;
+    }
+  
+  int script = load_script(play.mitem[select].name, 0, /*false*/0);
+  play.mitem[select].active = 0;
 
-        if (*pcur_magic == select)
+  if (locate(script, "DROP"))
+    run_script(script);
 
-        {
-                //holding it right now
-                if (locate(magic_script, "HOLDINGDROP")) run_script(magic_script);
-                if (locate(magic_script, "DISARM")) run_script(magic_script);
-
-
-                *pcur_weapon = 0;
-                magic_script = 0;
-        }
-
-        int script = load_script(play.mitem[select].name, 0, /*false*/0);
-        play.mitem[select].active = /*false*/0;
-
-
-        if (locate(script, "DROP")) run_script(script);
-
-        draw_status_all();
-
+  draw_status_all();
 }
 
 
-
-
-void kill_cur_magic( void )
+void kill_cur_magic()
 {
-
-        if (*pcur_magic != 0)
-        {
-                if (play.mitem[*pcur_magic].active == /*true*/1)
-                {
-
-                        if (magic_script != 0) if (locate(magic_script, "DISARM")) run_script(magic_script);
-                        magic_script = load_script(play.mitem[*pcur_magic].name, 0, /*false*/0);
-                        play.mitem[*pcur_magic].active = /*false*/0;
-                        *pcur_magic = 0;
-
-                        if (magic_script != 0) if (locate(magic_script, "HOLDINGDROP")) run_script(magic_script);
-                        if (magic_script != 0) if (locate(magic_script, "DROP")) run_script(magic_script);
-                        magic_script = 0;
-                } else
-                {
-                        log_error("Can't kill cur magic, none armed.");
-                }
-        }
+  if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS)
+    {
+      if (play.mitem[*pcur_magic - 1].active == 1)
+	{
+	  if (magic_script != 0 && locate(magic_script, "DISARM"))
+	    run_script(magic_script);
+	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 0, /*false*/0);
+	  play.mitem[*pcur_magic - 1].active = /*false*/0;
+	  *pcur_magic = 0;
+	  
+	  if (magic_script != 0 && locate(magic_script, "HOLDINGDROP"))
+	    run_script(magic_script);
+	  if (magic_script != 0 && locate(magic_script, "DROP"))
+	    run_script(magic_script);
+	  magic_script = 0;
+	}
+      else
+	{
+	  log_error("Can't kill cur magic, none armed.");
+	}
+    }
 }
 
 
@@ -2469,44 +2468,24 @@ void draw_health( void )
         draw_bar(flife, 451);
 }
 
-void draw_icons( void )
+void draw_icons()
 {
-  if (*pcur_weapon != 0 && play.item[*pcur_weapon].active)
+  if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS && play.item[*pcur_weapon - 1].active)
     {
       //disarm old weapon
-      //play.item[*pcur_weapon].seq,
-/*     again: */
-
-      check_seq_status(play.item[*pcur_weapon].seq);
-
-/*       ddrval = lpDDSTwo->BltFast(557, 413, k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k, */
-/* 				 &k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].box, */
-/* 				 DDBLTFAST_SRCCOLORKEY); */
-/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again; */
-      // GFX
-      {
-	SDL_Rect dst = {557, 413};
-	SDL_BlitSurface(GFX_k[seq[play.item[*pcur_weapon].seq].frame[play.item[*pcur_weapon].frame]].k, NULL,
-			GFX_lpDDSTwo, &dst);
-      }
+      check_seq_status(play.item[*pcur_weapon - 1].seq);
+      SDL_Rect dst = {557, 413};
+      SDL_BlitSurface(GFX_k[seq[play.item[*pcur_weapon - 1].seq].frame[play.item[*pcur_weapon - 1].frame]].k, NULL,
+		      GFX_lpDDSTwo, &dst);
     }
 
-  if (*pcur_magic != 0 && play.mitem[*pcur_magic].active)
+  if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS && play.mitem[*pcur_magic - 1].active)
     {
       //disarm old weapon
-      //play.mitem[*pcur_magic].seq,
-      check_seq_status(play.mitem[*pcur_magic].seq);
-
-/*     again2: */
-/*       ddrval = lpDDSTwo->BltFast( 153, 413, k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k, */
-/* 				  &k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].box, DDBLTFAST_SRCCOLORKEY); */
-/*       if (ddrval == DDERR_WASSTILLDRAWING) goto again2; */
-      // GFX
-      {
-	SDL_Rect dst = {153, 413};
-	SDL_BlitSurface(GFX_k[seq[play.mitem[*pcur_magic].seq].frame[play.mitem[*pcur_magic].frame]].k, NULL,
-			GFX_lpDDSTwo, &dst);
-      }
+      check_seq_status(play.mitem[*pcur_magic - 1].seq);
+      SDL_Rect dst = {153, 413};
+      SDL_BlitSurface(GFX_k[seq[play.mitem[*pcur_magic - 1].seq].frame[play.mitem[*pcur_magic - 1].frame]].k, NULL,
+		      GFX_lpDDSTwo, &dst);
     }
 }
 
@@ -3671,7 +3650,7 @@ void update_status_all(void)
         }
 
         if (*pexper != fexp
-	    && ((talk.active == false && item_screen == false && spr[1].freeze == 0)
+	    && ((talk.active == 0 && show_inventory == 0 && spr[1].freeze == 0)
 		|| fexp + 10 < fraise))
 
         {
@@ -3759,7 +3738,7 @@ void update_status_all(void)
 
         if (*pmagic_level < *pmagic_cost)
         {
-                if (item_screen == /*false*/0)
+                if (show_inventory == 0)
                         *pmagic_level += *pmagic;
                 if (*pmagic_level > *pmagic_cost) *pmagic_level = *pmagic_cost;
         }
@@ -3954,55 +3933,55 @@ void copy_bmp( char name[80])
         }
 
 
-        void add_item(char* name, int mseq, int mframe, enum item_type type)
-        {
-                if (type == ITEM_REGULAR)
-                {
-                        //add reg item
-		  int i;
-                        for (i = 1; i < 17; i ++)
-                        {
-                                if (play.item[i].active == /*false*/0)
-                                {
-				  log_info("Weapon/item %s added to inventory.",name);
-                                        play.item[i].seq = mseq;
-                                        play.item[i].frame = mframe;
-                                        strncpy(play.item[i].name, name, sizeof(play.item[i].name));
-					play.item[i].name[sizeof(play.item[i].name)-1] = '\0';
-                                        play.item[i].active = /*true*/1;
-
-                                        int crap1 = load_script(play.item[i].name, 1000, /*false*/0);
-                                        if (locate(crap1, "PICKUP")) run_script(crap1);
-
-                                        return;
-                                }
-                        }
-
-                } else
-                {
-                        //add magic item
-		  int i;
-                        for (i = 1; i < 9; i ++)
-                        {
-                                if (play.mitem[i].active == /*false*/0)
-                                {
-				  log_info("Magic %s added to inventory.",name);
-                                        play.mitem[i].seq = mseq;
-                                        play.mitem[i].frame = mframe;
-                                        strncpy(play.mitem[i].name, name, sizeof(play.mitem[i].name));
-					play.mitem[i].name[sizeof(play.mitem[i].name)-1] = '\0';
-                                        play.mitem[i].active = /*true*/1;
-
-                                        int crap = load_script(play.mitem[i].name, 1000, /*false*/0);
-                                        if (locate(crap, "PICKUP")) run_script(crap);
-
-                                        return;
-                                }
-                        }
-
-
-                }
-        }
+void add_item(char* name, int mseq, int mframe, enum item_type type)
+{
+  if (type == ITEM_REGULAR)
+    {
+      //add reg item
+      int i;
+      for (i = 0; i < NB_ITEMS; i++)
+	{
+	  if (play.item[i].active == 0)
+	    {
+	      log_info("Weapon/item %s added to inventory.", name);
+	      play.item[i].seq = mseq;
+	      play.item[i].frame = mframe;
+	      strncpy(play.item[i].name, name, sizeof(play.item[i].name));
+	      play.item[i].name[sizeof(play.item[i].name)-1] = '\0';
+	      play.item[i].active = 1;
+	      
+	      int crap1 = load_script(play.item[i].name, 1000, /*false*/0);
+	      if (locate(crap1, "PICKUP"))
+		run_script(crap1);
+	      
+	      break;
+	    }
+	}
+    }
+  else
+    {
+      //add magic item
+      int i;
+      for (i = 0; i < NB_MITEMS; i++)
+	{
+	  if (play.mitem[i].active == 0)
+	    {
+	      log_info("Magic %s added to inventory.", name);
+	      play.mitem[i].seq = mseq;
+	      play.mitem[i].frame = mframe;
+	      strncpy(play.mitem[i].name, name, sizeof(play.mitem[i].name));
+	      play.mitem[i].name[sizeof(play.mitem[i].name)-1] = '\0';
+	      play.mitem[i].active = 1;
+	      
+	      int crap = load_script(play.mitem[i].name, 1000, /*false*/0);
+	      if (locate(crap, "PICKUP"))
+		run_script(crap);
+	      
+	      break;
+	    }
+	}
+    }
+}
 
 void fill_screen(int num)
 {

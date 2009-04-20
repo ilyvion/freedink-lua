@@ -281,7 +281,7 @@ trigger_start:
 	//figure out frame rate
 	drawthistime = /*true*/1;
 	
-	if (item_screen)
+	if (show_inventory)
 	{
 		process_item();
 		return;

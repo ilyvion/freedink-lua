@@ -725,29 +725,25 @@ void dc_draw_screen(int script, int* yield, int* preturnint)
 
 void dc_free_items(int script, int* yield, int* preturnint)
 {
-  int i;
   *preturnint = 0;
-  for (i = 1; i < 17; i ++)
+  int i = 0;
+  for (; i < NB_ITEMS; i++)
     {
-      if (play.item[i].active == /*false*/0)
-	{
-	  *preturnint += 1;
-	}
+      if (play.item[i].active == 0)
+	*preturnint += 1;
     }
   return;
 }
 
 void dc_free_magic(int script, int* yield, int* preturnint)
 {
-  int i;
   *preturnint = 0;
 
-  for (i = 1; i < 9; i ++)
+  int i = 0;
+  for (; i < NB_MITEMS; i ++)
     {
-      if (play.mitem[i].active == /*false*/0)
-	{
-	  *preturnint += 1;
-	}
+      if (play.mitem[i-1].active == 0)
+	*preturnint += 1;
     }
   return;
 }
@@ -777,7 +773,7 @@ void dc_arm_weapon(int script, int* yield, int* preturnint)
   if (weapon_script != 0 && locate(weapon_script, "DISARM"))
     run_script(weapon_script);
 
-  weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
+  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
   if (locate(weapon_script, "ARM"))
     run_script(weapon_script);
 
@@ -789,7 +785,7 @@ void dc_arm_magic(int script, int* yield, int* preturnint)
   if (magic_script != 0 && locate(magic_script, "DISARM"))
     run_script(magic_script);
     
-  magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
+  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
   if (locate(magic_script, "ARM"))
     run_script(magic_script);
     
@@ -994,7 +990,7 @@ void dc_count_item(int script, int* yield, int* preturnint, char* dcscript)
 {
   int i;
   *preturnint = 0;
-  for (i = 1; i < 17; i++)
+  for (i = 0; i < NB_ITEMS; i++)
     {
       if (play.item[i].active
 	  && compare(play.item[i].name, dcscript))
@@ -1006,7 +1002,7 @@ void dc_count_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
   int i;
   *preturnint = 0;
-  for (i = 1; i < 9; i++)
+  for (i = 0; i < NB_MITEMS; i++)
     {
       if (play.mitem[i].active
 	  && compare(play.mitem[i].name, dcscript))
@@ -1049,30 +1045,31 @@ void dc_compare_sprite_script(int script, int* yield, int* preturnint, int sprit
 void dc_compare_weapon(int script, int* yield, int* preturnint, char* dcscript)
 {
   *preturnint = 0;
-  if (*pcur_weapon == 0)
-    return;
-
-  if (compare(play.item[*pcur_weapon].name, dcscript))
-    *preturnint = 1;
+  if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS)
+    {
+      if (compare(play.item[*pcur_weapon - 1].name, dcscript))
+	*preturnint = 1;
+    }
 }
 
 void dc_compare_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
   *preturnint = 0;
-  if (*pcur_magic == 0)
-    return;
- 
-  if (dversion >= 108)
+
+  if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS)
     {
-      if (compare(play.mitem[*pcur_magic].name, dcscript))
-	*preturnint = 1;
-    }
-  else
-    {
-      /* reproduce v1.07 bug: compare with regular item rather than
-	 magic item */
-      if (compare(play.item[*pcur_magic].name, dcscript))
-	*preturnint = 1;
+      if (dversion >= 108)
+	{
+	  if (compare(play.mitem[*pcur_magic - 1].name, dcscript))
+	    *preturnint = 1;
+	}
+      else
+	{
+	  /* reproduce v1.07 bug: compare with regular item rather than
+	     magic item */
+	  if (compare(play.item[*pcur_magic - 1].name, dcscript))
+	    *preturnint = 1;
+	}
     }
 }
 
@@ -1686,7 +1683,7 @@ void dc_show_console(int script, int* yield, int* preturnint)
 
 void dc_show_inventory(int script, int* yield, int* preturnint)
 {
-    item_screen = 1;
+    show_inventory = 1;
 }
 
 void dc_var_used(int script, int* yield, int* preturnint)
@@ -1821,12 +1818,12 @@ void dc_get_item(int script, int* yield, int* preturnint, char* dcscript)
 {
   // get index of specified item
   *preturnint = 0;
-  for (int i = 1; i < 17; i++)
+  for (int i = 0; i < NB_ITEMS; i++)
     {
       if (play.item[i].active
 	  && compare(play.item[i].name, dcscript))
 	{
-	  *preturnint = i;
+	  *preturnint = i + 1;
 	  break;
 	}
     }
@@ -1836,12 +1833,12 @@ void dc_get_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
   // get index of specified magic spell
   *preturnint = 0;
-  for (int i = 1; i < 9; i++)
+  for (int i = 0; i < NB_MITEMS; i++)
     {
       if (play.mitem[i].active
 	  && compare(play.mitem[i].name, dcscript))
 	{
-	  *preturnint = i;
+	  *preturnint = i + 1;
 	  break;
 	}
     }

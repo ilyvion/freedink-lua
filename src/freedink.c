@@ -79,6 +79,10 @@ int cx;
 int cy;
 int speed;
 
+/* Blinking selector in the inventory screen */
+int item_timer;
+int item_pic;
+
 
 /* Fills 'struct seth_joy sjoy' with the current keyboard and/or
    joystick state */
@@ -968,7 +972,7 @@ void duck_brain(int h)
 	
 	if (   (spr[h].damage > 0) && (in_this_base(spr[h].pseq, spr[h].base_walk)  ) )
 	{
-		//SoundPlayEffect( 1,3000, 800 );  
+		//SoundPlayEffect( 1,3000, 800 );
 		draw_damage(h);
 		add_exp(spr[h].exp, h);
 		spr[h].damage = 0;
@@ -1135,7 +1139,7 @@ void pill_brain(int h)
 	if  (spr[h].damage > 0)
 	{
 		//got hit
-		//SoundPlayEffect( 1,3000, 800 );  
+		//SoundPlayEffect( 1,3000, 800 );
 		if (spr[h].hitpoints > 0)
 		{
 			draw_damage(h);
@@ -1367,7 +1371,7 @@ void people_brain(int h)
 	if  (spr[h].damage > 0)
 	{
 		//got hit
-		//SoundPlayEffect( 1,3000, 800 );  
+		//SoundPlayEffect( 1,3000, 800 );
 		if (spr[h].hitpoints > 0)
 		{
 			draw_damage(h);
@@ -1536,7 +1540,7 @@ void dragon_brain(int h)
 	if  (spr[h].damage > 0)
 	{
 		//got hit
-		//SoundPlayEffect( 1,3000, 800 );  
+		//SoundPlayEffect( 1,3000, 800 );
 		if (spr[h].hitpoints > 0)
 		{
 			draw_damage(h);
@@ -1666,7 +1670,7 @@ void pig_brain(int h)
 	
 	if (   (spr[h].damage > 0) )
 	{
-		//SoundPlayEffect( 1,3000, 800 );  
+		//SoundPlayEffect( 1,3000, 800 );
 		draw_damage(h);
 		spr[h].hitpoints -= spr[h].damage;
 		spr[h].damage = 0;
@@ -2834,7 +2838,7 @@ shootm:
 	    }
 	}
       
-      item_screen = /*true*/1;
+      show_inventory = 1;
       SoundPlayEffect(18, 22050,0,0,0);
       return;
     }
@@ -4631,322 +4635,250 @@ void button_brain(int h )
 	
 }
 
-void draw_item(int num, /*bool*/int magic, int mseq, int mframe)
+/**
+ * Draw an item icon (or an item selection square) in the inventory
+ * screen
+ */
+void draw_item(int item_idx0, enum item_type type, int mseq, int mframe)
 {
-	int mx = 20;
-	int my = 0;
-	int vert = 0;
-	if (magic == /*false*/0)
+  int mx = 0;
+  int my = 0;
+
+  if (type == ITEM_REGULAR)
+    {
+      mx = 260;
+      my = 83;
+      
+      mx += (item_idx0 % 4) * (18 + 65);
+      my += (item_idx0 / 4) * (20 + 55);
+    }
+  else
+    {
+      mx = 45;
+      my = 83;
+      
+      mx += (item_idx0 % 2) * (18 + 65);
+      my += (item_idx0 / 2) * (20 + 55);
+    }
+	
+  check_seq_status(mseq);
+	
+  if (GFX_k[seq[mseq].frame[mframe]].k == NULL) 
+    {
+      if (type == ITEM_REGULAR)
 	{
-		mx = 260;
-		my = 83;
-		
-		vert = ((num-1) / 4);
-		mx += (((num-1) - (vert * 4)) * (18 + 65));
-		my += (vert * (20 + 55));
-	} else
-	{
-		mx = 45;
-		my = 83;
-		
-		vert = ((num-1) / 2);
-		mx += (((num-1) - (vert * 2)) * (18 + 65));
-		my += (vert * (20 + 55));
-		
-		
+	  log_debug("Whups, item %d seq %d frame %d not loaded, killed it",
+		    item_idx0, mseq, mframe);
+	  play.item[item_idx0].active = 0;
 	}
-	
-/* again: */
-	
-	check_seq_status(mseq);
-	
-	if (GFX_k[seq[mseq].frame[mframe]].k == NULL) 
+      else
 	{
-		
-		if (!magic)
-		{
-			log_debug("Whups, item %d seq %d frame %d not loaded, killed it",
-				  num, mseq, mframe);
-			play.item[num].active = /*false*/0;
-		} else
-		{
-			log_debug("Whups, magic %d seq %d frame %d not loaded, killed it",
-				  num, mseq, mframe);
-			play.mitem[num].active = /*false*/0;
-			
-		}
-		
-		return;
+	  log_debug("Whups, magic %d seq %d frame %d not loaded, killed it",
+		    item_idx0, mseq, mframe);
+	  play.mitem[item_idx0].active = 0;
 	}
-	
-/* 	ddrval = lpDDSBack->BltFast( mx, my, k[seq[mseq].frame[mframe]].k, */
-/* 		&k[seq[mseq].frame[mframe]].box, DDBLTFAST_SRCCOLORKEY); */
-/* 	if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
-	// GFX
-	{
-	  SDL_Rect dst;
-	  dst.x = mx; dst.y = my;
-	  SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
-	}
+      return;
+    }
+  SDL_Rect dst;
+  dst.x = mx; dst.y = my;
+  SDL_BlitSurface(GFX_k[seq[mseq].frame[mframe]].k, NULL, GFX_lpDDSBack, &dst);
 }
 
-/* Draw screen when browsing the inventory */
-void process_item( void )
+/**
+ * Inventory screen
+ */
+void process_item()
 {
-/*     RECT                rcRect; */
-/*     rcRect.left = 0; */
-/*     rcRect.top = 0; */
-/*     /\* x and y are the size of the screen *\/ */
-/*     rcRect.right = x; */
-/*     rcRect.bottom = y; */
-	int hor, virt;
+  SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
 	
-	
-	
-/* 	while( 1 ) */
-/* 	{ */
-/* 		ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTwo, */
-/* 			&rcRect, DDBLTFAST_NOCOLORKEY); */
-		// GFX
-		SDL_BlitSurface(GFX_lpDDSTwo, NULL, GFX_lpDDSBack, NULL);
+  check_seq_status(423);
+  //lets blit the main screen over it
+  SDL_Rect dst = {20, 0};
+  SDL_BlitSurface(GFX_k[seq[423].frame[1]].k, NULL, GFX_lpDDSBack, &dst);
 
-/* 		if( ddrval == DD_OK ) */
-/* 		{ */
-/* 			break; */
-/* 		} */
-/* 		if( ddrval == DDERR_SURFACELOST ) */
-/* 		{ */
-/* 			ddrval = restoreAll(); */
-/* 			break; */
-/* 		} */
-/* 		if( ddrval != DDERR_WASSTILLDRAWING ) */
-/* 		{ */
-/* 			dderror(ddrval); */
-/* 			return; */
-/* 		} */
-/* 	} */
-	
-	
-	check_seq_status(423);
-	//lets blit the main screen over it
-/* again:	 */
-/* 	ddrval = lpDDSBack->BltFast( 20, 0, k[seq[423].frame[1]].k, */
-/* 		&k[seq[423].frame[1]].box, DDBLTFAST_SRCCOLORKEY); */
-/* 	if( ddrval == DDERR_WASSTILLDRAWING ) */
-/* 	  goto again; */
-	// GFX
-	{
-	  SDL_Rect dst = {20, 0};
-	  SDL_BlitSurface(GFX_k[seq[423].frame[1]].k, NULL, GFX_lpDDSBack, &dst);
-	}
+  //draw all currently owned items; magic
+  for (int i = 0; i < NB_MITEMS; i++)
+    if (play.mitem[i].active)
+      draw_item(i, ITEM_MAGIC, play.mitem[i].seq, play.mitem[i].frame);
+  
+  //draw selection box around armed magic
+  if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS && play.item[*pcur_magic - 1].active)
+    draw_item(*pcur_magic - 1, ITEM_MAGIC, 423, 5);
+  
 
-	//draw all currently owned items; magic
-	int i;
-	for (i = 1; i < 9; i++)
-	  if (play.mitem[i].active)
-	    draw_item(i, /*true*/1, play.mitem[i].seq, play.mitem[i].frame);
-	
-	//draw all currently owned items; normal
-	for (i = 1; i < 17; i++)
-	  if (play.item[i].active)
-	    draw_item(i, /*false*/0, play.item[i].seq, play.item[i].frame);
-	
-	//draw selection box around armed weapon
-	if (*pcur_weapon != 0) if (play.item[*pcur_weapon].active)
-		draw_item(*pcur_weapon, /*false*/0, 423, 4);
-	
-	
-	//draw selection box around armed magic
-	if (*pcur_magic != 0) if (play.item[*pcur_magic].active)
-		draw_item(*pcur_magic, /*true*/1, 423, 5);
-	
-	
-	//draw the selector around it, alternating from 2 to 3
-	if (play.curitem < 1) play.curitem = 1;
-	
-	
-	if (thisTickCount > item_timer)
+  //draw all currently owned items; normal
+  for (int i = 0; i < NB_ITEMS; i++)
+    if (play.item[i].active)
+      draw_item(i, ITEM_REGULAR, play.item[i].seq, play.item[i].frame);
+  
+  //draw selection box around armed weapon
+  if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS && play.item[*pcur_weapon - 1].active)
+    draw_item(*pcur_weapon - 1, ITEM_REGULAR, 423, 4);
+  
+  
+  if (play.curitem < 0
+      || (!play.item_magic && play.curitem >= NB_ITEMS)
+      || (play.item_magic && play.curitem >= NB_MITEMS))
+    play.curitem = 0;
+
+  if (thisTickCount > item_timer)
+    {
+      //draw the selector around it, alternating from 2 to 3
+      if (item_pic == 2)
+	item_pic = 3;
+      else
+	item_pic = 2;
+      item_timer = thisTickCount + 400;
+    }
+  draw_item(play.curitem, play.item_magic, 423, item_pic);
+  
+  if (!play.item_magic)
+    {
+      int hor  = play.curitem % 4;
+      int vert = play.curitem / 4;
+			
+      //choosing weapon/item
+      if (sjoy.button[ACTION_ATTACK])
 	{
-		if (item_pic == 2) item_pic = 3; else item_pic = 2;
-		item_timer = thisTickCount + 400;
-		
-	}
-	draw_item(play.curitem, play.item_magic, 423, item_pic);
-	
-	
-	
-	
-	if (!play.item_magic)
-	{
-		hor = (play.curitem - (((play.curitem-1) / 4) * 4));
-		virt = ((play.curitem-1) / 4);
-		
-		
-		
-		//choosing weapon/item
-		
-		if (sjoy.button[ACTION_ATTACK])
+	  if (play.item[play.curitem].active)
+	    {
+	      //arm weapon
+	      SoundPlayEffect(18, 42050,0,0,0);
+	      if (*pcur_weapon != 0)
 		{
-			if (play.item[play.curitem].active)
-			{
-				//arm weapon
-				SoundPlayEffect(18, 42050,0,0,0);        
-				if (*pcur_weapon != 0)
-				{
-					//disarm old weapon
-					if (locate(weapon_script, "DISARM")) run_script(weapon_script);
-				}
-				//load weapons script
-				*pcur_weapon = play.curitem;
-				weapon_script = load_script(play.item[*pcur_weapon].name, 1000, /*false*/0);
-				if (locate(weapon_script, "ARM")) run_script(weapon_script);
-				if (locate(weapon_script, "ARMMOVIE")) run_script(weapon_script);
-				
-				draw_status_all();
-			} else
-			{
-				//can't arm nothing, play sound
-			}
-		} else
-			if (sjoy.rightd) 
-			{
-				if (hor < 4) play.curitem++;
-				SoundPlayEffect(11, 22050,0,0,0);	
-			} else
-				if (sjoy.leftd) 
-				{
-					if (hor > 1)
-					{
-						play.curitem--; 
-						SoundPlayEffect(11, 22050,0,0,0);	
-						
-					}
-					else
-					{
-						SoundPlayEffect(11, 22050,0,0,0);	
-						
-						play.item_magic = /*true*/1;
-						play.curitem = (virt * 2) + 2;
-						//switch to magic mode
-					}
-				} else
-					
-					
-					if (sjoy.downd)
-					{
-						if (virt < 3)
-						{
-							play.curitem += 4;
-							SoundPlayEffect(11, 22050,0,0,0);	
-							
-						}
-					} else
-						
-						if (sjoy.upd)
-						{
-							if (virt > 0)
-							{
-								play.curitem -= 4;
-								SoundPlayEffect(11, 22050,0,0,0);	
-								
-							}
-						}
-						
-						
-	} else
-		
-	{
-		hor = (play.curitem - (((play.curitem-1) / 2) * 2));
-		virt = ((play.curitem-1) / 2);
-		
-		if (sjoy.button[ACTION_ATTACK])
-		{
-			if (play.mitem[play.curitem].active)
-			{
-				//arm magic
-				SoundPlayEffect(18, 42050,0,0,0);  
-				if (*pcur_magic != 0)
-				{
-					//disarm old weapon
-					if (locate(magic_script, "DISARM")) run_script(magic_script);
-				}
-				//load magics script
-				*pcur_magic = play.curitem;
-				magic_script = load_script(play.mitem[*pcur_magic].name, 1000, /*false*/0);
-				if (locate(magic_script, "ARM")) run_script(magic_script);
-				if (locate(magic_script, "ARMMOVIE")) run_script(magic_script);
-				draw_status_all();
-			} else
-			{
-				//can't arm nothing, play sound
-			}
+		  //disarm old weapon
+		  if (locate(weapon_script, "DISARM"))
+		    run_script(weapon_script);
 		}
-		
-		if (sjoy.rightd) 
-		{
-			if (hor < 2)
-			{
-				play.curitem++;
-				SoundPlayEffect(11, 22050,0,0,0);	
-				
-			}
-			else
-			{ 
-				play.item_magic = /*false*/0;
-				play.curitem = (virt * 4) +1;
-				SoundPlayEffect(11, 22050,0,0,0);	
-				
-			}
-		} else
-			if (sjoy.leftd) 
-			{
-				if (hor > 1)
-				{
-					play.curitem--;
-					SoundPlayEffect(11, 22050,0,0,0);	
-					
-				}
-				else
-				{
-				}
-			} else
-				
-				
-				if (sjoy.downd)
-				{
-					if (virt < 3)
-					{
-						play.curitem += 2;
-						SoundPlayEffect(11, 22050,0,0,0);	
-						
-					}
-				} else
-					
-					if (sjoy.upd)
-					{
-						if (virt > 0) 
-						{
-							play.curitem -= 2;
-							SoundPlayEffect(11, 22050,0,0,0);	
-							
-						}
-					}
-					
+
+	      //load weapons script
+	      *pcur_weapon = play.curitem + 1;
+	      weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
+	      if (locate(weapon_script, "ARM"))
+		run_script(weapon_script);
+	      if (locate(weapon_script, "ARMMOVIE"))
+		run_script(weapon_script);
+	      draw_status_all();
+	    }
 	}
-	if (talk.active) process_talk();
-	
-	//a special process callbacks for just stuff that was created in this mode? 
-	// process_callbacks_special();
-	flip_it(); 
-	
-	if (sjoy.button[ACTION_INVENTORY])
+      else if (sjoy.rightd) 
 	{
-		SoundPlayEffect(17, 22050,0,0,0);
-		
-		item_screen = /*false*/0;
+	  if (hor < 3)
+	    {
+	      play.curitem++;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
 	}
-	
-	
+      else if (sjoy.leftd) 
+	{
+	  if (hor > 0)
+	    {
+	      play.curitem--; 
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	  else
+	    {
+	      SoundPlayEffect(11, 22050,0,0,0);
+	      //switch to magic mode
+	      play.item_magic = 1;
+	      play.curitem = vert * 2 + 1;
+	    }
+	}
+      else if (sjoy.downd)
+	{
+	  if (vert < 3)
+	    {
+	      play.curitem += 4;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+      else if (sjoy.upd)
+	{
+	  if (vert > 0)
+	    {
+	      play.curitem -= 4;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+    }
+  else		
+    {
+      int hor  = play.curitem % 2;
+      int vert = play.curitem / 2;
+      
+      if (sjoy.button[ACTION_ATTACK])
+	{
+	  if (play.mitem[play.curitem].active)
+	    {
+	      //arm magic
+	      SoundPlayEffect(18, 42050,0,0,0);
+	      if (*pcur_magic != 0)
+		{
+		  //disarm old weapon
+		  if (locate(magic_script, "DISARM"))
+		    run_script(magic_script);
+		}
+	      //load magics script
+	      *pcur_magic = play.curitem + 1;
+	      magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
+	      if (locate(magic_script, "ARM"))
+		run_script(magic_script);
+	      if (locate(magic_script, "ARMMOVIE"))
+		run_script(magic_script);
+	      draw_status_all();
+	    }
+	}
+      else if (sjoy.rightd) 
+	{
+	  if (hor < 1)
+	    {
+	      play.curitem++;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	  else
+	    { 
+	      play.item_magic = 0;
+	      play.curitem = vert * 4;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+      else if (sjoy.leftd) 
+	{
+	  if (hor > 0)
+	    {
+	      play.curitem--;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+      else if (sjoy.downd)
+	{
+	  if (vert < 3)
+	    {
+	      play.curitem += 2;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+      else if (sjoy.upd)
+	{
+	  if (vert > 0) 
+	    {
+	      play.curitem -= 2;
+	      SoundPlayEffect(11, 22050,0,0,0);
+	    }
+	}
+    }
+  if (talk.active)
+    process_talk();
+  
+  //a special process callbacks for just stuff that was created in this mode? 
+  // process_callbacks_special();
+  flip_it(); 
+  
+  if (sjoy.button[ACTION_INVENTORY])
+    {
+      SoundPlayEffect(17, 22050,0,0,0);
+      show_inventory = 0;
+    }
 }
 
 

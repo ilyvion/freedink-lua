@@ -151,15 +151,9 @@ extern int dinkspeed;
 extern int flife;
 extern int flub_mode;
 extern int fps_final;
-/* extern HANDLE g_hevtMouse; */
-/* extern LPDIRECTINPUTDEVICE g_pMouse; */
-/* extern LPDIRECTINPUT g_pdi; */
-extern /*bool*/int item_screen;
+extern int show_inventory;
 extern int stop_entire_game;
 extern int getpic(int h);
-/* extern HWND hWndMain; */
-/* extern HFONT hfont_small; */
-
 
 /* show_bmp() currently ran */
 struct show_bmp
@@ -216,8 +210,6 @@ extern int weapon_script;
 extern int magic_script;
 
 extern int process_count;
-extern int item_timer;
-extern int item_pic;
 
 /* Player */
 extern /*bool*/int inside_box(int x1, int y1, rect box);
