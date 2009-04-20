@@ -1218,26 +1218,28 @@ void save_info(void)
 
   /* Portably load struct player_info play from disk */
   int i = 0;
-  play.version = read_lsb_int(f);
-  fread(play.gameinfo, 196, 1, f);
-  play.gameinfo[196-1] = '\0'; // safety
+  // TODO: check 'version' field and warn/upgrade/downgrade if
+  // savegame version != dversion
+  fseek(f, 4, SEEK_CUR);
+  fseek(f, 77+1, SEEK_CUR); // skip save_game_info, cf. save_game_small(...)
+  fseek(f, 118, SEEK_CUR); // unused
   // offset 200
   play.minutes = read_lsb_int(f);
   spr[1].x = read_lsb_int(f);
   spr[1].y = read_lsb_int(f);
-  play.die = read_lsb_int(f);
-  play.size = read_lsb_int(f);
-  play.defense = read_lsb_int(f);
-  play.dir = read_lsb_int(f);
-  play.pframe = read_lsb_int(f);
-  play.pseq = read_lsb_int(f);
-  play.seq = read_lsb_int(f);
-  play.frame = read_lsb_int(f);
-  play.strength = read_lsb_int(f);
-  play.base_walk = read_lsb_int(f);
-  play.base_idle = read_lsb_int(f);
-  play.base_hit = read_lsb_int(f);
-  play.que = read_lsb_int(f);
+  fseek(f, 4, SEEK_CUR); // unused 'die' field
+  spr[1].size = read_lsb_int(f);
+  spr[1].defense = read_lsb_int(f);
+  spr[1].dir = read_lsb_int(f);
+  spr[1].pframe = read_lsb_int(f);
+  spr[1].pseq = read_lsb_int(f);
+  spr[1].seq = read_lsb_int(f);
+  spr[1].frame = read_lsb_int(f);
+  spr[1].strength = read_lsb_int(f);
+  spr[1].base_walk = read_lsb_int(f);
+  spr[1].base_idle = read_lsb_int(f);
+  spr[1].base_hit = read_lsb_int(f);
+  spr[1].que = read_lsb_int(f);
   // offset 264
 
   // skip first originally unused mitem entry
@@ -1265,8 +1267,8 @@ void save_info(void)
 
   play.curitem = read_lsb_int(f) - 1;
   fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
-  play.counter = read_lsb_int(f);
-  play.idle = fgetc(f);
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'counter' field
+  fseek(f, 1, SEEK_CUR); // reproduce unused 'idle' field
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
   // offset 796
 
@@ -1314,13 +1316,10 @@ void save_info(void)
   play.item_magic = fgetc(f);
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
   play.last_map = read_lsb_int(f);
-  play.crap = read_lsb_int(f);
-  for (i = 0; i < 95; i++)
-    play.buff[i] = read_lsb_int(f);
-  for (i = 0; i < 20; i++)
-    play.dbuff[i] = read_lsb_int(f);
-  for (i = 0; i < 10; i++)
-    play.lbuff[i] = read_lsb_int(f);
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'crap' field
+  fseek(f, 95 * 4, SEEK_CUR); // reproduce unused 'buff' field
+  fseek(f, 20 * 4, SEEK_CUR); // reproduce unused 'dbuff' field
+  fseek(f, 10 * 4, SEEK_CUR); // reproduce unused 'lbuff' field
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
@@ -1390,21 +1389,8 @@ void save_info(void)
   walk_off_screen = 0;
   spr[1].nodraw = 0;
   push_active = 1;
-  spr[1].pseq = play.pseq;
-  spr[1].pframe = play.pframe;
-  spr[1].size = play.size;
-  spr[1].seq = play.seq;
-  spr[1].frame = play.frame;
-  spr[1].dir = play.dir;
-  spr[1].strength = play.strength;
-  spr[1].defense = play.defense;
-  spr[1].que = play.que;
   
   time(&time_start);
-  
-  spr[1].base_idle = play.base_idle;
-  spr[1].base_walk = play.base_walk;
-  spr[1].base_hit = play.base_hit;
   
   int script = load_script("main", 0, /*true*/1);
   locate(script, "main");
@@ -1504,41 +1490,17 @@ void save_game(int num)
   FILE *f;
 
   //lets set some vars first
-  play.version = dversion;
-  play.pseq =  spr[1].pseq;
-  play.pframe     =        spr[1].pframe;
-  play.seq        =        spr[1].seq;
-  play.frame      =        spr[1].frame;
-  play.size       =        spr[1].size;
-  play.dir        =        spr[1].dir;
-  play.strength = spr[1].strength;
-  play.defense  =  spr[1].defense;
-  play.que  =  spr[1].que;
   time_t ct;
-  
   time(&ct);
   play.minutes += (int) (difftime(ct,time_start) / 60);
         //reset timer
   time(&time_start);
-  
-  play.base_idle = spr[1].base_idle;
-  play.base_walk = spr[1].base_walk;
-  play.base_hit = spr[1].base_hit;
   
   // save game things for storing new map, palette, and tile
   // information
   strncpy (play.mapdat, current_map, 50);
   strncpy (play.dinkdat, current_dat, 50);
 
-  // set_save_game_info() support:
-  {
-    char* info_temp = strdup(save_game_info);
-    decipher_string(&info_temp, 0);
-    strncpy(play.gameinfo, info_temp, 77);
-    play.gameinfo[77] = '\0';
-    free(info_temp);
-  }
-  
   last_saved_game = num;
   f = paths_savegame_fopen(num, "wb");
   if (f == NULL)
@@ -1549,25 +1511,32 @@ void save_game(int num)
 
   /* Portably dump struct player_info play to disk */
   int i = 0;
-  write_lsb_int(play.version, f);
-  fwrite(play.gameinfo, 196, 1, f);
+  write_lsb_int(dversion, f);
+  // set_save_game_info() support:
+  {
+    char* info_temp = strdup(save_game_info);
+    decipher_string(&info_temp, 0);
+    fwrite(info_temp, 77+1, 1, f);
+    free(info_temp);
+  }
+  fseek(f, 118, SEEK_CUR); // unused
   // offset 200
   write_lsb_int(play.minutes, f);
   write_lsb_int(spr[1].x, f);
   write_lsb_int(spr[1].y, f);
-  write_lsb_int(play.die, f);
-  write_lsb_int(play.size, f);
-  write_lsb_int(play.defense, f);
-  write_lsb_int(play.dir, f);
-  write_lsb_int(play.pframe, f);
-  write_lsb_int(play.pseq, f);
-  write_lsb_int(play.seq, f);
-  write_lsb_int(play.frame, f);
-  write_lsb_int(play.strength, f);
-  write_lsb_int(play.base_walk, f);
-  write_lsb_int(play.base_idle, f);
-  write_lsb_int(play.base_hit, f);
-  write_lsb_int(play.que, f);
+  fseek(f, 4, SEEK_CUR); // unused 'die' field
+  write_lsb_int(spr[1].size, f);
+  write_lsb_int(spr[1].defense, f);
+  write_lsb_int(spr[1].dir, f);
+  write_lsb_int(spr[1].pframe, f);
+  write_lsb_int(spr[1].pseq, f);
+  write_lsb_int(spr[1].seq, f);
+  write_lsb_int(spr[1].frame, f);
+  write_lsb_int(spr[1].strength, f);
+  write_lsb_int(spr[1].base_walk, f);
+  write_lsb_int(spr[1].base_idle, f);
+  write_lsb_int(spr[1].base_hit, f);
+  write_lsb_int(spr[1].que, f);
   // offset 264
 
   // skip first originally unused mitem entry
@@ -1592,8 +1561,8 @@ void save_game(int num)
 
   write_lsb_int(play.curitem + 1, f);
   fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
-  write_lsb_int(play.counter, f);
-  fputc(play.idle, f);
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'counter' field
+  fseek(f, 1, SEEK_CUR); // reproduce unused 'idle' field
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
   // offset 796
 
@@ -1639,13 +1608,10 @@ void save_game(int num)
   fputc(play.item_magic, f);
   fseek(f, 3, SEEK_CUR); // reproduce memory alignment
   write_lsb_int(play.last_map, f);
-  write_lsb_int(play.crap, f);
-  for (i = 0; i < 95; i++)
-    write_lsb_int(play.buff[i], f);
-  for (i = 0; i < 20; i++)
-    write_lsb_int(play.dbuff[i], f);
-  for (i = 0; i < 10; i++)
-    write_lsb_int(play.lbuff[i], f);
+  fseek(f, 4, SEEK_CUR); // reproduce unused 'crap' field
+  fseek(f, 95 * 4, SEEK_CUR); // reproduce unused 'buff' field
+  fseek(f, 20 * 4, SEEK_CUR); // reproduce unused 'dbuff' field
+  fseek(f, 10 * 4, SEEK_CUR); // reproduce unused 'lbuff' field
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */

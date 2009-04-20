@@ -194,7 +194,7 @@ static /*bool*/int load_game_small(int num, char line[196], int *mytime)
   else
     {
       //int version = read_lsb_int(f);
-      read_lsb_int(f); // avoid compiler warning
+      fseek(f, 4, SEEK_CUR);
 
       fread(line, 196, 1, f);
       line[196] = '\0';

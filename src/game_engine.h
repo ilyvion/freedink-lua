@@ -148,11 +148,7 @@ struct player_info_tile
 #define NB_ITEMS 16
 struct player_info
 {
-  int version;
-  char gameinfo[196];
   int minutes;
-  int die, size, defense, dir, pframe, pseq, seq, frame, strength,
-    base_walk, base_idle, base_hit, que;
   
   struct item_struct mitem[NB_MITEMS];
   struct item_struct item[NB_ITEMS];
@@ -160,8 +156,6 @@ struct player_info
   int curitem; // highlighted item in the inventory
   BOOL_1BYTE item_magic; // 1 if it's a magic item, 0 if regular
 
-  int counter;
-  BOOL_1BYTE idle;
   struct mydata spmap[769];
   struct varman var[MAX_VARS];
   
@@ -173,11 +167,6 @@ struct player_info
   int mouse; /* vertical position of the mouse when selecting a dialog
 		option */
   int last_map;
-  int crap;
-  int buff[95];
-  unsigned int dbuff[20];
-  
-  int lbuff[10];
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
