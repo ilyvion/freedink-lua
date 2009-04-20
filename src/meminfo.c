@@ -30,9 +30,11 @@
 
 void meminfo_log_mallinfo()
 {
+#ifdef HAVE_MALLINFO
   struct mallinfo mi;
   mi = mallinfo();
   log_debug("arena: %d", mi.arena);
   log_debug("uordblks: %d", mi.uordblks);
   log_debug("fordblks: %d", mi.fordblks);
+#endif
 }

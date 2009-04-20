@@ -45,6 +45,8 @@ gl_EARLY
 
 # Check if we can fork&exec (for fallback xmessage errors)
 AC_CHECK_FUNCS(execlp)
+# Check if we've got malloc stats
+AC_CHECK_TYPES([struct mallinfo], [], [], [[#include <malloc.h>]])
 
 # gettext
 AM_GNU_GETTEXT
