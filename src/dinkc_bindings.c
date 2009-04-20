@@ -525,12 +525,12 @@ void dc_add_exp(int script, int* yield, int* preturnint, int amount, int active_
 
 void dc_kill_this_item(int script, int* yield, int* preturnint, char* dcscript)
 {
-  kill_cur_item_script(dcscript);
+  kill_item_script(dcscript);
 }
 
 void dc_kill_this_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
-  kill_cur_magic_script(dcscript);
+  kill_mitem_script(dcscript);
 }
 
 void dc_show_bmp(int script, int* yield, int* preturnint, char* bmp_file, int show_map_dot, int unused)
@@ -732,7 +732,6 @@ void dc_free_items(int script, int* yield, int* preturnint)
       if (play.item[i].active == 0)
 	*preturnint += 1;
     }
-  return;
 }
 
 void dc_free_magic(int script, int* yield, int* preturnint)
@@ -745,7 +744,6 @@ void dc_free_magic(int script, int* yield, int* preturnint)
       if (play.mitem[i-1].active == 0)
 	*preturnint += 1;
     }
-  return;
 }
 
 void dc_kill_cur_item(int script, int* yield, int* preturnint)
@@ -765,7 +763,6 @@ void dc_kill_cur_magic(int script, int* yield, int* preturnint)
 void dc_draw_status(int script, int* yield, int* preturnint)
 {
   draw_status_all();
-  return;
 }
 
 void dc_arm_weapon(int script, int* yield, int* preturnint)
@@ -776,8 +773,6 @@ void dc_arm_weapon(int script, int* yield, int* preturnint)
   weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
   if (locate(weapon_script, "ARM"))
     run_script(weapon_script);
-
-  return;
 }
 
 void dc_arm_magic(int script, int* yield, int* preturnint)
@@ -788,8 +783,6 @@ void dc_arm_magic(int script, int* yield, int* preturnint)
   magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
   if (locate(magic_script, "ARM"))
     run_script(magic_script);
-    
-  return;
 }
 
 void dc_restart_game(int script, int* yield, int* preturnint)

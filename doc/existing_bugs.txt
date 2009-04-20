@@ -46,4 +46,7 @@ Bugs that existed in v1.07/v1.08 and needs to be fixed:
   manipulate one 'active' field directly. Then we might try and find a
   way to enforce this for the programmer.
 
+- When using kill_this_magic(), *pcur_weapon is set to 0, instead of
+  *pcur_magic.
+
 For fixed bugs, see NEWS.

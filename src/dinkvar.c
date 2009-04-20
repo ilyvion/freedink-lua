@@ -1698,7 +1698,7 @@ void kill_cur_item()
     }
 }
 
-void kill_cur_item_script(char* name)
+void kill_item_script(char* name)
 {
   int select = 0;
   for (int i = 0; i < NB_ITEMS; i++)
@@ -1735,7 +1735,7 @@ void kill_cur_item_script(char* name)
 }
 
 
-void kill_cur_magic_script(char* name)
+void kill_mitem_script(char* name)
 {
   int select = 0;
   for (int i = 0; i < NB_MITEMS; i++)
