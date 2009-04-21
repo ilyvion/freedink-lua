@@ -23,6 +23,8 @@
 
 - DinkC: map_tile(...) can modify the first tile square (tile_index=0)
 
+- Lower startup RAM requirements (-7MB so far)
+
 * Developer notes:
 
 - Dropped libffi dependency to support more architectures

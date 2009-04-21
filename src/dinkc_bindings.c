@@ -582,6 +582,10 @@ void dc_load_screen(int script, int* yield, int* preturnint)
  */
 static int say_text_from_dc(char* text, int active_sprite, int script)
 {
+  log_debug("[DinkC] %s:%d:%s(\"%s\", %d)", rinfo[script]->name,
+	    rinfo[script]->debug_line, cur_funcname,
+	    text, active_sprite);
+
   /* Translate text (before variable substitution) */
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
@@ -612,6 +616,10 @@ static int say_text_from_dc(char* text, int active_sprite, int script)
  */
 static int say_text_xy_from_dc(char* text, int x, int y, int script)
 {
+  log_debug("[DinkC] %s:%d:%s(\"%s\", %d, %d)", rinfo[script]->name,
+	    rinfo[script]->debug_line, cur_funcname,
+	    text, x, y);
+
   /* Translate text (before variable substitution) */
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
@@ -701,7 +709,6 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
 {
   kill_returning_stuff(script);
 
-  log_info("say_stop_xy: Adding %s", text);
   int sprite = say_text_xy_from_dc(text, x, y, script);
   spr[sprite].callback = script;
   spr[sprite].live = /*true*/1;
