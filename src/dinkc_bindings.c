@@ -631,7 +631,7 @@ static int say_text_xy_from_dc(char* text, int x, int y, int script)
   free(translation);
   decipher_string(&expanded, script);
 
-  int text_sprite = say_text_xy(text, x, y, script);
+  int text_sprite = say_text_xy(expanded, x, y, script);
   free(expanded);
   return text_sprite;
 }
