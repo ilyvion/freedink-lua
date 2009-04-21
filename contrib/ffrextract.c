@@ -134,7 +134,22 @@ void ffextract(char *filename)
       {
 	int remaining = -1;
 	strcpy(output_file, subfiles[i].filename);
+	if (strcasecmp(output_file, "dir.ff") == 0)
+	  {
+	    char wd[8192];
+	    getcwd(wd, 8192);
+	    fprintf(stderr, "Not overwriting myself (%s/%s)\n", wd, output_file);
+	    continue;
+	  }
 	fout = fopen(output_file, "w");
+	if (fout == NULL)
+	  {
+	    perror("fopen");
+	    char wd[8192];
+	    getcwd(wd, 8192);
+	    fprintf(stderr, "Cannot open %s/%s\n", wd, output_file);
+	    continue;
+	  }
 	
 	/* read while a full block can be read */
 	remaining = subfiles[i+1].offset - subfiles[i].offset;

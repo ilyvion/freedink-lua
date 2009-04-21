@@ -34,8 +34,13 @@ extern "C"
 /* Max number of sprites, minus 1 (GFX_k is indexed from 1) */
 #define MAX_SPRITES 4000
 #define MAX_FRAMES_PER_SEQUENCE 50
-/* Max number of sequences the engine could be abused to load */
-#define MAX_FRAMES_PER_ABUSED_SEQUENCE 1000
+/* Max number of frames the engine was ever abused to load in one
+   sequence (with a buffer overflow on other 'seq' fields). According
+   to a study of existing D-Mods in 2009, the highest frame number is
+   69 (in "The Green Voice in my Head Part I v3.0"). The engine would
+   accept up to 1000 frames but it would probably mess the memory too
+   much. */
+#define MAX_FRAMES_PER_ABUSED_SEQUENCE 69
 #define MAX_SEQUENCES 1000 /* Max # of sprite animations */
   
   /* Store sprites info */
@@ -60,9 +65,9 @@ extern "C"
   /* Sequence description */
   struct sequence
   {
-    int is_active;  // does it contain something
     char* ini;      // matching dink.ini (or init()) line
-    int len;        // number of initial frames in this sequence
+    char is_active;  // does it contain something
+    short len;        // number of initial frames in this sequence
                     // - inaccurate if the sequence is modified by 'set_frame_frame'
     /* frame: index in GFX_k for the each frame, indexed from 1, ended
        by '0'. If -1, loop from beginning. Now this one is tricky: the
@@ -72,7 +77,7 @@ extern "C"
        'special'.  */
     short frame[MAX_FRAMES_PER_ABUSED_SEQUENCE+1+1];
     short delay[MAX_FRAMES_PER_ABUSED_SEQUENCE+1]; // frame duration, indexed from 1
-    unsigned char special[MAX_FRAMES_PER_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
+    unsigned char special[MAX_FRAMES_PER_ABUSED_SEQUENCE+1]; // does this frame 'hit' enemies, indexed from 1
   };
 
   extern struct pic_info k[MAX_SPRITES];
