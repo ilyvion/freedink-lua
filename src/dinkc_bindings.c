@@ -2518,6 +2518,8 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
 	    parm = separate_string(str_params, 1, ',');
 	  else if (strchr(str_params, ')') != NULL)
 	    parm = separate_string(str_params, 1, ')');
+	  else
+	    parm = strdup("");
 
 	  // move to next param
 	  str_params += strlen(parm);
