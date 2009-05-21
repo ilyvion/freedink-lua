@@ -43,6 +43,8 @@ CFLAGS="$CFLAGS -Wall -std=c99"
 # Gnulib - configuration in gnulib/m4/gnulib-cache.m4
 gl_EARLY
 
+AM_CONDITIONAL(PSP, test "$host" == "mipsallegrexel-psp-elf")
+
 # Check if we can fork&exec (for fallback xmessage errors)
 AC_CHECK_FUNCS(execlp)
 # Check if we've got malloc stats

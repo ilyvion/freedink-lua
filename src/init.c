@@ -245,7 +245,6 @@ static int check_arg(int argc, char *argv[])
 	break;
       case 'g':
 	dmoddir_opt = strdup(optarg);
-	printf("Working directory %s requested.", dmoddir_opt);
 	break;
       case 'h':
 	print_help(argc, argv);

@@ -110,3 +110,28 @@ endif
 # Other projects that use Autotools and support MinGW
 # http://sourceforge.net/projects/chocolate-doom (Doom port)
 # http://savannah.nongnu.org/projects/akfavatar (text display)
+
+
+if PSP
+TARGET=freedink
+PSP_EBOOT_TITLE = "GNU FreeDink"
+
+all-local:
+#	Based on pspdev/psp/sdk/lib/build.mak
+#	Fixup is mandatory. Without it the homebrew will freeze, and
+#	after 10-20s the PSP will shutdown abruptly.
+	psp-fixup-imports $(TARGET) -o $(TARGET).elf
+	mksfoex -d MEMSIZE=1 $(PSP_EBOOT_TITLE) PARAM.SFO
+	psp-prxgen $(TARGET).elf $(TARGET).prx  # also strips
+	pack-pbp EBOOT.PBP PARAM.SFO $(top_srcdir)/psp/freedink.png  \
+		NULL $(top_srcdir)/psp/icon1.png $(top_srcdir)/psp/splash.png  \
+		NULL  $(TARGET).prx NULL
+
+DEVICE=sdX1
+install-psp:
+	pmount /dev/$(DEVICE)
+	mkdir -p /media/$(DEVICE)/PSP/GAME/$(TARGET)
+	cp -a EBOOT.PBP $(top_srcdir)/share/freedink/LiberationSans-Regular.ttf \
+		/media/$(DEVICE)/PSP/GAME/$(TARGET)
+	pumount /dev/$(DEVICE)
+endif

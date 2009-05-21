@@ -916,7 +916,15 @@ Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SW
   In kernel mode some user-mode functions cannot be used or have
   limitations.  To overcome this there's something called 'kubridge',
   which is hidden^Wincluded in firmware 3.71 M33, 3.80 M33-3 or 4.01
-  M33.  From the looks of it it's non-free (only .h and .a).
+  M33.  From the looks of it it's non-free (only .h and .a).  There
+  seem to have been some work in recent firmware to do without.
+
+  The module needs to be declared as kernel mode:
+  PSP_MODULE_INFO("mymodule", PSP_MODULE_KERNEL, <major>, <minor>);
+
+  PSP_MODULE_KERNEL is 0x1000, but there are variants. In particular
+  0x1007 cannot be stopped and unloaded
+  (http://forums.ps2dev.org/viewtopic.php?t=12007).
 
 
 Links:
