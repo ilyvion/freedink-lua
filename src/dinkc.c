@@ -443,6 +443,7 @@ void strip_beginning_spaces(char *str)
   
   char* line = NULL;
   rinfo[script]->current = 0;
+  rinfo[script]->cur_line = 1;
   while ((line = read_next_line(script)) != NULL)
     {
       strip_beginning_spaces(line);

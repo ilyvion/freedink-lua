@@ -895,6 +895,29 @@ Running display format cc blit test: 408x167 at 32 bpp, flags: 0x00003000 SDL_SW
   directly (I read that it needs kernel mode?), nor are
   note/screen/vol+/vol-.
 
+- Memory: it's actually partitionned, with 2 partitions:
+  - partition #1 kernel: 8MB
+  - partition #2 user: the rest (24MB PSP1, 56MB PSP2)
+  Apparently it's not possible to resize the kernel partitiion and
+  claim the memory back :/ Bottom-line: you substract 8MB for your
+  your actual max available RAM.
+
+- Kernel modules
+
+  Those are easy to mess and there are lots of details to be aware of.
+
+  Introductory docs:
+  http://ps2dev.org/psp/Tutorials/
+  http://ps2dev.org/psp/Tutorials/PSP_Modules,_Exports,_Imports_and_Patches.download
+
+  http://forums.ps2dev.org/viewtopic.php?p=58653
+  "Okay, let's review the high points of the nanddumper example app..."
+
+  In kernel mode some user-mode functions cannot be used or have
+  limitations.  To overcome this there's something called 'kubridge',
+  which is hidden^Wincluded in firmware 3.71 M33, 3.80 M33-3 or 4.01
+  M33.  From the looks of it it's non-free (only .h and .a).
+
 
 Links:
 

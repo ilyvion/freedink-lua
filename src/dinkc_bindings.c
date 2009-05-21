@@ -3051,8 +3051,9 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      int i = 0;
 	      while (params[i] != 0 && i < 10)
 		i++;
-	      log_error("[DinkC] %s: procedure '%s' takes %d parameters (offset %d)",
-			rinfo[script]->name, funcname, i, rinfo[script]->current);
+	      log_error("[DinkC] %s:%d: procedure '%s' takes %d parameters",
+			rinfo[script]->name, rinfo[script]->debug_line,
+			funcname, i);
 
 	      /* Set 'returnint' if necessary */
 	      if (pbd->badparams_returnint_p == 1)

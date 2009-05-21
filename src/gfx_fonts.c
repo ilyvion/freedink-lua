@@ -266,14 +266,21 @@ int initfont(char* fontname) {
       path = NULL;
 #  endif
 #endif
-      if (path != NULL)
-	new_font = TTF_OpenFont(path, FONT_SIZE);
+      if (path == NULL)
+	{
+	  log_error("initfont: cannot find '%s'", fontname);
+	}
+      else
+	{
+	  new_font = TTF_OpenFont(path, FONT_SIZE);
+	  if (new_font == NULL)
+	    log_error("TTF_OpenFont: %s", TTF_GetError());
+	}
     }
 
-  if (new_font == NULL) {
-    log_error("TTF_OpenFont: %s", TTF_GetError());
+  if (new_font == NULL)
     return -1;
-  }
+
 
   /* new_font could be loaded - we can free the previous one */
   TTF_CloseFont(dialog_font);
