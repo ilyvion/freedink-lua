@@ -43,10 +43,16 @@ Requires:	freedink-data
 %if 0%{?suse_version}
 Requires: timidity
 %endif
+
+%if 0%{?with_included_liberation_font}
+# No dependency
+%else
+# Repect Fedora guidelines (see below)
 %if 0%{?fedora}
 Requires: liberation-sans-fonts
 %else
 Requires: liberation-fonts
+%endif
 %endif
 
 %description engine
@@ -88,7 +94,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}edit.desktop
 # Policy insists on not installing a different version of "Liberation
 # Sans". Beware that the system version may be different than the
 # official FreeDink font, because Liberation changes regularly.
+%if 0%{?with_included_liberation_font}
+# Include it nonetheless for the sake of avoiding
+# liberation-fonts<->liberation-sans-fonts conflicts in the
+# freedink.org repository
+%else
+# Remove it for compliance with Fedore guidelines
 rm $RPM_BUILD_ROOT%{_datadir}/%{name}/LiberationSans-Regular.ttf
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
