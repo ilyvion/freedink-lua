@@ -796,51 +796,56 @@ void kill_script(int k)
 }
 
 
-/* Used by gfx_tiles only - what's the difference with
-   kill_all_scripts_for_real()? */
+/**
+ * Kill all scripts except those attached to pseudo-sprite 1000, which
+ * is meant to survive across screen changes
+ * (kill_all_scripts_for_real(...) is more brutal)
+ *
+ * Used by gfx_tiles only
+ */
 void kill_all_scripts(void)
 {
-        int k = 1;
-        for (; k < MAX_SCRIPTS; k++)
-        {
-
-                if (rinfo[k] != NULL) if (rinfo[k]->sprite != 1000)
-                        kill_script(k);
-        }
-
-        for (k = 1; k < MAX_CALLBACKS; k++)
-        {
-        if (callback[k].active)
-                {
-                        if ( (rinfo[callback[k].owner] != NULL) && (rinfo[callback[k].owner]->sprite == 1000) )
-                        {
-
-                        } else
-                        {
-                                log_debug("Killed callback %d.  (was attached to script %d)",
-					  k, callback[k].owner);
-                                callback[k].active = 0;
-                        }
-                }
-        }
+  /* Kill scripts (except if attached to pseudo-sprite 1000) */
+  int k = 1;
+  for (; k < MAX_SCRIPTS; k++)
+    {
+      if (rinfo[k] != NULL)
+	if (rinfo[k]->sprite != 1000)
+	  kill_script(k);
+    }
+  
+  /* Kill pending callbacks (except if attached to pseudo-sprite 1000) */
+  for (k = 1; k < MAX_CALLBACKS; k++)
+    {
+      if (callback[k].active
+	  && (!(rinfo[callback[k].owner] != NULL)
+	      && (rinfo[callback[k].owner]->sprite == 1000)))
+	{
+	  log_debug("Killed callback %d.  (was attached to script %d)",
+		    k, callback[k].owner);
+	  callback[k].active = 0;
+	}
+    }
 }
 
+/**
+ * Kill all scripts including those attached to pseudo-sprite 1000
+ */
 void kill_all_scripts_for_real(void)
 {
-        int k = 1;
-        for (; k < MAX_SCRIPTS; k++)
-        {
-
-                if (rinfo[k] != NULL)
-                        kill_script(k);
-        }
-
-        for (; k <= MAX_CALLBACKS; k++)
-        {
-
-                callback[k].active = 0;
-        }
+  int k = 1;
+  for (k = 1; k < MAX_SCRIPTS; k++)
+    {
+      if (rinfo[k] != NULL)
+	kill_script(k);
+    }
+  
+  for (k = 1; k <= MAX_CALLBACKS; k++)
+    {
+      callback[k].active = 0;
+    }
 }
+
 
 /**
  * Return the next single line from rbuf[script], starting at

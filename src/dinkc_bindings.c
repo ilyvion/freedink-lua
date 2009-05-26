@@ -724,10 +724,12 @@ void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y
 
 void dc_draw_screen(int script, int* yield, int* preturnint)
 {
-  draw_map_game();
   /* only refresh screen if not in a cut-scene */
+  /* do it before draw_map_game() because that one calls
+     kill_all_scripts(), which NULLifies rinfo[script] */
   if (rinfo[script]->sprite != 1000)
     *yield = 1;
+  draw_map_game();
 }
 
 void dc_free_items(int script, int* yield, int* preturnint)
