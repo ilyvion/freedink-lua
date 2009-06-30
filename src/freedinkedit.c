@@ -2148,7 +2148,7 @@ void updateFrame(void)
 		    //if (mode == 7)
 		    if (mode == MODE_SPRITE_HARDNESS)
 		      {
-			//editting a sprite, setting hard box and depth dot.
+			//editing a sprite, setting hard box and depth dot.
 			spr[1].pseq = 1;
 			spr[1].pframe = 1;
 
@@ -2202,7 +2202,7 @@ void updateFrame(void)
 			if (sp_mode == 0)
 			  {
 
-			    //ok, we are editting depth dot
+			    //ok, we are editing depth dot
 
 			    if (SDL_GetModState()&KMOD_CTRL)
 			      {
@@ -4433,7 +4433,7 @@ void updateFrame(void)
 
 	  if (sp_mode == 0)
 	    {
-	      sprintf(msg, "Editting depth dot for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+	      sprintf(msg, "Editing depth dot for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini.",
 		      sp_seq,sp_frame);
 
@@ -4442,7 +4442,7 @@ void updateFrame(void)
 	  if ( (sp_mode == 1) )
 
 	    {
-	      sprintf(msg, "Editting hardbox up left cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+	      sprintf(msg, "Editing hardbox up left cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
 		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.left,
 		      k[seq[sp_seq].frame[sp_frame]].hardbox.top);
@@ -4452,7 +4452,7 @@ void updateFrame(void)
 	  if ( (sp_mode == 2) )
 
 	    {
-	      sprintf(msg, "Editting hardbox down right cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
+	      sprintf(msg, "Editing hardbox down right cordinate for Seq %d, frame %d.  SHIFT to move fast. Control to move one"
 		      " pixel.  TAB for next edit option. ESC to return to sprite picker. S to save to dink.ini. X: %d Y: %d",
 		      sp_seq,sp_frame, k[seq[sp_seq].frame[sp_frame]].hardbox.right,
 		      k[seq[sp_seq].frame[sp_frame]].hardbox.bottom);

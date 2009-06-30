@@ -163,5 +163,5 @@ in ./src and ./test/sdl are covered by the ZLIB license:
   3. This notice may not be removed or altered from any source distribution.
 
 
-The Debian packaging is (C) 2008, Sylvain Beucler <beuc@beuc.net> and
-is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+The Debian packaging is Copyright (C) 2008, 2009, Sylvain Beucler <beuc@beuc.net>
+and is licensed under the GPL, see `/usr/share/common-licenses/GPL'.

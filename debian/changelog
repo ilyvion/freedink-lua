@@ -1,3 +1,19 @@
+freedink (1.08.20090120-1) unstable; urgency=low
+
+  [ Sylvain Beucler ]
+  * New Upstream Version
+  * update debian/BUILD
+  * add a build-dependency on libffi-dev
+
+  [ Gonéri Le Bouder ]
+  * use Debian version of LiberationSans-Regular.ttf
+   - freedink-engine depends on ttf-liberation
+   - update debian/rules to create a symlink
+  * update Sylvain's changelog entry to add some missing points
+  * add the year 2009 in debian/copyright for Sylvain Beucler
+
+ -- Sylvain Beucler <beuc@beuc.net>  Sat, 31 Jan 2009 23:15:04 +0100
+
 freedink (1.08.20080920.dfsg-1) unstable; urgency=low
 
   * Initial package (Closes: #492760)

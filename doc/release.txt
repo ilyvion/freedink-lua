@@ -95,7 +95,8 @@ Debian notes:
 # http://wiki.debian.org/Games/VCS
 git-checkout master
 git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
-# Fix stuff...
+# - Import debian/ from "upstream"
+# - Fix stuff...
 git commit -am "New upstream release - ..."
 git-buildpackage --git-tag --git-pristine-tar
 git push --all

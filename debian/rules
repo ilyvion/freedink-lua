@@ -72,6 +72,9 @@ install: build
 
 	# Add here commands to install the package into debian/freedink.
 	$(MAKE) -C $(BUILD) DESTDIR=$(TARGET) install
+	# Lintian complains with 'duplicate-font-file', let's have
+	# FreeDink rely on libfontconfig + depend on ttf-liberation
+	rm $(TARGET)/usr/share/games/freedink/LiberationSans-Regular.ttf
 
 
 # Build architecture-independent files here.

@@ -27,7 +27,7 @@ AC_CONFIG_MACRO_DIR(autotools/macros)
 AM_INIT_AUTOMAKE([gnits dist-bzip2 dist-zip])
 
 AC_CONFIG_HEADERS(config.h)
-# Define $host $host_os $build
+# Define $host $host_os + distributes config.guess and config.sub
 AC_CANONICAL_HOST
 # Checks for programs.
 AC_PROG_CC
