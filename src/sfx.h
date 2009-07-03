@@ -38,6 +38,7 @@ extern void kill_repeat_sounds(void);
 extern void kill_repeat_sounds_all(void);
 extern void QuitSound(void);
 extern void sfx_log_meminfo(void);
+extern void sfx_cleanup_finished_channels(void);
 
 /* DinkC procedures */
 extern int playsound(int sound, int min, int plus, int sound3d, int repeat);

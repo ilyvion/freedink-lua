@@ -5098,6 +5098,11 @@ int main(int argc, char *argv[])
 	    }
 	  
 	  updateFrame();
+
+	  /* Clean-up finished sounds: normally this is done by
+	     SDL_mixer but since we're using effects tricks to
+	     stream&resample sounds, we need to do this manually. */
+	  sfx_cleanup_finished_channels();
 	}
     }
 

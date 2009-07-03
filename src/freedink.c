@@ -5038,6 +5038,11 @@ int main(int argc, char* argv[])
 	     behavior. */
 	  if (g_b_kill_app == /*false*/0)
 	    updateFrame();
+
+	  /* Clean-up finished sounds: normally this is done by
+	     SDL_mixer but since we're using effects tricks to
+	     stream&resample sounds, we need to do this manually. */
+	  sfx_cleanup_finished_channels();
 	  
 	  if (console_active == 0 || last_console_active == 0)
 	    /* Get rid of keyboard events, otherwise they'll pile-up. Also

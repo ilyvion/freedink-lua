@@ -75,9 +75,6 @@ static Uint16 hw_format;
 static Uint8* fake_buf = NULL;
 static Uint32 fake_buf_len = 0;
 
-/* Clean-up thread */
-static SDL_Thread* cleanup_thread = NULL;
-
 static int SetVolume(int channel, int dx_volume);
 static int SetPan(int channel, int dx_panning);
 static void CleanupChannel(int channel);
@@ -317,18 +314,16 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
     }
 }
 
-/* Close channels that stopped playing */
-int cleanup_thread_func(void* ignored)
+/**
+ * Close channels that stopped playing
+ */
+void sfx_cleanup_finished_channels()
 {
-  while (1)
+  int i = 0;
+  for (i = 0; i < NUM_CHANNELS; i++)
     {
-      int i = 0;
-      for (i = 0; i < NUM_CHANNELS; i++)
-	{
-	  if (channelinfo[i].finished == 1)
-	    Mix_HaltChannel(i);
-	}
-      SDL_Delay(10);
+      if (channelinfo[i].finished == 1)
+	Mix_HaltChannel(i);
     }
 }
 
@@ -794,10 +789,6 @@ int InitSound()
   for (i = 0; i < MAX_SOUNDS; i++)
     registered_sounds[i].cvt.buf = NULL;
   
-  /* Start a thread to clean-up finished sounds: normally this is done
-     by SDL_mixer but since we're using effects tricks to
-     stream&resample sounds, we need to do this manually. */
-  cleanup_thread = SDL_CreateThread(cleanup_thread_func, NULL);
   return 0;
 }
 
@@ -808,9 +799,6 @@ void QuitSound(void)
 {
   if (SDL_WasInit(SDL_INIT_AUDIO) == 0)
     return;
-
-  /* Stop channels clean-up thread */
-  SDL_KillThread(cleanup_thread);
 
   /* Stops all SFX channels */
   Mix_HaltChannel(-1);
