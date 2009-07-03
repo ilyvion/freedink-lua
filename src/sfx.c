@@ -72,9 +72,11 @@ static int hw_freq, hw_channels;
 static Uint16 hw_format;
 
 /* Fake buffer */
-Uint8* fake_buf = NULL;
-Uint32 fake_buf_len = 0;
+static Uint8* fake_buf = NULL;
+static Uint32 fake_buf_len = 0;
 
+/* Clean-up thread */
+static SDL_Thread* cleanup_thread = NULL;
 
 static int SetVolume(int channel, int dx_volume);
 static int SetPan(int channel, int dx_panning);
@@ -301,6 +303,20 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
     }
 }
 
+/* Close channels that stopped playing */
+int cleanup_thread_func(void* ignored)
+{
+  while (1)
+    {
+      int i = 0;
+      for (i = 0; i < NUM_CHANNELS; i++)
+	{
+	  if (channelinfo[i].finished == 1)
+	    Mix_HaltChannel(i);
+	}
+      SDL_Delay(10);
+    }
+}
 
 
 
@@ -619,9 +635,6 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
        play one frame with hw_freq */
     int shift = ((int)round((double)play_freq / hw_freq * (1<<8)));
     /* printf("shift=%d (%d*64)\n", shift, shift>>8); */
-    
-    /** Create a junk wav of the right size **/
-    int resized_len = registered_sounds[sound].cvt.len_cvt * ((double)hw_freq / play_freq);
 
     /* Fake buffer: we give an empty buffer to SDL_mixer. We won't
        actually play from that buffer though, as the audio buffer will
@@ -767,6 +780,10 @@ int InitSound()
   for (i = 0; i < MAX_SOUNDS; i++)
     registered_sounds[i].cvt.buf = NULL;
   
+  /* Start a thread to clean-up finished sounds: normally this is done
+     by SDL_mixer but since we're using effects tricks to
+     stream&resample sounds, we need to do this manually. */
+  cleanup_thread = SDL_CreateThread(cleanup_thread_func, NULL);
   return 0;
 }
 
@@ -777,6 +794,9 @@ void QuitSound(void)
 {
   if (SDL_WasInit(SDL_INIT_AUDIO) == 0)
     return;
+
+  /* Stop channels clean-up thread */
+  SDL_KillThread(cleanup_thread);
 
   /* Stops all SFX channels */
   Mix_HaltChannel(-1);
