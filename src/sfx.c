@@ -49,8 +49,8 @@ struct
   int owner;
   int survive;
   int cur_sound; /* Sound currently played in that channel */
-  Uint8 *fake_buf;
-  Uint32 fake_buf_len;
+  int looping;
+  int finished;
 } channelinfo[NUM_CHANNELS];
 
 
@@ -70,6 +70,10 @@ static struct
 /* Hardware soundcard information */
 static int hw_freq, hw_channels;
 static Uint16 hw_format;
+
+/* Fake buffer */
+Uint8* fake_buf = NULL;
+Uint32 fake_buf_len = 0;
 
 
 static int SetVolume(int channel, int dx_volume);
@@ -114,6 +118,7 @@ struct callback_data
   int pos; /* which sample (not frame) we're playing now, in 1/256th */
   int shift; /* position advance for 1 frame, in 1/256th */
   int sound; /* sound index */
+  int channel; /* channel index */
 };
 static void callback_samplerate_cleanup(int chan, void *udata)
 {
@@ -159,7 +164,11 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      
 	      data->pos += data->shift;
 	      if (data->pos >= pos_end)
-		data->pos = 0;
+		{
+		  if (!channelinfo[data->channel].looping)
+		    channelinfo[data->channel].finished = 1;
+		  data->pos = 0;
+		}
 	    }
  	}
       else if (hw_channels == 2)
@@ -199,7 +208,11 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      
 	      data->pos += data->shift;
 	      if (data->pos >= pos_end)
-		data->pos = 0;
+		{
+		  if (!channelinfo[data->channel].looping)
+		    channelinfo[data->channel].finished = 1;
+		  data->pos = 0;
+		}
 	    }
 	}
       break;
@@ -233,7 +246,11 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      
 	      data->pos += data->shift;
 	      if (data->pos >= pos_end)
-		data->pos = 0;
+		{
+		  if (!channelinfo[data->channel].looping)
+		    channelinfo[data->channel].finished = 1;
+		  data->pos = 0;
+		}
 	    }
 	}
       else if (hw_channels == 2)
@@ -273,7 +290,11 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      
 	      data->pos += data->shift;
 	      if (data->pos >= pos_end)
-		data->pos = 0;
+		{
+		  if (!channelinfo[data->channel].looping)
+		    channelinfo[data->channel].finished = 1;
+		  data->pos = 0;
+		}
 	    }
 	}
       break;
@@ -602,39 +623,33 @@ static int SoundPlayEffectChannel(int sound, int min, int plus, int sound3d, /*b
     /** Create a junk wav of the right size **/
     int resized_len = registered_sounds[sound].cvt.len_cvt * ((double)hw_freq / play_freq);
 
-    /* Fake buffer: we give an empty buffer to SDL_mixer and a size
-       information that matches the sound sample with the target
-       sample rate, so the mixer will play and stop the sound
-       appropriately. We won't actually play from that buffer though,
-       as the audio buffer will be generated in
-       callback_samplerate(). */
-    /* We used to share the buffer among channels, but it made the
-       engine crash if the buffer was realloc()'d to store a bigger
-       sound _and_ moved to a different memory address in the process
-       (while other existing sounds would still refer to the old,
-       freed memory location). */
-    Uint8* fake_buf = NULL;
-    fake_buf = malloc(resized_len);
-    Mix_Chunk *chunk = Mix_QuickLoad_RAW(fake_buf, resized_len);
-    /* printf("resized_len=%d bytes, pos_end=%d\n", resized_len, pos_end); */
+    /* Fake buffer: we give an empty buffer to SDL_mixer. We won't
+       actually play from that buffer though, as the audio buffer will
+       be generated in callback_samplerate(). That function will also
+       take care of updating the channelinfo when it's finished (and
+       should be cleaned from a non-callback function). */
+    Mix_Chunk *chunk = Mix_QuickLoad_RAW(fake_buf, fake_buf_len);
     
-    channel = Mix_PlayChannel(explicit_channel, chunk, repeat ? -1 : 0);
+    channel = Mix_PlayChannel(explicit_channel, chunk, -1);
     if (channel < 0)
       {
 	log_error("Mix_PlayChannel: Error playing sound %d - %s",
 		  sound, Mix_GetError());
 	return 0;
       }
-    channelinfo[channel].fake_buf = fake_buf;
-    channelinfo[channel].fake_buf_len = resized_len;
+    Mix_Pause(channel);
+    channelinfo[channel].finished = 0;
+    channelinfo[channel].looping = repeat;
 
     struct callback_data *data = calloc(1, sizeof(struct callback_data));
     data->pos = 0;
     data->shift = shift;
     data->sound = sound;
+    data->channel = channel;
 
     Mix_RegisterEffect(channel, callback_samplerate, callback_samplerate_cleanup, data);
     Mix_ChannelFinished(CleanupChannel);
+    Mix_Resume(channel);
   }
 
 
@@ -702,7 +717,8 @@ int InitSound()
   /* MIX_DEFAULT_CHANNELS is 2 => stereo, allowing panning effects */
   /* 1024 (chunk on which effects are applied) seems a good default,
      4096 is considered too big for SFX */
-  if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
+  int buf_samples = 1024;
+  if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, buf_samples) == -1)
     {
       log_error("Mix_OpenAudio: %s", Mix_GetError());
       return -1;
@@ -727,14 +743,22 @@ int InitSound()
 	       hw_freq, format2string(hw_format), hw_channels, numtimesopened);
   }
 
+  /* Allocate fake buffer - use the same size as the audio buffer */
+  fake_buf_len = buf_samples;
+  fake_buf_len *= hw_channels;
+  if (hw_format != AUDIO_U8 && hw_format != AUDIO_S8)
+    /*  2 bytes per frame */
+    fake_buf_len *= 2;
+  fake_buf = calloc(1, fake_buf_len);
+
   /* No sound playing yet - initialize the lookup table: */
   memset(channelinfo, 0, sizeof(channelinfo));
   int i;
   for (i = 0; i < NUM_CHANNELS; i++)
     {
       channelinfo[i].cur_sound = -1;
-      channelinfo[i].fake_buf = NULL;
-      channelinfo[i].fake_buf_len = 0;
+      channelinfo[i].finished = 0;
+      channelinfo[i].looping = 0;
     }
 
   /* No sound loaded yet - initialise the registered sounds: */
@@ -764,6 +788,8 @@ void QuitSound(void)
   for (; idxKill < MAX_SOUNDS; idxKill++)
     FreeRegisteredSound(idxKill);
 
+  free(fake_buf);
+
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
@@ -777,13 +803,6 @@ void sfx_log_meminfo()
   int sum = 0;
   int i = 0;
 
-  for (i = 0; i < NUM_CHANNELS; i++)
-    {
-      sum += channelinfo[i].fake_buf_len;
-    }
-  log_debug("Channels = %8d", sum);
-  total += sum;
-
   sum = 0;
   for (i = 0; i < MAX_SOUNDS; i++)
     {
@@ -792,8 +811,6 @@ void sfx_log_meminfo()
     }
   log_debug("Sounds   = %8d", sum);
   total += sum;
-
-
 }
 
 
@@ -830,11 +847,8 @@ static void CleanupChannel(int channel)
       exit(1);
     }
   Mix_FreeChunk(chunk);
-  /* WAV buffer is not freed when Chunk is created using
-     Mix_QuickLoad_RAW (cf. chunk->allocated), do it manually. */
-  free(channelinfo[channel].fake_buf);
-  channelinfo[channel].fake_buf = NULL;
-  channelinfo[channel].fake_buf_len = 0;
+  channelinfo[channel].finished = 0;
+  channelinfo[channel].looping = 0;
   channelinfo[channel].cur_sound = -1;
 
   /* Revert SetVolume and SetPan effects */
