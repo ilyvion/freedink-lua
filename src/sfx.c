@@ -129,6 +129,8 @@ static void callback_samplerate_cleanup(int chan, void *udata)
 static void callback_samplerate(int chan, void *stream, int len, void *udata)
 {
   struct callback_data* data = (struct callback_data*)udata;
+  if (channelinfo[data->channel].finished == 1)
+    return;
 
   /* printf("%d - %d/%d\n", len, data->pos>>8, registered_sounds[data->sound].pos_end>>8); */
   int pos_end = registered_sounds[data->sound].pos_end;
@@ -168,7 +170,10 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      if (data->pos >= pos_end)
 		{
 		  if (!channelinfo[data->channel].looping)
-		    channelinfo[data->channel].finished = 1;
+		    {
+		      channelinfo[data->channel].finished = 1;
+		      break;
+		    }
 		  data->pos = 0;
 		}
 	    }
@@ -212,7 +217,10 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      if (data->pos >= pos_end)
 		{
 		  if (!channelinfo[data->channel].looping)
-		    channelinfo[data->channel].finished = 1;
+		    {
+		      channelinfo[data->channel].finished = 1;
+		      break;
+		    }
 		  data->pos = 0;
 		}
 	    }
@@ -250,7 +258,10 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      if (data->pos >= pos_end)
 		{
 		  if (!channelinfo[data->channel].looping)
-		    channelinfo[data->channel].finished = 1;
+		    {
+		      channelinfo[data->channel].finished = 1;
+		      break;
+		    }
 		  data->pos = 0;
 		}
 	    }
@@ -294,7 +305,10 @@ static void callback_samplerate(int chan, void *stream, int len, void *udata)
 	      if (data->pos >= pos_end)
 		{
 		  if (!channelinfo[data->channel].looping)
-		    channelinfo[data->channel].finished = 1;
+		    {
+		      channelinfo[data->channel].finished = 1;
+		      break;
+		    }
 		  data->pos = 0;
 		}
 	    }
