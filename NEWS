@@ -23,7 +23,8 @@
 
 - DinkC: map_tile(...) can modify the first tile square (tile_index=0)
 
-- Lower startup RAM requirements (-7MB so far)
+- Lower startup RAM requirements (-7MB so far, and less memory
+  bandwidth for sounds); this is mostly useful for small devices.
 
 * Developer notes:
 
