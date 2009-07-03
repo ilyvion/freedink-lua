@@ -97,6 +97,11 @@ void ffextract(char *filename)
 
   /* grab the number of files */
   fin = fopen(filename, "r");
+  if (fin == NULL)
+    {
+      perror("ffextract");
+      return;
+    }
   fread(&nb_entries, sizeof(nb_entries), 1, fin);
 
   /* allocate some memory to store the {offset/filename}s */
@@ -139,6 +144,8 @@ void ffextract(char *filename)
 	    char wd[8192];
 	    getcwd(wd, 8192);
 	    fprintf(stderr, "Not overwriting myself (%s/%s)\n", wd, output_file);
+	    /* Skip this entry */
+	    fseek(fin, subfiles[i+1].offset, SEEK_SET);
 	    continue;
 	  }
 	fout = fopen(output_file, "w");
@@ -148,7 +155,7 @@ void ffextract(char *filename)
 	    char wd[8192];
 	    getcwd(wd, 8192);
 	    fprintf(stderr, "Cannot open %s/%s\n", wd, output_file);
-	    continue;
+	    break;
 	  }
 	
 	/* read while a full block can be read */
