@@ -410,12 +410,15 @@ int gfx_init_failsafe()
       return -1;
     }
 
+  if (GFX_lpDDSBack->format->BitsPerPixel > 8)
+    truecolor = 1;
+
   /* Default physical and reference palettes */
   gfx_palette_reset();
   gfx_palette_get_phys(GFX_real_pal);
 
   /* Set palette immediately (don't wait for flip_it()) */
-  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, GFX_real_pal, 0, 256);
+  SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL|SDL_LOGPAL, GFX_real_pal, 0, 256);
 
   return gfx_fonts_init_failsafe();
 }
@@ -481,19 +484,14 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       /* converted = SDL_ConvertSurface(image, image->format, image->flags); */
       SDL_Surface *converted = SDL_DisplayFormat(image);
 
-      /* Prepare a color conversion to the reference palette */
+      /* In the end, the image must use the reference palette: that way no
+	 mistaken color conversion will occur during blits to other
+	 surfaces/buffers. Blits should also be faster(?). */
       SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
       
       /* Blit the copy back to the original, with a potentially different
 	 palette, which triggers color conversion to image's palette. */
       SDL_BlitSurface(image, NULL, converted, NULL);
-
-      /* In the end, the image must use the reference palette: that way no
-	 mistaken color conversion will occur during blits to other
-	 surfaces/buffers. Blits should also be faster(?). */
-      SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
-
-
       SDL_FreeSurface(image);
       image = NULL;
 

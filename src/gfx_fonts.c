@@ -381,10 +381,10 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
     {
       SDL_PixelFormat fmt;
       SDL_Palette pal;
-      SDL_Color tmppal[256];
-      pal.ncolors = 256;
-      pal.colors = tmppal;
-      gfx_palette_get_phys(pal.colors);
+        pal.ncolors = 256;
+        SDL_Color tmppal[256];
+        gfx_palette_get_phys(tmppal);
+        pal.colors = tmppal;
       fmt.palette = &pal;
       Uint32 phys_index = SDL_MapRGB(&fmt, color.r, color.g, color.b);
       SDL_GetRGB(phys_index, GFX_lpDDSBack->format, &(color.r), &(color.g), &(color.b));
