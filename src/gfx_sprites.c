@@ -190,6 +190,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
   for (oo = 1; oo <= MAX_FRAMES_PER_SEQUENCE; oo++)
     {
       int myslot = next_slot();
+      int png = 0;
       if (myslot >= MAX_SPRITES)
 	{
 	  log_error("No sprite slot available! Index %d out of %d.",
@@ -200,27 +201,31 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       char *leading_zero = NULL;
       //load sprite
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
-      sprintf(crap, "%s%s%d.bmp", fname, leading_zero, oo);
 
+      sprintf(crap, "%s%s%d.bmp", fname, leading_zero, oo);
       HFASTFILE pfile = FastFileOpen(crap);
 
       if (pfile == NULL)
-	/* File not present in this fastfile - either missing file or
-	   end of sequence */
-	break;
+	{
+	  png = 1;
+	  sprintf(crap, "%s%s%d.png", fname, leading_zero, oo);
+	  pfile = FastFileOpen(crap);
+	
+	  if (pfile == NULL)
+	    /* File not present in this fastfile - either missing file or
+	       end of sequence */
+	    break;
+	}
       
       // GFX
       SDL_RWops *rw = FastFileLock(pfile);
       if (rw == NULL)
 	{
 	  /* rwops error? */
-	  log_error("Failed to open %s in fastfile %s: %s", crap, fullpath, SDL_GetError());
+	  log_error("Failed to open %s in fastfile %s", crap, fullpath);
 	}
       else
 	{
-	  /* We use IMG_Load_RW instead of SDL_LoadBMP because there
-	     is no _RW access in plain SDL. However there is no
-	     intent to support anything else than 8bit BMPs. */
 	  GFX_k[myslot].k = IMG_Load_RW(rw, 1); // auto free()
 	  if (GFX_k[myslot].k == NULL)
 	    log_error("Failed to load %s from fastfile %s: %s", crap, fullpath, SDL_GetError());
@@ -266,6 +271,31 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
 	 experience counter digits in the status bar will become
 	 transparent. */
 
+      if (png)
+	{
+	  /* Convert to palette expected from a dir.ff */
+	  SDL_Surface* source = GFX_k[myslot].k;
+	  SDL_Surface* conv = SDL_CreateRGBSurface(source->flags,
+						   source->w, source->h,
+						   source->format->BitsPerPixel,
+						   source->format->Rmask,
+						   source->format->Gmask,
+						   source->format->Bmask,
+						   source->format->Amask);
+	  SDL_SetPalette(conv, SDL_LOGPAL, GFX_real_pal, 0, 256);
+	  /* Reverse the DX palette bug work-around - a bit dirty but
+	     it works for the common case: the Dink palette */
+	  SDL_Color t;
+	  t.r = 255; t.g = 255; t.b = 255;
+	  SDL_SetPalette(conv, SDL_LOGPAL, &t, 0, 1);
+	  t.r = 0; t.g = 0; t.b = 0;
+	  SDL_SetPalette(conv, SDL_LOGPAL, &t, 255, 1);
+	  SDL_BlitSurface(source, NULL, conv, NULL);
+
+	  SDL_FreeSurface(source);
+	  GFX_k[myslot].k = conv;
+	}
+      /* Assume the BMP is in the canonical palette */
       SDL_SetPalette(GFX_k[myslot].k, SDL_LOGPAL, GFX_real_pal, 0, 256);
 
       Uint8 *p = (Uint8 *)GFX_k[myslot].k->pixels;
@@ -429,36 +459,72 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 
 
   /* Order: */
+  /* - dmod/.../...01.png */
   /* - dmod/.../dir.ff */
   /* - dmod/.../...01.BMP */
+  /* - ../dink/.../...01.png */
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
+
   char *seq_dirname = pdirname(seq_path_prefix);
-  sprintf(crap, "%s/dir.ff", seq_dirname);
-  fullpath = paths_dmodfile(crap);
-  //Msg("Checking for %s..", crap);
-  if (exist(fullpath))
-    {
-      free(fullpath);
-      free(seq_dirname);
-      load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
-		      hardbox, flags, /*true*/1);
-      return;
-    }
-  free(fullpath);
-  
   int exists = 0;
-  sprintf(crap, "%s01.BMP",seq_path_prefix);
-  fullpath = paths_dmodfile(crap);
-  exists = exist(fullpath);
-  free(fullpath);
+  int use_png= 0;
+
   if (!exists)
     {
-      sprintf(crap, "%s/dir.ff",  seq_dirname);
+      sprintf(crap, "%s01.png", seq_path_prefix);
+      fullpath = paths_dmodfile(crap);
+      exists = exist(fullpath);
+      free(fullpath);
+      if (exists)
+	use_png = 1;
+    }
+
+  if (!exists)
+    {
+      sprintf(crap, "%s/dir.ff", seq_dirname);
+      fullpath = paths_dmodfile(crap);
+      //Msg("Checking for %s..", crap);
+      if (exist(fullpath))
+	{
+	  free(fullpath);
+	  free(seq_dirname);
+	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
+			  hardbox, flags, /*true*/1);
+	  return;
+	}
+      free(fullpath);
+    }
+
+  if (!exists)
+    {
+      sprintf(crap, "%s01.BMP", seq_path_prefix);
+      fullpath = paths_dmodfile(crap);
+      exists = exist(fullpath);
+      free(fullpath);
+    }
+
+  if (!exists)
+    {
+      sprintf(crap, "%s01.png", seq_path_prefix);
+      fullpath = paths_fallbackfile(crap);
+      exists = exist(fullpath);
+      free(fullpath);
+      if (exists)
+	{
+	  use_png = 1;
+	  use_fallback = 1;
+	}
+    }
+
+  if (!exists)
+    {
+      sprintf(crap, "%s/dir.ff", seq_dirname);
       fullpath = paths_fallbackfile(crap);
       //Msg("Checking for %s..", crap);
       exists = exist(fullpath);
       free(fullpath);
+
       if (exists)
 	{
 	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
@@ -466,11 +532,14 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 	  free(seq_dirname);
 	  return;
 	}
-      else
-	{
-	  use_fallback = 1;
-	}
     }
+
+  if (!exists)
+    {
+      /* Let's look for the BMP below */
+      use_fallback = 1;
+    }
+
   free(seq_dirname);
 
 
@@ -492,7 +561,10 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
       FILE *in = NULL;
       char *leading_zero = NULL;
       if (oo < 10) leading_zero = "0"; else leading_zero = "";
-      sprintf(crap, "%s%s%d.bmp", seq_path_prefix, leading_zero, oo);
+      if (use_png)
+	sprintf(crap, "%s%s%d.png", seq_path_prefix, leading_zero, oo);
+      else
+	sprintf(crap, "%s%s%d.bmp", seq_path_prefix, leading_zero, oo);
 
       /* Set the pixel data */
       if (use_fallback)
@@ -611,8 +683,8 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   if (oo == 1)
     {
       /* First frame didn't load! */
-      log_error("load_sprites: couldn't open %s: %s", crap, SDL_GetError());
-      log_error("load_sprites:  Anim %s not found.", seq_path_prefix);
+      log_error("load_sprites: couldn't open '%s'", crap);
+      log_error("load_sprites:  Anim '%s' not found.", seq_path_prefix);
     }
 }
 
