@@ -197,7 +197,7 @@ void ffrpack(void)
   n = scandir(".", &namelist, isDir, alphasort);
   DEBUG(" %d subdir%s found; err=%s\n",
 	 n, (n>1)?"s":"", (n==-1)?strerror(errno):"no error");
-  for(i = 0; i < n; i++)
+  for (i = 0; i < n; i++)
     {
       DEBUG(" - %s\n", namelist[i]->d_name);
       if (chdir(namelist[i]->d_name) < 0)

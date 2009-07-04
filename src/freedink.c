@@ -39,6 +39,7 @@
 
 #include "gfx.h"
 #include "gfx_fonts.h"
+#include "gfx_palette.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
 #include "gfx_fade.h"
@@ -3400,7 +3401,7 @@ void CyclePalette()
       SDL_Color palette[256];
       int kk;
 
-      memcpy(palette, cur_screen_palette, sizeof(palette));
+      gfx_palette_get_phys(palette);
 
       for (kk = 1; kk < 256; kk++) /* skipping index 0 because it's
 				      already (and always) black ;) */
@@ -3459,7 +3460,7 @@ void CyclePalette()
 	    }
 	}
   
-      change_screen_palette(palette);
+      gfx_palette_set_phys(palette);
     }
   else
     {
@@ -3508,7 +3509,7 @@ void up_cycle(void)
       SDL_Color palette[256];
       int kk;
 
-      memcpy(palette, cur_screen_palette, sizeof(palette));
+      gfx_palette_get_phys(palette);
 
       for (kk = 1; kk < 256; kk++)
 	{
@@ -3554,7 +3555,7 @@ void up_cycle(void)
 	  palette[kk].r = tmp;
 	}
   
-      change_screen_palette(palette);
+      gfx_palette_set_phys(palette);
     }
   else
     {
@@ -3609,11 +3610,7 @@ void draw_box(rect box, int color)
     dst.x = box.left; dst.y = box.top;
     dst.w = box.right - box.left;
     dst.h = box.bottom - box.top;
-    SDL_FillRect(GFX_lpDDSBack, &dst,
-		 SDL_MapRGB(GFX_lpDDSBack->format,
-			    cur_screen_palette[color].r,
-			    cur_screen_palette[color].g,
-			    cur_screen_palette[color].b));
+    SDL_FillRect(GFX_lpDDSBack, &dst, color);
   }
 }
 
@@ -4926,7 +4923,7 @@ void process_show_bmp( void )
       
       
       // Return to canonical game palette
-      change_screen_palette(GFX_real_pal);
+      gfx_palette_set_phys(GFX_real_pal);
       // The main flip_it() will be called, skip it - lpDDSBack is
       // not matching the palette anymore, it needs to be redrawn
       // first.

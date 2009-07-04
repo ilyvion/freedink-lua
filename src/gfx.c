@@ -35,11 +35,11 @@
 #include "freedink_xpm.h"
 #include "io_util.h"
 #include "gfx.h"
-#include "gfx_fonts.h"
-#include "gfx_tiles.h"
-#include "gfx_sprites.h"
-#include "gfx_utils.h"
 #include "gfx_fade.h"
+#include "gfx_fonts.h"
+#include "gfx_palette.h"
+#include "gfx_sprites.h"
+#include "gfx_tiles.h"
 #include "init.h"
 #include "paths.h"
 #include "log.h"
@@ -96,18 +96,6 @@ SDL_Surface *GFX_lpDDSTrick2 = NULL;
 /* PALETTEENTRY  real_pal[256]; */
 SDL_Color GFX_real_pal[256];
 
-/** Game-specific **/
-/* Palette change: with SDL, SDL_SetColors (aka
-   SDL_SetPalette(SDL_PHYSPAL)) apparently triggers a Flip, which
-   displays weird colors on the screen for a brief but displeasing
-   moment. Besides, SDL_Flip() does not refresh the hardware palette,
-   so update the physical palette needs to be done manually - but only
-   when the surface is already in its final form. The palette may need
-   to be changed before the screen content is ready, so we'll make the
-   engine know when he needs to refresh the physical palette: */
-/* Tell flip_it* to install the new palette */
-int trigger_palette_change = 0;
-SDL_Color cur_screen_palette[256];
 
 /* True color fade in [0,256]; 0 is completely dark, 256 is unaltered */
 double truecolor_fade_brightness = 256;
@@ -293,19 +281,15 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
   /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
 
-  /* Default palette (may be used by early init error messages */
-  setup_palette(cur_screen_palette);
-  setup_palette(GFX_real_pal);
-  if (!truecolor)
-    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+  /* Default palette (may be used by early init error messages) */
+  gfx_palette_reset();
 
-
-  /* Create and set the reference palette */
-  if (load_palette_from_bmp("Tiles/Ts01.bmp", GFX_real_pal) < 0)
+  /* Create and set the physical palette */
+  if (gfx_palette_set_from_bmp("Tiles/Ts01.bmp") < 0)
     log_error("Failed to load default palette from Tiles/Ts01.bmp");
 
-  /* Physical palette (the one we can change to make visual effects) */
-  change_screen_palette(GFX_real_pal);
+  /* Set the reference palette */
+  gfx_palette_get_phys(GFX_real_pal);
 
   /* Initialize graphic buffers */
   /* When a new image is loaded in DX, it's color-converted using the
@@ -315,7 +299,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
      the buffer's palette again, so we're sure there isn't any
      conversion even if we change the screen palette: */
   if (!truecolor)
-    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, cur_screen_palette, 0, 256);
+    SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
   GFX_lpDDSTwo    = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick  = SDL_DisplayFormat(GFX_lpDDSBack);
   GFX_lpDDSTrick2 = SDL_DisplayFormat(GFX_lpDDSBack);
@@ -426,9 +410,12 @@ int gfx_init_failsafe()
       return -1;
     }
 
-  setup_palette(cur_screen_palette);
-  setup_palette(GFX_real_pal);
-  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, cur_screen_palette, 0, 256);
+  /* Default physical and reference palettes */
+  gfx_palette_reset();
+  gfx_palette_get_phys(GFX_real_pal);
+
+  /* Set palette immediately (don't wait for flip_it()) */
+  SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL|SDL_PHYSPAL, GFX_real_pal, 0, 256);
 
   return gfx_fonts_init_failsafe();
 }
@@ -462,43 +449,11 @@ void gfx_quit()
 }
 
 
-/* Schedule a change to the physical screen's palette for the next
-   frame */
-void change_screen_palette(SDL_Color* new_palette)
-{
-  /* Now this one is tricky: DX/Woe has a "feature" where palette
-     indexes 0 and 255 are fixed to black and white,
-     respectively. This is the opposite of the default Dink palette
-     - which is why fill_screen(0) is black and not white as in the
-     Dink palette. This also makes "Lyna's Story"'s palette change a
-     bit ugly, because pure black and white colors are not reversed
-     when you enter "negative" color mode. This does not affect
-     other indexes. Technically this happens when you get a palette
-     from GetEntries(), and when you CreatePalette() without
-     specifying DDPCAPS_ALLOW256 (so respectively, in
-     change_screen_palette() and load_palette_from_*()). But well,
-     reproducing the bug is important for backward compatibility. */
-  
-  memcpy(cur_screen_palette, new_palette, sizeof(cur_screen_palette));
-  
-  cur_screen_palette[0].r = 0;
-  cur_screen_palette[0].g = 0;
-  cur_screen_palette[0].b = 0;
-  cur_screen_palette[255].r = 255;
-  cur_screen_palette[255].g = 255;
-  cur_screen_palette[255].b = 255;
-  
-  /* Applying the logical palette to the physical screen may trigger
-     a Flip, so don't do it right now */
-  trigger_palette_change = 1;
-}
-
-
 /* LoadBMP wrapper. Load a new graphic from file, and apply the
    reference palette so that all subsequent blits are faster (color
    convertion is avoided) - although the initial loading time will be
    somewhat longer. */
-static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem, int setpal) {
+static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_mem) {
   SDL_Surface *image;
 
   if (from_mem == 1)
@@ -526,39 +481,13 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       /* converted = SDL_ConvertSurface(image, image->format, image->flags); */
       SDL_Surface *converted = SDL_DisplayFormat(image);
 
-      int palette_is_applied = 0;
-      if (setpal == 1)
-	{
-	  SDL_Color palette[256];
-	  if (!(load_palette_from_surface(image, palette) < 0))
-	    {
-	      change_screen_palette(palette);
-	      /* Pretend that the image uses the current screen and
-		 buffers palette, to avoid color conversion to the
-		 reference palette (maintain palette indexes). We maintain
-		 palette indexes so that they will match the physical
-		 screen's palette, which we just change. */
-	      /* Note: cur_screen_palette is not exactly the same as
-		 palette, because DX reserves some indexes, and FreeDink
-		 reimplement this limitation for compatibility. So we
-		 still need a blit with color convertion to take reserved
-		 indexes into account. Typically skipping this step will
-		 reverse black and white (with Dink palette indexes: 255
-		 and 0; with DX reserved indexes: 0 and 255). */
-	      SDL_SetPalette(converted, SDL_LOGPAL, cur_screen_palette, 0, 256);
-	      palette_is_applied = 1;
-	    }
-	}
-      if (!palette_is_applied)
-	{
-	  /* Prepare a color conversion to the reference palette */
-	  SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
-	}
-
+      /* Prepare a color conversion to the reference palette */
+      SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
+      
       /* Blit the copy back to the original, with a potentially different
 	 palette, which triggers color conversion to image's palette. */
       SDL_BlitSurface(image, NULL, converted, NULL);
-  
+
       /* In the end, the image must use the reference palette: that way no
 	 mistaken color conversion will occur during blits to other
 	 surfaces/buffers. Blits should also be faster(?). */
@@ -584,7 +513,7 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
 /* LoadBMP wrapper, from file */
 SDL_Surface* load_bmp(char *filename)
 {
-  return load_bmp_internal(filename, NULL, 0, 0);
+  return load_bmp_internal(filename, NULL, 0);
 }
 
 /* LoadBMP wrapper, from FILE pointer */
@@ -593,23 +522,15 @@ SDL_Surface* load_bmp_from_fp(FILE* in)
   if (in == NULL)
     return NULL;
   SDL_RWops *rw = SDL_RWFromFP(in, /*autoclose=*/1);
-  return load_bmp_internal(NULL, rw, 1, 0);
+  return load_bmp_internal(NULL, rw, 1);
 }
 
 /* LoadBMP wrapper, from memory */
 SDL_Surface* load_bmp_from_mem(SDL_RWops *rw)
 {
-  return load_bmp_internal(NULL, rw, 1, 0);
+  return load_bmp_internal(NULL, rw, 1);
 }
 
-/* LoadBMP wrapper + use as current palette */
-SDL_Surface* load_bmp_setpal(FILE* in)
-{
-  if (in == NULL)
-    return NULL;
-  SDL_RWops *rw = SDL_RWFromFP(in, /*autoclose=*/1);
-  return load_bmp_internal(NULL, rw, 1, 1);
-}
 
 /**
  * Temporary disable src's transparency and blit it to dst
@@ -700,20 +621,12 @@ void flip_it(void)
      the original game): the double buffer (Back) is directly
      managed by SDL; SDL_Flip is used to refresh the physical
      screen. */
-  if (!truecolor && trigger_palette_change)
-    {
-      // Apply the logical palette to the physical screen. This
-      // may trigger a Flip (so don't do that until Back is
-      // ready), but not necessarily (so do a Flip anyway).
-      SDL_SetPalette(GFX_lpDDSBack, SDL_PHYSPAL,
-		     cur_screen_palette, 0, 256);
-    }
-  trigger_palette_change = 0;
 
+  if (!truecolor)
+    gfx_palette_apply_phys();
+  
   if (truecolor_fade_brightness < 256)
-    {
-      gfx_fade_apply(truecolor_fade_brightness);
-    }
+    gfx_fade_apply(truecolor_fade_brightness);
 
   SDL_Flip(GFX_lpDDSBack);
 }
@@ -731,7 +644,7 @@ void gfx_toggle_fullscreen(void)
   /* Palette was lost in the process */
   if (!truecolor)
     SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
-  trigger_palette_change = 1;
+  gfx_palette_restore_phys();
 }
 
 /**

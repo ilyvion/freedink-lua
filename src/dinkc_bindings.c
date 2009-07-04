@@ -47,6 +47,7 @@
 #include "freedink.h"
 #include "gfx.h"
 #include "gfx_fonts.h"
+#include "gfx_palette.h"
 #include "gfx_sprites.h"
 #include "gfx_tiles.h"
 #include "bgm.h"
@@ -1795,25 +1796,14 @@ void dc_load_palette(int script, int* yield, int* preturnint, char* bmp_file)
 {
   // load a pallete from any bmp
   char *name = bmp_file;
-  SDL_Surface* image = NULL;
-  FILE *in = paths_dmodfile_fopen(name, "rb");
-  if (in == NULL)
-    log_error("[DinkC] Can't open palette '%s'.", name);
-  else
-    {
-      /* Set palette */
-      image = load_bmp_setpal(in);
-      memcpy(GFX_real_pal, cur_screen_palette, 256);
-    }
+  char* fullpath = paths_dmodfile(name);
   
-  if (image == NULL)
-    log_error("[DinkC] Couldn't load palette from '%s'.", name);
-  else
-    {
-      //Store in save game
-      strncpy(play.palette, slist[0], 50);
-      SDL_FreeSurface(image);
-    }
+  if (gfx_palette_set_from_bmp(fullpath) < 0)
+    log_error("[DinkC] Couldn't load palette from '%s': %s", name, SDL_GetError());
+  gfx_palette_get_phys(GFX_real_pal);
+  
+  //Store in save game
+  strncpy(play.palette, slist[0], 50);
 }
 
 void dc_get_item(int script, int* yield, int* preturnint, char* dcscript)

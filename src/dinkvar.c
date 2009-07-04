@@ -52,6 +52,7 @@
 /* #include <ddraw.h> */
 
 #include "SDL.h"
+#include "SDL_image.h"
 #include "SDL_framerate.h"
 
 #include "game_engine.h"
@@ -69,7 +70,7 @@
 #include "gfx.h"
 #include "gfx_tiles.h"
 #include "gfx_sprites.h"
-#include "gfx_utils.h"
+#include "gfx_palette.h"
 /* for DinkC's initfonts(): */
 #include "gfx_fonts.h"
 #include "bgm.h"
@@ -741,9 +742,9 @@ void drawallhard( void)
 	      GFX_box_crap.h = 1;
 	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[1].r,
-				      cur_screen_palette[1].g,
-				      cur_screen_palette[1].b));
+				      GFX_real_pal[1].r,
+				      GFX_real_pal[1].g,
+				      GFX_real_pal[1].b));
 	    }
 	  }
 
@@ -766,9 +767,9 @@ void drawallhard( void)
 	      GFX_box_crap.h = 1;
 	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[128].r,
-				      cur_screen_palette[128].g,
-				      cur_screen_palette[128].b));
+				      GFX_real_pal[128].r,
+				      GFX_real_pal[128].g,
+				      GFX_real_pal[128].b));
 	    }
 	  }
 
@@ -791,9 +792,9 @@ void drawallhard( void)
 	      GFX_box_crap.h = 1;
 	      SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[45].r,
-				      cur_screen_palette[45].g,
-				      cur_screen_palette[45].b));
+				      GFX_real_pal[45].r,
+				      GFX_real_pal[45].g,
+				      GFX_real_pal[45].b));
 	    }
 	  }
 
@@ -819,10 +820,10 @@ void drawallhard( void)
 		  GFX_box_crap.w = 1;
 		  GFX_box_crap.h = 1;
 		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
-			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[20].r,
-				      cur_screen_palette[20].g,
-				      cur_screen_palette[20].b));
+			       SDL_MapRGB(GFX_lpDDSBack->format,
+					  GFX_real_pal[20].r,
+					  GFX_real_pal[20].g,
+					  GFX_real_pal[20].b));
 		}
 	      }
 	    else
@@ -844,10 +845,10 @@ void drawallhard( void)
 		  GFX_box_crap.w = 1;
 		  GFX_box_crap.h = 1;
 		  SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
-			   SDL_MapRGB(GFX_lpDDSBack->format,
-				      cur_screen_palette[23].r,
-				      cur_screen_palette[23].g,
-				      cur_screen_palette[23].b));
+			       SDL_MapRGB(GFX_lpDDSBack->format,
+					  GFX_real_pal[23].r,
+					  GFX_real_pal[23].g,
+					  GFX_real_pal[23].b));
 		}
 	      }
 	  }
@@ -1361,18 +1362,11 @@ void save_info(void)
       if (strlen(play.palette) > 0)
 	{
 	  char *name = play.palette;
-	  SDL_Surface* image = NULL;
-	  FILE *in = paths_dmodfile_fopen(name, "rb");
-	  if (in == NULL)
-	    log_error("Error: Can't open palette '%s'.", name);
-	  else
-	    /* Set palette */
-	    image = load_bmp_setpal(in);
+	  char* fullpath = paths_dmodfile(name);
 	  
-	  if (image == NULL)
-	    log_error("Couldn't load palette from '%s'.", name);
-	  else
-	    SDL_FreeSurface(image);
+	  if (gfx_palette_set_from_bmp(fullpath) < 0)
+	    log_error("Couldn't load palette from '%s': %s", name, SDL_GetError());
+	  gfx_palette_get_phys(GFX_real_pal);
 	}
       
       /* Reload tiles */
@@ -3770,51 +3764,49 @@ void update_status_all(void)
 }
 
 
-void show_bmp(char name[80], int showdot, int script)
+void show_bmp(char* name, int showdot, int script)
 {
-  SDL_Surface *image = NULL;
-  FILE* in = NULL;
-
-  in = paths_dmodfile_fopen(name, "rb");
-  if (in == NULL)
-    {
-      log_error("Error: Can't open bitmap '%s'.", name);
-      return;
-    }
-
-  image = load_bmp_setpal(in);
+  char* fullpath = paths_dmodfile(name);
+  SDL_Surface* image = IMG_Load(fullpath);
   if (image == NULL)
     {
-      log_error("Couldn't load '%s'.", name);
+      log_error("Couldn't load '%s': %s", name, SDL_GetError());
       return;
+    }
+  
+  /* Set physical screen palette */
+  if (!truecolor)
+    {
+      gfx_palette_set_from_surface(image);
+      SDL_Color phys_pal[256];
+      gfx_palette_get_phys(phys_pal);
+
+      /* In case the DX bug messed the palette, let's convert the
+	 image to the new palette. This also converts 24->8bit if
+	 necessary. */
+      {
+	SDL_Surface* converted = SDL_DisplayFormat(image);
+	SDL_SetPalette(converted, SDL_LOGPAL, phys_pal, 0, 256);
+	SDL_BlitSurface(image, NULL, converted, NULL);
+	SDL_FreeSurface(image);
+	image = converted;
+      }
+
+      /* Next blit without palette conversion */
+      SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
     }
 
   showb.active = /*true*/1;
   showb.showdot = showdot;
   showb.script = script;
 
+  SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
+  SDL_FreeSurface(image);
+
   // After show_bmp(), and before the flip_it() call in updateFrame(),
   // other parts of the code will draw sprites on lpDDSBack and mess
   // the showbmp(). So skip the next flip_it().
   abort_this_flip = /*true*/1;
-
-/*   RECT rcRect; */
-/*   SetRect(&rcRect, 0,0,640, 480); */
-
-/*  again: */
-/*   ddrval = lpDDSBack->BltFast( 0, 0, lpDDSTrick, */
-/* 			       &rcRect, DDBLTFAST_NOCOLORKEY); */
-/*   if( ddrval == DDERR_WASSTILLDRAWING ) goto again; */
-
-  // GFX
-  {
-    SDL_BlitSurface(image, NULL, GFX_lpDDSTrick, NULL);
-    SDL_FreeSurface(image);
-  }
-
-  /* DEBUG: doesn't seem useful, will be done in the next
-     updateFrame() anyway */
-  //flip_it_second();
 }
 
 
@@ -3822,29 +3814,42 @@ void show_bmp(char name[80], int showdot, int script)
    show_cmp: does not set showb.* (wait for button), install the image
    to lpDDSTwo (background) and not lpDDSBack (screen double
    buffer) */
-void copy_bmp( char name[80])
+void copy_bmp(char* name)
 {
-  SDL_Surface *image = NULL;
-  FILE* in = NULL;
-
-  in = paths_dmodfile_fopen(name, "rb");
-  if (in == NULL)
-    {
-      log_error("Error: Can't open bitmap '%s'.", name);
-      return;
-    }
-
-  image = load_bmp_setpal(in);
+  char* fullpath = paths_dmodfile(name);
+  SDL_Surface* image = IMG_Load(fullpath);
   if (image == NULL)
     {
-      log_error("Couldn't load '%s'.", name);
+      log_error("Couldn't load '%s': %s", name, SDL_GetError());
       return;
     }
+  
+  /* Set physical screen palette */
+  if (!truecolor)
+    {
+      gfx_palette_set_from_surface(image);
+      SDL_Color phys_pal[256];
+      gfx_palette_get_phys(phys_pal);
 
-  abort_this_flip = /*true*/1;
+      /* In case the DX bug messed the palette, let's convert the
+	 image to the new palette. This also converts 24->8bit if
+	 necessary. */
+      {
+	SDL_Surface* converted = SDL_DisplayFormat(image);
+	SDL_SetPalette(converted, SDL_LOGPAL, phys_pal, 0, 256);
+	SDL_BlitSurface(image, NULL, converted, NULL);
+	SDL_FreeSurface(image);
+	image = converted;
+      }
+
+      /* Next blit without palette conversion */
+      SDL_SetPalette(image, SDL_LOGPAL, GFX_real_pal, 0, 256);
+    }
 
   SDL_BlitSurface(image, NULL, GFX_lpDDSTwo, NULL);
   SDL_FreeSurface(image);
+
+  abort_this_flip = /*true*/1;
 }
 
         int hurt_thing(int h, int damage, int special)
@@ -3952,10 +3957,13 @@ void add_item(char* name, int mseq, int mframe, enum item_type type)
 void fill_screen(int num)
 {
   /* Warning: palette indexes 0 and 255 are hard-coded
-     to black and white (change_screen_palette). */
-  SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
-					      cur_screen_palette[num].r,
-					      cur_screen_palette[num].g,
-					      cur_screen_palette[num].b));
+     to black and white (cf. gfx_palette.c). */
+  if (!truecolor)
+    SDL_FillRect(GFX_lpDDSTwo, NULL, num);
+  else
+    SDL_FillRect(GFX_lpDDSTwo, NULL, SDL_MapRGB(GFX_lpDDSTwo->format,
+						GFX_real_pal[num].r,
+						GFX_real_pal[num].g,
+						GFX_real_pal[num].b));
 }
 

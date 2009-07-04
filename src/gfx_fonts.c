@@ -41,6 +41,7 @@
 #include "io_util.h"
 #include "paths.h"
 #include "gfx_fonts.h"
+#include "gfx_palette.h"
 #include "vgasys_fon.h"
 #include "init.h"
 #include "log.h"
@@ -376,15 +377,18 @@ print_text (TTF_Font * font, char *str, int x, int y, int w, SDL_Color /*&*/colo
      conversion (commit 2007-11-01) but this was terribly slow (full
      palette conversion done 5 times per text (for the border effect)
      and per frame). */
-  {
-    SDL_PixelFormat fmt;
-    SDL_Palette pal = {256, cur_screen_palette};
-    Uint32 screen_index;
-    fmt.palette = &pal;
-    screen_index = SDL_MapRGB(&fmt, color.r, color.g, color.b);
-    fmt.palette->colors = GFX_real_pal;
-    SDL_GetRGB(screen_index, &fmt, &(color.r), &(color.g), &(color.b));
-  }
+  if (!truecolor)
+    {
+      SDL_PixelFormat fmt;
+      SDL_Palette pal;
+      SDL_Color tmppal[256];
+      pal.ncolors = 256;
+      pal.colors = tmppal;
+      gfx_palette_get_phys(pal.colors);
+      fmt.palette = &pal;
+      Uint32 phys_index = SDL_MapRGB(&fmt, color.r, color.g, color.b);
+      SDL_GetRGB(phys_index, GFX_lpDDSBack->format, &(color.r), &(color.g), &(color.b));
+    }
 
   /* Transparent, low quality - closest to the original engine. */
   /* Besides, we do need a monochrome render, since we're doing nasty

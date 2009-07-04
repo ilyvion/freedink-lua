@@ -688,9 +688,9 @@ past:
 						// GFX
 						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 							     SDL_MapRGB(GFX_lpDDSBack->format,
-									cur_screen_palette[100].r,
-									cur_screen_palette[100].g,
-									cur_screen_palette[100].b));
+									GFX_real_pal[100].r,
+									GFX_real_pal[100].g,
+									GFX_real_pal[100].b));
 
 						
 						for (oo=0; oo <  spr[h].moveman+1; oo++)
@@ -711,9 +711,9 @@ past:
 							// GFX
 							SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 								     SDL_MapRGB(GFX_lpDDSBack->format,
-										cur_screen_palette[50].r,
-										cur_screen_palette[50].g,
-										cur_screen_palette[50].b));
+										GFX_real_pal[50].r,
+										GFX_real_pal[50].g,
+										GFX_real_pal[50].b));
 							
 						}
 /* 						ddbltfx.dwFillColor = 1; */
@@ -732,9 +732,9 @@ past:
 						// GFX
 						SDL_FillRect(GFX_lpDDSBack, &GFX_box_crap,
 							     SDL_MapRGB(GFX_lpDDSBack->format,
-									cur_screen_palette[1].r,
-									cur_screen_palette[1].g,
-									cur_screen_palette[1].b));
+									GFX_real_pal[1].r,
+									GFX_real_pal[1].g,
+									GFX_real_pal[1].b));
 					}
 				}         
 }
