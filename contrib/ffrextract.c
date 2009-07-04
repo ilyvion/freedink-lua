@@ -1,7 +1,7 @@
 /*
  * Recursively extract dir.ff FastFile archives
 
- * Copyright (C) 2002, 2003, 2007  Sylvain Beucler
+ * Copyright (C) 2002, 2003, 2007, 2009  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -24,8 +24,7 @@
   This is my first C program, so be indulgent :)
   TODO:
   Replace scandir, which is only BSD compliant, by something at least
-    POSIX compliant. And then, add some Windows portability, using
-    #ifdefs or wx's lib
+    POSIX compliant.
   Try to simplify
   Cleanup globals
   Comment the code and find some better variable names
@@ -87,7 +86,7 @@ void ffextract(char *filename)
   FILE *fin = NULL, *fout = NULL;
   struct subfile
   {
-    long int offset;
+    int offset;
     char filename[FILENAME_SIZE + 1];
   } *subfiles;
   /* warning: sizeof(struct subfile) = 20 != 17... */
@@ -177,6 +176,7 @@ void ffextract(char *filename)
     free(output_file);
   }
 
+  free(subfiles)
   fclose(fin);
 }
 
