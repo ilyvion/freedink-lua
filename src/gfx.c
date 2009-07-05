@@ -480,13 +480,19 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
     {
       /* Make a copy of the surface using the screen format (in
 	 particular: same color depth, which is needed when importing
-	 24bit graphics in 8bit mode) */
+	 24bit graphics in 8bit mode). */
+      /* This copy is also necessary to make a palette conversion from
+	 the Dink palette (the one from the .bmp) to the
+	 'DX-bug-messed' Dink palette (GFX_real_pal with overwritten
+	 indexes 0 and 255). */
       /* converted = SDL_ConvertSurface(image, image->format, image->flags); */
       SDL_Surface *converted = SDL_DisplayFormat(image);
 
-      /* In the end, the image must use the reference palette: that way no
-	 mistaken color conversion will occur during blits to other
-	 surfaces/buffers. Blits should also be faster(?). */
+      /* In the end, the image must use the reference palette: that
+	 way no mistaken color conversion will occur during blits to
+	 other surfaces/buffers.  Blits should also be faster(?).
+	 Alternatively we could replace SDL_BlitSurface with a wrapper
+	 that sets identical palettes before the blits. */
       SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
       
       /* Blit the copy back to the original, with a potentially different

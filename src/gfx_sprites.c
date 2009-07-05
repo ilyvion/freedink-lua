@@ -214,7 +214,7 @@ void load_sprite_pak(char seq_path_prefix[100], int seq_no, int delay, int xoffs
       if (rw == NULL)
 	{
 	  /* rwops error? */
-	  log_error("Failed to open %s in fastfile %s: %s", crap, fullpath, SDL_GetError());
+	  log_error("Failed to open '%s' in fastfile '%s'", crap, fullpath);
 	}
       else
 	{
@@ -434,43 +434,52 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   /* - ../dink/.../dir.ff */
   /* - ../dink/.../...01.BMP */
   char *seq_dirname = pdirname(seq_path_prefix);
-  sprintf(crap, "%s/dir.ff", seq_dirname);
-  fullpath = paths_dmodfile(crap);
-  //Msg("Checking for %s..", crap);
-  if (exist(fullpath))
-    {
-      free(fullpath);
-      free(seq_dirname);
-      load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
-		      hardbox, flags, /*true*/1);
-      return;
-    }
-  free(fullpath);
-  
   int exists = 0;
-  sprintf(crap, "%s01.BMP",seq_path_prefix);
-  fullpath = paths_dmodfile(crap);
-  exists = exist(fullpath);
-  free(fullpath);
+
   if (!exists)
     {
-      sprintf(crap, "%s/dir.ff",  seq_dirname);
-      fullpath = paths_fallbackfile(crap);
-      //Msg("Checking for %s..", crap);
+      sprintf(crap, "%s/dir.ff", seq_dirname);
+      fullpath = paths_dmodfile(crap);
       exists = exist(fullpath);
       free(fullpath);
       if (exists)
 	{
-	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
-			  hardbox, flags, /*false*/0);
 	  free(seq_dirname);
+	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
+			  hardbox, flags, /*true*/1);
 	  return;
 	}
-      else
+    }
+  
+  if (!exists)
+    {
+      sprintf(crap, "%s01.BMP",seq_path_prefix);
+      fullpath = paths_dmodfile(crap);
+      exists = exist(fullpath);
+      free(fullpath);
+    }
+
+  if (!exists)
+    {
+      sprintf(crap, "%s/dir.ff",  seq_dirname);
+      fullpath = paths_fallbackfile(crap);
+      exists = exist(fullpath);
+      free(fullpath);
+      if (exists)
 	{
-	  use_fallback = 1;
+	  free(seq_dirname);
+	  load_sprite_pak(seq_path_prefix, seq_no, delay, xoffset, yoffset,
+			  hardbox, flags, /*false*/0);
+	  return;
 	}
     }
+
+  if (!exists)
+    {
+      /* Let's look for the BMP below */
+      use_fallback = 1;
+    }
+
   free(seq_dirname);
 
 
@@ -611,8 +620,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   if (oo == 1)
     {
       /* First frame didn't load! */
-      log_error("load_sprites: couldn't open %s: %s", crap, SDL_GetError());
-      log_error("load_sprites:  Anim %s not found.", seq_path_prefix);
+      log_error("load_sprites: anim '%s' not found: couldn't open '%s'", seq_path_prefix, crap);
     }
 }
 
