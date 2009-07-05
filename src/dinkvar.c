@@ -907,6 +907,12 @@ void fix_dead_sprites()
  */
 void load_map_to(char* path, const int num, struct small_map* screen)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+
   FILE *f = NULL;
   long holdme,lsize;
   f = paths_dmodfile_fopen(path, "rb");
@@ -922,20 +928,20 @@ void load_map_to(char* path, const int num, struct small_map* screen)
 
   /* Portably load map structure from disk */
   int i = 0;
-  fseek(f, 20, SEEK_CUR); // unused 'name' field
+  fread(skipbuf, 20, 1, f); // unused 'name' field
   for (i = 0; i < 97; i++)
     {
       screen->t[i].square_full_idx0 = read_lsb_int(f);
-      fseek(f, 4, SEEK_CUR); // unused 'property' field
+      fread(skipbuf, 4, 1, f); // unused 'property' field
       screen->t[i].althard = read_lsb_int(f);
-      fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
-      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-      fseek(f, 60, SEEK_CUR); // unused 'buff' field
+      fread(skipbuf, 6, 1, f); // unused 'more2', 'more3', 'more4' fields
+      fread(skipbuf, 2, 1, f); // reproduce memory alignment
+      fread(skipbuf, 60, 1, f); // unused 'buff' field
     }
   // offset 7780
   
-  fseek(f, 160, SEEK_CUR); // unused 'v' field
-  fseek(f, 80, SEEK_CUR);  // unused 's' field
+  fread(skipbuf, 160, 1, f); // unused 'v' field
+  fread(skipbuf, 80, 1, f);  // unused 's' field
   // offset 8020
   
   /* struct sprite_placement sprite[101]; */
@@ -950,7 +956,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
       screen->sprite[i].size = read_lsb_int(f);
       
       screen->sprite[i].active = fgetc(f);
-      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+      fread(skipbuf, 3, 1, f); // reproduce memory alignment
       // offset 28
       
       screen->sprite[i].rotation = read_lsb_int(f);
@@ -959,7 +965,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
       
       fread(screen->sprite[i].script, 14, 1, f);
       screen->sprite[i].script[14-1] = '\0'; // safety
-      fseek(f, 38, SEEK_CUR); // unused hit/die/talk fields
+      fread(skipbuf, 38, 1, f); // unused hit/die/talk fields
       // offset 92
       
       screen->sprite[i].speed = read_lsb_int(f);
@@ -1005,8 +1011,8 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   
   fread(screen->script, 21, 1, f);
   screen->script[21-1] = '\0'; // safety
-  fseek(f, 1018, SEEK_CUR); // unused hit/die/talk fields
-  fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+  fread(skipbuf, 1018, 1, f); // unused hit/die/talk fields
+  fread(skipbuf, 1, 1, f); // reproduce memory alignment
   // offset 31280
   
   fclose(f);
@@ -1038,6 +1044,13 @@ void load_map(const int num)
  */
 void save_map(const int num)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+  memset(skipbuf, 0, 10000);
+
   FILE *f = NULL;
   long holdme,lsize;
 
@@ -1062,16 +1075,16 @@ void save_map(const int num)
       for (i = 0; i < 97; i++)
 	{
 	  write_lsb_int(pam.t[i].square_full_idx0, f);
-	  fseek(f, 4, SEEK_CUR); // unused 'property' field
+	  fwrite(skipbuf, 4, 1, f); // unused 'property' field
 	  write_lsb_int(pam.t[i].althard, f);
-	  fseek(f, 6, SEEK_CUR); // unused 'more2', 'more3', 'more4' fields
-	  fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-	  fseek(f, 60, SEEK_CUR); // unused 'buff' field
+	  fwrite(skipbuf, 6, 1, f); // unused 'more2', 'more3', 'more4' fields
+	  fwrite(skipbuf, 2, 1, f); // reproduce memory alignment
+	  fwrite(skipbuf, 60, 1, f); // unused 'buff' field
 	}
       // offset 7780
 
-      fseek(f, 160, SEEK_CUR); // unused 'v' field
-      fseek(f, 80, SEEK_CUR);  // unused 's' field
+      fwrite(skipbuf, 160, 1, f); // unused 'v' field
+      fwrite(skipbuf, 80, 1, f);  // unused 's' field
       // offset 8020
 
       /* struct sprite_placement sprite[101]; */
@@ -1086,7 +1099,7 @@ void save_map(const int num)
 	  write_lsb_int(pam.sprite[i].size, f);
 
 	  fputc(pam.sprite[i].active, f);
-	  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+	  fwrite(skipbuf, 3, 1, f); // reproduce memory alignment
 	  // offset 28
 	  
 	  write_lsb_int(pam.sprite[i].rotation, f);
@@ -1094,7 +1107,7 @@ void save_map(const int num)
 	  write_lsb_int(pam.sprite[i].brain, f);
 
 	  fwrite(pam.sprite[i].script, 14, 1, f);
-	  fseek(f, 38, SEEK_CUR); // reproduce memory alignment
+	  fwrite(skipbuf, 38, 1, f); // reproduce memory alignment
 	  // offset 92
 
 	  write_lsb_int(pam.sprite[i].speed, f);
@@ -1139,8 +1152,8 @@ void save_map(const int num)
       // offset 30204
       
       fwrite(pam.script, 21, 1, f);
-      fseek(f, 1018, SEEK_CUR); // unused random/load/buffer fields
-      fseek(f, 1, SEEK_CUR); // reproduce memory alignment
+      fwrite(skipbuf, 1018, 1, f); // unused random/load/buffer fields
+      fwrite(skipbuf, 1, 1, f); // reproduce memory alignment
       // offset 31280
 
       fclose(f);
@@ -1182,6 +1195,12 @@ void save_info(void)
 
 /*bool*/int load_game(int num)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+
   FILE *f = NULL;
   
   //lets get rid of our magic and weapon scripts
@@ -1221,14 +1240,14 @@ void save_info(void)
   int i = 0;
   // TODO: check 'version' field and warn/upgrade/downgrade if
   // savegame version != dversion
-  fseek(f, 4, SEEK_CUR);
-  fseek(f, 77+1, SEEK_CUR); // skip save_game_info, cf. save_game_small(...)
-  fseek(f, 118, SEEK_CUR); // unused
+  fread(skipbuf, 4, 1, f);
+  fread(skipbuf, 77+1, 1, f); // skip save_game_info, cf. save_game_small(...)
+  fread(skipbuf, 118, 1, f); // unused
   // offset 200
   play.minutes = read_lsb_int(f);
   spr[1].x = read_lsb_int(f);
   spr[1].y = read_lsb_int(f);
-  fseek(f, 4, SEEK_CUR); // unused 'die' field
+  fread(skipbuf, 4, 1, f); // unused 'die' field
   spr[1].size = read_lsb_int(f);
   spr[1].defense = read_lsb_int(f);
   spr[1].dir = read_lsb_int(f);
@@ -1244,7 +1263,7 @@ void save_info(void)
   // offset 264
 
   // skip first originally unused mitem entry
-  fseek(f, 20, SEEK_CUR);
+  fread(skipbuf, 20, 1, f);
   for (i = 0; i < NB_MITEMS; i++)
     {
       play.mitem[i].active = fgetc(f);
@@ -1255,7 +1274,7 @@ void save_info(void)
       play.mitem[i].frame = read_lsb_int(f);
     }
   // skip first originally unused item entry
-  fseek(f, 20, SEEK_CUR);
+  fread(skipbuf, 20, 1, f);
   for (i = 0; i < NB_ITEMS; i++)
     {
       play.item[i].active = fgetc(f);
@@ -1267,10 +1286,10 @@ void save_info(void)
   // offset 784
 
   play.curitem = read_lsb_int(f) - 1;
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'counter' field
-  fseek(f, 1, SEEK_CUR); // reproduce unused 'idle' field
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fread(skipbuf, 4, 1, f); // reproduce unused 'unused' field
+  fread(skipbuf, 4, 1, f); // reproduce unused 'counter' field
+  fread(skipbuf, 1, 1, f); // reproduce unused 'idle' field
+  fread(skipbuf, 3, 1, f); // reproduce memory alignment
   // offset 796
 
   for (i = 0; i < 769; i++)
@@ -1287,13 +1306,13 @@ void save_info(void)
   /* Here's we'll perform a few tricks to respect a misconception in
      the original savegame format */
   // skip first originally unused play.button entry
-  fseek(f, 4, SEEK_CUR);
+  fread(skipbuf, 4, 1, f);
   // first play.var entry (cf. below) was overwritten by
   // play.button[10], writing 10 play.button entries:
   for (i = 0; i < 10; i++) // use fixed 10 rather than NB_BUTTONS
     input_set_button_action(i, read_lsb_int(f));
   // skip the rest of first unused play.var entry
-  fseek(f, 32-4, SEEK_CUR);
+  fread(skipbuf, 32-4, 1, f);
 
   // reading the rest of play.var
   for (i = 1; i < MAX_VARS; i++)
@@ -1303,11 +1322,11 @@ void save_info(void)
       play.var[i].name[20-1] = '\0'; // safety
       play.var[i].scope = read_lsb_int(f);
       play.var[i].active = fgetc(f);
-      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+      fread(skipbuf, 3, 1, f); // reproduce memory alignment
     }
 
   play.push_active = fgetc(f);
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fread(skipbuf, 3, 1, f); // reproduce memory alignment
   play.push_dir = read_lsb_int(f);
 
   play.push_timer = read_lsb_int(f);
@@ -1315,12 +1334,12 @@ void save_info(void)
   play.last_talk = read_lsb_int(f);
   play.mouse = read_lsb_int(f);
   play.item_magic = fgetc(f);
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fread(skipbuf, 3, 1, f); // reproduce memory alignment
   play.last_map = read_lsb_int(f);
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'crap' field
-  fseek(f, 95 * 4, SEEK_CUR); // reproduce unused 'buff' field
-  fseek(f, 20 * 4, SEEK_CUR); // reproduce unused 'dbuff' field
-  fseek(f, 10 * 4, SEEK_CUR); // reproduce unused 'lbuff' field
+  fread(skipbuf, 4, 1, f); // reproduce unused 'crap' field
+  fread(skipbuf, 95 * 4, 1, f); // reproduce unused 'buff' field
+  fread(skipbuf, 20 * 4, 1, f); // reproduce unused 'dbuff' field
+  fread(skipbuf, 10 * 4, 1, f); // reproduce unused 'lbuff' field
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
@@ -1346,8 +1365,8 @@ void save_info(void)
   /* fread(play.cbuff, 750, 1, f); */
 
   fclose(f);
-      
-  
+
+
   if (dversion >= 108)
     {
       // new map, if exist
@@ -1481,6 +1500,13 @@ void save_info(void)
 
 void save_game(int num)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+  memset(skipbuf, 0, 10000);
+
   FILE *f;
 
   //lets set some vars first
@@ -1513,12 +1539,12 @@ void save_game(int num)
     fwrite(info_temp, 77+1, 1, f);
     free(info_temp);
   }
-  fseek(f, 118, SEEK_CUR); // unused
+  fwrite(skipbuf, 118, 1, f); // unused
   // offset 200
   write_lsb_int(play.minutes, f);
   write_lsb_int(spr[1].x, f);
   write_lsb_int(spr[1].y, f);
-  fseek(f, 4, SEEK_CUR); // unused 'die' field
+  fwrite(skipbuf, 4, 1, f); // unused 'die' field
   write_lsb_int(spr[1].size, f);
   write_lsb_int(spr[1].defense, f);
   write_lsb_int(spr[1].dir, f);
@@ -1534,7 +1560,7 @@ void save_game(int num)
   // offset 264
 
   // skip first originally unused mitem entry
-  fseek(f, 20, SEEK_CUR);
+  fwrite(skipbuf, 20, 1, f);
   for (i = 0; i < NB_MITEMS; i++)
     {
       fputc(play.mitem[i].active, f);
@@ -1543,7 +1569,7 @@ void save_game(int num)
       write_lsb_int(play.mitem[i].frame, f);
     }
   // skip first originally unused item entry
-  fseek(f, 20, SEEK_CUR);
+  fwrite(skipbuf, 20, 1, f);
   for (i = 0; i < NB_ITEMS; i++)
     {
       fputc(play.item[i].active, f);
@@ -1554,10 +1580,10 @@ void save_game(int num)
   // offset 784
 
   write_lsb_int(play.curitem + 1, f);
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'unused' field
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'counter' field
-  fseek(f, 1, SEEK_CUR); // reproduce unused 'idle' field
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fwrite(skipbuf, 4, 1, f); // reproduce unused 'unused' field
+  fwrite(skipbuf, 4, 1, f); // reproduce unused 'counter' field
+  fwrite(skipbuf, 1, 1, f); // reproduce unused 'idle' field
+  fwrite(skipbuf, 3, 1, f); // reproduce memory alignment
   // offset 796
 
   for (i = 0; i < 769; i++)
@@ -1573,13 +1599,13 @@ void save_game(int num)
   /* Here's we'll perform a few tricks to respect a misconception in
      the original savegame format */
   // skip first originally unused play.button entry
-  fseek(f, 4, SEEK_CUR);
+  fwrite(skipbuf, 4, 1, f);
   // first play.var entry (cf. below) was overwritten by
   // play.button[10], writing 10 play.button entries:
   for (i = 0; i < 10; i++) // use fixed 10 rather than NB_BUTTONS
     write_lsb_int(input_get_button_action(i), f);
   // skip the rest of first unused play.var entry
-  fseek(f, 32-4, SEEK_CUR);
+  fwrite(skipbuf, 32-4, 1, f);
 
   // writing the rest of play.var
   for (i = 1; i < MAX_VARS; i++)
@@ -1588,11 +1614,11 @@ void save_game(int num)
       fwrite(play.var[i].name, 20, 1, f);
       write_lsb_int(play.var[i].scope, f);
       fputc(play.var[i].active, f);
-      fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+      fwrite(skipbuf, 3, 1, f); // reproduce memory alignment
     }
 
   fputc(play.push_active, f);
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fwrite(skipbuf, 3, 1, f); // reproduce memory alignment
   write_lsb_int(play.push_dir, f);
 
   write_lsb_int(play.push_timer, f);
@@ -1600,12 +1626,12 @@ void save_game(int num)
   write_lsb_int(play.last_talk, f);
   write_lsb_int(play.mouse, f);
   fputc(play.item_magic, f);
-  fseek(f, 3, SEEK_CUR); // reproduce memory alignment
+  fwrite(skipbuf, 3, 1, f); // reproduce memory alignment
   write_lsb_int(play.last_map, f);
-  fseek(f, 4, SEEK_CUR); // reproduce unused 'crap' field
-  fseek(f, 95 * 4, SEEK_CUR); // reproduce unused 'buff' field
-  fseek(f, 20 * 4, SEEK_CUR); // reproduce unused 'dbuff' field
-  fseek(f, 10 * 4, SEEK_CUR); // reproduce unused 'lbuff' field
+  fwrite(skipbuf, 4, 1, f); // reproduce unused 'crap' field
+  fwrite(skipbuf, 95 * 4, 1, f); // reproduce unused 'buff' field
+  fwrite(skipbuf, 20 * 4, 1, f); // reproduce unused 'dbuff' field
+  fwrite(skipbuf, 10 * 4, 1, f); // reproduce unused 'lbuff' field
   
   /* v1.08: use wasted space for storing file location of map.dat,
      dink.dat, palette, and tiles */
@@ -1621,8 +1647,7 @@ void save_game(int num)
       fwrite(play.func[i].file, 10, 1, f);
       fwrite(play.func[i].func, 20, 1, f);
     }
-  /* fwrite(play.cbuff, 750, 1, f); */
-  fseek(f, 750, SEEK_CUR);
+  fwrite(skipbuf, 750, 1, f);
 
   fclose(f);
 }
@@ -1822,6 +1847,13 @@ void load_info(void)
  */
 void save_hard(void)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+  memset(skipbuf, 0, 10000);
+
   FILE *f = paths_dmodfile_fopen("hard.dat", "wb");
   if (!f)
     {
@@ -1837,12 +1869,12 @@ void save_hard(void)
       for (j = 0; j < 51; j++)
 	fwrite(hmap.htile[i].x[j].y, 51, 1, f);
       fputc(hmap.htile[i].used, f);
-      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-      fseek(f, 4, SEEK_CUR); // unused 'hold' field
+      fwrite(skipbuf, 2, 1, f); // reproduce memory alignment
+      fwrite(skipbuf, 4, 1, f); // unused 'hold' field
     }
   for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
     write_lsb_int(hmap.btile_default[i], f);
-  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
+  fwrite(skipbuf, (8000-GFX_TILES_NB_SQUARES)*4, 1, f); // reproduce unused data
 
   fclose(f);
 }
@@ -1853,6 +1885,12 @@ void save_hard(void)
  */
 void load_hard(void)
 {
+  /* Instead of using 'fseek(...)' when we want to skip a little bit
+     of data, we read it to this buffer - this is much faster on PSP
+     (1000ms -> 60ms), probably related to cache validation. No
+     noticeable change on PC (<1ms). */
+  char skipbuf[10000]; // more than any fseek we do
+
   FILE *f = NULL;
 
   /* Try loading the D-Mod hard.dat */
@@ -1879,12 +1917,12 @@ void load_hard(void)
       for (j = 0; j < 51; j++)
 	fread(hmap.htile[i].x[j].y, 51, 1, f);
       hmap.htile[i].used = fgetc(f);
-      fseek(f, 2, SEEK_CUR); // reproduce memory alignment
-      fseek(f, 4, SEEK_CUR); // unused 'hold' field
+      fread(skipbuf, 2, 1, f); // reproduce memory alignment
+      fread(skipbuf, 4, 1, f); // unused 'hold' field
     }
   for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
     hmap.btile_default[i] = read_lsb_int(f);
-  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
+  fread(skipbuf, (8000-GFX_TILES_NB_SQUARES)*4, 1, f); // reproduce unused data
 
   fclose(f);
 }
