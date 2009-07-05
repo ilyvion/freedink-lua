@@ -1874,7 +1874,7 @@ void save_hard(void)
     }
   for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
     write_lsb_int(hmap.btile_default[i], f);
-  fwrite(skipbuf, (8000-GFX_TILES_NB_SQUARES)*4, 1, f); // reproduce unused data
+  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
 
   fclose(f);
 }
@@ -1922,7 +1922,7 @@ void load_hard(void)
     }
   for (i = 0; i < GFX_TILES_NB_SQUARES; i++)
     hmap.btile_default[i] = read_lsb_int(f);
-  fread(skipbuf, (8000-GFX_TILES_NB_SQUARES)*4, 1, f); // reproduce unused data
+  fseek(f, (8000-GFX_TILES_NB_SQUARES)*4, SEEK_CUR); // reproduce unused data
 
   fclose(f);
 }
