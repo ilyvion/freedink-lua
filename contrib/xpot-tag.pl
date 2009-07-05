@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Tag translatable strings in DinkC story files
+# Tag translatable strings in DinkC story files (used by xpot.sh)
 # 
 # Copyright (C) 2008 Sylvain Beucler
 # 
@@ -78,7 +78,7 @@ foreach my $file (@ARGV) {
 		}
 	    }
 	} else {
-	    $line =~ s/(.*say[a-z_]*\()"?(`.)?(.+)",(.*)$/$1_("$3"),$4/i;
+	    $line =~ s/(.*\bsay[a-z_]*\()"?(`.)?(.+)"\s*,(.*)$/$1_("$3"),$4/i;
 	    print TMP $line;
 	}
     }
