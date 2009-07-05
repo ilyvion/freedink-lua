@@ -29,10 +29,6 @@ entered the screen. This can be a problem:
 Warn if a savegame appears to be v1.08 while running in v1.07 mode.
 
 
-Replace stop.wav and jump.wav with freely-licensed sounds in
-FreeDinkedit.
-
-
 Also check existing_bugs.txt.
 
 
@@ -49,10 +45,6 @@ i18n
 [ ] Have DFArc look at l10n/LOCALE/dmod.diz if available
     => No, rather add dmod.diz to the .pot file, so translators have
     as much text as possible in their .po file.
-
-[ ] This line wasn't included in the .pot, probably something to fix
-    in the script:
-    ./S1-H3-OF.c:64:	  say_stop("`7I gotta do something about them soon ..." ,&current_sprite);
 
 [ ] Unbreakable spaces are displayed with a square. This breaks the
     use of unbreakable spaces in front of punctuation in translations
