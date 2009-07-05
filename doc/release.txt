@@ -1,7 +1,7 @@
 On the developer computer:
 --------------------------
 VERSION=1.08.$(date +%Y%m%d)
-git checkout -b v$VERSION
+git checkout -b branch-$VERSION-stable
 git2cl > ChangeLog
 # edit NEWS
 # edit configure.ac (AC_INIT)
@@ -9,14 +9,16 @@ git2cl > ChangeLog
 make distcheck
 git commit -am "Release $VERSION"
 git tag v$VERSION
-git push --all
+git push origin branch-$VERSION-stable master
 git push --tags
 
-# TODO: pristine-tar
+# Pristine TAR - efficienty storing the release in the Git repository
+pristine-tar commit freedink-$VERSION.tar.gz v$VERSION
+git push origin pristine-tar
 
 # Cleanly merge stable branch back to trunk
 git checkout master
-git merge v$VERSION --no-commit
+git merge branch-$VERSION-stable --no-commit
 # Don't apply version changes:
 git checkout configure.ac
 emacs NEWS
@@ -40,7 +42,7 @@ version: 1.1
 directory: freedink
 filename: freedink-$VERSION.tar.gz
 EOF
-lftp -e "mput freedink-$VERSION*; exit" -u anonymous, ftp-upload.gnu.org/incoming/ftp/
+lftp -e "mput freedink-$VERSION.tar.gz*; exit" -u anonymous, ftp-upload.gnu.org/incoming/ftp/
 # Check ftp://ftp.gnu.org/gnu/freedink/
 
 
@@ -93,13 +95,26 @@ Debian notes:
 -------------
 
 # http://wiki.debian.org/Games/VCS
-git-checkout master
+# set DEBEMAIL
+git checkout master
 git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
 # - Import debian/ from "upstream"
 # - Fix stuff...
-git commit -am "New upstream release - ..."
+git commit -am "New upstream release - v$VERSION"
 git-buildpackage --git-tag --git-pristine-tar
-git push --all
+git push origin master pristine-tar upstream
 git push --tags
 # http://mentors.debian.net/cgi-bin/maintainer-intro
 dput mentors ../freedink_$VERSION-1_i386.changes
+
+
+Fedora notes:
+-------------
+
+Check
+http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo#Example
+which is detailing this step.
+
+See also:
+https://admin.fedoraproject.org/pkgdb/packages/name/freedink-dfarc
+http://cvs.fedoraproject.org/viewvc/rpms/freedink-dfarc/
