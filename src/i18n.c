@@ -24,7 +24,10 @@
 #include <config.h>
 #endif
 
+#include <locale.h>
 #include "gettext.h"
+#include <alloca.h>
+#include <ctype.h>
 
 #include "paths.h"
 #include "str_util.h"
@@ -41,23 +44,37 @@
  * which is present in Finnish keyboards and used instead of the more
  * common single quote "'" - check the Milderrr! series for instance).
  */
-char* i18n_translate(char* latin1_source)
+char* i18n_translate(char* scriptname, unsigned int line, char* latin1_source)
 {
   /* Don't translate the empty string, which has a special meaning for
      gettext */
   if (strlen(latin1_source) == 0)
     return strdup("");
 
-  const char* translation = dgettext(paths_getdmodname(), latin1_source);
-  if (translation == latin1_source)
-    {
-      /* No translation, let's manually convert from Latin-1 to UTF-8,
-	 so that 'TTF_RenderUTF8_Solid' can parse it correctly. */
-      return latin1_to_utf8(latin1_source);
-    }
-  else
+  const char* translation = "";
+
+  /* Try with a context */
+  char* context = alloca(strlen(scriptname + 1 + strlen("4294967295") + 1));
+  sprintf(context, "%s:%d", scriptname, line);
+  char *pc = context;
+  while (*pc) { *pc = tolower(*pc); pc++; }
+  translation = dpgettext_expr(paths_getdmodname(), context, latin1_source);
+  if (translation != latin1_source)
     {
       /* Copy the translation */
       return strdup(translation);
     }
+
+  /* Try without context */
+  translation = dgettext(paths_getdmodname(), latin1_source);
+  if (translation != latin1_source)
+    {
+      /* Copy the translation */
+      return strdup(translation);
+    }
+
+  /* No translation available */
+  /* Let's manually convert from Latin-1 to UTF-8, so that
+     'TTF_RenderUTF8_Solid' can parse it correctly. */
+  return latin1_to_utf8(latin1_source);
 }

@@ -591,14 +591,14 @@ static int say_text_from_dc(char* text, int active_sprite, int script)
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
     {
-      char* temp = i18n_translate(text+2);
+      char* temp = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text+2);
       translation = xmalloc(strlen(temp) + 2 + 1);
       sprintf(translation, "%c%c%s", text[0], text[1], temp);
       free(temp);
     }
   else
     {
-      translation = i18n_translate(text);
+      translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
     }
 
   /* Substitute variables */
@@ -625,14 +625,14 @@ static int say_text_xy_from_dc(char* text, int x, int y, int script)
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
     {
-      char* temp = i18n_translate(text+2);
+      char* temp = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text+2);
       translation = xmalloc(strlen(temp) + 2 + 1);
       sprintf(translation, "%c%c%s", text[0], text[1], temp);
       free(temp);
     }
   else
     {
-      translation = i18n_translate(text);
+      translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
     }
 
   /* Substitute variables */
@@ -2342,7 +2342,7 @@ morestuff:
 	      /* drop '\n', this messes translations */
 	      line[strlen(line)-1] = '\0';
 	      /* Translate text (before variable substitution) */
-	      char* translation = i18n_translate(line);
+	      char* translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, line);
 	      decipher_string(&translation, script);
 	      int cur_len = strlen(talk.buffer);
 	      strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
@@ -2435,7 +2435,7 @@ morestuff:
       if (strlen(text) > 0)
 	{
 	  /* Translate text (before variable substitution) */
-	  char* translation = i18n_translate(text);
+	  char* translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
 	  strip_beginning_spaces(translation);
 
 	  decipher_savegame = retnum;

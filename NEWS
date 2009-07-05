@@ -26,6 +26,12 @@
 - Lower startup RAM requirements (-7MB so far, and less memory
   bandwidth for sounds); this is mostly useful for small devices.
 
+- Add support for contextual translations: when there are several
+  lines of dialog that are identical in a few scripts, but need to be
+  translated differently, you can add a context in your PO file such
+  as 'msgctxt "s3-chick:57"' (name of the script in lowercase without
+  extension + the line number).
+
 * Developer notes:
 
 - Dropped libffi dependency to support more architectures
