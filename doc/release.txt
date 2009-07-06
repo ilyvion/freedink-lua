@@ -1,16 +1,25 @@
+How to make a release     -*- shell-script -*-
+
+
 On the developer computer:
 --------------------------
+
 VERSION=1.08.$(date +%Y%m%d)
 git checkout -b branch-$VERSION-stable
 git2cl > ChangeLog
-# edit NEWS
-# edit configure.ac (AC_INIT)
-# edit freedink.spec (Version/Release + %changelog)
+# Edit NEWS
+# Edit configure.ac (AC_INIT)
+# Sync debian/
+# Sync freedink.spec
+# Edit freedink.spec (Version/Release + %changelog)
+# TODO: need to edit po/freedink.pot?
+
 make distcheck
 git commit -am "Release $VERSION"
 git tag v$VERSION
 git push origin branch-$VERSION-stable master
 git push --tags
+# Here you can test the release in the autobuilder
 
 # Pristine TAR - efficienty storing the release in the Git repository
 pristine-tar commit freedink-$VERSION.tar.gz v$VERSION
@@ -27,6 +36,7 @@ git commit
 
 On the autobuilder:
 -------------------
+
 ./freedink-snapshot.sh release
 ./freedink-exe.sh
 ./freedink-debs.sh # as root
@@ -35,6 +45,7 @@ On the autobuilder:
 
 On the maintainer computer:
 ---------------------------
+
 # http://www.gnu.org/prep/maintain/html_node/FTP-Upload-Directive-File-_002d-v1_002e1.html
 gpg --sign -b freedink-$VERSION.tar.gz
 cat <<EOF | gpg --clearsign -a > freedink-$VERSION.tar.gz.directive.asc
@@ -45,27 +56,44 @@ EOF
 lftp -e "mput freedink-$VERSION.tar.gz*; exit" -u anonymous, ftp-upload.gnu.org/incoming/ftp/
 # Check ftp://ftp.gnu.org/gnu/freedink/
 
+# Upload sigs to freedink.org
+
 
 On the website:
 ---------------
+
 cd www/releases/
-    for f in ../snapshots/freedink-*$VERSION*; do
-        ln -nfs $f
-    done
-for dir in debian fedora woe; do
-    pushd $dir
-    for f in ../../snapshots/$dir/freedink-*$VERSION*; do
+
+for f in ../snapshots/freedink-$VERSION.*; do
+    ln -nfs $f
+done
+
+pushd debian
+    for f in ../../snapshots/debian/freedink{,-engine,-engine-dbg}_$VERSION*; do
         ln -nfs $f
     done
     make
-    popd
-done
+popd
+
 pushd fedora
-cp -a ../../snapshots/fedora/freedink.spec .
+    for f in ../../snapshots/fedora/freedink{,-engine,-debuginfo}-$VERSION-*; do
+        ln -nfs $f
+    done
+    make
+    cp -a ../../snapshots/fedora/freedink.spec .
+popd
+
+pushd woe
+    for f in ../../snapshots/woe/freedink{,edit,-all-installer}-$VERSION*; do
+        ln -nfs $f
+    done
+    make
+popd
 
 
 Submit the release to:
 ----------------------
+
 - GNU
   info-gnu@gnu.org
 - Savannah / GNU Planet
@@ -94,8 +122,18 @@ Submit the release to:
 Debian notes:
 -------------
 
+Check this for updates:
+- /usr/share/doc/debian-policy/upgrading-checklist.txt.gz
+- http://lintian.debian.org/full/pkg-games-devel@lists.alioth.debian.org.html#freedink-data
+
 # http://wiki.debian.org/Games/VCS
+git clone YOU@git.debian.org:/git/pkg-games/freedink-data
+cd freedink-data
+git checkout -b pristine-tar origin/pristine-tar
+git checkout -b upstream origin/upstream
+
 # set DEBEMAIL
+
 git checkout master
 git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
 # - Import debian/ from "upstream"
@@ -116,5 +154,5 @@ http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo#Example
 which is detailing this step.
 
 See also:
-https://admin.fedoraproject.org/pkgdb/packages/name/freedink-dfarc
-http://cvs.fedoraproject.org/viewvc/rpms/freedink-dfarc/
+https://admin.fedoraproject.org/pkgdb/packages/name/freedink
+http://cvs.fedoraproject.org/viewvc/rpms/freedink/
