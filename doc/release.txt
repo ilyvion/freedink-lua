@@ -75,6 +75,7 @@ pushd debian
     make
 popd
 
+# On a Fedora vserver:
 pushd fedora
     for f in ../../snapshots/fedora/freedink{,-engine,-debuginfo}-$VERSION-*; do
         ln -nfs $f
@@ -149,7 +150,9 @@ dput mentors ../freedink_$VERSION-1_i386.changes
 Fedora notes:
 -------------
 
-Check
+Do:
+cvs update
+then check:
 http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo#Example
 which is detailing this step.
 
