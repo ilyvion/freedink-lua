@@ -745,7 +745,7 @@ void check_joystick(void)
 	if (sjoy.joybit[a] && sjoy.joybitold[a] == 0)
 	  /* Button was just pressed */
 	  sjoy.button[a] = 1;
-	sjoy.joybitold[a] = !sjoy.joybit[a];
+	sjoy.joybitold[a] = sjoy.joybit[a];
       }
   }
 }
