@@ -79,6 +79,10 @@ endif
 	$(LN_S) -f "freedink$(EXEEXT)" "$(DESTDIR)$(bindir)/dink$(EXEEXT)"
 	$(LN_S) -f "freedinkedit$(EXEEXT)" "$(DESTDIR)$(bindir)/dinkedit$(EXEEXT)"
 
+uninstall-hook:
+	rm -f "$(DESTDIR)$(bindir)/dink$(EXEEXT)"
+	rm -f "$(DESTDIR)$(bindir)/dinkedit$(EXEEXT)"
+
 
 # help2man-generated manpages
 # Inspiration from (automake-1.10.info.gz)distcleancheck
