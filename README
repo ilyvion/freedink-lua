@@ -6,6 +6,13 @@ under certain conditions; see the GNU GPL for details.
 ( cf. COPYING and http://gnu.org/licenses/gpl.html )
 
 
+Building
+--------
+
+If you are compiling GNU FreeDink from sources, check BUILD for
+instructions.
+
+
 About Dink Smallwood
 --------------------
 
@@ -42,8 +49,8 @@ clean-up to allow for portability and later improvements.
 Check out FreeDink's website at http://www.freedink.org/ .
 
 
-GNU
----
+About GNU
+---------
 
 FreeDink is part of the GNU project, whose aim is to create "GNU", a
 completely free (as in freedom) operating system. Its most famous
@@ -52,35 +59,24 @@ game and D-Mods is definitely a must for the GNU OS ;) Check
 http://www.gnu.org/ for more information.
 
 
-Building
---------
-
-If you are compiling GNU FreeDink from sources, check BUILD for
-instructions.
-
-
 Game data
 ---------
 
-Get the free game data separately at:
+Get the free game data separately from the 'freedink-data' package at:
 
-  http://www.freedink.org/releases/dink_108_game_data.zip
-
-and unzip it in '/usr/share/dink/dink':
-
-  mkdir -p /usr/share/dink/dink/
-  unzip -d /usr/share/dink/dink/ dink_108_game_data.zip
+  http://ftp.gnu.org/gnu/freedink/
 
 Note:
 The original game contained sounds that were not owned by RTsoft and
 hence could not be released under a free license.  We're looking for
 free replacements!  Please send contributions at bug-freedink@gnu.org.
+See http://www.freedink.org/doc/sounds/ for more information.
 
 
 Other FreeDink applications
 ---------------------------
 
-DFArc2, a graphical front-end run the game and manage D-Mods, was also
+DFArc, a graphical front-end run the game and manage D-Mods, was also
 ported and extended. Get new version 3 at http://www.freedink.org/ .
 
 

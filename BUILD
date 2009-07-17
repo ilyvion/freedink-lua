@@ -13,40 +13,40 @@ On a minimal Debian system
 
 ## Bootstrap
 # Source code:
-aptitude install git-core
+apt-get install git-core
 git clone git://git.sv.gnu.org/freedink
 cd freedink
 
 # Gnulib
 (cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
 # or:
-#aptitude install gnulib
+#apt-get install gnulib
 
 # autotools
-aptitude install autoconf automake
+apt-get install autoconf automake
 
-aptitude install pkg-config # for PKG_CHECK_MODULES
-aptitude install libsdl1.2-dev # for sdl.m4
-aptitude install help2man # to rebuild manpages
-aptitude install gettext cvs # for i18n
+apt-get install pkg-config # for PKG_CHECK_MODULES
+apt-get install libsdl1.2-dev # for sdl.m4
+apt-get install help2man # to rebuild manpages
+apt-get install gettext cvs # for i18n
 sh bootstrap
 
 
 ## Dependencies
 # Base: GCC, make & al.
-aptitude install build-essential
+apt-get install build-essential
 # Required: SDL, libzip | zziplib
 # Note: if you're under Etch, you need to use newer versions of
 # FreeType and SDL_ttf from here:
 #deb http://www.freedink.org/snapshots/debian/etch-backports/ ./
-aptitude install pkg-config libsdl1.2-dev libsdl-gfx1.2-dev \
+apt-get install pkg-config libsdl1.2-dev libsdl-gfx1.2-dev \
   libsdl-ttf2.0-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
   libfontconfig1-dev libzzip-dev zip
-# | aptitude install libzip-dev
+# | apt-get install libzip-dev
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
-aptitude install upx-ucl bzip2
+apt-get install upx-ucl bzip2
 
 ## Compilation
 ./configure
@@ -59,7 +59,7 @@ make distcheck
 
 ## Optional: software MIDI support, used by SDL_mixer
 # Check doc/midi.txt for details
-aptitude install timidity freepats
+apt-get install timidity freepats
 
 # :)
 
