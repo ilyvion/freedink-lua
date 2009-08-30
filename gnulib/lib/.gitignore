@@ -133,3 +133,4 @@
 /getpagesize.c
 /memchr.c
 /memchr.valgrind
+/stddef.in.h
