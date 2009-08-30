@@ -54,7 +54,7 @@ char* i18n_translate(char* scriptname, unsigned int line, char* latin1_source)
   const char* translation = "";
 
   /* Try with a context */
-  char* context = alloca(strlen(scriptname + 1 + strlen("4294967295") + 1));
+  char* context = alloca(strlen(scriptname) + 1 + strlen("4294967295") + 1);
   sprintf(context, "%s:%d", scriptname, line);
   char *pc = context;
   while (*pc) { *pc = tolower(*pc); pc++; }
