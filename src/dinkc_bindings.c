@@ -1940,14 +1940,18 @@ static void dinkc_bindings_add(Hash_table* hash, struct binding* pbd)
   void* slot = dinkc_bindings_lookup(hash, pbd->funcname);
   if (slot != NULL)
     {
-      log_fatal("Internal error: attempting to redeclare binding %s", pbd->funcname);
+      log_fatal("Internal error: attempting to redeclare DinkC function %s", pbd->funcname);
       exit(EXIT_FAILURE);
     }
 
   /* Copy uninitialized binding in hash table */
   struct binding* newslot = malloc(sizeof(struct binding));
   *newslot = *pbd;
-  hash_insert(hash, newslot);
+  if (hash_insert(hash, newslot) == NULL)
+    {
+      log_fatal("Not enough memory to declare DinkC function %s", pbd->funcname);
+      exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -2349,7 +2353,7 @@ morestuff:
 	      free(translation);
 	      /* put '\n' back */
 	      strcat(talk.buffer, "\n");
-	      talk.buffer[TALK_TITLE_BUFSIZ] = '\0';
+	      talk.buffer[TALK_TITLE_BUFSIZ-1] = '\0';
 	      free(line);
 	    }
 	  
@@ -2442,7 +2446,7 @@ morestuff:
 	  decipher_string(&translation, script);
 	  decipher_savegame = 0;
 	  strncpy(talk.line[cur], translation, TALK_LINE_BUFSIZ-1);
-	  talk.line[cur][TALK_LINE_BUFSIZ] = '\0';
+	  talk.line[cur][TALK_LINE_BUFSIZ-1] = '\0';
 	  free(translation);
 	}
       else
