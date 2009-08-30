@@ -7,20 +7,29 @@ Strip errors from SDL
 
 Run::
 
- valgrind --leak-check=yes --gen-suppressions=yes ./freedink -window -nosound
+ valgrind --leak-check=full --gen-suppressions=yes \
+   src/freedink -window -nosound
 
 Copy paste the relevant output in::
 
- grep -v ^== >> /tmp/suppressions
+ grep -v ^== >> ../valgrind/suppressions
 
 Then give those exclusions to Valgrind::
 
- valgrind --leak-check=yes --suppressions=/tmp/suppressions ./freedink -window -nosound
+ valgrind --leak-check=full --suppressions=../valgrind/suppressions \
+   --show-reachable=yes --db-attach=yes src/freedink -window -nosound
 
 
-'alleyoop' is a GUI for valgrind. Apparently it can be used to select
+'alleyoop' is a GUI for valgrind.  It can be used to select
 suppressions from the full list of generated memory warnings, which
-could be easier than the above.
+may be easier than the above.  You can more easily filter out similar
+errors, but you need to do the suppressions one by one (instead of a
+big copy/paste).
+
+Before starting the program, go to Options > Preferences and specify a
+suppression file.  Then right-click on errors you want to supress and
+select "Suppress".  You can reduce the call stack to match the same
+error in more contexts.
 
 
 Use with Autotools

@@ -3,8 +3,8 @@ certainly need FreeType. That's the portable solution used by OpenJDK
 and Wine.
 
 FreeType can be compiled with or without the "bytecode interpreter"
-due to patents issues, which change the metrics of the fonts, and all
-distros do not compile it the same (check
+due to patents threats from Apple, which change the metrics of the
+fonts, and all distros do not compile it the same (check
 http://freetype.org/patents.html and
 http://bugs.debian.org/447801). Passing FT_LOAD_FORCE_AUTOHINT to
 FT_Load_Glyph in SDL_ttf.c is a way to avoid using the font bytecode,
