@@ -416,13 +416,11 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
   char *fullpath = NULL;
   int use_fallback = 0;
 
-  int notanim = 0, black = 0, leftalign = 0;
+  int notanim = 0, black = 0;
   if ((flags & DINKINI_NOTANIM) == DINKINI_NOTANIM)
     notanim = 1;
   if ((flags & DINKINI_BLACK) == DINKINI_BLACK)
     black = 1;
-  if ((flags & DINKINI_LEFTALIGN) == DINKINI_LEFTALIGN)
-    leftalign = 1;
 
   if (no_running_main)
     draw_wait();

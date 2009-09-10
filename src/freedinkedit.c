@@ -528,11 +528,9 @@ void draw_minimap(void)
 
 void load_info_buff(void)
 {
-  FILE *fp;
   char crap[120];
 
   sprintf(crap, "%sDINK.DAT", buf_path);
-  fp = paths_dmodfile_fopen(crap, "rb");
 
   if (load_info_to(crap, &buffmap) < 0)
     {
@@ -988,7 +986,6 @@ void draw96(int def)
 /*   int crap; */
 /*   DDBLTFX ddbltfx; */
 /*   rect crapRec, Rect, box_crap; */
-  int frame;
 /*   int ddrval; */
   int se;
 /*   int dd; */
@@ -1022,7 +1019,6 @@ void draw96(int def)
 	      goto pass;
 	    }
 	  //se = sp_get(num);
-	  frame = 1;
 
 /* 	  Rect.left = x1 * 50; */
 /* 	  Rect.top = y1 * 50; */
@@ -1984,12 +1980,11 @@ void updateFrame(void)
 /*   HRESULT             ddrval; */
   int xx;
 /*   DDBLTFX     ddbltfx; */
-  /*BOOL*/int kickass,cool;
+  /*BOOL*/int cool;
   /*BOOL*/int bs[MAX_SPRITES_AT_ONCE];
 
   int rank[MAX_SPRITES_AT_ONCE];
   int highest_sprite;
-  int crap;
 
   int jj;
 
@@ -2001,7 +1996,6 @@ void updateFrame(void)
   state[1] = 0;
   check_joystick();
   Scrawl_OnMouseInput();
-  kickass = /*false*/0;
   rcRect.left = 0;
   rcRect.top = 0;
   rcRect.right = x;
@@ -3587,8 +3581,6 @@ void updateFrame(void)
 			    sely = 1;
 
 			    mode = MODE_TILE_HARDNESS;
-
-			    kickass = /*TRUE*/1;
 			  }
 		      }
 
@@ -4023,8 +4015,6 @@ void updateFrame(void)
 
 			    mode = MODE_TILE_HARDNESS;
 
-			    kickass = /*TRUE*/1;
-
 			    hmap.htile[hard_tile].used = /*true*/1;
 			    last_modereal = 8;
 			  }
@@ -4369,7 +4359,6 @@ void updateFrame(void)
 	}
       if (mode == MODE_SCREEN_TILES)
 	{
-	  crap = (((spr[1].y+1)*12) / 50)+(spr[1].x / 50);
 	  //((x-1) - (x / 12))*50, (x / 12) * 50,
 	  sprintf(msg,
 		  "Map # %d, (C)opy or (S)tamp tile. ESC to exit to map picker. ENTER to edit hardness. TAB for sprite edit mode. 1-10 for tilescreens. (hold alt, crtl or shift for more) SPACE to show hardness of screen. (I)nfo on sprites."

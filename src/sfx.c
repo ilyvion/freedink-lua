@@ -821,7 +821,6 @@ void QuitSound(void)
  */
 void sfx_log_meminfo()
 {
-  int total = 0;
   int sum = 0;
   int i = 0;
 
@@ -832,7 +831,6 @@ void sfx_log_meminfo()
 	sum += registered_sounds[i].cvt_buf_len;
     }
   log_debug("Sounds   = %8d", sum);
-  total += sum;
 }
 
 

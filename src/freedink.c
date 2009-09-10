@@ -789,8 +789,6 @@ int get_distance_and_dir(int h, int h1, int *dir)
 
 void process_follow(int h)
 {
-	int hx, hy;
-	
 	if (spr[h].follow > 299)
 	{
 		log_error("Sprite %d cannot 'follow' sprite %d??",h,spr[h].follow);
@@ -803,9 +801,6 @@ void process_follow(int h)
 		spr[h].follow = 0;
 		return;
 	}
-	
-	hx = spr[spr[h].follow].x;
-	hy = spr[spr[h].follow].y;
 	
 	int dir;
 	int distance = get_distance_and_dir(h, spr[h].follow, &dir);
@@ -821,8 +816,6 @@ void process_follow(int h)
 
 void process_target(int h)
 {
-	int hx, hy;
-	
 	if (spr[h].target > 299)
 	{
 		log_error("Sprite %d cannot 'target' sprite %d??",h,spr[h].follow);
@@ -835,9 +828,6 @@ void process_target(int h)
 		spr[h].target = 0;
 		return;
 	}
-	
-	hx = spr[spr[h].target].x;
-	hy = spr[spr[h].target].y;
 	
 	int dir;
 	int distance = get_distance_and_dir(h, spr[h].target, &dir);
