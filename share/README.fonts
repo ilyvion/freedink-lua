@@ -1,14 +1,7 @@
 Font LiberationSans-Regular.ttf originally from:
 https://www.redhat.com/promo/fonts/
-https://www.redhat.com/f/fonts/liberation-fonts-ttf-3.tar.gz
-
-Newer versions are available at:
 https://fedorahosted.org/liberation-fonts/
-https://fedorahosted.org/releases/l/i/liberation-fonts/liberation-fonts-1.04.tar.gz
-
-However there are rendering quality issues with the new version, so
-let's still with the original version for now. See
-https://bugzilla.redhat.com/show_bug.cgi?id=458592
+https://fedorahosted.org/releases/l/i/liberation-fonts/liberation-fonts-1.04.93.devel.tar.gz
 
 It is released under the GNU GPL + some unusual exceptions, which
 makes the license incompatible with the vanilla GNU GPL
