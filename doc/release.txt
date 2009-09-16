@@ -22,10 +22,6 @@ git push origin branch-$VERSION-stable master
 git push --tags
 # Here you can test the release in the autobuilder
 
-# Pristine TAR - efficienty storing the release in the Git repository
-pristine-tar commit freedink-$VERSION.tar.gz v$VERSION
-git push origin pristine-tar
-
 # Cleanly merge stable branch back to trunk
 git checkout master
 git merge branch-$VERSION-stable --no-commit
@@ -56,6 +52,10 @@ filename: freedink-$VERSION.tar.gz
 EOF
 lftp -e "mput freedink-$VERSION.tar.gz*; exit" -u anonymous, ftp-upload.gnu.org/incoming/ftp/
 # Check ftp://ftp.gnu.org/gnu/freedink/
+
+# Pristine TAR - efficienty storing the release in the Git repository
+pristine-tar commit freedink-$VERSION.tar.gz v$VERSION
+git push origin pristine-tar
 
 # Upload sigs to freedink.org
 
@@ -129,8 +129,8 @@ Check this for updates:
 - http://lintian.debian.org/full/pkg-games-devel@lists.alioth.debian.org.html#freedink
 
 # http://wiki.debian.org/Games/VCS
-git clone YOU@git.debian.org:/git/pkg-games/freedink-data
-cd freedink-data
+git clone YOU@git.debian.org:/git/pkg-games/freedink
+cd freedink
 git checkout -b pristine-tar origin/pristine-tar
 git checkout -b upstream origin/upstream
 
