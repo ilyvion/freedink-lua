@@ -213,6 +213,7 @@ static TTF_Font *load_default_font() {
     {
       char *path = get_fontconfig_path("Liberation Sans:style=Regular");
       rwops = SDL_RWFromFile(path, "rb");
+      free(path);
     }
 #endif
   if (rwops == NULL)
@@ -276,6 +277,7 @@ int initfont(char* fontname) {
 	  new_font = TTF_OpenFont(path, FONT_SIZE);
 	  if (new_font == NULL)
 	    log_error("TTF_OpenFont: %s", TTF_GetError());
+	  free(path);
 	}
     }
 
