@@ -5,6 +5,7 @@ On the developer computer:
 --------------------------
 
 VERSION=1.08.$(date +%Y%m%d)
+cd freedink/
 git checkout -b branch-$VERSION-stable
 git2cl > ChangeLog
 # Edit NEWS
