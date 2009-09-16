@@ -102,13 +102,13 @@ char* get_fontconfig_path(char* fontname)
   FcFontSet *fs = FcFontList (0, p, attr);
   if (fs->nfont == 0)
     {
-      log_error("get_fontconfig_path: no matching font");
+      log_error("get_fontconfig_path: no matching font for %s", fontname);
       return NULL;
     }
   if (FcPatternGetString(fs->fonts[0], FC_FILE, 0, &strval) == FcResultTypeMismatch
       || strval == NULL)
     {
-      log_error("get_fontconfig_path: cannot find font filename");
+      log_error("get_fontconfig_path: cannot find font filename for %s", fontname);
       return NULL;
     }
 
