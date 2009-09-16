@@ -16,7 +16,6 @@ AM_LDFLAGS = `$(RELOCATABLE_LDFLAGS) $(bindir)`
 endif
 
 # gettext:
-localedir = $(datadir)/locale
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
 LDADD += @LIBINTL@
 AM_CPPFLAGS += -I$(top_srcdir)/intl -I$(top_builddir)/intl
