@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20080920\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-07-10 13:26+0200\n"
+"POT-Creation-Date: 2009-09-16 10:32+0200\n"
 "PO-Revision-Date: 2008-12-12 21:55+0000\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French\n"
@@ -100,51 +100,51 @@ msgstr ""
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
 
-#: src/freedink.c:2696
+#: src/freedink.c:2686
 msgid "`$I don't see anything here."
 msgstr "`$Je ne vois rien par ici."
 
-#: src/freedink.c:2697
+#: src/freedink.c:2687
 msgid "`$Huh?"
 msgstr "`$Hein?"
 
-#: src/freedink.c:2698
+#: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Je ne pense pas pouvoir parler à ce truc-là, ou l'utiliser."
 
-#: src/freedink.c:2699
+#: src/freedink.c:2689
 msgid "`$What?"
 msgstr "`$Quoi?"
 
-#: src/freedink.c:2700
+#: src/freedink.c:2690
 msgid "`$I'm bored."
 msgstr "`$Je m'ennuie."
 
-#: src/freedink.c:2701
+#: src/freedink.c:2691
 msgid "`$Not much happening here."
 msgstr "`$Pas grand chose par ici."
 
-#: src/freedink.c:2809
+#: src/freedink.c:2799
 msgid "`$I don't know any magic."
 msgstr "`$Je ne connais aucun sort."
 
-#: src/freedink.c:2810
+#: src/freedink.c:2800
 msgid "`$I'm no wizard!"
 msgstr "`$Je ne suis pas magicien!"
 
-#: src/freedink.c:2811
+#: src/freedink.c:2801
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Je dois apprendre un sort avant d'essayer ça."
 
-#: src/freedink.c:2812
+#: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Je m'excite bêtement pour rien!"
 
-#: src/freedink.c:2813
+#: src/freedink.c:2803
 msgid "`$Nothing happened."
 msgstr "`$Rien n'est arrivé."
 
-#: src/freedink.c:2814
+#: src/freedink.c:2804
 msgid "`$Hocus pocus!"
 msgstr "`$Hocus pocus!"
 

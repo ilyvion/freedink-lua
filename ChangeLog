@@ -1,3 +1,740 @@
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* share/README.fonts: Upgrade LiberationSans-Regular.ttf to v1.04.93
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Precise current directory in the release process
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c: Detail fontconfig error messages
+
+2009-09-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/gfx_sprites.c, src/sfx.c: 
+	Remove a few unused variables
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/.gitignore, gnulib/m4/.gitignore: Update gnulib
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Give priority to fade_up() over fade_down()
+	- fix SoB intro in truecolor mode
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkc_sp_custom.c: Fix compilation
+	warnings, including 2 off-by-one memory access
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/i18n.c: Fix typo that causes invalid memory access in the
+	translation system
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/fonts.txt, doc/valgrind.txt,
+	valgrind/suppressions-debian_testing.txt: Precisions about font
+	patents and valgrind usage
+
+2009-08-30  Sylvain Beucler <beuc@beuc.net>
+
+	* po/de.po, po/fr.po, po/nb.po: PO update
+
+2009-07-17  me <me@debian.(none)>
+
+	* BUILD, README: Make reference to BUILD more visible in README and
+	point to newer freedink-data for the data
+
+2009-07-17  me <me@debian.(none)>
+
+	* src/Makefile.am: Remove 'dink' and 'dinkedit' symlink on uninstall
+
+2009-07-10  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: More release instructions precisions
+
+2009-07-10  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/.gitignore, gnulib/m4/.gitignore: Gnulib update
+
+2009-07-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Fix repeating keys bug in the editor
+
+2009-07-06  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Improve release instructions
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Improve release instructions
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc_bindings.c, src/i18n.c, src/i18n.h: Support for
+	context in translations
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Fix buffer overflow in recent fseek->fread
+	conversion
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, src/media/README: Update TODO
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* test/sdl/mixer_stream.c: Add standalone test for streaming chunks
+	in SDL_mixer
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/xpot-tag.pl: xpot: don't miss translatable string when
+	there's a space between the 2nd quote and the comma (missed 1 string
+	in the original game)
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Use fread/fwrite instead of fseek for small skips -
+	this greatly improves perfs on PSP
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_sprites.c: A little clean-up in sprite loading
+
+2009-07-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Cancel dir.ff+png trick - no performance
+	improvement.  This reverts commit 2d8ce789e72dcb2707f77f1ecd7c36f4dadfd7f6.
+
+2009-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_sprites.c: Support alternate dir.ff with png's, that I
+	made for the PSP port
+
+2009-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_fonts.c: Detect truecolor-ness in fallback mode
+
+2009-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/ffrextract.c, contrib/ffrpack.cpp, src/Makefile.am,
+	src/dinkc_bindings.c, src/dinkvar.c, src/freedink.c, src/gfx.c,
+	src/gfx.h, src/gfx_fonts.c, src/gfx_palette.c, src/gfx_palette.h,
+	src/gfx_utils.c, src/gfx_utils.h, src/init.c, src/update_frame.c: 
+	Encapsulate and simplify physical palette manipulation
+
+2009-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/.gitignore, contrib/ffrextract.c, contrib/ffrpack.cpp: 
+	contrib: adding dir.ff packing tool
+
+2009-07-04  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/ffrextract.c: ffrextract: fix fastfile extraction when
+	there's a dir.ff within the dir.ff
+
+2009-07-03  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/sfx.c, src/sfx.h: 
+	Reimplement the SFX channels clean-up without threads, because PSP
+	support is suboptimal
+
+2009-07-03  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS: Document RAM optimization
+
+2009-07-03  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Sound memory usage: quit playing finished sounds asap
+
+2009-07-03  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Sound memory usage: close non-playing channels from a
+	thread
+
+2009-07-03  Sylvain Beucler <beuc@beuc.net>
+
+	* src/sfx.c: Sound memory usage: get rid of per-channel fake buffer
+
+2009-07-01  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, configure.ac, debian/changelog, debian/control,
+	debian/copyright, debian/rules, doc/release.txt, src/freedinkedit.c: 
+	Fix Debian lintian warnings + sync with Debian packaging
+
+2009-06-14  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD: Deprecate notes about dpkg-shlibdeps warnings,
+	because we don't use libzzip anymore
+
+2009-06-14  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD: Remove libffi from build instructions
+
+2009-05-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc_bindings.c: Fix crash when calling
+	drap_map_game()
+
+2009-05-24  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-rpms.sh, freedink.spec: Include
+	LiberationFont-Sans.ttf in our Fedora builds, to avoid dependencies
+	conflicts due to F11 font renaming
+
+2009-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, configure.ac, doc/psp.txt, psp/Makefile.PSP.EBOOT,
+	psp/README, src/Makefile.am, src/init.c: Integrate PSP build system
+
+2009-05-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/dinkc.c, src/dinkc_bindings.c, src/gfx_fonts.c: 
+	Improve debug messages
+
+2009-04-25  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix crash in a DinkC parsing corner case
+	(introduced in recent clean-up)
+
+2009-04-21  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc_bindings.c: Log all say_xxx(...) DinkC calls,
+	because it makes it much easier to debug
+
+2009-04-21  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Expand the text given to say_xy(...) (bug
+	introduced when fixing DinkC buffer overflows)
+
+2009-04-21  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/dmods_mass_extract.sh, contrib/ffrextract.c,
+	src/gfx_sprites.h: Reduce MAX_FRAMES_PER_ABUSED_SEQUENCE from 1000
+	to 69 (max ever abused in D-Mods), this saves 3.5MB of .bss which
+	comes in handy for PSP1
+
+2009-04-21  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkvar.c, src/game_engine.h: Drop unused fields
+	from 'struct player_info'
+
+2009-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, src/meminfo.c: Check if 'struct mallinfo' is present
+	for malloc stats - e.g. it's not in mingw32
+
+2009-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/existing_bugs.txt, src/dinkc_bindings.c, src/dinkvar.c,
+	src/dinkvar.h: Clean-up: rename
+	kill_cur_item_script->kill_item_script,
+	kill_cur_magic_script->kill_mitem_script
+
+2009-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/game_engine.h, src/update_frame.c: Clean-up:
+	index item[] and item[] from 0
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/game_engine.h: Item's script name is 11 chars
+	instead of 10, thanks to off-by-one overflow on a memory alignment
+	gap
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: get_next_sprite_with_this_brain didn't work
+	anymore because the (int, int, int) signature was not declared
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/meminfo.c, src/sfx.c: Remove extra \n in log_debug
+	calls
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc.c, src/dinkc_bindings.c, src/dinkvar.c,
+	src/dinkvar.h, src/freedinkedit.c, src/game_engine.h, src/gfx.c,
+	src/gfx.h, src/gfx_tiles.c, src/gfx_tiles.h, src/screen.c: Clean-up:
+	factor out tiles display, rename hardness-related variables for
+	clarity
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/Makefile.am, src/dinkc.h, src/dinkc_bindings.c,
+	src/dinkvar.c, src/dinkvar.h, src/freedinkedit.c,
+	src/game_engine.c, src/game_engine.h, src/gfx_tiles.c,
+	src/screen.c, src/screen.h, src/update_frame.c: Clean-up: factor out
+	sprite sort by queue, new screen.c file for screen display and
+	hardness functions
+
+2009-04-19  Sylvain Beucler <beuc@beuc.net>
+
+	* src/meminfo.c, src/meminfo.h: Debug GFX/SFX memory usage when
+	loading a screen (2)
+
+2009-04-18  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/Makefile.am, src/freedink.h, src/gfx.c,
+	src/gfx.h, src/gfx_tiles.c, src/sfx.c, src/sfx.h: Debug GFX/SFX
+	memory usage when loading a screen
+
+2009-04-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/memory_usage.txt, src/dinkvar.c, src/dinkvar.h,
+	src/gfx_sprites.c, src/gfx_sprites.h, src/gfx_tiles.c: Reduce BSS
+	data segment by removing unused data or shortening fields
+
+2009-04-16  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, doc/memory_usage.txt, doc/psp.txt: Doc: mention .bss / data
+	segment size
+
+2009-04-13  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt: Precise/fix/clean-up psp.txt
+
+2009-04-13  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec, src/SDL_rwops_zzip.c, src/dinkvar.h,
+	src/freedink.c, src/game_engine.h, src/gfx.h, src/i18n.c,
+	src/i18n.h, src/io_util.h, src/log.h, src/msgbox.c, src/msgbox.h,
+	src/paths.h, src/str_util.c, src/str_util.h, src/vgasys_fon.c: 
+	Update copyright notices
+
+2009-04-13  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c: Update 'Liberation-Sans not found' error message
+	with new lookup order
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix regression: now text can be coloured
+	again
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* : Improve PSP background
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/io_util.c, src/paths.c, src/paths.h: Allow loading
+	Liberation-Sans from exedir, because bunding resources can be
+	inconvenient and is mainly used for standalone .exe w/o data
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/i18n.c, src/log.c: mingw32 fix: use setvbuf instead of
+	setlinebuf
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/gfx_sprites.c: Fix memory
+	leaks introduces by recent static->malloc changes
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Use more common array indexes in figure_out and
+	pre_figure_out
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/str_util.c: 
+	separate_string now always returns an allocated string (no NULL):
+	the return value was never checked in the original code, so there's
+	no disruptive change, and this simplifies the calling code
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c: Fix potential buffer overflow in DinkC
+	arguments processing (slist[])
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/game_engine.h: Remove empty
+	fields from dumpable memory structures (dink_dat, map, savegame) and
+	protect against corrupt savegames by forcing string null-termination
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.h, src/gfx_fonts.c,
+	src/str_util.c: Fix another couple buffer overflows (process_line,
+	talk_get)
+
+2009-04-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h: Fix off-by-1 in 'locate_goto(...)'
+
+2009-04-11  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, doc/TODO, valgrind/suppressions-debian_lenny.txt: Update
+	Valgrind suppressions to detect invalid memory accesses and leaks
+
+2009-04-11  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c,
+	src/dinkvar.c, src/dinkvar.h, src/fastfile.c, src/i18n.c,
+	src/i18n.h, src/str_util.c, src/str_util.h: Fix potential buffer
+	overflows when reading a DinkC script (separate_string,
+	i18n_translate, decipher_string, talk_get...))
+
+2009-04-11  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, doc/existing_bugs.txt, src/dinkc.c, src/dinkc.h,
+	src/dinkc_bindings.c, src/dinkvar.c, src/game_engine.h,
+	src/str_util.c, src/str_util.h: Fix potential buffer overflow when
+	reading a DinkC script (replace(...))
+
+2009-04-11  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c: Fix potential
+	buffer overflow when reading a huge DinkC line (get_word())
+
+2009-04-11  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c: Fix potential
+	buffer overflow when reading a huge DinkC line
+
+2009-04-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c: Store script's
+	last parsed line (instead of parser position ~= next line) to ease
+	debugging
+
+2009-04-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc_bindings.c: Attempt to make DinkC-related
+	warnings/errors more visible in the log
+
+2009-04-10  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc.h, src/dinkc_bindings.c: Count lines in
+	DinkC scripts to ease debugging
+
+2009-04-10  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/SDL_rwops_libzip.c, src/bgm.c, src/dinkc.c,
+	src/dinkc_bindings.c, src/dinkini.c, src/dinkvar.c, src/freedink.c,
+	src/freedinkedit.c, src/gfx.c, src/gfx.h, src/gfx_fonts.c,
+	src/gfx_sprites.c, src/gfx_tiles.c, src/init.c, src/input.c,
+	src/io_util.c, src/io_util.h, src/log.c, src/log.h, src/paths.c,
+	src/sfx.c, src/update_frame.c: Add small log facility so that text
+	output 1) can be turned off and 2) is classified by priority
+
+2009-04-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/SDL_rwops_zzip.c, src/init.c, src/io_util.c,
+	src/paths.c, src/paths.h: Support .zip resources for PSP
+
+2009-04-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/gfx_fonts.c, src/init.c: 
+	Make [Home] quit properly without crashing
+
+2009-04-05  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c: Support naming new actions 12/14/16/18
+	(down/left/right/up) in decipher_string
+
+2009-04-05  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, psp/Makefile.PSP.EBOOT, src/bgm.c,
+	src/dinkc_bindings.c, src/dinkini.c, src/game_engine.c, src/gfx.c,
+	src/gfx_sprites.c, src/gfx_tiles.c, src/init.c, src/input.c,
+	src/io_util.c, src/msgbox.c, src/paths.c, src/sfx.c: Allow
+	finiObjects() and other uninitialization procedures to be called
+	twice
+
+2009-03-26  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, doc/psp.txt: Documentation: downgrading PSP
+	firmware and first steps with GDB
+
+2009-03-25  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/log.txt, doc/psp.txt, gnulib/lib/.gitignore: Docs
+
+2009-03-22  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/freedink.c, src/freedinkedit.c, src/gfx.c, src/gfx.h: 
+	Add alternate fullscreen-toggling code that is more portable
+
+2009-03-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/input.c, src/input.h: Support mapping joystick
+	buttons to left/right/up/down
+
+2009-03-22  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/psp.txt, src/input.c: Doc fixes
+
+2009-03-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c, src/freedinkedit.c, src/input.c,
+	src/input.h: More input clean-up; support in FreeDinkedit +
+	clarifications
+
+2009-03-22  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc.c, src/dinkc_bindings.c, src/dinkvar.c, src/freedink.c,
+	src/freedinkedit.c, src/game_engine.h, src/input.c, src/input.h,
+	src/update_frame.c: More input clean-up; count buttons from 0
+	internally
+
+2009-03-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/dinkc.c, src/dinkc_bindings.c, src/dinkvar.c,
+	src/freedink.c, src/game_engine.c, src/game_engine.h, src/input.c,
+	src/input.h: Clean-up input/buttons handling code a bit, and provide
+	alternate buttons mapping for PSP
+
+2009-03-17  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/init.c: Remove debug memory stats from
+	initialization
+
+2009-03-17  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/psp.txt: Add Tremor (Ogg Vorbis) in the build
+	system
+
+2009-03-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, psp/Makefile.PSP.EBOOT: Fix build system to use more
+	PSP RAM
+
+2009-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/gnulib-cache.m4, src/dinkc.c, src/dinkc.h,
+	src/freedink.c, src/init.c, src/input.c: Fix potential buffer
+	overflows when reading scripts from disk to buffers
+
+2009-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* psp/Makefile.PSP.EBOOT: Add PSP-specific Makefile to generate
+	EBOOT.PBP from the MIPS binary
+
+2009-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/game_engine.h, src/gfx.c,
+	src/gfx_sprites.c, src/gfx_sprites.h, src/init.h: Clean-up: move
+	structures out of dinkvar, better errors when loading from a dir.ff
+
+2009-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt: A bit of research on PSP available heap size
+
+2009-03-15  Sylvain Beucler <beuc@beuc.net>
+
+	* src/paths.c: Add a note of warning for packagers who would try to
+	alter the default paths
+
+2009-03-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/bgm.c, src/dinkini.c, src/freedink.c,
+	src/game_engine.c, src/gfx.c, src/init.c, src/input.c,
+	src/io_util.c, src/msgbox.c: Fix joystick button init + clean-ups
+
+2009-03-14  Sylvain Beucler <beuc@beuc.net>
+
+	* valgrind/suppressions-debian_lenny.txt,
+	valgrind/suppressions-debian_testing.txt: Update valgrind
+	suppressions
+
+2009-03-14  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/existing_bugs.txt, doc/memory_usage.txt, doc/psp.txt,
+	src/dinkc_bindings.c, src/dinkini.c, src/dinkini.h, src/freedink.c,
+	src/freedink.h, src/freedinkedit.c, src/gfx.c, src/gfx_utils.c,
+	src/gfx_utils.h, src/init.c, src/update_frame.c: Improve/clean-up
+	initialization process
+
+2009-03-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c, src/fastfile.h, src/gfx_sprites.c: FastFileLock
+	now returns RWops - this avoids returning an additional malloc'd
+	copy of the file when using non-mmap mode
+
+2009-03-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/freedink.c, src/freedinkedit.c,
+	src/game_engine.c, src/game_engine.h, src/gfx.c, src/gfx.h,
+	src/init.c, src/init.h, src/input.c: Display splash screen earlier
+	during startup
+
+2009-03-12  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c, src/gfx_tiles.c: Better gfx failsafe init + PSP
+	temporary #ifdef's
+
+2009-03-11  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/Makefile.am, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/freedinkedit.c, src/game_engine.c,
+	src/game_engine.h, src/gfx_tiles.h, src/init.c, src/input.c: More
+	start-up clean-up
+
+2009-03-11  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt, src/paths.c: Fix a couple NULL pointer when running
+	on PSP
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt: docfix
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c: Fix typo
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/psp.txt, src/msgbox.c: Properly order : add them
+	in reverse order (dependencies last) to please limited linkers
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, src/msgbox.c: Disable falling back to 'xmessage'
+	when there's no fork(2)
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c: Re-enable mmap-based fastfiles for architectures
+	that support it (was disabled for testing)
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* .gitignore: Ignore another build dir
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/SDL_rwops_libzip.c, src/SDL_rwops_zzip.c, src/bgm.c,
+	src/bgm.h, src/dinkc.c, src/dinkc_console.c, src/dinkc_sp_custom.c,
+	src/dinkini.c, src/dinkvar.c, src/dinkvar.h, src/fastfile.c,
+	src/fastfile.h, src/freedink.c, src/freedink.h, src/game_engine.c,
+	src/gfx.c, src/gfx.h, src/gfx_fade.c, src/gfx_fonts.c,
+	src/gfx_fonts.h, src/gfx_sprites.c, src/gfx_sprites.h,
+	src/gfx_tiles.c, src/gfx_tiles.h, src/gfx_utils.c, src/gfx_utils.h,
+	src/init.c, src/init.h, src/input.c, src/input.h, src/io_util.c,
+	src/io_util.h, src/log.c, src/log.h, src/paths.c, src/paths.h,
+	src/rect.c, src/sfx.c, src/sfx.h, src/str_util.c, src/str_util.h,
+	src/update_frame.h: Fix/update copyright notices
+
+2009-03-08  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/psp.txt, gnulib/m4/gnulib-cache.m4,
+	src/SDL_rwops_libzip.c, src/bgm.c, src/dinkc_bindings.c,
+	src/dinkc_console.c, src/dinkc_sp_custom.c, src/dinkini.c,
+	src/dinkvar.c, src/fastfile.c, src/fastfile.h, src/freedinkedit.c,
+	src/game_engine.c, src/gfx.c, src/gfx_fade.c, src/gfx_fonts.c,
+	src/gfx_sprites.c, src/gfx_tiles.c, src/gfx_utils.c, src/init.c,
+	src/input.c, src/io_util.c, src/log.c, src/paths.c, src/rect.c,
+	src/sfx.c, src/update_frame.c: First batch of changes for PSP
+	cross-compilation: drop libffi, add fastfile mode without mmap(2),
+	clean-ups, build documentation
+
+2009-03-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt: PSP: taking screenshots
+
+2009-03-06  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/psp.txt: Add basic/survival infos about the PSP
+	platform
+
+2009-03-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp.txt: Add instructions to setup a PSP environment to
+	compile SDL-based games
+
+2009-03-01  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Properly check for SDL_ttf 2.0.9 in ./configure
+	(e.g. previous code would fail for SDL_ttf 2.x.8)
+
+2009-02-09  Sylvain Beucler <beuc@beuc.net>
+
+	* nsis/freedink-all.nsi: Optimize NSIS installer
+
+2009-02-08  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/woe-installers.txt, nsis/AdvUninstLog.nsh,
+	nsis/freedink-all.nsi, nsis/registerExtension.nsh: Add first version
+	of a woe installer using NSIS
+
+2009-02-08  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4: Update Gnulib
+
+2009-02-08  Sylvain Beucler <beuc@beuc.net>
+
+	* src/woeres.rc.in: Bundle more precise version information in
+	.exe's
+
+2009-02-07  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/woe-installers.txt: Initial research on generating woe
+	installers from GNU/Linux
+
+2009-02-04  Sylvain Beucler <beuc@beuc.net>
+
+	* : commit 9c2e0442ecea3516974501de47975a946e266e8f Author: Sylvain
+	Beucler <beuc@beuc.net> Date:   Wed Feb 4 22:20:55 2009 +0100
+
+2009-02-04  Sylvain Beucler <beuc@beuc.net>
+
+	* : commit 591b5d57660621e42428369e1667deeef80c3ae1 Author: Sylvain
+	Beucler <beuc@beuc.net> Date:   Wed Feb 4 21:45:40 2009 +0100
+
+2009-02-01  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-debs.sh, autobuild/freedink-snapshot.sh,
+	debian/copyright, debian/rules, src/dinkc_bindings.c,
+	src/freedink.c, src/freedinkedit.c, src/paths.c, src/update_frame.c: 
+	Update some copyright notices
+
+2009-02-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c, src/update_frame.c: Fix unsafe uses of sprintf
+	of the form sprintf(buf, "%s foo %d %d", buf, var1, var2); - cf.
+	http://lists.debian.org/debian-devel/2008/12/msg01079.html
+
+2009-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, doc/release.txt, src/Makefile.am, src/compress.c: Add
+	a few files missing in tarballs
+
+2009-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: make symlinks for the woe version during the
+	release
+
+2009-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO: dmod.diz needs to be included in the .pot
+
+2009-01-27  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/copyright, debian/watch: Sync Debian
+	files
+
+2009-01-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Add step-by-step instructions for new releases
+
+2009-01-20  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, freedink.spec, po/de.po, po/fr.po,
+	po/nb.po: Release 1.08.20090120
+
 2009-01-20  Sylvain Beucler <beuc@beuc.net>
 
 	* autobuild/freedink-debs.sh, autobuild/freedink-exe.sh,

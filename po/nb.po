@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20080932\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-07-10 13:26+0200\n"
+"POT-Creation-Date: 2009-09-16 10:32+0200\n"
 "PO-Revision-Date: 2008-12-11 21:26+0100\n"
 "Last-Translator: Alexander Krivács Schrøder <alexschrod@gmail.com>\n"
 "Language-Team: Norwegian\n"
@@ -104,51 +104,51 @@ msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
 "Merk: -nomovie aksepteres av kompatibilitetsårsaker, men har ingen effekt.\n"
 
-#: src/freedink.c:2696
+#: src/freedink.c:2686
 msgid "`$I don't see anything here."
 msgstr "`$Jeg ser ingen ting av interesse her."
 
-#: src/freedink.c:2697
+#: src/freedink.c:2687
 msgid "`$Huh?"
 msgstr "`$Hæ?"
 
-#: src/freedink.c:2698
+#: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Jeg er ganske sikker på at jeg ikke kan snakke med eller bruke det."
 
-#: src/freedink.c:2699
+#: src/freedink.c:2689
 msgid "`$What?"
 msgstr "`$Hva?"
 
-#: src/freedink.c:2700
+#: src/freedink.c:2690
 msgid "`$I'm bored."
 msgstr "`$Jeg kjeder meg."
 
-#: src/freedink.c:2701
+#: src/freedink.c:2691
 msgid "`$Not much happening here."
 msgstr "`$Det skjer ikke mye her."
 
-#: src/freedink.c:2809
+#: src/freedink.c:2799
 msgid "`$I don't know any magic."
 msgstr "`$Jeg kjenner ikke til noe magi."
 
-#: src/freedink.c:2810
+#: src/freedink.c:2800
 msgid "`$I'm no wizard!"
 msgstr "`$Jeg er ingen trollmann!"
 
-#: src/freedink.c:2811
+#: src/freedink.c:2801
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Før jeg kan prøve dette må jeg lære meg magi."
 
-#: src/freedink.c:2812
+#: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Jeg veiver hendene mine vilt rundt meg til ingen nytte!"
 
-#: src/freedink.c:2813
+#: src/freedink.c:2803
 msgid "`$Nothing happened."
 msgstr "`$Ingen ting skjedde."
 
-#: src/freedink.c:2814
+#: src/freedink.c:2804
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 

@@ -13,7 +13,7 @@ git2cl > ChangeLog
 # Sync debian/
 # Sync freedink.spec
 # Edit freedink.spec (Version/Release + %changelog)
-# TODO: need to edit po/freedink.pot?
+# (Note: po/freedink.pot is updated automatically)
 
 make distcheck
 git commit -am "Release $VERSION"
@@ -126,7 +126,7 @@ Debian notes:
 
 Check this for updates:
 - /usr/share/doc/debian-policy/upgrading-checklist.txt.gz
-- http://lintian.debian.org/full/pkg-games-devel@lists.alioth.debian.org.html#freedink-data
+- http://lintian.debian.org/full/pkg-games-devel@lists.alioth.debian.org.html#freedink
 
 # http://wiki.debian.org/Games/VCS
 git clone YOU@git.debian.org:/git/pkg-games/freedink-data

@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20090120
+Version:	1.08.20090916
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -121,6 +121,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 16 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090916-1
+- New upstream release
+- Can optionaly bundle default font, to avoid liberation-fonts
+  vs. liberation-sans-fonts issues when building snapshot RPMs
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20090120-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Tue Feb 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20090120-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Wed Feb  4 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090120-2
 - Apply Fedora font rename: liberation-fonts -> liberation-sans-fonts
 
