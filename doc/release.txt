@@ -1,5 +1,17 @@
 How to make a release     -*- shell-script -*-
 
+Version scheme
+--------------
+
+Currently FreeDink aims at compatibility with the original v1.08
+version, so the versions are 1.08.$(date +%Y%m%d).  We will switch to
+1.09.x or 109.x/109.x.y if we start adding new features.
+
+The scheme is minimalist and does not allow versions that indicates a
+stable branch with bugfixes (usually x.y.z).  Instead we just issue a
+new version.  This prevents fixing a previous (non-latest) release,
+but as of 2009 we do not need it.
+
 
 On the developer computer:
 --------------------------
