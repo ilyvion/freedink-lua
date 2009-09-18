@@ -33,7 +33,7 @@ extern "C"
 
   extern int FastFileInit(char *filename, int max_handles);
   extern void FastFileFini(void);
-  extern void* FastFileOpen(char *name);
+  extern HFASTFILE FastFileOpen(char *name);
   extern int FastFileClose(void *pfe);
   extern SDL_RWops* FastFileLock(void *pfe);
   extern int FastFileLen(void *i);

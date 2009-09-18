@@ -44,6 +44,7 @@
 #endif
 #include "str_util.h"
 #include "io_util.h"
+extern void FastFileFini(void);
 
 #define HEADER_NB_ENTRIES_LEN 4
 
@@ -59,10 +60,8 @@ struct FF_Handle
   long pos, off, len;
 };
 
-void FastFileFini (void);
-
-static struct FF_Entry *g_Entries = 0;
-static struct FF_Handle *g_Handles = 0;
+static struct FF_Entry *g_Entries = NULL;
+static struct FF_Handle *g_Handles = NULL;
 
 static unsigned int g_FileSize = 0;
 static unsigned int g_numEntries = 0;
@@ -80,7 +79,7 @@ FILE* g_File = NULL;
 #endif
 
 #if defined HAVE_MMAP || defined _WIN32
-unsigned char *g_MemMap = 0;
+unsigned char *g_MemMap = NULL;
 #endif
 
 int
@@ -173,32 +172,38 @@ FastFileInit(char *filename, int max_handles)
 void
 FastFileFini (void)
 {
-  if (g_Entries)
+  if (g_Entries != NULL)
     {
       free(g_Entries);
-      g_Entries = 0;
+      g_Entries = NULL;
     }
-  if (g_Handles)
+  if (g_Handles != NULL)
     {
       free(g_Handles);
-      g_Handles = 0;
+      g_Handles = NULL;
     }
-
-#if defined HAVE_MMAP || defined _WIN32
-  if (!g_MemMap)
-    return;
-#endif
 
 #ifdef HAVE_MMAP
   /* Unmap and close the file (Unix) */
-  munmap(g_MemMap, g_FileSize);
-  close(g_File);
-  g_File = -1;
+  if (g_MemMap != NULL)
+    {
+      munmap(g_MemMap, g_FileSize);
+      g_MemMap = NULL;
+    }
+  if (g_File != NULL)
+    {
+      close(g_File);
+      g_File = 0;
+    }
 #else
 #  ifdef _WIN32
-  /* Unmap and close the file (Windows) */
-  CloseHandle(g_FileMap);
-  CloseHandle(g_File);
+  if (g_MemMap != NULL)
+    {
+      /* Unmap and close the file (Windows) */
+      CloseHandle(g_FileMap);
+      CloseHandle(g_File);
+      g_MemMap = NULL;
+    }
 #  else
   if (g_File != NULL)
     {
@@ -206,10 +211,6 @@ FastFileFini (void)
       g_File = NULL;
     }
 #  endif
-#endif
-
-#if _WIN32 | HAVE_MMAP
-  g_MemMap = NULL;
 #endif
 }
 
