@@ -147,6 +147,8 @@ print_help (int argc, char *argv[])
 */
 void finiObjects()
 {
+  if (g_b_kill_app != 0)
+    return;
   g_b_kill_app = 1;
   
   if (last_saved_game > 0)
@@ -158,7 +160,7 @@ void finiObjects()
       last_saved_game = 0;
     }
 	
-  log_path(/*false*/0);
+  log_path(/*playing=*/0);
   
   if (sound_on)
     {
