@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 # Fedora release
 
-# Copyright (C) 2008  Sylvain Beucler
+# Copyright (C) 2008, 2009  Sylvain Beucler
 
 # This file is part of GNU FreeDink
 
@@ -27,7 +27,7 @@ cp -a /mnt/snapshots/$TARBALL rpmbuild/SOURCES/
 cp ~/$PACKAGE/$PACKAGE.spec rpmbuild/SPECS/
 sed -i -e "s/^Version:.*/Version:	$VERSION/"  rpmbuild/SPECS/$PACKAGE.spec
 rpmbuild -bs --nodeps rpmbuild/SPECS/$PACKAGE.spec
-mock -r fedora-9-i386 --resultdir /mnt/snapshots/fedora --rebuild -D "with_included_liberation_font 1" rpmbuild/SRPMS/$PACKAGE-$VERSION-1*.src.rpm
+mock -r fedora-10-i386 --resultdir /mnt/snapshots/fedora --rebuild -D "with_included_liberation_font 1" rpmbuild/SRPMS/$PACKAGE-$VERSION-1*.src.rpm
 cp -f rpmbuild/SPECS/$PACKAGE.spec /mnt/snapshots/fedora
 make -C /mnt/snapshots/fedora/
 exit
@@ -38,7 +38,7 @@ exit
 yum install mock
 
 # This one doesn't work in a VServer - use 'chroot' instead
-mock -r fedora-9-i386 init
+mock -r fedora-10-i386 init
 
 rpmdev-setuptree
 # or

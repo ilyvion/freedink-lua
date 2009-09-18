@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 # MS Woe release
 
-# Copyright (C) 2008  Sylvain Beucler
+# Copyright (C) 2008, 2009  Sylvain Beucler
 
 # This file is part of GNU FreeDink
 
@@ -56,13 +56,41 @@ find destdir/usr/local/bin/ -type f -name "*.exe" | while read file; do
   mv $file zip/$(basename ${file%.exe}-$VERSION-dll.exe)
 done
 for i in SDL.dll SDL_image.dll SDL_mixer.dll SDL_ttf.dll \
-    libSDL_gfx-0.dll libfreetype-6.dll libjpeg-62.dll libogg-0.dll \
+    libSDL_gfx-13.dll libfreetype-6.dll libjpeg-7.dll libogg-0.dll \
     libpng12-0.dll libtiff-3.dll libvorbis-0.dll libvorbisfile-3.dll \
     libz-1.dll libzip-1.dll; do
    cp -a /usr/local/i586-mingw32msvc/bin/$i zip/
 done
-rm -f /mnt/snapshots/woe/freedink-dlls.zip
-(cd zip/ && zip /mnt/snapshots/woe/freedink-dlls.zip *)
+cat <<EOF > zip/freedink-DLL.txt
+The .dll files are compiled versions of several free software
+projects.
+
+See
+  http://www.freedink.org/releases/woe/depsources/
+  http://www.freedink.org/snapshots/woe/depsources/
+for their source code, and
+  doc/cross.txt
+in the FreeDink source code to see how they were compiled.
+
+See also licenses/ for your rights on these projects.
+EOF
+mkdir -m 755 zip/licenses
+cp /usr/src/SDL-1.2.13/COPYING zip/licenses/SDL-1.2.13_COPYING
+cp /usr/src/libogg-1.1.4/COPYING zip/licenses/libogg-1.1.4_COPYING
+cp /usr/src/libvorbis-1.2.3/COPYING zip/licenses/libvorbis-1.2.3_COPYING
+cp /usr/src/SDL_ttf-2.0.9/COPYING zip/licenses/SDL_ttf-2.0.9_COPYING
+cp /usr/src/freetype-2.3.9/docs/GPL.TXT zip/licenses/freetype-2.3.9_GPL.TXT
+cp /usr/src/SDL_gfx-2.0.19/LICENSE zip/licenses/SDL_ttf-2.0.19_LICENSE
+cp /usr/src/SDL_mixer-1.2.8/COPYING zip/licenses/SDL_mixer-1.2.8_COPYING
+cp /usr/src/jpeg-7/README zip/licenses/jpeg-7_README
+cp /usr/src/zlib-1.2.3.3.dfsg/README zip/licenses/zlib-1.2.3.3.dfsg_README
+cp /usr/src/libpng-1.2.40/LICENSE zip/licenses/libpng-1.2.40_LICENSE
+cp /usr/src/tiff-3.9.1/COPYRIGHT zip/licenses/tiff-3.9.1_COPYRIGHT
+cp /usr/src/SDL_image-1.2.7/COPYING zip/licenses/SDL_image-1.2.7_COPYING
+cp /usr/src/libzip-0.9/lib/zip.h zip/licenses/libzip-0.9_zip.h
+
+rm -f /mnt/snapshots/woe/$PACKAGE-$VERSION.zip
+(cd zip/ && zip -r /mnt/snapshots/woe/$PACKAGE-$VERSION.zip *)
 popd
 
 popd

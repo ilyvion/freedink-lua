@@ -31,7 +31,7 @@ tar xzf ../$PACKAGE-$VERSION.tar.gz
 ln -s ../$PACKAGE-$VERSION.tar.gz ${PACKAGE}_$VERSION.orig.tar.gz 
 cd $PACKAGE-$VERSION/
 cp -a ../../$PACKAGE/debian .
-yes | dch -D stable \
+yes | DEBEMAIL="beuc@beuc.net" DEBFULLNAME="Sylvain Beucler" dch -D stable \
   --newversion $VERSION-1 \
   --force-bad-version -- \
   "New upstream release"
