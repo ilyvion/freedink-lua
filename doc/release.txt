@@ -101,7 +101,6 @@ pushd woe
     for f in ../../snapshots/woe/freedink{,edit,-all-installer}-$VERSION*; do
         ln -nfs $f
     done
-    make
 popd
 
 
