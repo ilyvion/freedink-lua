@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20090916
+Version:	1.08.20090918
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -121,6 +121,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 18 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090918-1
+- New upstream release
+
 * Wed Sep 16 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090916-1
 - New upstream release
 - Can optionaly bundle default font, to avoid liberation-fonts

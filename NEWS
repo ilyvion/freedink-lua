@@ -1,3 +1,19 @@
+1.08.20090918
+=============
+
+* User-visible changes:
+
+- Correctly locates engine translations under Debian
+
+- Fix crash when quitting under ms woe
+
+* Developer notes:
+
+- Fixed slight memory leak in font lookup
+
+- Updated bundled DLLs
+
+
 1.08.20090916
 =============
 
