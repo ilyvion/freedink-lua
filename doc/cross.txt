@@ -196,17 +196,11 @@ make install-strip
 
 
 # SDL_gfx
-VERSION=2.0.19
+VERSION=2.0.20
 cd /usr/src
 $WGET -P depsources/ http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-$VERSION.tar.gz
 tar xzf depsources/SDL_gfx-$VERSION.tar.gz
 cd SDL_gfx-$VERSION
-# Build system patches sent to the author, hopefully they will make to
-# 2.0.18 - or 2.0.20, since the author apparently forgot about them...
-patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_crosscompile.diff
-patch -p1 < ~/freedink/doc/SDL_gfx-patches/libtool_static.diff
-# Make sure you have libtool 2.2+
-autoreconf --force --install --symlink
 # Cross-prefix would be /usr/local/cross-tools/i386-mingw32msvc by default
 SDL_CONFIG=$PREFIX/bin/sdl-config \
   ./configure --build=$BUILD --host=$HOST \
