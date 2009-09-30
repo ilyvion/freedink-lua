@@ -117,6 +117,7 @@ Submit the release to:
   http://translationproject.org/html/maintainers.html
 - Dink Network
   http://www.dinknetwork.com/contribute/version/new/gnu_freedink/
+  http://www.dinknetwork.com/contribute/version/new/gnu_freedink_source_code/
 - Debian GNU/Linux
   http://wiki.debian.org/Games/Sponsors/Queue
 - Fedora GNU/Linux
@@ -129,6 +130,8 @@ Submit the release to:
   contact Stephen
 - Ubuntu GNU/Linux (Debian merge request)
   contact shirish
+- Linux Game Tome
+  http://happypenguin.org/update?GNU%20Freedink
 - Press...
 
 
