@@ -7,7 +7,7 @@
 # then modified.
 
 # Uncomment this to turn on verbose mode.
-export DH_VERBOSE=1
+#export DH_VERBOSE=1
 
 
 # These are used for cross-compiling and for saving the configure script
@@ -32,6 +32,11 @@ endif
 $(BUILD)/config.status: configure
 	dh_testdir
 	[ -d $(BUILD) ] || mkdir $(BUILD)
+
+	#Install autotools-dev's config.sub and config.guess, if newer:
+	chmod 755 debian/update-autotools-config.sh
+	debian/update-autotools-config.sh autotools/
+
 	# Using '--bindir=/usr/games' by Debian policy
 	#   (e.g. not the case for Fedora)
 	# Using '--disable-embedded-resources' because 'dh_strip' will remove
@@ -46,7 +51,6 @@ debian/build-stamp:  $(BUILD)/config.status
 
 	# Add here commands to compile the package.
 	$(MAKE) -C $(BUILD)
-	#docbook-to-man debian/freedink.sgml > freedink.1
 
 	touch $@
 
@@ -57,9 +61,6 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	[ ! -e $(BUILD) ] || $(MAKE) -C $(BUILD) distclean
-#	Install autotools-dev's config.sub and config.guess, if newer:
-	chmod 755 debian/update-autotools-config.sh
-	debian/update-autotools-config.sh autotools/
 
 	rm -rf $(BUILD)
 	dh_clean
@@ -70,7 +71,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/freedink.
+	# Add here commands to install the package into $(TARGET).
 	$(MAKE) -C $(BUILD) DESTDIR=$(TARGET) install
 	# Lintian complains with 'duplicate-font-file', let's have
 	# FreeDink rely on libfontconfig + depend on ttf-liberation

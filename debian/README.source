@@ -9,23 +9,30 @@ To build the Debian package
  debuild -us -uc
 
 
-TiMidity++
-==========
+MIDI support
+============
 
-'timidity' is explicitely specified as a dependency, because its
-absence can cause troubles (see TROUBLESHOOTING in the source tarball
-and http://bugs.debian.org/369670).  An alternative would be to 'touch
-/etc/timidity/timidity.cfg' on install but this looks ugly.
+Before Squeeze (i.e. if you backport), you needed to explicitely
+specify 'timidity' as a dependency, because its absence could cause
+troubles (see TROUBLESHOOTING in the source tarball and
+http://bugs.debian.org/369670).  An alternative would be to 'touch
+/etc/timidity/timidity.cfg' on install but this looks ugly.  Version
+1.2.8-6 of the sdl-mixer1.2 packages introduces a non-official patch
+(05_fallback_to_freepats.diff) that addresses this issue.
 
-We could specify it as a Recommend, but this isn't supported by
-Synaptic, so let's keep it as a dependency until then.
+You could specify it as a Recommend, but this isn't supported by
+Synaptic yet, so let's keep it as a dependency until then.
+
+Nonetheless, 'freepats' is still a dependency, because it's
+essentially the only way to get MIDI support for FreeDink in Debian
+main.
 
 
 Gnulib
 ======
 
-While it may look like FreeDink is embedding a private copy of
-FreeDink, this is absolutely not the case.
+While it may look like FreeDink is embedding a private copy of Gnulib,
+this isn't the case.
 
 This point was raised on the mailing list with a favorable response
 from the ftp-masters:
@@ -42,7 +49,7 @@ package.
 Testing with piuparts
 =====================
 
-# Attemps with 'lenny' instead of 'sid'
+# Attempts with 'lenny' instead of 'sid'
 sudo pbuilder --create --distribution lenny
 
 sudo piuparts -d lenny -b /var/cache/pbuilder/base.tgz \

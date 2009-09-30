@@ -32,7 +32,9 @@ On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
 
-FreeDink includes version 'ttf-3' of the 'Liberation Sans' font.
+FreeDink includes version '1.04.93' of the 'Liberation Sans' font (but
+is not used in the Debian package which depends on ttf-liberation
+instead).
 
 Copyright (C) 2007 Red Hat, Inc.
 
@@ -128,7 +130,7 @@ Public License version 2.1 can be found in `/usr/share/common-licenses/LGPL-2.1'
 
 The gnulib directory is an embedded copy of gnulib:
 
-Copyright (C) 1992,1995-1999,2000-2003,2005-2008 Free Software Foundation, Inc.
+Copyright (C) 1992,1995-1999,2000-2003,2005-2009 Free Software Foundation, Inc.
 License:
 
         GNULib is a collection of unrelated source files. Each source file is
@@ -140,6 +142,7 @@ On Debian systems, the complete text of the GNU General Public License
 can be found in /usr/share/common-licenses/GPL file,
 the GNU Lesser General Public License in /usr/share/common-licenses/LGPL,
 and the GNU Free Document License in /usr/share/common-licenses/GFDL.
+
 
 The SDL_rwops_libzip.c, SDL_rwops_libzip.h, SDL_rwops_zzip.c and SDL_rwops_zzip.h
 in ./src and ./test/sdl are covered by the ZLIB license:

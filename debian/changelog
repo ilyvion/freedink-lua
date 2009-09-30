@@ -1,3 +1,20 @@
+freedink (1.08.20090918-1) unstable; urgency=low
+
+  * New Upstream Version
+  * Fix/update packaging copyright notices
+  * Drop libffi dependency: not used upstream anymore
+  * Replace timidity dependency with freepats, thanks to recent fix in
+    sdl-mixer1.2 1.2.8-6
+  * Move -dbg package to the debug section
+  * Don't symlink LiberationSans-Regular.ttf since FreeDink uses
+    FontConfig to locate it
+  * Bump Standards-Version to 3.8.3
+  * Move update of config.sub/config.guess from clean to build target
+  * Add gbp.conf to ignore .gitignore files automatically
+  * Rename BUILD to README.source
+
+ -- Sylvain Beucler <beuc@beuc.net>  Fri, 18 Sep 2009 23:32:06 +0200
+
 freedink (1.08.20090120-1) unstable; urgency=low
 
   [ Sylvain Beucler ]
