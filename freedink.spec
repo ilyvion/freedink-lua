@@ -70,6 +70,12 @@ This package contains the game engine alone.
 
 %prep
 %setup -q
+# openSUSE does not allow empty packages, so create at least one file
+%if 0%{?suse_version}
+cat > README.META << EOF
+This is just a meta package to require all needed packages.
+EOF
+%endif
 
 %build
 # Using '--disable-embedded-resources' because 'rpmbuild' will remove
@@ -109,6 +115,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
+# openSUSE does not allow empty packages
+%if 0%{?suse_version}
+%doc README.META
+%endif
 
 %files engine -f %{name}.lang
 %defattr(-,root,root,-)
