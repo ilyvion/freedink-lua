@@ -30,13 +30,31 @@ Dan Walma wrote improvements to the original engine as version
 Sylvain Beucler started from the official v1.07 source code release
 and wrote all the other changes: SDL re-port, autoconfiscation,
 separate reference and D-Mod directories, v1.08 adaptation, bugfixes,
-etc.
+etc.  He translated the engine strings to French.
 
 
 The zzip and libzip resource-loading code (SDL_rwops_libzip.c,
 SDL_rwops_libzip.h, SDL_rwops_zzip.c, SDL_rwops_zzip.h) are based on
 sample code from zzip author Guido Draheim, Copyright (c) 2001.
 
+
+Alexander Krivács Schrøder translated the engine strings to Norwegian
+Bokmål, public domain 2008.
+
+Jorma Karvonen translated the engine strings to Finnish, public domain
+2009.
+
+Fernando Carmona Varo translated the engine strings to Spanish, public
+domain 2009.
+
+Michał Trzebiatowski translated the engine strings to Polish,
+Copyright (C) 2009.
+
+Joe Hansen translated the engine strings to Danish, public domain
+2009.
+
+Clytie Siddall translated the engine strings to Vietnamese, Copyright
+(C) 2009 Free Software Foundation.
 
 ---
 Copying and distribution of this file, with or without modification,

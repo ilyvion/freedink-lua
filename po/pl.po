@@ -1,87 +1,86 @@
-# French translations for GNU FreeDink package
-# Traductions françaises du paquet GNU FreeDink.
-# This file is put in the public domain.
-# Sylvain Beucler <beuc@beuc.net>, 2008, 2009.
+# Polish translation for freedink
+# Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the freedink package.
+# Michał Trzebiatowski <hippie_1968@hotmail.com>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
 "POT-Creation-Date: 2009-09-18 20:56+0000\n"
-"PO-Revision-Date: 2009-11-21 13:48+0100\n"
-"Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
-"Language-Team: French <traduc@traduc.org>\n"
+"PO-Revision-Date: 2009-09-22 17:23+0100\n"
+"Last-Translator: Michał Trzebiatowski <hippie_1968@hotmail.com>\n"
+"Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Pootle 1.2.1\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
 
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr "Usage: %s [OPTIONS]...\n"
+msgstr "Użyj: %s [OPCJE]...\n"
 
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Lance le jeu Dink Smallwood ou un de ses D-Mods."
+msgstr "Rozpoczyna grę Dink Smallwood lub jeden z jego D-Modów."
 
 #: src/init.c:112
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr "Modifie le jeu Dink Smallwood ou un de ses D-Mods."
+msgstr "Edytuj grę Dink Smallwood lub jeden z jego D-Modów."
 
 #: src/init.c:115
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr "  -h, --help            Affiche cet écran d'aide\n"
+msgstr "  -h, --help            Wyświetla ten ekran pomocy\n"
 
 #: src/init.c:116
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr "  -v, --version         Affiche la version\n"
+msgstr "  -v, --version         Wyświetla wersję\n"
 
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr "  -g, --game <dir>      Specifie le dossier d'un D-Mod\n"
+msgstr "  -g, --game <katalog>      Określ katalog D-Modu\n"
 
 #: src/init.c:119
 #, c-format
 msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "   -r, --refdir <dir>    Spécifie le répertoire de base pour dink/graphics, les D-Mods, etc.\n"
+msgstr "  -r, --refdir <katalog>    Określ podstawowy katalog dla dinka/grafik, D-Modów, itd.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr "   -d, --debug           Explique ce qui se passe\n"
+msgstr "  -d, --debug           Wyjaśnianie co się dzieje\n"
 
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           N'essaie pas d'écreire dinksmallwood.ini\n"
+msgstr "  -i, --noini           Nie zapisuj dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr "  -j, --nojoy           N'essaie pas d'utiliser la manette de jeu\n"
+msgstr "  -j, --nojoy           Nie używaj joysticka\n"
 
 #: src/init.c:124
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
-msgstr "  -s, --nosound         Coupe le son\n"
+msgstr "  -s, --nosound         Nie odtwarzaj dźwięku\n"
 
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Utilise le mode fenêtré plutôt que le plein écran\n"
+msgstr "  -w, --window          Używaj trybu okna zamiast trybu pełnoekranowego\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
+msgstr "  -7, --v1.07           Włącz tryb zgodności z v1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -91,117 +90,115 @@ msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
 #: src/init.c:136
 #, c-format
 msgid "Report bugs to %s.\n"
-msgstr ""
-"Rapportez les anomalies à %s.\n"
-"Rapportez les erreurs de traduction à beuc@beuc.net\n"
+msgstr "Błędy proszę zgłaszać na adres %s.\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Note: -nomovie est accepté pour des raisons de compatibilité, mais n'a aucun effet.\n"
+msgstr "Uwaga: -nomovie jest akceptowane dla zgodności, ale nie ma to wpływu.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."
-msgstr "`$Je ne vois rien par ici."
+msgstr "`$Nie widzę tu niczego."
 
 #: src/freedink.c:2687
 msgid "`$Huh?"
-msgstr "`$Hein?"
+msgstr "`$Hę?"
 
 #: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Je ne pense pas pouvoir parler à ce truc-là, ou l'utiliser."
+msgstr "`$Jestem całkiem pewien, że nie mogę z tym rozmawiać lub tego używać."
 
 #: src/freedink.c:2689
 msgid "`$What?"
-msgstr "`$Quoi?"
+msgstr "`$Co?"
 
 #: src/freedink.c:2690
 msgid "`$I'm bored."
-msgstr "`$Je m'ennuie."
+msgstr "`$Nudzę się."
 
 #: src/freedink.c:2691
 msgid "`$Not much happening here."
-msgstr "`$Pas grand chose par ici."
+msgstr "`$Niewiele się tutaj dzieje."
 
 #: src/freedink.c:2799
 msgid "`$I don't know any magic."
-msgstr "`$Je ne connais aucun sort."
+msgstr "`$Nie umiem czarować."
 
 #: src/freedink.c:2800
 msgid "`$I'm no wizard!"
-msgstr "`$Je ne suis pas magicien!"
+msgstr "`$Nie jestem czarodziejem!"
 
 #: src/freedink.c:2801
 msgid "`$I need to learn magic before trying this."
-msgstr "`$Je dois apprendre un sort avant d'essayer ça."
+msgstr "`$Muszę nauczyć się czarować przed spróbowaniem tego."
 
 #: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Je m'excite bêtement pour rien!"
+msgstr "`$Dziko gestykuluje na próżno!"
 
 #: src/freedink.c:2803
 msgid "`$Nothing happened."
-msgstr "`$Rien n'est arrivé."
+msgstr "`$Nic się nie stało."
 
 #: src/freedink.c:2804
 msgid "`$Hocus pocus!"
-msgstr "`$Hocus pocus!"
+msgstr "`$Hokus pokus!"
 
 #: src/dinkc.c:687
 msgid "Attack"
-msgstr "Attaquer"
+msgstr "Atakuj"
 
 #: src/dinkc.c:688
 msgid "Talk/Examine"
-msgstr "Parler/examiner"
+msgstr "Rozmawiaj/Sprawdź"
 
 #: src/dinkc.c:689
 msgid "Magic"
-msgstr "Magie"
+msgstr "Czaruj"
 
 #: src/dinkc.c:690
 msgid "Item Screen"
-msgstr "Inventaire"
+msgstr "Ekran przedmiotów"
 
 #: src/dinkc.c:691
 msgid "Main Menu"
-msgstr "Menu principal"
+msgstr "Główne menu"
 
 #: src/dinkc.c:692
 msgid "Map"
-msgstr "Carte"
+msgstr "Mapa"
 
 #: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
 msgid "Unused"
-msgstr "Inutilisé"
+msgstr "Nie używany"
 
 #: src/dinkc.c:697
 msgid "Down"
-msgstr "Bas"
+msgstr "Dół"
 
 #: src/dinkc.c:698
 msgid "Left"
-msgstr "Gauche"
+msgstr "Lewo"
 
 #: src/dinkc.c:699
 msgid "Right"
-msgstr "Droite"
+msgstr "Prawo"
 
 #: src/dinkc.c:700
 msgid "Up"
-msgstr "Haut"
+msgstr "Góra"
 
 #: src/dinkc.c:701
 msgid "Error: not mapped"
-msgstr "Erreur: non attribué"
+msgstr "Błąd: Nie przyporządkowuje"
 
 #: src/dinkc.c:712
 #, c-format
 msgid "Slot %d - %d:%02d - %s"
-msgstr "Emplacement %d - %d:%02d - %s"
+msgstr "Slot %d - %d:%02d - %s"
 
 #: src/dinkc.c:715
 #, c-format
 msgid "Slot %d - Empty"
-msgstr "Emplacement %d - Vide"
+msgstr "Slot %d - pusty"

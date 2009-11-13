@@ -1,87 +1,86 @@
-# French translations for GNU FreeDink package
-# Traductions françaises du paquet GNU FreeDink.
-# This file is put in the public domain.
-# Sylvain Beucler <beuc@beuc.net>, 2008, 2009.
+# Vietnamese translation for Free Dink.
+# Copyright © 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the freedink package.
+# Clytie Siddall <clytie@riverland.net.au>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
 "POT-Creation-Date: 2009-09-18 20:56+0000\n"
-"PO-Revision-Date: 2009-11-21 13:48+0100\n"
-"Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
-"Language-Team: French <traduc@traduc.org>\n"
+"PO-Revision-Date: 2009-10-11 18:57+0930\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Pootle 1.2.1\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.8\n"
 
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr "Usage: %s [OPTIONS]...\n"
+msgstr "Sử dụng: %s [TÙY_CHỌN]...\n"
 
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Lance le jeu Dink Smallwood ou un de ses D-Mods."
+msgstr "Khởi chạy trò chơi Dink Smallwood hay một bản sửa đổi D-Mod của nó."
 
 #: src/init.c:112
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr "Modifie le jeu Dink Smallwood ou un de ses D-Mods."
+msgstr "Chỉnh sửa trò chơi Dink Smallwood hay một bản sửa đổi D-Mod của nó."
 
 #: src/init.c:115
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr "  -h, --help            Affiche cet écran d'aide\n"
+msgstr "  -h, --help              Hiển thị trợ giúp này\n"
 
 #: src/init.c:116
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr "  -v, --version         Affiche la version\n"
+msgstr "  -v, --version           Hiển thị số thứ tự phiên bản\n"
 
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr "  -g, --game <dir>      Specifie le dossier d'un D-Mod\n"
+msgstr "  -g, --game <thư_mục>      Ghi rõ một thư mục DMod\n"
 
 #: src/init.c:119
 #, c-format
 msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "   -r, --refdir <dir>    Spécifie le répertoire de base pour dink/graphics, les D-Mods, etc.\n"
+msgstr "  -r, --refdir <thư_mục>    Ghi rõ thư mục cơ bản cho dink, các đồ họa và bản sửa đổi D-Mod v.v.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr "   -d, --debug           Explique ce qui se passe\n"
+msgstr "  -d, --debug           Giải thích trường hợp\n"
 
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           N'essaie pas d'écreire dinksmallwood.ini\n"
+msgstr "  -i, --noini           Không nên thử ghi tập tin « dinksmallwood.ini »\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr "  -j, --nojoy           N'essaie pas d'utiliser la manette de jeu\n"
+msgstr "  -j, --nojoy           Không nên thử sử dụng cần chơi\n"
 
 #: src/init.c:124
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
-msgstr "  -s, --nosound         Coupe le son\n"
+msgstr "  -s, --nosound         Không nên phát âm thanh\n"
 
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Utilise le mode fenêtré plutôt que le plein écran\n"
+msgstr "  -w, --window          Dùng chế độ cửa sổ thay cho chế độ màn hình\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
+msgstr "  -7, --v1.07           Bật chế độ tương thích với phiên bản 1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -92,116 +91,117 @@ msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
-"Rapportez les anomalies à %s.\n"
-"Rapportez les erreurs de traduction à beuc@beuc.net\n"
+"Hãy gửi thư thông báo :\n"
+"\tlỗi phần mềm cho %s\n"
+"\tlỗi dịch cho <clytie@riverland.net.au>\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Note: -nomovie est accepté pour des raisons de compatibilité, mais n'a aucun effet.\n"
+msgstr "Ghi chú : tuỳ chọn « -nomovie » (không phim) được chấp nhận để tương thích mà không có hiệu quả.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."
-msgstr "`$Je ne vois rien par ici."
+msgstr "`$Chưa thấy gì."
 
 #: src/freedink.c:2687
 msgid "`$Huh?"
-msgstr "`$Hein?"
+msgstr "`$Hở ?"
 
 #: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Je ne pense pas pouvoir parler à ce truc-là, ou l'utiliser."
+msgstr "`$Chắc là không thể liên lạc với hoặc sử dụng đó."
 
 #: src/freedink.c:2689
 msgid "`$What?"
-msgstr "`$Quoi?"
+msgstr "`$Cái gì ?"
 
 #: src/freedink.c:2690
 msgid "`$I'm bored."
-msgstr "`$Je m'ennuie."
+msgstr "`$Buồn tẻ."
 
 #: src/freedink.c:2691
 msgid "`$Not much happening here."
-msgstr "`$Pas grand chose par ici."
+msgstr "`$Ở đây có ít kết quả."
 
 #: src/freedink.c:2799
 msgid "`$I don't know any magic."
-msgstr "`$Je ne connais aucun sort."
+msgstr "`$Không quen với ma thuật."
 
 #: src/freedink.c:2800
 msgid "`$I'm no wizard!"
-msgstr "`$Je ne suis pas magicien!"
+msgstr "`$Không phải nhà chuyên môn !"
 
 #: src/freedink.c:2801
 msgid "`$I need to learn magic before trying this."
-msgstr "`$Je dois apprendre un sort avant d'essayer ça."
+msgstr "`$Cần học ma thuật trước khi thử ở đây."
 
 #: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Je m'excite bêtement pour rien!"
+msgstr "`$Chọc tức !"
 
 #: src/freedink.c:2803
 msgid "`$Nothing happened."
-msgstr "`$Rien n'est arrivé."
+msgstr "`$Không có gì xảy ra."
 
 #: src/freedink.c:2804
 msgid "`$Hocus pocus!"
-msgstr "`$Hocus pocus!"
+msgstr "`$Thấy đi !"
 
 #: src/dinkc.c:687
 msgid "Attack"
-msgstr "Attaquer"
+msgstr "Vang nhanh"
 
 #: src/dinkc.c:688
 msgid "Talk/Examine"
-msgstr "Parler/examiner"
+msgstr "Nói/Xem"
 
 #: src/dinkc.c:689
 msgid "Magic"
-msgstr "Magie"
+msgstr "Thuật"
 
 #: src/dinkc.c:690
 msgid "Item Screen"
-msgstr "Inventaire"
+msgstr "Màn hình mục"
 
 #: src/dinkc.c:691
 msgid "Main Menu"
-msgstr "Menu principal"
+msgstr "Trình Đơn Chính"
 
 #: src/dinkc.c:692
 msgid "Map"
-msgstr "Carte"
+msgstr "Bản đồ"
 
 #: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
 msgid "Unused"
-msgstr "Inutilisé"
+msgstr "Rảnh"
 
 #: src/dinkc.c:697
 msgid "Down"
-msgstr "Bas"
+msgstr "Xuống"
 
 #: src/dinkc.c:698
 msgid "Left"
-msgstr "Gauche"
+msgstr "Trái"
 
 #: src/dinkc.c:699
 msgid "Right"
-msgstr "Droite"
+msgstr "Phải"
 
 #: src/dinkc.c:700
 msgid "Up"
-msgstr "Haut"
+msgstr "Lên"
 
 #: src/dinkc.c:701
 msgid "Error: not mapped"
-msgstr "Erreur: non attribué"
+msgstr "Lỗi: chưa ánh xạ"
 
 #: src/dinkc.c:712
 #, c-format
 msgid "Slot %d - %d:%02d - %s"
-msgstr "Emplacement %d - %d:%02d - %s"
+msgstr "Khe %d — %d:%02d — %s"
 
 #: src/dinkc.c:715
 #, c-format
 msgid "Slot %d - Empty"
-msgstr "Emplacement %d - Vide"
+msgstr "Khe %d — Trống"

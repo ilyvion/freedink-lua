@@ -3,6 +3,14 @@
 
 ** UNRELEASED
 
+* User-visible changes:
+
+- New translations for the engine strings: Norwegian Bokmål (thanks
+  Alexander Krivács Schrøder), Finnish (thanks Jorma Karvonen),
+  Spanish (thanks Fernando Carmona Varo), Polish (thanks Michał
+  Trzebiatowski), Danish (thanks Joe Hansen), Vietnamese (thanks
+  Clytie Siddall) and French (thanks me).
+
 
 1.08.20090918
 =============

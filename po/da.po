@@ -1,86 +1,83 @@
-# German translations for GNU FreeDink package.
+# Danish translation freedink front.
 # This file is put in the public domain.
-# Nobody <none@yet.tld>, 2008.
+# Joe Hansen <joedalton2@yahoo.dk>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20080920\n"
+"Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 22:35+0200\n"
-"PO-Revision-Date: 2008-12-06 21:57+0100\n"
-"Last-Translator: Nobody <none@yet.tld>\n"
-"Language-Team: German\n"
+"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"PO-Revision-Date: 2009-10-03 17:30+01:00\n"
+"Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
+"Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr ""
+msgstr "Brug: %s [TILVALG]...\n"
 
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr ""
+msgstr "Start spillet Dink Smallwood eller et af dets udvidelser."
 
 #: src/init.c:112
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr ""
+msgstr "Rediger i spillet Dink Smallwood eller et af dets udvidelser."
 
 #: src/init.c:115
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr ""
+msgstr "  -h, --help            Vis denne hjælpeskærm\n"
 
 #: src/init.c:116
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr ""
+msgstr "  -v, --version         Vis versionsnummeret\n"
 
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr ""
+msgstr "  -g, --game <dir>      Angiv en DMod-mappe\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr ""
+msgstr "  -d, --debug           Forklar hvad der sker\n"
 
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr ""
+msgstr "  -i, --noini           Forsøg ikke at skrive dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr ""
+msgstr "  -j, --nojoy           Forsøg ikke at bruge joystick\n"
 
 #: src/init.c:124
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
-msgstr ""
+msgstr "  -s, --nosound         Brug ikke lyd\n"
 
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
+msgstr "  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr ""
+msgstr "  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -91,15 +88,22 @@ msgstr ""
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
+"Anmeld fejl til %s.\n"
+"\n"
+"Oversættelsesrettelser kan sendes til:\n"
+"Joe Hansen <joedalton2@yahoo.dk>, 2009.\n"
+"\n"
+"Dansk-gruppen <dansk@dansk-gruppen.dk>\n"
+"Mere info: http://www.dansk-gruppen.dk\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
+msgstr "Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen effekt.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."
-msgstr "`$Hier ist nichts."
+msgstr "`$I ser ikke noget her."
 
 #: src/freedink.c:2687
 msgid "`$Huh?"
@@ -107,40 +111,39 @@ msgstr "`$Huh?"
 
 #: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr ""
-"`$Ich bin mir ziemlich sicher ich kann dies weder ansprechen, noch benutzen."
+msgstr "`$Jeg er ret sikker på, at jeg ikke kan tale til eller bruge det."
 
 #: src/freedink.c:2689
 msgid "`$What?"
-msgstr "`$Was?"
+msgstr "`$Hvad?"
 
 #: src/freedink.c:2690
 msgid "`$I'm bored."
-msgstr "`$Bah, LANGWEILIG."
+msgstr "`$Jeg keder mig."
 
 #: src/freedink.c:2691
 msgid "`$Not much happening here."
-msgstr "`$Hier passiert nichts."
+msgstr "`$Der sker ikke meget her."
 
 #: src/freedink.c:2799
 msgid "`$I don't know any magic."
-msgstr "`$Ich muß erst die Magie erlernen, bevor ich dies ausprobieren kann.."
+msgstr "`$Jeg kender ikke til magi."
 
 #: src/freedink.c:2800
 msgid "`$I'm no wizard!"
-msgstr "`$Ich gestikuliere hier wie wirr!"
+msgstr "`$Jeg er ikke troldmand!"
 
 #: src/freedink.c:2801
 msgid "`$I need to learn magic before trying this."
-msgstr "`$Ich gestikuliere hier wie wirr!"
+msgstr "`$Jeg må lære om magi før jeg kan bruge denne."
 
 #: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Ich gestikuliere hier wie wirr!"
+msgstr "`$Jeg gestulerer vildt uden effekt!"
 
 #: src/freedink.c:2803
 msgid "`$Nothing happened."
-msgstr "`$Nichts ist passiert."
+msgstr "`$Intet skete."
 
 #: src/freedink.c:2804
 msgid "`$Hocus pocus!"
@@ -148,58 +151,58 @@ msgstr "`$Hokus pokus!"
 
 #: src/dinkc.c:687
 msgid "Attack"
-msgstr ""
+msgstr "Angrib"
 
 #: src/dinkc.c:688
 msgid "Talk/Examine"
-msgstr ""
+msgstr "Snak/undersøg"
 
 #: src/dinkc.c:689
 msgid "Magic"
-msgstr ""
+msgstr "Magi"
 
 #: src/dinkc.c:690
 msgid "Item Screen"
-msgstr ""
+msgstr "Udstyrsskærm"
 
 #: src/dinkc.c:691
 msgid "Main Menu"
-msgstr ""
+msgstr "Hovedmenu"
 
 #: src/dinkc.c:692
 msgid "Map"
-msgstr ""
+msgstr "Kort"
 
 #: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
 msgid "Unused"
-msgstr ""
+msgstr "Ubrugt"
 
 #: src/dinkc.c:697
 msgid "Down"
-msgstr ""
+msgstr "Ned"
 
 #: src/dinkc.c:698
 msgid "Left"
-msgstr ""
+msgstr "Venstre"
 
 #: src/dinkc.c:699
 msgid "Right"
-msgstr ""
+msgstr "Højre"
 
 #: src/dinkc.c:700
 msgid "Up"
-msgstr ""
+msgstr "Op"
 
 #: src/dinkc.c:701
 msgid "Error: not mapped"
-msgstr ""
+msgstr "Fejl: ikke kortlagt"
 
 #: src/dinkc.c:712
 #, c-format
 msgid "Slot %d - %d:%02d - %s"
-msgstr ""
+msgstr "Plads %d - %d:%02d - %s"
 
 #: src/dinkc.c:715
 #, c-format
 msgid "Slot %d - Empty"
-msgstr "Slot %d - Ungebraucht"
+msgstr "Plads %d - Tom"
