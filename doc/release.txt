@@ -132,6 +132,8 @@ Submit the release to:
   contact shirish
 - Linux Game Tome
   http://happypenguin.org/update?GNU%20Freedink
+- JeuxLibres
+  http://jeuxlibres.net/postgame/299.html
 - Press...
 
 
@@ -143,6 +145,7 @@ Check this for updates:
 - http://lintian.debian.org/full/pkg-games-devel@lists.alioth.debian.org.html#freedink
 
 # http://wiki.debian.org/Games/VCS
+# http://wiki.debian.org/Games/VCS/git
 git clone YOU@git.debian.org:/git/pkg-games/freedink
 cd freedink
 git checkout -b pristine-tar origin/pristine-tar
