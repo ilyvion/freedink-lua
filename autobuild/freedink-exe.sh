@@ -63,8 +63,8 @@ done
 
 # DLLs
 for i in SDL.dll SDL_image.dll SDL_mixer.dll SDL_ttf.dll \
-    libSDL_gfx-13.dll libfreetype-6.dll libjpeg-7.dll libogg-0.dll \
-    libpng12-0.dll libtiff-3.dll libvorbis-0.dll libvorbisfile-3.dll \
+    libSDL_gfx-13.dll libfreetype-6.dll libjpeg-8.dll libogg-0.dll \
+    libpng14-14.dll libtiff-3.dll libvorbis-0.dll libvorbisfile-3.dll \
     libz-1.dll libzip-1.dll; do
    cp -a /usr/local/i586-mingw32msvc/bin/$i zip/
 done
@@ -107,12 +107,13 @@ cp ../COPYING zip/licenses/${PACKAGE}-${VERSION}_COPYING
 cp /usr/src/SDL-1.2.14/COPYING zip/licenses/SDL-1.2.14_COPYING
 cp /usr/src/libogg-1.1.4/COPYING zip/licenses/libogg-1.1.4_COPYING
 cp /usr/src/libvorbis-1.2.3/COPYING zip/licenses/libvorbis-1.2.3_COPYING
-cp /usr/src/SDL_ttf-2.0.9/COPYING zip/licenses/SDL_ttf-2.0.9_COPYING
-cp /usr/src/freetype-2.3.12/docs/GPL.TXT zip/licenses/freetype-2.3.12_GPL.TXT
-cp /usr/src/SDL_gfx-2.0.20/LICENSE zip/licenses/SDL_gfx-2.0.20_LICENSE
+# libmikmod
 cp /usr/src/SDL_mixer-1.2.11/COPYING zip/licenses/SDL_mixer-1.2.11_COPYING
+cp /usr/src/freetype-2.3.12/docs/GPL.TXT zip/licenses/freetype-2.3.12_GPL.TXT
+cp /usr/src/SDL_ttf-2.0.9/COPYING zip/licenses/SDL_ttf-2.0.9_COPYING
+cp /usr/src/SDL_gfx-2.0.20/LICENSE zip/licenses/SDL_gfx-2.0.20_LICENSE
 cp /usr/src/jpeg-8/README zip/licenses/jpeg-8_README
-cp /usr/src/zlib-1.2.3.4.dfsg/README zip/licenses/zlib-1.2.3.4.dfsg_README
+cp /usr/src/zlib_1.2.3.4.dfsg/README zip/licenses/zlib-1.2.3.4.dfsg_README
 cp /usr/src/libpng-1.4.0/LICENSE zip/licenses/libpng-1.4.0_LICENSE
 cp /usr/src/tiff-3.9.2/COPYRIGHT zip/licenses/tiff-3.9.2_COPYRIGHT
 cp /usr/src/SDL_image-1.2.10/COPYING zip/licenses/SDL_image-1.2.10_COPYING

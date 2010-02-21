@@ -124,6 +124,35 @@ make
 make install-strip
 
 
+# libmikmod (not just 'mikmod', 'libmikmod'; SDL_mixer dependency)
+#VERSION=3.1.11
+#$WGET -P depsources/ http://mikmod.raphnet.net/files/libmikmod-$VERSION.tar.gz
+#tar xzf depsources/libmikmod-$VERSION.tar.gz
+#cd libmikmod-$VERSION
+#wget -O- http://mikmod.raphnet.net/files/libmikmod-3.1.11-a.diff | patch -p1
+# +CVE-2007-6720
+# +CVE-2009-0179
+# ... let's use the one in SDL_mixer... ;)
+
+# libmikmod bundled in SDL_mixer
+# Doesn't work
+#   Creating library file: build/.libs/libSDL_mixer.dll.a
+#   build/.libs/dynamic_mod.o: In function `Mix_InitMOD':
+#   /usr/src/SDL_mixer-1.2.11/dynamic_mod.c:235: undefined reference to `_MikMod_Exit'
+#   /usr/src/SDL_mixer-1.2.11/dynamic_mod.c:236: undefined reference to `_MikMod_InfoDriver'
+#   [etc.]
+#unzip libmikmod-3.1.12.zip
+#pushd libmikmod-3.1.12.patched/
+#./configure --build=$BUILD --host=$HOST --prefix=$PREFIX
+## disable buggy script
+#echo "all install uninstall:" > docs/Makefile
+#make
+## '-k' so we continue even after
+##   strip: /usr/local/i586-mingw32msvc/bin/libmikmod-config: File format not recognized
+#make install-strip -k
+#popd
+# => Try the one in Debian, or fix mingw build?
+
 # SDL_mixer
 VERSION=1.2.11
 cd /usr/src/
@@ -138,7 +167,7 @@ cd SDL_mixer-$VERSION
 # it at run-time. For normal linking: --disable-music-ogg-shared)
 # Let's choose normal linking to avoid inconsistencies and support
 # static linking.
-# TODO: support mikmod
+# TODO: mikmod support
 CPPFLAGS="-I$PREFIX/include" \
   LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin" \
   SDL_CONFIG=$PREFIX/bin/sdl-config ./configure \
