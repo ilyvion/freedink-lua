@@ -56,7 +56,7 @@ fi
 # .dlls, check "Install precompiled SDL binaries" below.
 
 # SDL
-VERSION=1.2.13
+VERSION=1.2.14
 cd /usr/src/
 # Get non-free DX headers from libsdl.org
 $WGET -P depsources/ http://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
@@ -125,7 +125,7 @@ make install-strip
 
 
 # SDL_mixer
-VERSION=1.2.8
+VERSION=1.2.11
 cd /usr/src/
 $WGET -P depsources/ http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-$VERSION.tar.gz
 tar xzf depsources/SDL_mixer-$VERSION.tar.gz
@@ -138,13 +138,15 @@ cd SDL_mixer-$VERSION
 # it at run-time. For normal linking: --disable-music-ogg-shared)
 # Let's choose normal linking to avoid inconsistencies and support
 # static linking.
+# TODO: support mikmod
 CPPFLAGS="-I$PREFIX/include" \
   LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin" \
   SDL_CONFIG=$PREFIX/bin/sdl-config ./configure \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \
   --disable-music-mp3 --enable-music-native-midi-gpl \
-  --disable-music-ogg-shared
+  --disable-music-ogg-shared \
+  --disable-music-mod
 make
 make install
 # make install-strip not supported :/
@@ -152,18 +154,11 @@ $HOST-strip $PREFIX/bin/SDL_mixer.dll
 
 
 # FreeType (dependency of SDL_ttf)
-VERSION=2.3.9
+VERSION=2.3.12
 cd /usr/src/
 $WGET -P depsources/ http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
 tar xjf depsources/freetype-$VERSION.tar.bz2
 cd freetype-$VERSION
-# Cherry-pick security patches from: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=524925
-cat <<EOF | wget -i- -O- | filterdiff -x '*/ChangeLog' | patch -p1
-http://git.savannah.gnu.org/cgit/freetype/freetype2.git/patch/?id=79972af4f0485a11dcb19551356c45245749fc5b
-http://git.savannah.gnu.org/cgit/freetype/freetype2.git/patch/?id=a18788b14db60ae3673f932249cd02d33a227c4e
-http://git.savannah.gnu.org/cgit/freetype/freetype2.git/patch/?id=0a05ba257b6ddd87dacf8d54b626e4b360e0a596
-http://git.savannah.gnu.org/cgit/freetype/freetype2.git/patch/?id=0545ec1ca36b27cb928128870a83e5f668980bc5
-EOF
 # Enable bytecode interpreter, that's what distros use most, and we
 # need it for compatibility in font metrics. It's disabled by default
 # for fear of patent attacks.
@@ -209,7 +204,7 @@ make
 make install-strip
 
 # libjpeg (dependency of SDL_image and libtiff)
-VERSION=7
+VERSION=8
 cd /usr/src/
 $WGET -P depsources/ http://www.ijg.org/files/jpegsrc.v$VERSION.tar.gz
 tar xzf depsources/jpegsrc.v$VERSION.tar.gz
@@ -221,12 +216,12 @@ make install-strip
 
 
 # zlib (dependency of libzip and libpng)
-VERSION=1.2.3.3
+VERSION=1.2.3.4
 cd /usr/src
 # For some reason the latest version is not available from zlib.net...
 $WGET -P depsources/ http://ftp.de.debian.org/debian/pool/main/z/zlib/zlib_$VERSION.dfsg.orig.tar.gz
 tar xzf depsources/zlib_$VERSION.dfsg.orig.tar.gz
-cd zlib-$VERSION.dfsg
+cd zlib_$VERSION.dfsg
 # Generate zlibdefs.h
 ./configure
 # zlib's build system is not suitable for woe cross-compiling, so
@@ -258,7 +253,7 @@ make install-strip
 
 
 # libpng
-VERSION=1.2.40
+VERSION=1.4.0
 cd /usr/src/
 # Download version "with config script"
 $WGET -P depsources/ ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$VERSION.tar.bz2
@@ -274,7 +269,7 @@ make install-strip
 
 
 # libtiff
-VERSION=3.9.1
+VERSION=3.9.2
 cd /usr/src/
 # Download version "with config script"
 $WGET -P depsources/ ftp://ftp.remotesensing.org/pub/libtiff/tiff-$VERSION.tar.gz
@@ -291,7 +286,7 @@ make install-strip
 
 
 # SDL_image
-VERSION=1.2.7
+VERSION=1.2.10
 cd /usr/src/
 $WGET -P depsources/ http://libsdl.org/projects/SDL_image/release/SDL_image-$VERSION.tar.gz
 tar xzf depsources/SDL_image-$VERSION.tar.gz
@@ -309,7 +304,7 @@ make
 make install-strip
 
 # libzip
-VERSION=0.9
+VERSION=0.9.3
 cd /usr/src/
 $WGET -P depsources/ http://www.nih.at/libzip/libzip-$VERSION.tar.gz
 tar xzf depsources/libzip-$VERSION.tar.gz
@@ -357,7 +352,7 @@ mv SDL-$VERSION/* i386-mingw32msvc/
 rmdir SDL-$VERSION
 
 # Install precompiled SDL_mixer binaries
-VERSION=1.2.8
+VERSION=1.2.11
 $WGET http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-devel-$VERSION-VC8.zip
 unzip SDL_mixer-devel-$VERSION-VC8.zip
 cp -r SDL_mixer-$VERSION/include/* i386-mingw32msvc/include/SDL/
@@ -373,7 +368,7 @@ cp -r SDL_ttf-$VERSION/lib/* i386-mingw32msvc/lib/
 rm -rf SDL_ttf-$VERSION/
 
 # (Install precompiled SDL_image binaries)
-VERSION=1.2.6
+VERSION=1.2.10
 $WGET http://libsdl.org/projects/SDL_image/release/SDL_image-devel-$VERSION-VC8.zip
 unzip SDL_image-devel-$VERSION-VC8.zip
 cp -r SDL_image-$VERSION/include/* i386-mingw32msvc/include/SDL/

@@ -104,19 +104,19 @@ See also licenses/ for your rights on these projects.
 EOF
 mkdir -m 755 zip/licenses
 cp ../COPYING zip/licenses/${PACKAGE}-${VERSION}_COPYING
-cp /usr/src/SDL-1.2.13/COPYING zip/licenses/SDL-1.2.13_COPYING
+cp /usr/src/SDL-1.2.14/COPYING zip/licenses/SDL-1.2.14_COPYING
 cp /usr/src/libogg-1.1.4/COPYING zip/licenses/libogg-1.1.4_COPYING
 cp /usr/src/libvorbis-1.2.3/COPYING zip/licenses/libvorbis-1.2.3_COPYING
 cp /usr/src/SDL_ttf-2.0.9/COPYING zip/licenses/SDL_ttf-2.0.9_COPYING
-cp /usr/src/freetype-2.3.9/docs/GPL.TXT zip/licenses/freetype-2.3.9_GPL.TXT
-cp /usr/src/SDL_gfx-2.0.19/LICENSE zip/licenses/SDL_ttf-2.0.19_LICENSE
-cp /usr/src/SDL_mixer-1.2.8/COPYING zip/licenses/SDL_mixer-1.2.8_COPYING
-cp /usr/src/jpeg-7/README zip/licenses/jpeg-7_README
-cp /usr/src/zlib-1.2.3.3.dfsg/README zip/licenses/zlib-1.2.3.3.dfsg_README
-cp /usr/src/libpng-1.2.40/LICENSE zip/licenses/libpng-1.2.40_LICENSE
-cp /usr/src/tiff-3.9.1/COPYRIGHT zip/licenses/tiff-3.9.1_COPYRIGHT
-cp /usr/src/SDL_image-1.2.7/COPYING zip/licenses/SDL_image-1.2.7_COPYING
-cp /usr/src/libzip-0.9/lib/zip.h zip/licenses/libzip-0.9_zip.h
+cp /usr/src/freetype-2.3.12/docs/GPL.TXT zip/licenses/freetype-2.3.12_GPL.TXT
+cp /usr/src/SDL_gfx-2.0.20/LICENSE zip/licenses/SDL_gfx-2.0.20_LICENSE
+cp /usr/src/SDL_mixer-1.2.11/COPYING zip/licenses/SDL_mixer-1.2.11_COPYING
+cp /usr/src/jpeg-8/README zip/licenses/jpeg-8_README
+cp /usr/src/zlib-1.2.3.4.dfsg/README zip/licenses/zlib-1.2.3.4.dfsg_README
+cp /usr/src/libpng-1.4.0/LICENSE zip/licenses/libpng-1.4.0_LICENSE
+cp /usr/src/tiff-3.9.2/COPYRIGHT zip/licenses/tiff-3.9.2_COPYRIGHT
+cp /usr/src/SDL_image-1.2.10/COPYING zip/licenses/SDL_image-1.2.10_COPYING
+cp /usr/src/libzip-0.9.3/lib/zip.h zip/licenses/libzip-0.9.3_zip.h
 
 # Include documentation with MS-DOS newlines (if not already)
 for i in dfarc-DLL.txt licenses/*; do
