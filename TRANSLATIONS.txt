@@ -1,0 +1,59 @@
+Translate FreeDink in your own language!
+========================================
+
+For those who don't like the command line
+-----------------------------------------
+
+Poedit (PO editor) is a nice graphical editor that can create new .po
+files and synchronize them with the DFArc source code. Check it out!
+http://www.poedit.net/
+
+You can get the latest translation template from the Translation
+Project at:
+
+  http://translationproject.org/domain/freedink.html
+
+Alternatively, to generate the translation template manually::
+
+  ./configure
+  cd po/
+  make freedink.pot
+
+You then can create a new language using:
+'File' -> 'New catalog from a POT file'.
+
+To synchronize your translation with a new version of the source code,
+you need to add the location of DFArc in the catalog configuration
+('Catalog' -> 'Configuration' menu and 'Paths' tab). Then you can use
+'Catalog' -> 'Update from sources'.
+
+The following sections describe the standard and developer way to add
+and update translations, but requires command line tools.
+
+
+To translate FreeDink in a new language
+---------------------------------------
+
+First, determine your language code (see
+http://www.gnu.org/software/gettext/manual/html_node/Language-Codes.html).
+Add it at the end of the po/LINGUAS file.
+
+You then can use ``msginit`` to create a new .po file (replace XX with
+your language code)::
+
+  cd po/
+  msginit --locale XX
+
+
+To update your translation
+--------------------------
+
+First, synchronize the .po files with the source code (this preserves
+your previous translations)::
+
+  ./configure
+  cd po/
+  make update-po
+
+You now can edit them file using your favorite PO editor (I recommend
+Emacs's PO-mode).
