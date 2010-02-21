@@ -1,0 +1,204 @@
+# Terjemah pesan berbahasa Indonesia untuk freedink.
+# Copyright (C) 2010 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the freedink package.
+# Erwid M Jadied <jadied@gmail.com>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink-1.08.20090918\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"PO-Revision-Date: 2010-01-11 17:56+0000\n"
+"Last-Translator: Erwid M Jadied <jadied@gmail.com>\n"
+"Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Indonesian\n"
+"X-Poedit-Country: INDONESIA\n"
+
+#: src/init.c:108
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr "Penggunaan: %s [OPTIONS]...\n"
+
+#: src/init.c:110
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr "Mulai game Dink Smallwood atau salah satu dari D-Modsnya."
+
+#: src/init.c:112
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr "Edit game Dink Smallwood atau salah satu dari D-Modsnya."
+
+#: src/init.c:115
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr "  -h, --help            Munculkan tampilan bantuan ini\n"
+
+#: src/init.c:116
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr "  -v, --version         Tampilkan versi\n"
+
+#: src/init.c:118
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr "  -g, --game <dir>      Tentukan DMod direktori\n"
+
+#: src/init.c:119
+#, c-format
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Tentukan direktori dasar untuk dink/grafik,D-Mods,dll.\n"
+
+#: src/init.c:121
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr "  -d, --debug           Menjelaskan apa yang sedang dilakukan\n"
+
+#: src/init.c:122
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr "  -i, --noini           Tidak mencoba untuk menulis dinksmallwood.ini\n"
+
+#: src/init.c:123
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr "  -j, --nojoy           Tidak mencoba untuk menggunakan joystik\n"
+
+#: src/init.c:124
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr "  -s, --nosound         Tidak memutar suara\n"
+
+#: src/init.c:125
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr "  -w, --window          Menggunakan windowed mode, bukannya mode screen\n"
+
+#: src/init.c:126
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr "  -7, --v1.07           Aktifkan mode compatibilitas v1.07 \n"
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:136
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr "Laporkan kesalahan (bug) ke: %s.\n"
+
+#: src/init.c:276
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr "Catatan: -nomovie diterima untuk kompabilitas, tetapi tidak berpengaruh.\n"
+
+#: src/freedink.c:2686
+msgid "`$I don't see anything here."
+msgstr "`$Saya tidak melihat apapun disini"
+
+#: src/freedink.c:2687
+msgid "`$Huh?"
+msgstr "`$Huh?"
+
+#: src/freedink.c:2688
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$Saya cukup yakin bahwa saya tidak dapat berbicara kepada atau menggunakan itu. "
+
+#: src/freedink.c:2689
+msgid "`$What?"
+msgstr "`$Apa?"
+
+#: src/freedink.c:2690
+msgid "`$I'm bored."
+msgstr "`$Saya bosan."
+
+#: src/freedink.c:2691
+msgid "`$Not much happening here."
+msgstr "`$Tidak banyak yang terjadi disini."
+
+#: src/freedink.c:2799
+msgid "`$I don't know any magic."
+msgstr "`$Saya tidak tahu sihir apapun."
+
+#: src/freedink.c:2800
+msgid "`$I'm no wizard!"
+msgstr "`$Saya bukan penyihir!"
+
+#: src/freedink.c:2801
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Saya harus belajar sihir sebelum mencoba hal ini."
+
+#: src/freedink.c:2802
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Saya telah memberi isyarat dengan berbagai cara tetapi tetap sia-sia."
+
+#: src/freedink.c:2803
+msgid "`$Nothing happened."
+msgstr "`$Tidak terjadi apapun."
+
+#: src/freedink.c:2804
+msgid "`$Hocus pocus!"
+msgstr "`$Bim salabim!"
+
+#: src/dinkc.c:687
+msgid "Attack"
+msgstr "Serang"
+
+#: src/dinkc.c:688
+msgid "Talk/Examine"
+msgstr "Berbicara/Memeriksa"
+
+#: src/dinkc.c:689
+msgid "Magic"
+msgstr "Sihir"
+
+#: src/dinkc.c:690
+msgid "Item Screen"
+msgstr "Layar item"
+
+#: src/dinkc.c:691
+msgid "Main Menu"
+msgstr "Menu utama"
+
+#: src/dinkc.c:692
+msgid "Map"
+msgstr "Peta"
+
+#: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+msgid "Unused"
+msgstr "Tidak digunakan"
+
+#: src/dinkc.c:697
+msgid "Down"
+msgstr "Bawah"
+
+#: src/dinkc.c:698
+msgid "Left"
+msgstr "Kiri"
+
+#: src/dinkc.c:699
+msgid "Right"
+msgstr "Kanan"
+
+#: src/dinkc.c:700
+msgid "Up"
+msgstr "Atas"
+
+#: src/dinkc.c:701
+msgid "Error: not mapped"
+msgstr "Kesalahan: tidak dipetakan"
+
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr "Slot %d - %d:%02d - %s"
+
+#: src/dinkc.c:715
+#, c-format
+msgid "Slot %d - Empty"
+msgstr "Slot %d - Kosong"
