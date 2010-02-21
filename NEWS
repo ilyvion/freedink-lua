@@ -5,6 +5,10 @@
 
 * User-visible changes:
 
+- Fix a bug where the game would always close in some situations,
+  which was introduced in version 1.08.20090916 (related to the
+  'sp_custom' DinkC command).
+
 - New translations for the engine strings: Norwegian Bokmål (thanks
   Alexander Krivács Schrøder), Finnish (thanks Jorma Karvonen),
   Spanish (thanks Fernando Carmona Varo), Polish (thanks Michał

@@ -94,7 +94,7 @@ void dinkc_sp_custom_set(dinkc_sp_custom hash, char key[200], int val)
       struct str_int* newslot = malloc(sizeof(struct str_int));
       strcpy(newslot->key, key);
       ((struct str_int*)newslot)->val = val;
-      if (hash_insert(hash, newslot))
+      if (hash_insert(hash, newslot) == NULL)
 	{
 	  log_fatal("sp_custom: Not enough memory to add value '%s'", key);
 	  exit(EXIT_FAILURE);
