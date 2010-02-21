@@ -5,10 +5,18 @@ ACLOCAL_AMFLAGS = -I gnulib/m4
 SUBDIRS = autopackage intl gnulib/lib gnulib/po po src share
 
 # Copy those directly and recursively:
+# Build system
+EXTRA_DIST = bootstrap gnulib/m4/gnulib-cache.m4
+# Documentation
+EXTRA_DIST += doc
+EXTRA_DIST += BUILD DEB TRANSLATIONS.txt TROUBLESHOOTING
+# Packaging
 # (don't include debian/ as this displeases debian devs)
-EXTRA_DIST = bootstrap doc test contrib gnulib/m4/gnulib-cache.m4	\
-	BUILD DEB TROUBLESHOOTING freedink.spec gentoo psp valgrind	\
-	nsis
+EXTRA_DIST += freedink.spec gentoo nsis psp
+# Other programs of interest
+EXTRA_DIST += test contrib
+# Developer tools
+EXTRA_DIST += valgrind
 
 dist-hook:
 	find $(distdir) -name '*~' | xargs -r rm -f
