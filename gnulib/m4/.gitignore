@@ -107,3 +107,14 @@
 /mmap-anon.m4
 /mode_t.m4
 /stddef_h.m4
+/fcntl-o.m4
+/fcntl.m4
+/fdopendir.m4
+/getdtablesize.m4
+/mkdir.m4
+/realloc.m4
+/rmdir.m4
+/stat.m4
+/time_h.m4
+/unlink.m4
+/warn-on-use.m4

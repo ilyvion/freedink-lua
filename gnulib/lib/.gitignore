@@ -134,3 +134,15 @@
 /memchr.c
 /memchr.valgrind
 /stddef.in.h
+/basename-lgpl.c
+/dirname-lgpl.c
+/fcntl.c
+/fdopendir.c
+/getdtablesize.c
+/mkdir.c
+/realloc.c
+/rmdir.c
+/stat.c
+/time.in.h
+/unlink.c
+/unlinkat.c
