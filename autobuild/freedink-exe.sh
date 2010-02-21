@@ -55,12 +55,40 @@ find destdir/usr/local/bin/ -type f -name "*.exe" | while read file; do
   cp -a $file /mnt/snapshots/woe/$(basename ${file%.exe}-$VERSION-dll.exe)
   mv $file zip/$(basename ${file%.exe}-$VERSION-dll.exe)
 done
+
+# TODO: gettext translation files:
+#cp -a destdir/usr/local/lib/locale zip/po
+## translation template:
+#cp ../po/dfarc.pot zip/po/
+
+# DLLs
 for i in SDL.dll SDL_image.dll SDL_mixer.dll SDL_ttf.dll \
     libSDL_gfx-13.dll libfreetype-6.dll libjpeg-7.dll libogg-0.dll \
     libpng12-0.dll libtiff-3.dll libvorbis-0.dll libvorbisfile-3.dll \
     libz-1.dll libzip-1.dll; do
    cp -a /usr/local/i586-mingw32msvc/bin/$i zip/
 done
+
+# documentation
+for i in README.txt TRANSLATIONS.txt; do
+    cp ../$i zip/freedink-$i
+done
+for i in AUTHORS COPYING NEWS THANKS TROUBLESHOOTING; do
+    cp ../$i zip/freedink-$i.txt
+done
+cat <<EOF > zip/freedink-SOURCE.txt
+The FreeDink source code is available at:
+  http://ftp.gnu.org/gnu/freedink/
+  http://www.freedink.org/snapshots/
+
+The source code is the "recipe" of FreeDink, that let you study it,
+modify it, and redistribute your changes.  The GNU GPL license
+explicitely allows you to do so (see freedink-COPYING.txt).
+
+If you upload a FreeDink .exe on your website, you must also offer the
+corresponding source code for download.
+EOF
+
 cat <<EOF > zip/freedink-DLL.txt
 The .dll files are compiled versions of several free software
 projects.
@@ -75,6 +103,7 @@ in the FreeDink source code to see how they were compiled.
 See also licenses/ for your rights on these projects.
 EOF
 mkdir -m 755 zip/licenses
+cp ../COPYING zip/licenses/${PACKAGE}-${VERSION}_COPYING
 cp /usr/src/SDL-1.2.13/COPYING zip/licenses/SDL-1.2.13_COPYING
 cp /usr/src/libogg-1.1.4/COPYING zip/licenses/libogg-1.1.4_COPYING
 cp /usr/src/libvorbis-1.2.3/COPYING zip/licenses/libvorbis-1.2.3_COPYING
@@ -89,8 +118,13 @@ cp /usr/src/tiff-3.9.1/COPYRIGHT zip/licenses/tiff-3.9.1_COPYRIGHT
 cp /usr/src/SDL_image-1.2.7/COPYING zip/licenses/SDL_image-1.2.7_COPYING
 cp /usr/src/libzip-0.9/lib/zip.h zip/licenses/libzip-0.9_zip.h
 
-rm -f /mnt/snapshots/woe/$PACKAGE-$VERSION.zip
-(cd zip/ && zip -r /mnt/snapshots/woe/$PACKAGE-$VERSION.zip *)
+# Include documentation with MS-DOS newlines (if not already)
+for i in dfarc-DLL.txt licenses/*; do
+    sed -i -e 's/\(^\|[^\r]\)$/\1\r/' zip/freedink-*.txt zip/licenses/*
+done
+
+rm -f /mnt/snapshots/woe/$PACKAGE-$VERSION-bin.zip
+(cd zip/ && zip -r /mnt/snapshots/woe/$PACKAGE-$VERSION-bin.zip *)
 popd
 
 popd

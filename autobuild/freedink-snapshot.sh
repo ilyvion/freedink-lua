@@ -66,7 +66,7 @@ then
     mv *.tar.gz /mnt/snapshots/
 else
     make dist
-    mv *.tar.gz *.tar.bz2 *.zip /mnt/snapshots/
+    mv -f *.tar.gz *.tar.bz2 *.zip /mnt/snapshots/
 fi
 
 popd
