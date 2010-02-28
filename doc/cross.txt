@@ -163,8 +163,8 @@ cd SDL_mixer-$VERSION
 #$HOST-ranlib libmikmod.a
 #install -m 644 libmikmod.dll.a $PREFIX/lib/
 #install -m 644 libmikmod.a $PREFIX/lib/
-#$HOST-strip /usr/local/i586-mingw32msvc/lib/libmikmod.dll.a 
-#$HOST-strip /usr/local/i586-mingw32msvc/lib/libmikmod.a 
+#install -m 644 mikmod.dll $PREFIX/bin/
+#$HOST-strip /usr/local/i586-mingw32msvc/bin/mikmod.dll
 #install -m 644 mikmod_build.h $PREFIX/include/mikmod.h
 ## test: $HOST-gcc -I../include -L$PREFIX/lib objets/*.o test.c -lwinmm -ldsound
 ## The .dll.a is apparently broken...
@@ -207,8 +207,8 @@ drivers/drv_wav.c drivers/drv_raw.c
 libmikmod_la_LDFLAGS = -no-undefined -version-info 2:4:0 -lwinmm -ldsound
 include_HEADERS = include/mikmod.h
 EOF
-cp -a win32/mikmod_build.h include/mikmod.h
-cp -a win32/mikmod_build.h include/mikmod_build.h
+ln -nfs ../win32/mikmod_build.h include/mikmod.h
+ln -nfs ../win32/mikmod_build.h include/mikmod_build.h
 rm -f configure.in
 autoreconf -fis
 CPPFLAGS="-I$PREFIX/include" \
