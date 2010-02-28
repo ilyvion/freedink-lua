@@ -171,8 +171,8 @@ cd SDL_mixer-$VERSION
 
 # mikmod's build system is not suitable for woe cross-compiling, so
 # let's use some autotools skills :)
-# I can't manage to build a complete static+shared lib, so for now
-# it'll be a SDL_mixer-only static lib.
+# TODO: I can't manage to build a complete static+shared lib, so for
+# now it'll be a minimum lib to support SDL_mixer.
 MIKMOD_VERSION=3.1.12
 unzip libmikmod-$MIKMOD_VERSION.zip
 pushd libmikmod-$MIKMOD_VERSION.patched
@@ -216,9 +216,21 @@ autoreconf -fis
 CPPFLAGS="-I$PREFIX/include" \
   LDFLAGS="-L$PREFIX/lib" \
   ./configure --build=$BUILD --host=$HOST \
-  --prefix=`pwd`/../mikmod --disable-shared
+  --prefix=$PREFIX
 make
 make install-strip
+cat <<'EOF' > $PREFIX/bin/libmikmod-config
+#!/bin/bash
+while test $# -gt 0; do
+    case "$1" in
+        --cflags) echo "-I$(readlink -f $(dirname $0)/../include)";;
+        # should be ldflags, but SDL_mixer doesn't use it properly
+        --libs) echo "-L$(readlink -f $(dirname $0)/../lib) -lmikmod";;
+    esac
+    shift
+done
+EOF
+chmod 755 $PREFIX/bin/libmikmod-config
 popd
 
 # Cross-prefix would be /usr/local/cross-tools/i386-mingw32 by default
@@ -230,13 +242,14 @@ popd
 # Let's choose normal linking to avoid inconsistencies and support
 # static linking.
 # TODO: mikmod support
-CPPFLAGS="-I$PREFIX/include -Imikmod/include" \
-  LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin -Lmikmod/lib" \
+CPPFLAGS="-I$PREFIX/include" \
+  LDFLAGS="-L$PREFIX/lib" \
   SDL_CONFIG=$PREFIX/bin/sdl-config ./configure \
+  PATH=$PREFIX/bin:$PATH \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \
   --disable-music-mp3 --enable-music-native-midi-gpl \
-  --disable-music-ogg-shared
+  --disable-music-ogg-shared --disable-music-mod-shared
 # TODO: flac?
 # http://downloads.sourceforge.net/project/flac/flac-src/flac-1.2.1-src/flac-1.2.1.tar.gz?use_mirror=freefr
 # It doesn't cross-compile directly...
@@ -388,7 +401,7 @@ cd SDL_image-$VERSION
 # See SDL_mixer for explanations about disabled dynamic loading.
 SDL_CONFIG=$PREFIX/bin/sdl-config \
   CPPFLAGS="-I $PREFIX/include" \
-  LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin" \
+  LDFLAGS="-L$PREFIX/lib" \
   ./configure \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \
