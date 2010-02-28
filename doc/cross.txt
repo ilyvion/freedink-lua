@@ -124,6 +124,13 @@ make
 make install-strip
 
 
+# SDL_mixer
+VERSION=1.2.11
+cd /usr/src/
+$WGET -P depsources/ http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-$VERSION.tar.gz
+tar xzf depsources/SDL_mixer-$VERSION.tar.gz
+cd SDL_mixer-$VERSION
+
 # libmikmod (not just 'mikmod', 'libmikmod'; SDL_mixer dependency)
 #VERSION=3.1.11
 #$WGET -P depsources/ http://mikmod.raphnet.net/files/libmikmod-$VERSION.tar.gz
@@ -134,31 +141,84 @@ make install-strip
 # +CVE-2009-0179
 # ... let's use the one in SDL_mixer... ;)
 
-# libmikmod bundled in SDL_mixer
-# Doesn't work
-#   Creating library file: build/.libs/libSDL_mixer.dll.a
-#   build/.libs/dynamic_mod.o: In function `Mix_InitMOD':
-#   /usr/src/SDL_mixer-1.2.11/dynamic_mod.c:235: undefined reference to `_MikMod_Exit'
-#   /usr/src/SDL_mixer-1.2.11/dynamic_mod.c:236: undefined reference to `_MikMod_InfoDriver'
-#   [etc.]
-#unzip libmikmod-3.1.12.zip
-#pushd libmikmod-3.1.12.patched/
-#./configure --build=$BUILD --host=$HOST --prefix=$PREFIX
-## disable buggy script
-#echo "all install uninstall:" > docs/Makefile
+## libmikmod's autotools-based build system is absolutely not meant for
+## cross compiling, it only support Unix builds (with ESD, OSS, etc.).
+## Let's try a mingw32-specific build:
+## http://www.finiderire.com/post/2007/12/16/MikMod-Windows-et-moi
+## another (older) source: http://basic.xullum.net/clanlib/MikModMakefile.mingw
+#MIKMOD_VERSION=3.1.12
+#unzip libmikmod-$MIKMOD_VERSION.zip
+#pushd libmikmod-$MIKMOD_VERSION.patched/win32
+## copy Makefile from website...
+#cat <<EOF >> Makefile
+#CC=i586-mingw32msvc-gcc
+#CXXFLAGS+=-I. -I $PREFIX/include
+#EOF
+##cp -a mikmod_build.h ../include/
+##cp -a mikmod_build.h ../include/mikmod.h
 #make
-## '-k' so we continue even after
-##   strip: /usr/local/i586-mingw32msvc/bin/libmikmod-config: File format not recognized
-#make install-strip -k
-#popd
-# => Try the one in Debian, or fix mingw build?
+#mv libmikmod.a libmikmod.dll.a 
+#$HOST-ar cru libmikmod.a objets/*.o
+#$HOST-ranlib libmikmod.dll.a
+#$HOST-ranlib libmikmod.a
+#install -m 644 libmikmod.dll.a $PREFIX/lib/
+#install -m 644 libmikmod.a $PREFIX/lib/
+#$HOST-strip /usr/local/i586-mingw32msvc/lib/libmikmod.dll.a 
+#$HOST-strip /usr/local/i586-mingw32msvc/lib/libmikmod.a 
+#install -m 644 mikmod_build.h $PREFIX/include/mikmod.h
+## test: $HOST-gcc -I../include -L$PREFIX/lib objets/*.o test.c -lwinmm -ldsound
+## The .dll.a is apparently broken...
 
-# SDL_mixer
-VERSION=1.2.11
-cd /usr/src/
-$WGET -P depsources/ http://libsdl.org/projects/SDL_mixer/release/SDL_mixer-$VERSION.tar.gz
-tar xzf depsources/SDL_mixer-$VERSION.tar.gz
-cd SDL_mixer-$VERSION
+# mikmod's build system is not suitable for woe cross-compiling, so
+# let's use some autotools skills :)
+MIKMOD_VERSION=3.1.12
+unzip libmikmod-$MIKMOD_VERSION.zip
+pushd libmikmod-$MIKMOD_VERSION.patched
+cat <<EOF > configure.ac
+AC_PREREQ(2.61)
+AC_INIT([mikmod],[$VERSION])
+AM_INIT_AUTOMAKE([foreign])
+AC_PROG_CC
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+EOF
+# Cf. '(libtool.info)Updating version info' for the versioning scheme
+# Using 'echo' to remove newlines
+# -version-info from libmikmod/Makefile.in
+cat <<EOF > Makefile.am
+AM_CPPFLAGS=-DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H -Iinclude
+lib_LTLIBRARIES = libmikmod.la
+libmikmod_la_SOURCES = loaders/load_669.c loaders/load_amf.c		\
+loaders/load_dsm.c loaders/load_far.c loaders/load_gdm.c		\
+loaders/load_imf.c loaders/load_it.c loaders/load_m15.c			\
+loaders/load_med.c loaders/load_mod.c loaders/load_mtm.c		\
+loaders/load_okt.c loaders/load_s3m.c loaders/load_stm.c		\
+loaders/load_stx.c loaders/load_ult.c loaders/load_uni.c		\
+loaders/load_xm.c mmio/mmalloc.c mmio/mmerror.c mmio/mmio.c		\
+playercode/mdreg.c playercode/mdriver.c playercode/mdulaw.c		\
+playercode/mloader.c playercode/mlreg.c playercode/mlutil.c		\
+playercode/mplayer.c playercode/munitrk.c playercode/mwav.c		\
+playercode/npertab.c playercode/sloader.c playercode/virtch.c		\
+playercode/virtch2.c playercode/virtch_common.c drivers/drv_ds.c	\
+drivers/drv_win.c drivers/drv_nos.c drivers/drv_stdout.c		\
+drivers/drv_wav.c drivers/drv_raw.c
+libmikmod_la_LDFLAGS = -no-undefined -version-info 2:4:0 -lwinmm -ldsound
+include_HEADERS = include/mikmod.h
+EOF
+cp -a win32/mikmod_build.h include/mikmod.h
+cp -a win32/mikmod_build.h include/mikmod_build.h
+rm -f configure.in
+autoreconf -fis
+CPPFLAGS="-I$PREFIX/include" \
+  LDFLAGS="-L$PREFIX/lib" \
+  ./configure --build=$BUILD --host=$HOST \
+  --prefix=$PREFIX
+make
+make install-strip
+popd
+
 # Cross-prefix would be /usr/local/cross-tools/i386-mingw32 by default
 # Disable MP3 support (there are patents treats, and there's the Ogg
 # Vorbis alternative)
@@ -174,8 +234,10 @@ CPPFLAGS="-I$PREFIX/include" \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \
   --disable-music-mp3 --enable-music-native-midi-gpl \
-  --disable-music-ogg-shared \
-  --disable-music-mod
+  --disable-music-ogg-shared
+# TODO: flac?
+# http://downloads.sourceforge.net/project/flac/flac-src/flac-1.2.1-src/flac-1.2.1.tar.gz?use_mirror=freefr
+# It doesn't cross-compile directly...
 make
 make install
 # make install-strip not supported :/
