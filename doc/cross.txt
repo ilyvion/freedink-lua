@@ -171,6 +171,8 @@ cd SDL_mixer-$VERSION
 
 # mikmod's build system is not suitable for woe cross-compiling, so
 # let's use some autotools skills :)
+# I can't manage to build a complete static+shared lib, so for now
+# it'll be a SDL_mixer-only static lib.
 MIKMOD_VERSION=3.1.12
 unzip libmikmod-$MIKMOD_VERSION.zip
 pushd libmikmod-$MIKMOD_VERSION.patched
@@ -187,23 +189,23 @@ EOF
 # Cf. '(libtool.info)Updating version info' for the versioning scheme
 # Using 'echo' to remove newlines
 # -version-info from libmikmod/Makefile.in
+# No '-DDRV_DS -DDRV_WIN' because it's just for use in SDL_mixer
 cat <<EOF > Makefile.am
-AM_CPPFLAGS=-DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H -Iinclude
+AM_CPPFLAGS=-DWIN32 -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H -Iinclude
 lib_LTLIBRARIES = libmikmod.la
-libmikmod_la_SOURCES = loaders/load_669.c loaders/load_amf.c		\
-loaders/load_dsm.c loaders/load_far.c loaders/load_gdm.c		\
-loaders/load_imf.c loaders/load_it.c loaders/load_m15.c			\
-loaders/load_med.c loaders/load_mod.c loaders/load_mtm.c		\
-loaders/load_okt.c loaders/load_s3m.c loaders/load_stm.c		\
-loaders/load_stx.c loaders/load_ult.c loaders/load_uni.c		\
-loaders/load_xm.c mmio/mmalloc.c mmio/mmerror.c mmio/mmio.c		\
-playercode/mdreg.c playercode/mdriver.c playercode/mdulaw.c		\
-playercode/mloader.c playercode/mlreg.c playercode/mlutil.c		\
-playercode/mplayer.c playercode/munitrk.c playercode/mwav.c		\
-playercode/npertab.c playercode/sloader.c playercode/virtch.c		\
-playercode/virtch2.c playercode/virtch_common.c drivers/drv_ds.c	\
-drivers/drv_win.c drivers/drv_nos.c drivers/drv_stdout.c		\
-drivers/drv_wav.c drivers/drv_raw.c
+libmikmod_la_SOURCES = loaders/load_669.c loaders/load_amf.c            \
+loaders/load_dsm.c loaders/load_far.c loaders/load_gdm.c                \
+loaders/load_imf.c loaders/load_it.c loaders/load_m15.c                 \
+loaders/load_med.c loaders/load_mod.c loaders/load_mtm.c                \
+loaders/load_okt.c loaders/load_s3m.c loaders/load_stm.c                \
+loaders/load_stx.c loaders/load_ult.c loaders/load_uni.c                \
+loaders/load_xm.c mmio/mmalloc.c mmio/mmerror.c mmio/mmio.c             \
+playercode/mdreg.c playercode/mdriver.c playercode/mdulaw.c             \
+playercode/mloader.c playercode/mlreg.c playercode/mlutil.c             \
+playercode/mplayer.c playercode/munitrk.c playercode/mwav.c             \
+playercode/npertab.c playercode/sloader.c playercode/virtch.c           \
+playercode/virtch2.c playercode/virtch_common.c drivers/drv_nos.c       \
+drivers/drv_stdout.c drivers/drv_wav.c drivers/drv_raw.c
 libmikmod_la_LDFLAGS = -no-undefined -version-info 2:4:0 -lwinmm -ldsound
 include_HEADERS = include/mikmod.h
 EOF
@@ -214,7 +216,7 @@ autoreconf -fis
 CPPFLAGS="-I$PREFIX/include" \
   LDFLAGS="-L$PREFIX/lib" \
   ./configure --build=$BUILD --host=$HOST \
-  --prefix=$PREFIX
+  --prefix=`pwd`/../mikmod --disable-shared
 make
 make install-strip
 popd
@@ -228,8 +230,8 @@ popd
 # Let's choose normal linking to avoid inconsistencies and support
 # static linking.
 # TODO: mikmod support
-CPPFLAGS="-I$PREFIX/include" \
-  LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin" \
+CPPFLAGS="-I$PREFIX/include -Imikmod/include" \
+  LDFLAGS="-L$PREFIX/lib -L$PREFIX/bin -Lmikmod/lib" \
   SDL_CONFIG=$PREFIX/bin/sdl-config ./configure \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \

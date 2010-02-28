@@ -151,7 +151,7 @@ if test x"$enable_static" = x"yes"; then
         # Light version, if dependencies are compiled minimaly
         #LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
         # Full version, if planning to support more formats
-        LIBS="-lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lmikmod -lwinmm -ldxguid $LIBS"
+        LIBS="-lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lwinmm -ldxguid $LIBS"
         LDFLAGS="$LDFLAGS -static"
         ;;
     mipsallegrexel-psp-elf)
