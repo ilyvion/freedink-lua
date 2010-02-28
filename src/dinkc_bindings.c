@@ -3372,7 +3372,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 		    }
 		}
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s)",
-		  ev[0], ev[1], rinfo[myscript]->name);
+			ev[0], ev[1], rinfo[myscript] != NULL ? rinfo[myscript]->name : "");
 	      kill_script (myscript);
 	    }
 	    

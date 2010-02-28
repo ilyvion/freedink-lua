@@ -9,12 +9,22 @@
   which was introduced in version 1.08.20090916 (related to the
   'sp_custom' DinkC command).
 
+- Fix a crash in the developer console when trying to run a command
+  that doesn't exist; the bug was already present v1.08 where the code
+  originates, but Linux tend to be stricter when it comes to memory
+  errors ;)
+
 - New translations for the engine strings: Norwegian Bokmål (thanks
   Alexander Krivács Schrøder), Finnish (thanks Jorma Karvonen),
   Spanish (thanks Fernando Carmona Varo), Polish (thanks Michał
   Trzebiatowski), Danish (thanks Joe Hansen), Vietnamese (thanks
   Clytie Siddall), Indonesian (thanks Erwid M Jadied) and French
   (thanks me).
+
+* Developer notes:
+
+- Fix mikmod build support under ms woe for newer versions of
+  SDL_mixer (version >= 1.2.9)
 
 
 1.08.20090918
