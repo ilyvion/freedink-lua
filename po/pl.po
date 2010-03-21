@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2009-09-22 17:23+0100\n"
 "Last-Translator: Michał Trzebiatowski <hippie_1968@hotmail.com>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -49,8 +49,12 @@ msgstr "  -g, --game <katalog>      Określ katalog D-Modu\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <katalog>    Określ podstawowy katalog dla dinka/grafik, D-Modów, itd.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <katalog>    Określ podstawowy katalog dla dinka/grafik, D-"
+"Modów, itd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -75,7 +79,8 @@ msgstr "  -s, --nosound         Nie odtwarzaj dźwięku\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Używaj trybu okna zamiast trybu pełnoekranowego\n"
+msgstr ""
+"  -w, --window          Używaj trybu okna zamiast trybu pełnoekranowego\n"
 
 #: src/init.c:126
 #, c-format
@@ -95,7 +100,8 @@ msgstr "Błędy proszę zgłaszać na adres %s.\n"
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Uwaga: -nomovie jest akceptowane dla zgodności, ale nie ma to wpływu.\n"
+msgstr ""
+"Uwaga: -nomovie jest akceptowane dla zgodności, ale nie ma to wpływu.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."

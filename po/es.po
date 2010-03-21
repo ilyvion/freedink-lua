@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2009-10-01 00:15+0200\n"
 "Last-Translator: Fernando Carmona <ferkiwi@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -47,8 +47,12 @@ msgstr "  -g, --game <dir>      Especifica el directorio del D-Mod\n"
 
 #: src/init.c:119
 #, fuzzy, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>     Especifica el directorio base de dink/gráficos, D-Mods, etc.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>     Especifica el directorio base de dink/gráficos, D-"
+"Mods, etc.\n"
 
 #: src/init.c:121
 #, c-format
@@ -73,12 +77,15 @@ msgstr "  -s, --nosound         Desactiva el sonido\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Emplea el modo ventana en lugar de pantalla completa\n"
+msgstr ""
+"  -w, --window          Emplea el modo ventana en lugar de pantalla "
+"completa\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Activa la compatibilidad con la versión v1.07\n"
+msgstr ""
+"  -7, --v1.07           Activa la compatibilidad con la versión v1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -90,12 +97,14 @@ msgstr "  -7, --v1.07           Activa la compatibilidad con la versión v1.07\n
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Informar de errores a %s.\n"
-"Informar de errores de traducción a <translation-team-es@lists.sourceforge.net>\n"
+"Informar de errores de traducción a <translation-team-es@lists.sourceforge."
+"net>\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Nota: -nomovie es aceptado por compatibilidad pero no tiene ningún efecto.\n"
+msgstr ""
+"Nota: -nomovie es aceptado por compatibilidad pero no tiene ningún efecto.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."

@@ -1,3 +1,170 @@
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: Get a minimal mikmod to work at last
+
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, po/LINGUAS, po/de.po: Add new German translation
+
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: Forsake mikmod as .dll for now
+
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac, doc/cross.txt: Support mikmod in static woe builds
+
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc_bindings.c: Fix crash in show_console mode
+
+2010-02-28  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Support cross-compiling libmikmod
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS: Credit Indonesian translator in AUTHORS
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-exe.sh, doc/cross.txt: Update dependencies for
+	woe builds
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-exe.sh, doc/cross.txt: Update dependencies for
+	woe builds
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Add instructions for translators - also in the
+	.tar.gz
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-exe.sh, autobuild/freedink-snapshot.sh: Sync
+	autobuild scripts
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* TRANSLATIONS.txt: Add instructions for translators
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, po/LINGUAS, po/id.po: New Indonesian translation
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc_sp_custom.c: Fix sp_custom so it doesn't always
+	quit the game
+
+2010-02-21  Sylvain Beucler <beuc@beuc.net>
+
+	* autotools/.gitignore, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4: Update Gnulib
+
+2010-02-03  Sylvain Beucler <beuc@beuc.net>
+
+	* po/LINGUAS, po/nl.po: New Dutch translation from the TP
+
+2010-02-03  Sylvain Beucler <beuc@beuc.net>
+
+	* po/nb.po: Sent Norwegian translation to the TP
+
+2010-02-03  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Update JeuxLibres.net when making a release
+
+2009-11-13  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, debian/copyright, po/LINGUAS, po/Makevars,
+	po/da.po, po/de.po, po/es.po, po/fr.po, po/pl.po, po/vi.po: New
+	translations: es,da,pl,vi; updated French translation
+
+2009-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Add more contact URLs for releases
+
+2009-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: Sync openSUSE
+
+2009-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/BUILD, debian/README.source, debian/changelog,
+	debian/control, debian/copyright, debian/gbp.conf, debian/rules: 
+	Sync debian
+
+2009-09-30  Sylvain Beucler <beuc@beuc.net>
+
+	* po/LINGUAS, po/fi.po: Add Finnish translation
+
+2009-09-29  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/SDL_gfx-patches/asm_gcc4.3.diff,
+	doc/SDL_gfx-patches/asm_win32_nomingw.diff,
+	doc/SDL_gfx-patches/debian_020_gcc4.3.diff,
+	doc/SDL_gfx-patches/libtool_crosscompile.diff,
+	doc/SDL_gfx-patches/libtool_static.diff,
+	doc/SDL_gfx-patches/scaling-2.diff,
+	doc/SDL_gfx-patches/scaling.diff, doc/SDL_gfx-patches/series,
+	doc/cross.txt: SDL_gfx patches are now included upstream (2.0.20)
+
+2009-09-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: No Makefile in the 'releases/woe' directory
+
+2009-09-19  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-debs.sh, autobuild/freedink-exe.sh,
+	autobuild/freedink-rpms.sh: Sync autobuild scripts
+
+2009-09-19  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac: Set version back to UNRELEASED/20090932
+
+2009-09-18  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac, freedink.spec, po/de.po, po/fr.po, po/nb.po: 
+	Release 1.08.20090918
+
+2009-09-18  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedink.c, src/freedinkedit.c, src/init.c: Fix crashing when
+	exiting under woe
+
+2009-09-18  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c, src/fastfile.h: Clarify fastfile module quit
+
+2009-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt: Update cross-compilation dependencies, and their
+	build instructions
+
+2009-09-17  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Document version scheme
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Improve documentation about release process
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx_fonts.c: Fixed slight memory leak in font lookup
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* src/Makefile.am: Correctly locates engine translations under
+	Debian
+
+2009-09-16  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, doc/release.txt, freedink.spec,
+	po/de.po, po/fr.po, po/nb.po: Release 1.08.20090916
+
 2009-09-16  Sylvain Beucler <beuc@beuc.net>
 
 	* share/README.fonts: Upgrade LiberationSans-Regular.ttf to v1.04.93

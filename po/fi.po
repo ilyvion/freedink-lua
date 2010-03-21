@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2009-09-29 21:03+0200\n"
 "Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
@@ -24,7 +24,8 @@ msgstr "Käyttö: %s [VALITSIMET]...\n"
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Käynnistää Dink Smallwood-pelin tai yhden sen Dink- eli D-Mods-moduulin."
+msgstr ""
+"Käynnistää Dink Smallwood-pelin tai yhden sen Dink- eli D-Mods-moduulin."
 
 #: src/init.c:112
 #, c-format
@@ -48,8 +49,12 @@ msgstr "  -g, --game <kansio>   Määritä DMod-kansio\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <kansio> Määritä peruskansio dink/graphics, D-Mods-moduuleille, jne.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <kansio> Määritä peruskansio dink/graphics, D-Mods-"
+"moduuleille, jne.\n"
 
 #: src/init.c:121
 #, c-format
@@ -59,7 +64,8 @@ msgstr "  -d, --debug           Selitä mitä ollaan tehty\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Älä yritä kirjoittaa tiedostoa dinksmallwood.ini\n"
+msgstr ""
+"  -i, --noini           Älä yritä kirjoittaa tiedostoa dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
@@ -74,7 +80,8 @@ msgstr "  -s, --nosound         Älä käytä ääniä\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Käytä ikkunoitua tilaa kokoruutunäytön sijasta\n"
+msgstr ""
+"  -w, --window          Käytä ikkunoitua tilaa kokoruutunäytön sijasta\n"
 
 #: src/init.c:126
 #, c-format
@@ -91,12 +98,15 @@ msgstr "  -7, --v1.07           Ota käyttöön v1.07-yhteensopivuustila\n"
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Ilmoita virheistä osoitteeseen %s.\n"
-"Ilmoita käännösvirheistä osoitteeseen <translation-team-fi@lists.sourceforge.net>\n"
+"Ilmoita käännösvirheistä osoitteeseen <translation-team-fi@lists.sourceforge."
+"net>\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Huomatus: -nomovie on hyväksytty yhteensopivuussyistä, mutta sillä ei ole mitään vaikutusta.\n"
+msgstr ""
+"Huomatus: -nomovie on hyväksytty yhteensopivuussyistä, mutta sillä ei ole "
+"mitään vaikutusta.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."

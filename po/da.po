@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2009-10-03 17:30+01:00\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
@@ -46,8 +46,11 @@ msgstr "  -g, --game <dir>      Angiv en DMod-mappe\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
 
 #: src/init.c:121
 #, c-format
@@ -72,12 +75,14 @@ msgstr "  -s, --nosound         Brug ikke lyd\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
+msgstr ""
+"  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
+msgstr ""
+"  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -99,7 +104,9 @@ msgstr ""
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen effekt.\n"
+msgstr ""
+"Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen "
+"effekt.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."

@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20090918
+Version:	1.08.20100321
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -131,6 +131,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Mar 21 2010 Sylvain Beucler <beuc@beuc.net> - 1.08.20100321-1
+- New upstream release
+
 * Fri Sep 18 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090918-1
 - New upstream release
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2010-02-01 16:18+0100\n"
 "Last-Translator: Koen Torfs <koen@indigetesdii.org>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -47,8 +47,12 @@ msgstr "  -g, --game <dir>      Een DMod-map specifiëren\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Basismap voor dink/graphics, D-Mods etc. specifiëren\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Basismap voor dink/graphics, D-Mods etc. "
+"specifiëren\n"
 
 #: src/init.c:121
 #, c-format
@@ -58,7 +62,8 @@ msgstr "  -d, --debug           Wat gedaan wordt uitleggen\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Niet proberen om dinksmallwood.ini te schrijven\n"
+msgstr ""
+"  -i, --noini           Niet proberen om dinksmallwood.ini te schrijven\n"
 
 #: src/init.c:123
 #, c-format
@@ -73,7 +78,9 @@ msgstr "  -s, --nosound         Geen geluid\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Venstermodus in plaats van volledig scherm gebruiken\n"
+msgstr ""
+"  -w, --window          Venstermodus in plaats van volledig scherm "
+"gebruiken\n"
 
 #: src/init.c:126
 #, c-format
@@ -93,7 +100,8 @@ msgstr "Meld bugs via %s.\n"
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Nota: -nomovie wordt aanvaard voor compatibiliteit, maar heeft geen effect.\n"
+msgstr ""
+"Nota: -nomovie wordt aanvaard voor compatibiliteit, maar heeft geen effect.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."

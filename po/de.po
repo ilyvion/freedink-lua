@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2010-02-25 22:22+0100\n"
 "Last-Translator: Sarah Evans <sarah.evans@indigetesdii.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -46,8 +46,12 @@ msgstr "-g, --game <dir> Angeben ein DMod Verzeichnis\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "-r, --refdir <dir> Angeben ursprüngliches Verzeichnis für dink/graphics, D-Mods, etc\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"-r, --refdir <dir> Angeben ursprüngliches Verzeichnis für dink/graphics, D-"
+"Mods, etc\n"
 
 #: src/init.c:121
 #, c-format
@@ -104,7 +108,8 @@ msgstr "`&Huh?"
 
 #: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Ich bin ziemlich sicher, dass ich nicht damit sprechen oder benutzen kann."
+msgstr ""
+"`$Ich bin ziemlich sicher, dass ich nicht damit sprechen oder benutzen kann."
 
 #: src/freedink.c:2689
 msgid "`$What?"

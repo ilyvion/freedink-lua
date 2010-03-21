@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink-1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2009-09-18 20:56+0000\n"
+"POT-Creation-Date: 2010-03-21 16:08+0100\n"
 "PO-Revision-Date: 2010-01-11 17:56+0000\n"
 "Last-Translator: Erwid M Jadied <jadied@gmail.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
@@ -49,8 +49,12 @@ msgstr "  -g, --game <dir>      Tentukan DMod direktori\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Tentukan direktori dasar untuk dink/grafik,D-Mods,dll.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Tentukan direktori dasar untuk dink/grafik,D-Mods,"
+"dll.\n"
 
 #: src/init.c:121
 #, c-format
@@ -60,7 +64,8 @@ msgstr "  -d, --debug           Menjelaskan apa yang sedang dilakukan\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Tidak mencoba untuk menulis dinksmallwood.ini\n"
+msgstr ""
+"  -i, --noini           Tidak mencoba untuk menulis dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
@@ -75,7 +80,8 @@ msgstr "  -s, --nosound         Tidak memutar suara\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Menggunakan windowed mode, bukannya mode screen\n"
+msgstr ""
+"  -w, --window          Menggunakan windowed mode, bukannya mode screen\n"
 
 #: src/init.c:126
 #, c-format
@@ -95,7 +101,8 @@ msgstr "Laporkan kesalahan (bug) ke: %s.\n"
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Catatan: -nomovie diterima untuk kompabilitas, tetapi tidak berpengaruh.\n"
+msgstr ""
+"Catatan: -nomovie diterima untuk kompabilitas, tetapi tidak berpengaruh.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."
@@ -107,7 +114,9 @@ msgstr "`$Huh?"
 
 #: src/freedink.c:2688
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Saya cukup yakin bahwa saya tidak dapat berbicara kepada atau menggunakan itu. "
+msgstr ""
+"`$Saya cukup yakin bahwa saya tidak dapat berbicara kepada atau menggunakan "
+"itu. "
 
 #: src/freedink.c:2689
 msgid "`$What?"
@@ -135,7 +144,8 @@ msgstr "`$Saya harus belajar sihir sebelum mencoba hal ini."
 
 #: src/freedink.c:2802
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Saya telah memberi isyarat dengan berbagai cara tetapi tetap sia-sia."
+msgstr ""
+"`$Saya telah memberi isyarat dengan berbagai cara tetapi tetap sia-sia."
 
 #: src/freedink.c:2803
 msgid "`$Nothing happened."
