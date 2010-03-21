@@ -115,7 +115,7 @@ Submit the release to:
   http://freshmeat.net/projects/freedink/
 - Translation Project
   http://translationproject.org/html/maintainers.html
-- Dink Network
+- Dink Network (.zip releases)
   http://www.dinknetwork.com/contribute/version/new/gnu_freedink/
   http://www.dinknetwork.com/contribute/version/new/gnu_freedink_source_code/
 - Debian GNU/Linux
