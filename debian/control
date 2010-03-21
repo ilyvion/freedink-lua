@@ -4,14 +4,14 @@ Priority: extra
 Maintainer: Debian Games Team <pkg-games-devel@lists.alioth.debian.org>
 Uploaders: Sylvain Beucler <beuc@beuc.net>
 Build-Depends: debhelper (>= 5), autotools-dev, pkg-config, libsdl1.2-dev, libsdl-gfx1.2-dev, libsdl-ttf2.0-dev, libsdl-image1.2-dev, libsdl-mixer1.2-dev, libfontconfig1-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Homepage: http://www.freedink.org/
 Vcs-Git: git://git.debian.org/git/pkg-games/freedink.git
 Vcs-Browser: http://git.debian.org/?p=pkg-games/freedink.git
 
 Package: freedink-engine
 Architecture: any
-Depends: ${shlibs:Depends}, freedink-data, ttf-liberation, freepats, timidity
+Depends: ${shlibs:Depends}, ${misc:Depends}, freedink-data, ttf-liberation, freepats, timidity
 Recommends: freedink-dfarc
 Description: adventure and role-playing game (engine)
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -28,7 +28,7 @@ Description: adventure and role-playing game (engine)
 Package: freedink-engine-dbg
 Section: debug
 Architecture: any
-Depends: freedink-engine (= ${binary:Version})
+Depends: ${misc:Depends}, freedink-engine (= ${binary:Version})
 Description: debugging symbols for freedink
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
  made by RTsoft. Besides twisted humour, it includes the actual game
@@ -43,7 +43,7 @@ Description: debugging symbols for freedink
 
 Package: freedink
 Architecture: all
-Depends: freedink-engine, freedink-dfarc
+Depends: ${misc:Depends}, freedink-engine, freedink-dfarc
 Description: adventure and role-playing game
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
  made by RTsoft. Besides twisted humour, it includes the actual game
