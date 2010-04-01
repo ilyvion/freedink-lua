@@ -6,7 +6,7 @@ SUBDIRS = autopackage intl gnulib/lib gnulib/po po src share
 
 # Copy those directly and recursively:
 # Build system
-EXTRA_DIST = bootstrap gnulib/m4/gnulib-cache.m4
+EXTRA_DIST = acsite.m4 bootstrap gnulib/m4/gnulib-cache.m4
 # Documentation
 EXTRA_DIST += doc
 EXTRA_DIST += BUILD DEB TRANSLATIONS.txt TROUBLESHOOTING
