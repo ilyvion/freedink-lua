@@ -1,3 +1,48 @@
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/source/format, doc/cross.txt: sync debian
+
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS: Update NEWS
+
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/cross.txt, doc/mingw-cross-env.txt, doc/woe-compile.txt: 
+	Update cross-compilation doc
+
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* autotools/.gitignore, gnulib/lib/.gitignore, gnulib/m4/.gitignore: 
+	Update Gnulib
+
+2010-04-01  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am: Include acsite.m4 in releases
+
+2010-03-28  Sylvain Beucler <beuc@beuc.net>
+
+	* po/vi.po: Sync vietnamese translation with TP
+
+2010-03-21  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: .zip are preferrable over .tar.gz at the DN
+
+2010-03-21  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/control, debian/copyright, freedink.spec: 
+	Packaging fixes/syncs
+
+2010-03-21  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac: Set version back to UNRELEASED/20100232
+
+2010-03-21  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, freedink.spec, po/da.po, po/de.po,
+	po/es.po, po/fi.po, po/fr.po, po/id.po, po/nb.po, po/nl.po,
+	po/pl.po, po/vi.po: Release 1.08.20100321
+
 2010-02-28  Sylvain Beucler <beuc@beuc.net>
 
 	* configure.ac, doc/cross.txt: Get a minimal mikmod to work at last
