@@ -5,8 +5,11 @@ freedink (1.08.20100321-1) unstable; urgency=low
   * Bump Standards-Version to 3.8.4
   * Fix debhelper-but-no-misc-depends by adding ${misc:Depends} in binary
     packages dependencies
+  * Add missing acsite.m4 which is necessary to autoreconf and was missing
+    for tarball; note that the packaging does not autoreconf, but my
+    sponsor asked for it ;)
 
- -- Sylvain Beucler <beuc@beuc.net>  Sun, 21 Mar 2010 17:42:48 +0100
+ -- Sylvain Beucler <beuc@beuc.net>  Tue, 13 Apr 2010 17:42:59 +0200
 
 freedink (1.08.20090918-1) unstable; urgency=low
 
