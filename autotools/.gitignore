@@ -4,3 +4,4 @@
 /reloc-ldflags
 /arg-nonnull.h
 /warn-on-use.h
+/c++defs.h

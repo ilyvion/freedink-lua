@@ -146,3 +146,5 @@
 /time.in.h
 /unlink.c
 /unlinkat.c
+/cloexec.c
+/cloexec.h
