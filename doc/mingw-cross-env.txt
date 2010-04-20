@@ -1,0 +1,22 @@
+Nice project:
+http://www.nongnu.org/mingw-cross-env/
+
+It basically does what we do in cross.txt.
+
+Pros:
+- Can check for new upstream releases
+- Dependency system
+- Maintained by other people so we don't have to do it
+- More packages
+- Uses the new .pc files in SDL_* to handle indirect static
+  dependencies (Libs.private)
+
+Cons:
+- Only support static linking (no .dll's) - is that a problem actually?
+- I don't see DX support in SDL (should introduce latency in SDL_mixer)
+- FreeType compiled without the patents-threatened parts, hence
+  incompatible font display / metrics
+- Still need to compile (not binary releases)
+
+We see that it would save us time, but at the same time we'd need to
+patch it to keep full precise control of the configuration.

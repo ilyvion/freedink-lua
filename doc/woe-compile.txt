@@ -1,14 +1,54 @@
+You can compile FreeDink for ms woe with two methods:
+- cross-compilation
+- native compilation on ms woe
+
+Dependencies
+============
+
+That's the delicate part.
+
+Currently we compile dependencies ourselves, but check
+mingw-cross-env.txt for an alternative.
+
+In any case, keep this in mind:
+
+- SDL need to be compiled with DirectX support, otherwise there will
+  be a lag when playing a sound (e.g. Dink punches, but the sound is
+  heard after 1/2s).
+
+- FreeType need to have the "bytecode interpreter" feature enabled,
+  for compatibility in font metrics (it's disabled by default by its
+  developers for fear of patent attacks from Apple).  If you don't,
+  fonts will have a different size, and may not fit the dialog boxes.
+
+- SDL_mixer need to have support for Ogg Vorbis (used by
+  freedink-data) and libmikmod (people on the Dink forum mentioned
+  interest in audio trackers format - note that libmikmod is not
+  bundled in SDL_mixer since v1.2.9 and need to be compiled
+  separately).
+
+
+Cross-compilation
+=================
+
+Cross-compilation means you're compiling for ms woe, but from another
+operating system such as GNU/Linux.  It's faster than using GCC ports.
+
+This process is described in 'cross.txt', which can also be used as a
+script to automatically compile both FreeDink and its dependencies.
+
+
+Compilation on ms woe
+=====================
+
 You can compile FreeDink using a completely free compilation
 environment, even under MS Woe using MinGW.
 
 MinGW can be used from an IDE (such as Code::Blocks), or from a
 pseudo-Unix environment (MSys, Cygwin).
 
-Note: compilation from Cygwin is not supported in the Makefile right
-now, but should be in the future.
-
-Note: FreeDink now supports cross-compilation, which is faster than
-using GCC ports. Check cross.txt.
+(The maintainer of this package used that method initially before the
+game was ported on GNU/Linux, but not anymore.)
 
 
 Extract the MSys tarball (there used to be an installed, but no I just
