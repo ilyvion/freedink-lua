@@ -3,6 +3,19 @@
 
 ** UNRELEASED
 
+* User-visible changes:
+
+- None - this release just fixes some compilation issues
+
+* Developer notes:
+
+- Include missing acsite.m4 file in releases
+
+- Update gnulib to fix calls to install-reloc on Debian-kfreebsd and
+  Hurd
+
+- Update cross-compilation instructions
+
 
 1.08.20100321
 =============
