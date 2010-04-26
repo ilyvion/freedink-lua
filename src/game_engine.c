@@ -119,9 +119,9 @@ void game_init()
   memset(&hm, 0, sizeof(hm));
 
   if (dversion >= 108)
-    dversion_string = "v1.08";
+    dversion_string = "v1.08 FreeDink";
   else
-    dversion_string = "v1.07";
+    dversion_string = "v1.07 FreeDink";
 
   srand((unsigned)time(NULL));
 }
