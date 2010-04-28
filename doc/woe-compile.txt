@@ -17,9 +17,12 @@ In any case, keep this in mind:
   heard after 1/2s).
 
 - FreeType need to have the "bytecode interpreter" feature enabled,
-  for compatibility in font metrics (it's disabled by default by its
+  for hinting engine compatibility (its disabled by default by its
   developers for fear of patent attacks from Apple).  If you don't,
-  fonts will have a different size, and may not fit the dialog boxes.
+  fonts will have a different size than the original Dink, and may not
+  fit the dialog boxes. It's enabled by default in Debian, but not in
+  Fedora (too bad). Note: in a new game engine, it would worth using a
+  more portable font rendering.
 
 - SDL_mixer need to have support for Ogg Vorbis (used by
   freedink-data) and libmikmod (people on the Dink forum mentioned

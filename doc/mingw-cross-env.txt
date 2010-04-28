@@ -8,15 +8,34 @@ Pros:
 - Dependency system
 - Maintained by other people so we don't have to do it
 - More packages
-- Uses the new .pc files in SDL_* to handle indirect static
-  dependencies (Libs.private)
+- Uses the newly added .pc files in SDL_* to handle indirect static
+  dependencies (Libs.private) (note that distro packages don't have
+  them yet).
 
 Cons:
-- Only support static linking (no .dll's) - is that a problem actually?
-- I don't see DX support in SDL (should introduce latency in SDL_mixer)
-- FreeType compiled without the patents-threatened parts, hence
-  incompatible font display / metrics
-- Still need to compile (not binary releases)
+- FreeType compiled without the patents-threatened hinting engine,
+  hence incompatible font display / metrics with the original Dink
+  version and the Debian FreeType package.
+- DX support in SDL seems unstable as of 2010-04 - developers are
+  apparently experimenting with free headers, which is good.
+- MP3 support in SDL_mixer, while we don't want to foster that format.
+- No FLAC support in SDL_mixer as of 2010-04 (explicitely disabled)
+- No SDL_gfx as of 2010-04
+- Only support static linking (no .dll's); it doesn't really matter
+  for us, as FreeDink is a GPL'd project.  It would matter if we were
+  not distributing the source code, because the LGPL (for instance)
+  would require us to either ship our .o files or use the library as a
+  .dll.  Still, this means all libraries will be embedded in all
+  executables (e.g. both in freedink and freedinkedit).
+- Still need to ship a copy of each library's license manually (and
+  we'll have to extract it manually)
+- Some tarballs do not download properly (404 or timeout)
+- Recompiles MinGW instead of reusing installed version (long).
+- Still need to compile libraries (not binary releases) - but at the
+  same time this means customizing is easier.
 
 We see that it would save us time, but at the same time we'd need to
 patch it to keep full precise control of the configuration.
+
+Some packages are missing, and new SDL_* .pc files are not in distros
+yet, so all in all, it seems better to wait for now.
