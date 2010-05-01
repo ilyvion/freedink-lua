@@ -3,6 +3,17 @@
 
 ** UNRELEASED **
 
+* User-visible changes:
+
+- Display "FreeDink" next to the engine version in the title screen,
+  so that people more easily identify whether they are using the
+  original engine or the FreeDink engine.  This will help when people
+  are asking for assistance on the Dink forum, for instance.
+
+* Developer notes:
+
+- Some code clean-ups, namely in FreeDinkedit.
+
 
 1.08.20100420
 =============
