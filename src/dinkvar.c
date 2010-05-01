@@ -4,7 +4,7 @@
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -129,7 +129,6 @@ int mbase_count;
 int push_active = 1;
 
 
-/*bool*/int turn_on_plane = /*FALSE*/0;
 #define TEXT_MIN 2700
 #define TEXT_TIMER 77
 
@@ -147,8 +146,6 @@ char *in_string;
    animation. */
 /*bool*/int no_running_main = /*false*/0;
 
-int process_count = 0;
-
 char dir[80];
 
 
@@ -158,7 +155,6 @@ char dir[80];
 
 
 int  show_dot = /*FALSE*/0;
-int  plane_process = /*TRUE*/1;
 
 unsigned long timer = 0;
 char *command_line;
@@ -1666,15 +1662,18 @@ void kill_cur_item()
 void kill_item_script(char* name)
 {
   int select = 0;
-  for (int i = 0; i < NB_ITEMS; i++)
-    {
-      if (play.item[i].active)
-	if (compare(play.item[i].name, name))
-	  {
-	    select = i;
-	    goto found;
-	  }
-    }
+  {
+    int i = 0;
+    for (; i < NB_ITEMS; i++)
+      {
+	if (play.item[i].active)
+	  if (compare(play.item[i].name, name))
+	    {
+	      select = i;
+	      goto found;
+	    }
+      }
+  }
   return;
 
  found:
@@ -1703,17 +1702,20 @@ void kill_item_script(char* name)
 void kill_mitem_script(char* name)
 {
   int select = 0;
-  for (int i = 0; i < NB_MITEMS; i++)
-    {
-      if (play.mitem[i].active)
-	if (compare(play.mitem[i].name, name))
-	  {
-	    select = i;
-	    goto found;
-	  }
-    }
+  {
+    int i = 0;
+    for (; i < NB_MITEMS; i++)
+      {
+	if (play.mitem[i].active)
+	  if (compare(play.mitem[i].name, name))
+	    {
+	      select = i;
+	      goto found;
+	    }
+      }
+  }
   return;
-  
+
  found:
   if (*pcur_magic - 1 == select)
     {

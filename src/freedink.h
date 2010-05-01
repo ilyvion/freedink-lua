@@ -1,7 +1,7 @@
 /**
  * Header for FreeDink-specific code (not FreeDinkedit)
 
- * Copyright (C) 2005, 2007, 2008  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -30,10 +30,6 @@
 #define _FREEDINK_H
 
 #include "SDL.h"
-
-extern int drawthistime;
-extern int fps_average;
-extern int fps_show;
 
 extern void CyclePalette();
 extern void Scrawl_OnMouseInput(void);

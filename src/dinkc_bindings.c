@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -1824,30 +1824,36 @@ void dc_get_item(int script, int* yield, int* preturnint, char* dcscript)
 {
   // get index of specified item
   *preturnint = 0;
-  for (int i = 0; i < NB_ITEMS; i++)
-    {
-      if (play.item[i].active
-	  && compare(play.item[i].name, dcscript))
-	{
-	  *preturnint = i + 1;
-	  break;
-	}
-    }
+  {
+    int i = 0;
+    for (; i < NB_ITEMS; i++)
+      {
+	if (play.item[i].active
+	    && compare(play.item[i].name, dcscript))
+	  {
+	    *preturnint = i + 1;
+	    break;
+	  }
+      }
+  }
 }
 
 void dc_get_magic(int script, int* yield, int* preturnint, char* dcscript)
 {
   // get index of specified magic spell
   *preturnint = 0;
-  for (int i = 0; i < NB_MITEMS; i++)
-    {
-      if (play.mitem[i].active
-	  && compare(play.mitem[i].name, dcscript))
-	{
-	  *preturnint = i + 1;
-	  break;
-	}
-    }
+  {
+    int i = 0;
+    for (; i < NB_MITEMS; i++)
+      {
+	if (play.mitem[i].active
+	    && compare(play.mitem[i].name, dcscript))
+	  {
+	    *preturnint = i + 1;
+	    break;
+	  }
+      }
+  }
 }
 
 void dc_set_font_color(int script, int* yield, int* preturnint, int index, int r, int g, int b)
@@ -1860,16 +1866,19 @@ void dc_get_next_sprite_with_this_brain(int script, int* yield, int* preturnint,
 					int brain, int sprite_ignore, int sprite_start_with)
 {
   // make Paul Pliska's life more fulfilling
-  for (int i = sprite_start_with; i <= last_sprite_created; i++)
-    {
-      if ((spr[i].brain == brain) && (i != sprite_ignore))
-	if (spr[i].active == 1)
-	  {
-	    log_debug("Ok, sprite with brain %d is %d", brain, i);
-	    *preturnint = i;
-	    return;
-	  }
-    }
+  {
+    int i = sprite_start_with;
+    for (; i <= last_sprite_created; i++)
+      {
+	if ((spr[i].brain == brain) && (i != sprite_ignore))
+	  if (spr[i].active == 1)
+	    {
+	      log_debug("Ok, sprite with brain %d is %d", brain, i);
+	      *preturnint = i;
+	      return;
+	    }
+      }
+  }
   log_debug("Ok, sprite with brain %d is 0", brain);
   *preturnint = 0; /* not found */
 }
@@ -3344,7 +3353,8 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  else
 	    {
 	      /* Try custom global procedure */
-	      for (int i = 0; i < 100; i++)
+	      int i = 0;
+	      for (; i < 100; i++)
 		{
 		  /* Skip empty slots */
 		  if (strlen (play.func[i].func) == 0)

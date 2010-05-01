@@ -2,7 +2,7 @@
  * FreeDink game-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -33,7 +33,7 @@
 #include <math.h>
 
 #include "gettext.h"
-#define _(String) gettext (String)
+#define _(String) gettext(String)
 
 #include "fastfile.h"
 
@@ -64,25 +64,14 @@ void change_dir_to_diag( int *dir);
 int hurt_thing(int h, int damage, int special);
 
 
-int but_timer = 0;
-
-int fps_show = 0;
-int fps_average;
-
-int drawthistime = /*true*/1;
-int x = 640;
-int y = 480;
-rect                rc;
-int winoffset = 25;
-int winoffsetx = 5;
-
-int cx;
-int cy;
-int speed;
+static int but_timer = 0;
 
 /* Blinking selector in the inventory screen */
-int item_timer;
-int item_pic;
+static int item_timer;
+static int item_pic;
+
+/* Fadedown/fadeup counter */
+static int process_count = 0;
 
 
 /* Fills 'struct seth_joy sjoy' with the current keyboard and/or
@@ -1614,7 +1603,7 @@ recal:
 			changedir(8,h,spr[h].base_walk);
 		}         
 		
-		if (spr[h].x > x)
+		if (spr[h].x > GFX_RES_W)
 		{
 			changedir(4,h,spr[h].base_walk);
 		}         
@@ -1753,7 +1742,7 @@ void pig_brain(int h)
 		changedir(9,h,spr[h].base_walk);
 	}         
 	
-	if (spr[h].x > (x-k[getpic(h)].box.right-10))
+	if (spr[h].x > (GFX_RES_W -k[getpic(h)].box.right-10))
 	{
 		changedir(1,h,spr[h].base_walk);
 	}         
@@ -1917,7 +1906,7 @@ void bounce_brain(int h)
 		spr[h].my -= (spr[h].my * 2);
 	}         
 	
-	if (spr[h].x > (x-k[getpic(h)].box.right))
+	if (spr[h].x > (GFX_RES_W -k[getpic(h)].box.right))
 	{
 		spr[h].mx -= (spr[h].mx * 2);
 	}         
@@ -4684,20 +4673,24 @@ void process_item()
   SDL_BlitSurface(GFX_k[seq[423].frame[1]].k, NULL, GFX_lpDDSBack, &dst);
 
   //draw all currently owned items; magic
-  for (int i = 0; i < NB_MITEMS; i++)
-    if (play.mitem[i].active)
-      draw_item(i, ITEM_MAGIC, play.mitem[i].seq, play.mitem[i].frame);
-  
+  {
+    int i = 0;
+    for (; i < NB_MITEMS; i++)
+      if (play.mitem[i].active)
+	draw_item(i, ITEM_MAGIC, play.mitem[i].seq, play.mitem[i].frame);
+  }
   //draw selection box around armed magic
   if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS && play.item[*pcur_magic - 1].active)
     draw_item(*pcur_magic - 1, ITEM_MAGIC, 423, 5);
   
 
   //draw all currently owned items; normal
-  for (int i = 0; i < NB_ITEMS; i++)
-    if (play.item[i].active)
-      draw_item(i, ITEM_REGULAR, play.item[i].seq, play.item[i].frame);
-  
+  {
+    int i = 0;
+    for (; i < NB_ITEMS; i++)
+      if (play.item[i].active)
+	draw_item(i, ITEM_REGULAR, play.item[i].seq, play.item[i].frame);
+  }
   //draw selection box around armed weapon
   if (*pcur_weapon >= 1 && *pcur_weapon <= NB_ITEMS && play.item[*pcur_weapon - 1].active)
     draw_item(*pcur_weapon - 1, ITEM_REGULAR, 423, 4);

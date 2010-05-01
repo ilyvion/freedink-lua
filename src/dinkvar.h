@@ -1,7 +1,7 @@
 /**
  * Header for code common to FreeDink and FreeDinkedit
 
- * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -172,13 +172,11 @@ extern int keep_mouse;
 extern int last_sprite_created;
 extern int mbase_count;
 extern int mbase_timing;
-extern int mcc;
 extern int mode;
 extern unsigned long mold;
 
 extern int *pupdate_status;
 extern struct small_map pam;
-extern int plane_process;
 extern int playl;
 extern int playx;
 extern int playy;
@@ -191,7 +189,6 @@ extern Uint32 lastTickCount;
 extern FPSmanager framerate_manager;
 extern /*bool*/int total_trigger;
 extern /*bool*/int trig_man;
-extern /*bool*/int turn_on_plane;
 
 /* extern HRESULT ddrval; */
 /* extern LPDIRECTDRAWPALETTE lpDDPal; /\* The primary surface palette *\/ */
@@ -208,8 +205,6 @@ extern int move_screen;
 extern int move_counter;
 extern int weapon_script;
 extern int magic_script;
-
-extern int process_count;
 
 /* Player */
 extern /*bool*/int inside_box(int x1, int y1, rect box);

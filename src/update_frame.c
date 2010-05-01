@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -61,6 +61,11 @@ enum speed_type game_speed_type = v108;
 static Uint32 fps_lasttick = 0;
 static int frames = 0;
 static int fps = 0;
+static int fps_show = 0;
+static int fps_average;
+static int drawthistime = /*true*/1;
+static /*bool*/int turn_on_plane = /*FALSE*/0;
+static /*bool*/int plane_process = /*TRUE*/1;
 
 void updateFrame( void )
 {
