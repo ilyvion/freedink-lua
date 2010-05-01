@@ -263,10 +263,19 @@ extern void figure_out(char* line);
 extern int burn_revision;
 
 /*
+ * Game & editor
+ */
+/*bool*/int get_box (int h, rect * box_crap, rect * box_real);
+extern /*bool*/int dinkedit;
+extern int draw_map_tiny;
+extern int cur_map;
+extern struct hardness hmap;
+
+
+/*
  * Editor
  */
 
-/*bool*/int get_box (int h, rect * box_crap, rect * box_real);
 extern void check_sprite_status(int h);
 extern void add_hardness(int sprite, int num);
 extern void fill_whole_hard(void);
@@ -279,32 +288,6 @@ extern void save_map(const int num);
 extern void save_info(void);
 extern int realhard(int tile);
 extern void save_hard(void);
-
-extern int draw_map_tiny;
-extern int cur_map, cur_tile;
-extern int map_vision;
-extern struct hardness hmap;
-extern int hard_tile;
-extern int m1x,m1y;
-extern int m2x, m2y;
-extern int m3x, m3y;
-extern int last_sprite_added;
-extern int sp_brain;
-extern int sp_speed;
-extern /*bool*/int sp_screenmatch;
-extern int in_huh;
-extern int in_master;
-extern int in_command;
-extern int in_max;
-extern int *in_int;
-extern char in_default[200];
-extern int in_onflag;
-extern char *in_string;
-extern char in_temp[200];
-extern int in_x, in_y;
-extern /*bool*/int in_enabled;
-extern int sp_mode;
-extern /*bool*/int dinkedit;
 
 extern /*bool*/int no_running_main;
 

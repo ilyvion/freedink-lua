@@ -112,46 +112,44 @@ enum editor_buttons {
 
 struct map_info buffmap;
 /*bool*/int buf_mode = /*false*/0;
-char buf_path[100];
-int buf_map = 0;
+static char buf_path[100];
+static int buf_map = 0;
 
 /* Save x and y coordinates for mode 4, 5 and 6 */
-int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
+static int m4x,m4y,m5x,m5y,m6x,m6y,m5ax,m5ay;
 /* LPDIRECTDRAWCLIPPER lpClipper; */
-int winoffset = 25;
-int winoffsetx = 5;
 
-int sp_base_walk = -1;
-int sp_base_idle = -1;
-int sp_base_attack = -1;
-int sp_base_hit = -1;
-int sp_base_die = -1;
-int sp_gold, sp_defense, sp_strength, sp_exp, sp_hitpoints;
-int sp_timer = 33;
-int sp_que;
-int sp_hard = 1;
-int sp_sound = 0;
-int sp_type = 1;
-int sp_prop = 0;
-int sp_warp_map = 0;
-/*bool*/int show_display = /*true*/1;
-int sp_picker = 0;
-int sp_nohit = 0;
-int sp_touch_damage = 0;
-int sp_warp_x = 0;
-int sp_warp_y = 0;
-int sp_parm_seq = 0;
-char sp_script[15];
+static int sp_base_walk = -1;
+static int sp_base_idle = -1;
+static int sp_base_attack = -1;
+static int sp_base_hit = -1;
+static int sp_base_die = -1;
+static int sp_gold, sp_defense, sp_strength, sp_exp, sp_hitpoints;
+static int sp_timer = 33;
+static int sp_que;
+static int sp_hard = 1;
+static int sp_sound = 0;
+static int sp_type = 1;
+static int sp_prop = 0;
+static int sp_warp_map = 0;
+static /*bool*/int show_display = /*true*/1;
+static int sp_picker = 0;
+static int sp_nohit = 0;
+static int sp_touch_damage = 0;
+static int sp_warp_x = 0;
+static int sp_warp_y = 0;
+static int sp_parm_seq = 0;
+static char sp_script[15];
 
-int old_command;
-int sp_cycle = 0;
-  int cur_screen;
-int selx = 1;
-int sely = 1;
-int last_mode = 0;
-int last_modereal = 0;
-int hold_warp_map, hold_warp_x,hold_warp_y;
-int sp_seq,sp_frame = 0;
+static int old_command;
+static int sp_cycle = 0;
+static   int cur_screen;
+static int selx = 1;
+static int sely = 1;
+static int last_mode = 0;
+static int last_modereal = 0;
+static int hold_warp_map, hold_warp_x,hold_warp_y;
+static int sp_seq,sp_frame = 0;
 
 
 /* const int NUM_SOUND_EFFECTS = 6; */
@@ -167,7 +165,7 @@ typedef enum enum_EFFECT
 /*     SOUND_BEARMISS, */
 } EFFECT;
 
-char *szSoundEffects[NUM_SOUND_EFFECTS] =
+static char *szSoundEffects[NUM_SOUND_EFFECTS] =
 {
     "stop.wav",
 /*     "THROW.WAV", */
@@ -178,12 +176,34 @@ char *szSoundEffects[NUM_SOUND_EFFECTS] =
 };
 
 
-int x = 640;
-int y = 480;
-rect rc;
-int cx;
-int cy;
-int speed;
+static int x = 640;
+static int y = 480;
+
+static char in_temp[200];
+static int in_command;
+static int in_onflag;
+static int in_max = 10;
+static int in_huh = 0;
+static char in_default[200];
+static int in_master = 0;
+
+static int *in_int;
+static char *in_string;
+static int in_x, in_y;
+static /*bool*/int in_enabled;
+
+static int sp_mode;
+static int sp_speed = 0;
+static int sp_brain = 0;
+static /*bool*/int sp_screenmatch = 0;
+static int hard_tile = 0;
+static int last_sprite_added = 0;
+static int map_vision = 0;
+
+static int m1x,m1y;
+static int m2x,m2y;
+static int m3x,m3y;
+static int cur_tile;
 
 /**
  * Get the screen tile under coords x,y

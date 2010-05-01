@@ -95,7 +95,6 @@ void add_exp(int num, int h);
 void draw_status_all(void);
 void check_seq_status(int h);
 
-int map_vision = 0;
 int realhard(int tile);
 int flub_mode = -500;
 int draw_map_tiny = -1;
@@ -148,22 +147,7 @@ char *in_string;
    animation. */
 /*bool*/int no_running_main = /*false*/0;
 
-int *in_int;
-int in_x, in_y;
-int sp_brain = 0;
-int sp_speed = 0;
 int process_count = 0;
-rect sp_alt;
-int hard_tile = 0;
-/*bool*/int sp_screenmatch = 0;
-char in_temp[200];
-int in_command;
-int in_finish;
-int in_onflag;
-int in_max = 10;
-int in_huh = 0;
-char in_default[200];
-int in_master = 0;
 
 char dir[80];
 
@@ -176,7 +160,6 @@ char dir[80];
 int  show_dot = /*FALSE*/0;
 int  plane_process = /*TRUE*/1;
 
-int last_sprite_added = 0;
 unsigned long timer = 0;
 char *command_line;
 /*bool*/int dinkedit = /*false*/0;
@@ -188,16 +171,13 @@ int sp_mode = 0;
 int fps,fps_final = 0;
 int move_screen = 0;
 int move_counter = 0;
-int m1x,m1y;
-int m2x,m2y;
-int m3x,m3y;
 int playx = 620;
 /*bool*/int windowed = /*false*/0; /* TODO: move to gfx.c? */
 int playl = 20;
 
 /*bool*/int mouse1 = /*false*/0;
 int playy = 400;
-int cur_map,cur_tile;
+int cur_map;
 
 /* Number of ms since an arbitrarily fixed point */
 Uint32 thisTickCount,lastTickCount;
