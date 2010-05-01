@@ -4212,17 +4212,16 @@ void updateFrame(void)
 
 		  }
 	      }
-	    int greba;
 
 
-
+	    int greba = 0;
 	    if (mode == MODE_SCREEN_TILES)
 	      {
 		//need offset to look right
 		k[seq[3].frame[1]].xoffset = -20;
 		greba = 20;
 	      }
-	    if (mode == MODE_TILE_PICKER || mode == MODE_SPRITE_PICKER)
+	    if (mode == MODE_TILE_PICKER)
 	      {
 		//pick a tile, needs no offset
 		k[seq[3].frame[1]].xoffset = 0;
@@ -4243,7 +4242,7 @@ void updateFrame(void)
 	  skip_draw:
 	    if (spr[h].brain == 1)
 	      {
-		if (mode == MODE_TILE_PICKER || mode == MODE_SCREEN_TILES)
+		if (mode == MODE_SCREEN_TILES || mode == MODE_TILE_PICKER)
 		  {
 		    /* Draw the tile squares selector, an expandable
 		       array of white non-filled squares */
