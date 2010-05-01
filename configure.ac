@@ -330,7 +330,8 @@ if test x"$enable_embedded_resources" = x"yes"; then
 fi
 
 if test "$error" = 0 -a "$LACK_HELP2MAN" = 1; then
-  echo "* Warning: The 'help2man' utility cannot be found. You won't be able to rebuild manpages."
+  echo -n "* Warning: The 'help2man' utility cannot be found. You won't be able to rebuild manpages"
+  echo " (if you modify the source code)"
   warning=1
 fi
 
