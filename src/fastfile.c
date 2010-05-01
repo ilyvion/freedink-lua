@@ -71,7 +71,7 @@ static unsigned int g_numHandles = 0;
 static int g_File = 0;
 #else
 #  ifdef _WIN32
-HANDLE g_File;
+HANDLE g_File;  /* HANDLE == void*, cf. winnt.h */
 HANDLE g_FileMap;
 #  else
 FILE* g_File = NULL;
@@ -190,7 +190,7 @@ FastFileFini (void)
       munmap(g_MemMap, g_FileSize);
       g_MemMap = NULL;
     }
-  if (g_File != NULL)
+  if (g_File != 0)
     {
       close(g_File);
       g_File = 0;
