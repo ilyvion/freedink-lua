@@ -36,7 +36,8 @@ AC_PROG_LN_S
 # Force binary relocatability by default
 enable_relocatable=1
 
-# We use std=c99 which enables some macros - do tests with it too.
+# We use std=c99 which enables some macros and support '//' comments -
+# do tests (namely Gnulib tests) with it too.
 CFLAGS="$CFLAGS -Wall -std=c99"
 
 
