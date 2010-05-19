@@ -8,3 +8,8 @@ $ make
 $ nccnav src/freedink.nccout
 
 v2.7 includes a patch by me ;)
+(to fix flickering before entering the text editor)
+
+NCC does not support the "for (int ...)" local variable declaration,
+so until it's fixed I converted to the equivalent but more verbose
+"{ int ...; for (;...) }".
