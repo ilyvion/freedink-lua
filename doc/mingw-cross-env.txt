@@ -27,6 +27,9 @@ Cons:
   would require us to either ship our .o files or use the library as a
   .dll.  Still, this means all libraries will be embedded in all
   executables (e.g. both in freedink and freedinkedit).
+  Also on security update, we'd need to provide a new executable
+  instead of a fixed .dll, but we're already providing static builds,
+  so we'll need to rebuild anyway.
 - Still need to ship a copy of each library's license manually (and
   we'll have to extract it manually)
 - Some tarballs do not download properly (404 or timeout)
