@@ -15,17 +15,26 @@ kernel module::
 
 Now:
 
-* run FreeDink and wait until it's loaded
+* run FreeDink and wait until it's loaded,
 
-* run "gexmap" and check Resident Mapped in particular
+* run "gexmap" and check Effective Resident, VM and Sole Mapped in
+  particular.
 
 Note: exmap hasn't been updated since 2006, so it doesn't compile with
-recent kernels. Drop a word of encouragement to the author - or even
-better send him a patch :)
+recent kernels, but a minimal patch fixes this for 2.6.26, and I fixed
+it for 2.6.32 as well (sadly the bug is archived and I cannot make a
+new attachment):
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495335
 
-There's a partial patch at
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495335 - apparently
-there are still issues in the client size.
+There are reports that the userland need to be fixed, but it works
+fine for me (besides a couple g++ #include fixes):
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=453852
+
+The latest version of the Debian package can be found at:
+http://snapshot.debian.org/package/exmap/0.10-2.1/
+
+I sent the Debian and my patches to the author on 2010-05-20, let's
+see if he's alive ;)
 
 
 memprof
