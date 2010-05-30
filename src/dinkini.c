@@ -88,7 +88,7 @@ void make_idata(enum idata_type type, int myseq, int myframe, int xoffset, int y
 	}
     }
   
-  fprintf(stderr, "Out of idata spots (max is %d), no more sprite corrections can be allowed.", nb_idata);
+  log_error("Out of idata spots (max is %d), no more sprite corrections can be allowed.", nb_idata);
 }
 
 /**
