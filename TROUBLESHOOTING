@@ -1,6 +1,25 @@
 Troubleshooting
 ===============
 
+Graphics
+--------
+
+Q: Dink is very slow (< 10 FPS)
+
+A: There's probably an issue with your graphics driver.
+
+   One known issue in 2010 is the use of recently introduce KMS
+   (Kernel-based Mode-Setting) support in the Radeon drivers.  In this
+   case, you'll need to disable KMS by editing
+   /etc/modprobe.d/radeon-kms.conf
+
+   Another issue is when using the default 'vesa' driver, which is not
+   optimized, instead of a driver more specific to your graphic card.
+
+   You shouldn't have any problem to run with > 10 FPS even on old
+   hardware.
+
+
 Sound
 -----
 
@@ -16,12 +35,32 @@ A: SDL_mixer (the component that provides the sound) is known to
    More information at
    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=369670
 
+   Note that the Debian version of SDL_mixer now attemps to read
+   /etc/timidity/freepats.cfg as well.
+
+
+Q: I want FreeDink to use my MIDI hardware or fluidsynth setup, but it
+   uses TiMidity instead.
+
+A: SDL_mixer (the MIDI component that FreeDink uses) can use both
+   hardware and software sequencer. If '/etc/timidity/timidity.cfg' is
+   present, it will use that first. You can remove that file if you
+   want to use '/dev/sequencer' directly :)
+
+   You can also see above that there are some issues if
+   ''/dev/sequencer' is present but not functionnal, so it's best we
+   use TiMidity by default for common Dinkers, and just let you remove
+   '/etc/timidity/timidity.cfg' if you know better ;)
+
 
 Q: Under some distros (such as recent Fedora and Ubuntu), the sound is
    managed through PulseAudio, and this breaks sound in the game.
 
 A: Apparently FreeDink is not the only game or even application that
    PulseAudio affects. 
+
+   This mostly happened when PulseAudio was just introduced.  As of
+   2010 this seem to be fixed in distributions.
 
    Suggests that was a bit prematurate:
      http://brainstorm.ubuntu.com/idea/7377/
@@ -43,17 +82,3 @@ A: Apparently FreeDink is not the only game or even application that
      pulseaudio -k
      freedink
      pulseaudio -D
-
-
-Q: I want FreeDink to use my MIDI hardware or fluidsynth setup, but it
-   uses TiMidity instead.
-
-A: SDL_mixer (the MIDI component that FreeDink uses) can use both
-   hardware and software sequencer. If '/etc/timidity/timidity.cfg' is
-   present, it will use that first. You can remove that file if you
-   want to use '/dev/sequencer' directly :)
-
-   You can also see above that there are some issues if
-   ''/dev/sequencer' is present but not functionnal, so it's best we
-   use TiMidity by default for common Dinkers, and just let you remove
-   '/etc/timidity/timidity.cfg' if you know better ;)
