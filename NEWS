@@ -12,9 +12,15 @@
 
 - Update Danish translation.
 
+- Fix game crash (experienced in "Agatha's Will")
+
 * Developer notes:
 
 - Some code clean-ups, namely in FreeDinkedit.
+
+- The game crash is related to DinkC variable assignments on a line
+  longer than 100 characters (caused by one fixed-length buffer that
+  wasn't fixed during the DinkC parser clean-up).
 
 
 1.08.20100420

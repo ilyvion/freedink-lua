@@ -1492,8 +1492,7 @@ int var_figure(char* h, int script)
  */
 void int_prepare(char* line, int script)
 {
-  char hold[100];
-  strcpy(hold, line);
+  char* hold = strdup(line);
 
   char* name = NULL;
   char *temp = NULL;
@@ -1516,6 +1515,7 @@ void int_prepare(char* line, int script)
       strcpy(line, hold);
     }
   free(name);
+  free(hold);
 }
 
 
