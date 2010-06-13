@@ -1001,7 +1001,7 @@ int load_map_to(char* path, const int num, struct small_map* screen)
 int load_map(const int num)
 {
   if (load_map_to(current_map, num, &pam) < 0)
-    return -1.
+    return -1;
   
   spr[1].move_active = 0;
   if (dversion >= 108)
