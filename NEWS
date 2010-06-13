@@ -28,6 +28,9 @@
 
 - Document '-t'/'--truecolor' in the command-line output of '--help'.
 
+- Add 'contrib/search_script.c' to locate a DinkC script usage in the
+  world map.
+
 
 1.08.20100420
 =============

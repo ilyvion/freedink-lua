@@ -881,7 +881,7 @@ void fix_dead_sprites()
 /**
  * Load 1 screen from specified map.dat in specified memory buffer
  */
-void load_map_to(char* path, const int num, struct small_map* screen)
+int load_map_to(char* path, const int num, struct small_map* screen)
 {
   /* Instead of using 'fseek(...)' when we want to skip a little bit
      of data, we read it to this buffer - this is much faster on PSP
@@ -895,7 +895,7 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   if (!f)
     {
       log_error("Cannot find %s file!!!", path);
-      return;
+      return -1;
     }
   lsize = 31280; // sizeof(struct small_map); // under ia32, not portable
   holdme = (lsize * (num-1));
@@ -992,14 +992,16 @@ void load_map_to(char* path, const int num, struct small_map* screen)
   // offset 31280
   
   fclose(f);
+  return 0;
 }
 
 /**
  * Load 1 screen from map.dat, which contains all 768 game screens
  */
-void load_map(const int num)
+int load_map(const int num)
 {
-  load_map_to(current_map, num, &pam);
+  if (load_map_to(current_map, num, &pam) < 0)
+    return -1.
   
   spr[1].move_active = 0;
   if (dversion >= 108)
@@ -1013,6 +1015,7 @@ void load_map(const int num)
     check_midi();
   
   //   draw_map_game();
+  return 0;
 }
 
 /**
