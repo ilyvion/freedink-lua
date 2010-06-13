@@ -122,6 +122,7 @@ print_help (int argc, char *argv[])
   printf(_("  -i, --noini           Do not attempt to write dinksmallwood.ini\n"));
   printf(_("  -j, --nojoy           Do not attempt to use joystick\n"));
   printf(_("  -s, --nosound         Do not play sound\n"));
+  printf(_("  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"));
   printf(_("  -w, --window          Use windowed mode instead of screen mode\n"));
   printf(_("  -7, --v1.07           Enable v1.07 compatibility mode\n"));
   printf("\n");

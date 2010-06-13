@@ -22,6 +22,8 @@
   longer than 100 characters (caused by one fixed-length buffer that
   wasn't fixed during the DinkC parser clean-up).
 
+- Document '-t'/'--truecolor' in the command-line output of '--help'.
+
 
 1.08.20100420
 =============
