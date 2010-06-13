@@ -517,6 +517,8 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 
       /** Configure current frame **/
       
+      /* Disable alpha in 32bit BMPs, like the original engine */
+      SDL_SetAlpha(GFX_k[myslot].k, 0, SDL_ALPHA_OPAQUE);
       /* Set transparent color: either black or white */
       if (black)
 	SDL_SetColorKey(GFX_k[myslot].k, SDL_SRCCOLORKEY|SDL_RLEACCEL,
