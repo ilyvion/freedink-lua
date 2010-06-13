@@ -12,7 +12,7 @@
 
 - Update Danish translation.
 
-- Fix game crash (experienced in "Agatha's Will").
+- Fix game crashes (experienced in "Agatha's Will", and "The River").
 
 - Override transparency for 32bit BMPs.
 
@@ -20,9 +20,11 @@
 
 - Some code clean-ups, namely in FreeDinkedit.
 
-- The game crash is related to DinkC variable assignments on a line
-  longer than 100 characters (caused by one fixed-length buffer that
-  wasn't fixed during the DinkC parser clean-up).
+- The first game crash is related to DinkC variable assignments on a
+  line longer than 100 characters (caused by one fixed-length buffer
+  that wasn't fixed during the DinkC parser clean-up).  The second
+  game crash is when a D-Mod author uses an invalid sequence (number
+  >= 1000).
 
 - Document '-t'/'--truecolor' in the command-line output of '--help'.
 

@@ -552,9 +552,10 @@ animate:
 							spr[h].pseq = spr[h].seq;
 							spr[h].pframe = 1;
 							spr[h].frame = 1;
-							if (spr[h].frame_delay != 0) spr[h].delay = thisTickCount + spr[h].frame_delay; else
-								
-								spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[1]);
+							if (spr[h].frame_delay != 0)
+							  spr[h].delay = thisTickCount + spr[h].frame_delay;
+							else
+							  spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[1]);
 						}   else
 						{
 							// not new anim
@@ -566,9 +567,10 @@ animate:
 								
 								
 								spr[h].frame++;
-								if (spr[h].frame_delay != 0) spr[h].delay = thisTickCount + spr[h].frame_delay; else
-									
-									spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
+								if (spr[h].frame_delay != 0)
+								  spr[h].delay = thisTickCount + spr[h].frame_delay;
+								else
+								  spr[h].delay = (thisTickCount + seq[spr[h].seq].delay[spr[h].frame]);
 								
 								spr[h].pseq = spr[h].seq;
 								spr[h].pframe = spr[h].frame;
