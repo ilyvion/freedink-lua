@@ -178,7 +178,7 @@ void draw_map_game(void)
   // own uniqueness to our collective.
   place_sprites_game();
   
-  thisTickCount = SDL_GetTicks();
+  thisTickCount = game_GetTicks();
                 
   // Run active sprites' scripts
   init_scripts();

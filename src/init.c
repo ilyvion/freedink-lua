@@ -403,7 +403,7 @@ int init(int argc, char *argv[], char* splash_path)
   /* The official v1.08 .exe runs 50-60 FPS in practice, despite the
      documented intent of running 83 FPS (or 12ms delay). */
   /* SDL_setFramerate(manager, 83); */
-  SDL_setFramerate(&framerate_manager, 60);
+  SDL_setFramerate(&framerate_manager, FPS);
 
   //dinks normal walk
   log_info("Loading batch...");

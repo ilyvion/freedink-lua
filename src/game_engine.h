@@ -31,6 +31,7 @@
 #include "gfx_tiles.h"
 #include "dinkc_sp_custom.h"
 
+#define FPS 60
 #define MAX_SPRITES_AT_ONCE 300
 
 
@@ -252,5 +253,9 @@ extern unsigned int dink_base_push;
 
 extern void game_init(void);
 extern void game_quit(void);
+
+extern Uint32 game_GetTicks(void);
+extern void game_set_high_speed(void);
+extern void game_set_normal_speed(void);
 
 #endif

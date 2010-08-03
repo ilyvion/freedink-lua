@@ -120,7 +120,6 @@ int screenlock = 0;
 
 struct talk_struct talk;
 
-int mbase_timing;
 unsigned long mold;
 
 int mbase_count;
@@ -159,7 +158,7 @@ int  show_dot = /*FALSE*/0;
 unsigned long timer = 0;
 char *command_line;
 /*bool*/int dinkedit = /*false*/0;
-int base_timing;
+int base_timing = 0;
 int weapon_script = 0;
 int magic_script = 0;
 
@@ -3368,10 +3367,6 @@ void draw_sprite_game(SDL_Surface *GFX_lpdest, int h)
                 int speed_hold = spr[k].speed;
                 if (k > 1) if (spr[k].brain != 9) if (spr[k].brain != 10)
                 {
-
-                        //if (mbase_timing > 20) mbase_timing = 20;
-
-                        //   Msg(",base_timing is %d", base_timing);
                         hspeed = spr[k].speed * (base_timing / 4);
                         if (hspeed > 49)
                         {

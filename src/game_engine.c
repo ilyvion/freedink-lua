@@ -103,6 +103,7 @@ unsigned int dink_base_push = 310;
 /* hardness */
 struct hit_map hm;
 
+static int high_speed = 0;
 
 void game_init()
 {
@@ -136,6 +137,49 @@ void game_quit()
       spr[i].custom = NULL;
     }
 }
+
+/**
+ * Fake SDL_GetTicks if the player is in high-speed mode.  Make sure
+ * you call it once per frame.
+ */
+Uint32 game_GetTicks()
+{
+  static Uint32 last_sdl_ticks = 0;
+  static Uint32 high_ticks = 0;
+
+  Uint32 cur_sdl_ticks = SDL_GetTicks();
+  /* Work-around incorrect initial value */
+  if (last_sdl_ticks == 0)
+    last_sdl_ticks = cur_sdl_ticks - 1;
+    
+  /* If high speed, then count every tick as triple (so add 2x) */
+  if (high_speed)
+    {
+      high_ticks += 2 * (cur_sdl_ticks - last_sdl_ticks);
+    }
+  
+  last_sdl_ticks = cur_sdl_ticks;
+  return cur_sdl_ticks + high_ticks;
+}
+
+void game_set_high_speed()
+{
+  if (high_speed == 0)
+    {
+      SDL_setFramerate(&framerate_manager, 3*FPS);
+      high_speed = 1;
+    }
+}
+
+void game_set_normal_speed()
+{
+  if (high_speed == 1)
+    {
+      SDL_setFramerate(&framerate_manager, FPS);
+      high_speed = 0;
+    }
+}
+
 
 /* Sound - SFX */
         int get_pan(int h)

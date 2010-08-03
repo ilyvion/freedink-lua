@@ -171,7 +171,6 @@ extern struct show_bmp showb;
 extern int keep_mouse;
 extern int last_sprite_created;
 extern int mbase_count;
-extern int mbase_timing;
 extern int mode;
 extern unsigned long mold;
 

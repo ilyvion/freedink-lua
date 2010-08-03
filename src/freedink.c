@@ -3446,14 +3446,14 @@ void CyclePalette()
       /* truecolor */
       if (truecolor_fade_lasttick == -1)
 	{
-	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_lasttick = game_GetTicks();
 	  //truecolor_fade_brightness -= 256*.3;
 	}
       else
 	{
-	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
+	  int delta = game_GetTicks() - truecolor_fade_lasttick;
 	  /* Complete fade in 400ms */
-	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_lasttick = game_GetTicks();
 	  truecolor_fade_brightness -= delta * 256 / 400.0;
 	}
       if (truecolor_fade_brightness <= 0)
@@ -3542,14 +3542,14 @@ void up_cycle(void)
       donethistime = 0;
       if (truecolor_fade_lasttick == -1)
 	{
-	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_lasttick = game_GetTicks();
 	  //truecolor_fade_brightness += 256*.3;
 	}
       else
 	{
-	  int delta = SDL_GetTicks() - truecolor_fade_lasttick;
+	  int delta = game_GetTicks() - truecolor_fade_lasttick;
 	  /* Complete fade in 400ms */
-	  truecolor_fade_lasttick = SDL_GetTicks();
+	  truecolor_fade_lasttick = game_GetTicks();
 	  truecolor_fade_brightness += delta * 256 / 400.0;
 	}
       if (truecolor_fade_brightness >= 256)
@@ -5011,6 +5011,16 @@ int main(int argc, char* argv[])
 	      if (!success)
 		/* Try using a more portable way: */
 		gfx_toggle_fullscreen();
+	    }
+
+	  /* High speed */
+	  if (GetKeyboard(SDLK_TAB) == 1)
+	    {
+	      game_set_high_speed();
+	    }
+	  else if (GetKeyboard(SDLK_TAB) == 0)
+	    {
+	      game_set_normal_speed();
 	    }
 	  
 	  /* TODO: maybe check for application active/background state and

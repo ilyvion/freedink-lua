@@ -49,6 +49,48 @@ clean-up to allow for portability and later improvements.
 Check out FreeDink's website at http://www.freedink.org/ .
 
 
+Game keys
+---------
+
+Keyboard controls
+  <ARROW KEYS>	Makes Dink walk/push
+  <CTRL>	Attack/Use equipped item/Select option
+  <SPACE>	Talk/Examine/Manipulate
+  <SHIFT>	Use equipped magic
+  <ENTER>	Inventory/Equip screen
+  <ESC>		Options
+  <M>		Display map (if you have one)
+  <Alt-Return>	Toggle fullscreen mode
+  <Tab>		When maintained, enable high-speed mode
+
+Keyboard controls: Inventory/Equip screen
+  <ARROW KEYS>	Highlight Item/Weapon or Magic
+  <CTRL>	Select highlighted Item/Weapon or Magic
+  <ENTER>	Exit inventory screen
+
+Joystick/Gamepad controls
+  <ANY DIR.>	Makes Dink walk/push
+  <BUTTON 1>	Attack/Use equipped item/Select option
+  <BUTTON 2>	Talk/Examine/Manipulate
+  <BUTTON 3>	Use equipped magic
+  <BUTTON 4>	Inventory/Equip screen
+  <BUTTON 5>	Options
+  <BUTTON 6>	Display map (if you have one)
+
+Joystick/Gamepad controls: Inventory/Equip screen
+  <ANY DIR.>	Highlight Item/Weapon or Magic
+  <BUTTON 1>	Select highlighted Item/Weapon or Magic
+  <BUTTON 4>	Exit Inventory/Equip screen
+
+Other
+  <Alt-M>	Stop playing current MIDI song
+  <Alt-Q>	Quick quit to Windows
+  <Alt-D>	Enable debug mode
+
+D-Mods may add additional keys, usually they will explain it within
+the game.
+
+
 About GNU
 ---------
 

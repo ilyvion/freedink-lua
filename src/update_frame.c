@@ -53,22 +53,16 @@
 #include "update_frame.h"
 
 enum speed_type { v107, v108 };
-/* v107 speed type is way too fast on recent computers, v108 is the
-   only one that makes sense now. However, since the v108 code
-   introduces arbitrary computations, we'll keep the v107 code for
-   reference. */
-enum speed_type game_speed_type = v108;
 static Uint32 fps_lasttick = 0;
 static int frames = 0;
 static int fps = 0;
-static int fps_show = 0;
-static int fps_average;
 static int drawthistime = /*true*/1;
 static /*bool*/int turn_on_plane = /*FALSE*/0;
 static /*bool*/int plane_process = /*TRUE*/1;
 
 void updateFrame( void )
 {
+  /* Refresh frame counter twice per second */
   if ((SDL_GetTicks() - fps_lasttick) > 500)
     {
       fps = frames * (1000/500);
@@ -158,31 +152,9 @@ trigger_start:
 	*/
 	
 	lastTickCount = thisTickCount;
-	thisTickCount = SDL_GetTicks();
+	thisTickCount = game_GetTicks();
 	
 	
-    if (game_speed_type == v107)
-      {
-	fps_final = thisTickCount - lastTickCount;
-	
-	if (fps_final < 10) fps_final = 15;  
-	if (fps_final > 68) fps_final = 68;  
-	
-	base_timing = fps_final / 3;
-	if (base_timing < 4) base_timing = 4;
-	if (fps_final > 1)
-	  {
-	    fps_show = (1000 / fps_final);
-	    fps_average = ((fps_average + fps_final) / 2);
-	  }
-	{
-	  int junk3;
-	  junk3 = (fps_average / dinkspeed) -  (fps_average / 8);
-	  
-	  spr[1].speed = junk3;
-	}
-      }
-    else /* if (game_speed_type == v108) */
       {
 	//Use to test at 30 fps
 	//Sleep(66);
@@ -211,7 +183,7 @@ trigger_start:
 	SDL_framerateDelay(&framerate_manager);
 
 
-	thisTickCount = SDL_GetTicks();
+	thisTickCount = game_GetTicks();
 
 	fps_final = thisTickCount - lastTickCount;
 	
@@ -223,11 +195,6 @@ trigger_start:
 	base_timing = fps_final / 3;
 	if (base_timing < 4)
 	  base_timing = 4;
-	if (fps_final > 1)
-	  {
-	    fps_show = (1000 / fps_final);
-	    fps_average = ((fps_average + fps_final) / 2);
-	  }
 	int junk3;
 	
 	//redink1 added these changes to set Dink's speed correctly, even on fast machines.
@@ -269,7 +236,6 @@ trigger_start:
 	
 	if (thisTickCount > mold+100)
 	{
-		mbase_timing = (mbase_count / 100);
 		mold = thisTickCount;
 		if (bow.active) bow.hitme = /*true*/1;
 		if (*pupdate_status == 1) update_status_all();

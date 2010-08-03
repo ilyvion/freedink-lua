@@ -923,7 +923,7 @@ char* read_next_line(int script)
  **/
 void process_callbacks(void)
 {
-  int now = SDL_GetTicks();
+  int now = game_GetTicks();
   int i, k;
 
   for (i = 1; i < MAX_SCRIPTS; i++)
