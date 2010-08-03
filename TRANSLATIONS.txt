@@ -5,8 +5,8 @@ For those who don't like the command line
 -----------------------------------------
 
 Poedit (PO editor) is a nice graphical editor that can create new .po
-files and synchronize them with the DFArc source code. Check it out!
-http://www.poedit.net/
+files and synchronize them with the FreeDink source code. Check it
+out!  http://www.poedit.net/
 
 You can get the latest translation template from the Translation
 Project at:
@@ -23,7 +23,7 @@ You then can create a new language using:
 'File' -> 'New catalog from a POT file'.
 
 To synchronize your translation with a new version of the source code,
-you need to add the location of DFArc in the catalog configuration
+you need to add the location of FreeDink in the catalog configuration
 ('Catalog' -> 'Configuration' menu and 'Paths' tab). Then you can use
 'Catalog' -> 'Update from sources'.
 
