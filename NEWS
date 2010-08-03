@@ -5,6 +5,9 @@
 
 * User-visible changes:
 
+- High-speed mode: maintain Tab pressed, and FreeDink will run at
+  triple speed.  Useful to accelerate cutscenes that you already saw.
+
 - Display "FreeDink" next to the engine version in the title screen,
   so that people more easily identify whether they are using the
   original engine or the FreeDink engine.  This will help when people
