@@ -21,6 +21,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE  // for strcasestr
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -309,10 +310,14 @@ int main(int argc, char* argv[])
 	      exit(1);
 	    }
 
+	  if (strcasestr(room.script, argv[1]) != NULL)
+	    printf("%s found in %d: room script\n",
+		   room.script, r);
+
 	  int s = 0;
 	  for (s = 0; s < 101; s++)
 	    {
-	      if (strncmp(room.sprite[s].script, argv[1], 13) == 0)
+	      if (strcasestr(room.sprite[s].script, argv[1]) != NULL)
 		{
 		  printf("%s found in %d: sprite #%d - active=%d, vision=%d\n",
 			 room.sprite[s].script, r,
