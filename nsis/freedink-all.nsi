@@ -51,6 +51,28 @@ SetCompressor /SOLID lzma
 !include "AdvUninstLog.nsh"
 !insertmacro INTERACTIVE_UNINSTALL
 
+!include LogicLib.nsh
+; Reg entry for Add/Remove Programs
+; http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
+; Return on top of stack the total size of the selected (installed) sections, formated as DWORD
+; Assumes no more than 256 sections are defined
+Var GetInstalledSize.total
+Function GetInstalledSize
+	Push $0
+	Push $1
+	StrCpy $GetInstalledSize.total 0
+	${ForEach} $1 0 256 + 1
+		${if} ${SectionIsSelected} $1
+			SectionGetSize $1 $0
+			IntOp $GetInstalledSize.total $GetInstalledSize.total + $0
+		${Endif}
+	${Next}
+	Pop $1
+	Pop $0
+	IntFmt $GetInstalledSize.total "0x%08X" $GetInstalledSize.total
+	Push $GetInstalledSize.total
+FunctionEnd
+
 Name "GNU FreeDink"
 OutFile "freedink-all-installer.exe"
 
@@ -87,6 +109,7 @@ FunctionEnd
 ;----------
 !define MUI_ICON ../src/media/freedink.ico
 !define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_RIGHT
 !define MUI_HEADERIMAGE_BITMAP header.bmp
 !define MUI_WELCOMEFINISHPAGE_BITMAP welcome.bmp
 
@@ -160,11 +183,12 @@ Section "freedink-engine" SecFreeDinkEngine
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
   CreateShortcut "$SMPROGRAMS\$StartMenuFolder\FreeDink.lnk" "$INSTDIR\freedink.exe"
+  CreateShortcut "$SMPROGRAMS\$StartMenuFolder\FreeDinkedit.lnk" "$INSTDIR\freedinkedit.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ; Desktop icon
   CreateShortCut "$DESKTOP\FreeDink.lnk" "$INSTDIR\freedink.exe" ""
-  CreateShortCut "$DESKTOP\FreeDink.lnk" "$INSTDIR\freedinkedit.exe" ""
+  CreateShortCut "$DESKTOP\FreeDinkedit.lnk" "$INSTDIR\freedinkedit.exe" ""
 SectionEnd
 
 ; freedink-dfarc
@@ -210,6 +234,14 @@ Section
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
   CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
+
+  ; Entry in "Add/Remove Programs", in the Configuration Panel
+  WriteRegStr ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" \
+    "DisplayName" "GNU FreeDink"
+  WriteRegStr ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" \
+    "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  Call GetInstalledSize
+  WriteRegDWORD ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" "EstimatedSize" "$GetInstalledSize.total"
 SectionEnd
 
 ; Descriptions:
@@ -232,6 +264,10 @@ LangString DESC_SecFreeDinkData   ${LANG_FRENCH} "Données de jeu Dink Smallwood"
 ; Uninstaller
 ;-------------
 Section "Uninstall"
+  ; Entry in "Add/Remove Programs", in the Configuration Panel
+  ; Let's do it first so it's removed even if the installer fails
+  DeleteRegKey ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}"
+
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
   DeleteRegKey /ifempty SHELL_CONTEXT "Software\FreeDink"
@@ -240,6 +276,7 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\DFArc.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\FreeDink.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\FreeDinkedit.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
   Delete "$DESKTOP\DFArc3.lnk"

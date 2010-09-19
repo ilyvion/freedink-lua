@@ -1,3 +1,10 @@
+; Cf. http://nsis.sourceforge.net/Advanced_Uninstall_Log_NSIS_Header
+; and http://nsis.sourceforge.net/Docs/Chapter4.html#4.9.1.8 (RMDir)
+
+; I made it _not_ ask the user about deletion for each and every files
+; not installed through the installed, e.g. D-Mods (cf. 'Delete File'
+; and 'Delete Directory' MessageBox-es.)
+
      ;_____________________________ HEADER FILE BEGIN ____________________________
 
      # Advanced Uninstall Log NSIS header
@@ -268,12 +275,14 @@
         StrCmp "$R9" "${UNINST_DAT}" isfile
         IfFileExists "$R9\*.*" msgdir
 
-	MessageBox MB_ICONQUESTION|MB_YESNO \
-        'Delete File "$R9"?' /SD IDNO IDYES isfile IDNO nodel
+	;MessageBox MB_ICONQUESTION|MB_YESNO \
+        ;'Delete File "$R9"?' /SD IDNO IDYES isfile IDNO nodel
+	goto nodel
 
     msgdir:
-        MessageBox MB_ICONQUESTION|MB_YESNO \
-        'Delete Directory "$R9"?' /SD IDNO IDYES isdir IDNO nodel
+        ;MessageBox MB_ICONQUESTION|MB_YESNO \
+        ;'Delete Directory "$R9"?' /SD IDNO IDYES isdir IDNO nodel
+	goto nodel
 
     nodel:
 	FileSeek $unlog_tmp_4 0 END

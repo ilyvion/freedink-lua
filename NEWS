@@ -19,6 +19,10 @@
 
 - Override transparency for 32bit BMPs.
 
+- Improved ms woe installer: do not ask about deletion for each and
+  every savegame or D-Mod file; add an entry in Add/Remove Programs in
+  the Control Panel; new header pictures.
+
 * Developer notes:
 
 - Some code clean-ups, namely in FreeDinkedit.

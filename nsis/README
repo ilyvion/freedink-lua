@@ -1,0 +1,17 @@
+This is a scrip for the NullSoft Installer System, a tool that can
+generate an installer for ms woe, with support for cross-compilation.
+
+It expects the 'freedink', 'dfarc' and 'dink' directory to be present:
+
+  unzip -d freedink freedink-1.08.201XXXXX-bin.zip
+  unzip -d dfarc dfarc-X.X-bin.zip
+  mv freedink/freedink-*.exe freedink/freedink.exe
+  mv freedink/freedinkedit-*.exe freedink/freedinkedit.exe
+  mv dfarc/dfarc-*.exe dfarc/dfarc3.exe
+  # Follow DFArc naming conventions (TODO: change them!)
+  #cp -a freedink/freedink.exe freedink/dink.exe
+  #cp -a freedink/freedinkedit.exe freedink/dinkedit.exe
+  ln -s freedink.exe freedink/dink.exe
+  ln -s freedinkedit.exe freedink/dinkedit.exe
+  tar xzf freedink-data-1.08.201XXXXX-nosrc.tar.gz
+  makensis freedink-all.nsi
