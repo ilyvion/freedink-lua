@@ -2,12 +2,13 @@
 # This file is put in the public domain.
 # Fernando Carmona <ferkiwi@gmail.com>, 2009.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20090918\n"
+"Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-04-20 21:43+0200\n"
-"PO-Revision-Date: 2009-10-01 00:15+0200\n"
+"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"PO-Revision-Date: 2010-10-02 18:21+0200\n"
 "Last-Translator: Fernando Carmona <ferkiwi@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -46,13 +47,9 @@ msgid "  -g, --game <dir>      Specify a DMod directory\n"
 msgstr "  -g, --game <dir>      Especifica el directorio del D-Mod\n"
 
 #: src/init.c:119
-#, fuzzy, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <dir>     Especifica el directorio base de dink/gráficos, D-"
-"Mods, etc.\n"
+#, c-format
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>     Especifica el directorio base de dink/gráficos, D-Mods, etc.\n"
 
 #: src/init.c:121
 #, c-format
@@ -77,15 +74,12 @@ msgstr "  -s, --nosound         Desactiva el sonido\n"
 #: src/init.c:125
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window          Emplea el modo ventana en lugar de pantalla "
-"completa\n"
+msgstr "  -w, --window          Emplea el modo ventana en lugar de pantalla completa\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr ""
-"  -7, --v1.07           Activa la compatibilidad con la versión v1.07\n"
+msgstr "  -7, --v1.07           Activa la compatibilidad con la versión v1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -97,14 +91,12 @@ msgstr ""
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Informar de errores a %s.\n"
-"Informar de errores de traducción a <translation-team-es@lists.sourceforge."
-"net>\n"
+"Informar de errores de traducción a <translation-team-es@lists.sourceforge.net>\n"
 
 #: src/init.c:276
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Nota: -nomovie es aceptado por compatibilidad pero no tiene ningún efecto.\n"
+msgstr "Nota: -nomovie es aceptado por compatibilidad pero no tiene ningún efecto.\n"
 
 #: src/freedink.c:2686
 msgid "`$I don't see anything here."
@@ -200,7 +192,7 @@ msgstr "Arriba"
 
 #: src/dinkc.c:701
 msgid "Error: not mapped"
-msgstr "Error: sin mapa aquí"
+msgstr "Error: no mapeado"
 
 #: src/dinkc.c:712
 #, c-format
