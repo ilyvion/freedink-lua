@@ -1,0 +1,206 @@
+# Greek translation for freedink.
+# This file is distributed under the same license as the freedink package.
+# Michael Kotsarinis <mk73628@gmail.com>, 2010
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink 1.08.20100321\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"PO-Revision-Date: 2010-10-12 14:10+0200\n"
+"Last-Translator: Michael Kotsarinis <mk73628@gmail.com>\n"
+"Language-Team: Greek <team@lists.gnome.gr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: 2\n"
+"X-Poedit-Language: Greek\n"
+"X-Poedit-Country: GREECE\n"
+
+#: src/init.c:108
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr "Χρήση: %s [OPTIONS]...\n"
+
+#: src/init.c:110
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr "Εκκινεί το παιχνίδι Dink Smallwood ή ένα από τα D-Mod του."
+
+#: src/init.c:112
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr "Επεξεργασθείτε το παιχνίδι Dink Smallwood ή ένα από τα D-Mod του."
+
+#: src/init.c:115
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr "  -h, --help            Εμφάνιση αυτής της οθόνης βοήθειας\n"
+
+#: src/init.c:116
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr "  -v, --version         Εμφάνιση της έκδοσης\n"
+
+#: src/init.c:118
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr "  -g, --game <dir>      Ορίστε ένα κατάλογο DMod\n"
+
+#: src/init.c:119
+#, c-format
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Ορίστε το βασικό κατάλογο για dink/graphics, D-Mod, κλπ.\n"
+
+#: src/init.c:121
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr "  -d, --debug           Εξήγηση του τι γίνεται\n"
+
+#: src/init.c:122
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr "  -i, --noini           Μην επιχειρήσετε να γράψετε στο dinksmallwood.ini\n"
+
+#: src/init.c:123
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr "  -j, --nojoy           Μην προσπαθήσετε να χρησιμοποιήσετε joystick\n"
+
+#: src/init.c:124
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr "  -s, --nosound         Να μην αναπαραχθεί ήχος\n"
+
+#: src/init.c:125
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr "  -w, --window          Εμφάνιση σε παράθυρο αντί για οθόνη\n"
+
+#: src/init.c:126
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr "  -7, --v1.07           Ενεργοποίηση λειυοργίας συμβατότητας με την v1.07\n"
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:136
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr ""
+"Αναφορά σφαλμάτων σε %s.\n"
+"Αναφορά σφαλμάτων μετάφρασης σε <team@lists.gnome.gr>\n"
+
+#: src/init.c:276
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr "Σημείωση: το -nomovie γίνεται δεκτό για λόγους συμβατότητας αλλά δεν έχει αποτέλεσμα.\n"
+
+#: src/freedink.c:2686
+msgid "`$I don't see anything here."
+msgstr "`$Δεν βλέπω τίποτα εδώ."
+
+#: src/freedink.c:2687
+msgid "`$Huh?"
+msgstr "`$Εε;"
+
+#: src/freedink.c:2688
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$Είμαι σίγουρος ότι δεν μπορώ να του μιλήσω ή να το χρησιμοποιήσω."
+
+#: src/freedink.c:2689
+msgid "`$What?"
+msgstr "`$Τι;"
+
+#: src/freedink.c:2690
+msgid "`$I'm bored."
+msgstr "`$Βαριέμαι."
+
+#: src/freedink.c:2691
+msgid "`$Not much happening here."
+msgstr "`$Δεν γίνονται και πολλά εδώ."
+
+#: src/freedink.c:2799
+msgid "`$I don't know any magic."
+msgstr "`$Δεν γνωρίζω μαγικά."
+
+#: src/freedink.c:2800
+msgid "`$I'm no wizard!"
+msgstr "`$Δεν είμαι μάγος!"
+
+#: src/freedink.c:2801
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Πρέπει να μάθω μαγικά πριν το επιχειρήσω."
+
+#: src/freedink.c:2802
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Χειρονομώ μανιωδώς αλλά χωρίς αποτέλεσμα!"
+
+#: src/freedink.c:2803
+msgid "`$Nothing happened."
+msgstr "`$Τίποτα δε συνέβη."
+
+#: src/freedink.c:2804
+msgid "`$Hocus pocus!"
+msgstr "`$Άμπρα κατάμπρα!"
+
+#: src/dinkc.c:687
+msgid "Attack"
+msgstr "Επίθεση"
+
+#: src/dinkc.c:688
+msgid "Talk/Examine"
+msgstr "Συνομιλία/Εξέταση"
+
+#: src/dinkc.c:689
+msgid "Magic"
+msgstr "Μαγεία"
+
+#: src/dinkc.c:690
+msgid "Item Screen"
+msgstr "Οθόνη αντικειμένου"
+
+#: src/dinkc.c:691
+msgid "Main Menu"
+msgstr "Κεντρικό μενού"
+
+#: src/dinkc.c:692
+msgid "Map"
+msgstr "Χάρτης"
+
+#: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+msgid "Unused"
+msgstr "Αχρησιμοποίητο"
+
+#: src/dinkc.c:697
+msgid "Down"
+msgstr "Κάτω"
+
+#: src/dinkc.c:698
+msgid "Left"
+msgstr "Αριστερά"
+
+#: src/dinkc.c:699
+msgid "Right"
+msgstr "Δεξιά"
+
+#: src/dinkc.c:700
+msgid "Up"
+msgstr "Πάνω"
+
+#: src/dinkc.c:701
+msgid "Error: not mapped"
+msgstr "Σφάλμα: μη χαρτογραφημένο"
+
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr "Θέση %d - %d:%02d - %s"
+
+#: src/dinkc.c:715
+#, c-format
+msgid "Slot %d - Empty"
+msgstr "Θέση %d - Κενή"
