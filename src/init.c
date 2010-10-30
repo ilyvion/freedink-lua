@@ -329,6 +329,11 @@ int init(int argc, char *argv[], char* splash_path)
      bring locale-specific behavior in the DinkC parsers. If that's a
      problem we may use some gnulib modules
      (cf. (gettext.info.gz)Triggering) */
+  /* Ex. with scanf("%f"...):
+     LANG=C            1.1 -> 1.100000
+     LANG=C            1,1 -> 1.000000
+     LANG=fr_FR.UTF-8  1.1 -> 1,000000
+     LANG=fr_FR.UTF-8  1,1 -> 1,100000 */
   /* setlocale (LC_ALL, ""); */
   setlocale(LC_MESSAGES, "");
   bindtextdomain(PACKAGE, LOCALEDIR);

@@ -36,6 +36,10 @@ Cons:
 - Recompiles MinGW instead of reusing installed version (long).
 - Still need to compile libraries (not binary releases) - but at the
   same time this means customizing is easier.
+- When providing multiple executables, all executables will bundle all
+  the dependencies (instead of sharing DLLs), needing more space.
+  (on the other hand, one static .exe is usually smaller than one
+  dynamic .exe + its .dll's)
 
 We see that it would save us time, but at the same time we'd need to
 patch it to keep full precise control of the configuration.

@@ -158,22 +158,22 @@ git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
 # - Import debian/ from "upstream"
 # - Fix stuff...
 git commit -am "New upstream release - v$VERSION"
-git-buildpackage --git-tag --git-pristine-tar
+git-buildpackage --git-tag
 git push origin master pristine-tar upstream
 git push --tags
 # http://mentors.debian.net/cgi-bin/maintainer-intro
-dput mentors ../freedink_$VERSION-1_i386.changes
+dput mentors ../freedink_$VERSION-1_*.changes
 
 
 Fedora notes:
 -------------
 
 Do:
-cvs update
+git pull
 then check:
 http://fedoraproject.org/wiki/PackageMaintainers/UpdatingPackageHowTo#Example
 which is detailing this step.
 
 See also:
 https://admin.fedoraproject.org/pkgdb/packages/name/freedink
-http://cvs.fedoraproject.org/viewvc/rpms/freedink/
+http://pkgs.fedoraproject.org/gitweb/?p=freedink.git
