@@ -1,0 +1,23 @@
+newlib-1.16.0/newlib/libc/sys/psp/libcglue.c
+
+#ifdef F_dup
+int dup (int fd1) {
+    return (fcntl (fd1, F_DUPFD, 0));
+}
+#endif
+
+#ifdef F_dup2
+int dup2 (int fd1, int fd2) {
+    close (fd2);    /* ignore errors, if any */
+    return (fcntl (fd1, F_DUPFD, fd2));
+}
+#endif
+
+#ifdef F_rewinddir
+void rewinddir(DIR *dir) {
+  ; // no-op
+}
+#endif
+
+
+make && psp-fixup-imports freedink -o freedink.elf && psp-prxgen freedink.elf freedink.prx && cat res.zip >> freedink.prx && zip -A freedink.prx && psp-gdb ./freedink.elf 

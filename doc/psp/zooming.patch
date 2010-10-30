@@ -1,0 +1,231 @@
+diff --git a/src/freedink.c b/src/freedink.c
+index 69af2b2..ad225c3 100644
+--- a/src/freedink.c
++++ b/src/freedink.c
+@@ -5100,6 +5100,16 @@ int main(int argc, char* argv[])
+ 		/* Try using a more portable way: */
+ 		gfx_toggle_fullscreen();
+ 	    }
++
++	  if ((SDL_GetModState()&KMOD_ALT) && GetKeyboard('z'))
++	    {
++	      static last = 0;
++	      if (SDL_GetTicks() - last > 100)
++		{
++		  gfx_toggle_zoom();
++		  last = SDL_GetTicks();
++		}
++	    }
+ 	  
+ 	  /* TODO: maybe check for application active/background state and
+ 	     pause the game accordingly - but this may be an annoying
+diff --git a/src/gfx.c b/src/gfx.c
+index ae37dba..8ddabf2 100644
+--- a/src/gfx.c
++++ b/src/gfx.c
+@@ -31,6 +31,7 @@
+ #include "SDL.h"
+ #include "SDL_image.h"
+ #include "SDL_rotozoom.h"
++#include "SDL_gfxPrimitives.h"
+ 
+ #include "freedink_xpm.h"
+ #include "io_util.h"
+@@ -42,6 +43,8 @@
+ #include "gfx_fade.h"
+ #include "init.h"
+ #include "paths.h"
++#include "dinkvar.h"
++#include "log.h"
+ 
+ 
+ /* Is the screen depth more than 8bit? */
+@@ -59,6 +62,9 @@ int truecolor = 0;
+ // LPDIRECTDRAWSURFACE     lpDDSTrick2 = NULL;       // Offscreen surface 2
+ 
+ 
++SDL_Surface *screen = NULL; /* Backbuffer and link to physical
++				      screen*/
++
+ SDL_Surface *GFX_lpDDSBack = NULL; /* Backbuffer and link to physical
+ 				      screen*/
+ 
+@@ -115,6 +121,9 @@ Uint32 truecolor_fade_lasttick = -1;
+ 
+ 
+ static int cur_video_flags = 0;
++static int zoom = 0;
++SDL_Rect zoom_win = {0, 0, 480, 272};
++SDL_Rect subrect = {0, 0, 480, 272};
+ 
+ /**
+  * Check if the graphics system is initialized, so we know if we can
+@@ -215,6 +224,7 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
+ 
+ 
+   int bits_per_pixel = 8;
++  truecolor = 1;
+   if (truecolor)
+     {
+       /* Recommended depth: */
+@@ -250,9 +260,13 @@ int gfx_init(enum gfx_windowed_state windowed, char* splash_path)
+     {
+       /* Hardware mode */
+       printf("Requesting video flags: "); gfx_dumpflags(flags);
+-      GFX_lpDDSBack = SDL_SetVideoMode(640, 480, bits_per_pixel, flags);
+-      if (GFX_lpDDSBack == NULL)
++      screen = SDL_SetVideoMode(480, 272, bits_per_pixel, flags);
++      if (screen == NULL)
+ 	fprintf(stderr, "Unable to use hardware mode: %s\n", SDL_GetError());
++      SDL_Surface *tmp = SDL_CreateRGBSurface(0, 640, 480, 8,
++					      0, 0, 0, 0);
++      GFX_lpDDSBack = SDL_DisplayFormat(tmp); /* copy meant for fast blits */
++      free(tmp);
+     }
+   if (GFX_lpDDSBack == NULL)
+     {
+@@ -709,7 +723,120 @@ void flip_it(void)
+       gfx_fade_apply(truecolor_fade_brightness);
+     }
+ 
+-  SDL_Flip(GFX_lpDDSBack);
++
++  //SDL_Flip(GFX_lpDDSBack);
++  //  if (zoom)
++    {
++      int centered_on_dink = 0;
++      int ssize = 100;
++      SDL_Rect safeguard = {zoom_win.x+ssize, zoom_win.y+ssize,
++			    zoom_win.w-2*ssize, zoom_win.h-2*ssize};
++      if (centered_on_dink)
++	{
++	  /* Always centered on Dink, constant scrolling (but tiresome
++	     for eyes). */
++	  zoom_win.x = spr[1].x - zoom_win.w/2;
++	  zoom_win.y = spr[1].y - zoom_win.h/2;
++	}
++      else
++	{
++	  /* Move only if Dink moves outside a centered subrectangle,
++	     to avoid constantly scrolling the whole screen */
++	  double ratio = 30.0/100;
++	  subrect.w = 480*ratio;
++	  subrect.h = 272*ratio;
++
++	  int dx = 0;
++	  int dy = 0;
++	  {
++	    int relx = spr[1].x - subrect.x;
++	    if (relx < 0)
++	      dx = relx;
++	    if (relx > subrect.w)
++	      dx = relx - subrect.w;
++	    
++	    int rely = spr[1].y - subrect.y;
++	    if (rely < 0)
++	      dy = rely;
++	    if (rely > subrect.h)
++	      dy = rely - subrect.h;
++	  }
++	  subrect.x += dx;
++	  subrect.y += dy;
++	  zoom_win.x += dx;
++	  zoom_win.y += dy;
++
++	  {
++	    /* Maintain a visibility safeguard to avoid hitting the
++	       border of the window while it's not the border of the
++	       screen, in some situations. */
++	    int srelx = spr[1].x - safeguard.x;
++	    if (srelx < 0)
++	      zoom_win.x += srelx;
++	    if (srelx > safeguard.w)
++	      zoom_win.x += srelx - safeguard.w;
++
++	    int srely = spr[1].y - safeguard.y;
++	    if (srely < 0)
++	      zoom_win.y += srely;
++	    if (srely > safeguard.h)
++	      zoom_win.y += srely - safeguard.h;
++	  }
++	}
++
++      /* Don't move outside of the screen */
++      if (zoom_win.x < playl)
++	zoom_win.x = playl;
++      if (zoom_win.x + zoom_win.w > playx)
++	zoom_win.x = playx - zoom_win.w;
++      if (zoom_win.y < 0)
++	zoom_win.y = 0;
++      if (zoom_win.y + zoom_win.h > playy)
++	zoom_win.y = playy - zoom_win.h;
++
++      int max = zoom_win.y + zoom_win.h - subrect.h;
++      if (subrect.y > max)
++	subrect.y = max;
++
++
++      //printf("%d,%d %dx%d\n", zoom_win.x, zoom_win.y, zoom_win.w, zoom_win.h);
++      if (debug_mode)
++	{
++	  rectangleColor(GFX_lpDDSBack,
++			 zoom_win.x, zoom_win.y,
++			 zoom_win.x + zoom_win.w, zoom_win.y + zoom_win.h,
++			 0xFF0000FF);
++	  rectangleColor(GFX_lpDDSBack,
++			 safeguard.x, safeguard.y,
++			 safeguard.x + safeguard.w, safeguard.y + safeguard.h,
++			 0x0000FFFF);
++	  rectangleColor(GFX_lpDDSBack,
++			 subrect.x, subrect.y,
++			 subrect.x + subrect.w, subrect.y + subrect.h,
++			 0xFF0000FF);
++	}
++
++      if (zoom)
++	SDL_BlitSurface(GFX_lpDDSBack, &zoom_win, screen, NULL);
++    }
++    //else
++    if (!zoom)
++    {
++      double sx = 1.0*screen->w/620;
++      double sy = 1.0*screen->h/400;
++      if (sx < sy)
++	sy = sx;
++      if (sx > sy)
++	sx = sy;
++      /* We take the lowest and use it for both X and Y to keep aspect ratio */
++      SDL_Surface *tmp = zoomSurface(GFX_lpDDSBack, sx, sx, SMOOTHING_ON);
++      SDL_Rect center = {0,0,0,0};
++      center.x = (screen->w - tmp->w) / 2;
++      //center.y = (screen->h - tmp->h) / 2;
++      SDL_BlitSurface(tmp, NULL, screen, &center);
++      SDL_FreeSurface(tmp);
++    }
++  SDL_Flip(screen);
+ }
+ 
+ /* Like SDL_WM_ToggleFullScreen(), except that it works under more
+@@ -727,3 +854,9 @@ void gfx_toggle_fullscreen(void)
+     SDL_SetPalette(GFX_lpDDSBack, SDL_LOGPAL, GFX_real_pal, 0, 256);
+   trigger_palette_change = 1;
+ }
++
++void gfx_toggle_zoom()
++{
++  zoom = !zoom;
++  // reload fonts with appropriate size
++}
+diff --git a/src/gfx_fonts.c b/src/gfx_fonts.c
+index 65dc3f9..5d77ff1 100644
+--- a/src/gfx_fonts.c
++++ b/src/gfx_fonts.c
+@@ -49,7 +49,7 @@
+    different part of the font glyph (see doc/fonts.txt for
+    details). 16 matches that size with SDL_ttf (possibly only for
+    LiberationSans). */
+-#define FONT_SIZE 16
++#define FONT_SIZE 19
+ 
+ /* Default fonts: dialog and system */
+ static TTF_Font *dialog_font = NULL;

@@ -1,0 +1,50 @@
+Usable RAM:
+24207kB = 24787968
+
+.bss:
+4001328
+prx:
+2237734
+
+freedink:
+Max malloc:
+19104512
+Leftover:
+128000
+Total malloc:
+18976512 = 18MB
+
+---
+
+Usable RAM:
+52879kB = 54148096
+
+freedink:
+Max malloc:
+?
+Total malloc:
+?
+
+
+---
+
+On startup:
+arena: 10339840
+uordblks: 10136760
+fordblks: 203080
+GFX bmp   = 3710460
+GFX buf   = 921600
+GFX scr   = 307200
+GFX tiles = 6120000
+GFX total = 11059260
+
+(GFX > total malloc because of RLE compression which isn't taken into account)
+
+After exploring Stonebrook:
+[debug] GFX screen =   307200
+[debug] GFX buf    =   921600
+[debug] GFX bmp    =  7554244
+[debug] GFX tiles  =  6120000
+[debug] GFX total  = 14903044 (+ ~150kB fonts)
+[debug] Channels =        0
+[debug] Sounds   =  1189964
