@@ -41,8 +41,8 @@ License:
     <http://www.gnu.org/licenses/>.
   
 
-On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL'.
+On Debian systems, the complete text of the GNU General Public License
+version 3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 
 FreeDink includes version '1.04.93' of the 'Liberation Sans' font (but
@@ -152,9 +152,11 @@ License:
         that particular file.
 
 On Debian systems, the complete text of the GNU General Public License
-can be found in /usr/share/common-licenses/GPL file,
-the GNU Lesser General Public License in /usr/share/common-licenses/LGPL,
-and the GNU Free Document License in /usr/share/common-licenses/GFDL.
+version 2 can be found in /usr/share/common-licenses/GPL-2 file, the
+GNU General Public License version 3 in
+/usr/share/common-licenses/GPL-3 file, the GNU Lesser General Public
+License version 3 in /usr/share/common-licenses/LGPL-3, and the GNU
+Free Document License in /usr/share/common-licenses/GFDL-1.3.
 
 
 The SDL_rwops_libzip.c, SDL_rwops_libzip.h, SDL_rwops_zzip.c and SDL_rwops_zzip.h
@@ -179,5 +181,7 @@ in ./src and ./test/sdl are covered by the ZLIB license:
   3. This notice may not be removed or altered from any source distribution.
 
 
-The Debian packaging is Copyright (C) 2008, 2009, 2010, Sylvain Beucler <beuc@beuc.net>
-and is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+The Debian packaging is Copyright (C) 2008, 2009, 2010, Sylvain
+Beucler <beuc@beuc.net> and is licensed under the GPL, either version
+3, or (at your option) any later version, see
+`/usr/share/common-licenses/GPL-3'.
