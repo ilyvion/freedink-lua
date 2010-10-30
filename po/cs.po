@@ -1,0 +1,204 @@
+# Czech translations for freedink game.
+# Copyright (C) 2010 Contributor
+# This file is distributed under the same license as the freedink package.
+# Marek Černocký <marek@manet.cz>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink 1.08.20100321\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"PO-Revision-Date: 2010-10-30 14:50+0200\n"
+"Last-Translator: Marek Černocký <marek@manet.cz>\n"
+"Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src/init.c:108
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr "Použití: %s [PŘEPÍNAČE]…\n"
+
+#: src/init.c:110
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr "Spustí hru Dink Smallwood nebo jednu z jejích D-Mod."
+
+#: src/init.c:112
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr "Upravit hru Dink Smallwood nebo jednu z jejích D-Mod."
+
+#: src/init.c:115
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr "  -h, --help              Zobrazit tuto obrazovku s nápovědou\n"
+
+#: src/init.c:116
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr "  -v, --version           Zobrazit verzi\n"
+
+#: src/init.c:118
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr "  -g, --game <složka>     Určit složku DMod\n"
+
+#: src/init.c:119
+#, c-format
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <složka>   Určit základní složku pro dink/grafiku, D-Mods, atd.\n"
+
+#: src/init.c:121
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr "  -d, --debug             Vysvětlovat, co se dělá\n"
+
+#: src/init.c:122
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr "  -i, --noini             Nepokoušet se zapsat dinksmallwood.ini\n"
+
+#: src/init.c:123
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr "  -j, --nojoy             Nepokoušet se použít joystick\n"
+
+#: src/init.c:124
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr "  -s, --nosound           Nehrát hudbu\n"
+
+#: src/init.c:125
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr "  -w, --window            Použít režim „v okně“ místo režimu „celá obrazovka“\n"
+
+#: src/init.c:126
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr "  -7, --v1.07             Zapnout režim kompatibility v1.07\n"
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:136
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr "Chyby hlaste na %s.\n"
+
+#: src/init.c:276
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr "Poznámka: Kvůli kompatibilitě je akceptován i přepínač -nomovie, ale nemá žádný efekt.\n"
+
+#: src/freedink.c:2686
+msgid "`$I don't see anything here."
+msgstr "`$Nic tu nevidím."
+
+#: src/freedink.c:2687
+msgid "`$Huh?"
+msgstr "`$Cože?"
+
+#: src/freedink.c:2688
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$Jsem si docela jistý, že tady nemá cenu mluvit nebo toto použít."
+
+#: src/freedink.c:2689
+msgid "`$What?"
+msgstr "`$Co?"
+
+#: src/freedink.c:2690
+msgid "`$I'm bored."
+msgstr "`$Nudím se."
+
+#: src/freedink.c:2691
+msgid "`$Not much happening here."
+msgstr "`$Tady se nic moc neděje."
+
+#: src/freedink.c:2799
+msgid "`$I don't know any magic."
+msgstr "`$Neznám žádnou magii."
+
+#: src/freedink.c:2800
+msgid "`$I'm no wizard!"
+msgstr "`$Nejsem kouzelník!"
+
+#: src/freedink.c:2801
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Než tohle zkusím, potřebuji se nějakou magii naučit."
+
+#: src/freedink.c:2802
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Divoce gestikuluji bez nějakého užitku!"
+
+#: src/freedink.c:2803
+msgid "`$Nothing happened."
+msgstr "`$Nic se nestalo."
+
+#: src/freedink.c:2804
+msgid "`$Hocus pocus!"
+msgstr "`$Hokus pokus!"
+
+#: src/dinkc.c:687
+msgid "Attack"
+msgstr "Útok"
+
+#: src/dinkc.c:688
+msgid "Talk/Examine"
+msgstr "Mluvit/zkoumat"
+
+#: src/dinkc.c:689
+msgid "Magic"
+msgstr "Magie"
+
+#: src/dinkc.c:690
+msgid "Item Screen"
+msgstr "Obrazovka s položkami"
+
+#: src/dinkc.c:691
+msgid "Main Menu"
+msgstr "Hlavní nabídka"
+
+#: src/dinkc.c:692
+msgid "Map"
+msgstr "Mapa"
+
+#: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+msgid "Unused"
+msgstr "Nepoužito"
+
+#: src/dinkc.c:697
+msgid "Down"
+msgstr "Dolů"
+
+#: src/dinkc.c:698
+msgid "Left"
+msgstr "Vlevo"
+
+#: src/dinkc.c:699
+msgid "Right"
+msgstr "Vpravo"
+
+#: src/dinkc.c:700
+msgid "Up"
+msgstr "Nahoru"
+
+#: src/dinkc.c:701
+msgid "Error: not mapped"
+msgstr "Chyba: nezmapováno"
+
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr "Pozice %d - %d:%02d - %s"
+
+#: src/dinkc.c:715
+#, c-format
+msgid "Slot %d - Empty"
+msgstr "Pozice %d - prázdná"
