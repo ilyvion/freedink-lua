@@ -42,8 +42,16 @@
 #include "log.h"
 
 /* CD-ROM handle */
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+static void* cdrom = NULL;
+#define SDL_CDStatus(cdrom) -1 /* CD_ERROR */
+#define SDL_CDStop(cdrom) 0
+#define CD_INDRIVE(i) 0
+#define SDL_CDPlayTracks(cdrom, start_track, start_frame, ntracks, nframes) -1
+#define SDL_CDClose(cdrom) 0
+#else
 static SDL_CD *cdrom = NULL;
-
+#endif
 
 /* Current background music (not cd) */
 static Mix_Music *music_data = NULL;
@@ -62,7 +70,11 @@ static int loop_midi = 0;
 int
 cdplaying(void)
 {
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  return 0;
+#else
   return (SDL_CDStatus(cdrom) == CD_PLAYING);
+#endif
 }
 
 int
@@ -85,6 +97,7 @@ PlayCD(int cd_track)
   /* Play track #cd_track */
   if (cdrom == NULL)
     return -1;
+
   if (CD_INDRIVE(SDL_CDStatus(cdrom)))
     return SDL_CDPlayTracks(cdrom, cd_track - 1, 0, 1, 0);
   else
@@ -306,12 +319,15 @@ void check_midi(void)
  */
 void bgm_init(void)
 {
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  log_info("No CDROM support (SDL 1.3 dropped it)");
+#else
   if (SDL_Init(SDL_INIT_CDROM) == -1)
     {
       log_error("SDL_Init: %s", SDL_GetError());
       return;
     }
-  
+
   /* Check for CD drives */
   if (!SDL_CDNumDrives()){
     /* None found */
@@ -338,6 +354,7 @@ void bgm_init(void)
   
   /* This newly opened CD-ROM becomes the default CD used when other
      CD functions are passed a NULL CD-ROM handle. */
+#endif  
 }
 
 void bgm_quit(void)
@@ -351,7 +368,10 @@ void bgm_quit(void)
   if (cdrom != NULL)
     SDL_CDClose(cdrom);
   cdrom = NULL;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+#else
   SDL_QuitSubSystem(SDL_INIT_CDROM);
+#endif
 }
 
 
