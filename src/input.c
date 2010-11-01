@@ -46,10 +46,16 @@ int GetKeyboard(int key)
 {
   // returns 0 if the key has been depressed, else returns 1 and sets key to code recd.
   int keystate_size;
-  Uint8 *keystate;
+  Uint8* keystate;
   //SDL_PumpEvents();
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  keystate = SDL_GetKeyboardState(&keystate_size);
+  SDLKey scancode = SDL_GetScancodeFromKey(key);
+  return keystate[scancode];
+#else
   keystate = SDL_GetKeyState(&keystate_size);
   return keystate[key];
+#endif
 }
 
 void input_init(void)

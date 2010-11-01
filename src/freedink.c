@@ -4479,8 +4479,13 @@ void Scrawl_OnMouseInput(void)
     UpdateCursorPosition(dx, dy);
 
   /* Process stacked clicks */
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONDOWN) > 0)
+#else
   while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
 			SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN)) > 0)
+#endif
     {
       SDL_MouseButtonEvent *button_event = (SDL_MouseButtonEvent*)&event;
       if (button_event->button == SDL_BUTTON_LEFT)
@@ -4999,8 +5004,13 @@ int main(int argc, char* argv[])
 	  SDL_PumpEvents();
 	  
 	  /* Check if we need to quit */
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+	  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			     SDL_QUIT, SDL_QUIT) > 0)
+#else
 	  if (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
 			     SDL_EVENTMASK(SDL_QUIT)) > 0)
+#endif
 	    break;
 	  
 	  /* Fullscreen <-> window */
@@ -5039,14 +5049,24 @@ int main(int argc, char* argv[])
 	       purge them just when console is turned on. We poll the
 	       keyboard state directly in the rest of the game, so no
 	       keystroke will be lost. */
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+	    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+				  SDL_KEYDOWN, SDL_KEYDOWN) > 0);
+#else
 	    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT,
 				  SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
-	  
+#endif
+
 	  if (console_active == 1)
 	    {
 	      SDL_KeyboardEvent kev;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+	      if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
+				 SDL_KEYDOWN, SDL_KEYDOWN) > 0)
+#else
 	      if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
 				 SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
+#endif
 		dinkc_console_process_key(kev);
 	    }
 	  

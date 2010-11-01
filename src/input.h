@@ -70,11 +70,15 @@ extern "C"
     
     /* Only used in the editor (for now): */
     /* State of the keyboard, SDL-supported keys */
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+    /* SDL 1.3 TODO */
+#else
     int keystate[SDLK_LAST]; /* current GetAsyncKeyState value, in
-				cache */
+    				cache */
     int keyjustpressed[SDLK_LAST]; /* true if key was just pressed, false
-				      if kept pressed or released */
-    
+    				      if kept pressed or released */
+#endif
+
     /* Idem, but with unicode characters - layout-independant */
     char charstate[65536];
     char charjustpressed[65536];

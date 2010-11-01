@@ -545,9 +545,14 @@ int gfx_blit_nocolorkey(SDL_Surface *src, SDL_Rect *src_rect,
 
   Uint32 colorkey_flags, colorkey, alpha_flags, alpha;
   colorkey_flags = src->flags & (SDL_SRCCOLORKEY|SDL_RLEACCEL);
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+  SDL_GetColorKey(src, &colorkey);
+  /* 1.3 TODO: alpha */
+#else
   colorkey = src->format->colorkey;
   alpha_flags = src->flags & (SDL_SRCALPHA|SDL_RLEACCEL);
   alpha = src->format->alpha;
+#endif
   SDL_SetColorKey(src, 0, -1);
   SDL_SetAlpha(src, 0, -1);
   
@@ -589,7 +594,13 @@ int gfx_blit_stretch(SDL_Surface *src_surf, SDL_Rect *src_rect,
 	 non-transparent surfaces) */
       int colorkey_flag = src_surf->flags & SDL_SRCCOLORKEY;
       Uint8 r, g, b, a;
-      SDL_GetRGBA(src_surf->format->colorkey, src_surf->format, &r, &g, &b, &a);
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+      Uint32 colorkey;
+      SDL_GetColorKey(src_surf, &colorkey);
+# else
+      Uint32 colorkey = src_surf->format->colorkey;
+#endif
+      SDL_GetRGBA(colorkey, src_surf->format, &r, &g, &b, &a);
 
       SDL_SetColorKey(scaled, colorkey_flag,
 		      SDL_MapRGBA(scaled->format, r, g, b, a));
