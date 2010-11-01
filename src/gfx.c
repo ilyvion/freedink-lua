@@ -123,14 +123,13 @@ void gfx_dumpflags(Uint32 flags)
   sprintf(buf, "0x%8.8x", flags);
 
   strcat(buf, " ");
-  int i = 0;
-  for (; i < 32; i++)
+  char c[2] = "x";
+  int i = 32-1;
+  for (; i >= 0; i--)
     {
-      unsigned int tflag = 1 << i;
-      if ((flags & tflag) == tflag)
-	strcat(buf, "1");
-      else
-	strcat(buf, "0");
+      unsigned int b = flags >> i;
+      c[0] = '0' + (b & 0x1);
+      strcat(buf, c);
     }
 
   if (flags & SDL_HWSURFACE)
