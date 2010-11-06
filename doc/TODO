@@ -65,6 +65,7 @@ As of 2010-11-01
 [ ] Fix fade to black - too fast in non-truecolor mode
 
 [ ] Fix fade to black - white pixels palette mess
+    E.g.: fade_down() when entering Castle GoodHeart
 
 [ ] Fix FreeDinkedit text input
 

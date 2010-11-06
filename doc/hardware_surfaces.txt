@@ -157,6 +157,32 @@ DRI
 DRI is aimed at 3D graphics, not 2D. Maybe check glSDL, or switch to
 OpenGL, working on a 2D surface in a flat 3D environment.
 
+SDL 1.3 - Pixbuf
+----------------
+
+SDL 1.3 distinguishes software surfaces (SDL_Surface) and hardware
+surfaces (SDL_Texture): http://forums.libsdl.org/viewtopic.php?p=25656
+
+Textures typically do _not_ have a 'pixels' member, you can only
+"upload" a pack of pixels, you can't use them as a classic in-memory
+array (as is done for Dink's fade_down effect in true-color mode).
+
+Consequently:
+
+- It's possible to map SDL_Texture to X11's accelerated surfaces (aka
+  Pixmap, which is server-side).
+
+- It's not possible anymore to directly access memory video for
+  platforms that supported it - but OpenGL generally replaced 2D
+  acceleration for those, including for X11.
+
+However, this does not brings vsync support for X11, which is still
+missing.  You need to use a 3D renderer for SDL 1.3 to get it (and
+achieve smooth scrolling).  Besides, modern (2010) computers are fast
+enough to handle 640x480@60Hz blits without any kind of acceleration,
+so this SDL_Texture mode comes quite late for X11.
+
+
 Conclusion
 ----------
 
@@ -171,6 +197,10 @@ However, it's worth noting that almost all computers ship with a basic
 3D cards (even integrated low-end S3), and there's an increasing
 number of free 3D drivers. So it's worth investigating 2D programming
 on top of OpenGL if performance is an issue.
+
+Let's keep in mind, though, that free 3D drivers tend to be either
+later or unavailable for GNU/Linux, so it's also worth keeping a
+pure-2D rendering system.
 
 
 Woe
