@@ -1,5 +1,8 @@
 Palette behavior with DX (this is somewhat tricky):
 
+- Images can be loaded: a) as sprites, b) as tiles or c) as bitmaps to
+  show on screen.
+
 - When a palette is applied to the screen: indexes 0 and 255 are
   overwritten by black and white respectively; and palette is now used
   by any new palette-less buffer (that is, all buffers in Dink)
@@ -7,27 +10,87 @@ Palette behavior with DX (this is somewhat tricky):
 - When any image is loaded: it is dithered to the global palette at
   load time; note that load_sprite temporarily sets the screen to the
   reference palette, so dithering is explicitely always done using the
-  reference palette (i.e. Ts01.bmp). For dir.ff, it's bit different:
-  the image is copied by hand into system memory, replacing index 0
-  (white) by 30 (very light blue) and 255 (black) by 249 (slightly
-  light dark) - that's a manual dithering that assumes the official
-  Dink palette is in use.
+  reference palette (i.e. Ts01.bmp), rather than the palette currently
+  in use (typically black after a fade_down() effect). For dir.ff,
+  it's bit different: the image is copied by hand into system memory,
+  replacing index 0 (white) by 30 (very light blue) and 255 (black) by
+  249 (slightly light dark) - that's a manual dithering that assumes
+  the official Dink palette is in use.
 
-In FreeDink we tried to reproduce this behavior to ensure maximum
-compatibility; since Dink was used in crazy situations such as palette
-switch via copy_bmp_to_screen(), it's best to ensure the correctness
-of our code base, and that other improvements (eg. fixing fade_down())
-won't easily affect it. In practice, though, it might be simpler to
-only overwrite the physical screen's palette entries 0 and 255, and
-manually work-around the few cases where direct access to the buffer
-is performed (like fill_screen). Maybe such an alternative approach
-can be use for a later truecolor version.
+- During a sprite blit, the original game uses no dithering (there's
+  no direct equivalent in SDL, which will always dither; a work-around
+  is to temporarily overwrite source and destination palettes with an
+  identical one).  Since .bmp/non-dir.ff sprites are dithered on load,
+  they already have the screen's logical palette applied anyway;
+  dir.ff sprite got no dithering, neither at load time neither at blit
+  time.  (Btw, sometimes you'll see DDBLTFAST_NOCOLORKEY: it just
+  means no transparency.)
 
-In practice, this means that all palettes are altered, both when
-directly manipulated (GFX_real_pal, CyclePalette(), etc.) and when
-applied to the screen (change_screen_palette). No original,
-non-overwritten palette currently exist in the game.
+  The only situation where the absence of dithering is useful, is when
+  the screen palette was changed after a copy_bmp_to_screen() or
+  similar: later sprite blits are still no dithered; in SDL, if we
+  changed the logical screen palette similarly, all sprite blits would
+  be dithered.  Consequently we don't change the logical screen
+  palette, and perform some dithering tricks to get the loaded
+  fullscreen bmp converted to the physical (not logical) screen
+  palette, and then overwrite its palette indexes with the screen
+  logiciel palette.  A similar trick is used to get the texts colors,
+  which are dithered to the final physical palette (not to the
+  reference palette).  The alternative would be to change the screen
+  logical palette (and get proper DisplayFormat dithering) and use the
+  same palette-switching tricks than in DX when loading new sprites
+  (which might cause unwanted flips?).
 
+In SDL, palettes are used for: a) blits dithering (unlike DX) and b)
+DisplayFormat / on-load dithering (like DX).
+
+In FreeDink we tried to reproduce the palette behavior to ensure
+maximum compatibility; since Dink was used in crazy situations such as
+palette switch via copy_bmp_to_screen(), it's best to ensure the
+correctness of our code base, and that other improvements (eg. fixing
+fade_down()) won't easily affect it. In practice, though, it might be
+simpler to only overwrite the physical screen's palette entries 0 and
+255, and manually work-around the few cases where direct access to the
+buffer is performed (like fill_screen). Maybe such an alternative
+approach can be use for a later truecolor version.
+
+In practice, this means that all palettes are altered to reproduce
+that bug, both when directly manipulated (GFX_real_pal,
+CyclePalette(), etc.) and when applied to the screen
+(change_screen_palette). No original, non-overwritten palette
+currently exist in the game.
+
+False bad idea: instead of setting the same palette to all surfaces,
+we could replace SDL_BlitSurface with a wrapper that sets identical
+palettes before the blits or more generally does not makes palette
+conversion during the blit.  But this wouldn't take care of on-load
+dithering, so we still need DisplayFormat and unified palettes, making
+such a wrapper unnecessary.
+
+The Lyna's Story palette change technique, based on DinkC's
+copy_bmp_to_screen(), replaces the physical screen palette
+(phys_palette / GFX_lpDDSBack+SDL_PHYSPAL).  This is reverted to the
+reference palette by the next call to fade_up() (also called internaly
+by player warping), which means copy_bmp_to_screen() is called pretty
+regularly in the game.
+
+When the SDL physical screen palette is changed (phys_palette applied
+to GFX_lpDDSBack+SDL_PHYSPAL), loading a sprite with
+SDL_DisplayFormat() will still dither it to the reference palette
+(GFX_real_pal applied to GFX_lpDDSBack+SDL_LOGPAL, only once at the
+engine initialization).  Thanks to this physical/logical separation,
+we don't need to temporarily modify the screen palette when loading a
+new sprite, as the original game did.
+
+The 'phys_palette' variable does not exists in the original game.  We
+need it for 2 reasons:
+
+  - temporarily store it until the screen is ready for flip: if we
+    apply it automatically, sometimes SDL triggers a flip, resulting
+    in a 1-frame nasty graphical glitch.
+
+  - query its content, since there's no getter for it in SDL (only for
+    the logical palette).
 
 -----
 

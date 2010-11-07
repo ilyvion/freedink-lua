@@ -29,6 +29,7 @@ apt-get install pkg-config # for PKG_CHECK_MODULES
 apt-get install libsdl1.2-dev # for sdl.m4
 apt-get install help2man # to rebuild manpages
 apt-get install gettext cvs # for i18n
+apt-get install autopoint   # for i18n, >= Squeeze
 sh bootstrap
 
 

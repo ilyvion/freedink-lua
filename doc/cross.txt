@@ -84,7 +84,7 @@ $HOST-strip $PREFIX/bin/SDL.dll
 
 # pkgconfig (used to detect ziplib and zzip in the build system, also
 # used by Vorbis to detect Ogg)
-VERSION=0.23
+VERSION=0.25
 cd /usr/src/
 $WGET -P depsources/ http://pkgconfig.freedesktop.org/releases/pkg-config-$VERSION.tar.gz
 tar xzf depsources/pkg-config-$VERSION.tar.gz
@@ -100,7 +100,7 @@ $SUDO ln -nfs $PREFIX/bin/pkg-config \
 
 # libogg (libvorbis dependency)
 cd /usr/src/
-VERSION=1.2.0
+VERSION=1.2.1
 $WGET -P depsources/ http://downloads.xiph.org/releases/ogg/libogg-$VERSION.tar.gz
 tar xzf depsources/libogg-$VERSION.tar.gz
 cd libogg-$VERSION
@@ -259,7 +259,7 @@ $HOST-strip $PREFIX/bin/SDL_mixer.dll
 
 
 # FreeType (dependency of SDL_ttf)
-VERSION=2.3.12
+VERSION=2.4.3
 cd /usr/src/
 $WGET -P depsources/ http://download.savannah.gnu.org/releases/freetype/freetype-$VERSION.tar.bz2
 tar xjf depsources/freetype-$VERSION.tar.bz2
@@ -296,7 +296,7 @@ make install-strip
 
 
 # SDL_gfx
-VERSION=2.0.20
+VERSION=2.0.22
 cd /usr/src
 $WGET -P depsources/ http://www.ferzkopp.net/Software/SDL_gfx-2.0/SDL_gfx-$VERSION.tar.gz
 tar xzf depsources/SDL_gfx-$VERSION.tar.gz
@@ -309,7 +309,7 @@ make
 make install-strip
 
 # libjpeg (dependency of SDL_image and libtiff)
-VERSION=8
+VERSION=8b
 cd /usr/src/
 $WGET -P depsources/ http://www.ijg.org/files/jpegsrc.v$VERSION.tar.gz
 tar xzf depsources/jpegsrc.v$VERSION.tar.gz
@@ -357,7 +357,7 @@ make install-strip
 
 
 # libpng
-VERSION=1.4.1
+VERSION=1.4.4
 cd /usr/src/
 # Download version "with config script"
 $WGET -P depsources/ ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$VERSION.tar.bz2
@@ -373,7 +373,7 @@ make install-strip
 
 
 # libtiff
-VERSION=3.9.2
+VERSION=3.9.4
 cd /usr/src/
 # Download version "with config script"
 $WGET -P depsources/ ftp://ftp.remotesensing.org/pub/libtiff/tiff-$VERSION.tar.gz

@@ -62,14 +62,20 @@ As of 2010-11-01
 
 [ ] Set window caption and icon
 
-[ ] Fix fade to black - too fast in non-truecolor mode
+[ ] Fix fade to black - too fast(?) in non-truecolor mode
+    Actually, it takes the same amount of frames (exactly 5), but I
+    guess that the palette issue below makes is far less striking.
 
-[ ] Fix fade to black - white pixels palette mess
-    E.g.: fade_down() when entering Castle GoodHeart
+[ ] Fix fade to black - white pixels palette mess E.g.: fade_down()
+    when going out of Dink's house Looks like there's a pixels palette
+    conversion during the backbuffer->frontbuffer blit, instead of a
+    plain palette index substitution :/  Possibly an issue in the SDL
+    1.3 compatibility mode; indeed, SDL_SetPalette now ignores the
+    'flags' (SDL_LOGPAL / SDL_PHYSPAL) entirely.
 
 [ ] Fix FreeDinkedit text input
 
-[ ] Alpha support in gfx_blit_nocolorkey
+[ ] Unfinished: alpha support in gfx_blit_nocolorkey
 
 [ ] Fix fullscreen toggle
 

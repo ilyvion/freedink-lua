@@ -487,16 +487,22 @@ static SDL_Surface* load_bmp_internal(char *filename, SDL_RWops *rw, int from_me
       /* converted = SDL_ConvertSurface(image, image->format, image->flags); */
       SDL_Surface *converted = SDL_DisplayFormat(image);
 
-      /* In the end, the image must use the reference palette: that
-	 way no mistaken color conversion will occur during blits to
-	 other surfaces/buffers.  Blits should also be faster(?).
-	 Alternatively we could replace SDL_BlitSurface with a wrapper
-	 that sets identical palettes before the blits. */
-      SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
-      
-      /* Blit the copy back to the original, with a potentially different
-	 palette, which triggers color conversion to image's palette. */
-      SDL_BlitSurface(image, NULL, converted, NULL);
+      /* TODO: the following is probably unnecessary, I think that's
+	 exactly what SDL_DisplayFormat does: convert the surface to
+	 the screen's logical palette. Cf. test/sdl/paltest.c. */
+      {
+	/* In the end, the image must use the reference palette: that
+	   way no mistaken color conversion will occur during blits to
+	   other surfaces/buffers.  Blits should also be faster(?).
+	   Alternatively we could replace SDL_BlitSurface with a
+	   wrapper that sets identical palettes before the blits. */
+	SDL_SetPalette(converted, SDL_LOGPAL, GFX_real_pal, 0, 256);
+	
+	/* Blit the copy back to the original, with a potentially
+	   different palette, which triggers color conversion to
+	   image's palette. */
+	SDL_BlitSurface(image, NULL, converted, NULL);
+      }
       SDL_FreeSurface(image);
       image = NULL;
 
