@@ -56,9 +56,11 @@ resdir=$(top_srcdir)/share/freedink
 install-exec-hook:
 if HAVE_UPX
 # UPX compression
+# Not using --best because it takes much more time and the result is
+# only a little bit smaller
 # Needs to be done before bundling resources
-	-$(UPX) --best "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
-	-$(UPX) --best "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
+	-$(UPX) "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
+	-$(UPX) "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 endif
 if HAVE_ZIP
 # Bundle resources

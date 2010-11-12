@@ -6,6 +6,11 @@ infrastructure.  This is done on the developer's computer; thanks to
 this, users and distros don't have to run it, nor do they need to same
 versions of all the auto* dependencies.
 
+When we make a bug-fix release, which needs to be as close to the
+previous release as possible (to avoid introducing other changes than
+the bugfix), it's important to be able to reproduce the exact same
+release environment.
+
 As a result, we _control the environment_ in which 'bootstrap' is run.
 So far we've stuck with the latest Debian Stable.
 
