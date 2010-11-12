@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = gnits
 # Gnulib:
 ACLOCAL_AMFLAGS = -I gnulib/m4
 
-SUBDIRS = autopackage intl gnulib/lib gnulib/po po src share
+SUBDIRS = autopackage intl gnulib/lib gnulib/po nsis po src share
 
 # Copy those directly and recursively:
 # Build system
@@ -12,7 +12,7 @@ EXTRA_DIST += doc
 EXTRA_DIST += BUILD DEB TRANSLATIONS.txt TROUBLESHOOTING
 # Packaging
 # (don't include debian/ as this displeases debian devs)
-EXTRA_DIST += freedink.spec gentoo nsis psp
+EXTRA_DIST += freedink.spec gentoo psp
 # Other programs of interest
 EXTRA_DIST += test contrib
 # Developer tools
