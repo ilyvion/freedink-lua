@@ -13,12 +13,10 @@
   original engine or the FreeDink engine.  This will help when people
   are asking for assistance on the Dink forum, for instance.
 
-- Update Danish and Spanish translations.  New Greek and Italian
-  translations.
+- Update Danish and Spanish translations.  New Greek, Italian and
+  Czech translations.
 
 - Fix game crashes (experienced in "Agatha's Will", and "The River").
-
-- Override transparency for 32bit BMPs.
 
 - Improved ms woe installer: do not ask about deletion for each and
   every savegame or D-Mod file; add an entry in Add/Remove Programs in
@@ -27,6 +25,8 @@
 * Developer notes:
 
 - Some code clean-ups, namely in FreeDinkedit.
+
+- Override transparency for 32bit BMPs.
 
 - The first game crash is related to DinkC variable assignments on a
   line longer than 100 characters (caused by one fixed-length buffer
@@ -38,6 +38,10 @@
 
 - Add 'contrib/search_script.c' to locate a DinkC script usage in the
   world map.
+
+- Upgrade gettext infrastructure from 0.17 to 0.18.  Rely on external
+  gettext under ms woe, rather than the previous bundled intl/.  In
+  the process we gained .po charset conversion for that platform.
 
 
 1.08.20100420
