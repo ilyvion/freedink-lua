@@ -121,3 +121,4 @@
 /cloexec.m4
 /printf.m4
 /wchar_h.m4
+/asm-underscore.m4

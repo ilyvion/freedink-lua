@@ -10,12 +10,12 @@
 #
 # This file represents the specification of how gnulib-tool is used.
 # It acts as a cache: It is written and read by gnulib-tool.
-# In projects using CVS, this file is meant to be stored in CVS,
-# like the configure.ac and various Makefile.am files.
+# In projects that use version control, this file is meant to be put under
+# version control, like the configure.ac and various Makefile.am files.
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --po-base=gnulib/po --doc-base=doc --tests-base=tests --aux-dir=autotools --no-libtool --macro-prefix=gl --po-domain=freedink alloca canonicalize dirname getopt gettext hash relocatable-prog strcase strdup-posix strings vasprintf xalloc
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=gnulib/lib --m4-base=gnulib/m4 --po-base=gnulib/po --doc-base=doc --tests-base=tests --aux-dir=autotools --no-libtool --macro-prefix=gl --po-domain=freedink alloca canonicalize dirname getopt-gnu gettext hash relocatable-prog strcase strdup-posix strings vasprintf xalloc
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -23,7 +23,7 @@ gl_MODULES([
   alloca
   canonicalize
   dirname
-  getopt
+  getopt-gnu
   gettext
   hash
   relocatable-prog

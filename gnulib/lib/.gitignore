@@ -148,3 +148,4 @@
 /unlinkat.c
 /cloexec.c
 /cloexec.h
+/verify.h
