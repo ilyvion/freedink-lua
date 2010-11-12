@@ -210,10 +210,27 @@ The default driver is 'windib' since SDL 1.2.10 and doesn't trigger an
 hardware surface (cf. http://www.libsdl.org/release/changes-1.2.html).
 
 Setting SDL_VIDEODRIVER=directx enables hardware surfaces.  It only
-worked in full-screen mode on a S3 ProSavage card.
+works in full-screen mode.
 
 Consider shipping a front-end with your game to allowing setting the
 video driver before launching the game.
+
+When requesting a single-buffer hardware surface, I got a direct
+buffer in video memory, which means I didn't need to call SDL_Flip()
+to update the screen.  When requesting a double-buffered hardware
+surface, I got two buffers in video memory, which means SDL_Flip
+switched from one to the other; as a result incremental painting will
+result in flickering from one buffer to the other one.
+
+Flickering in hardware single-buffer animation (e.g. a bouncing ball,
+that erases its previous position before drawing the next one) is hard
+to witness nowadays because the hardware is so fast (and LCD screens
+so laggy).  Don't rely on your eyes ;)
+
+Pixels are directly accessible provided you SDL_LockSurface before
+(otherwise screen->pixels is NULL). When using hardware double-buffer,
+screen->pixels switches between the two buffers memory addresses
+(e.g. 0x044B0000 <-> 0x04690000).
 
 Apparently DX has limitations when it comes to alpha:
   http://forums.indiegamer.com/archive/index.php/t-10039.html

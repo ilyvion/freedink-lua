@@ -1,4 +1,6 @@
 Here are various runs of testvidinfo.c from the SDL 1.2 examples.
+Note that none of these tests report hardware alpha support.
+
 
 * GNU/Linux, X11
 
@@ -203,4 +205,30 @@ Copy blits between hardware surfaces are accelerated
 Colorkey blits between hardware surfaces are accelerated
 Copy blits from software surfaces to hardware surfaces are accelerated
 Colorkey blits from software surfaces to hardware surfaces are accelerated
+Color fills on hardware surfaces are accelerated
+
+
+* woe 2000/xp?, S3 ProSavage card, forcing directx driver
+
+Video driver: directx
+Current display: 1024x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1152x864x32
+	1024x768x32
+	848x480x32
+	800x600x32
+	640x480x32
+	640x400x32
+	512x384x32
+	400x300x32
+	320x240x32
+	320x200x32
+A window manager is available
+Hardware surfaces are available (77664K video memory)
+Copy blits between hardware surfaces are accelerated
+Colorkey blits between hardware surfaces are accelerated
 Color fills on hardware surfaces are accelerated
