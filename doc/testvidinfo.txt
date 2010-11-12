@@ -1,0 +1,206 @@
+Here are various runs of testvidinfo.c from the SDL 1.2 examples.
+
+* GNU/Linux, X11
+
+Video driver: x11
+Current display: 1152x864, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1152x864x32
+	1024x768x32
+	832x624x32
+	800x600x32
+	720x400x32
+	640x480x32
+A window manager is available
+
+
+* Wine
+
+Video driver: windib
+Current display: 1152x864, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1152x864x32
+	1024x768x32
+	832x624x32
+	800x600x32
+	720x400x32
+	640x480x32
+A window manager is available
+
+
+* Wine, forcing directx driver
+
+Video driver: directx
+Current display: 1152x864, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1152x864x32
+	1024x768x32
+	832x624x32
+	800x600x32
+	720x400x32
+	640x480x32
+A window manager is available
+Hardware surfaces are available (65536K video memory)
+Copy blits between hardware surfaces are accelerated
+Colorkey blits between hardware surfaces are accelerated
+Copy blits from software surfaces to hardware surfaces are accelerated
+Colorkey blits from software surfaces to hardware surfaces are accelerated
+Color fills on hardware surfaces are accelerated
+
+
+* KVM'd woe xp
+
+Video driver: windib
+Current display: 1024x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	2560x1600x32
+	1920x1200x32
+	1680x1050x32
+	1600x1200x32
+	1440x900x32
+	1400x1050x32
+	1280x1024x32
+	1280x960x32
+	1280x800x32
+	1280x768x32
+	1152x864x32
+	1024x768x32
+	800x600x32
+	640x480x32
+A window manager is available
+
+
+* KVM'd woe xp, forcing directx driver
+
+Couldn't initialize SDL: No available video device
+
+
+* woe 7, graphic card Intel(R) Graphics Media Accelerator HD (Core i5) 8.15.10.2008
+
+Video driver: windib
+Current display: 1366x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1366x768x32
+	1360x768x32
+	1280x768x32
+	1280x720x32
+	1024x768x32
+	960x600x32
+	800x600x32
+	768x480x32
+	640x480x32
+	640x400x32
+	512x384x32
+	400x300x32
+	320x240x32
+	320x200x32
+A window manager is available
+
+
+* woe 7, graphic card Intel(R) Graphics Media Accelerator HD (Core i5) 8.15.10.2008, forcing directx driver
+
+Video driver: directx
+Current display: 1366x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1366x768x32
+	1360x768x32
+	1280x768x32
+	1280x720x32
+	1024x768x32
+	960x600x32
+	800x600x32
+	768x480x32
+	640x480x32
+	640x400x32
+	512x384x32
+	400x300x32
+	320x240x32
+	320x200x32
+A window manager is available
+Hardware surfaces are available (1337182K video memory)
+Copy blits between hardware surfaces are accelerated
+Colorkey blits between hardware surfaces are accelerated
+Copy blits from software surfaces to hardware surfaces are accelerated
+Colorkey blits from software surfaces to hardware surfaces are accelerated
+Color fills on hardware surfaces are accelerated
+
+
+* woe xp, graphic card Radeon 9600
+
+Video driver: windib
+Current display: 1024x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1280x960x32
+	1280x768x32
+	1280x720x32
+	1152x864x32
+	1024x768x32
+	848x480x32
+	800x600x32
+	720x576x32
+	720x480x32
+	640x480x32
+	640x400x32
+	512x384x32
+	400x300x32
+	320x240x32
+	320x200x32
+A window manager is available
+
+
+* woe xp, graphic card Radeon 9600, forcing directx driver
+
+Video driver: directx
+Current display: 1024x768, 32 bits-per-pixel
+	Red Mask = 0x00ff0000
+	Green Mask = 0x0000ff00
+	Blue Mask = 0x000000ff
+Fullscreen video modes:
+	1280x1024x32
+	1280x960x32
+	1280x768x32
+	1280x720x32
+	1152x864x32
+	1024x768x32
+	848x480x32
+	800x600x32
+	720x576x32
+	720x480x32
+	640x480x32
+	640x400x32
+	512x384x32
+	400x300x32
+	320x240x32
+	320x200x32
+A window manager is available
+Hardware surfaces are available (251871K video memory)
+Copy blits between hardware surfaces are accelerated
+Colorkey blits between hardware surfaces are accelerated
+Copy blits from software surfaces to hardware surfaces are accelerated
+Colorkey blits from software surfaces to hardware surfaces are accelerated
+Color fills on hardware surfaces are accelerated
