@@ -241,9 +241,10 @@ popd
 # it at run-time. For normal linking: --disable-music-ogg-shared)
 # Let's choose normal linking to avoid inconsistencies and support
 # static linking.
-CPPFLAGS="-I$PREFIX/include" \
+SDL_CONFIG=$PREFIX/bin/sdl-config \
+  CPPFLAGS="-I$PREFIX/include"
   LDFLAGS="-L$PREFIX/lib" \
-  SDL_CONFIG=$PREFIX/bin/sdl-config ./configure \
+  ./configure \
   PATH=$PREFIX/bin:$PATH \
   --build=$BUILD --host=$HOST \
   --prefix=$PREFIX \
@@ -420,6 +421,21 @@ CPPFLAGS="-I$PREFIX/include" \
 make
 make install-strip
 
+# iconv - gettext dependency
+# Without it, gettext cannot convert the strings from the .mo file to
+# the requested encoding, resulting in weird characters.
+VERSION=1.13.1
+cd /usr/src/
+$WGET -P depsources/ http://ftp.gnu.org/pub/gnu/libiconv/libiconv-$VERSION.tar.gz
+tar xzf depsources/libiconv-$VERSION.tar.gz
+cd libiconv-$VERSION/
+# --disable-shared because there's no libiconv.a otherwise
+  ./configure --build=$BUILD --host=$HOST \
+    --prefix=$PREFIX --disable-shared
+make
+make install-strip
+
+
 # gettext
 VERSION=0.18.1.1
 cd /usr/src/
@@ -427,10 +443,14 @@ $WGET -P depsources/ http://ftp.gnu.org/pub/gnu/gettext/gettext-$VERSION.tar.gz
 tar xzf depsources/gettext-$VERSION.tar.gz
 cd gettext-$VERSION/
 cd gettext-runtime/
+# --disable-shared because otherwise it because a real mess
+# (AM_GETTEXT* try to link from .dll.a even with -static, it can't
+# load static iconv from above requiring double compilation, etc.),
+# and I suppose nobody want an external libintl-8.dll.
 CPPFLAGS="-I$PREFIX/include" \
   LDFLAGS="-L$PREFIX/lib" \
   ./configure --build=$BUILD --host=$HOST \
-    --prefix=$PREFIX
+    --prefix=$PREFIX --disable-shared
 make
 make install-strip
 

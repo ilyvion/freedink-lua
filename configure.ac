@@ -148,7 +148,6 @@ AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
 AC_ARG_ENABLE([static],
   AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable (default is disabled)]),
   [], [enable_static=no])
-
 if test x"$enable_static" = x"yes"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type) (2002)
@@ -309,6 +308,10 @@ if test "$LACK_LIBSDL_IMAGE" = 1; then
 fi
 if test "$LACK_LIBSDL_MIXER" = 1; then
   echo "* You need to install the SDL_mixer library";
+  error=1
+fi
+if test "$USE_NLS" = no; then
+  echo "* You need to install the gettext library and enable NLS";
   error=1
 fi
 

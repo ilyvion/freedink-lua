@@ -264,6 +264,7 @@ sh bootstrap
 # I assume you already have GCC and Make ;)
 # Required: SDL, libzip | zziplib
 pkg_add -r sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
+# TODO: gettext?
 # Note: SDL_ttf is tool old (2.0.8 < 2.0.9), you'll need to upgrade
 #   it manually:
 pkg_add -r wget
