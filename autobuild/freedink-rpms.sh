@@ -35,10 +35,21 @@ exit
 
 ## Construction
 
+# - Doesn't seem to be a way to install using VServer
+# - Get a minimal install, using "Install CDs", e.g.:
+#   http://mirror.ovh.net/download.fedora.redhat.com/linux/releases/13/Fedora/x86_64/iso/
+#   Note: probably need CD 1 AND 2...
+# - Install using real or virtualized hardware
+# - Copy the result here and chroot in it
+mount /proc
+mount none -t devtmpfs /dev
+yum update
+yum groupinstall 'Development Tools'
+
 yum install mock
 
 # This one doesn't work in a VServer - use 'chroot' instead
-mock -r fedora-10-i386 init
+mock -r fedora-12-i386 init
 
 rpmdev-setuptree
 # or

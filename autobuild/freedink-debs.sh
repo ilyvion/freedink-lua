@@ -20,22 +20,28 @@
 # <http://www.gnu.org/licenses/>.
 
 PACKAGE=freedink
-TARBALL=$(cd /mnt/snapshots && ls $PACKAGE-*.tar.gz | grep ^$PACKAGE-[0-9] | sort -n | tail -1)
-VERSION=${TARBALL#$PACKAGE-}
-VERSION=${VERSION%.tar.gz}
-cp -a /mnt/snapshots/$TARBALL .
+VERSION=$1
+if [ -z "$VERSION" ]; then
+    VERSION=$(cd /mnt/snapshots/$PACKAGE && ls -d */ | sed 's,/$,,' | sort -n | tail -1)
+fi
+
+PUBDIR=/mnt/snapshots/$PACKAGE/$VERSION
+
 rm -rf t/
 mkdir t
 pushd t
-tar xzf ../$PACKAGE-$VERSION.tar.gz
-ln -s ../$PACKAGE-$VERSION.tar.gz ${PACKAGE}_$VERSION.orig.tar.gz 
+TARBALL=$PACKAGE-$VERSION.tar.gz
+cp -a $PUBDIR/$TARBALL .
+tar xzf $TARBALL
+ln -s $TARBALL ${PACKAGE}_$VERSION.orig.tar.gz 
 cd $PACKAGE-$VERSION/
 cp -a ../../$PACKAGE/debian .
-yes | DEBEMAIL="beuc@beuc.net" DEBFULLNAME="Sylvain Beucler" dch -D stable \
+yes | DEBEMAIL="beuc@debian.org" DEBFULLNAME="Sylvain Beucler" dch -D stable \
   --newversion $VERSION-1 \
   --force-bad-version -- \
   "New upstream release"
-pdebuild --pbuilder cowbuilder --buildresult /mnt/snapshots/debian -- --basepath /var/cache/pbuilder/base-etch.cow --bindmounts /mnt/snapshots/debian/etch-backports --debian-etch-workaround --debbuildopts '-sa'
+pdebuild --debbuildopts '-sa' --buildresult /mnt/snapshots/debian \
+  -- --basetgz /var/cache/pbuilder/base-lenny-bpo.tar.gz --bindmounts /usr/src/backports/lenny/debs
 popd
 make -C /mnt/snapshots/debian
 rm -rf t
@@ -43,6 +49,8 @@ rm -rf t
 exit;
 
 # construction:
+
+# with cowbuilder / etch:
 aptitude install cowbuilder fakeroot sudo
 aptitude install debhelper # for dh_clean
 mkdir /mnt/snapshots/debian/etch-backports/
@@ -50,6 +58,11 @@ mkdir /mnt/snapshots/debian/etch-backports/
 cowbuilder --create --basepath /var/cache/pbuilder/base-etch.cow --distribution=etch \
   --othermirror "deb http://backports.org/debian etch-backports main|deb file:///mnt/snapshots/debian/etch-backports/ ./" \
   --bindmounts /mnt/snapshots/debian/etch-backports
-
 # update:
 cowbuilder --update --basepath /var/cache/pbuilder/base-etch.cow/ --bindmounts /mnt/snapshots/debian/etch-backports --debian-etch-workaround
+
+# with pbuilder / lenny:
+pbuilder --create --basetgz /var/cache/pbuilder/base-lenny-bpo.tar.gz --distribution lenny \
+  --othermirror "deb file:///usr/src/backports/lenny/debs ./" --bindmounts /usr/src/backports/lenny/debs
+# update:
+pbuilder --update --basetgz /var/cache/pbuilder/base-lenny-bpo.tar.gz --bindmounts /usr/src/backports/lenny/debs

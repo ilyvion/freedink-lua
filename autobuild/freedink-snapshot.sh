@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/bash -ex
 # Source release
 
-# Copyright (C) 2008, 2009  Sylvain Beucler
+# Copyright (C) 2008, 2009, 2010  Sylvain Beucler
 
 # This file is part of GNU FreeDink
 
@@ -21,36 +21,49 @@
 
 set -ex
 
-if [ -n "$1" -a "$1" != "release" ];
-then
-    echo "Usage: $0 [release]"
+PACKAGE=freedink
+
+if [ -n "$1" -a "$1" != "release" ]; then
+    echo "Usage: $0 [release x.y.z]"
     exit 1
 fi
 
-VERSION=1.08.$(date +%Y%m%d)
-cd /usr/src/
-if [ ! -e freedink ]; then
-    git clone git://git.savannah.gnu.org/freedink
+if [ "$1" == "release" ]; then
+    VERSION=$2
+    if [ -z "$VERSION" ]; then
+	echo "Invalid version."
+	exit 1
+    fi
 fi
 
-pushd freedink/
-git checkout .
-git checkout master
+cd /usr/src/
+if [ ! -e $PACKAGE ]; then
+    git clone git://git.savannah.gnu.org/$PACKAGE
+fi
+pushd freedink
 git pull
+git fetch --tags  # for updated tags
+popd
+
+rm -rf $PACKAGE-wd
+git clone $PACKAGE/.git $PACKAGE-wd
+pushd $PACKAGE-wd/
 if [ "$1" == "release" ];
 then
     git checkout v$VERSION
+else
+    git checkout master
 fi
 sh bootstrap clean
 
 if [ "$1" != "release" ];
 then
+    VERSION=1.08.$(date +%Y%m%d)
     sed -i -e 's/^AC_INIT(\([^,]\+\),[^,]\+,\([^,]\+\))/AC_INIT(\1,['$VERSION'],\2)/' configure.ac
     sed -i -e '1s/.*/'$VERSION'/' NEWS
 fi
 
 sh bootstrap
-rm -rf build/
 mkdir build
 pushd build/
 ../configure
@@ -60,16 +73,22 @@ pushd build/
 # Let's do a 'make check' while we're at recompiling everything
 make check
 
-if [ "$1" != "release" ];
-then
-    make dist-gzip
-    mv *.tar.gz /mnt/snapshots/
-else
-    make dist
-    mv -f *.tar.gz *.tar.bz2 *.zip /mnt/snapshots/
-fi
+PUBDIR=/mnt/snapshots/$PACKAGE/$VERSION
+mkdir -p $PUBDIR
 
+# Enable .zip if you want woe users to use the archive (e.g. to
+# get the .pot and help translate). Tarballs are badly handled by
+# 7z (need double extraction .gz then .tar) and so are not
+# recommended.
+#make dist
+make dist-gzip
+make dist-zip
+mv -f *.tar.gz *.zip $PUBDIR
 popd
 
-cp -r gentoo /mnt/snapshots/
+cp NEWS /mnt/snapshots/$PACKAGE-NEWS.txt
+mv -f po/$PACKAGE.pot /mnt/snapshots/
+#cp -r gentoo /mnt/snapshots/
 popd
+
+#rm -rf $PACKAGE-wd
