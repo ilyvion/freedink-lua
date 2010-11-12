@@ -86,6 +86,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
+	# --link-doc requires debhelper 7.4.2
 	dh_installdocs --link-doc=freedink-engine
 	dh_installchangelogs ChangeLog
 #	dh_installexamples
