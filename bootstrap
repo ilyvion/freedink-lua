@@ -1,12 +1,13 @@
 #!/bin/sh
 # Generates ./configure, Makefile.in's and tools
 
-# Copyright (C) 2007, 2008  Sylvain Beucler
+# Copyright (C) 2007, 2008, 2010  Sylvain Beucler
 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.
 
+# Cf. doc/bootstrap.txt.
 
 # Stop at first error:
 set -e
@@ -36,9 +37,6 @@ if ! which pkg-config > /dev/null; then
     exit 1
 fi
 
-# gettext
-autopoint -f
-
 # Gnulib
 # Look for gnulib-tool. Use '|| true' because of 'set -e' above
 GNULIB_TOOL=`PATH=gnulib-git:$PATH:/usr/src/gnulib which gnulib-tool \
@@ -49,11 +47,9 @@ if [ -z "$GNULIB_TOOL" ]; then
 fi
 $GNULIB_TOOL --update --more-symlinks
 
-# Disable autopoint since Gnulib is overriding some of its files and
-# needs to be run after it.
-# Cf. http://lists.gnu.org/archive/html/bug-gnulib/2008-12/msg00041.html
-# for an upcoming fix in the next gettext (v0.18)
-if AUTOPOINT=/bin/true autoreconf --install --symlink $*
+# Beware of gnulib/gettext interaction,
+# cf. http://lists.gnu.org/archive/html/bug-gnulib/2008-12/msg00041.html
+if autoreconf --install --symlink --force $*
 then echo "You now can run ./configure"
 else echo "*** Error: please check the messages above. ***"
 fi

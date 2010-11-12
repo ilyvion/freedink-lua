@@ -1,0 +1,27 @@
+bootstrap environment
+=====================
+
+'bootstrap' generates all the autoconf/automake/gettext
+infrastructure.  This is done on the developer's computer; thanks to
+this, users and distros don't have to run it, nor do they need to same
+versions of all the auto* dependencies.
+
+As a result, we _control the environment_ in which 'bootstrap' is run.
+So far we've stuck with the latest Debian Stable.
+
+In other words: don't run 'make dist' on your developer computer for
+new releases, run it from a Debian Stable chroot.
+
+As an exception, as of 2010-11, because of the requirement from gnulib
+to upgrade the gettext infrastructure to 0.18 (while the Stable
+version is 0.17), we installed Debian Testing's (Squeeze) version of
+'autopoint'.  Fortunately 'autopoint' is now in a separate package,
+which means we don't have to update any other gettext tool.
+
+
+Naming
+======
+
+Some developers call this script 'autogen.sh', but this conflicts with
+GNU AutoGen which has nothing to do with it.  So we call it
+'bootstrap', as recommended in the autotools "Goat Book".

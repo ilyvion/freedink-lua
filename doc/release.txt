@@ -13,6 +13,12 @@ new version.  This prevents fixing a previous (non-latest) release,
 but as of 2009 we do not need it.
 
 
+Bootstrapping
+-------------
+
+Cf. doc/bootstrap.txt
+
+
 On the developer computer:
 --------------------------
 

@@ -6,6 +6,9 @@ en@boldquot.header
 en@boldquot.po
 en@quot.header
 en@quot.po
+en@boldquot.insert-header
+en@quot.insert-header
+remove-potcdate.sed
 *.gmo
 insert-header.sin
 quot.sed

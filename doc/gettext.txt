@@ -1,0 +1,28 @@
+Upgrade
+=======
+
+You use 'gettextize' to upgrade the gettext infrastructure, when
+there's a new gettext release.  This upgrades the 'bootstrap'
+dependency, but not the 'configure' dependency.  So you need to
+upgrade gettext where you run 'sh bootstrap', but users need to
+upgrade gettext when they compile the package.
+
+
+Mismatch
+========
+
+If you upgrade part of the gettext infrastructure (e.g. by upgrading gnulib), or if you use autopoint, all your tools, Makefile.in.in and autopint needs to match the same version.  Otherwise you get something like:
+
+The AM_GNU_GETTEXT_VERSION declaration in your configure.ac file
+requires the infrastructure from gettext-[0.18.1] but this version is
+older. Please upgrade to gettext-[0.18.1].
+
+In this case I didn't find any other solution than upgrading gettext
+everywhere - or sticking to an old gnulib version.
+
+
+libintl
+=======
+
+As for 0.18, bundling libintl in the intl/ directory is deprecated.
+This means target platforms need to have it already installed.

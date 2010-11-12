@@ -53,9 +53,12 @@ AC_CHECK_FUNCS(execlp)
 AC_CHECK_TYPES([struct mallinfo], [], [], [[#include <malloc.h>]])
 
 # gettext
-AM_GNU_GETTEXT
-AM_GNU_GETTEXT_VERSION(0.17)
-AM_GNU_GETTEXT_NEED(need-ngettext)
+dnl Using [external] because bundling intl/ is deprecated as of 0.18:
+AM_GNU_GETTEXT([external])
+dnl Not a dependency: only a declaration used by autopoint:
+AM_GNU_GETTEXT_VERSION([0.18.1])
+dnl Not using ngettext in FreeDink or gnulib as of 2010-11:
+dnl AM_GNU_GETTEXT_NEED(need-ngettext)
 
 
 AC_ARG_VAR([WINDRES], [Resource compiler for woe executables])
@@ -358,7 +361,7 @@ fi
 echo
 
 
-AC_CONFIG_FILES([Makefile autopackage/Makefile autopackage/default.apspec intl/Makefile gnulib/lib/Makefile gnulib/po/Makefile.in nsis/Makefile po/Makefile.in share/Makefile share/freedink/Makefile src/Makefile src/woeres.rc])
+AC_CONFIG_FILES([Makefile autopackage/Makefile autopackage/default.apspec gnulib/lib/Makefile gnulib/po/Makefile.in nsis/Makefile po/Makefile.in share/Makefile share/freedink/Makefile src/Makefile src/woeres.rc])
 
 AC_OUTPUT
 
