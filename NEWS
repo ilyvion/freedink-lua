@@ -40,8 +40,9 @@
   world map.
 
 - Upgrade gettext infrastructure from 0.17 to 0.18.  Rely on external
-  gettext under ms woe, rather than the previous bundled intl/.  In
-  the process we gained .po charset conversion for that platform.
+  gettext (and libiconv) under ms woe, rather than the previous
+  bundled 'intl/'.  In the process we gained .po charset conversion
+  for that platform.
 
 
 1.08.20100420
