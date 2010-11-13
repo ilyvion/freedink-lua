@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"POT-Creation-Date: 2010-11-13 23:40+0100\n"
 "PO-Revision-Date: 2010-10-30 14:50+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: cs\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: src/init.c:108
@@ -49,8 +49,12 @@ msgstr "  -g, --game <složka>     Určit složku DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <složka>   Určit základní složku pro dink/grafiku, D-Mods, atd.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <složka>   Určit základní složku pro dink/grafiku, D-Mods, "
+"atd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -74,10 +78,18 @@ msgstr "  -s, --nosound           Nehrát hudbu\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window            Použít režim „v okně“ místo režimu „celá obrazovka“\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
 
 #: src/init.c:126
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr ""
+"  -w, --window            Použít režim „v okně“ místo režimu „celá "
+"obrazovka“\n"
+
+#: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
 msgstr "  -7, --v1.07             Zapnout režim kompatibility v1.07\n"
@@ -87,61 +99,63 @@ msgstr "  -7, --v1.07             Zapnout režim kompatibility v1.07\n"
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr "Chyby hlaste na %s.\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Poznámka: Kvůli kompatibilitě je akceptován i přepínač -nomovie, ale nemá žádný efekt.\n"
+msgstr ""
+"Poznámka: Kvůli kompatibilitě je akceptován i přepínač -nomovie, ale nemá "
+"žádný efekt.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Nic tu nevidím."
 
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Cože?"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Jsem si docela jistý, že tady nemá cenu mluvit nebo toto použít."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Co?"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Nudím se."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Tady se nic moc neděje."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Neznám žádnou magii."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Nejsem kouzelník!"
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Než tohle zkusím, potřebuji se nějakou magii naučit."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Divoce gestikuluji bez nějakého užitku!"
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Nic se nestalo."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 

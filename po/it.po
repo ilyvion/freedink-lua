@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"POT-Creation-Date: 2010-11-13 23:40+0100\n"
 "PO-Revision-Date: 2010-10-10 14:30+0200\n"
 "Last-Translator: Vincenzo Campanella <vinz65@gmail.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -47,8 +48,12 @@ msgstr "  -g, --game <dir>      Specifica una directory DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Specifica la directory di base per dink/graphics, D-Mod, ecc.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Specifica la directory di base per dink/graphics, D-"
+"Mod, ecc.\n"
 
 #: src/init.c:121
 #, c-format
@@ -58,7 +63,8 @@ msgstr "  -d, --debug           Spiega quanto viene fatto\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Non tentare di scrivere il file dinksmallwood.ini\n"
+msgstr ""
+"  -i, --noini           Non tentare di scrivere il file dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
@@ -72,10 +78,18 @@ msgstr "  -s, --nosound         Senza sonoro\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Utilizza la modalità finestra anziché la modalità schermo\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
 
 #: src/init.c:126
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr ""
+"  -w, --window          Utilizza la modalità finestra anziché la modalità "
+"schermo\n"
+
+#: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
 msgstr "  -7, --v1.07           Abilita la modalità di compabilità con v1.07\n"
@@ -85,63 +99,66 @@ msgstr "  -7, --v1.07           Abilita la modalità di compabilità con v1.07\n
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Segnalare i problemi a %s.\n"
 "Segnalare i problemi di traduzione a tp@lists.linux.it.\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Nota: -nomovie viene accettato per motivi di compatibilità, ma non ha alcun effetto.\n"
+msgstr ""
+"Nota: -nomovie viene accettato per motivi di compatibilità, ma non ha alcun "
+"effetto.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Non vedo nulla qui."
 
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Come, prego?"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Sono abbastanza sicuro di non poterlo utilizzare e di non poterci parlare."
+msgstr ""
+"`$Sono abbastanza sicuro di non poterlo utilizzare e di non poterci parlare."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Cosa?"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Mi sto annoiando."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Non succede molto qui."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Non conosco alcuna magia."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Non sono un mago."
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Prima di provarci devo imparare la magia."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Sto facendo segni all'impazzata inutilmente."
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Non è successo nulla."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Hocus pocus!"
 

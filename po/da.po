@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"POT-Creation-Date: 2010-11-13 23:40+0100\n"
 "PO-Revision-Date: 2010-05-30 19:30+01:00\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -46,8 +47,11 @@ msgstr "  -g, --game <dir>      Angiv en DMod-mappe\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
 
 #: src/init.c:121
 #, c-format
@@ -71,20 +75,28 @@ msgstr "  -s, --nosound         Brug ikke lyd\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
 
 #: src/init.c:126
 #, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr ""
+"  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
+
+#: src/init.c:127
+#, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
+msgstr ""
+"  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
@@ -96,57 +108,59 @@ msgstr ""
 "Dansk-gruppen <dansk@dansk-gruppen.dk>\n"
 "Mere info: http://www.dansk-gruppen.dk\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen effekt.\n"
+msgstr ""
+"Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen "
+"effekt.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$I ser ikke noget her."
 
 # Huh, Jeg tror sådan noget som "Ah hva" eller tilsvarende kan due her
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Ah hva?"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Jeg er ret sikker på, at jeg ikke kan tale til eller bruge det."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Hvad?"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Jeg keder mig."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Der sker ikke meget her."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Jeg kender ikke til magi."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Jeg er ikke troldmand!"
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Jeg må lære om magi, før jeg kan bruge denne."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Jeg gestikulerer vildt uden effekt!"
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Intet skete."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 

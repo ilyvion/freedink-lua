@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20090918\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-04-20 21:43+0200\n"
+"POT-Creation-Date: 2010-11-13 23:40+0100\n"
 "PO-Revision-Date: 2009-11-21 13:48+0100\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French <traduc@traduc.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Pootle 1.2.1\n"
 
@@ -79,11 +79,17 @@ msgstr "  -s, --nosound         Coupe le son\n"
 
 #: src/init.c:125
 #, c-format
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+
+#: src/init.c:126
+#, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
 msgstr ""
 "  -w, --window          Utilise le mode fenêtré plutôt que le plein écran\n"
 
-#: src/init.c:126
+#: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
 msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
@@ -93,65 +99,65 @@ msgstr "  -7, --v1.07           Active le mode de compatibilité v1.07\n"
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Rapportez les anomalies à %s.\n"
 "Rapportez les erreurs de traduction à beuc@beuc.net\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
 "Note: -nomovie est accepté pour des raisons de compatibilité, mais n'a aucun "
 "effet.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Je ne vois rien par ici."
 
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Hein?"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Je ne pense pas pouvoir parler à ce truc-là, ou l'utiliser."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Quoi?"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Je m'ennuie."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Pas grand chose par ici."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Je ne connais aucun sort."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Je ne suis pas magicien!"
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Je dois apprendre un sort avant d'essayer ça."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Je m'excite bêtement pour rien!"
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Rien n'est arrivé."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Hocus pocus!"
 

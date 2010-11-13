@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"POT-Creation-Date: 2010-11-13 23:40+0100\n"
 "PO-Revision-Date: 2010-10-12 14:10+0200\n"
 "Last-Translator: Michael Kotsarinis <mk73628@gmail.com>\n"
 "Language-Team: Greek <team@lists.gnome.gr>\n"
+"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -49,8 +50,12 @@ msgstr "  -g, --game <dir>      Ορίστε ένα κατάλογο DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Ορίστε το βασικό κατάλογο για dink/graphics, D-Mod, κλπ.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Ορίστε το βασικό κατάλογο για dink/graphics, D-Mod, "
+"κλπ.\n"
 
 #: src/init.c:121
 #, c-format
@@ -60,7 +65,8 @@ msgstr "  -d, --debug           Εξήγηση του τι γίνεται\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Μην επιχειρήσετε να γράψετε στο dinksmallwood.ini\n"
+msgstr ""
+"  -i, --noini           Μην επιχειρήσετε να γράψετε στο dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
@@ -74,76 +80,85 @@ msgstr "  -s, --nosound         Να μην αναπαραχθεί ήχος\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Εμφάνιση σε παράθυρο αντί για οθόνη\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
 
 #: src/init.c:126
 #, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr "  -w, --window          Εμφάνιση σε παράθυρο αντί για οθόνη\n"
+
+#: src/init.c:127
+#, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Ενεργοποίηση λειυοργίας συμβατότητας με την v1.07\n"
+msgstr ""
+"  -7, --v1.07           Ενεργοποίηση λειυοργίας συμβατότητας με την v1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
 "Αναφορά σφαλμάτων σε %s.\n"
 "Αναφορά σφαλμάτων μετάφρασης σε <team@lists.gnome.gr>\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Σημείωση: το -nomovie γίνεται δεκτό για λόγους συμβατότητας αλλά δεν έχει αποτέλεσμα.\n"
+msgstr ""
+"Σημείωση: το -nomovie γίνεται δεκτό για λόγους συμβατότητας αλλά δεν έχει "
+"αποτέλεσμα.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Δεν βλέπω τίποτα εδώ."
 
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Εε;"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Είμαι σίγουρος ότι δεν μπορώ να του μιλήσω ή να το χρησιμοποιήσω."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Τι;"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Βαριέμαι."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Δεν γίνονται και πολλά εδώ."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Δεν γνωρίζω μαγικά."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Δεν είμαι μάγος!"
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Πρέπει να μάθω μαγικά πριν το επιχειρήσω."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Χειρονομώ μανιωδώς αλλά χωρίς αποτέλεσμα!"
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Τίποτα δε συνέβη."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Άμπρα κατάμπρα!"
 

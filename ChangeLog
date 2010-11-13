@@ -1,3 +1,264 @@
+2010-11-13  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, NEWS: Precise gettext+libiconv dependency
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS: Update NEWS
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* autobuild/freedink-debs.sh, autobuild/freedink-exe.sh,
+	autobuild/freedink-rpms.sh, autobuild/freedink-snapshot.sh: Sync
+	autobuilder scripts
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, configure.ac, doc/cross.txt: Support external gettext under
+	woe
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/control, debian/rules: Require debhelper
+	7.4.2
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/bootstrap.txt, doc/cross.txt, doc/release.txt,
+	src/Makefile.am: Release process fixes, notably adding gettext as a
+	new woe dependency
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, bootstrap, configure.ac, doc/bootstrap.txt,
+	doc/gettext.txt, doc/release.txt, po/.gitignore, po/ChangeLog: 
+	Upgrade gettext infrastructure (required by newer gnulib)
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* gnulib/lib/.gitignore, gnulib/m4/.gitignore,
+	gnulib/m4/gnulib-cache.m4: Update gnulib
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* Makefile.am, configure.ac, nsis/Makefile.am: Use file-grained
+	EXTRA_DIST for nsis, to avoid shipping installer work files
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/gettext.txt: Remove obsolete gettext info
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/hardware_surfaces.txt, doc/testvidinfo.txt: More doc on
+	hardware surfaces
+
+2010-11-12  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/testvidinfo.txt: Added video information for several platforms
+
+2010-11-08  Sylvain Beucler <beuc@beuc.net>
+
+	* BUILD, doc/TODO, doc/cross.txt, doc/palettes.txt, src/gfx.c,
+	test/sdl/paltest.c: More docs on palettes
+
+2010-11-06  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, doc/hardware_surfaces.txt: Notes on SDL 1.3 support of
+	server-side X Pixmap
+
+2010-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/TODO, src/freedink.c, src/gfx.c, src/input.c, src/input.h: SDL
+	1.3 tests
+
+2010-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/gfx.c: Dump bit flags in the right order
+
+2010-11-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/bgm.c: Disable unsupported CD-ROM module under SDL 1.3
+
+2010-10-30  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/psp/PSP-MEM, doc/psp/PSP-READ2, doc/psp/TODO-PSP,
+	doc/psp/memstat_hungry.c, doc/psp/memstat_mallinfo.c,
+	doc/psp/zooming.patch: Archive some PSP docs
+
+2010-10-30  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, debian/copyright, po/LINGUAS, po/cs.po: New Czech
+	translation
+
+2010-10-30  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/copyright, debian/rules: Sync debian/
+
+2010-10-30  Sylvain Beucler <beuc@beuc.net>
+
+	* po/it.po: Actually commit new Italian translation
+
+2010-10-30  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, README, doc/mingw-cross-env.txt, doc/release.txt,
+	src/init.c: Doc fixes
+
+2010-10-22  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, debian/copyright, po/LINGUAS: New Italian
+	translation
+
+2010-10-12  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, po/LINGUAS, po/el.po: Add Greek translation
+
+2010-10-10  Sylvain Beucler <beuc@beuc.net>
+
+	* po/es.po: Update Spanish translation
+
+2010-09-20  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, nsis/AdvUninstLog.nsh, nsis/README, nsis/freedink-all.nsi: 
+	Improvements to the NSIS-based woe installer
+
+2010-09-19  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/search_script.c: search_script can now find a substring of
+	a script name, and scripts attached to map screens
+
+2010-08-29  Sylvain Beucler <beuc@beuc.net>
+
+	* contrib/.gitignore, contrib/search_music.c: Quick hack: I needed
+	to search where a midi file was used in the map
+
+2010-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS: Mention high-speed mode in NEWS
+
+2010-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* README, src/dinkc.c, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/game_engine.c, src/game_engine.h,
+	src/gfx_tiles.c, src/init.c, src/update_frame.c: Implement
+	high-speed mode (maintain Tab pressed == triple speed)
+
+2010-08-03  Sylvain Beucler <beuc@beuc.net>
+
+	* TRANSLATIONS.txt: Remove references to DFArc in TRANSLATIONS.txt
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c: Typo
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, contrib/.gitignore, contrib/search_script.c, src/dinkvar.c,
+	src/dinkvar.h: Add script to find a DinkC script usage in the world
+	map
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc_bindings.c, src/update_frame.c: Fix game crash
+	when referencing a sequence >= 1000
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/gfx_sprites.c: Override transparency for 32bit BMPs
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/init.c: Mention -t/--truecolor in --help
+
+2010-06-13  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/dinkc.c: Fix buffer overflow in DinkC variable
+	assignment
+
+2010-05-30  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, po/da.po: Update Danish translation from TP
+
+2010-05-30  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkini.c: Fix missing newline in a console error
+
+2010-05-30  Sylvain Beucler <beuc@beuc.net>
+
+	* TROUBLESHOOTING: Update TROUBLESHOOTING + mention performances
+	issues with KMS
+
+2010-05-20  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/memory_usage.txt: exmap news: I managed to run it on recent
+	kernel/compilers
+
+2010-05-20  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Another good reason to use C99 over C89
+
+2010-05-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/ncc.txt: Explain NCC support
+
+2010-05-19  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Document rationale behind std=c99
+
+2010-05-19  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/mingw-cross-env.txt: Document a legitimate use case for .dll's
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/freedink.h, src/freedinkedit.c,
+	src/update_frame.c: More variables made static; fix ncc support
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS: Update NEWS
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/freedinkedit.c: Make
+	editor-specific variables static (also fixes the last freedinkedit
+	warning)
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/freedinkedit.c: Fix 'may be used uninitialized' C warning
+	(variable 'greba' in freedinkedit
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* configure.ac: Tame configure warning: precise that help2man is
+	only necessary if you modify the source code
+
+2010-05-01  Sylvain Beucler <beuc@beuc.net>
+
+	* src/fastfile.c: Fix type warning
+
+2010-04-28  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/mingw-cross-env.txt, doc/woe-compile.txt: Notes on
+	mingw-cross-env
+
+2010-04-26  Sylvain Beucler <beuc@beuc.net>
+
+	* src/game_engine.c: Mention FreeDink on the title screen so players
+	know what engine they use when reporting bugs
+
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac: Set version back to UNRELEASED/20100232
+
+2010-04-20  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, NEWS, configure.ac, freedink.spec, po/da.po, po/de.po,
+	po/es.po, po/fi.po, po/fr.po, po/id.po, po/nb.po, po/nl.po,
+	po/pl.po, po/vi.po: Release 1.08.20100420
+
 2010-04-20  Sylvain Beucler <beuc@beuc.net>
 
 	* debian/changelog, debian/source/format, doc/cross.txt: sync debian

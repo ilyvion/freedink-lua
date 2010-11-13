@@ -81,32 +81,29 @@ git push origin pristine-tar
 On the website:
 ---------------
 
+PACKAGE=freedink
+DISTRO_PACKAGE=$PACKAGE
 cd www/releases/
 
-for f in ../snapshots/freedink-$VERSION.*; do
-    ln -nfs $f
-done
+mv ../snapshots/$PACKAGE/$VERSION/ $PACKAGE/
+ln -nfs ../../releases/$PACKAGE/$VERSION ../snapshots/$PACKAGE
 
 pushd debian
-    for f in ../../snapshots/debian/freedink{,-engine,-engine-dbg}_$VERSION*; do
-        ln -nfs $f
+    for f in ../../snapshots/debian/$DISTRO_PACKAGE*$VERSION*; do
+        mv $f .
+        ln -nfs ../../releases/debian/$(basename $f) $f
     done
     make
 popd
 
 # On a Fedora vserver:
 pushd fedora
-    for f in ../../snapshots/fedora/freedink{,-engine,-debuginfo}-$VERSION-*; do
-        ln -nfs $f
+    for f in ../../snapshots/fedora/$DISTRO_PACKAGE-*$VERSION*; do
+        mv $f .
+        ln -nfs ../../releases/fedora/$(basename $f) $f
     done
     make
-    cp -a ../../snapshots/fedora/freedink.spec .
-popd
-
-pushd woe
-    for f in ../../snapshots/woe/freedink{,edit,-all-installer}-$VERSION*; do
-        ln -nfs $f
-    done
+    cp -a ../../snapshots/fedora/$DISTRO_PACKAGE.spec .
 popd
 
 
