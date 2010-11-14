@@ -1,12 +1,14 @@
-freedink (1.08.20100420-2) UNRELEASED; urgency=low
+freedink (1.08.20101114-1) experimental; urgency=low
 
   * Precise licenses versions in debian/copyright, fixes
     copyright-refers-to-symlink-license lintian warning
   * Update copyright about new translations
   * Symlink 'freedink' documentation to 'freedink-engine' (requires
     debhelper >= 7.4.2)
+  * Bump Standards-Version to 3.9.1
+  * Update my email address in Uploaders
 
- -- Sylvain Beucler <beuc@debian.org>  Fri, 12 Nov 2010 19:41:35 +0100
+ -- Sylvain Beucler <beuc@debian.org>  Sun, 14 Nov 2010 00:59:28 +0100
 
 freedink (1.08.20100420-1) unstable; urgency=low
 

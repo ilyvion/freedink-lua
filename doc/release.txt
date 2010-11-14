@@ -43,19 +43,18 @@ git push --tags
 # Cleanly merge stable branch back to trunk
 git checkout master
 git merge branch-$VERSION-stable --no-commit
-# Don't apply version changes:
-git checkout configure.ac
-emacs NEWS
+# Edit configure.ac (AC_INIT)
+# Edit NEWS
 git commit
 
 
 On the autobuilder:
 -------------------
 
-./freedink-snapshot.sh release
-./freedink-exe.sh
-./freedink-debs.sh # as root
-./freedink-rpms.sh # in a Fedora vserver
+./freedink-snapshot.sh release $VERSION
+./freedink-exe.sh $VERSION
+./freedink-debs.sh $VERSION # as root
+./freedink-rpms.sh $VERSION # in a Fedora vserver
 
 
 On the maintainer computer:
@@ -154,7 +153,8 @@ cd freedink
 git checkout -b pristine-tar origin/pristine-tar
 git checkout -b upstream origin/upstream
 
-# set DEBEMAIL
+#export DEBEMAIL=xxx
+#export EDITOR=emacs
 
 git checkout master
 git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
