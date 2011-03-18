@@ -3,6 +3,13 @@
 
 ** UNRELEASED **
 
+* User-visible changes:
+
+- New Esperanto translation.
+
+- Play some MIDI files when the original CD is not present - this
+  behavior was partially broken a while ago.
+
 
 1.08.20101114
 =============
