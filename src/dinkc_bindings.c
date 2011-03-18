@@ -1204,6 +1204,11 @@ void dc_playmidi(int script, int* yield, int* preturnint,
 	  if (PlayCD(cd_track) >= 0)
 	    return;
 	}
+      else
+	{
+	  //cd isn't instered, can't play CD song!!!
+	  sprintf(midi_file, "%d.mid", cd_track);
+	}
     }
   log_info("Playing midi %s.", midi_file);
   PlayMidi(midi_file);
