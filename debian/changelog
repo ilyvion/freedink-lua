@@ -1,4 +1,4 @@
-freedink (1.08.20110229-1) unstable; urgency=low
+freedink (1.08.20110229-1) UNRELEASED; urgency=low
 
   * New Upstream Version
   * Upgrade packaging to debhelper 7 and source format 3.0 (quilt)
