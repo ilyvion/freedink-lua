@@ -1,3 +1,10 @@
+freedink (1.08.20110229-1) unstable; urgency=low
+
+  * New Upstream Version
+  * Upgrade packaging to debhelper 7 and source format 3.0 (quilt)
+
+ -- Sylvain Beucler <beuc@debian.org>  Sat, 26 Mar 2011 08:11:34 +0100
+
 freedink (1.08.20101114-1) experimental; urgency=low
 
   * Precise licenses versions in debian/copyright, fixes

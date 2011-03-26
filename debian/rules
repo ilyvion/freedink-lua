@@ -1,108 +1,50 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-
-# It was built from:
-#   dh_make --single --native --email beuc@beuc.net --copyright gpl \
-#     --packagename freedink
-# then modified.
+#
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
 
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-SRC     := $(CURDIR)
-BUILD   := $(CURDIR)/debian/build.tmp
-# default dh_make target
-TARGET  := $(CURDIR)/debian/freedink-engine
-
-#CFLAGS = -Wall -g
-CFLAGS = -g
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
-
-$(BUILD)/config.status: configure
-	dh_testdir
-	[ -d $(BUILD) ] || mkdir $(BUILD)
-
+%:
+	dh $@ --parallel --with autotools_dev
 	#Install autotools-dev's config.sub and config.guess, if newer:
-	chmod 755 debian/update-autotools-config.sh
-	debian/update-autotools-config.sh autotools/
+	#chmod 755 debian/update-autotools-config.sh
+	#debian/update-autotools-config.sh autotools/
 
+override_dh_auto_configure:
 	# Using '--bindir=/usr/games' by Debian policy
 	#   (e.g. not the case for Fedora)
 	# Using '--disable-embedded-resources' because 'dh_strip' will remove
 	#   them anyway, and we need it for the -dbg package -- too bad :/
-	cd $(BUILD) && $(SRC)/configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --bindir=/usr/games --datadir=/usr/share/games --disable-embedded-resources CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+	dh_auto_configure -- --bindir=/usr/games --datadir=/usr/share/games --disable-embedded-resources 
 
+override_dh_strip:
+	# Create -dbg package with debug symbols for gdb
+	dh_strip --dbg-package=freedink-engine-dbg
 
-build: debian/build-stamp
-
-debian/build-stamp:  $(BUILD)/config.status
-	dh_testdir
-
-	# Add here commands to compile the package.
-	$(MAKE) -C $(BUILD)
-
-	touch $@
-
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f debian/build-stamp 
-
-	# Add here commands to clean up after the build process.
-	[ ! -e $(BUILD) ] || $(MAKE) -C $(BUILD) distclean
-
-	rm -rf $(BUILD)
-	dh_clean
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k 
-	dh_installdirs
-
-	# Add here commands to install the package into $(TARGET).
-	$(MAKE) -C $(BUILD) DESTDIR=$(TARGET) install
+override_dh_auto_install:
+	# There's only one real package, let's not bother with
+	# debian/tmp + move files in dh_install - install straight in
+	# the appropriate directory
+	dh_auto_install --destdir=debian/freedink-engine
 	# Lintian complains with 'duplicate-font-file', let's have
 	# FreeDink rely on libfontconfig + depend on ttf-liberation
-	rm $(TARGET)/usr/share/games/freedink/LiberationSans-Regular.ttf
+	rm debian/freedink-engine/usr/share/games/freedink/LiberationSans-Regular.ttf
 
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
+override_dh_installdocs:
 	# --link-doc requires debhelper 7.4.2
 	dh_installdocs --link-doc=freedink-engine
-	dh_installchangelogs ChangeLog
-#	dh_installexamples
-	dh_install
-	dh_installmenu
-#	dh_installinfo
-	dh_installman
-	dh_link
-	dh_strip --dbg-package=freedink-engine-dbg
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
 
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+override_dh_installchangelogs:
+	dh_installchangelogs ChangeLog

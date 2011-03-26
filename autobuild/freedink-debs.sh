@@ -62,7 +62,19 @@ cowbuilder --create --basepath /var/cache/pbuilder/base-etch.cow --distribution=
 cowbuilder --update --basepath /var/cache/pbuilder/base-etch.cow/ --bindmounts /mnt/snapshots/debian/etch-backports --debian-etch-workaround
 
 # with pbuilder / lenny:
+mkdir -p /usr/src/backports/squeeze/debs
+(cd /usr/src/backports/squeeze/debs && apt-ftparchive packages | gzip > Packages.gz)
 pbuilder --create --basetgz /var/cache/pbuilder/base-lenny-bpo.tar.gz --distribution lenny \
-  --othermirror "deb file:///usr/src/backports/lenny/debs ./" --bindmounts /usr/src/backports/lenny/debs
+  --othermirror "deb http://backports.org/debian lenny-backports main|deb file:///usr/src/backports/lenny/debs ./" \
+  --bindmounts /usr/src/backports/lenny/debs
 # update:
 pbuilder --update --basetgz /var/cache/pbuilder/base-lenny-bpo.tar.gz --bindmounts /usr/src/backports/lenny/debs
+
+# with pbuilder / squeeze:
+mkdir -p /usr/src/backports/squeeze/debs
+(cd /usr/src/backports/squeeze/debs && apt-ftparchive packages | gzip > Packages.gz)
+pbuilder --create --basetgz /var/cache/pbuilder/base-squeeze-bpo.tar.gz --distribution squeeze \
+  --othermirror "deb http://backports.org/debian squeeze-backports main|deb file:///usr/src/backports/squeeze/debs ./" \
+  --bindmounts /usr/src/backports/squeeze/debs
+# update:
+pbuilder --update --basetgz /var/cache/pbuilder/base-squeeze-bpo.tar.gz --bindmounts /usr/src/backports/squeeze/debs
