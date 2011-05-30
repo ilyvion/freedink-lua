@@ -2,7 +2,7 @@
  * FreeDink editor-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2011  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -1983,9 +1983,8 @@ void updateFrame(void)
   //    static int          currentFrame[3] = {0,0,0};
   unsigned long thisTickCount;
   //  char buffer[20];
-  unsigned char state[256];
   rect                rcRect;
-  rect  crapRec, Rect;
+  rect  Rect;
 /*   rect rcRectSrc; */
 /*   rect rcRectDest; */
   rect box_crap,box_real;
@@ -1994,7 +1993,7 @@ void updateFrame(void)
   char buff[200];
   //	DWORD               delay[4] = {0, 0, 0, 20};
 /*   HDC         hdc; */
-  int in_crap2;
+  int in_crap2 = 0;
   int                 holdx;
   //PALETTEENTRY        pe[256];
 /*   HRESULT             ddrval; */
@@ -2013,7 +2012,6 @@ void updateFrame(void)
   // Decide which frame will be blitted next
   thisTickCount = SDL_GetTicks();
   strcpy(buff,"Nothing");
-  state[1] = 0;
   check_joystick();
   Scrawl_OnMouseInput();
   rcRect.left = 0;
@@ -2154,6 +2152,7 @@ void updateFrame(void)
 
 	    //        Msg("Sprite %d is active.",h);
 
+	    int greba = 0;
 
 	    if (spr[h].brain == 1)
 	      {
@@ -3993,10 +3992,10 @@ void updateFrame(void)
 			    Rect.right = Rect.left + 50;
 			    Rect.bottom = Rect.top + 50;
 
-			    crapRec.top = 0;
-			    crapRec.left = 95;
-			    crapRec.bottom = 450;
-			    crapRec.right = 95+450;
+/*			    crapRec.top = 0; */
+/*			    crapRec.left = 95; */
+/*			    crapRec.bottom = 450; */
+/*			    crapRec.right = 95+450; */
 
 /* 			    ZeroMemory(&ddbltfx, sizeof(ddbltfx)); */
 /* 			    ddbltfx.dwSize = sizeof( ddbltfx); */
@@ -4234,7 +4233,6 @@ void updateFrame(void)
 	      }
 
 
-	    int greba = 0;
 	    if (mode == MODE_SCREEN_TILES)
 	      {
 		//need offset to look right
@@ -4953,7 +4951,6 @@ int load_editor_sounds()
    */
   for(i = 0; i < NUM_SOUND_EFFECTS; i++)
     {
-      int result = 0;
       char *filename = szSoundEffects[i];
       log_info("Loading sound %s [%d]", filename, i);
       
@@ -4961,7 +4958,7 @@ int load_editor_sounds()
       SDL_RWops* rwops;
       rwops = find_resource_as_rwops(filename);
       if (rwops != NULL)
-	result = CreateBufferFromWaveFile_RW(rwops, 1, i);
+	CreateBufferFromWaveFile_RW(rwops, 1, i);
       else
 	log_error("Cannot load sound effect %s, from resources or from %s",
 		  filename, paths_getpkgdatadir());

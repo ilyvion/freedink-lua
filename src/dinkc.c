@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2011  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -197,7 +197,7 @@ static /*bool*/int load_game_small(int num, char line[196], int *mytime)
       fseek(f, 4, SEEK_CUR);
 
       fread(line, 196, 1, f);
-      line[196] = '\0';
+      line[195] = '\0';
       *mytime = read_lsb_int(f);
       fclose(f);
 
