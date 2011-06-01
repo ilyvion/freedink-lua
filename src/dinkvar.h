@@ -141,7 +141,6 @@ extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 extern /*bool*/int locate(int script, char proc[20]);
 extern void process_callbacks(void);
 extern void run_script (int script);
-extern void update_sound(void);
 extern void update_status_all(void);
 
 extern /*bool*/int abort_this_flip;
@@ -276,7 +275,6 @@ extern void fill_whole_hard(void);
 extern int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size);
 extern /*bool*/int kill_last_sprite(void);
 extern void check_frame_status(int h, int frame);
-extern void Say(char thing[500], int px, int py);
 extern void flip_it_second(void);
 extern void save_map(const int num);
 extern void save_info(void);

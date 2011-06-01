@@ -49,6 +49,7 @@
 #include "rect.h"
 #include "dinkc_console.h"
 #include "input.h"
+#include "sfx.h"
 
 #include "update_frame.h"
 

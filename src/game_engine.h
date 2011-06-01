@@ -24,6 +24,8 @@
 #ifndef _GAME_ENGINE_H
 #define _GAME_ENGINE_H
 
+#include <time.h>
+
 #include "SDL.h"
 #include "rect.h"
 #include "io_util.h"
