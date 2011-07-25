@@ -1,0 +1,219 @@
+# Slovenian translation for freedink.
+# This file is put in the public domain.
+# Klemen Košir <klemen.kosir@gmx.com>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink 1.08.20100321\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2011-07-25 20:13+0200\n"
+"PO-Revision-Date: 2011-04-18 17:56+0100\n"
+"Last-Translator: Klemen Košir <klemen.kosir@gmx.com>\n"
+"Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
+"Language: sl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Slovenian\n"
+"X-Poedit-Country: SLOVENIA\n"
+
+#: src/init.c:108
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr "Uporaba: %s [MOŽNOSTI] ...\n"
+
+#: src/init.c:110
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr "Zažene igro Dink Smallwood ali enega izmed D-Modov."
+
+#: src/init.c:112
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr "Uredi igro Dink Smallwood ali enega izmed D-Modov."
+
+#: src/init.c:115
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr "  -h, --help            Prikaže to pomoč\n"
+
+#: src/init.c:116
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr "  -v, --version         Prikaže različico programa\n"
+
+#: src/init.c:118
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr "  -g, --game <dir>      Navedite mapo DMod\n"
+
+#: src/init.c:119
+#, c-format
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <mapa>   Navedite osnovno mapo za igro Dink Smallwood, "
+"grafiko, D-Mode, itd.\n"
+
+#: src/init.c:121
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr "  -d, --debug           Prikaže podatke o razhroščevanju\n"
+
+#: src/init.c:122
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr "  -i, --noini           Ne zapiše datoteke dinksmallwood.ini\n"
+
+#: src/init.c:123
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr "  -j, --nojoy           Ne uporabi igralne palice\n"
+
+#: src/init.c:124
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr "  -s, --nosound         Ne predvajaj zvoka\n"
+
+#: src/init.c:125
+#, c-format
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+
+#: src/init.c:126
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr ""
+"  -w, --window          Uporabi okenski način namesto celozaslonskega\n"
+
+#: src/init.c:127
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr "  -7, --v1.07           Omogoči združljivost z različico 1.07\n"
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:137
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr ""
+"Napake v programu sporočite na: %s.\n"
+"Napake v prevodu sporočite na: <klemen.kosir@gmx.com>\n"
+
+#: src/init.c:277
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr ""
+"Opomba: možnost -nomovie je uporabljena zaradi združljivosti, vendar nima "
+"učinka.\n"
+
+#: src/freedink.c:2675
+msgid "`$I don't see anything here."
+msgstr "`$Tukaj ničesar ne vidim."
+
+#: src/freedink.c:2676
+msgid "`$Huh?"
+msgstr "`$Huh?"
+
+#: src/freedink.c:2677
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$S tem se ne morem pogovarjati ali uporabiti."
+
+#: src/freedink.c:2678
+msgid "`$What?"
+msgstr "`$Kaj?"
+
+#: src/freedink.c:2679
+msgid "`$I'm bored."
+msgstr "`$Dolgočasim se."
+
+#: src/freedink.c:2680
+msgid "`$Not much happening here."
+msgstr "`$Tukaj se ne dogaja veliko."
+
+#: src/freedink.c:2788
+msgid "`$I don't know any magic."
+msgstr "`$Ne znam čarati."
+
+#: src/freedink.c:2789
+msgid "`$I'm no wizard!"
+msgstr "`$Nisem čarovnik!"
+
+#: src/freedink.c:2790
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Najprej se moram naučiti čarati."
+
+#: src/freedink.c:2791
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Zaman divje pomigujem z rokami!"
+
+#: src/freedink.c:2792
+msgid "`$Nothing happened."
+msgstr "`$Nič se ni zgodilo."
+
+#: src/freedink.c:2793
+msgid "`$Hocus pocus!"
+msgstr "`$Čira čara!"
+
+#: src/dinkc.c:687
+msgid "Attack"
+msgstr "Napad"
+
+#: src/dinkc.c:688
+msgid "Talk/Examine"
+msgstr "Govori/Preišči"
+
+#: src/dinkc.c:689
+msgid "Magic"
+msgstr "Čarovnija"
+
+#: src/dinkc.c:690
+msgid "Item Screen"
+msgstr "Seznam predmetov"
+
+#: src/dinkc.c:691
+msgid "Main Menu"
+msgstr "Glavni meni"
+
+#: src/dinkc.c:692
+msgid "Map"
+msgstr "Zemljevid"
+
+#: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+msgid "Unused"
+msgstr "Neuporabljeno"
+
+#: src/dinkc.c:697
+msgid "Down"
+msgstr "Dol"
+
+#: src/dinkc.c:698
+msgid "Left"
+msgstr "Levo"
+
+#: src/dinkc.c:699
+msgid "Right"
+msgstr "Desno"
+
+#: src/dinkc.c:700
+msgid "Up"
+msgstr "Gor"
+
+#: src/dinkc.c:701
+msgid "Error: not mapped"
+msgstr "Napaka: ni določeno"
+
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr "Polje %d - %d:%02d - %s"
+
+#: src/dinkc.c:715
+#, c-format
+msgid "Slot %d - Empty"
+msgstr "Polje %d - Prazno"

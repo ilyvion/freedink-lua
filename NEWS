@@ -12,6 +12,9 @@
 
 - Fix issue in some D-Mods related to DinkC's sp_seq(..., -1) command.
 
+- New translations for the engine strings: Slovenian (thanks Klemen
+  Košir).
+
 
 1.08.20101114
 =============
