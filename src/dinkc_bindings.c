@@ -336,7 +336,7 @@ void dc_sp_reverse(int script, int* yield, int* preturnint, int sprite, int spar
 void dc_sp_seq(int script, int* yield, int* preturnint, int sprite, int sparg)
 {
   RETURN_NEG_IF_BAD_SPRITE(sprite);
-  if (sparg < 0 || sparg >= MAX_SEQUENCES)
+  if ((sparg < 0 || sparg >= MAX_SEQUENCES) && sparg != -1)
     {
       log_error("[DinkC] %s:%d:%s: invalid sequence %d, ignoring (offset %d)",
                 rinfo[script]->name, rinfo[script]->debug_line,

@@ -10,6 +10,8 @@
 - Play some MIDI files when the original CD is not present - this
   behavior was partially broken a while ago.
 
+- Fix issue in some D-Mods related to DinkC's sp_seq(..., -1) command.
+
 
 1.08.20101114
 =============
