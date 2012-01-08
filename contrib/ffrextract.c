@@ -1,7 +1,7 @@
 /*
  * Recursively extract dir.ff FastFile archives
 
- * Copyright (C) 2002, 2003, 2007, 2009  Sylvain Beucler
+ * Copyright (C) 2002, 2003, 2007, 2009, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -117,7 +117,7 @@ void ffextract(char *filename)
 	  {
 	    /* skip that entry */
 	    subfiles[i].filename[FILENAME_SIZE] = '\0';
-	    DEBUG(" %s: skipping bad subfile %s (invalid offset %ld)\n",
+	    DEBUG(" %s: skipping bad subfile %s (invalid offset %d)\n",
 		  filename, subfiles[i].filename, subfiles[i].offset);
 	    i--;
 	    nb_entries--;
@@ -176,7 +176,7 @@ void ffextract(char *filename)
     free(output_file);
   }
 
-  free(subfiles)
+  free(subfiles);
   fclose(fin);
 }
 
