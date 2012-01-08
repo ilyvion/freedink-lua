@@ -1,0 +1,203 @@
+# Serbian translation of freedink.
+# Copyright (C) 2011 Free Software Foundation, Inc.
+# This file is distributed under the same license as the freedink package.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: freedink-1.08.20100321\n"
+"Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
+"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"PO-Revision-Date: 2011-12-24 23:30+0200\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+"Language-Team: Serbian <gnu@prevod.org>\n"
+"Language: sr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: src/init.c:108
+#, c-format
+msgid "Usage: %s [OPTIONS]...\n"
+msgstr "Употреба: %s [ОПЦИЈЕ]...\n"
+
+#: src/init.c:110
+#, c-format
+msgid "Starts the Dink Smallwood game or one of its D-Mods."
+msgstr "Покреће игру шумарак Динк или неки од њених Д-модова."
+
+#: src/init.c:112
+#, c-format
+msgid "Edit the Dink Smallwood game or one of its D-Mods."
+msgstr "Уређује игру шумарак Динк или неки од њених Д-Модова."
+
+#: src/init.c:115
+#, c-format
+msgid "  -h, --help            Display this help screen\n"
+msgstr "  -h, --help            Приказује овај екран помоћи\n"
+
+#: src/init.c:116
+#, c-format
+msgid "  -v, --version         Display the version\n"
+msgstr "  -v, --version         Приказује издање програма\n"
+
+#: src/init.c:118
+#, c-format
+msgid "  -g, --game <dir>      Specify a DMod directory\n"
+msgstr "  -g, --game <dir>      Одређује директоријум ДМода\n"
+
+#: src/init.c:119
+#, c-format
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Одређује основни директоријум за динк/графику, Д-Модове, итд.\n"
+
+#: src/init.c:121
+#, c-format
+msgid "  -d, --debug           Explain what is being done\n"
+msgstr "  -d, --debug           Објашњава шта је урађено\n"
+
+#: src/init.c:122
+#, c-format
+msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
+msgstr "  -i, --noini           Не покушава да запише „dinksmallwood.ini“\n"
+
+#: src/init.c:123
+#, c-format
+msgid "  -j, --nojoy           Do not attempt to use joystick\n"
+msgstr "  -j, --nojoy           Не покушава да користи џојстик\n"
+
+#: src/init.c:124
+#, c-format
+msgid "  -s, --nosound         Do not play sound\n"
+msgstr "  -s, --nosound         Не пушта звук\n"
+
+#: src/init.c:125
+#, c-format
+msgid "  -w, --window          Use windowed mode instead of screen mode\n"
+msgstr "  -w, --window          Користи режим прозора уместо режима екрана\n"
+
+#: src/init.c:126
+#, c-format
+msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
+msgstr "  -7, --v1.07           Укључује в1.07 режим сагалсности\n"
+
+#. TRANSLATORS: The placeholder indicates the bug-reporting address
+#. for this package.  Please add _another line_ saying "Report
+#. translation bugs to <...>\n" with the address for translation
+#. bugs (typically your translation team's web or email
+#. address).
+#: src/init.c:136
+#, c-format
+msgid "Report bugs to %s.\n"
+msgstr "Грешке програма пријавите %s.\n"
+
+#: src/init.c:276
+#, c-format
+msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
+msgstr "Напомена: „-nomovie“ је прихваћено због сагласности, али нема дејства.\n"
+
+#: src/freedink.c:2686
+msgid "`$I don't see anything here."
+msgstr "`$Ништа ти ја овде не видим."
+
+#: src/freedink.c:2687
+msgid "`$Huh?"
+msgstr "`$Ааа?"
+
+#: src/freedink.c:2688
+msgid "`$I'm fairly sure I can't talk to or use that."
+msgstr "`$Поприлично сам сигуран да не могу да причам с овим или да га користим."
+
+#: src/freedink.c:2689
+msgid "`$What?"
+msgstr "`$Шта?"
+
+#: src/freedink.c:2690
+msgid "`$I'm bored."
+msgstr "`$Досадно ми је."
+
+#: src/freedink.c:2691
+msgid "`$Not much happening here."
+msgstr "`$Овде се баш ништа не догађа."
+
+#: src/freedink.c:2799
+msgid "`$I don't know any magic."
+msgstr "`$Не познајем никакву магију."
+
+#: src/freedink.c:2800
+msgid "`$I'm no wizard!"
+msgstr "`$Нисам ти ја чаробњак!"
+
+#: src/freedink.c:2801
+msgid "`$I need to learn magic before trying this."
+msgstr "`$Морам да научим магију да бих испробао ово."
+
+#: src/freedink.c:2802
+msgid "`$I'm gesturing wildly to no avail!"
+msgstr "`$Узалуд машем рукама као суманут!"
+
+#: src/freedink.c:2803
+msgid "`$Nothing happened."
+msgstr "`$Ништа се није десило."
+
+#: src/freedink.c:2804
+msgid "`$Hocus pocus!"
+msgstr "`$Хокус покус!"
+
+#: src/dinkc.c:687
+msgid "Attack"
+msgstr "Нападни"
+
+#: src/dinkc.c:688
+msgid "Talk/Examine"
+msgstr "Говори/Испитај"
+
+#: src/dinkc.c:689
+msgid "Magic"
+msgstr "Магија"
+
+#: src/dinkc.c:690
+msgid "Item Screen"
+msgstr "Приказ ставке"
+
+#: src/dinkc.c:691
+msgid "Main Menu"
+msgstr "Главни изборник"
+
+#: src/dinkc.c:692
+msgid "Map"
+msgstr "Карта"
+
+#: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+msgid "Unused"
+msgstr "Некоришћено"
+
+#: src/dinkc.c:697
+msgid "Down"
+msgstr "Доле"
+
+#: src/dinkc.c:698
+msgid "Left"
+msgstr "Лево"
+
+#: src/dinkc.c:699
+msgid "Right"
+msgstr "Десно"
+
+#: src/dinkc.c:700
+msgid "Up"
+msgstr "Горе"
+
+#: src/dinkc.c:701
+msgid "Error: not mapped"
+msgstr "Грешка: није на карти"
+
+#: src/dinkc.c:712
+#, c-format
+msgid "Slot %d - %d:%02d - %s"
+msgstr "Прикључак %d — %d:%02d — %s"
+
+#: src/dinkc.c:715
+#, c-format
+msgid "Slot %d - Empty"
+msgstr "Прикључак %d — Празно"
