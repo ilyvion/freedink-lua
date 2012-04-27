@@ -1,18 +1,12 @@
 freedink (1.08.20120427-1) unstable; urgency=low
 
   * New Upstream Version
+  * Upgrade packaging to debhelper 7 and source format 3.0 (quilt)
   * Update copyright file
   * Bump Standards-Version to 3.9.3
   * Update official webpage
   
  -- Sylvain Beucler <beuc@debian.org>  Fri, 27 Apr 2012 19:00:00 +0200
-
-freedink (1.08.20110229-1) UNRELEASED; urgency=low
-
-  * New Upstream Version
-  * Upgrade packaging to debhelper 7 and source format 3.0 (quilt)
-
- -- Sylvain Beucler <beuc@debian.org>  Sat, 26 Mar 2011 08:11:34 +0100
 
 freedink (1.08.20101114-1) experimental; urgency=low
 
