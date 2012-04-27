@@ -35,7 +35,7 @@ git2cl > ChangeLog
 
 make distcheck
 git commit -am "Release $VERSION"
-git tag -s v$VERSION
+git tag -s v$VERSION -m v$VERSION -u ...
 git push origin branch-$VERSION-stable master
 git push --tags
 # Here you can test the release in the autobuilder
