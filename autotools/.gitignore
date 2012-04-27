@@ -1,7 +1,0 @@
-/config.libpath
-/install-reloc
-/link-warning.h
-/reloc-ldflags
-/arg-nonnull.h
-/warn-on-use.h
-/c++defs.h
