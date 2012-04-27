@@ -1,49 +1,53 @@
-# Danish translation freedink front.
-# This file is put in the public domain.
-# Joe Hansen <joedalton2@yahoo.dk>, 2009, 2010.
+# Translation of freedink to Croatian.
+# Copyright (C) 2012 Contributor
+# This file is distributed under the same license as the freedink package.
+# Tomislav Krznar <tomislav.krznar@gmail.com>, 2012.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
 "POT-Creation-Date: 2012-04-27 15:45+0200\n"
-"PO-Revision-Date: 2010-05-30 19:30+01:00\n"
-"Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
-"Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
-"Language: da\n"
+"PO-Revision-Date: 2012-04-16 01:58+0200\n"
+"Last-Translator: Tomislav Krznar <tomislav.krznar@gmail.com>\n"
+"Language-Team: Croatian <lokalizacija@linux.hr>\n"
+"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr "Brug: %s [TILVALG]...\n"
+msgstr "Uporaba: %s [OPCIJE]...\n"
 
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Start spillet Dink Smallwood eller et af dets udvidelser."
+msgstr ""
+"Pokreće igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
 
 #: src/init.c:112
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr "Rediger i spillet Dink Smallwood eller et af dets udvidelser."
+msgstr "Uredi igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
 
 #: src/init.c:115
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr "  -h, --help            Vis denne hjælpeskærm\n"
+msgstr "  -h, --help            Prikaži ovaj ekran pomoći\n"
 
 #: src/init.c:116
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr "  -v, --version         Vis versionsnummeret\n"
+msgstr "  -v, --version         Prikaži inačicu\n"
 
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr "  -g, --game <dir>      Angiv en DMod-mappe\n"
+msgstr "  -g, --game <dir>      Navedi DMod direktorij\n"
 
 #: src/init.c:119
 #, c-format
@@ -51,27 +55,28 @@ msgid ""
 "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
 "etc.\n"
 msgstr ""
-"  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
+"  -r, --refdir <dir>    Navedi osnovni direktorij za dink/grafiku, "
+"modifikacije itd.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr "  -d, --debug           Forklar hvad der sker\n"
+msgstr "  -d, --debug           Pojasni što program radi\n"
 
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Forsøg ikke at skrive dinksmallwood.ini\n"
+msgstr "  -i, --noini           Ne pokušavaj pisati u dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr "  -j, --nojoy           Forsøg ikke at bruge joystick\n"
+msgstr "  -j, --nojoy           Ne pokušavaj koristiti igraću palicu\n"
 
 #: src/init.c:124
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
-msgstr "  -s, --nosound         Brug ikke lyd\n"
+msgstr "  -s, --nosound         Nemoj reproducirati zvukove\n"
 
 #: src/init.c:125
 #, c-format
@@ -83,13 +88,12 @@ msgstr ""
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
 msgstr ""
-"  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
+"  -w, --window          Koristi prikaz u prozoru umjesto na cijelom ekranu\n"
 
 #: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr ""
-"  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
+msgstr "  -7, --v1.07           Omogući kompatibilnost s v1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -100,65 +104,59 @@ msgstr ""
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr ""
-"Anmeld fejl til %s.\n"
-"\n"
-"Oversættelsesrettelser kan sendes til:\n"
-"Joe Hansen <joedalton2@yahoo.dk>, 2009.\n"
-"\n"
-"Dansk-gruppen <dansk@dansk-gruppen.dk>\n"
-"Mere info: http://www.dansk-gruppen.dk\n"
+"Prijavite greške na %s.\n"
+"Prijavite greške prijevoda na <lokalizacija@linux.hr>.\n"
 
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
-"Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen "
-"effekt.\n"
+"Napomena: -nomovie se prihvaća zbog kompatibilnosti, no nema utjecaja.\n"
 
 #: src/freedink.c:2675
 msgid "`$I don't see anything here."
-msgstr "`$I ser ikke noget her."
+msgstr "`$Ovdje ne vidim ništa."
 
-# Huh, Jeg tror sådan noget som "Ah hva" eller tilsvarende kan due her
 #: src/freedink.c:2676
 msgid "`$Huh?"
-msgstr "`$Ah hva?"
+msgstr "`$Ha?"
 
 #: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Jeg er ret sikker på, at jeg ikke kan tale til eller bruge det."
+msgstr ""
+"`$Poprilično sam siguran da s tim ne mogu pričati ili drukčije koristiti."
 
 #: src/freedink.c:2678
 msgid "`$What?"
-msgstr "`$Hvad?"
+msgstr "`$Molim?"
 
 #: src/freedink.c:2679
 msgid "`$I'm bored."
-msgstr "`$Jeg keder mig."
+msgstr "`$Dosadno mi je."
 
 #: src/freedink.c:2680
 msgid "`$Not much happening here."
-msgstr "`$Der sker ikke meget her."
+msgstr "`$Ovdje se ne događa ništa."
 
 #: src/freedink.c:2788
 msgid "`$I don't know any magic."
-msgstr "`$Jeg kender ikke til magi."
+msgstr "`$Ne znam nikakve čarolije."
 
 #: src/freedink.c:2789
 msgid "`$I'm no wizard!"
-msgstr "`$Jeg er ikke troldmand!"
+msgstr "`$Nisam čarobnjak!"
 
 #: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
-msgstr "`$Jeg må lære om magi, før jeg kan bruge denne."
+msgstr "`$Moram naučiti čarolije prije nego probam ovo."
 
 #: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Jeg gestikulerer vildt uden effekt!"
+msgstr "`$Mašem kao manijak bez učinka!"
 
 #: src/freedink.c:2792
 msgid "`$Nothing happened."
-msgstr "`$Intet skete."
+msgstr "`$Ništa se nije dogodilo."
 
 #: src/freedink.c:2793
 msgid "`$Hocus pocus!"
@@ -166,58 +164,58 @@ msgstr "`$Hokus pokus!"
 
 #: src/dinkc.c:687
 msgid "Attack"
-msgstr "Angrib"
+msgstr "Napad"
 
 #: src/dinkc.c:688
 msgid "Talk/Examine"
-msgstr "Snak/undersøg"
+msgstr "Pričaj/Pregledaj"
 
 #: src/dinkc.c:689
 msgid "Magic"
-msgstr "Magi"
+msgstr "Čarolija"
 
 #: src/dinkc.c:690
 msgid "Item Screen"
-msgstr "Udstyrsskærm"
+msgstr "Inventar"
 
 #: src/dinkc.c:691
 msgid "Main Menu"
-msgstr "Hovedmenu"
+msgstr "Glavni izbornik"
 
 #: src/dinkc.c:692
 msgid "Map"
-msgstr "Kort"
+msgstr "Karta"
 
 #: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
 msgid "Unused"
-msgstr "Ubrugt"
+msgstr "Nekorišteno"
 
 #: src/dinkc.c:697
 msgid "Down"
-msgstr "Ned"
+msgstr "Dolje"
 
 #: src/dinkc.c:698
 msgid "Left"
-msgstr "Venstre"
+msgstr "Lijevo"
 
 #: src/dinkc.c:699
 msgid "Right"
-msgstr "Højre"
+msgstr "Desno"
 
 #: src/dinkc.c:700
 msgid "Up"
-msgstr "Op"
+msgstr "Gore"
 
 #: src/dinkc.c:701
 msgid "Error: not mapped"
-msgstr "Fejl: ikke kortlagt"
+msgstr "Greška: nije pridružena"
 
 #: src/dinkc.c:712
 #, c-format
 msgid "Slot %d - %d:%02d - %s"
-msgstr "Plads %d - %d:%02d - %s"
+msgstr "Polje %d - %d:%02d - %s"
 
 #: src/dinkc.c:715
 #, c-format
 msgid "Slot %d - Empty"
-msgstr "Plads %d - Tom"
+msgstr "Polje %d - Prazno"

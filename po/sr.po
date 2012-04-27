@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink-1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2010-03-21 15:25+0000\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
 "PO-Revision-Date: 2011-12-24 23:30+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
@@ -14,7 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/init.c:108
 #, c-format
@@ -48,8 +49,12 @@ msgstr "  -g, --game <dir>      Одређује директоријум ДМо
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Одређује основни директоријум за динк/графику, Д-Модове, итд.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Одређује основни директоријум за динк/графику, Д-"
+"Модове, итд.\n"
 
 #: src/init.c:121
 #, c-format
@@ -73,10 +78,16 @@ msgstr "  -s, --nosound         Не пушта звук\n"
 
 #: src/init.c:125
 #, c-format
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+
+#: src/init.c:126
+#, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
 msgstr "  -w, --window          Користи режим прозора уместо режима екрана\n"
 
-#: src/init.c:126
+#: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
 msgstr "  -7, --v1.07           Укључује в1.07 режим сагалсности\n"
@@ -86,61 +97,63 @@ msgstr "  -7, --v1.07           Укључује в1.07 режим сагалс�
 #. translation bugs to <...>\n" with the address for translation
 #. bugs (typically your translation team's web or email
 #. address).
-#: src/init.c:136
+#: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
 msgstr "Грешке програма пријавите %s.\n"
 
-#: src/init.c:276
+#: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Напомена: „-nomovie“ је прихваћено због сагласности, али нема дејства.\n"
+msgstr ""
+"Напомена: „-nomovie“ је прихваћено због сагласности, али нема дејства.\n"
 
-#: src/freedink.c:2686
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Ништа ти ја овде не видим."
 
-#: src/freedink.c:2687
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Ааа?"
 
-#: src/freedink.c:2688
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Поприлично сам сигуран да не могу да причам с овим или да га користим."
+msgstr ""
+"`$Поприлично сам сигуран да не могу да причам с овим или да га користим."
 
-#: src/freedink.c:2689
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Шта?"
 
-#: src/freedink.c:2690
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Досадно ми је."
 
-#: src/freedink.c:2691
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Овде се баш ништа не догађа."
 
-#: src/freedink.c:2799
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Не познајем никакву магију."
 
-#: src/freedink.c:2800
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Нисам ти ја чаробњак!"
 
-#: src/freedink.c:2801
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Морам да научим магију да бих испробао ово."
 
-#: src/freedink.c:2802
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Узалуд машем рукама као суманут!"
 
-#: src/freedink.c:2803
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Ништа се није десило."
 
-#: src/freedink.c:2804
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Хокус покус!"
 

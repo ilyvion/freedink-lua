@@ -1,26 +1,24 @@
-1.08.20110229
+1.08.20120427
 =============
-
-** UNRELEASED **
 
 * User-visible changes:
 
 - New translations for the engine strings: Esperanto (thanks Felipe
   Castro), Slovenian (thanks Klemen Košir), Serbian (thanks Мирослав
-  Николић).
+  Николић), Croatian (thanks Tomislav Krznar).
 
-- Fix a few bugs (see below)
+- Fix a few bugs (see below).
 
 * Developer notes:
 
 - No palette conversion for dir.ff graphics in truecolor mode (bug in
-  The Blacksmith's Trail)
+  The Blacksmith's Trail).
 
 - Play some MIDI files when the original CD is not present - this
   behavior was partially broken a while ago.
 
 - Fix issue in some D-Mods related to DinkC's sp_seq(..., -1) command
-  (bug in Day of the Carcass)
+  (bug in Day of the Carcass).
 
 
 
