@@ -13,9 +13,6 @@ Pros:
   them yet).
 
 Cons:
-- FreeType compiled without the patents-threatened hinting engine,
-  hence incompatible font display / metrics with the original Dink
-  version and the Debian FreeType package.
 - DX support in SDL seems unstable as of 2010-04 - developers are
   apparently experimenting with free headers, which is good.
 - MP3 support in SDL_mixer, while we don't want to foster that format.
@@ -25,11 +22,9 @@ Cons:
   for us, as FreeDink is a GPL'd project.  It would matter if we were
   not distributing the source code, because the LGPL (for instance)
   would require us to either ship our .o files or use the library as a
-  .dll.  Still, this means all libraries will be embedded in all
-  executables (e.g. both in freedink and freedinkedit).
-  Also on security update, we'd need to provide a new executable
-  instead of a fixed .dll, but we're already providing static builds,
-  so we'll need to rebuild anyway.
+  .dll.  Also on security update, we'd need to provide a new
+  executable instead of a fixed .dll, but we're already providing
+  static builds, so we'll need to rebuild anyway.
 - Still need to ship a copy of each library's license manually (and
   we'll have to extract it manually)
 - Some tarballs do not download properly (404 or timeout)
