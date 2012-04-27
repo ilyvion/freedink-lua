@@ -1,5 +1,5 @@
 Name:		freedink
-Version:	1.08.20101114
+Version:	1.08.20120427
 Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
@@ -11,7 +11,7 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  update-desktop-files
 %endif
 License:	GPLv3+
-URL:		http://www.freedink.org/
+URL:		http://www.gnu.org/software/freedink/
 Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 #Source0:	http://www.freedink.org/snapshots/freedink-%{version}.tar.gz
 
@@ -131,6 +131,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Apr 27 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-1
+- New upstream release
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20101114-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20101114-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Sun Nov 14 2010 Sylvain Beucler <beuc@beuc.net> - 1.08.20101114-1
 - New upstream release
 
