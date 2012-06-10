@@ -1,6 +1,6 @@
 Name:		freedink
 Version:	1.08.20120427
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -17,6 +17,8 @@ Source0:	ftp://ftp.gnu.org/gnu/freedink/freedink-%{version}.tar.gz
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:	freedink-engine = %{version}-%{release}  freedink-dfarc
+# Reference bundled copy of gnulib - cf. https://fedorahosted.org/fpc/ticket/174
+Provides:	bundled(gnulib)
 
 %description
 Dink Smallwood is an adventure/role-playing game, similar to Zelda,
@@ -131,6 +133,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jun 10 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-2
+- Add virtual provides for bundled(gnulib) copylib (#821754)
+
 * Sun Apr 27 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-1
 - New upstream release
 
