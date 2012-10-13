@@ -2,7 +2,7 @@
  * FreeDink game-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
+ * Copyright (C) 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -2952,7 +2952,7 @@ shootm:
   crap = check_if_move_is_legal(h);
   if (crap != 0)
     {
-      if (pam.sprite[crap-100].prop != 0)
+      if (pam.sprite[crap-100].is_warp != 0)
 	flub_mode = crap;
 		  
       //hit something, can we move around it?
@@ -3335,42 +3335,37 @@ shootm:
 		return(0);
 		
 	}
-	
-	int special_block(int block, int h)
-	{
-		
-		if (pam.sprite[block].prop == 1)
-		{
-			//they touched a warp		
-			
-			if (pam.sprite[block].sound == 0)
-				SoundPlayEffect( 7,12000, 0 , 0,0); else
-				SoundPlayEffect( pam.sprite[block].sound,22050, 0 , 0,0);
-			
-			if (pam.sprite[block].parm_seq != 0)
-			{
-				//we'll also play an animation here
-				
-				int sprite = find_sprite(block);
-				if (sprite > 0)
-				{
-					spr[sprite].seq = pam.sprite[block].parm_seq;
-					process_warp = block;
-				}
-				return(1);
-			}
-			process_warp = block;	
-			/*spr[1].x = pam.sprite[block].warp_x;
-			spr[1].y = pam.sprite[block].warp_y;
-			*pmap = pam.sprite[block].warp_map;	
-			
-			  load_map(map.loc[pam.sprite[block].warp_map]);
-			  draw_map();
-			*/
-			return(1); //redraw screen with fade
-		}
-		return(0);
-	}
+
+/**
+ * Trigger a warp (teleport)
+ * block: the warp editor sprite
+ */
+int special_block(int block)
+{
+  if (pam.sprite[block].is_warp == 1)
+    {
+      //they touched a warp
+      if (pam.sprite[block].sound == 0)
+        SoundPlayEffect(7, 12000, 0, 0, 0);
+      else
+        SoundPlayEffect(pam.sprite[block].sound, 22050, 0, 0, 0);
+      
+      if (pam.sprite[block].parm_seq != 0)
+        {
+          // we'll also play an animation here
+          int sprite = find_sprite(block);
+          if (sprite > 0)
+            {
+              spr[sprite].seq = pam.sprite[block].parm_seq;
+              process_warp = block;
+            }
+          return 1;
+        }
+      process_warp = block;
+      return 1; // redraw screen with fade
+    }
+  return 0;
+}
 	
 /* fade_down() - fade to black */
 void CyclePalette()
@@ -3862,7 +3857,7 @@ void process_warp_man(void)
 {
   int sprite = find_sprite(process_warp);
   
-  if (spr[sprite].seq == 0)
+  if (spr[sprite].seq == 0) /* warp anim is finished */
     {
       process_count++;
       CyclePalette();
@@ -3896,7 +3891,7 @@ void process_warp_man(void)
 	  process_warp = 0;
 	}
     }
-  else
+  else /* warp anim didn't finish yet */
     {
       process_count = 0;		
     }

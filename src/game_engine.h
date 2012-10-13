@@ -2,7 +2,7 @@
  * Header for code common to FreeDink and FreeDinkedit
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2008, 2009, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -245,6 +245,7 @@ extern int get_pan(int h);
 extern int get_vol(int h);
 
 
+/* Editor sprite containing the current warp (teleporter), 0 if no active warp: */
 extern int process_warp;
 extern int process_downcycle;
 extern int process_upcycle;

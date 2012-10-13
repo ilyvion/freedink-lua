@@ -1,7 +1,7 @@
 /**
  * Header for FreeDink-specific code (not FreeDinkedit)
 
- * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -64,7 +64,7 @@ extern /*bool*/int run_through_tag_list_talk(int h);
 extern void run_through_touch_damage_list(int h);
 extern void scale_brain(int h);
 extern void shadow_brain(int h);
-extern int special_block(int block, int h);
+extern int special_block(int block);
 extern void text_brain(int h);
 /* extern void text_draw(int h, HDC hdc); */
 extern void text_draw(int h);

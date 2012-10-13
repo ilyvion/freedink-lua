@@ -155,7 +155,7 @@ void place_sprites_game()
 	      
 	      if (spr[sprite].hard == 0)
 		{
-		  /*if (pam.sprite[j].prop == 0)
+		  /*if (pam.sprite[j].is_warp == 0)
 		    add_hardness(sprite, 1); else */
 		  add_hardness(sprite, 100 + j);
 		}
@@ -199,7 +199,7 @@ void place_sprites_game()
 	      spr[sprite].hitpoints = pam.sprite[j].hitpoints;
 	      spr[sprite].sound = pam.sprite[j].sound;
 	      check_sprite_status_full(sprite);
-	      if (pam.sprite[j].prop == 0 && spr[sprite].sound != 0)
+	      if (pam.sprite[j].is_warp == 0 && spr[sprite].sound != 0)
 		{
 		  //make looping sound
 		  log_debug("making sound with sprite %d..", sprite);
@@ -228,7 +228,7 @@ void place_sprites_game()
 	      
 	      if (spr[sprite].hard == 0)
 		{
-		  /*  if (pam.sprite[j].prop == 0)
+		  /*  if (pam.sprite[j].is_warp == 0)
 			add_hardness(sprite, 1);
 		      else */
 		  add_hardness(sprite, 100+j);
@@ -319,7 +319,7 @@ void fill_back_sprites()
 
 	      if (spr[sprite].hard == 0)
 		{
-		  /*if (pam.sprite[j].prop == 0)
+		  /*if (pam.sprite[j].is_warp == 0)
 		    add_hardness(sprite, 1); else */
 		  add_hardness(sprite,100+j);
 		}
@@ -344,7 +344,7 @@ void fill_hard_sprites()
 	  // Msg("proccesing sprite %d", h);
 	  if (spr[h].sp_index != 0)
 	    {
-	      //Msg("has spindex of %d prop is %d",spr[h].sp_index,pam.sprite[spr[h].sp_index].prop);
+	      //Msg("has spindex of %d is_warp is %d",spr[h].sp_index,pam.sprite[spr[h].sp_index].is_warp);
 	      if (pam.sprite[spr[h].sp_index].hard == 0)
 		{
 		  add_hardness(h,100+spr[h].sp_index);

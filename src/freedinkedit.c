@@ -2,7 +2,7 @@
  * FreeDink editor-specific code
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
- * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2011  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2011, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -130,7 +130,7 @@ static int sp_que;
 static int sp_hard = 1;
 static int sp_sound = 0;
 static int sp_type = 1;
-static int sp_prop = 0;
+static int sp_is_warp = 0;
 static int sp_warp_map = 0;
 static /*bool*/int show_display = /*true*/1;
 static int sp_picker = 0;
@@ -326,7 +326,7 @@ void place_sprites()
 	      
 	      if (spr[sprite].hard == 0)
 		{
-		  if (pam.sprite[j].prop == 0)
+		  if (pam.sprite[j].is_warp == 0)
 		    add_hardness(sprite, 1);
 		  else add_hardness(sprite, 100 + j);
 		}
@@ -350,7 +350,7 @@ void place_sprites()
 	      
 	      if (spr[sprite].hard == 0)
 		{
-		  if (pam.sprite[j].prop == 0)
+		  if (pam.sprite[j].is_warp == 0)
 		    add_hardness(sprite, 1); else add_hardness(sprite,100+j);
 		}
 	    }
@@ -1101,7 +1101,7 @@ void sp_add( void )
 			pam.sprite[j].timer = sp_timer;
 			pam.sprite[j].que = sp_que;
 			pam.sprite[j].hard = sp_hard;
-			pam.sprite[j].prop = sp_prop;
+			pam.sprite[j].is_warp = sp_is_warp;
 			pam.sprite[j].warp_map = sp_warp_map;
 			pam.sprite[j].warp_x = sp_warp_x;
 			pam.sprite[j].warp_y = sp_warp_y;
@@ -1282,7 +1282,7 @@ void check_in(void)
    *  7 = base_idle
    *  8 = que
    *  9 = hard (hardness_type - background|sprite)
-   * 10 = prop (is_warp)
+   * 10 = is_warp
    * 11 = warp_map
    * 12 = warp_x
    * 13 = warp_y
@@ -1433,9 +1433,9 @@ void check_in(void)
   if (in_master == 10)
     {
       in_command = 1; //number
-      in_int = &sp_prop;
+      in_int = &sp_is_warp;
       in_max = 10; //max _length
-      sprintf(in_default,"%d",sp_prop); //set default
+      sprintf(in_default,"%d",sp_is_warp); //set default
       blit(30,1,GFX_lpDDSBack,250,170);
       Say("New Properties?",260,175);
       Say("Sets special properties for the hardblock.  0 = normal (just hard) 1 = warp."
@@ -2775,7 +2775,7 @@ void updateFrame(void)
 									spr[1].pseq = pam.sprite[uu].seq;
 									spr[1].pframe = pam.sprite[uu].frame;
 
-									sp_prop = pam.sprite[uu].prop;
+									sp_is_warp = pam.sprite[uu].is_warp;
 
 									sp_warp_map = pam.sprite[uu].warp_map;
 									sp_warp_x = pam.sprite[uu].warp_x;

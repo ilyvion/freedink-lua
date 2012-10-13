@@ -1,7 +1,7 @@
 /**
  * Header for code common to FreeDink and FreeDinkedit
 
- * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -59,7 +59,7 @@ struct sprite_placement
   int speed, base_walk, base_idle, base_attack, base_hit, timer, que;
   int hard;
   rect alt; /* trim left/top/right/bottom */
-  int prop;
+  int is_warp;
   int warp_map;
   int warp_x;
   int warp_y;

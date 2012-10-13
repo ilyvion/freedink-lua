@@ -4,7 +4,7 @@
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2003  Shawn Betts
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009, 2010  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -570,7 +570,7 @@ unsigned char get_hard_play(int h, int x1, int y1)
     return 0;
 
   int value =  hm.x[x1].y[y1];
-  if (value > 100 && pam.sprite[value-100].prop != 0)
+  if (value > 100 && pam.sprite[value-100].is_warp != 0)
     {
       flub_mode = value;
       value = 0;
@@ -776,7 +776,7 @@ void drawallhard( void)
 	if (hm.x[x1].y[y1] > 100)
 	  {
 
-	    if (pam.sprite[  (hm.x[x1].y[y1]) - 100].prop == 1)
+	    if (pam.sprite[  (hm.x[x1].y[y1]) - 100].is_warp == 1)
 	      {
 		//draw a little pixel
 /* 		ddbltfx.dwFillColor = 20; */
@@ -959,7 +959,7 @@ int load_map_to(char* path, const int num, struct small_map* screen)
       screen->sprite[i].alt.bottom = read_lsb_int(f);
       // offset 140
       
-      screen->sprite[i].prop = read_lsb_int(f);
+      screen->sprite[i].is_warp = read_lsb_int(f);
       screen->sprite[i].warp_map = read_lsb_int(f);
       screen->sprite[i].warp_x = read_lsb_int(f);
       screen->sprite[i].warp_y = read_lsb_int(f);
@@ -1104,7 +1104,7 @@ void save_map(const int num)
 	  write_lsb_int(pam.sprite[i].alt.bottom, f);
 	  // offset 140
 
-	  write_lsb_int(pam.sprite[i].prop, f);
+	  write_lsb_int(pam.sprite[i].is_warp, f);
 	  write_lsb_int(pam.sprite[i].warp_map, f);
 	  write_lsb_int(pam.sprite[i].warp_x, f);
 	  write_lsb_int(pam.sprite[i].warp_y, f);
