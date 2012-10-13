@@ -3841,7 +3841,10 @@ void process_warp_man(void)
 {
   int sprite = find_sprite(process_warp);
   
-  if (spr[sprite].seq == 0) /* warp anim is finished */
+  /* warp sprite doesn't exist (e.g. merged background sprite), or
+     warp anim is finished */
+  /* Cf. http://www.dinknetwork.com/forum.cgi?MID=168476 */
+  if (sprite == 0 || spr[sprite].seq == 0)
     {
       process_count++;
       CyclePalette();
