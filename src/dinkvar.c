@@ -3236,6 +3236,19 @@ void kill_sprite_all (int sprite)
 }
 
 
+/**
+ * Find an editor sprite in active sprites
+ */
+int find_sprite(int editor_sprite)
+{
+  int k;
+  for (k = 1; k <= last_sprite_created; k++)
+    if (spr[k].sp_index == editor_sprite)
+      return k;
+  return 0;
+}
+
+
 void get_right(char line[200], char thing[100], char *ret)
         {
                 char *dumb;

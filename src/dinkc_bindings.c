@@ -3,7 +3,7 @@
 
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
- * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2011  Sylvain Beucler
+ * Copyright (C) 2005, 2007, 2008, 2009, 2010, 2011, 2012  Sylvain Beucler
 
  * This file is part of GNU FreeDink
 
@@ -1395,17 +1395,12 @@ void dc_create_sprite(int script, int* yield, int* preturnint,
 void dc_sp(int script, int* yield, int* preturnint,
 	   int editor_sprite)
 {
-  int ii;
-  for (ii = 1; ii <= last_sprite_created; ii++)
-    {
-      if (spr[ii].sp_index == editor_sprite)
-	{
-	  log_debug("Sp returned %d.", ii);
-	  *preturnint = ii;
-	  return;
-	}
-      
-    }
+  int i = find_sprite(editor_sprite);
+  if (i != 0) {
+    log_debug("Sp returned %d.", i);
+    *preturnint = i;
+    return;
+  }
   if (last_sprite_created == 1)
     log_warn("you can't call SP() from a screen-ref,"
 	     " no sprites have been created yet.");

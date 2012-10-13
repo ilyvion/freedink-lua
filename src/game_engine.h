@@ -69,7 +69,7 @@ struct sp
   int hard;
   rect alt;
   int althard;
-  int sp_index;
+  int sp_index;  /* editor_sprite */
   /*BOOL*/int nocontrol;
   int idle;
   int strength;

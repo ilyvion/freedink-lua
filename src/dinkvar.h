@@ -51,7 +51,9 @@ struct attackinfo_struct
 
 struct sprite_placement
 {
-  int x, y, seq, frame, type, size;
+  int x, y;
+  int seq, frame, type;  /* DinkC: editor_seq, editor_frame, editor_type */
+  int size;
   BOOL_1BYTE active;
   int rotation, special, brain;
   
@@ -220,6 +222,7 @@ extern void kill_text_owned_by(int sprite);
 
 /* Sprites - global */
 extern void kill_sprite_all (int sprite);
+extern int find_sprite(int editor_sprite);
 
 /* Scripts */
 extern int say_text_xy(char text[200], int mx, int my, int script);

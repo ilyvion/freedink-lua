@@ -3319,22 +3319,6 @@ shootm:
   return /*false*/0;
 }
 
-	
-	int find_sprite(int block)
-	{
-	  int k;
-		for (k = 1; k <= last_sprite_created; k++)
-		{
-			if (spr[k].sp_index == block)
-			{
-				return(k);
-			}
-			
-		}
-		
-		return(0);
-		
-	}
 
 /**
  * Trigger a warp (teleport)
