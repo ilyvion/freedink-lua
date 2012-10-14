@@ -937,6 +937,8 @@ void duck_brain(int h)
 		
 		//hit a dead duck
 		int crap2 = add_sprite(spr[h].x,spr[h].y,7,164,1);
+                /* TODO: add_sprite might return 0, and the following
+                   would trash spr[0] - cf. bugs.debian.org/688934 */
 		spr[crap2].speed = 0;
 		spr[crap2].base_walk = 0;
 		spr[crap2].seq = 164;
@@ -961,6 +963,8 @@ void duck_brain(int h)
 		check_for_kill_script(h);
 		spr[h].follow = 0;
 		int crap = add_sprite(spr[h].x,spr[h].y,5,1,1);
+                /* TODO: add_sprite might return 0, and the following
+                   would trash spr[0] - cf. bugs.debian.org/688934 */
 		spr[crap].speed = 0;
 		spr[crap].base_walk = 0;
 		spr[crap].size = spr[h].size;						

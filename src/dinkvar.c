@@ -3925,6 +3925,8 @@ void copy_bmp(char* name)
                 myseq += (rand () % randy);
                 
                 int crap2 = add_sprite(mx,my,5,myseq,1);
+                /* TODO: add_sprite might return 0, and the following
+                   would trash spr[0] - cf. bugs.debian.org/688934 */
                 spr[crap2].speed = 0;
                 spr[crap2].base_walk = -1;
                 spr[crap2].nohit = 1;
