@@ -1,22 +1,21 @@
 # Polish translation for freedink
 # Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the freedink package.
-# Michał Trzebiatowski <hippie_1968@hotmail.com>, 2009.
+# Michał Trzebiatowski <hippie_1968@hotmail.com>, 2009-2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20090918\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-10-14 12:12+0200\n"
-"PO-Revision-Date: 2009-09-22 17:23+0100\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2012-10-15 11:10+0100\n"
 "Last-Translator: Michał Trzebiatowski <hippie_1968@hotmail.com>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Polish\n"
-"X-Poedit-Country: POLAND\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: src/init.c:108
 #, c-format
@@ -50,12 +49,8 @@ msgstr "  -g, --game <katalog>      Określ katalog D-Modu\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <katalog>    Określ podstawowy katalog dla dinka/grafik, D-"
-"Modów, itd.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <katalog>    Określ podstawowy katalog dla dinka/grafik, D-Modów, itd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -79,15 +74,13 @@ msgstr "  -s, --nosound         Nie odtwarzaj dźwięku\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Pozwól na więcej kolorów (dla ostatnich grafik D-Modu)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window          Używaj trybu okna zamiast trybu pełnoekranowego\n"
+msgstr "  -w, --window          Używaj trybu okna zamiast trybu pełnoekranowego\n"
 
 #: src/init.c:127
 #, c-format
@@ -107,8 +100,7 @@ msgstr "Błędy proszę zgłaszać na adres %s.\n"
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Uwaga: -nomovie jest akceptowane dla zgodności, ale nie ma to wpływu.\n"
+msgstr "Uwaga: -nomovie jest akceptowane dla zgodności, ale nie ma to wpływu.\n"
 
 #: src/freedink.c:2675
 msgid "`$I don't see anything here."

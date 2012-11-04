@@ -1,14 +1,14 @@
 # French translations for GNU FreeDink package
 # Traductions françaises du paquet GNU FreeDink.
 # This file is put in the public domain.
-# Sylvain Beucler <beuc@beuc.net>, 2008, 2009.
+# Sylvain Beucler <beuc@beuc.net>, 2008, 2009, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20090918\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-10-14 12:12+0200\n"
-"PO-Revision-Date: 2009-11-21 13:48+0100\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2012-11-04 14:47+0100\n"
 "Last-Translator: Sylvain Beucler <beuc@beuc.net>\n"
 "Language-Team: French <traduc@traduc.org>\n"
 "Language: fr\n"
@@ -50,17 +50,13 @@ msgstr "  -g, --game <dir>      Specifie le dossier d'un D-Mod\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"   -r, --refdir <dir>    Spécifie le répertoire de base pour dink/graphics, "
-"les D-Mods, etc.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Spécifie le répertoire de base pour dink/graphics, les D-Mods, etc.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr "   -d, --debug           Explique ce qui se passe\n"
+msgstr "  -d, --debug           Explique ce qui se passe\n"
 
 #: src/init.c:122
 #, c-format
@@ -79,15 +75,13 @@ msgstr "  -s, --nosound         Coupe le son\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Permet davantage de couleurs (pour les graphismes des D-Mod récents)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window          Utilise le mode fenêtré plutôt que le plein écran\n"
+msgstr "  -w, --window          Utilise le mode fenêtré plutôt que le plein écran\n"
 
 #: src/init.c:127
 #, c-format
@@ -109,9 +103,7 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Note: -nomovie est accepté pour des raisons de compatibilité, mais n'a aucun "
-"effet.\n"
+msgstr "Note: -nomovie est accepté pour des raisons de compatibilité, mais n'a aucun effet.\n"
 
 #: src/freedink.c:2675
 msgid "`$I don't see anything here."

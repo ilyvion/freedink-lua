@@ -1,14 +1,14 @@
 # Esperanto translation
-# Copyright (C) 2011 Free Software Foundation, Inc.
+# Copyright (C) 2011, 2012 Free Software Foundation, Inc.
 # This file is distributed under the same license as the freedink package.
-# Felipe Castro <fefcal@gmail.com>, 2011.
+# Felipe Castro <fefcas@gmail.com>, 2011, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20100321\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-10-14 12:12+0200\n"
-"PO-Revision-Date: 2011-03-07 18:26-0300\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2012-10-15 08:26-0300\n"
 "Last-Translator: Felipe Castro <fefcas@gmail.com>\n"
 "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
 "Language: eo\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr "Uzado: %s [ELEKTILOJ]...\n"
+msgstr "Uzado: %s [MODIFILOJ]...\n"
 
 #: src/init.c:110
 #, c-format
@@ -48,12 +48,8 @@ msgstr "  -g, --game <ujo>      Indiki dosierujon kun DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <ujo>    Indiki bazan dosierujon por dink/graphics, D-Mod, "
-"ktp.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <ujo>    Indiki bazan dosierujon por dink/graphics, D-Mod, ktp.\n"
 
 #: src/init.c:121
 #, c-format
@@ -63,12 +59,12 @@ msgstr "  -d, --debug           Klarigi tion, kio estas farata\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Ne provi skribi al dinksmallwood.ini\n"
+msgstr "  -i, --noini           Ne provi skribon al dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr "  -j, --nojoy           Ne provi uzi stirstangon (joystick)\n"
+msgstr "  -j, --nojoy           Ne provi uzon de stirstango (joystick)\n"
 
 #: src/init.c:124
 #, c-format
@@ -77,9 +73,8 @@ msgstr "  -s, --nosound         Ne ludi sonojn\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Permesi pli da koloroj (por la plejnovaj grafikoj de D-Mod)\n"
 
 #: src/init.c:126
 #, c-format
@@ -106,8 +101,7 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Rimarku: -nomovie estas akceptata pro kongrueco, sed ĝi kaŭzas nenion.\n"
+msgstr "Rimarku: -nomovie estas akceptata pro kongrueco, sed ĝi kaŭzas nenion.\n"
 
 #: src/freedink.c:2675
 msgid "`$I don't see anything here."

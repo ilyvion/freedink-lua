@@ -1,22 +1,22 @@
 # Translation of freedink to Croatian.
 # Copyright (C) 2012 Contributor
 # This file is distributed under the same license as the freedink package.
-# Tomislav Krznar <tomislav.krznar@gmail.com>, 2012.
 #
+# Tomislav Krznar <tomislav.krznar@gmail.com>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20100321\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-10-14 12:12+0200\n"
-"PO-Revision-Date: 2012-04-16 01:58+0200\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2012-10-16 22:43+0200\n"
 "Last-Translator: Tomislav Krznar <tomislav.krznar@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"X-Generator: Lokalize 1.4\n"
 
 #: src/init.c:108
 #, c-format
@@ -26,8 +26,7 @@ msgstr "Uporaba: %s [OPCIJE]...\n"
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr ""
-"Pokreće igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
+msgstr "Pokreće igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
 
 #: src/init.c:112
 #, c-format
@@ -51,12 +50,8 @@ msgstr "  -g, --game <dir>      Navedi DMod direktorij\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <dir>    Navedi osnovni direktorij za dink/grafiku, "
-"modifikacije itd.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <dir>    Navedi osnovni direktorij za dink/grafiku, modifikacije itd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -80,15 +75,13 @@ msgstr "  -s, --nosound         Nemoj reproducirati zvukove\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Dozvoli više boja (za grafiku novijih modifikacija)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window          Koristi prikaz u prozoru umjesto na cijelom ekranu\n"
+msgstr "  -w, --window          Koristi prikaz u prozoru umjesto na cijelom ekranu\n"
 
 #: src/init.c:127
 #, c-format
@@ -110,8 +103,7 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Napomena: -nomovie se prihvaća zbog kompatibilnosti, no nema utjecaja.\n"
+msgstr "Napomena: -nomovie se prihvaća zbog kompatibilnosti, no nema utjecaja.\n"
 
 #: src/freedink.c:2675
 msgid "`$I don't see anything here."
@@ -123,8 +115,7 @@ msgstr "`$Ha?"
 
 #: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr ""
-"`$Poprilično sam siguran da s tim ne mogu pričati ili drukčije koristiti."
+msgstr "`$Poprilično sam siguran da s tim ne mogu pričati ili drukčije koristiti."
 
 #: src/freedink.c:2678
 msgid "`$What?"
