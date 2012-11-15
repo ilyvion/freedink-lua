@@ -1,92 +1,91 @@
-# Finnish messages for freedink.
-# This file is put in the public domain.
-# Copyright © 2009, 2012 Free Software Foundation, Inc.
+# Basque translation of freedink-1.08.20120427.
+# Copyright (C) 2012 Free Software Foundation, Inc.
 # This file is distributed under the same license as the freedink package.
-# Jorma Karvonen <karvonen.jorma@gmail.com>, 2009, 2012.
-#
+# Gorka Azkarate Zubiaur <gorkaazkarate@gmail.com>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20120427\n"
+"Project-Id-Version: freedink-1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
 "POT-Creation-Date: 2012-04-27 15:45+0200\n"
-"PO-Revision-Date: 2012-11-08 16:29+0200\n"
-"Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
-"Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
-"Language: fi\n"
+"PO-Revision-Date: 2012-11-04 17:43+0200\n"
+"Last-Translator: Gorka Azkarate Zubiaur <gorkaazkarate@gmail.com>\n"
+"Language-Team: Basque <translation-team-eu@lists.sourceforge.net>\n"
+"Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.7.0\n"
 
 #: src/init.c:108
 #, c-format
 msgid "Usage: %s [OPTIONS]...\n"
-msgstr "Käyttö: %s [VALITSIMET]...\n"
+msgstr "Erabilera: %s [OPTIONS]...\n"
 
 #: src/init.c:110
-#, c-format
+#, fuzzy, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Käynnistää Dink Smallwood-pelin tai yhden sen Dink- eli D-Mods-moduulin."
+msgstr "Hasi Dink Smallwood jolasa edo bere D-Mods horietako bat.\n"
 
 #: src/init.c:112
-#, c-format
+#, fuzzy, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr "Muokkaa Dink Smallwood-peliä tai yhtä sen D-Mods-moduulia."
+msgstr "Editatu Dink Smallwood jolasa edo bere D-Mod horietako bat.\n"
 
 #: src/init.c:115
 #, c-format
 msgid "  -h, --help            Display this help screen\n"
-msgstr "  -h, --help            Näytä tämä opastenäyttö\n"
+msgstr "  -h, --help            Erakutsi laguntza-pantaila hau\n"
 
 #: src/init.c:116
 #, c-format
 msgid "  -v, --version         Display the version\n"
-msgstr "  -v, --version         Näytä versio\n"
+msgstr " -v, --version         Erakutsi bertsioa\n"
 
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr "  -g, --game <kansio>   Määritä DMod-kansio\n"
+msgstr "  -g, --game <dir>      Zehaztu DMod direktorioa\n"
 
 #: src/init.c:119
 #, c-format
 msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <kansio> Määritä peruskansio dink/graphics, D-Mods-moduuleille, jne.\n"
+msgstr "  -r, --refdir <dir>    Zehaztu oinarrizko direktorioa honako hauetarako: dink/graphics, D-Mods, etab.\n"
 
 #: src/init.c:121
 #, c-format
 msgid "  -d, --debug           Explain what is being done\n"
-msgstr "  -d, --debug           Selitä mitä ollaan tehty\n"
+msgstr "  -d, --debug           Azaldu zer ari den gertatzen\n"
 
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Älä yritä kirjoittaa tiedostoa dinksmallwood.ini\n"
+msgstr "  -i, --noini           Ez saiatu hau editatzen: dinksmallwood.ini\n"
 
 #: src/init.c:123
 #, c-format
 msgid "  -j, --nojoy           Do not attempt to use joystick\n"
-msgstr "  -j, --nojoy           Älä yritä käyttää ohjainsauvaaa\n"
+msgstr "  -j, --nojoy           Ez erabili joystick-ik\n"
 
 #: src/init.c:124
 #, c-format
 msgid "  -s, --nosound         Do not play sound\n"
-msgstr "  -s, --nosound         Älä käytä ääniä\n"
+msgstr "  -s, --nosound         Ez dadila soinurik entzun\n"
 
 #: src/init.c:125
 #, c-format
 msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr "  -t, --truecolor       Salli lisää väreäjä (äskeiselle D-Mod-grafiikalle)\n"
+msgstr " -t, --truecolor       Onartu kolore gehiago (azken D-Mod graphics bertsioetarako)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Käytä ikkunoitua tilaa kokoruutunäytön sijasta\n"
+msgstr "  -w, --window          Erabili leihodun modua pantailadun modua erabili beharrean\n"
 
 #: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Ota käyttöön v1.07-yhteensopivuustila\n"
+msgstr "  -7, --v1.07           Gaitu v1.07 bateratzeko modua\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -96,117 +95,137 @@ msgstr "  -7, --v1.07           Ota käyttöön v1.07-yhteensopivuustila\n"
 #: src/init.c:137
 #, c-format
 msgid "Report bugs to %s.\n"
-msgstr ""
-"Ilmoita virheistä osoitteeseen %s.\n"
-"Ilmoita käännösvirheistä osoitteeseen <translation-team-fi@lists.sourceforge.net>\n"
+msgstr "Arazoen berri %s horri eman.\n"
 
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Huomatus: -nomovie on hyväksytty yhteensopivuussyistä, mutta sillä ei ole mitään vaikutusta.\n"
+msgstr "Oharra: -nomovie onartu egiten da bateratzeko, baina ez du ondoriorik.\n"
 
 #: src/freedink.c:2675
+#, fuzzy
 msgid "`$I don't see anything here."
-msgstr "`$En näe täällä mitään."
+msgstr "`$Nik ez dut hemen ezer ikusten.\n"
 
 #: src/freedink.c:2676
+#, fuzzy
 msgid "`$Huh?"
-msgstr "`$Huh?"
+msgstr "`$Huh?\n"
 
 #: src/freedink.c:2677
+#, fuzzy
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Olen täysin varma, että en voi puhua kohteelle tai käyttää sitä."
+msgstr "`$Nahiko ziur dakit mintza naitekeela horrekin edo erabil dezakedala hori.\n"
 
 #: src/freedink.c:2678
+#, fuzzy
 msgid "`$What?"
-msgstr "`$Mitä?"
+msgstr "`$Zer?\n"
 
 #: src/freedink.c:2679
+#, fuzzy
 msgid "`$I'm bored."
-msgstr "`$Minulla on tylsää."
+msgstr "`$Aspertuta nago.\n"
 
 #: src/freedink.c:2680
+#, fuzzy
 msgid "`$Not much happening here."
-msgstr "`$Täällä ei paljoa tapahdu."
+msgstr "`$Hemen ez da gauza handirik gertatzen ari.\n"
 
 #: src/freedink.c:2788
+#, fuzzy
 msgid "`$I don't know any magic."
-msgstr "`$En osaa mitään taikuutta."
+msgstr "`$Nik ez dakit beste munduko trikimailu magikorik.\n"
 
 #: src/freedink.c:2789
+#, fuzzy
 msgid "`$I'm no wizard!"
-msgstr "`$En ole velho!"
+msgstr "`$Ez nauzu sorgin!\n"
 
 #: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
-msgstr "`$Minun täytyy oppia taikuutta ennen tämän yrittämistä."
+msgstr "`$Horrekin saiatu baino lehenago magia ikasi beharko nuke."
 
 #: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
-msgstr "`$Elehdin villisti ilman että siitä on hyötyä!"
+msgstr "`$Imintzioka eta keinuka ari natzaizu ez alferrik!"
 
 #: src/freedink.c:2792
+#, fuzzy
 msgid "`$Nothing happened."
-msgstr "`$Mitään ei tapahdu."
+msgstr "`$Ez da ezer gertatu.\n"
 
 #: src/freedink.c:2793
+#, fuzzy
 msgid "`$Hocus pocus!"
-msgstr "`$Hokkuspokkus!"
+msgstr "`$Atzilla motzilla!\n"
 
 #: src/dinkc.c:687
+#, fuzzy
 msgid "Attack"
-msgstr "Hyökkäys"
+msgstr "Ekin\n"
 
 #: src/dinkc.c:688
+#, fuzzy
 msgid "Talk/Examine"
-msgstr "Puhu/Tutki"
+msgstr "Mintzatu/Aztertu\n"
 
 #: src/dinkc.c:689
+#, fuzzy
 msgid "Magic"
-msgstr "Taika"
+msgstr "Magikoa\n"
 
 #: src/dinkc.c:690
+#, fuzzy
 msgid "Item Screen"
-msgstr "Esinenäyttö"
+msgstr "Pantaila bat\n"
 
 #: src/dinkc.c:691
+#, fuzzy
 msgid "Main Menu"
-msgstr "Päävalikko"
+msgstr "Menu nagusia\n"
 
 #: src/dinkc.c:692
+#, fuzzy
 msgid "Map"
-msgstr "Kartta"
+msgstr "Mapa\n"
 
 #: src/dinkc.c:693 src/dinkc.c:694 src/dinkc.c:695 src/dinkc.c:696
+#, fuzzy
 msgid "Unused"
-msgstr "Käyttämätön"
+msgstr "Erabili gabea\n"
 
 #: src/dinkc.c:697
+#, fuzzy
 msgid "Down"
-msgstr "Alas"
+msgstr "Behean\n"
 
 #: src/dinkc.c:698
+#, fuzzy
 msgid "Left"
-msgstr "Vasemmalle"
+msgstr "Ezkerretan\n"
 
 #: src/dinkc.c:699
+#, fuzzy
 msgid "Right"
-msgstr "Oikealle"
+msgstr "Eskuinetan\n"
 
 #: src/dinkc.c:700
+#, fuzzy
 msgid "Up"
-msgstr "Ylös"
+msgstr "Goian\n"
 
 #: src/dinkc.c:701
+#, fuzzy
 msgid "Error: not mapped"
-msgstr "Virhe: ei kartoitettu"
+msgstr "Errorea: mapan sartu gabea\n"
 
 #: src/dinkc.c:712
-#, c-format
+#, fuzzy, c-format
 msgid "Slot %d - %d:%02d - %s"
-msgstr "Tallennuspaikka %d - %d:%02d - %s"
+msgstr "Slot %d - %d:%02d - %s\n"
 
 #: src/dinkc.c:715
-#, c-format
+#, fuzzy, c-format
 msgid "Slot %d - Empty"
-msgstr "Tallennuspaikka %d - Tyhjä"
+msgstr "Slot %d - Hutsik\n"
