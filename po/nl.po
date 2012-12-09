@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"POT-Creation-Date: 2012-12-09 18:13+0100\n"
 "PO-Revision-Date: 2012-10-28 22:40+0100\n"
 "Last-Translator: Koen Torfs <koen@indigetesdii.org>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -48,8 +48,12 @@ msgstr "  -g, --game <dir>      Een DMod-map specifiëren\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Basismap voor dink/graphics, D-Mods etc. specifiëren\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Basismap voor dink/graphics, D-Mods etc. "
+"specifiëren\n"
 
 #: src/init.c:121
 #, c-format
@@ -59,7 +63,8 @@ msgstr "  -d, --debug           Wat gedaan wordt uitleggen\n"
 #: src/init.c:122
 #, c-format
 msgid "  -i, --noini           Do not attempt to write dinksmallwood.ini\n"
-msgstr "  -i, --noini           Niet proberen om dinksmallwood.ini te schrijven\n"
+msgstr ""
+"  -i, --noini           Niet proberen om dinksmallwood.ini te schrijven\n"
 
 #: src/init.c:123
 #, c-format
@@ -73,13 +78,17 @@ msgstr "  -s, --nosound         Geen geluid\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr "--t, --truecolor       Meer kleuren toelaten (voor recente D-Mod graphics)\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+"--t, --truecolor       Meer kleuren toelaten (voor recente D-Mod graphics)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Venstermodus in plaats van volledig scherm gebruiken\n"
+msgstr ""
+"  -w, --window          Venstermodus in plaats van volledig scherm "
+"gebruiken\n"
 
 #: src/init.c:127
 #, c-format
@@ -99,53 +108,54 @@ msgstr "Meld bugs via %s.\n"
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Nota: -nomovie wordt aanvaard voor compatibiliteit, maar heeft geen effect.\n"
+msgstr ""
+"Nota: -nomovie wordt aanvaard voor compatibiliteit, maar heeft geen effect.\n"
 
-#: src/freedink.c:2675
+#: src/freedink.c:2679
 msgid "`$I don't see anything here."
 msgstr "`$Er is hier niets te zien."
 
-#: src/freedink.c:2676
+#: src/freedink.c:2680
 msgid "`$Huh?"
 msgstr "`$Huh?"
 
-#: src/freedink.c:2677
+#: src/freedink.c:2681
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Ik ben vrij zeker dat ik dit niet kan aanspreken of gebruiken."
 
-#: src/freedink.c:2678
+#: src/freedink.c:2682
 msgid "`$What?"
 msgstr "`$Wat?"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2683
 msgid "`$I'm bored."
 msgstr "`$Ik verveel me."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2684
 msgid "`$Not much happening here."
 msgstr "`$Er is hier niets aan de gang."
 
-#: src/freedink.c:2788
+#: src/freedink.c:2792
 msgid "`$I don't know any magic."
 msgstr "`$Ik ken helemaal niets van magie."
 
-#: src/freedink.c:2789
+#: src/freedink.c:2793
 msgid "`$I'm no wizard!"
 msgstr "`$Ik ben geen tovenaar!"
 
-#: src/freedink.c:2790
+#: src/freedink.c:2794
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Ik moet magie leren voordat ik dit probeer."
 
-#: src/freedink.c:2791
+#: src/freedink.c:2795
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Ik sta hier te zwaaien zonder resultaat!"
 
-#: src/freedink.c:2792
+#: src/freedink.c:2796
 msgid "`$Nothing happened."
 msgstr "`$Er is niets gebeurd."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2797
 msgid "`$Hocus pocus!"
 msgstr "`$Hocus pocus!"
 

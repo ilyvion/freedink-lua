@@ -1,8 +1,8 @@
-freedink (1.08.20120432-1) UNRELEASED; urgency=low
+freedink (1.08.20121209-1) experimental; urgency=low
 
   * New Upstream Version (Closes: #688934)
 
- -- Sylvain Beucler <beuc@debian.org>  Sun, 14 Oct 2012 14:27:28 +0200
+ -- Sylvain Beucler <beuc@debian.org>  Sun, 09 Dec 2012 18:09:55 +0100
 
 freedink (1.08.20120427-2) unstable; urgency=low
 

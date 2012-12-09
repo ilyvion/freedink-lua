@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink-1.08.20100321\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-10-14 12:12+0200\n"
+"POT-Creation-Date: 2012-12-09 18:13+0100\n"
 "PO-Revision-Date: 2011-12-24 23:30+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
@@ -108,52 +108,52 @@ msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
 msgstr ""
 "Напомена: „-nomovie“ је прихваћено због сагласности, али нема дејства.\n"
 
-#: src/freedink.c:2675
+#: src/freedink.c:2679
 msgid "`$I don't see anything here."
 msgstr "`$Ништа ти ја овде не видим."
 
-#: src/freedink.c:2676
+#: src/freedink.c:2680
 msgid "`$Huh?"
 msgstr "`$Ааа?"
 
-#: src/freedink.c:2677
+#: src/freedink.c:2681
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr ""
 "`$Поприлично сам сигуран да не могу да причам с овим или да га користим."
 
-#: src/freedink.c:2678
+#: src/freedink.c:2682
 msgid "`$What?"
 msgstr "`$Шта?"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2683
 msgid "`$I'm bored."
 msgstr "`$Досадно ми је."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2684
 msgid "`$Not much happening here."
 msgstr "`$Овде се баш ништа не догађа."
 
-#: src/freedink.c:2788
+#: src/freedink.c:2792
 msgid "`$I don't know any magic."
 msgstr "`$Не познајем никакву магију."
 
-#: src/freedink.c:2789
+#: src/freedink.c:2793
 msgid "`$I'm no wizard!"
 msgstr "`$Нисам ти ја чаробњак!"
 
-#: src/freedink.c:2790
+#: src/freedink.c:2794
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Морам да научим магију да бих испробао ово."
 
-#: src/freedink.c:2791
+#: src/freedink.c:2795
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Узалуд машем рукама као суманут!"
 
-#: src/freedink.c:2792
+#: src/freedink.c:2796
 msgid "`$Nothing happened."
 msgstr "`$Ништа се није десило."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2797
 msgid "`$Hocus pocus!"
 msgstr "`$Хокус покус!"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"POT-Creation-Date: 2012-12-09 18:13+0100\n"
 "PO-Revision-Date: 2012-10-16 22:43+0200\n"
 "Last-Translator: Tomislav Krznar <tomislav.krznar@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
@@ -15,7 +15,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "X-Generator: Lokalize 1.4\n"
 
 #: src/init.c:108
@@ -26,7 +27,8 @@ msgstr "Uporaba: %s [OPCIJE]...\n"
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Pokreće igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
+msgstr ""
+"Pokreće igru Dink Smallwood ili jednu od njezinih modifikacija (D-Mod)."
 
 #: src/init.c:112
 #, c-format
@@ -50,8 +52,12 @@ msgstr "  -g, --game <dir>      Navedi DMod direktorij\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Navedi osnovni direktorij za dink/grafiku, modifikacije itd.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Navedi osnovni direktorij za dink/grafiku, "
+"modifikacije itd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -75,13 +81,16 @@ msgstr "  -s, --nosound         Nemoj reproducirati zvukove\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr "  -t, --truecolor       Dozvoli više boja (za grafiku novijih modifikacija)\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+"  -t, --truecolor       Dozvoli više boja (za grafiku novijih modifikacija)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Koristi prikaz u prozoru umjesto na cijelom ekranu\n"
+msgstr ""
+"  -w, --window          Koristi prikaz u prozoru umjesto na cijelom ekranu\n"
 
 #: src/init.c:127
 #, c-format
@@ -103,53 +112,55 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Napomena: -nomovie se prihvaća zbog kompatibilnosti, no nema utjecaja.\n"
+msgstr ""
+"Napomena: -nomovie se prihvaća zbog kompatibilnosti, no nema utjecaja.\n"
 
-#: src/freedink.c:2675
+#: src/freedink.c:2679
 msgid "`$I don't see anything here."
 msgstr "`$Ovdje ne vidim ništa."
 
-#: src/freedink.c:2676
+#: src/freedink.c:2680
 msgid "`$Huh?"
 msgstr "`$Ha?"
 
-#: src/freedink.c:2677
+#: src/freedink.c:2681
 msgid "`$I'm fairly sure I can't talk to or use that."
-msgstr "`$Poprilično sam siguran da s tim ne mogu pričati ili drukčije koristiti."
+msgstr ""
+"`$Poprilično sam siguran da s tim ne mogu pričati ili drukčije koristiti."
 
-#: src/freedink.c:2678
+#: src/freedink.c:2682
 msgid "`$What?"
 msgstr "`$Molim?"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2683
 msgid "`$I'm bored."
 msgstr "`$Dosadno mi je."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2684
 msgid "`$Not much happening here."
 msgstr "`$Ovdje se ne događa ništa."
 
-#: src/freedink.c:2788
+#: src/freedink.c:2792
 msgid "`$I don't know any magic."
 msgstr "`$Ne znam nikakve čarolije."
 
-#: src/freedink.c:2789
+#: src/freedink.c:2793
 msgid "`$I'm no wizard!"
 msgstr "`$Nisam čarobnjak!"
 
-#: src/freedink.c:2790
+#: src/freedink.c:2794
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Moram naučiti čarolije prije nego probam ovo."
 
-#: src/freedink.c:2791
+#: src/freedink.c:2795
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Mašem kao manijak bez učinka!"
 
-#: src/freedink.c:2792
+#: src/freedink.c:2796
 msgid "`$Nothing happened."
 msgstr "`$Ništa se nije dogodilo."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2797
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 

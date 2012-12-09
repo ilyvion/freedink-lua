@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"POT-Creation-Date: 2012-12-09 18:13+0100\n"
 "PO-Revision-Date: 2012-10-14 19:30+01:00\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
@@ -47,8 +47,11 @@ msgstr "  -g, --game <dir>      Angiv en DMod-mappe\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <dir>    Angiv basemappe for dink/grafik, D-Mods, et cetera.\n"
 
 #: src/init.c:121
 #, c-format
@@ -72,18 +75,21 @@ msgstr "  -s, --nosound         Brug ikke lyd\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
 msgstr "  -t, --truecolor       Tillad flere farver (for nyere D-Mod-grafik)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr "  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
+msgstr ""
+"  -w, --window          Brug vinduetilstand i steden for skærmtilstand\n"
 
 #: src/init.c:127
 #, c-format
 msgid "  -7, --v1.07           Enable v1.07 compatibility mode\n"
-msgstr "  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
+msgstr ""
+"  -7, --v1.07           Slå kompatibilitetstilstand til for version 1.07\n"
 
 #. TRANSLATORS: The placeholder indicates the bug-reporting address
 #. for this package.  Please add _another line_ saying "Report
@@ -105,54 +111,56 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen effekt.\n"
+msgstr ""
+"Bemærk: -nomovie accepteres for kompatibilitetens skyld, men har ingen "
+"effekt.\n"
 
-#: src/freedink.c:2675
+#: src/freedink.c:2679
 msgid "`$I don't see anything here."
 msgstr "`$I ser ikke noget her."
 
 # Huh, Jeg tror sådan noget som "Ah hva" eller tilsvarende kan due her
-#: src/freedink.c:2676
+#: src/freedink.c:2680
 msgid "`$Huh?"
 msgstr "`$Ah hva?"
 
-#: src/freedink.c:2677
+#: src/freedink.c:2681
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Jeg er ret sikker på, at jeg ikke kan tale til eller bruge det."
 
-#: src/freedink.c:2678
+#: src/freedink.c:2682
 msgid "`$What?"
 msgstr "`$Hvad?"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2683
 msgid "`$I'm bored."
 msgstr "`$Jeg keder mig."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2684
 msgid "`$Not much happening here."
 msgstr "`$Der sker ikke meget her."
 
-#: src/freedink.c:2788
+#: src/freedink.c:2792
 msgid "`$I don't know any magic."
 msgstr "`$Jeg kender ikke til magi."
 
-#: src/freedink.c:2789
+#: src/freedink.c:2793
 msgid "`$I'm no wizard!"
 msgstr "`$Jeg er ikke troldmand!"
 
-#: src/freedink.c:2790
+#: src/freedink.c:2794
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Jeg må lære om magi, før jeg kan bruge denne."
 
-#: src/freedink.c:2791
+#: src/freedink.c:2795
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Jeg gestikulerer vildt uden effekt!"
 
-#: src/freedink.c:2792
+#: src/freedink.c:2796
 msgid "`$Nothing happened."
 msgstr "`$Intet skete."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2797
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 

@@ -1,6 +1,6 @@
 Name:		freedink
-Version:	1.08.20120427
-Release:	2%{?dist}
+Version:	1.08.20121209
+Release:	1%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -133,6 +133,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Dec 09 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120912-1
+- New upstream release
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20120427-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Sun Jun 10 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-2
 - Add virtual provides for bundled(gnulib) copylib (#821754)
 

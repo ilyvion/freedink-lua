@@ -1,3 +1,79 @@
+2012-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/gnulib.txt, doc/release.txt, gnulib/lib/.gitignore,
+	gnulib/m4/.gitignore, gnulib/m4/gnulib-cache.m4: Update Gnulib
+
+2012-12-09  Sylvain Beucler <beuc@beuc.net>
+
+	* doc/release.txt: Update Fedora Git URL
+
+2012-11-15  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, debian/copyright, po/LINGUAS, po/eu.po, po/fi.po: 
+	New Basque translation and updated Finnish translation
+
+2012-11-04  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, debian/copyright, po/LINGUAS, po/ca.po, po/da.po,
+	po/de.po, po/eo.po, po/fr.po, po/hr.po, po/nb.po, po/nl.po,
+	po/pl.po, po/vi.po: Update translations
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog, debian/patches/install-reloc.patch,
+	debian/patches/series: Sync debian/ + prepare next Debian release
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/freedink.c: Mark places where spr[0] might be
+	trashed I'm not sure about fixing this, because often in Dink, bugs like
+	this have side effects, and D-Mods might depend on these side
+	effects.  Fixing this miswrite could break some D-Mods :/ If we're
+	sure there's no side effect we can fix them.  See also http://bugs.debian.org/688934 (thanks to Bas Wijnen for pointing out)
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* po/cs.po, po/da.po, po/de.po, po/el.po, po/eo.po, po/es.po,
+	po/fi.po, po/fr.po, po/hr.po, po/id.po, po/it.po, po/nb.po,
+	po/nl.po, po/pl.po, po/sl.po, po/sr.po, po/vi.po: make update-po
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* AUTHORS, NEWS, debian/copyright, po/nb.po: Updated Norwegian
+	Bokmaal translation
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, src/freedink.c: Fix game freeze when warping in some special
+	situations (thanks Bas Wijnen)
+
+2012-10-14  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkc_bindings.c, src/dinkvar.c, src/dinkvar.h,
+	src/freedink.c, src/game_engine.h: Factor find_sprite + doc
+
+2012-10-13  Sylvain Beucler <beuc@beuc.net>
+
+	* src/dinkvar.c, src/dinkvar.h, src/freedink.c, src/freedink.h,
+	src/freedinkedit.c, src/game_engine.h, src/screen.c,
+	src/update_frame.c: Clarify & document warp functions and variables
+
+2012-06-10  Sylvain Beucler <beuc@beuc.net>
+
+	* freedink.spec: freedink.spec: reference bundled copy of gnulib
+
+2012-04-27  Sylvain Beucler <beuc@beuc.net>
+
+	* debian/changelog: Tidy Debian changelog
+
+2012-04-27  Sylvain Beucler <beuc@beuc.net>
+
+	* NEWS, configure.ac: Merve 1.08.20120427
+
+2012-04-27  Sylvain Beucler <beuc@beuc.net>
+
+	* ChangeLog, configure.ac, doc/release.txt: Release 1.08.20120427
+
 2012-04-27  Sylvain Beucler <beuc@beuc.net>
 
 	* debian/changelog, debian/control, freedink.spec: Update packaging

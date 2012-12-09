@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"POT-Creation-Date: 2012-12-09 18:13+0100\n"
 "PO-Revision-Date: 2012-10-24 14:02+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
@@ -55,8 +55,12 @@ msgstr "  -g, --game <t.mục>    Ghi rõ một thư mục DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
-msgstr "  -r, --refdir <t.mục>  Ghi rõ thư mục cơ bản cho dink, các đồ họa và bản sửa đổi D-Mod v.v.\n"
+msgid ""
+"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
+"etc.\n"
+msgstr ""
+"  -r, --refdir <t.mục>  Ghi rõ thư mục cơ bản cho dink, các đồ họa và bản "
+"sửa đổi D-Mod v.v.\n"
 
 #: src/init.c:121
 #, c-format
@@ -80,8 +84,11 @@ msgstr "  -s, --nosound         Không nên phát âm thanh\n"
 
 #: src/init.c:125
 #, c-format
-msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr "  -t, --truecolor       Cho phép thêm nhiều màu hơn (cho đồ họa D-Mod mới đây)\n"
+msgid ""
+"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr ""
+"  -t, --truecolor       Cho phép thêm nhiều màu hơn (cho đồ họa D-Mod mới "
+"đây)\n"
 
 #: src/init.c:126
 #, c-format
@@ -109,53 +116,55 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr "Ghi chú: tuỳ chọn \"-nomovie\" (không phim) được chấp nhận để tương thích nhưng không hiệu quả.\n"
+msgstr ""
+"Ghi chú: tuỳ chọn \"-nomovie\" (không phim) được chấp nhận để tương thích "
+"nhưng không hiệu quả.\n"
 
-#: src/freedink.c:2675
+#: src/freedink.c:2679
 msgid "`$I don't see anything here."
 msgstr "`$Tôi chưa thấy gì ở đây cả."
 
-#: src/freedink.c:2676
+#: src/freedink.c:2680
 msgid "`$Huh?"
 msgstr "`$Hừm?"
 
-#: src/freedink.c:2677
+#: src/freedink.c:2681
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Chắc là không thể liên lạc với hoặc sử dụng đó."
 
-#: src/freedink.c:2678
+#: src/freedink.c:2682
 msgid "`$What?"
 msgstr "`$Cái gì ?"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2683
 msgid "`$I'm bored."
 msgstr "`$Buồn tẻ."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2684
 msgid "`$Not much happening here."
 msgstr "`$Ở đây có ít kết quả."
 
-#: src/freedink.c:2788
+#: src/freedink.c:2792
 msgid "`$I don't know any magic."
 msgstr "`$Không quen với ma thuật."
 
-#: src/freedink.c:2789
+#: src/freedink.c:2793
 msgid "`$I'm no wizard!"
 msgstr "`$Không phải nhà chuyên môn!"
 
-#: src/freedink.c:2790
+#: src/freedink.c:2794
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Cần học ma thuật trước khi thử ở đây."
 
-#: src/freedink.c:2791
+#: src/freedink.c:2795
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Chọc tức!"
 
-#: src/freedink.c:2792
+#: src/freedink.c:2796
 msgid "`$Nothing happened."
 msgstr "`$Không có gì xảy ra."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2797
 msgid "`$Hocus pocus!"
 msgstr "`$Thấy đi!"
 
