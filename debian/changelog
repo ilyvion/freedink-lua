@@ -1,6 +1,7 @@
 freedink (1.08.20121209-1) experimental; urgency=low
 
   * New Upstream Version (Closes: #688934)
+  * Remove patch for install-reloc (integrated upstream)
 
  -- Sylvain Beucler <beuc@debian.org>  Sun, 09 Dec 2012 18:09:55 +0100
 
