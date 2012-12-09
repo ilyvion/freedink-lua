@@ -26,3 +26,25 @@ To refresh Gnulib, just:
 
 Gnulib will use 'gnulib/m4/gnulib-cache.m4' to detect which modules
 need to be updated.
+
+
+As of May 2012, I reported a bug in 'build-aux/install-reloc'
+affecting Debian GNU/Hurd and GNU/kFreeBSD in particular.
+A fixed version is available at:
+http://lists.debian.org/debian-bsd/2012/05/msg00032.html
+
+Bruno, who is in charge of this script and wrote the fix, will not
+commit that fix until he has the time to write a proper test case for
+it.  As of December 2012 this remains to be done, so
+'build-aux/install-reloc' needs to be overwritten manually before
+running 'bootstrap'.
+
+Similarly it seems the 'install-reloc' modules makes a Gnulib test fail:
+../../tests/test-fdopendir.c:39:3: error: ‘INSTALLDIR’ undeclared (first use in this function)
+consequently Gnulib tests are disabled.
+
+We may consider dropping relocation support to ease the releases.
+
+
+Version used for 1.08.20121209 :
+  6f909c901db3ebf5ff66e87c035eff800ed5daef + patched install-reloc

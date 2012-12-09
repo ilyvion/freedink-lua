@@ -176,3 +176,8 @@
 /readdir.c
 /rewinddir.c
 /sys_types.in.h
+/bitrotate.c
+/statat.c
+/stdio.c
+/unistd.c
+/xsize.c

@@ -32,6 +32,7 @@ git2cl > ChangeLog
 # Sync freedink.spec
 # Edit freedink.spec (Version/Release + %changelog)
 # (Note: po/freedink.pot is updated automatically)
+# Edit doc/gnulib.txt with the version used $(git rev-parse HEAD)
 
 make distcheck
 git commit -am "Release $VERSION"
@@ -162,6 +163,7 @@ git-import-orig --pristine-tar ../freedink-$VERSION.tar.gz
 # - Fix stuff...
 git commit -am "New upstream release - v$VERSION"
 git-buildpackage --git-tag
+sudo pbuilder --build --basetgz /var/cache/pbuilder/base-testing.tar.gz ../freedink_$VERSION-1.dsc
 git push origin master pristine-tar upstream
 git push --tags
 # http://mentors.debian.net/cgi-bin/maintainer-intro
