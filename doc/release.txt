@@ -46,7 +46,7 @@ git checkout master
 git merge branch-$VERSION-stable --no-commit
 # Edit configure.ac (AC_INIT)
 # Edit NEWS
-git commit
+git commit -m "Merge $VERSION"
 
 
 On the autobuilder:
@@ -167,7 +167,9 @@ sudo pbuilder --build --basetgz /var/cache/pbuilder/base-testing.tar.gz ../freed
 git push origin master pristine-tar upstream
 git push --tags
 # http://mentors.debian.net/cgi-bin/maintainer-intro
-dput mentors ../freedink_$VERSION-1_*.changes
+cd /var/cache/pbuilder/result/
+debsign freedink_$VERSION-1_*.changes
+dput mentors freedink_$VERSION-1_*.changes
 
 
 Fedora notes:
