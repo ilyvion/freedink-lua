@@ -179,4 +179,4 @@ which is detailing this step.
 
 See also:
 https://admin.fedoraproject.org/pkgdb/acls/name/freedink
-http://pkgs.fedoraproject.org/gitweb/?p=freedink.git
+http://pkgs.fedoraproject.org/cgit/freedink.git/
