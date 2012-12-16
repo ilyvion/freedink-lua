@@ -8,7 +8,7 @@ Dependencies
 That's the delicate part.
 
 Currently we compile dependencies ourselves, but check
-mingw-cross-env.txt for an alternative.
+mxe.txt for an alternative.
 
 In any case, keep this in mind:
 
@@ -17,18 +17,17 @@ In any case, keep this in mind:
   heard after 1/2s).
 
 - FreeType need to have the "bytecode interpreter" feature enabled,
-  for hinting engine compatibility (its disabled by default by its
-  developers for fear of patent attacks from Apple).  If you don't,
-  fonts will have a different size than the original Dink, and may not
-  fit the dialog boxes. It's enabled by default in Debian, but not in
-  Fedora (too bad). Note: in a new game engine, it would worth using a
-  more portable font rendering.
+  for hinting engine compatibility (its enabled by default but wasn't
+  before for fear of now-expired patent attacks from Apple).  If you
+  don't, fonts will have a different size than the original Dink, and
+  may not fit the dialog boxes.
 
 - SDL_mixer need to have support for Ogg Vorbis (used by
   freedink-data) and libmikmod (people on the Dink forum mentioned
   interest in audio trackers format - note that libmikmod is not
   bundled in SDL_mixer since v1.2.9 and need to be compiled
-  separately).
+  separately).  It should not have support for MP3 since this format
+  is not available on all platforms due to patents threats.
 
 
 Cross-compilation

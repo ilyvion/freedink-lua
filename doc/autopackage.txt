@@ -1,6 +1,9 @@
 Autopackage
 ===========
 
+Note: Autopackage merged with Listaller http://listaller.tenstral.net/
+in 2010 and is now defunct.
+
 Homepage: http://autopackage.org/
 
 This tool acts as a wrapper for GCC and tries hard to produce a
@@ -12,9 +15,9 @@ have, and double-compile C++ apps against libstdc++ versions 5 and 6.
 
 
 My favorite documentation so far is the tutorial:
-http://autopackage.org/docs/tutorials/glb.html
+http://web.archive.org/web/20090204004157/http://autopackage.org/docs/tutorials/glb.html
 and the explanation of binary portability issues:
-http://autopackage.org/docs/devguide/ch07.html
+http://web.archive.org/web/20090122221524/http://autopackage.org/docs/devguide/ch07.html
 
 
 Our autopackage was init'd through:

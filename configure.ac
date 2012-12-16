@@ -121,14 +121,14 @@ if test x"$use_fontconfig" = x"yes"; then
 fi
 
 if test x"$enable_embedded_resources" = x"yes"; then
-  # libzip - cross-compiles well but not widespread (distro packages) yet
+  # libzip - cross-compiles well
   PKG_CHECK_MODULES([LIBZIP], [libzip >= 0.8],
     AC_DEFINE([HAVE_LIBZIP], [], [libzip library (-lzip)]),
     AC_MSG_WARN($LIBZIP_PKG_ERRORS [(non-fatal if there's zziplib)]); LACK_LIBZIP=1)
   CFLAGS="$CFLAGS $LIBZIP_CFLAGS"
   LIBS="$LIBZIP_LIBS $LIBS"
   # ZZipLib - doesn't cross-compile well and unstable under woe, but
-  #   functional and more widespread under GNU/Linux
+  #   functional and initially more widespread under GNU/Linux
   #AC_CHECK_LIB(zzip,zzip_open_ext_io,,AC_MSG_WARN([You need to install zzip]);LACK_LIBZZIP=1)
   PKG_CHECK_MODULES([ZZIPLIB], [zziplib >= 0.12.83],
     AC_DEFINE([HAVE_ZZIPLIB], [], [zziplib library (-lzzip)]),

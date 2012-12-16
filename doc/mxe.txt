@@ -1,5 +1,5 @@
 Nice project:
-http://www.nongnu.org/mingw-cross-env/
+http://www.mxe.cc/
 
 It basically does what we do in cross.txt.
 
@@ -11,13 +11,14 @@ Pros:
 - Uses the newly added .pc files in SDL_* to handle indirect static
   dependencies (Libs.private) (note that distro packages don't have
   them yet).
+- 64bit support in progress (as of 2012-12)
 
 Cons:
 - DX support in SDL seems unstable as of 2010-04 - developers are
   apparently experimenting with free headers, which is good.
 - MP3 support in SDL_mixer, while we don't want to foster that format.
-- No FLAC support in SDL_mixer as of 2010-04 (explicitely disabled)
-- No SDL_gfx as of 2010-04
+- No FLAC support in SDL_mixer as of 2012-12 (explicitely disabled)
+- No SDL_gfx as of 2012-12  [I just sent a patch]
 - Only support static linking (no .dll's); it doesn't really matter
   for us, as FreeDink is a GPL'd project.  It would matter if we were
   not distributing the source code, because the LGPL (for instance)
@@ -25,19 +26,35 @@ Cons:
   .dll.  Also on security update, we'd need to provide a new
   executable instead of a fixed .dll, but we're already providing
   static builds, so we'll need to rebuild anyway.
-- Still need to ship a copy of each library's license manually (and
-  we'll have to extract it manually)
-- Some tarballs do not download properly (404 or timeout)
-- Recompiles MinGW instead of reusing installed version (long).
-- Still need to compile libraries (not binary releases) - but at the
-  same time this means customizing is easier.
 - When providing multiple executables, all executables will bundle all
   the dependencies (instead of sharing DLLs), needing more space.
   (on the other hand, one static .exe is usually smaller than one
   dynamic .exe + its .dll's)
+- Still need to ship a copy of each library's license manually (and
+  we'll have to extract it manually)
+- Recompiles MinGW instead of reusing installed version (long).
+- Still need to compile libraries (no binary releases) - but at the
+  same time this means customizing is easier.
 
 We see that it would save us time, but at the same time we'd need to
 patch it to keep full precise control of the configuration.
 
 Some packages are missing, and new SDL_* .pc files are not in distros
 yet, so all in all, it seems better to wait for now.
+
+Appendix
+--------
+
+pkgconfig .pc files are available for SDL_* in:
+- Debian Squeeze: only sdl.pc
+- Debian Wheezy: YES
+- Fedora 17+: YES
+- MXE: yes
+=> we can switch to pkg_config to detect SDL_*
+
+Libs.private headers are available in:
+- Debian Squeeze+: only sdl.pc
+- Fedora 17+: only sdl.pc
+- MXE: yes  [patch in sdl_*.mk]
+=> static builds LDFLAGS (-l...)  will only be detected for woe
+=> we should merge Libs.private upstream

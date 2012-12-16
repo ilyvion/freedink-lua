@@ -580,7 +580,9 @@ CPPFLAGS="-I/usr/local/cross-tools/i386-mingw32msvc/include" \
     --prefix=/usr/local/cross-tools/i386-mingw32msvc --disable-mmap
 make
 # => doesn't work, it tries to use ftello which is apparently missing from mingw
-
+# => MXE made it 0.13.59 work, but when loading the embedded font FreeDink says:
+#   Could not open font 'LiberationSans-Regular.ttf': Couldn't load font file
+# while it works fine with libzip.
 
 # Guile - dep: libltdl
 VERSION=2.2.4
