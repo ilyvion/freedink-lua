@@ -200,23 +200,23 @@ Section "freedink-dfarc" SecDFArc
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-  CreateShortcut "$SMPROGRAMS\$StartMenuFolder\DFArc.lnk" "$INSTDIR\dfarc3.exe"
+  CreateShortcut "$SMPROGRAMS\$StartMenuFolder\DFArc.lnk" "$INSTDIR\dfarc.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ; Desktop icon
-  CreateShortCut "$DESKTOP\DFArc3.lnk" "$INSTDIR\dfarc3.exe" ""
+  CreateShortCut "$DESKTOP\DFArc.lnk" "$INSTDIR\dfarc.exe" ""
 
   ; .dmod association
-  ${registerExtension} "$INSTDIR\dfarc3.exe" ".dmod" "Dink MODule"
+  ${registerExtension} "$INSTDIR\dfarc.exe" ".dmod" "Dink MODule"
 SectionEnd
 
 ; freedink-data
 Section "freedink-data" SecFreeDinkData
   SetOutPath "$INSTDIR"
   !insertmacro UNINSTALL.LOG_OPEN_INSTALL
-  File /r dink/*.*
+  File /r freedink-data/*.*
   ; Single-file for quick testing:
-  ;File /r dink/dink/l10n/nl/LC_MESSAGES/dink.mo
+  ;File /r freedink-data/dink/l10n/nl/LC_MESSAGES/dink.mo
   !insertmacro UNINSTALL.LOG_CLOSE_INSTALL
 SectionEnd
 
@@ -279,7 +279,7 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\$StartMenuFolder\FreeDinkedit.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
-  Delete "$DESKTOP\DFArc3.lnk"
+  Delete "$DESKTOP\DFArc.lnk"
   Delete "$DESKTOP\FreeDink.lnk"
   Delete "$DESKTOP\FreeDinkedit.lnk"
 
