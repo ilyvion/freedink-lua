@@ -242,6 +242,8 @@ static int check_arg(int argc, char *argv[])
       switch (c) {
       case 'd':
 	debug_p = 1;
+        /* Enable early debugging, before we can locate DEBUG.txt */
+        log_set_priority(LOG_PRIORITY_DEBUG);
 	break;
       case 'r':
 	refdir_opt = strdup(optarg);
@@ -297,6 +299,7 @@ static int check_arg(int argc, char *argv[])
 
   if (debug_p == 1)
     {
+      /* Remove DEBUG.TXT when starting Dink (but not when toggling debug) */
       char* fullpath = paths_dmodfile("DEBUG.TXT");
       remove(fullpath);
       free(fullpath);

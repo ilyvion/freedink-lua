@@ -307,6 +307,7 @@ void paths_init(char *argv0, char *refdir_opt, char *dmoddir_opt)
   log_info("exedir = %s", exedir);
   log_info("datadir = %s", datadir);
   log_info("pkgdatadir = %s", pkgdatadir);
+  log_info("defaultpkgdatadir = %s", defaultpkgdatadir);
   log_info("refdir = %s", refdir);
   log_info("dmoddir = %s", dmoddir);
   log_info("dmodname = %s", dmodname);
