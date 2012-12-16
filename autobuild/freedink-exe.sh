@@ -75,7 +75,7 @@ EOF
   cp -a /usr/src/gettext-0.18.1.1/COPYING zip/licenses/gettext-0.18.1.1_COPYING
   
   # Include documentation with MS-DOS newlines (if not already)
-  for i in dfarc-DLL.txt licenses/*; do
+  for i in freedink-DLL.txt licenses/*; do
       sed -i -e 's/\(^\|[^\r]\)$/\1\r/' zip/freedink-*.txt zip/licenses/*
   done
 
