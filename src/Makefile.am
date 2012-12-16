@@ -69,9 +69,8 @@ if HAVE_ZIP
 	rm -f res.zip
 	zip -A "$(DESTDIR)$(bindir)/freedink$(EXEEXT)"
 
-	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf
-#	Not including $(resdir)/stop.wav $(resdir)/jump.wav until we
-#	replace them with free sounds
+	zip -j res.zip $(resdir)/LiberationSans-Regular.ttf	\
+		$(resdir)/stop.wav $(resdir)/jump.wav
 	cat res.zip >> "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
 	rm -f res.zip
 	zip -A "$(DESTDIR)$(bindir)/freedinkedit$(EXEEXT)"
