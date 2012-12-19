@@ -93,12 +93,12 @@ if test x"$enable_upx" = x"yes"; then
 fi
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
-dnl TODO: check for pkg-config's presence manually?
 
+# SDL and core libs
+PKG_CHECK_MODULES([SDL], [sdl >= 1.2  SDL_image  SDL_mixer  SDL_ttf >= 2.0.9  SDL_gfx],
+  [CFLAGS="$CFLAGS $SDL_CFLAGS"; LIBS="$SDL_LIBS $LIBS"],
+  AC_MSG_WARN($SDL_PKG_ERRORS); LACK_SDL=1)
 
-# Explicitely call PKG_PROG_PKG_CONFIG because PKG_CHECK_MODULES is
-# called conditionaly
-PKG_PROG_PKG_CONFIG()
 
 case "${host}" in
 # (cf. (autoconf.info)Using System Type) (2002)
@@ -143,7 +143,6 @@ AM_CONDITIONAL(HAVE_LIBZIP, test "$LACK_LIBZIP" != "1")
 AM_CONDITIONAL(HAVE_ZZIPLIB, test "$LACK_ZZIPLIB" != "1")
 
 
-
 # Dynamic and static builds
 AC_ARG_ENABLE([static],
   AS_HELP_STRING([--enable-static],[embed SDL and dependencies in the executable (default is disabled)]),
@@ -152,10 +151,8 @@ if test x"$enable_static" = x"yes"; then
     case "${host}" in
     # (cf. (autoconf.info)Using System Type) (2002)
     *-*-mingw32* | *-*-cygwin* | *-*-windows*)
-        # Light version, if dependencies are compiled minimaly
-        #LIBS="$LIBS -lfreetype -lz -lwinmm -ldxguid"
-        # Full version, if planning to support more formats
-        LIBS="-lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg -lmikmod -lwinmm -ldxguid $LIBS"
+        # LIBS is handled by pkg-config and Libs.private/Requires.private
+        # We still need to force choosing 'libxxx.a' over 'libxxx.dll.a':
         LDFLAGS="$LDFLAGS -static"
         ;;
     mipsallegrexel-psp-elf)
@@ -167,21 +164,6 @@ if test x"$enable_static" = x"yes"; then
         #LIBS="$LIBS -lfreetype -lpng -ltiff -ljpeg -lz -lvorbisfile -lvorbis -logg"
     esac
 fi
-# TODO: check with Cygwin + -mno-cygwin
-# From SDL_mixer:
-## We build SDL on cygwin without the UNIX emulation layer
-##BASE_CFLAGS="-I/usr/include/mingw -mno-cygwin"
-
-dnl Check for SDL
-SDL_VERSION=1.2.0
-AC_ARG_VAR([SDL_CONFIG], [Path to the sdl-config utility, it needs to
-  be redefined (and saved by autoconf) for cross-compilation.])
-AM_PATH_SDL($SDL_VERSION,
-  :,
-  AC_MSG_WARN([*** SDL version $SDL_VERSION not found!]); LACK_LIBSDL=1
-)
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$SDL_LIBS $LIBS"
 
 
 # Lengthy Gnulib checks
@@ -194,47 +176,6 @@ AP_BINRELOC
 fi
 
 
-AC_CHECK_LIB(SDL_gfx,zoomSurface,,AC_MSG_WARN([You need to install SDL_gfx]); LACK_LIBSDL_GFX=1)
-AC_CHECK_LIB(SDL_ttf,TTF_Linked_Version,,AC_MSG_WARN([You need to install SDL_ttf]); LACK_LIBSDL_TTF=1)
-AC_CHECK_LIB(SDL_image,IMG_ReadXPMFromArray,,AC_MSG_WARN([You need to install SDL_image]); LACK_LIBSDL_IMAGE=1)
-AC_CHECK_LIB(SDL_mixer,Mix_OpenAudio,,AC_MSG_WARN([You need to install SDL_mixer]); LACK_LIBSDL_MIXER=1)
-
-# Check that SDL_ttf is 2.0.9 minimum (TTF_BOLD_STYLE fix)
-AC_MSG_CHECKING([SDL_ttf version >= 2.0.9])
-AC_RUN_IFELSE(
-  [AC_LANG_PROGRAM(
-    [
-#include "SDL.h"
-#include "SDL_ttf.h"
-    ],
-    [[
-SDL_version *link_version;
-link_version = TTF_Linked_Version();
-if (link_version->major < 2)
-{
-   return 1;
-}
-else if (link_version->major == 2)
-{
-  if (link_version->minor == 0)
-  {
-    if (link_version->patch < 9)
-      return 1;
-  }
-  /* v2.x.x && >=v2.0.9 */
-  return 0;
-}
-else
-{
-  /* major > 2 */
-  return 0;
-}
-    ]])],
-    [AC_MSG_RESULT([yes])],
-    [AC_MSG_RESULT([no]); AC_MSG_WARN([Your version of SDL_ttf is too old (need >= 2.0.9)]); LACK_LIBSDL_TTF=1],
-    [AC_MSG_RESULT([yes (cross-compiling; assumed OK...)])]
-)
-
 
 # Somewhat optional. Defines matching contants in config.h
 # (e.g. HAVE_SDL_FRAMERATE_H). Using a temporary CPPFLAGS to include
@@ -243,6 +184,7 @@ else
 # --cppflags switch so we use SDL_CFLAGS.
 # http://lists.gnu.org/archive/html/bug-gnulib/2007-10/msg00157.html
 # http://lists.gnu.org/archive/html/bug-gnulib/2007-12/msg00149.html
+# https://bugs.freedesktop.org/show_bug.cgi?id=47996
 old_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $SDL_CFLAGS -I${srcdir}/gnulib/lib -I./gnulib/lib"
 AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
@@ -250,68 +192,18 @@ AC_CHECK_HEADERS(SDL.h SDL_rotozoom.h SDL_framerate.h SDL_image.h,
 CPPFLAGS="$old_CPPFLAGS"
 
 
-if test x"$static" = x"1"; then
-    case "${host}" in
-    *-*-mingw32* | *-*-cygwin* | *-*-windows*)
-        # See above
-        ;;
-    *)
-        # sdl-config --static-libs is far from complete :/ Plus I
-        # don't know how to make autoconf understand which libs must
-        # be static and which ones must be dynamic, so let's overwrite
-        # LIBS for now..
-
-        # There can be different configurations, for example with or
-        # without including X11. I suggest using a generic
-        # configuration here, that could be used for the
-        # autopackage. Users will have to modify this directly if they
-        # need something different. This is meant to work with Debian
-        # Etch SDL packages.
-        LIBS="-Wl,-Bstatic \
-          -lSDL_gfx \
-          -lSDL_image -ljpeg -lpng -ltiff -lz \
-          -lSDL_ttf -lfreetype -lz \
-          -lSDL_mixer -lvorbisfile -lvorbis -logg -lsmpeg \
-          -lSDL \
-          -lvga -ldirectfb -ldirect -lfusion \
-          -lcaca -lcucul -laa -lslang -lcurses \
-          -laudio -lesd -lartsc -lasound -lgpm \
-          -lzzip \
-          -lm \
-          -Wl,-Bdynamic -lX11 -ldl -lpthread -lstdc++"
-        ;;
-    esac
-fi
-
-
-
 echo
 echo "Errors and warnings recap:"
 error=0
 warning=0
 
-if test "$LACK_LIBSDL" = 1; then
-  echo "* You need to install the libSDL";
-  error=1
-fi
-if test "$LACK_LIBSDL_GFX" = 1; then
-  echo "* You need to install the SDL_gfx library";
-  error=1
-fi
-if test "$LACK_LIBSDL_TTF" = 1; then
-  echo "* You need to install the SDL_ttf library, version >= 2.0.9";
-  error=1
-fi
-if test "$LACK_LIBSDL_IMAGE" = 1; then
-  echo "* You need to install the SDL_image library";
-  error=1
-fi
-if test "$LACK_LIBSDL_MIXER" = 1; then
-  echo "* You need to install the SDL_mixer library";
+if test "$LACK_SDL" = 1; then
+  echo "* You need to install the SDL libraries:"
+  echo "$SDL_PKG_ERRORS"
   error=1
 fi
 if test "$USE_NLS" = no; then
-  echo "* You need to install the gettext library and enable NLS";
+  echo "* You need to install the gettext library and enable NLS"
   error=1
 fi
 

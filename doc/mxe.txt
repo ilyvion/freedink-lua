@@ -56,5 +56,5 @@ Libs.private headers are available in:
 - Debian Squeeze+: only sdl.pc
 - Fedora 17+: only sdl.pc
 - MXE: yes  [patch in sdl_*.mk]
-=> static builds LDFLAGS (-l...)  will only be detected for woe
-=> we should merge Libs.private upstream
+=> static builds LDFLAGS (-l...) will only be detected for woe
+=> we should merge Requires.private/Libs.private upstream
