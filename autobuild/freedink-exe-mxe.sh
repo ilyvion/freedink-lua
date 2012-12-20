@@ -78,7 +78,6 @@ popd
 
 HOST=i686-pc-mingw32
 PATH=/usr/src/mxe/usr/bin:$PATH
-PATH=/usr/src/mxe/usr/$HOST/bin:$PATH
 PREFIX=/usr/src/mxe/usr/$HOST
 BUILD=i686-pc-linux-gnu
 # Already done in the MXE wrapper, but needed for other mingw environments:
@@ -90,7 +89,7 @@ BUILD=i686-pc-linux-gnu
 pushd woe/
 ../configure --build=$BUILD --host=$HOST \
   --enable-static --enable-upx
-make
+make -j $(nproc)
 make install-strip DESTDIR=$(pwd)/destdir
 # move .exe but avoid symlinks
 find destdir/usr/local/bin/ -type f -name "*.exe" | while read file; do
