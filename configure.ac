@@ -256,7 +256,7 @@ fi
 echo
 
 
-AC_CONFIG_FILES([Makefile autopackage/Makefile autopackage/default.apspec gnulib/lib/Makefile gnulib/po/Makefile.in nsis/Makefile po/Makefile.in share/Makefile share/freedink/Makefile src/Makefile src/woeres.rc])
+AC_CONFIG_FILES([Makefile gnulib/lib/Makefile gnulib/po/Makefile.in nsis/Makefile po/Makefile.in share/Makefile share/freedink/Makefile src/Makefile src/woeres.rc])
 
 AC_OUTPUT
 
