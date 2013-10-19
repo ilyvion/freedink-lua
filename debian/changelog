@@ -1,3 +1,10 @@
+freedink (1.08.20130235-1) UNRELEASED; urgency=low
+
+  * Depend on fonts-liberation rather than on renamed ttf-liberation
+    (Closes: #722357)
+
+ -- Sylvain Beucler <beuc@debian.org>  Sat, 19 Oct 2013 21:08:51 +0200
+
 freedink (1.08.20121209-1) experimental; urgency=low
 
   * New Upstream Version (Closes: #688934)

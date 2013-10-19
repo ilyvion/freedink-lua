@@ -11,7 +11,7 @@ Vcs-Browser: http://git.debian.org/?p=pkg-games/freedink.git
 
 Package: freedink-engine
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, freedink-data, ttf-liberation, freepats
+Depends: ${shlibs:Depends}, ${misc:Depends}, freedink-data, fonts-liberation, freepats
 Recommends: freedink-dfarc
 Description: adventure and role-playing game (engine)
  Dink Smallwood is an adventure/role-playing game, similar to Zelda,
