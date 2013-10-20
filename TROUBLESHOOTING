@@ -40,18 +40,21 @@ A: SDL_mixer (the component that provides the sound) is known to
 
 
 Q: I want FreeDink to use my MIDI hardware or fluidsynth setup, but it
-   uses TiMidity instead.
+   uses TiMidity or Fluidsynth instead.
 
 A: SDL_mixer (the MIDI component that FreeDink uses) can use both
    hardware and software sequencer. If '/etc/timidity/timidity.cfg' is
    present, it will use that first. You can remove that file if you
    want to use '/dev/sequencer' directly :)
 
+   Under Debian, you can disable fluidsynth by using a wrong soundfont
+   path:
+     SDL_FORCE_SOUNDFONTS=1 SDL_SOUNDFONTS= freedink
+
    You can also see above that there are some issues if
-   ''/dev/sequencer' is present but not functionnal, so it's best we
+   '/dev/sequencer' is present but not functionnal, so it's best we
    use TiMidity by default for common Dinkers, and just let you remove
    '/etc/timidity/timidity.cfg' if you know better ;)
-
 
 Q: Under some distros (such as recent Fedora and Ubuntu), the sound is
    managed through PulseAudio, and this breaks sound in the game.
