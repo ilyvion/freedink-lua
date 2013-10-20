@@ -1207,7 +1207,12 @@ void dc_playmidi(int script, int* yield, int* preturnint,
       else
 	{
 	  //cd isn't instered, can't play CD song!!!
-	  sprintf(midi_file, "%d.mid", cd_track);
+	  char buf[10+4+1];
+	  sprintf(buf, "%d.mid", cd_track);
+	  log_info("Playing midi %s.", buf);
+	  PlayMidi(buf);
+	  // then try to play 'midi_file' as well:
+	  // (necessary for START.c:playmidi("1003.mid"))
 	}
     }
   log_info("Playing midi %s.", midi_file);

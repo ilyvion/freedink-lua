@@ -3,6 +3,10 @@
 
 * UNRELEASED *
 
+* User-visible changes:
+
+- Properly play Dink's intro screen music.  The original game actually
+  tries both 3.mid and 1003.mid for playmidi("1003.mid").
 
 1.08.20121209
 =============
