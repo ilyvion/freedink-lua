@@ -5,8 +5,16 @@
 
 * User-visible changes:
 
-- Properly play Dink's intro screen music.  The original game actually
+- Properly play Dink's intro screen music (see below).
+
+- FreeDinkedit plays sounds on Windows.
+
+* Developer notes:
+
+- Properly play Dink's intro screen music: the original game actually
   tries both 3.mid and 1003.mid for playmidi("1003.mid").
+
+- Improved build documentation.
 
 1.08.20121209
 =============
