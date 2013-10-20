@@ -1,21 +1,20 @@
 # Slovenian translation for freedink.
 # This file is put in the public domain.
-# Klemen Košir <klemen.kosir@gmx.com>, 2011.
+# Klemen Košir <klemen913@gmail.com>, 2011 - 2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20100321\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-12-09 18:13+0100\n"
-"PO-Revision-Date: 2011-04-18 17:56+0100\n"
-"Last-Translator: Klemen Košir <klemen.kosir@gmx.com>\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2013-01-05 09:49+0100\n"
+"Last-Translator: Klemen Košir <klemen913@gmail.com>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Slovenian\n"
-"X-Poedit-Country: SLOVENIA\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: src/init.c:108
 #, c-format
@@ -49,12 +48,8 @@ msgstr "  -g, --game <dir>      Navedite mapo DMod\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <mapa>   Navedite osnovno mapo za igro Dink Smallwood, "
-"grafiko, D-Mode, itd.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <mapa>   Navedite osnovno mapo za igro Dink Smallwood, grafiko, D-Mode, itd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -78,15 +73,13 @@ msgstr "  -s, --nosound         Ne predvajaj zvoka\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Uporabi več barv (za grafiko D-Modov)\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window          Uporabi okenski način namesto celozaslonskega\n"
+msgstr "  -w, --window          Uporabi okenski način namesto celozaslonskega\n"
 
 #: src/init.c:127
 #, c-format
@@ -108,55 +101,53 @@ msgstr ""
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Opomba: možnost -nomovie je uporabljena zaradi združljivosti, vendar nima "
-"učinka.\n"
+msgstr "Opomba: možnost -nomovie je uporabljena zaradi združljivosti, vendar nima učinka.\n"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Tukaj ničesar ne vidim."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Huh?"
 
-#: src/freedink.c:2681
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$S tem se ne morem pogovarjati ali uporabiti."
 
-#: src/freedink.c:2682
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Kaj?"
 
-#: src/freedink.c:2683
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Dolgočasim se."
 
-#: src/freedink.c:2684
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Tukaj se ne dogaja veliko."
 
-#: src/freedink.c:2792
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Ne znam čarati."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Nisem čarovnik!"
 
-#: src/freedink.c:2794
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Najprej se moram naučiti čarati."
 
-#: src/freedink.c:2795
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Zaman divje pomigujem z rokami!"
 
-#: src/freedink.c:2796
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Nič se ni zgodilo."
 
-#: src/freedink.c:2797
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Čira čara!"
 

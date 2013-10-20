@@ -1,14 +1,15 @@
 # Czech translations for freedink game.
 # Copyright (C) 2010 Contributor
 # This file is distributed under the same license as the freedink package.
-# Marek Černocký <marek@manet.cz>, 2010.
+#
+# Marek Černocký <marek@manet.cz>, 2010, 2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: freedink 1.08.20100321\n"
+"Project-Id-Version: freedink 1.08.20120427\n"
 "Report-Msgid-Bugs-To: bug-freedink@gnu.org\n"
-"POT-Creation-Date: 2012-12-09 18:13+0100\n"
-"PO-Revision-Date: 2010-10-30 14:50+0200\n"
+"POT-Creation-Date: 2012-04-27 15:45+0200\n"
+"PO-Revision-Date: 2013-06-07 11:08+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
 "Language: cs\n"
@@ -25,12 +26,12 @@ msgstr "Použití: %s [PŘEPÍNAČE]…\n"
 #: src/init.c:110
 #, c-format
 msgid "Starts the Dink Smallwood game or one of its D-Mods."
-msgstr "Spustí hru Dink Smallwood nebo jednu z jejích D-Mod."
+msgstr "Spustí hru Dink Smallwood nebo jednu z jejích D-Modů."
 
 #: src/init.c:112
 #, c-format
 msgid "Edit the Dink Smallwood game or one of its D-Mods."
-msgstr "Upravit hru Dink Smallwood nebo jednu z jejích D-Mod."
+msgstr "Upravit hru Dink Smallwood nebo jednu z jejích D-Modů."
 
 #: src/init.c:115
 #, c-format
@@ -45,16 +46,12 @@ msgstr "  -v, --version           Zobrazit verzi\n"
 #: src/init.c:118
 #, c-format
 msgid "  -g, --game <dir>      Specify a DMod directory\n"
-msgstr "  -g, --game <složka>     Určit složku DMod\n"
+msgstr "  -g, --game <složka>     Určit složku D-Modů\n"
 
 #: src/init.c:119
 #, c-format
-msgid ""
-"  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, "
-"etc.\n"
-msgstr ""
-"  -r, --refdir <složka>   Určit základní složku pro dink/grafiku, D-Mods, "
-"atd.\n"
+msgid "  -r, --refdir <dir>    Specify base directory for dink/graphics, D-Mods, etc.\n"
+msgstr "  -r, --refdir <složka>   Určit základní složku pro dink/grafiku, D-Mody, atd.\n"
 
 #: src/init.c:121
 #, c-format
@@ -78,16 +75,13 @@ msgstr "  -s, --nosound           Nehrát hudbu\n"
 
 #: src/init.c:125
 #, c-format
-msgid ""
-"  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
-msgstr ""
+msgid "  -t, --truecolor       Allow more colours (for recent D-Mod graphics)\n"
+msgstr "  -t, --truecolor       Umožnit více barev (pro novější grafiku D-Modů\n"
 
 #: src/init.c:126
 #, c-format
 msgid "  -w, --window          Use windowed mode instead of screen mode\n"
-msgstr ""
-"  -w, --window            Použít režim „v okně“ místo režimu „celá "
-"obrazovka“\n"
+msgstr "  -w, --window            Použít režim „v okně“ místo režimu „celá obrazovka“\n"
 
 #: src/init.c:127
 #, c-format
@@ -107,55 +101,53 @@ msgstr "Chyby hlaste na %s.\n"
 #: src/init.c:277
 #, c-format
 msgid "Note: -nomovie is accepted for compatiblity, but has no effect.\n"
-msgstr ""
-"Poznámka: Kvůli kompatibilitě je akceptován i přepínač -nomovie, ale nemá "
-"žádný efekt.\n"
+msgstr "Poznámka: Kvůli kompatibilitě je akceptován i přepínač -nomovie, ale nemá žádný efekt.\n"
 
-#: src/freedink.c:2679
+#: src/freedink.c:2675
 msgid "`$I don't see anything here."
 msgstr "`$Nic tu nevidím."
 
-#: src/freedink.c:2680
+#: src/freedink.c:2676
 msgid "`$Huh?"
 msgstr "`$Cože?"
 
-#: src/freedink.c:2681
+#: src/freedink.c:2677
 msgid "`$I'm fairly sure I can't talk to or use that."
 msgstr "`$Jsem si docela jistý, že tady nemá cenu mluvit nebo toto použít."
 
-#: src/freedink.c:2682
+#: src/freedink.c:2678
 msgid "`$What?"
 msgstr "`$Co?"
 
-#: src/freedink.c:2683
+#: src/freedink.c:2679
 msgid "`$I'm bored."
 msgstr "`$Nudím se."
 
-#: src/freedink.c:2684
+#: src/freedink.c:2680
 msgid "`$Not much happening here."
 msgstr "`$Tady se nic moc neděje."
 
-#: src/freedink.c:2792
+#: src/freedink.c:2788
 msgid "`$I don't know any magic."
 msgstr "`$Neznám žádnou magii."
 
-#: src/freedink.c:2793
+#: src/freedink.c:2789
 msgid "`$I'm no wizard!"
 msgstr "`$Nejsem kouzelník!"
 
-#: src/freedink.c:2794
+#: src/freedink.c:2790
 msgid "`$I need to learn magic before trying this."
 msgstr "`$Než tohle zkusím, potřebuji se nějakou magii naučit."
 
-#: src/freedink.c:2795
+#: src/freedink.c:2791
 msgid "`$I'm gesturing wildly to no avail!"
 msgstr "`$Divoce gestikuluji bez nějakého užitku!"
 
-#: src/freedink.c:2796
+#: src/freedink.c:2792
 msgid "`$Nothing happened."
 msgstr "`$Nic se nestalo."
 
-#: src/freedink.c:2797
+#: src/freedink.c:2793
 msgid "`$Hocus pocus!"
 msgstr "`$Hokus pokus!"
 
@@ -215,4 +207,4 @@ msgstr "Pozice %d - %d:%02d - %s"
 #: src/dinkc.c:715
 #, c-format
 msgid "Slot %d - Empty"
-msgstr "Pozice %d - prázdná"
+msgstr "Pozice %d – prázdná"
