@@ -137,3 +137,17 @@
 /sys_types_h.m4
 /off_t.m4
 /extern-inline.m4
+/exponentf.m4
+/exponentl.m4
+/fpieee.m4
+/frexp.m4
+/frexpl.m4
+/fseterr.m4
+/isnand.m4
+/isnanf.m4
+/isnanl.m4
+/ldexpl.m4
+/printf-frexp.m4
+/printf-frexpl.m4
+/signbit.m4
+/vfprintf-posix.m4
