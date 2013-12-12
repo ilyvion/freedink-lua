@@ -40,15 +40,19 @@ A: SDL_mixer (the component that provides the sound) is known to
 
 
 Q: I want FreeDink to use my MIDI hardware or fluidsynth setup, but it
-   uses TiMidity instead.
+   uses TiMidity or Fluidsynth instead.
 
 A: SDL_mixer (the MIDI component that FreeDink uses) can use both
    hardware and software sequencer. If '/etc/timidity/timidity.cfg' is
    present, it will use that first. You can remove that file if you
    want to use '/dev/sequencer' directly :)
 
+   Under Debian, you can disable fluidsynth by using a wrong soundfont
+   path:
+     SDL_FORCE_SOUNDFONTS=1 SDL_SOUNDFONTS= freedink
+
    You can also see above that there are some issues if
-   ''/dev/sequencer' is present but not functionnal, so it's best we
+   '/dev/sequencer' is present but not functionnal, so it's best we
    use TiMidity by default for common Dinkers, and just let you remove
    '/etc/timidity/timidity.cfg' if you know better ;)
 
@@ -82,3 +86,30 @@ A: Apparently FreeDink is not the only game or even application that
      pulseaudio -k
      freedink
      pulseaudio -D
+
+
+Joystick
+--------
+
+Q: The mouse cursor is constanatly going up by itself.
+
+A: If you run FreeDink in debug mode (option -d), and you see
+   something like this:
+
+   [info ]     ThinkPad HDAPS joystick emulation
+   [info ]     ThinkPad HDAPS accelerometer data
+   [info ] Picking the first one...
+   [info ] Name: ThinkPad HDAPS joystick emulation
+   [info ] Number of axes: 2
+   [info ] Number of buttons: 0
+   [info ] Number of balls: 0
+   [info ] Number of hats: 0
+
+   This means SDL interprets your laptop's accelerometer as a joystick
+   device. This is nearly guaranteed to cause trouble, see here for
+   more information:
+
+   http://www.thinkwiki.org/wiki/HDAPS
+   http://bugs.debian.org/690483
+
+   You can also disable the joystick (option --nojoy).

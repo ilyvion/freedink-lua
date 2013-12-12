@@ -5,7 +5,8 @@ I never managed to use my sound card in MIDI mode with GNU/Linux -
 however there is a program called TiMidity++ that is a MIDI->WAV
 translator (software-based MIDI playing, rather than hardware-based).
 
-SDL uses TiMidity++ automatically.
+SDL can use an embedded TiMidity++ (and/or fluidsynth since 1.2.12,
+see below).
 
 TiMidity++ by itself cannot play MIDIs, he needs a set of "patches",
 which are data files defining how to reproduce the instrument
@@ -87,3 +88,22 @@ Another sum-up page: http://alleg.sourceforge.net/digmid.html
 
 I tried to install the Gravis Pro patches along with the provided
 configuration file, but I didn't manage to get something playing.
+
+
+Fluidsynth
+==========
+
+Starting with SDL-Mixer 1.2.12, fluidsynth support is available.
+
+One can test the result with:
+  fluidsynth -a alsa -l -i /usr/share/sounds/sf2/FluidR3_GM.sf2 /usr/share/games/dink/dink/Sound/dance.mid
+  fluidsynth -a alsa -l -i /usr/share/sounds/sf2/TimGM6mb.sf2   /usr/share/games/dink/dink/Sound/dance.mid
+which timidity couldn't play with freepats before.
+
+However fluidsynth just exits with 104.mid (Stonebrook theme).
+
+fluidsynth is now used by default in the Debian version of SDL-Mixer. To disable it:
+  SDL_FORCE_SOUNDFONTS=1 SDL_SOUNDFONTS= freedink -w
+
+Note there's also a bug in the TiMidity backend for said Debian version:
+http://bugs.debian.org/726912

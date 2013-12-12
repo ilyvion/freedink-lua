@@ -35,6 +35,37 @@ exit
 
 ## Construction
 
+# - Grab the cloud image
+lvcreate -n VG0/fedora -L 10G
+unxz cloud.raw.xz
+dd if=cloud.raw of=/dev/VG0/fedora
+kpartx -a /dev/VG0/fedora
+mount /dev/mapper/fedorap1 /mnt/t
+chroot /mnt/t
+  passwd root
+  rpm -e cloud-init cloud-utils
+exit
+umount /mnt/t
+kpartx -d /dev/VG0/fedora
+
+# - run it and press keys to edit the boot prompt, add: selinux=0
+# - log in
+chcon --reference /etc/shadow- /etc/shadow
+# or chcon system_u:object_r:shadow_t:s0 /etc/shadow
+# rebuild SELinux labels, needed after running selinux=0:
+touch /.autorelabel
+reboot
+
+yum install fedpkg mock
+useradd beuc
+usermod -G wheel,mock beuc
+
+# cloud-init may have resized the disk for you.
+# It may also have disabled password login in '/etc/ssh/sshd_config'.
+
+
+## Construction - alternative
+
 # - Doesn't seem to be a way to install using VServer
 # - Get a minimal install, using "Install CDs", e.g.:
 #   http://mirror.ovh.net/download.fedora.redhat.com/linux/releases/13/Fedora/x86_64/iso/

@@ -1,3 +1,13 @@
+freedink (1.08.20130235-1) UNRELEASED; urgency=low
+
+  * Depend on fonts-liberation rather than on renamed ttf-liberation
+    (Closes: #722357)
+  * Bump compat to 9 to address lintian 'hardening-no-relro'
+  * Bump Standards-Version to 3.9.4 (no changes)
+  * Use XPM icon from src/ rather than duplicating it in debian/
+
+ -- Sylvain Beucler <beuc@debian.org>  Sun, 20 Oct 2013 14:15:58 +0200
+
 freedink (1.08.20121209-1) experimental; urgency=low
 
   * New Upstream Version (Closes: #688934)

@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = gnits
 # Gnulib:
 ACLOCAL_AMFLAGS = -I gnulib/m4
 
-SUBDIRS = autopackage gnulib/lib gnulib/po nsis po src share
+SUBDIRS = gnulib/lib gnulib/po nsis po src share
 
 # Copy those directly and recursively:
 # Build system
@@ -12,7 +12,7 @@ EXTRA_DIST += doc
 EXTRA_DIST += BUILD DEB TRANSLATIONS.txt TROUBLESHOOTING
 # Packaging
 # (don't include debian/ as this displeases debian devs)
-EXTRA_DIST += freedink.spec gentoo psp
+EXTRA_DIST += freedink.spec psp
 # Other programs of interest
 EXTRA_DIST += test contrib
 # Developer tools
@@ -26,4 +26,3 @@ dist-hook:
 #	At the end of each line (doubled $), add a \r, so we get \r\n
 	cd $(distdir) && sed 's/$$/\r/' README > README.txt
 	make -C $(distdir)/test/sdl clean
-	make -C $(distdir)/autopackage -f Makefile.autopackage

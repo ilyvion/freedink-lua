@@ -41,6 +41,8 @@ override_dh_auto_install:
 	# Lintian complains with 'duplicate-font-file', let's have
 	# FreeDink rely on libfontconfig + depend on ttf-liberation
 	rm debian/freedink-engine/usr/share/games/freedink/LiberationSans-Regular.ttf
+	# Install XPM icon
+	cp -a src/freedink_xpm.c debian/freedink-engine/usr/share/pixmaps/freedink.xpm
 
 override_dh_installdocs:
 	# --link-doc requires debhelper 7.4.2

@@ -20,9 +20,8 @@
 # <http://www.gnu.org/licenses/>.
 
 # cd /usr/src/mxe/
-# make -j$(nproc) JOBS=$(nproc) gcc sdl sdl_gfx sdl_image sdl_mixer sdl_ttf libzip gettext nsis
-## Disable MP3 support
-# make sdl_mixer
+## Disable MP3 support: src/sdl_mixer.pk: --enable-music-mp3 -> --disable-music-mp3
+# make -j2 JOBS=$(nproc) gcc sdl sdl_gfx sdl_image sdl_mixer sdl_ttf libzip gettext nsis
 
 function copy_extra_files {
   mkdir zip/
@@ -76,10 +75,7 @@ pushd woe
 copy_extra_files
 popd
 
-HOST=i686-pc-mingw32
 PATH=/usr/src/mxe/usr/bin:$PATH
-PREFIX=/usr/src/mxe/usr/$HOST
-BUILD=i686-pc-linux-gnu
 # Already done in the MXE wrapper, but needed for other mingw environments:
 #export PKG_CONFIG="i686-pc-mingw32-pkg-config --static"
 
@@ -87,7 +83,7 @@ BUILD=i686-pc-linux-gnu
 # - specify --build or autoconf will not understand we cross-compile
 #   during some tests
 pushd woe/
-../configure --build=$BUILD --host=$HOST \
+../configure --host=i686-w64-mingw32 \
   --enable-static --enable-upx
 make -j $(nproc)
 make install-strip DESTDIR=$(pwd)/destdir
@@ -102,3 +98,14 @@ popd
 
 popd
 #rm -rf t
+
+exit
+
+# 64-bit support:
+# - upx-ucl >= 3.91 for w64 support (in Debian >= 8 "Jessie")
+# - use a recent mingw-w64, issues with wchar.h on mingw-w64 v2.0 (GCC 4.6)
+# - NSIS universal installer should be possible:
+#   http://bojan-komazec.blogspot.fr/2011/10/nsis-installer-for-64-bit-windows.html
+../configure --host=x86_64-w64-mingw32 \
+  --enable-static --enable-upx
+# ...

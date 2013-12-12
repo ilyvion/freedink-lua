@@ -3,6 +3,24 @@
 
 * UNRELEASED *
 
+* User-visible changes:
+
+- Properly play Dink's intro screen music (see below).
+
+- FreeDinkedit plays sounds on Windows.
+
+- New translation for the engine strings in Brazilian Portuguese
+  (thanks Enrico Nicoletto)
+
+- Update translations of the engine strings (thanks Translation
+  Project)
+
+* Developer notes:
+
+- Properly play Dink's intro screen music: the original game actually
+  tries both 3.mid and 1003.mid for playmidi("1003.mid").
+
+- Improved build documentation.
 
 1.08.20121209
 =============
