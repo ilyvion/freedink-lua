@@ -93,12 +93,22 @@ if test x"$enable_upx" = x"yes"; then
 fi
 AM_CONDITIONAL(HAVE_UPX, test "$UPX" != "")
 
-
 # SDL and core libs
 PKG_CHECK_MODULES([SDL], [sdl >= 1.2  SDL_image  SDL_mixer  SDL_ttf >= 2.0.9  SDL_gfx],
   [CFLAGS="$CFLAGS $SDL_CFLAGS"; LIBS="$SDL_LIBS $LIBS"],
   AC_MSG_WARN($SDL_PKG_ERRORS); LACK_SDL=1)
 
+AC_ARG_ENABLE([lua],
+  AS_HELP_STRING([--enable-lua], [support for lua scripts (default is disabled)]),
+  [], [enable_lua=no])
+if test x"$enable_lua" = x"yes"; then
+  PKG_CHECK_MODULES([LUA], [lua5.2],
+    AC_DEFINE([HAVE_LUA], [], [lua library (-llua)]),
+    AC_MSG_WARN($LUA_PKG_ERRORS); LACK_LUA=1)
+  CFLAGS="$CFLAGS $LUA_CFLAGS"
+  LIBS="$LUA_LIBS $LIBS"
+fi
+AM_CONDITIONAL(HAVE_LUA, test x"$enable_lua" = x"yes")
 
 case "${host}" in
 # (cf. (autoconf.info)Using System Type) (2002)
@@ -197,6 +207,11 @@ echo "Errors and warnings recap:"
 error=0
 warning=0
 
+if test "$LACK_LUA" = 1; then
+  echo "* You need to install liblua, version 5.2."
+  error=1
+fi
+
 if test "$LACK_SDL" = 1; then
   echo "* You need to install the SDL libraries:"
   echo "$SDL_PKG_ERRORS"
@@ -266,5 +281,6 @@ echo "Options summary:"
 echo "* --enable-upx=$enable_upx"
 echo "* --enable-static=$enable_static"
 echo "* --enable-embedded-resources=$enable_embedded_resources"
+echo "* --enable-lua=$enable_lua"
 echo
 echo "Now you can type 'make' to compile $PACKAGE_STRING"

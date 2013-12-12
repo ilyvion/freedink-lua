@@ -2,6 +2,7 @@
  * System initialization, common to FreeDink and FreeDinkEdit
 
  * Copyright (C) 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -58,6 +59,10 @@
 #include "log.h"
 #include "init.h"
 #include "msgbox.h"
+
+#ifdef HAVE_LUA
+#include "lua_dink.h"
+#endif
 
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
@@ -172,6 +177,10 @@ void finiObjects()
 	
   kill_all_scripts_for_real();
   FastFileFini();
+
+#ifdef HAVE_LUA
+  lua_dink_quit();
+#endif
 
   dinkc_quit();
   dinkini_quit();
@@ -390,6 +399,10 @@ int init(int argc, char *argv[], char* splash_path)
 
   dinkini_init();
   dinkc_init();
+
+#ifdef HAVE_LUA
+  lua_dink_init();
+#endif
 
   /* SFX & BGM */
   if (sound_on) 

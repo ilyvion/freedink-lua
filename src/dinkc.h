@@ -2,6 +2,7 @@
  * DinkC script engine
 
  * Copyright (C) 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -71,6 +72,13 @@ struct refinfo
   int arg7;
   int arg8;
   int arg9;
+
+#ifdef HAVE_LUA
+  int islua;
+  char* luaproc;
+  int lua_script_loaded;
+  int lua_script_index;
+#endif
 };
 extern struct refinfo *rinfo[];
 

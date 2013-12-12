@@ -3,6 +3,7 @@
 
  * Copyright (C) 2003  Shawn Betts
  * Copyright (C) 2004, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -43,6 +44,16 @@ strtoupper (char *s)
 {
   for (; *s; s++)
     *s = toupper (*s);
+}
+
+/**
+ * Locase the string
+ */
+void
+strtolower (char *s)
+{
+  for (; *s; s++)
+    *s = tolower (*s);
 }
 
 /**

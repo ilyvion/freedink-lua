@@ -2,6 +2,7 @@
  * Filesystem helpers
 
  * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -224,10 +225,8 @@ pdirname (const char* filename)
   return retval;
 }
 
-SDL_RWops* find_resource_as_rwops(char *name)
+FILE* find_resource_as_file(char *name)
 {
-  SDL_RWops* rwops = NULL;
-
   /** pkgdatadir, pkgdefaultdatadir, exedir **/
   FILE *in = NULL;
   if (in == NULL)
@@ -241,6 +240,16 @@ SDL_RWops* find_resource_as_rwops(char *name)
     in = paths_defaultpkgdatafile_fopen(name, "rb");
   if (in == NULL)
     in = paths_exedirfile_fopen(name, "rb");
+
+  return in;
+}
+
+SDL_RWops* find_resource_as_rwops(char *name)
+{
+  SDL_RWops* rwops = NULL;
+
+  FILE* in = find_resource_as_file(name);
+  
   if (in != NULL)
     rwops = SDL_RWFromFP(in, /*autoclose=*/1);
 

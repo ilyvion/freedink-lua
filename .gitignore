@@ -45,3 +45,6 @@ gnulib/lib/sys/
 TAGS
 # gprof
 gmon.out
+# anjuta
+.anjuta*
+*.anjuta

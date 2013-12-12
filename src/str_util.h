@@ -2,6 +2,7 @@
  * Header for strings functions
 
  * Copyright (C) 2005, 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -29,6 +30,7 @@ extern "C"
 #endif
 
   extern void strtoupper(char *s);
+  extern void strtolower(char *s);
   extern void strcpy_nooverlap(char *dst, char* src);
   extern int asprintf_append(char **strp, const char* fmt, ...);
   extern void reverse(char *st);

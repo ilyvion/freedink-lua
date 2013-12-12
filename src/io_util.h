@@ -2,6 +2,7 @@
  * Filesystem helpers
 
  * Copyright (C) 2007, 2008, 2009  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -39,6 +40,7 @@ extern "C"
 			   change! */
 
   extern void ciconvert (char *filename);
+  extern FILE* find_resource_as_file(char *name);
   extern SDL_RWops *find_resource_as_rwops(const char *filename);
   extern /*bool*/int exist(char *name);
   extern int is_directory(char *name);

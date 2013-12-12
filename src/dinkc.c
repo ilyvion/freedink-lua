@@ -4,6 +4,7 @@
  * Copyright (C) 1997, 1998, 1999, 2002, 2003  Seth A. Robinson
  * Copyright (C) 2005, 2006  Dan Walma
  * Copyright (C) 2005, 2007, 2008, 2009, 2011  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -42,6 +43,10 @@
 #include "paths.h"
 #include "str_util.h"
 #include "log.h"
+
+#ifdef HAVE_LUA
+#include "lua_dink.h"
+#endif
 
 int returnint = 0;
 int bKeepReturnInt = 0;
@@ -218,29 +223,56 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   /*bool*/int comp = /*false*/0;
   
   log_info("LOADING %s", filename);
+
+#ifdef HAVE_LUA
+  int islua = 0;
+  sprintf(temp, "story/%s.l", filename);
+  in = paths_dmodfile_fopen(temp, "rb");
+  if (in != NULL)
+	islua = 1;
+  else
+  {
+#endif
   
   sprintf(temp, "story/%s.d", filename);
   in = paths_dmodfile_fopen(temp, "rb");
   if (in == NULL)
-    {
-      sprintf(temp, "story/%s.c", filename);
-      in = paths_dmodfile_fopen(temp, "rb");
-      if (in == NULL)
+  {
+    sprintf(temp, "story/%s.c", filename);
+    in = paths_dmodfile_fopen(temp, "rb");
+    if (in == NULL)
 	{
+#ifdef HAVE_LUA
+	  sprintf(temp, "story/%s.l", filename);
+	  in = paths_fallbackfile_fopen(temp, "rb");
+	  if (in != NULL)
+		islua = 1;
+	  else
+	  {
+#endif
 	  sprintf(temp, "story/%s.d", filename);
 	  in = paths_fallbackfile_fopen(temp, "rb");
 	  if (in == NULL)
-	    {
-	      sprintf(temp, "story/%s.c", filename);
-	      in = paths_fallbackfile_fopen(temp, "rb");
-	      if (in == NULL)
+	  {
+	    sprintf(temp, "story/%s.c", filename);
+	    in = paths_fallbackfile_fopen(temp, "rb");
+	    if (in == NULL)
 		{
+#ifdef HAVE_LUA
+		  log_warn("Script %s not found. (checked for .L, .C and .D) (requested by %d?)", temp, sprite);
+#else
 		  log_warn("Script %s not found. (checked for .C and .D) (requested by %d?)", temp, sprite);
+#endif
 		  return 0;
 		}
-	    }
+	  }
 	}
-    }
+  }
+
+#ifdef HAVE_LUA
+	}
+  }
+#endif
   
   strtoupper(temp);
   log_debug("Temp thingie is %c", temp[strlen(temp)-1]);
@@ -277,7 +309,10 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   rinfo[script]->cur_line = 1;
   rinfo[script]->cur_col  = 0;
   rinfo[script]->debug_line = 1;
-
+#ifdef HAVE_LUA
+  rinfo[script]->islua = islua;
+  rinfo[script]->lua_script_index = script;
+#endif
   
   if (comp)
     {
@@ -304,6 +339,13 @@ int load_script(char filename[15], int sprite, /*bool*/int set_sprite)
   
   if (set_sprite && sprite != 0 && sprite != 1000)
     spr[sprite].script = script;
+
+#ifdef HAVE_LUA
+  if (rinfo[script]->islua)
+  {
+    lua_load_script(rinfo[script], rbuf[script]);
+  }
+#endif
 
   return script;
 }
@@ -368,6 +410,19 @@ void strip_beginning_spaces(char *str)
 {
   if (rinfo[script] == NULL)
     return 0;
+
+#ifdef HAVE_LUA
+  if (rinfo[script]->islua)
+  {
+	if (rinfo[script]->luaproc)
+	  free(rinfo[script]->luaproc);
+	
+	rinfo[script]->luaproc = strdup(lookup_proc);
+	strtolower(rinfo[script]->luaproc);
+
+    return lua_script_procedure_exists(rinfo[script]);
+  }
+#endif
 
   int save_current  = rinfo[script]->current;
   int save_cur_line = rinfo[script]->cur_line;
@@ -783,7 +838,14 @@ void kill_script(int k)
 	    play.var[i].active = /*false*/0;
 	}
       log_debug("Killed script %s. (num %d)", rinfo[k]->name, k);
-      
+
+#ifdef HAVE_LUA
+	  if (rinfo[k]->islua)
+	  {
+		lua_kill_script(rinfo[k]);
+	  }
+#endif
+	  
       if (rinfo[k]->name != NULL)
 	free(rinfo[k]->name);
       if (rinfo[k] != NULL)
@@ -1070,6 +1132,17 @@ void kill_returning_stuff(int script)
 
 void run_script(int script)
 {
+#ifdef HAVE_LUA
+  if (rinfo[script]->islua)
+  {
+    if (!rinfo[script]->lua_script_loaded)
+      return;
+    
+	lua_run_script(rinfo[script]);
+	return;
+  }
+#endif
+  
   int result;
   char* line = NULL;
 

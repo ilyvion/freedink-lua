@@ -42,6 +42,10 @@ if HAVE_LIBZIP
 COMMON_OBJS+=SDL_rwops_libzip.c SDL_rwops_libzip.h
 endif
 
+if HAVE_LUA
+COMMON_OBJS+=lua_dink.c lua_dink.h lua_dinkc.c lua_dinkc.h
+endif
+
 bin_PROGRAMS = freedink freedinkedit
 freedink_SOURCES = $(COMMON_OBJS) freedink.c freedink.h update_frame.c	\
 update_frame.h
