@@ -32,7 +32,6 @@ enum dinkc_parser_state {
 
 extern void dinkc_bindings_init();
 extern void dinkc_bindings_quit();
-extern void attach(void);
 extern /*bool*/int talk_get(int script);
 extern enum dinkc_parser_state process_line (int script, char *s, /*bool*/int doelse);
 

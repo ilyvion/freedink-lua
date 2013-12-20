@@ -36,7 +36,7 @@
 #include "SDL_framerate.h"
 #include "game_engine.h"
 #include "rect.h"
-#include "dinkc.h"
+//#include "dinkc.h"
 
 struct attackinfo_struct
 {
@@ -139,7 +139,7 @@ extern void duck_brain(int h);
 extern /*BOOL*/int init_mouse();
 extern int load_map_to(char* path, const int num, struct small_map* screen);
 extern int load_map(const int num);
-extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
+//extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
 extern /*bool*/int locate(int script, char proc[20]);
 extern void process_callbacks(void);
 extern void run_script (int script);
@@ -197,7 +197,6 @@ extern /*bool*/int trig_man;
 
 /* Game state */
 extern /*bool*/int add_time_to_saved_game(int num);
-extern void attach(void);
 extern /*bool*/int windowed;
 extern int fcur_weapon, fcur_magic;
 extern int push_active;

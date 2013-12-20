@@ -60,10 +60,6 @@
 #include "init.h"
 #include "msgbox.h"
 
-#ifdef HAVE_LUA
-#include "lua_dink.h"
-#endif
-
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -175,14 +171,11 @@ void finiObjects()
       QuitSound();
     }
 	
-  kill_all_scripts_for_real();
+  scripting_kill_all_scripts_for_real();
   FastFileFini();
 
-#ifdef HAVE_LUA
-  lua_dink_quit();
-#endif
-
-  dinkc_quit();
+  scripting_quit();
+  
   dinkini_quit();
 
   game_quit();
@@ -398,11 +391,8 @@ int init(int argc, char *argv[], char* splash_path)
   game_init();
 
   dinkini_init();
-  dinkc_init();
 
-#ifdef HAVE_LUA
-  lua_dink_init();
-#endif
+  scripting_init();
 
   /* SFX & BGM */
   if (sound_on) 

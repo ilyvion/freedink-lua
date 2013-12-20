@@ -47,7 +47,9 @@
 #include "bgm.h"
 #include "log.h"
 #include "rect.h"
+#ifdef HAVE_DINKC
 #include "dinkc_console.h"
+#endif
 #include "input.h"
 #include "sfx.h"
 
@@ -342,7 +344,7 @@ trigger_start:
 						{
 							//	Msg("Callback running script %d.", spr[h].script);
 							
-							run_script(spr[h].callback);
+							scripting_resume_script(spr[h].callback);
 							
 							
 						}
@@ -751,12 +753,15 @@ past:
 		
 		
 		
-		int scr = load_script("START",1000, /*true*/1);
-		if (locate(scr, "MAIN") == /*false*/0)
+		int scr = scripting_load_script("START",1000, /*true*/1);
+		if (scripting_proc_exists(scr, "MAIN") == /*false*/0)
 		{
 			log_error("Can't locate MAIN in script START!");
 		}
-		run_script(scr);
+        else
+        {
+			scripting_run_proc(scr, "MAIN");
+        }
 		mode = 1;
 		
 	}
@@ -882,18 +887,21 @@ past:
 	      }
 	  }
 
-        /* Console */
-        if (console_active == 1)
-        {
-	  char* line = dinkc_console_get_cur_line();
-	  FONTS_SetTextColor(0, 0, 0);
-	  print_text_wrap_debug(line, 20, 380);
+#ifdef HAVE_DINKC
+      /* Console */
+      if (console_active == 1)
+      {
+        // TODO: Script-agnostic console support
+        char* line = dinkc_console_get_cur_line();
+        FONTS_SetTextColor(0, 0, 0);
+        print_text_wrap_debug(line, 20, 380);
 
-	  char retval[20+1];
-	  sprintf(retval, "%d", dinkc_console_get_last_retval());
-	  FONTS_SetTextColor(255, 0, 0);
-	  print_text_wrap_debug(retval, 20, 360);
-	}
+        char retval[20+1];
+        sprintf(retval, "%d", dinkc_console_get_last_retval());
+        FONTS_SetTextColor(255, 0, 0);
+        print_text_wrap_debug(retval, 20, 360);
+      }
+#endif
 
 	int j2 = 0;
 	for (; j2 <= max_s; j2++)
@@ -911,7 +919,7 @@ past:
 	if (talk.active) process_talk();
 	
 	
-	process_callbacks();
+	scripting_process_callbacks();
 	
 flip:
 	if (g_b_kill_app) return;	

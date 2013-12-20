@@ -37,6 +37,7 @@
 #include "sfx.h"
 #include "log.h"
 #include "meminfo.h"
+#include "scripting.h"
 
 /* Tiles */
 /* Game pieces */
@@ -157,19 +158,18 @@ void draw_map_game(void)
                 
   while (kill_last_sprite());
   kill_repeat_sounds();
-  kill_all_scripts();
+  scripting_kill_all_scripts();
 
   gfx_tiles_draw_screen();
                 
   if (strlen(pam.script) > 1)
     {
-      int ms = load_script(pam.script,0, /*true*/1);
+      int ms = scripting_load_script(pam.script,0, /*true*/1);
                         
       if (ms > 0) 
 	{
-	  locate(ms, "main");
 	  no_running_main = /*true*/1;
-	  run_script(ms);
+	  scripting_run_proc(ms, "main");
 	  no_running_main = /*false*/0;
 	}
     }
@@ -181,7 +181,7 @@ void draw_map_game(void)
   thisTickCount = game_GetTicks();
                 
   // Run active sprites' scripts
-  init_scripts();
+  scripting_init_scripts();
 
   // Display some memory stats after loading a screen
   meminfo_log_mallinfo();

@@ -27,30 +27,11 @@
 #include <stdio.h>
 #include "io_util.h"
 
-#define MAX_SCRIPTS 200
-#define MAX_VARS 250
-
-/* Part of the savegame data dump, before of size change! */
-struct varman
-{
-  int var;
-  char name[20];
-  int scope; /* script number holding the local variable */
-  BOOL_1BYTE active;
-};
-/* Named index for varman.scope */
-#define DINKC_GLOBAL_SCOPE 0
-
-// global functions (v1.08)
-struct global_function
-{
-  char file[10];
-  char func[20];
-};
+#include "scripting.h"
 
 struct refinfo
 {
-  char* name;
+  //char* name;
   long location;
   long current; // current offset
   int cur_line; // current line
@@ -58,7 +39,7 @@ struct refinfo
   int debug_line; // last parsed line (whereas cur_line == next-to-be-read)
   int level;
   long end; // size of the text, == strlen(rbuf[i])
-  int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
+  //int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
   /*bool*/int skipnext;
   int onlevel;
   int proc_return;
@@ -72,41 +53,29 @@ struct refinfo
   int arg7;
   int arg8;
   int arg9;
-
-#ifdef HAVE_LUA
-  int islua;
-  char* luaproc;
-  int lua_script_loaded;
-  int lua_script_index;
-#endif
 };
-extern struct refinfo *rinfo[];
 
-extern void dinkc_init();
+extern void dinkc_init(struct script_engine *engine);
 extern void dinkc_quit();
-extern int load_script(char filename[15], int sprite, /*bool*/int set_sprite);
+//extern void* dinkc_allocate_data();
+//extern int dinkc_load_script(const char *path, int script);
 extern int dinkc_execute_one_liner(char* line);
 extern void strip_beginning_spaces(char *str);
-extern /*bool*/int locate(int script, char* proc_lookup);
+//extern /*bool*/int locate(int script, char* proc_lookup);
 extern /*bool*/int locate_goto(char* expr, int script);
 extern long decipher(char* variable, int script);
-extern void decipher_string(char** line_p, int script);
 extern int add_callback(char name[20], int n1, int n2, int script);
-extern void kill_callback(int cb);
-extern void kill_callbacks_owned_by_script(int script);
-extern void kill_script(int k);
-extern void kill_all_scripts_for_real(void);
+//extern void kill_script(int k);
+//extern void kill_all_scripts_for_real(void);
 extern char* read_next_line(int script);
 extern void process_callbacks(void);
-extern int var_exists(char name[20], int scope);
-extern void make_int(char name[80], int value, int scope, int script);
 extern void var_equals(char name[20], char newname[20], char math, int script, char rest[200]);
 extern int var_figure(char h[200], int script);
-extern void kill_scripts_owned_by(int sprite);
+extern void dinkc_kill_scripts_owned_by(int sprite);
 extern void kill_returning_stuff(int script);
-extern void run_script(int script);
-extern void attach(void);
+//extern void run_script(int script);
 extern void int_prepare(char line[100], int script);
+extern void dinkc_make_int(const char name[80], int value, int scope, int script);
 extern void make_function(char file[10], char func[20]);
 
 /* Used by gfx_tiles.c only */

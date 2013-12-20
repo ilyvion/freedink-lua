@@ -20,17 +20,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DINKC_SP_CUSTOM_HASH
-#define DINKC_SP_CUSTOM_HASH
+#ifndef SP_CUSTOM_HASH
+#define SP_CUSTOM_HASH
 
 #include "hash.h"
 
-typedef Hash_table* dinkc_sp_custom;
+typedef Hash_table* sp_custom;
 
-extern dinkc_sp_custom dinkc_sp_custom_new();
-extern void dinkc_sp_custom_free(dinkc_sp_custom hash);
-extern void dinkc_sp_custom_set(dinkc_sp_custom hash, char key[200], int val);
-extern int dinkc_sp_custom_get(dinkc_sp_custom hash, char key[200]);
-extern void dinkc_sp_custom_clear(dinkc_sp_custom hash);
+extern sp_custom sp_custom_new();
+extern void sp_custom_free(sp_custom hash);
+extern void sp_custom_set(sp_custom hash, char key[200], int val);
+extern int sp_custom_get(sp_custom hash, char key[200]);
+extern void sp_custom_clear(sp_custom hash);
 
 #endif

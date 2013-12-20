@@ -552,7 +552,7 @@ int lua_dinkc_arm_weapon(lua_State *l)
   return 0;
 }
 
-void lua_bind_dinkc()
+void dinklua_bind_init()
 {
   luaL_Reg dinkc_funcs[] =
   {

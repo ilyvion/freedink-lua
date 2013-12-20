@@ -29,9 +29,10 @@
 #include "SDL.h"
 #include "rect.h"
 #include "io_util.h"
-#include "dinkc.h"
+//#include "dinkc.h"
 #include "gfx_tiles.h"
-#include "dinkc_sp_custom.h"
+#include "sp_custom.h"
+#include "scripting.h"
 
 #define FPS 60
 #define MAX_SPRITES_AT_ONCE 300
@@ -120,7 +121,7 @@ struct sp
   /* v1.08 */
   int bloodseq;
   int bloodnum;
-  dinkc_sp_custom custom;
+  sp_custom custom;
 };
 
 struct item_struct
@@ -260,5 +261,7 @@ extern void game_quit(void);
 extern Uint32 game_GetTicks(void);
 extern void game_set_high_speed(void);
 extern void game_set_normal_speed(void);
+
+extern void attach(void);
 
 #endif

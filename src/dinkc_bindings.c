@@ -71,6 +71,9 @@ static char* cur_funcname;
 /*             */
 /***************/
 
+/* DinkC script data conversion */
+#define rinfo(script) ((struct refinfo*)(sinfo[script]->data))
+
 /**
  * Short-hand to check for invalid sprites and avoid segfaults.
  * Also warn the D-Mod author about it.
@@ -79,8 +82,8 @@ static char* cur_funcname;
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
       log_error("[DinkC] %s:%d:%s: invalid sprite %d (offset %d)",             \
-                rinfo[script]->name, rinfo[script]->debug_line,                \
-                cur_funcname, sprite, rinfo[script]->current);                 \
+                sinfo[script]->name, rinfo(script)->debug_line,                \
+                cur_funcname, sprite, rinfo(script)->current);                 \
       return;                                                                  \
     }
 
@@ -94,8 +97,8 @@ static char* cur_funcname;
   if (sprite <= 0 || sprite >= MAX_SPRITES_AT_ONCE)                            \
     {                                                                          \
       log_error("[DinkC] %s:%d:%s: invalid sprite %d (offset %d)",             \
-                rinfo[script]->name, rinfo[script]->debug_line,                \
-                cur_funcname, sprite, rinfo[script]->current);                 \
+                sinfo[script]->name, rinfo(script)->debug_line,                \
+                cur_funcname, sprite, rinfo(script)->current);                 \
       *preturnint = -1;                                                        \
       return;                                                                  \
     }
@@ -339,8 +342,8 @@ void dc_sp_seq(int script, int* yield, int* preturnint, int sprite, int sparg)
   if ((sparg < 0 || sparg >= MAX_SEQUENCES) && sparg != -1)
     {
       log_error("[DinkC] %s:%d:%s: invalid sequence %d, ignoring (offset %d)",
-                rinfo[script]->name, rinfo[script]->debug_line,
-                cur_funcname, sparg, rinfo[script]->current);
+                sinfo[script]->name, rinfo(script)->debug_line,
+                cur_funcname, sparg, rinfo(script)->current);
       *preturnint = -1;
       return;
     }
@@ -439,8 +442,8 @@ void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcs
       log_error("[DinkC] sp_script cannot process sprite %d??", sprite);
       return;
     }
-  kill_scripts_owned_by(sprite);
-  if (load_script(dcscript, sprite, /*true*/1) == 0)
+  scripting_kill_scripts_owned_by(sprite);
+  if (scripting_load_script(dcscript, sprite, /*true*/1) == 0)
     {
       *preturnint = 0;
       return;
@@ -450,14 +453,12 @@ void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcs
   if (sprite != 1000)
     {
       if (no_running_main == /*true*/1)
-	log_info("Not running %s until later..", rinfo[spr[sprite].script]->name);
-      if (no_running_main == /*false*/0 && sprite != 1000)
-	locate(spr[sprite].script, "MAIN");
-    
-      tempreturn = spr[sprite].script;
-    
+	log_info("Not running %s until later..", sinfo[spr[sprite].script]->name);
       if (no_running_main == /*false*/0)
-	run_script(spr[sprite].script);
+      {
+	    scripting_run_proc(spr[sprite].script, "MAIN");
+        tempreturn = spr[sprite].script;
+      }
     }
     
   *preturnint = tempreturn;
@@ -591,22 +592,22 @@ void dc_load_screen(int script, int* yield, int* preturnint)
  */
 static int say_text_from_dc(char* text, int active_sprite, int script)
 {
-  log_debug("[DinkC] %s:%d:%s(\"%s\", %d)", rinfo[script]->name,
-	    rinfo[script]->debug_line, cur_funcname,
+  log_debug("[DinkC] %s:%d:%s(\"%s\", %d)", sinfo[script]->name,
+	    rinfo(script)->debug_line, cur_funcname,
 	    text, active_sprite);
 
   /* Translate text (before variable substitution) */
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
     {
-      char* temp = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text+2);
+      char* temp = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, text+2);
       translation = xmalloc(strlen(temp) + 2 + 1);
       sprintf(translation, "%c%c%s", text[0], text[1], temp);
       free(temp);
     }
   else
     {
-      translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
+      translation = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, text);
     }
 
   /* Substitute variables */
@@ -625,22 +626,22 @@ static int say_text_from_dc(char* text, int active_sprite, int script)
  */
 static int say_text_xy_from_dc(char* text, int x, int y, int script)
 {
-  log_debug("[DinkC] %s:%d:%s(\"%s\", %d, %d)", rinfo[script]->name,
-	    rinfo[script]->debug_line, cur_funcname,
+  log_debug("[DinkC] %s:%d:%s(\"%s\", %d, %d)", sinfo[script]->name,
+	    rinfo(script)->debug_line, cur_funcname,
 	    text, x, y);
 
   /* Translate text (before variable substitution) */
   char* translation = NULL;
   if (strlen(text) >= 2 && text[0] == '`')
     {
-      char* temp = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text+2);
+      char* temp = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, text+2);
       translation = xmalloc(strlen(temp) + 2 + 1);
       sprintf(translation, "%c%c%s", text[0], text[1], temp);
       free(temp);
     }
   else
     {
-      translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
+      translation = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, text);
     }
 
   /* Substitute variables */
@@ -683,7 +684,7 @@ void dc_say_stop(int script, int* yield, int* preturnint, char* text, int active
     
   kill_text_owned_by(active_sprite);
   kill_text_owned_by(1);
-  kill_returning_stuff(script);
+  scripting_kill_callbacks(script);
 
   int sprite = say_text_from_dc(text, active_sprite, script);
   *preturnint = sprite;
@@ -706,7 +707,7 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
       return;
     }
     
-  kill_returning_stuff(script);
+  scripting_kill_callbacks(script);
 
   int sprite = say_text_from_dc(text, active_sprite, script);
   spr[sprite].callback = script;
@@ -716,7 +717,7 @@ void dc_say_stop_npc(int script, int* yield, int* preturnint, char* text, int ac
 
 void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
 {
-  kill_returning_stuff(script);
+  scripting_kill_callbacks(script);
 
   int sprite = say_text_xy_from_dc(text, x, y, script);
   spr[sprite].callback = script;
@@ -727,7 +728,7 @@ void dc_say_stop_xy(int script, int* yield, int* preturnint, char* text, int x, 
 
 void dc_say_xy(int script, int* yield, int* preturnint, char* text, int x, int y)
 {
-  kill_returning_stuff(script);
+  scripting_kill_callbacks(script);
   *preturnint = say_text_xy_from_dc(text, x, y, script);
 }
 
@@ -735,8 +736,8 @@ void dc_draw_screen(int script, int* yield, int* preturnint)
 {
   /* only refresh screen if not in a cut-scene */
   /* do it before draw_map_game() because that one calls
-     kill_all_scripts(), which NULLifies rinfo[script] */
-  if (rinfo[script]->sprite != 1000)
+     kill_all_scripts(), which NULLifies rinfo(script) */
+  if (sinfo[script]->sprite != 1000)
     *yield = 1;
   draw_map_game();
 }
@@ -785,22 +786,20 @@ void dc_draw_status(int script, int* yield, int* preturnint)
 
 void dc_arm_weapon(int script, int* yield, int* preturnint)
 {
-  if (weapon_script != 0 && locate(weapon_script, "DISARM"))
-    run_script(weapon_script);
+  if (weapon_script != 0)
+    scripting_run_proc(weapon_script, "DISARM");
 
-  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
-  if (locate(weapon_script, "ARM"))
-    run_script(weapon_script);
+  weapon_script = scripting_load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
+  scripting_run_proc(weapon_script, "ARM");
 }
 
 void dc_arm_magic(int script, int* yield, int* preturnint)
 {
-  if (magic_script != 0 && locate(magic_script, "DISARM"))
-    run_script(magic_script);
+  if (magic_script != 0)
+    scripting_run_proc(magic_script, "DISARM");
     
-  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
-  if (locate(magic_script, "ARM"))
-    run_script(magic_script);
+  magic_script = scripting_load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
+  scripting_run_proc(magic_script, "ARM");
 }
 
 void dc_restart_game(int script, int* yield, int* preturnint)
@@ -808,17 +807,16 @@ void dc_restart_game(int script, int* yield, int* preturnint)
   int mainscript;
   while (kill_last_sprite());
   kill_repeat_sounds_all();
-  kill_all_scripts_for_real();
+  scripting_kill_all_scripts_for_real();
   mode = 0;
   screenlock = 0;
   kill_all_vars();
   memset(&hm, 0, sizeof(hm));
   input_set_default_buttons();
 
-  mainscript = load_script("main", 0, /*true*/1);
+  mainscript = scripting_load_script("main", 0, /*true*/1);
     
-  locate(mainscript, "main");
-  run_script(mainscript);
+  scripting_run_proc(mainscript, "main");
   //lets attach our vars to the scripts
   attach();
   *yield = 1;
@@ -826,7 +824,7 @@ void dc_restart_game(int script, int* yield, int* preturnint)
 
 void dc_wait(int script, int* yield, int* preturnint, int delayms)
 {
-  kill_returning_stuff(script);
+  scripting_kill_callbacks(script);
   add_callback("", delayms, 0, script);
   *yield = 1;
 }
@@ -839,7 +837,7 @@ void dc_preload_seq(int script, int* yield, int* preturnint, int sequence)
 void dc_script_attach(int script, int* yield, int* preturnint, int sprite)
 {
   /* STOP_IF_BAD_SPRITE(sprite); */
-  rinfo[script]->sprite = sprite;
+  sinfo[script]->sprite = sprite;
 }
 
 void dc_draw_hard_sprite(int script, int* yield, int* preturnint, int sprite)
@@ -913,7 +911,7 @@ void dc_fade_down(int script, int* yield, int* preturnint)
   if (process_upcycle)
     {
       log_error("[DinkC] %s:%d: fade_down() called during fade_up(), ignoring fade_down()",
-                rinfo[script]->name, rinfo[script]->debug_line);
+                sinfo[script]->name, rinfo(script)->debug_line);
     }
   else
     {
@@ -930,7 +928,7 @@ void dc_fade_up(int script, int* yield, int* preturnint)
   if (process_downcycle)
     {
       log_error("[DinkC] %s:%d: fade_up() called during fade_down(), forcing fade_up()",
-                rinfo[script]->name, rinfo[script]->debug_line);
+                sinfo[script]->name, rinfo(script)->debug_line);
     }
   process_downcycle = 0; // priority over concurrent fade_down()
   process_upcycle = /*true*/1;
@@ -972,11 +970,11 @@ void dc_kill_game(int script, int* yield, int* preturnint)
 void dc_kill_this_task(int script, int* yield, int* preturnint)
 {
   // (sprite, direction, until, nohard);
-  if (rinfo[script]->proc_return != 0)
+  if (rinfo(script)->proc_return != 0)
     {
-      run_script(rinfo[script]->proc_return);
+      scripting_resume_script(rinfo(script)->proc_return);
     }
-  kill_script(script);
+  scripting_kill_script(script);
   *yield = 1;
 }
 
@@ -985,7 +983,7 @@ void dc_scripts_used(int script, int* yield, int* preturnint)
   int m = 0;
   int i;
   for (i = 1; i < MAX_SCRIPTS; i++)
-    if (rinfo[i] != NULL) m++;
+    if (sinfo[i] != NULL) m++;
   *preturnint = m;
 }
 
@@ -1047,13 +1045,13 @@ void dc_compare_sprite_script(int script, int* yield, int* preturnint, int sprit
 	  log_error("[DinkC] compare_sprite_script: Sprite %d has no script.", sprite);
 	  return;
 	}
-      if (rinfo[spr[sprite].script] == NULL)
+      if (sinfo[spr[sprite].script] == NULL)
 	{
 	  log_error("[DinkC] compare_sprite_script: script %d for sprite %d was already killed!.",
 		    sprite, spr[sprite].script);
 	  return;
 	}
-      if (compare(dcscript, rinfo[spr[sprite].script]->name))
+      if (compare(dcscript, sinfo[spr[sprite].script]->name))
 	{
 	  *preturnint = 1;
 	  return;
@@ -1160,23 +1158,21 @@ void dc_move(int script, int* yield, int* preturnint,
 void dc_spawn(int script, int* yield, int* preturnint,
 	     char* dcscript)
 {
-  int mysc = load_script(dcscript, 1000, /*true*/1);
+  int mysc = scripting_load_script(dcscript, 1000, /*true*/1);
   if (mysc == 0)
     {
       *preturnint = 0;
       return;
     }
-  locate(mysc, "MAIN");
   int tempreturn = mysc;
-  run_script(mysc);
+  scripting_run_proc(mysc, "MAIN");
   *preturnint = tempreturn;
 }
 
 void dc_run_script_by_number(int script, int* yield, int* preturnint,
 			     int script_index, char* funcname)
 {
-  if (locate(script_index, funcname))
-    run_script(script_index);
+  scripting_run_proc(script_index, funcname);
 }
 
 void dc_playmidi(int script, int* yield, int* preturnint,
@@ -1262,7 +1258,7 @@ void dc_save_game(int script, int* yield, int* preturnint, int game_slot)
 void dc_force_vision(int script, int* yield, int* preturnint, int vision)
 {
   *pvision = vision;
-  rinfo[script]->sprite = 1000;
+  sinfo[script]->sprite = 1000;
   fill_whole_hard();
   draw_map_game();
 }
@@ -1274,10 +1270,10 @@ void dc_fill_screen(int script, int* yield, int* preturnint, int palette_index)
 
 void dc_load_game(int script, int* yield, int* preturnint, int game_slot)
 {
-  kill_all_scripts_for_real();
+  scripting_kill_all_scripts_for_real();
   *preturnint = load_game(game_slot);
   log_info("load completed.");
-  if (rinfo[script] == NULL)
+  if (rinfo(script) == NULL)
     log_error("[DinkC] Script %d is suddenly null!", script);
   *pupdate_status = 1;
   draw_status_all();
@@ -1345,7 +1341,7 @@ void dc_busy(int script, int* yield, int* preturnint,
 void dc_make_global_int(int script, int* yield, int* preturnint,
 			char* varname, int default_val)
 {
-  make_int(varname, default_val, 0, script);
+  dinkc_make_int(varname, default_val, 0, script);
 }
 
 void dc_inside_box(int script, int* yield, int* preturnint,
@@ -1496,17 +1492,17 @@ void dc_hurt(int script, int* yield, int* preturnint,
 
   if (spr[sprite].nohit != 1
       && spr[sprite].script != 0
-      && locate(spr[sprite].script, "HIT"))
+      && scripting_proc_exists(spr[sprite].script, "HIT"))
     {
-      if (rinfo[script]->sprite != 1000)
+      if (sinfo[script]->sprite != 1000)
 	{
-	  *penemy_sprite = rinfo[script]->sprite;
+	  *penemy_sprite = sinfo[script]->sprite;
 	  //redink1 addition of missle_source stuff
 	  if (dversion >= 108)
-	    *pmissle_source = rinfo[script]->sprite;
+	    *pmissle_source = sinfo[script]->sprite;
 	}
-      kill_returning_stuff(spr[sprite].script);
-      run_script(spr[sprite].script);
+      scripting_kill_callbacks(spr[sprite].script);
+      scripting_run_proc(spr[sprite].script, "HIT");
     }
 }
 
@@ -1590,8 +1586,8 @@ void dc_sp_custom(int script, int* yield, int* preturnint, char* key, int sprite
     {
       // Set the value
       if (val != -1)
-	dinkc_sp_custom_set(spr[sprite].custom, key, val);
-      *preturnint = dinkc_sp_custom_get(spr[sprite].custom, key);
+	sp_custom_set(spr[sprite].custom, key, val);
+      *preturnint = sp_custom_get(spr[sprite].custom, key);
     }
 }
 
@@ -1781,7 +1777,7 @@ void dc_load_tile(int script, int* yield, int* preturnint, char* tileset_file, i
   else
     {
       log_error("[DinkC] %s:%d:%s: dc_load_tile: invalid tileset index '%d'",
-		rinfo[script]->name, rinfo[script]->debug_line, cur_funcname,
+		sinfo[script]->name, rinfo(script)->debug_line, cur_funcname,
 		tileset_index);
     }
 }
@@ -1798,7 +1794,7 @@ void dc_map_tile(int script, int* yield, int* preturnint, int tile_position, int
 	pam.t[tile_position - 1].square_full_idx0 = tile_index;
       else
 	log_error("[DinkC] %s:%d:%s: dc_map_tile: invalid tile index '%d'",
-		  rinfo[script]->name, rinfo[script]->debug_line, cur_funcname,
+		  sinfo[script]->name, rinfo(script)->debug_line, cur_funcname,
 		  tile_index);
 
       *preturnint = pam.t[tile_position - 1].square_full_idx0;
@@ -1911,7 +1907,7 @@ void dc_set_dink_base_push(int script, int* yield, int* preturnint, int base_seq
 void dc_callback_kill(int script, int* yield, int* preturnint, int callback_index)
 {
   log_debug("setting callback random");
-  kill_callback(callback_index);
+  scripting_kill_callback(callback_index);
 }
 
 
@@ -1952,7 +1948,7 @@ static bool dinkc_bindings_comparator(const void* a, const void* b)
 /**
  * Search a binding by function name
  */
-struct binding* dinkc_bindings_lookup(dinkc_sp_custom hash, char* funcname)
+struct binding* dinkc_bindings_lookup(sp_custom hash, char* funcname)
 {
   struct binding search;
   struct binding *result;
@@ -2255,52 +2251,6 @@ void dinkc_bindings_quit()
 /*                */
 /******************/
 
-void attach(void)
-{
-  /* Make sure the "system" variable exists - otherwise we might use a
-     NULL pointer below */
-  char* var_names[22] = { "&life", "&vision", "&result", "&speed",
-		     "&timing", "&lifemax", "&exp", "&strength",
-		     "&defense", "&gold", "&magic", "&level",
-		     "&player_map", "&cur_weapon", "&cur_magic",
-		     "&last_text", "&magic_level", "&update_status",
-		     "&missile_target", "&enemy_sprite", "&magic_cost",
-		     "&missle_source" };
-  int n, i;
-  for (n = 0; n < 22; n++)
-    {
-      if (!var_exists(var_names[n], 0)) /* 0 = global scope */
-	make_int(var_names[n], 0, 0, -1);
-      /* TODO: setting script to -1 is asking for troubles... */
-    }
-
-  for (i = 1; i < MAX_VARS; i++)
-    {
-      if (compare("&life", play.var[i].name)) plife = &play.var[i].var;
-      if (compare("&vision", play.var[i].name)) pvision = &play.var[i].var;
-      if (compare("&result", play.var[i].name)) presult = &play.var[i].var;
-      if (compare("&speed", play.var[i].name)) pspeed = &play.var[i].var;
-      if (compare("&timing", play.var[i].name))	ptiming = &play.var[i].var;
-      if (compare("&lifemax", play.var[i].name)) plifemax = &play.var[i].var;
-      if (compare("&exp", play.var[i].name)) pexper = &play.var[i].var;
-      if (compare("&strength", play.var[i].name))  pstrength = &play.var[i].var;
-      if (compare("&defense", play.var[i].name))  pdefense = &play.var[i].var;
-      if (compare("&gold", play.var[i].name))  pgold = &play.var[i].var;
-      if (compare("&magic", play.var[i].name))  pmagic = &play.var[i].var;
-      if (compare("&level", play.var[i].name))  plevel = &play.var[i].var;
-      if (compare("&player_map", play.var[i].name)) pmap = &play.var[i].var;
-      if (compare("&cur_weapon", play.var[i].name)) pcur_weapon = &play.var[i].var;
-      if (compare("&cur_magic", play.var[i].name)) pcur_magic = &play.var[i].var;
-      if (compare("&last_text", play.var[i].name)) plast_text = &play.var[i].var;
-      if (compare("&magic_level", play.var[i].name)) pmagic_level = &play.var[i].var;
-      if (compare("&update_status", play.var[i].name)) pupdate_status = &play.var[i].var;
-      if (compare("&missile_target", play.var[i].name)) pmissile_target = &play.var[i].var;
-      if (compare("&enemy_sprite", play.var[i].name)) penemy_sprite = &play.var[i].var;
-      if (compare("&magic_cost", play.var[i].name)) pmagic_cost = &play.var[i].var;
-      if (compare("&missle_source", play.var[i].name)) pmissle_source = &play.var[i].var;
-    }
-}
-
 
 /**
  * Process DinkC dialog choice stanza
@@ -2382,7 +2332,7 @@ morestuff:
 	      /* drop '\n', this messes translations */
 	      line[strlen(line)-1] = '\0';
 	      /* Translate text (before variable substitution) */
-	      char* translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, line);
+	      char* translation = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, line);
 	      decipher_string(&translation, script);
 	      int cur_len = strlen(talk.buffer);
 	      strncat(talk.buffer, translation, TALK_TITLE_BUFSIZ - 1 - cur_len - 1);
@@ -2402,7 +2352,7 @@ morestuff:
 	  if (cur-1 == 0)
 	    {
 	      log_debug("Error: choice() has 0 options in script %s, offset %d.",
-			rinfo[script]->name, rinfo[script]->current);
+			sinfo[script]->name, rinfo(script)->current);
 	      
 	      free(directive);
 	      free(line);
@@ -2432,7 +2382,7 @@ morestuff:
 	  if (strchr(condition, '(') == NULL)
 	    {
 	      log_error("[DinkC] Error with choice() statement in script %s, offset %d. (%s?)",
-			rinfo[script]->name, rinfo[script]->current, condition);
+			sinfo[script]->name, rinfo(script)->current, condition);
 	      
 	      free(condition);
 	      free(line);
@@ -2475,7 +2425,7 @@ morestuff:
       if (strlen(text) > 0)
 	{
 	  /* Translate text (before variable substitution) */
-	  char* translation = i18n_translate(rinfo[script]->name, rinfo[script]->debug_line, text);
+	  char* translation = i18n_translate(sinfo[script]->name, rinfo(script)->debug_line, text);
 	  strip_beginning_spaces(translation);
 
 	  decipher_savegame = retnum;
@@ -2533,7 +2483,7 @@ int get_parms(char proc_name[20], int script, char *str_params, int* spec)
     }
   else
     {
-      log_error("[DinkC] Missing ( in %s, offset %d.", rinfo[script]->name, rinfo[script]->current);
+      log_error("[DinkC] Missing ( in %s, offset %d.", sinfo[script]->name, rinfo(script)->current);
       return 0;
     }
 
@@ -2642,8 +2592,8 @@ process_line(int script, char *s, /*bool*/int doelse)
   
   memset(&ev, 0, sizeof(ev));
 
-  if (rinfo[script]->level < 1)
-    rinfo[script]->level = 1;
+  if (rinfo(script)->level < 1)
+    rinfo(script)->level = 1;
 
   h = s;
   if (h[0] == '\0')
@@ -2664,10 +2614,10 @@ process_line(int script, char *s, /*bool*/int doelse)
 
   if (compare(ev[0], "VOID"))
     {
-      if (rinfo[script]->proc_return != 0)
+      if (rinfo(script)->proc_return != 0)
 	{
-	  run_script(rinfo[script]->proc_return);
-	  kill_script(script);
+	  scripting_resume_script(rinfo(script)->proc_return);
+	  scripting_kill_script(script);
 	}
       PL_RETURN(DCPS_YIELD);
     }
@@ -2852,25 +2802,25 @@ process_line(int script, char *s, /*bool*/int doelse)
   char first = ev[0][0];
   if (first == '{')
     {
-      rinfo[script]->level++;
-      //Msg("Went up level, now at %d.", rinfo[script]->level);
+      rinfo(script)->level++;
+      //Msg("Went up level, now at %d.", rinfo(script)->level);
       h++;
-      if (rinfo[script]->skipnext)
+      if (rinfo(script)->skipnext)
 	{
 	  /* Skip the whole { section } */
-	  rinfo[script]->skipnext = /*false*/0;
-	  rinfo[script]->onlevel = ( rinfo[script]->level - 1);
+	  rinfo(script)->skipnext = /*false*/0;
+	  rinfo(script)->onlevel = ( rinfo(script)->level - 1);
 	}
       goto good;
     }
   
   if (first == '}')
     {
-      rinfo[script]->level--;
-      //Msg("Went down a level, now at %d.", rinfo[script]->level);
+      rinfo(script)->level--;
+      //Msg("Went down a level, now at %d.", rinfo(script)->level);
       h++;
       
-      if (rinfo[script]->onlevel > 0 && rinfo[script]->level == rinfo[script]->onlevel)
+      if (rinfo(script)->onlevel > 0 && rinfo(script)->level == rinfo(script)->onlevel)
 	{
 	  /* Finished skipping the { section }, preparing to run 'else' */
 	  strip_beginning_spaces(h);
@@ -2881,9 +2831,9 @@ process_line(int script, char *s, /*bool*/int doelse)
     }
 
   /* Fix if there are too many closing '}' */
-  if (rinfo[script]->level < 0)
+  if (rinfo(script)->level < 0)
     {
-      rinfo[script]->level = 0;
+      rinfo(script)->level = 0;
     }
 
 
@@ -2895,10 +2845,10 @@ process_line(int script, char *s, /*bool*/int doelse)
     {
       //     Msg("Next procedure starting, lets quit");
       strcpy_nooverlap(s, h);
-      if (rinfo[script]->proc_return != 0)
+      if (rinfo(script)->proc_return != 0)
 	{
-	  run_script(rinfo[script]->proc_return);
-	  kill_script(script);
+	  scripting_resume_script(rinfo(script)->proc_return);
+	  scripting_kill_script(script);
 	}
       
       PL_RETURN(DCPS_YIELD);
@@ -2906,18 +2856,18 @@ process_line(int script, char *s, /*bool*/int doelse)
 
   
   /* Stop processing if we're skipping the current { section } */
-  if (rinfo[script]->onlevel > 0 && rinfo[script]->level > rinfo[script]->onlevel)
+  if (rinfo(script)->onlevel > 0 && rinfo(script)->level > rinfo(script)->onlevel)
     {
       PL_RETURN(0);
     }
     
-  rinfo[script]->onlevel = 0;
+  rinfo(script)->onlevel = 0;
     
   /* Skip the current line if the previous 'if' or 'else' said so */
-  if (rinfo[script]->skipnext)
+  if (rinfo(script)->skipnext)
     {
       //sorry, can't do it, you were told to skip the next thing
-      rinfo[script]->skipnext = /*false*/0;
+      rinfo(script)->skipnext = /*false*/0;
       strcpy(s, "\n"); /* jump to next line */
       //PL_RETURN(3);
       PL_RETURN(DCPS_DOELSE_ONCE);
@@ -2927,7 +2877,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 
   if (compare(ev[0], "void"))
     {
-      log_error("[DinkC] Missing } in %s, offset %d.", rinfo[script]->name,rinfo[script]->current);
+      log_error("[DinkC] Missing } in %s, offset %d.", sinfo[script]->name,rinfo(script)->current);
       strcpy_nooverlap(s, h);
       PL_RETURN(DCPS_YIELD);
     }
@@ -2948,7 +2898,7 @@ process_line(int script, char *s, /*bool*/int doelse)
       else
 	{
 	  //don't do it!
-	  rinfo[script]->skipnext = /*true*/1;
+	  rinfo(script)->skipnext = /*true*/1;
 	  log_debug("If returned false, skipping next thing");
 	}
 	
@@ -2975,7 +2925,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	{
 	  // No to else...
 	  // they shouldn't run the next thing
-	  rinfo[script]->skipnext = /*true*/1;
+	  rinfo(script)->skipnext = /*true*/1;
 	}
       strcpy_nooverlap(s, h);
       PL_RETURN(1);
@@ -3024,11 +2974,11 @@ process_line(int script, char *s, /*bool*/int doelse)
     {
       log_debug("Found return; statement");
 	
-      if (rinfo[script]->proc_return != 0)
+      if (rinfo(script)->proc_return != 0)
 	{
 	  bKeepReturnInt = 1; /* v1.08 */
-	  run_script(rinfo[script]->proc_return);
-	  kill_script(script);
+	  scripting_resume_script(rinfo(script)->proc_return);
+	  scripting_kill_script(script);
 	}
 	
       PL_RETURN(DCPS_YIELD);
@@ -3045,11 +2995,11 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  h += strlen(ev[0]);
 	  strip_beginning_spaces (h);
 	  process_line (script, h, 0);
-	  if (rinfo[script]->proc_return != 0)
+	  if (rinfo(script)->proc_return != 0)
 	    {
 	      bKeepReturnInt = 1;
-	      run_script (rinfo[script]->proc_return);
-	      kill_script (script);
+	      scripting_resume_script (rinfo(script)->proc_return);
+	      scripting_kill_script (script);
 	    }
 	  PL_RETURN(DCPS_YIELD);
 	}
@@ -3084,7 +3034,7 @@ process_line(int script, char *s, /*bool*/int doelse)
 	      while (params[i] != 0 && i < 10)
 		i++;
 	      log_error("[DinkC] %s:%d: procedure '%s' takes %d parameters",
-			rinfo[script]->name, rinfo[script]->debug_line,
+			sinfo[script]->name, rinfo(script)->debug_line,
 			funcname, i);
 
 	      /* Set 'returnint' if necessary */
@@ -3308,32 +3258,32 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  get_parms(ev[0], script, h, p);
 	  if (strlen(slist[0]) > 0 && strlen(slist[1]) > 0)
 	    {
-	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, 0);
+	      int myscript1 = scripting_load_script(slist[0], sinfo[script]->sprite, 0);
 	      if (myscript1 == 0)
 		{
 		  log_error("[DinkC] external: Couldn't find %s.c (for procedure %s)",
 		       slist[0], slist[1]);
 		  PL_RETURN(0);
 		}
-	      rinfo[myscript1]->arg1 = nlist[2];
-	      rinfo[myscript1]->arg2 = nlist[3];
-	      rinfo[myscript1]->arg3 = nlist[4];
-	      rinfo[myscript1]->arg4 = nlist[5];
-	      rinfo[myscript1]->arg5 = nlist[6];
-	      rinfo[myscript1]->arg6 = nlist[7];
-	      rinfo[myscript1]->arg7 = nlist[8];
-	      rinfo[myscript1]->arg8 = nlist[9];
-	      if (locate (myscript1, slist[1]))
+	      rinfo(myscript1)->arg1 = nlist[2];
+	      rinfo(myscript1)->arg2 = nlist[3];
+	      rinfo(myscript1)->arg3 = nlist[4];
+	      rinfo(myscript1)->arg4 = nlist[5];
+	      rinfo(myscript1)->arg5 = nlist[6];
+	      rinfo(myscript1)->arg6 = nlist[7];
+	      rinfo(myscript1)->arg7 = nlist[8];
+	      rinfo(myscript1)->arg8 = nlist[9];
+	      if (scripting_proc_exists (myscript1, slist[1]))
 		{
-		  rinfo[myscript1]->proc_return = script;
-		  run_script (myscript1);
+		  rinfo(myscript1)->proc_return = script;
+		  scripting_run_proc (myscript1, slist[1]);
 		  PL_RETURN(DCPS_YIELD);
 		}
 	      else
 		{
 		  log_error("[DinkC] external: Couldn't find procedure %s in %s.",
 			    slist[1], slist[0]);
-		  kill_script (myscript1);
+		  scripting_kill_script (myscript1);
 		}
 	    }
 	  strcpy (s, h);
@@ -3343,24 +3293,24 @@ process_line(int script, char *s, /*bool*/int doelse)
       if (strchr (h, '(') != NULL)
 	{
 	  //lets attempt to run a procedure
-	  int myscript = load_script (rinfo[script]->name, rinfo[script]->sprite, 0);
+	  int myscript = scripting_load_script (sinfo[script]->name, sinfo[script]->sprite, 0);
 	  h += strlen(ev[0]);
 	  int p[20] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	  get_parms(ev[0], script, h, p);
-	  if (locate(myscript, ev[0]))
+	  if (scripting_proc_exists(myscript, ev[0]))
 	    {
 	      /* Custom procedure in the current script */
-	      rinfo[myscript]->arg1 = nlist[0];
-	      rinfo[myscript]->arg2 = nlist[1];
-	      rinfo[myscript]->arg3 = nlist[2];
-	      rinfo[myscript]->arg4 = nlist[3];
-	      rinfo[myscript]->arg5 = nlist[4];
-	      rinfo[myscript]->arg6 = nlist[5];
-	      rinfo[myscript]->arg7 = nlist[6];
-	      rinfo[myscript]->arg8 = nlist[7];
-	      rinfo[myscript]->arg9 = nlist[8];
-	      rinfo[myscript]->proc_return = script;
-	      run_script(myscript);
+	      rinfo(myscript)->arg1 = nlist[0];
+	      rinfo(myscript)->arg2 = nlist[1];
+	      rinfo(myscript)->arg3 = nlist[2];
+	      rinfo(myscript)->arg4 = nlist[3];
+	      rinfo(myscript)->arg5 = nlist[4];
+	      rinfo(myscript)->arg6 = nlist[5];
+	      rinfo(myscript)->arg7 = nlist[6];
+	      rinfo(myscript)->arg8 = nlist[7];
+	      rinfo(myscript)->arg9 = nlist[8];
+	      rinfo(myscript)->proc_return = script;
+	      scripting_run_proc(myscript, ev[0]);
 	      PL_RETURN(DCPS_YIELD);
 	    }
 	  else
@@ -3375,33 +3325,33 @@ process_line(int script, char *s, /*bool*/int doelse)
 		    
 		  if (compare(play.func[i].func, ev[0]))
 		    {
-		      myscript = load_script(play.func[i].file, rinfo[script]->sprite, 0);
-		      rinfo[myscript]->arg1 = nlist[0];
-		      rinfo[myscript]->arg2 = nlist[1];
-		      rinfo[myscript]->arg3 = nlist[2];
-		      rinfo[myscript]->arg4 = nlist[3];
-		      rinfo[myscript]->arg5 = nlist[4];
-		      rinfo[myscript]->arg6 = nlist[5];
-		      rinfo[myscript]->arg7 = nlist[6];
-		      rinfo[myscript]->arg8 = nlist[7];
-		      rinfo[myscript]->arg9 = nlist[8];
-		      if (locate(myscript, ev[0]))
+		      myscript = scripting_load_script(play.func[i].file, sinfo[script]->sprite, 0);
+		      rinfo(myscript)->arg1 = nlist[0];
+		      rinfo(myscript)->arg2 = nlist[1];
+		      rinfo(myscript)->arg3 = nlist[2];
+		      rinfo(myscript)->arg4 = nlist[3];
+		      rinfo(myscript)->arg5 = nlist[4];
+		      rinfo(myscript)->arg6 = nlist[5];
+		      rinfo(myscript)->arg7 = nlist[6];
+		      rinfo(myscript)->arg8 = nlist[7];
+		      rinfo(myscript)->arg9 = nlist[8];
+		      if (scripting_proc_exists(myscript, ev[0]))
 			{
-			  rinfo[myscript]->proc_return = script;
-			  run_script (myscript);
+			  rinfo(myscript)->proc_return = script;
+			  scripting_run_proc (myscript, ev[0]);
 			  PL_RETURN(DCPS_YIELD);
 			}
 		      break;
 		    }
 		}
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s)",
-			ev[0], ev[1], rinfo[myscript] != NULL ? rinfo[myscript]->name : "");
-	      kill_script (myscript);
+			ev[0], ev[1], sinfo[myscript] != NULL ? sinfo[myscript]->name : "");
+	      scripting_kill_script (myscript);
 	    }
 	    
 	  /*seperate_string(h, 1,'(',line);
 	      
-	    int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, false);
+	    int myscript = scripting_load_script(sinfo[script]->name, sinfo[script]->sprite, false);
 	      
 	    if (locate( myscript, line))
 	    {
@@ -3426,28 +3376,28 @@ process_line(int script, char *s, /*bool*/int doelse)
 	  int p[20] = {2,2,0,0,0,0,0,0,0,0};
 	  if (get_parms(ev[0], script, h, p))
 	    {
-	      int myscript1 = load_script(slist[0], rinfo[script]->sprite, /*false*/0);
+	      int myscript1 = scripting_load_script(slist[0], sinfo[script]->sprite, /*false*/0);
 	      if (myscript1 == 0)
 		{
 		  log_error("[DinkC] external: Couldn't find %s.c (for procedure %s)", slist[0], slist[1]);
 		  PL_RETURN(0);
 		}
-	      if (locate(myscript1, slist[1]))
+	      if (scripting_proc_exists(myscript1, slist[1]))
 		{
-		  rinfo[myscript1]->proc_return = script;
-		  run_script(myscript1);
+		  rinfo(myscript1)->proc_return = script;
+		  scripting_run_proc(myscript1, slist[1]);
 		  PL_RETURN(DCPS_YIELD);
 		}
 	      else
 		{
 		  log_error("[DinkC] external: Couldn't find procedure %s in %s.", slist[1], slist[0]);
-		  kill_script(myscript1);
+		  scripting_kill_script(myscript1);
 		}
 	    }
 	  else
 	    {
 	      log_error("[DinkC] %s: procedure 'external' takes 2 parameters (offset %d)",
-			rinfo[script]->name, rinfo[script]->current);
+			sinfo[script]->name, rinfo(script)->current);
 	    }
 	  strcpy_nooverlap(s, h);
 	  PL_RETURN(0);
@@ -3457,27 +3407,27 @@ process_line(int script, char *s, /*bool*/int doelse)
 	{
 	  //lets attempt to run a procedure
 	  char* proc = separate_string(h, 1, '(');
-	  int myscript = load_script(rinfo[script]->name, rinfo[script]->sprite, /*false*/0);
+	  int myscript = scripting_load_script(sinfo[script]->name, sinfo[script]->sprite, /*false*/0);
 
-	  if (locate(myscript, proc))
+	  if (scripting_proc_exists(myscript, proc))
 	    {
-	      rinfo[myscript]->proc_return = script;
-	      run_script(myscript);
+	      rinfo(myscript)->proc_return = script;
+	      scripting_run_proc(myscript, proc);
 	      free(proc);
 	      PL_RETURN(DCPS_YIELD);
 	    }
 	  else
 	    {
 	      log_error("[DinkC] Procedure void %s( void ); not found in script %s. (word 2 was %s) ",
-			proc, ev[1], rinfo[myscript]->name);
-	      kill_script(myscript);
+			proc, ev[1], sinfo[myscript]->name);
+	      scripting_kill_script(myscript);
 	    }
 	  free(proc);
 	  PL_RETURN(0);
 	}
 	
       log_error("[DinkC] \"%s\" unknown in %s, offset %d.",
-		ev[0], rinfo[script]->name,rinfo[script]->current);
+		ev[0], sinfo[script]->name,rinfo(script)->current);
       //in a thingie, ready to go
     }
 

@@ -20,12 +20,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LUA_DINK_H
-#define _LUA_DINK_H
+#ifndef _DINKLUA_H
+#define _DINKLUA_H
 
-#include "dinkc.h"
-
-extern void lua_dink_init();
+extern void dinklua_init();
 extern void lua_dink_quit();
 extern int lua_load_script(struct refinfo* rinfo, char* script);
 extern int lua_run_script(struct refinfo* rinfo);

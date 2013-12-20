@@ -237,7 +237,7 @@ void place_sprites_game()
 	      //does it need a script loaded?
 	      if (strlen(pam.sprite[j].script) > 1)
 		{
-		  spr[sprite].script = load_script(pam.sprite[j].script, sprite, /*true*/1);
+		  spr[sprite].script = scripting_load_script(pam.sprite[j].script, sprite, /*true*/1);
 		}
 	    }
 	  //Msg("I just made sprite %d because rank[%d] told me to..",sprite,j);

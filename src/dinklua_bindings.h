@@ -20,10 +20,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LUA_DINKC_H
-#define _LUA_DINKC_H
+#ifndef _DINKLUA_BINDINGS_H
+#define _DINKLUA_BINDINGS_H
 
-extern void lua_bind_dinkc();
+extern void dinklua_bind_init();
 
 #endif
 

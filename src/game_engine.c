@@ -33,6 +33,7 @@
 #include "screen.h" /* hm */
 #include "dinkvar.h"  /* hmap, pam */
 #include "input.h"
+#include "str_util.h"
 
 struct sp spr[MAX_SPRITES_AT_ONCE]; //max sprite control systems at once
 int last_sprite_created;
@@ -133,7 +134,7 @@ void game_quit()
   for (i = 1; i < MAX_SPRITES_AT_ONCE; i++)
     {
       if (spr[i].custom != NULL)
-	dinkc_sp_custom_free(spr[i].custom);
+	sp_custom_free(spr[i].custom);
       spr[i].custom = NULL;
     }
 }
@@ -246,3 +247,48 @@ void game_set_normal_speed()
 
 
         }
+
+void attach(void)
+{
+  /* Make sure the "system" variable exists - otherwise we might use a
+     NULL pointer below */
+  char* var_names[22] = { "&life", "&vision", "&result", "&speed",
+		     "&timing", "&lifemax", "&exp", "&strength",
+		     "&defense", "&gold", "&magic", "&level",
+		     "&player_map", "&cur_weapon", "&cur_magic",
+		     "&last_text", "&magic_level", "&update_status",
+		     "&missile_target", "&enemy_sprite", "&magic_cost",
+		     "&missle_source" };
+  int n, i;
+  for (n = 0; n < 22; n++)
+    {
+      if (!var_exists(var_names[n], 0)) /* 0 = global scope */
+	    scripting_make_int(var_names[n], 0, 0);
+    }
+
+  for (i = 1; i < MAX_VARS; i++)
+    {
+      if (compare("&life", play.var[i].name)) plife = &play.var[i].var;
+      if (compare("&vision", play.var[i].name)) pvision = &play.var[i].var;
+      if (compare("&result", play.var[i].name)) presult = &play.var[i].var;
+      if (compare("&speed", play.var[i].name)) pspeed = &play.var[i].var;
+      if (compare("&timing", play.var[i].name))	ptiming = &play.var[i].var;
+      if (compare("&lifemax", play.var[i].name)) plifemax = &play.var[i].var;
+      if (compare("&exp", play.var[i].name)) pexper = &play.var[i].var;
+      if (compare("&strength", play.var[i].name))  pstrength = &play.var[i].var;
+      if (compare("&defense", play.var[i].name))  pdefense = &play.var[i].var;
+      if (compare("&gold", play.var[i].name))  pgold = &play.var[i].var;
+      if (compare("&magic", play.var[i].name))  pmagic = &play.var[i].var;
+      if (compare("&level", play.var[i].name))  plevel = &play.var[i].var;
+      if (compare("&player_map", play.var[i].name)) pmap = &play.var[i].var;
+      if (compare("&cur_weapon", play.var[i].name)) pcur_weapon = &play.var[i].var;
+      if (compare("&cur_magic", play.var[i].name)) pcur_magic = &play.var[i].var;
+      if (compare("&last_text", play.var[i].name)) plast_text = &play.var[i].var;
+      if (compare("&magic_level", play.var[i].name)) pmagic_level = &play.var[i].var;
+      if (compare("&update_status", play.var[i].name)) pupdate_status = &play.var[i].var;
+      if (compare("&missile_target", play.var[i].name)) pmissile_target = &play.var[i].var;
+      if (compare("&enemy_sprite", play.var[i].name)) penemy_sprite = &play.var[i].var;
+      if (compare("&magic_cost", play.var[i].name)) pmagic_cost = &play.var[i].var;
+      if (compare("&missle_source", play.var[i].name)) pmissle_source = &play.var[i].var;
+    }
+}

@@ -75,8 +75,11 @@
 #include "gfx_fonts.h"
 #include "bgm.h"
 #include "sfx.h"
+
+#ifdef HAVE_DINKC
 #include "dinkc.h"
 #include "dinkc_bindings.h"
+#endif
 
 #include "str_util.h"
 #include "paths.h"
@@ -1184,14 +1187,13 @@ void save_info(void)
   //lets get rid of our magic and weapon scripts
   if (weapon_script != 0)
     {
-      if (locate(weapon_script, "DISARM"))
-	{
-	  run_script(weapon_script);
-	}
+      scripting_run_proc(weapon_script, "DISARM");
     }
 
-  if (magic_script != 0 && locate(magic_script, "DISARM"))
-    run_script(magic_script);
+  if (magic_script != 0)
+  {
+    scripting_run_proc(magic_script, "DISARM");
+  }
 
   bow.active = /*false*/0;
   weapon_script = 0;
@@ -1383,9 +1385,8 @@ void save_info(void)
   
   time(&time_start);
   
-  int script = load_script("main", 0, /*true*/1);
-  locate(script, "main");
-  run_script(script);
+  int script = scripting_load_script("main", 0, /*true*/1);
+  scripting_run_proc(script, "main");
   //lets attach our vars to the scripts
   
   attach();
@@ -1402,12 +1403,11 @@ void save_info(void)
 	}
       else
 	{
-	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
-	  if (locate(weapon_script, "DISARM"))
-	    run_script(weapon_script);
-	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
-	  if (locate(weapon_script, "ARM"))
-	    run_script(weapon_script);
+	  weapon_script = scripting_load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
+	  scripting_run_proc(weapon_script, "DISARM");
+      
+	  weapon_script = scripting_load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
+	  scripting_run_proc(weapon_script, "ARM");
 	}
     }
   if (*pcur_magic >= 1 && *pcur_magic <= NB_MITEMS)
@@ -1421,12 +1421,10 @@ void save_info(void)
       else
 	{
 	  
-	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
-	  if (locate(magic_script, "DISARM"))
-	    run_script(magic_script);
-	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
-	  if (locate(magic_script, "ARM"))
-	    run_script(magic_script);
+	  magic_script = scripting_load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
+	  scripting_run_proc(magic_script, "DISARM");
+	  magic_script = scripting_load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
+	  scripting_run_proc(magic_script, "ARM");
 	}
     }
   kill_repeat_sounds_all();
@@ -1513,7 +1511,7 @@ void save_game(int num)
   // set_save_game_info() support:
   {
     char* info_temp = strdup(save_game_info);
-    decipher_string(&info_temp, 0);
+    var_replace(&info_temp, 0);
     fwrite(info_temp, 77+1, 1, f);
     free(info_temp);
   }
@@ -1643,15 +1641,15 @@ void kill_cur_item()
     {
       if (play.item[*pcur_weapon - 1].active == 1)
 	{
-	  if (weapon_script != 0 && locate(weapon_script, "DISARM"))
-	    run_script(weapon_script);
-	  weapon_script = load_script(play.item[*pcur_weapon - 1].name, 0, /*false*/0);
+	  if (weapon_script != 0)
+        scripting_run_proc(weapon_script, "DISARM");
+	  weapon_script = scripting_load_script(play.item[*pcur_weapon - 1].name, 0, /*false*/0);
 	  play.item[*pcur_weapon - 1].active = 0;
 	  *pcur_weapon = 0;
-	  if (weapon_script != 0 && locate(weapon_script, "HOLDINGDROP"))
-	    run_script(weapon_script);
-	  if (weapon_script != 0 && locate(weapon_script, "DROP"))
-	    run_script(weapon_script);
+	  if (weapon_script != 0)
+        scripting_run_proc(weapon_script, "HOLDINGDROP");
+	  if (weapon_script != 0)
+        scripting_run_proc(weapon_script, "DROP");
 	  weapon_script = 0;
 	}
       else
@@ -1682,20 +1680,17 @@ void kill_item_script(char* name)
   if (*pcur_weapon - 1 == select)
     {
       //holding it right now
-      if (locate(weapon_script, "HOLDINGDROP"))
-	run_script(weapon_script);
-      if (locate(weapon_script, "DISARM"))
-	run_script(weapon_script);
+      scripting_run_proc(weapon_script, "HOLDINGDROP");
+      scripting_run_proc(weapon_script, "DISARM");
       
       *pcur_weapon = 0;
       weapon_script = 0;
     }
 
-  int script = load_script(play.item[select].name, 0, /*false*/0);
+  int script = scripting_load_script(play.item[select].name, 0, /*false*/0);
   play.item[select].active = /*false*/0;
 
-  if (locate(script, "DROP"))
-    run_script(script);
+  scripting_run_proc(script, "DROP");
   
   draw_status_all();
 }
@@ -1722,10 +1717,8 @@ void kill_mitem_script(char* name)
   if (*pcur_magic - 1 == select)
     {
       //holding it right now
-      if (locate(magic_script, "HOLDINGDROP"))
-	run_script(magic_script);
-      if (locate(magic_script, "DISARM"))
-	run_script(magic_script);
+      scripting_run_proc(magic_script, "HOLDINGDROP");
+      scripting_run_proc(magic_script, "DISARM");
 
       // TODO: this should be *pcur_magic; keeping for compatibility
       // for now:
@@ -1733,11 +1726,10 @@ void kill_mitem_script(char* name)
       magic_script = 0;
     }
   
-  int script = load_script(play.mitem[select].name, 0, /*false*/0);
+  int script = scripting_load_script(play.mitem[select].name, 0, /*false*/0);
   play.mitem[select].active = 0;
 
-  if (locate(script, "DROP"))
-    run_script(script);
+  scripting_run_proc(script, "DROP");
 
   draw_status_all();
 }
@@ -1749,16 +1741,16 @@ void kill_cur_magic()
     {
       if (play.mitem[*pcur_magic - 1].active == 1)
 	{
-	  if (magic_script != 0 && locate(magic_script, "DISARM"))
-	    run_script(magic_script);
-	  magic_script = load_script(play.mitem[*pcur_magic - 1].name, 0, /*false*/0);
+	  if (magic_script != 0)
+        scripting_run_proc(magic_script, "DISARM");
+	  magic_script = scripting_load_script(play.mitem[*pcur_magic - 1].name, 0, /*false*/0);
 	  play.mitem[*pcur_magic - 1].active = /*false*/0;
 	  *pcur_magic = 0;
 	  
-	  if (magic_script != 0 && locate(magic_script, "HOLDINGDROP"))
-	    run_script(magic_script);
-	  if (magic_script != 0 && locate(magic_script, "DROP"))
-	    run_script(magic_script);
+	  if (magic_script != 0)
+        scripting_run_proc(magic_script, "HOLDINGDROP");
+	  if (magic_script != 0)
+        scripting_run_proc(magic_script, "DROP");
 	  magic_script = 0;
 	}
       else
@@ -2733,11 +2725,11 @@ int add_sprite_dumb(int x1, int y, int brain,int pseq, int pframe,int size )
 			  {
 			    if (spr[x].custom == NULL)
 			      {
-				spr[x].custom = dinkc_sp_custom_new();
+				spr[x].custom = sp_custom_new();
 			      }
 			    else
 			      {
-				dinkc_sp_custom_clear(spr[x].custom);
+				sp_custom_clear(spr[x].custom);
 			      }
 			  }
 
@@ -2984,11 +2976,11 @@ int add_sprite(int x1, int y, int brain,int pseq, int pframe )
 			  {
 			    if (spr[x].custom == NULL)
 			      {
-				spr[x].custom = dinkc_sp_custom_new();
+				spr[x].custom = sp_custom_new();
 			      }
 			    else
 			      {
-				dinkc_sp_custom_clear(spr[x].custom);
+				sp_custom_clear(spr[x].custom);
 			      }
 			  }
 
@@ -3231,7 +3223,7 @@ void kill_sprite_all (int sprite)
         spr[sprite].active = /*false*/0;
 
         kill_text_owned_by(sprite);
-        kill_scripts_owned_by(sprite);
+        scripting_kill_scripts_owned_by(sprite);
 
 }
 
@@ -3659,8 +3651,8 @@ void update_status_all(void)
                         *pexper -= next;
                         fexp = 0;
 
-                        script = load_script("lraise", 1, /*false*/0);
-                        if (locate(script, "raise")) run_script(script);
+                        script = scripting_load_script("lraise", 1, /*false*/0);
+                        scripting_run_proc(script, "raise");
                 }
         }
 
@@ -3755,8 +3747,8 @@ void update_status_all(void)
 
         if (flife < 1)
         {
-                script = load_script("dinfo", 1000, /*false*/0);
-                if (locate(script, "die")) run_script(script);
+                script = scripting_load_script("dinfo", 1000, /*false*/0);
+                scripting_run_proc(script, "die");
         }
 
 }
@@ -3954,9 +3946,8 @@ void add_item(char* name, int mseq, int mframe, enum item_type type)
 	      play.item[i].name[sizeof(play.item[i].name)-1] = '\0';
 	      play.item[i].active = 1;
 	      
-	      int crap1 = load_script(play.item[i].name, 1000, /*false*/0);
-	      if (locate(crap1, "PICKUP"))
-		run_script(crap1);
+	      int crap1 = scripting_load_script(play.item[i].name, 1000, /*false*/0);
+	      scripting_run_proc(crap1, "PICKUP");
 	      
 	      break;
 	    }
@@ -3977,9 +3968,8 @@ void add_item(char* name, int mseq, int mframe, enum item_type type)
 	      play.mitem[i].name[sizeof(play.mitem[i].name)-1] = '\0';
 	      play.mitem[i].active = 1;
 	      
-	      int crap = load_script(play.mitem[i].name, 1000, /*false*/0);
-	      if (locate(crap, "PICKUP"))
-		run_script(crap);
+	      int crap = scripting_load_script(play.mitem[i].name, 1000, /*false*/0);
+	      scripting_run_proc(crap, "PICKUP");
 	      
 	      break;
 	    }

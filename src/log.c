@@ -81,7 +81,7 @@ void log_set_priority(enum log_priority priority)
     cur_priority = priority;
 }
 
-void log_output(enum log_priority priority, char *fmt, ...)
+void log_output(enum log_priority priority, const char *fmt, ...)
 {
   if (priority < cur_priority
       || priority <= LOG_PRIORITY_ALL

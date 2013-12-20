@@ -214,7 +214,7 @@ char* get_word(char* line, int word)
  * Return whether 'orig' and 'comp' are the same string
  * (case-insensitive comparison).
  */
-/*bool*/int compare(char *orig, char *comp)
+/*bool*/int compare(const char *orig, const char *comp)
 {
   return (strcasecmp(orig, comp) == 0);
 }

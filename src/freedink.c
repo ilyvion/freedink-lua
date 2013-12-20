@@ -54,7 +54,10 @@
 
 #include "game_engine.h"
 #include "dinkvar.h"
+
+#ifdef HAVE_DINKC
 #include "dinkc_console.h"
+#endif
 
 void move(int u, int amount, char kind,  char kindy);
 void draw_box(rect box, int color);
@@ -121,9 +124,11 @@ void check_joystick(void)
 	if (y_pos > +threshold) sjoy.down  = 1;
       }
     }
-  
+
+#ifdef HAVE_DINKC
   /* Only accept keyboard input when console is not active. */
   if (console_active == 0)
+#endif
     {
       if (GetKeyboard(SDLK_LCTRL) || GetKeyboard(SDLK_RCTRL)) sjoy.joybit[ACTION_ATTACK] = 1;
       if (GetKeyboard(SDLK_SPACE)) sjoy.joybit[ACTION_TALK] = 1;
@@ -146,9 +151,11 @@ void check_joystick(void)
 	sjoy.joybitold[a] = sjoy.joybit[a];
       }
   }
-  
+
+#ifdef HAVE_DINKC
   /* Only accept keyboard input when console is not active. */
   if (console_active == 0)
+#endif
     {
       if (GetKeyboard(SDLK_RIGHT) || sjoy.joybit[ACTION_RIGHT]) sjoy.right = 1;
       if (GetKeyboard(SDLK_LEFT)  || sjoy.joybit[ACTION_LEFT])  sjoy.left  = 1;
@@ -203,7 +210,7 @@ void check_joystick(void)
 	{
 	  *presult = wait4b.button;
 	  wait4b.active = /*false*/0;
-	  run_script(wait4b.script);
+	  scripting_resume_script(wait4b.script);
 	}
     }
 }
@@ -648,7 +655,7 @@ void done_moving(int h)
 	if (spr[h].move_script > 0)
 	{
 		//	Msg("mover running script %d..", spr[h].move_script);
-		run_script(spr[h].move_script);
+		scripting_resume_script(spr[h].move_script);
 	}
 	
 	
@@ -839,7 +846,7 @@ void process_target(int h)
 	{
 		//if (  (spr[i].brain == 0) | (spr[i].brain == 5) | (spr[i].brain == 6) | (spr[i].brain == 7))
 		
-		if (locate(spr[i].script, "DIE")) run_script(spr[i].script);
+		scripting_run_proc(spr[i].script, "DIE");
 		
 		return(/*true*/1);	
 	}
@@ -855,7 +862,7 @@ void process_target(int h)
 	{
 		//if (  (spr[i].brain == 0) | (spr[i].brain == 5) | (spr[i].brain == 6) | (spr[i].brain == 7))
 		
-		if (locate(spr[i].script, "DUCKDIE")) run_script(spr[i].script);
+		scripting_run_proc(spr[i].script, "DUCKDIE");
 		
 		return(/*true*/1);	
 	}
@@ -1203,9 +1210,7 @@ void pill_brain(int h)
 				
 				if (spr[h].script != 0)
 				  {
-				    if (locate(spr[h].script, "ATTACK"))
-				      run_script(spr[h].script);
-				    else
+				    if (!scripting_run_proc(spr[h].script, "ATTACK"))
 				      spr[h].move_wait = thisTickCount + ((rand() % 300)+10);
 				  }
 				return;
@@ -1573,7 +1578,7 @@ void dragon_brain(int h)
 			if (spr[h].script != 0) 
 			{
 				
-				if (locate(spr[h].script, "ATTACK")) run_script(spr[h].script);
+				scripting_run_proc(spr[h].script, "ATTACK");
 			}	
 		}
 		
@@ -2117,11 +2122,10 @@ void did_player_cross_screen(/*bool*/int real, int h)
 				{
 					//if (  (spr[i].brain == 0) | (spr[i].brain == 5) | (spr[i].brain == 6) | (spr[i].brain == 7))
 					//Msg("trying to find TALK in script %d", spr[i].script);
-					if (locate(spr[i].script, "TALK")) 
+					if (scripting_proc_exists(spr[i].script, "TALK")) 
 					{
-						kill_returning_stuff(spr[i].script);
-						
-						run_script(spr[i].script);
+						scripting_kill_callbacks(spr[i].script);
+						scripting_run_proc(spr[i].script, "TALK");
 						return(/*true*/1);	
 					}
 					
@@ -2186,10 +2190,10 @@ void missile_brain(int h, /*bool*/int repeat)
 		      *pmissile_target = 1;
 		      *penemy_sprite = 1;
 		      
-		      if (locate(spr[ii].script, "HIT"))
+		      if (scripting_proc_exists(spr[ii].script, "HIT"))
 			{
-			  kill_returning_stuff(spr[ii].script);
-			  run_script(spr[ii].script);
+			  scripting_kill_callbacks(spr[ii].script);
+			  scripting_run_proc(spr[ii].script, "HIT");
 			}
 		    }
 		  
@@ -2197,10 +2201,10 @@ void missile_brain(int h, /*bool*/int repeat)
 		    {
 		      *pmissile_target = ii;
 		      *penemy_sprite = 1;
-		      if (locate(spr[h].script, "DAMAGE")) 
+		      if (scripting_proc_exists(spr[h].script, "DAMAGE")) 
 			{
-			  kill_returning_stuff(spr[h].script);
-			  run_script(spr[h].script);
+			  scripting_kill_callbacks(spr[h].script);
+			  scripting_run_proc(spr[h].script, "DAMAGE");
 			}
 		    }
 		  else
@@ -2223,8 +2227,7 @@ void missile_brain(int h, /*bool*/int repeat)
       if (spr[h].script > 0)
 	{
 	  *pmissile_target = 0;
-	  if (locate(spr[h].script, "DAMAGE"))
-	    run_script(spr[h].script);
+	  scripting_run_proc(spr[h].script, "DAMAGE");
 	}
       else
 	{
@@ -2269,8 +2272,7 @@ void missile_brain(int h, /*bool*/int repeat)
 		if (spr[h].script > 0)
 		  {
 		    *pmissile_target = j;
-		    if (locate(spr[h].script, "DAMAGE"))
-		      run_script(spr[h].script);
+		    scripting_run_proc(spr[h].script, "DAMAGE");
 		  }
 		else
 		  {
@@ -2304,10 +2306,10 @@ void missile_brain(int h, /*bool*/int repeat)
 		    //CHANGED did = h
 		    *pmissile_target = 1;
 		    
-		    if (locate(spr[j].script, "HIT"))
+		    if (scripting_proc_exists(spr[j].script, "HIT"))
 		      {
-			kill_returning_stuff(spr[j].script);
-			run_script(spr[j].script);
+			scripting_kill_callbacks(spr[j].script);
+			scripting_run_proc(spr[j].script, "HIT");
 		      }
 		  }
 	      }
@@ -2348,7 +2350,7 @@ void run_through_mouse_list(int h, /*bool*/int special)
 				if ((spr[i].touch_damage == -1) && (spr[i].script != 0))
 				{
 					log_info("running %d's script..", spr[i].script);
-					if (locate(spr[i].script, "CLICK")) run_script(spr[i].script);
+					scripting_run_proc(spr[i].script, "CLICK");
 				} 
 				else
 				{
@@ -2535,7 +2537,7 @@ void process_bow( int h)
 	{
 		bow.active = /*false*/0;
 		bow.last_power = bow.time;
-		run_script(bow.script);
+		scripting_resume_script(bow.script);
 		//     bowsound->Stop();
 		return;
 	}
@@ -2664,10 +2666,10 @@ void human_brain(int h)
 	  if (dversion >= 108)
 	    {
 	      // addition of 'not talking to anything' script
-	      int sc = load_script ("dnotalk", 0, /*false*/0);
-	      if (sc != 0 && locate (sc, "MAIN"))
+	      int sc = scripting_load_script ("dnotalk", 0, /*false*/0);
+	      if (sc != 0 && scripting_proc_exists (sc, "MAIN"))
 		{
-		  run_script (sc);
+		  scripting_run_proc (sc, "MAIN");
 		  did_dnotalk = 1;
 		}
 	    }
@@ -2690,15 +2692,18 @@ void human_brain(int h)
     {
       if (spr[h].base_hit > 0)
 	{
-	  if (locate(weapon_script, "USE"))
-	    run_script(weapon_script);
+	  scripting_run_proc(weapon_script, "USE");
 	  goto b1end;
 	}
     }
   
   //added AGAIN 10-19-99
   //Let's check keys for getting hit
+#ifdef HAVE_DINKC
   if (thisTickCount > but_timer && console_active == 0)
+#else
+  if (thisTickCount > but_timer)
+#endif
     {
       for (x5=29; x5<256; x5++)
 	{ 
@@ -2727,10 +2732,10 @@ void human_brain(int h)
 	      sprintf(msg, "key-%d", keycode);
 	      but_timer = thisTickCount+200;
 	      
-	      int mycrap = load_script(msg, 1, /*false*/0);
-	      if (locate(mycrap, "MAIN")) 
+	      int mycrap = scripting_load_script(msg, 1, /*false*/0);
+	      if (scripting_proc_exists(mycrap, "MAIN")) 
 		{
-		  run_script(mycrap);
+		  scripting_run_proc(mycrap, "MAIN");
 		  goto b1end;
 		}
 	    }
@@ -2762,9 +2767,8 @@ void human_brain(int h)
 	{
 	  char script_filename[6+2+1]; // 'button' + '7'..'10' + '\0' (no '.c')
 	  sprintf(script_filename, "button%d", actions_script[i]);
-	  int mycrap = load_script(script_filename, 1, /*false*/0);
-	  if (locate(mycrap, "MAIN"))
-	    run_script(mycrap);
+	  int mycrap = scripting_load_script(script_filename, 1, /*false*/0);
+	  scripting_run_proc(mycrap, "MAIN");
 	  goto b1end;
 	}
     }
@@ -2779,10 +2783,10 @@ void human_brain(int h)
 	  if (dversion >= 108)
 	    {
 	      // addition of 'no magic' script
-	      int sc = load_script ("dnomagic", 0, /*false*/0);
-	      if (sc != 0 && locate (sc, "MAIN"))
+	      int sc = scripting_load_script ("dnomagic", 0, /*false*/0);
+	      if (sc != 0 && scripting_proc_exists (sc, "MAIN"))
 		{
-		  run_script (sc);
+		  scripting_run_proc (sc, "MAIN");
 		  goto b1end;
 		}
 	    }
@@ -2803,8 +2807,7 @@ void human_brain(int h)
 shootm:	
       if (*pmagic_level >= *pmagic_cost)
 	{
-	  if (locate(magic_script, "USE"))
-	    run_script(magic_script);
+	  scripting_run_proc(magic_script, "USE");
 	  goto b1end;	
 	} 
     }
@@ -2814,10 +2817,10 @@ shootm:
       if (dversion >= 108)
 	{
 	  // addition of 'enter key/inventory' script
-	  int sc = load_script ("button4", 0, /*false*/0);
-	  if (sc != 0 && locate (sc, "MAIN"))
+	  int sc = scripting_load_script ("button4", 0, /*false*/0);
+	  if (sc != 0 && scripting_proc_exists (sc, "MAIN"))
 	    {
-	      run_script (sc);
+	      scripting_run_proc (sc, "MAIN");
 	      return;
 	    }
 	}
@@ -2831,14 +2834,16 @@ shootm:
     {
       if (!showb.active && !bow.active && !talk.active)
 	{
-	  int sc = load_script("escape", 1000, /*false*/0);
-	  if (sc != 0 && locate(sc, "MAIN"))
-	    run_script(sc);
+	  int sc = scripting_load_script("escape", 1000, /*false*/0);
+	  if (sc != 0 && scripting_proc_exists(sc, "MAIN"))
+	    scripting_run_proc(sc, "MAIN");
 	  return;
 	}
     }
-  
+
+#ifdef HAVE_DINKC
   if (console_active == 0)
+#endif
     {
       if (GetKeyboard('b'))
 	ResumeMidi();
@@ -3455,7 +3460,7 @@ void CyclePalette()
 	    {
 	      int junk = cycle_script;
 	      cycle_script = 0;	
-	      run_script(junk);
+	      scripting_resume_script(junk);
 	    }
 	}
     }
@@ -3552,7 +3557,7 @@ void up_cycle(void)
 	  {
 	    int junk = cycle_script;
 	    cycle_script = 0;	
-	    run_script(junk);
+	    scripting_resume_script(junk);
 	  }
       }
 }
@@ -3674,10 +3679,10 @@ void draw_box(rect box, int color)
 							if (  (spr[i].base_attack != -1) || (spr[i].touch_damage > 0))
 								spr[i].target = h;   
 							
-							if (locate(spr[i].script, "HIT"))
+							if (scripting_proc_exists(spr[i].script, "HIT"))
 							{
-								kill_returning_stuff(spr[i].script);
-								run_script(spr[i].script);
+								scripting_kill_callbacks(spr[i].script);
+								scripting_run_proc(spr[i].script, "HIT");
 							}
 							
 							
@@ -3718,10 +3723,10 @@ void draw_box(rect box, int color)
 							if (  (spr[i].base_attack != -1) || (spr[i].touch_damage > 0))
 								spr[i].target = h;   
 							
-							if (locate(spr[i].script, "HIT"))
+							if (scripting_proc_exists(spr[i].script, "HIT"))
 							{
-								kill_returning_stuff(spr[i].script);
-								run_script(spr[i].script);
+								scripting_kill_callbacks(spr[i].script);
+								scripting_run_proc(spr[i].script, "HIT");
 							}
 							
 						}
@@ -3762,7 +3767,7 @@ void run_through_tag_list_push(int h)
 			
 			if (inside_box(spr[h].x, spr[h].y, box))
 			{	
-				if (locate(spr[i].script, "PUSH")) run_script(spr[i].script);
+				scripting_run_proc(spr[i].script, "PUSH");
 			}
 			
 		}
@@ -3804,7 +3809,7 @@ void run_through_touch_damage_list(int h)
 				
 				if ((spr[i].touch_damage == -1) && (spr[i].script != 0))
 				{
-					if (locate(spr[i].script, "TOUCH")) run_script(spr[i].script);
+					scripting_run_proc(spr[i].script, "TOUCH");
 				} else
 				{
 					if (spr[i].touch_damage == -1)
@@ -3818,9 +3823,9 @@ void run_through_touch_damage_list(int h)
 						spr[h].notouch_timer = thisTickCount+400;
 						spr[h].last_hit = i;
 						if (spr[i].script != 0)
-							if (locate(spr[i].script, "TOUCH")) run_script(spr[i].script);
-							if (hurt_thing(h, spr[i].touch_damage, 0) > 0)
-								random_blood(spr[h].x, spr[h].y-40, h);
+							scripting_run_proc(spr[i].script, "TOUCH");
+						if (hurt_thing(h, spr[i].touch_damage, 0) > 0)
+							random_blood(spr[h].x, spr[h].y-40, h);
 							
 							
 					}
@@ -4398,7 +4403,7 @@ void process_talk()
       if (talk.script != 0) 
 	{ 
 	  //we need to continue a script
-	  run_script(talk.script);
+	  scripting_resume_script(talk.script);
 	  
 	}
     }
@@ -4572,9 +4577,9 @@ void button_brain(int h )
 		{	
 			spr[h].brain_parm = 1;
 			
-			if (locate(spr[h].script, "BUTTONON")) 
+			if (scripting_proc_exists(spr[h].script, "BUTTONON")) 
 			{
-				run_script(spr[h].script);
+				scripting_run_proc(spr[h].script, "BUTTONON");
 				
 				return;
 			}
@@ -4588,10 +4593,10 @@ void button_brain(int h )
 		{	
 			spr[h].brain_parm = 0;
 			
-			if (locate(spr[h].script, "BUTTONOFF")) 
+			if (scripting_proc_exists(spr[h].script, "BUTTONOFF")) 
 			{
 				
-				run_script(spr[h].script);
+				scripting_run_proc(spr[h].script, "BUTTONOFF");
 				return;
 			}
 			
@@ -4718,17 +4723,14 @@ void process_item()
 	      if (*pcur_weapon != 0)
 		{
 		  //disarm old weapon
-		  if (locate(weapon_script, "DISARM"))
-		    run_script(weapon_script);
+		  scripting_run_proc(weapon_script, "DISARM");
 		}
 
 	      //load weapons script
 	      *pcur_weapon = play.curitem + 1;
-	      weapon_script = load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
-	      if (locate(weapon_script, "ARM"))
-		run_script(weapon_script);
-	      if (locate(weapon_script, "ARMMOVIE"))
-		run_script(weapon_script);
+	      weapon_script = scripting_load_script(play.item[*pcur_weapon - 1].name, 1000, /*false*/0);
+	      scripting_run_proc(weapon_script, "ARM");
+	      scripting_run_proc(weapon_script, "ARMMOVIE");
 	      draw_status_all();
 	    }
 	}
@@ -4786,16 +4788,13 @@ void process_item()
 	      if (*pcur_magic != 0)
 		{
 		  //disarm old weapon
-		  if (locate(magic_script, "DISARM"))
-		    run_script(magic_script);
+		  scripting_run_proc(magic_script, "DISARM");
 		}
 	      //load magics script
 	      *pcur_magic = play.curitem + 1;
-	      magic_script = load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
-	      if (locate(magic_script, "ARM"))
-		run_script(magic_script);
-	      if (locate(magic_script, "ARMMOVIE"))
-		run_script(magic_script);
+	      magic_script = scripting_load_script(play.mitem[*pcur_magic - 1].name, 1000, /*false*/0);
+	      scripting_run_proc(magic_script, "ARM");
+	      scripting_run_proc(magic_script, "ARMMOVIE");
 	      draw_status_all();
 	    }
 	}
@@ -4888,7 +4887,7 @@ void process_show_bmp( void )
     {
       showb.active = /*false*/0;
       if (showb.script != 0)
-	run_script(showb.script);
+	scripting_resume_script(showb.script);
       showb.stime = thisTickCount+2000;
       but_timer = thisTickCount + 200;
       
@@ -4955,9 +4954,8 @@ static int doInit(int argc, char *argv[])
   load_info();
   
   //lets run our init script
-  int script = load_script("main", 0, /*true*/1);
-  locate(script, "main");
-  run_script(script);
+  int script = scripting_load_script("main", 0, /*true*/1);
+  scripting_run_proc(script, "main");
 
   /* lets attach our vars to the scripts, they must be declared in the
      main.c DinkC script */
@@ -4983,7 +4981,9 @@ int main(int argc, char* argv[])
       log_path(/*true*/1);
       
       /* Windows event loop */
+#ifdef HAVE_DINKC
       int last_console_active = 0;
+#endif
       while(!g_b_kill_app)
 	{
 	  SDL_Event event;
@@ -5029,8 +5029,10 @@ int main(int argc, char* argv[])
 	     SDL_mixer but since we're using effects tricks to
 	     stream&resample sounds, we need to do this manually. */
 	  sfx_cleanup_finished_channels();
-	  
+
+#ifdef HAVE_DINKC
 	  if (console_active == 0 || last_console_active == 0)
+#endif
 	    /* Get rid of keyboard events, otherwise they'll pile-up. Also
 	       purge them just when console is turned on. We poll the
 	       keyboard state directly in the rest of the game, so no
@@ -5043,6 +5045,7 @@ int main(int argc, char* argv[])
 				  SDL_EVENTMASK(SDL_KEYDOWN)) > 0);
 #endif
 
+#ifdef HAVE_DINKC
 	  if (console_active == 1)
 	    {
 	      SDL_KeyboardEvent kev;
@@ -5053,10 +5056,12 @@ int main(int argc, char* argv[])
 	      if (SDL_PeepEvents((SDL_Event*)&kev, 1, SDL_GETEVENT,
 				 SDL_EVENTMASK(SDL_KEYDOWN)) > 0)
 #endif
-		dinkc_console_process_key(kev);
+        dinkc_console_process_key(kev);
+            ;
 	    }
 	  
 	  last_console_active = console_active;
+#endif
 	}
     }
 

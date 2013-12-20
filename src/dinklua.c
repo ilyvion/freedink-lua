@@ -38,8 +38,9 @@
 #include "io_util.h"
 #include "log.h"
 #include "str_util.h"
+#include "scripting.h"
 
-#include "lua_dinkc.h"
+#include "dinklua_bindings.h"
 
 lua_State* luaVM;
 int current_lua_script = -1;
@@ -187,12 +188,12 @@ static void lua_dink_hook(lua_State *L, lua_Debug *ar)
 }
 #endif
 
-void lua_dink_init()
+void dinklua_init()
 {
   luaVM = luaL_newstate();
 
   luaL_openlibs(luaVM);
-  lua_bind_dinkc();
+  dinklua_bind_init();
 
 #ifdef LUA_DINK_DEBUG
   lua_sethook(luaVM, lua_dink_hook, LUA_MASKCALL /*| LUA_MASKRET | LUA_MASKLINE*/, 0);

@@ -48,6 +48,6 @@ enum log_priority
 extern void log_debug_on(void);
 extern void log_debug_off(void);
 extern void log_set_priority(enum log_priority priority);
-extern void log_output(enum log_priority priority, char *fmt, ...);
+extern void log_output(enum log_priority priority, const char *fmt, ...);
 
 #endif

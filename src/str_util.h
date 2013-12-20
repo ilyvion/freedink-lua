@@ -37,7 +37,7 @@ extern "C"
   extern void strchar(char *string, char ch);
   extern char* separate_string (char* str, int num, char sep);
   extern char* get_word(char* line, int word);
-  extern /*bool*/int compare(char *orig, char *comp);
+  extern /*bool*/int compare(const char *orig, const char *comp);
   extern void replace(const char* find, const char* repl, char** line_p);
   extern void replace_norealloc(const char* find, const char* repl, char* line);
   extern char* latin1_to_utf8(char* source);

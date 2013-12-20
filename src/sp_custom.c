@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "log.h"
-#include "dinkc_sp_custom.h"
+#include "sp_custom.h"
 
 # include <stdbool.h>
 struct str_int
@@ -39,12 +39,12 @@ struct str_int
 };
 
 /* Auxiliary functions for hash */
-static size_t dinkc_sp_custom_hasher(const void *x, size_t tablesize)
+static size_t sp_custom_hasher(const void *x, size_t tablesize)
 {
   return hash_string(((struct str_int*)x)->key, tablesize);
   // We could also call 'hash_pjw' from module 'hash-pjw'
 }
-static bool dinkc_sp_custom_comparator(const void* a, const void* b)
+static bool sp_custom_comparator(const void* a, const void* b)
 {
   return !strcmp(((struct str_int*)a)->key,
 		 ((struct str_int*)b)->key);
@@ -53,25 +53,25 @@ static bool dinkc_sp_custom_comparator(const void* a, const void* b)
 /**
  * Return a new hash table
  */
-dinkc_sp_custom dinkc_sp_custom_new()
+sp_custom sp_custom_new()
 {
   Hash_tuning* default_tuner = NULL;
   int start_size = 10;
 
   return hash_initialize(start_size, default_tuner,
-			 dinkc_sp_custom_hasher, dinkc_sp_custom_comparator,
+			 sp_custom_hasher, sp_custom_comparator,
 			 free);
 }
 
 /**
  * Free all memory
  */
-void dinkc_sp_custom_free(dinkc_sp_custom hash)
+void sp_custom_free(sp_custom hash)
 {
   hash_free(hash);
 }
 
-void dinkc_sp_custom_clear(dinkc_sp_custom hash)
+void sp_custom_clear(sp_custom hash)
 {
   hash_clear(hash);
 }
@@ -80,7 +80,7 @@ void dinkc_sp_custom_clear(dinkc_sp_custom hash)
  * Create a new int value for key 'key', or replace existing value if
  * 'key' is already mapped.
  */
-void dinkc_sp_custom_set(dinkc_sp_custom hash, char key[200], int val)
+void sp_custom_set(sp_custom hash, char key[200], int val)
 {
   struct str_int search;
   strcpy(search.key, key);
@@ -106,7 +106,7 @@ void dinkc_sp_custom_set(dinkc_sp_custom hash, char key[200], int val)
  * Get the int value associated with 'key'. Returns -1 if not found
  * (DinkC limitation: no way to return NULL or similar).
  */
-int dinkc_sp_custom_get(dinkc_sp_custom hash, char key[200])
+int sp_custom_get(sp_custom hash, char key[200])
 {
   struct str_int search;
   strcpy(search.key, key);
@@ -122,22 +122,22 @@ int dinkc_sp_custom_get(dinkc_sp_custom hash, char key[200])
 
 int main(void)
 {
-  dinkc_sp_custom myhash = dinkc_sp_custom_new();
+  sp_custom myhash = sp_custom_new();
 
-  dinkc_sp_custom_set(myhash, "foo", -1);
-  dinkc_sp_custom_set(myhash, "foo", 3);
-  dinkc_sp_custom_set(myhash, "foo", -1);
-  dinkc_sp_custom_set(myhash, "foo", 4);
+  sp_custom_set(myhash, "foo", -1);
+  sp_custom_set(myhash, "foo", 3);
+  sp_custom_set(myhash, "foo", -1);
+  sp_custom_set(myhash, "foo", 4);
 
-  dinkc_sp_custom_set(myhash, "bar", 34);
+  sp_custom_set(myhash, "bar", 34);
 
-  printf("foo: %d\n", dinkc_sp_custom_get(myhash, "foo"));
-  printf("bar: %d\n", dinkc_sp_custom_get(myhash, "bar"));
+  printf("foo: %d\n", sp_custom_get(myhash, "foo"));
+  printf("bar: %d\n", sp_custom_get(myhash, "bar"));
 
-  dinkc_sp_custom_clear(myhash);
-  printf("foo (after clear): %d\n", dinkc_sp_custom_get(myhash, "foo"));
+  sp_custom_clear(myhash);
+  printf("foo (after clear): %d\n", sp_custom_get(myhash, "foo"));
 
-  dinkc_sp_custom_free(myhash);
+  sp_custom_free(myhash);
   return 0;
 }
 

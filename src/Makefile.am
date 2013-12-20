@@ -23,9 +23,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/intl -I$(top_builddir)/intl
 
 LIBS += -lm
 
-COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkc.c dinkc.h		\
-	dinkc_bindings.c dinkc_bindings.h dinkc_console.c		\
-	dinkc_console.h dinkc_sp_custom.c dinkc_sp_custom.h dinkvar.c	\
+COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkvar.c		\
 	dinkvar.h fastfile.c fastfile.h game_engine.c game_engine.h	\
 	str_util.c str_util.h io_util.c io_util.h sfx.c sfx.h gfx.c	\
 	gfx.h gfx_fade.c gfx_fade.h gfx_tiles.c gfx_tiles.h		\
@@ -33,7 +31,8 @@ COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkc.c dinkc.h		\
 	init.h rect.c rect.h input.c input.h binreloc.c binreloc.h	\
 	freedink_xpm.c freedink_xpm.h paths.c paths.h log.c log.h	\
 	gfx_sprites.c gfx_sprites.h vgasys_fon.c vgasys_fon.h msgbox.c	\
-	msgbox.h i18n.c i18n.h meminfo.c meminfo.h screen.c screen.h
+	msgbox.h i18n.c i18n.h meminfo.c meminfo.h screen.c screen.h	\
+	scripting.c scripting.h sp_custom.c	sp_custom.h
 
 if HAVE_ZZIPLIB
 COMMON_OBJS+=SDL_rwops_zzip.c SDL_rwops_zzip.h
@@ -42,8 +41,12 @@ if HAVE_LIBZIP
 COMMON_OBJS+=SDL_rwops_libzip.c SDL_rwops_libzip.h
 endif
 
+if HAVE_DINKC
+COMMON_OBJS+=dinkc.c dinkc.h dinkc_bindings.c dinkc_bindings.h	\
+	dinkc_console.c	dinkc_console.h 
+endif
 if HAVE_LUA
-COMMON_OBJS+=lua_dink.c lua_dink.h lua_dinkc.c lua_dinkc.h
+COMMON_OBJS+=dinklua.c dinklua.h dinklua_bindings.c dinklua_bindings.h
 endif
 
 bin_PROGRAMS = freedink freedinkedit
