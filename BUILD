@@ -68,11 +68,11 @@ apt-get install timidity freepats
 On a minimal Fedora system
 ==========================
 
-(use 'pkcon' or 'yum' indifferently)
+(use 'yum' or 'pkcon' indifferently)
 
 ## Bootstrap
 # Source code:
-pkcon install git-core
+yum install git-core
 git clone git://git.sv.gnu.org/freedink
 cd freedink
 
@@ -81,12 +81,12 @@ cd freedink
 # No Fedora package, but there's no need for one.
 
 # autotools
-pkcon install autoconf automake
+yum install autoconf automake
 
-pkcon install pkg-config # for PKG_CHECK_MODULES
-pkcon install SDL_devel # for sdl.m4
-pkcon install help2man # to rebuild manpages
-pkcon install gettext-devel cvs # for i18n
+yum install pkg-config # for PKG_CHECK_MODULES
+yum install SDL_devel # for sdl.m4
+yum install help2man # to rebuild manpages
+yum install gettext-devel cvs # for i18n
 sh bootstrap
 
 
@@ -95,15 +95,15 @@ sh bootstrap
 # Note: 'groupinstall' not working with pkcon yet
 yum groupinstall 'Development Tools'
 # or just:
-#pkcon install make gcc
+#yum install make gcc
 # Required: SDL, libzip | zziplib
 # No libzip package yet AFAIK
-pkcon install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
+yum install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
   SDL_mixer-devel fontconfig-devel zziplib-devel zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
-pkcon install upx bzip2
+yum install upx bzip2
 
 ## Compilation
 ./configure

@@ -1,6 +1,6 @@
 Name:		freedink
 Version:	1.08.20121209
-Release:	1%{?dist}
+Release:	3%{?dist}
 Summary:	Adventure and role-playing game
 
 Group:		Amusements/Games
@@ -133,6 +133,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20121209-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Wed Feb 13 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20121209-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Sun Dec 09 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120912-1
 - New upstream release
 
@@ -142,7 +148,7 @@ rm -rf $RPM_BUILD_ROOT
 * Sun Jun 10 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-2
 - Add virtual provides for bundled(gnulib) copylib (#821754)
 
-* Sun Apr 27 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-1
+* Fri Apr 27 2012 Sylvain Beucler <beuc@beuc.net> - 1.08.20120427-1
 - New upstream release
 
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.08.20101114-3
@@ -180,10 +186,10 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Jan 20 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090120-1
 - New upstream release (fix engine freeze in some DinkC scripts)
 
-* Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-2
+* Fri Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-2
 - Bump version to fix build tag issue
 
-* Wed Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-1
+* Fri Jan  9 2009 Sylvain Beucler <beuc@beuc.net> - 1.08.20090109-1
 - New upstream release
 - Declare .mo translation catalogs
 
