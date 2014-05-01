@@ -151,3 +151,6 @@
 /printf-frexpl.m4
 /signbit.m4
 /vfprintf-posix.m4
+/absolute-header.m4
+/gettimeofday.m4
+/sys_time_h.m4

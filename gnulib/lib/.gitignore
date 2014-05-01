@@ -204,3 +204,5 @@
 /signbitl.c
 /stdio-impl.h
 /vfprintf.c
+/gettimeofday.c
+/sys_time.in.h
