@@ -277,6 +277,10 @@ make distcheck
 #   from SDL_mixer
 pkg install -y freepats
 
+# To test, see http://www.freebsd.org/doc/en/books/handbook/x-config.html
+# pkg install x11
+# startx
+
 # :)
 
 
