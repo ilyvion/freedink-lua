@@ -188,7 +188,9 @@ void gfx_fonts_quit(void)
     }
   if (system_font != NULL)
     {
-      TTF_CloseFont(system_font);
+      // Uncomment when FreeType 2.5.3 is widespread
+      // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=747002
+      //TTF_CloseFont(system_font);
       system_font = NULL;
     }
 
