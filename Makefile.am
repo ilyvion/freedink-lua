@@ -11,8 +11,7 @@ EXTRA_DIST = acsite.m4 bootstrap gnulib/m4/gnulib-cache.m4
 EXTRA_DIST += doc
 EXTRA_DIST += BUILD DEB TRANSLATIONS.txt TROUBLESHOOTING
 # Packaging
-# (don't include debian/ as this displeases debian devs)
-EXTRA_DIST += freedink.spec psp
+EXTRA_DIST += debian freedink.spec psp
 # Other programs of interest
 EXTRA_DIST += test contrib
 # Developer tools
