@@ -4,6 +4,13 @@ Troubleshooting
 Graphics
 --------
 
+Q: Under GNU/Linux on 16:9 screens, the image is streched horizontally
+
+A: You can configure your screen scaling mode; with xrandr in a console:
+
+     xrandr  # check your screenname, e.g. LVDS-1
+     xrandr --output LVDS-1 --set "scaling mode" "Full aspect"
+
 
 Sound
 -----
