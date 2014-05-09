@@ -76,7 +76,7 @@ void tiles_load_default() {
   log_info("Done with tilescreens...");
 }
 
-void tiles_load_slot(char* relpath, int slot)
+void tiles_load_slot(const char* relpath, int slot)
 {
   FILE* in = paths_dmodfile_fopen(relpath, "rb");
   if (in == NULL)

@@ -89,7 +89,7 @@ extern "C"
 			      rect hardbox, int flags, int samedir);
   extern void load_sprites(char seq_path_prefix[100], int seq_no, int speed, int xoffset, int yoffset,
 			   rect hardbox, int flags);
-  extern void seq_set_ini(int seq_no, char *line);
+  extern void seq_set_ini(int seq_no, const char *line);
 
 #ifdef __cplusplus
 }

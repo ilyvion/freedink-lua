@@ -35,7 +35,7 @@ extern "C"
   extern int asprintf_append(char **strp, const char* fmt, ...);
   extern void reverse(char *st);
   extern void strchar(char *string, char ch);
-  extern char* separate_string (char* str, int num, char sep);
+  extern char* separate_string (const char* str, int num, char sep);
   extern char* get_word(char* line, int word);
   extern /*bool*/int compare(const char *orig, const char *comp);
   extern void replace(const char* find, const char* repl, char** line_p);

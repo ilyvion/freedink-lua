@@ -225,6 +225,28 @@ pdirname (const char* filename)
   return retval;
 }
 
+char* find_resource_as_path(char *name)
+{
+  char *path = NULL;
+
+  path = paths_pkgdatafile(name);
+  if (access(path, F_OK) == 0)
+    return path;
+
+  free(path);
+  path = paths_defaultpkgdatafile(name);
+  if (access(path, F_OK) == 0)
+    return path;
+
+  free(path);
+  path = paths_exedirfile(name);
+  if (access(path, F_OK) == 0)
+    return path;
+
+  free(path);
+  return NULL;
+}
+
 FILE* find_resource_as_file(char *name)
 {
   /** pkgdatadir, pkgdefaultdatadir, exedir **/

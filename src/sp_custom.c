@@ -80,7 +80,7 @@ void sp_custom_clear(sp_custom hash)
  * Create a new int value for key 'key', or replace existing value if
  * 'key' is already mapped.
  */
-void sp_custom_set(sp_custom hash, char key[200], int val)
+void sp_custom_set(sp_custom hash, const char key[200], int val)
 {
   struct str_int search;
   strcpy(search.key, key);
@@ -106,7 +106,7 @@ void sp_custom_set(sp_custom hash, char key[200], int val)
  * Get the int value associated with 'key'. Returns -1 if not found
  * (DinkC limitation: no way to return NULL or similar).
  */
-int sp_custom_get(sp_custom hash, char key[200])
+int sp_custom_get(sp_custom hash, const char key[200])
 {
   struct str_int search;
   strcpy(search.key, key);

@@ -1,7 +1,7 @@
 /**
- * Hash table to be used by DinkC's 'sp_custom' function
+ * Dink Script Bindings
 
- * Copyright (C) 2008  Sylvain Beucler
+ * Copyright (C) 2013  Alexander Krivács Schrøder
 
  * This file is part of GNU FreeDink
 
@@ -20,17 +20,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SP_CUSTOM_HASH
-#define SP_CUSTOM_HASH
+#ifndef _SCRIPT_BINDINGS_H
+#define _SCRIPT_BINDINGS_H
 
-#include "hash.h"
-
-typedef Hash_table* sp_custom;
-
-extern sp_custom sp_custom_new();
-extern void sp_custom_free(sp_custom hash);
-extern void sp_custom_set(sp_custom hash, const char key[200], int val);
-extern int sp_custom_get(sp_custom hash, const char key[200]);
-extern void sp_custom_clear(sp_custom hash);
+extern void scripting_load_sound(const char *wav_file, int sound_index);
+extern int scripting_sp_script(int sprite, const char *script);
+extern int scripting_playmidi(const char* midi_file);
 
 #endif

@@ -28,7 +28,7 @@
 #include "SDL_mixer.h"
 
 extern int InitSound();
-extern int CreateBufferFromWaveFile(char* filename, int dwBuf);
+extern int CreateBufferFromWaveFile(const char* filename, int dwBuf);
 extern int CreateBufferFromWaveFile_RW(SDL_RWops* rwops, int rwfreesrc, int index);
 extern void EditorSoundPlayEffect(int sound);
 extern int SoundPlayEffect(int sound, int min, int plus, int sound3d, /*bool*/int repeat);

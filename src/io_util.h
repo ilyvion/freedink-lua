@@ -40,6 +40,7 @@ extern "C"
 			   change! */
 
   extern void ciconvert (char *filename);
+  extern char* find_resource_as_path(char *name);
   extern FILE* find_resource_as_file(char *name);
   extern SDL_RWops *find_resource_as_rwops(const char *filename);
   extern /*bool*/int exist(char *name);

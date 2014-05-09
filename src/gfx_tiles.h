@@ -45,7 +45,7 @@ struct tile
 };
 
 extern void tiles_load_default(void);
-extern void tiles_load_slot(char* relpath, int slot);
+extern void tiles_load_slot(const char* relpath, int slot);
 extern void tiles_unload_all(void);
 extern void draw_map_game(void);
 extern void draw_map_game_background(void);

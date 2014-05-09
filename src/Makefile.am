@@ -32,7 +32,8 @@ COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkvar.c		\
 	freedink_xpm.c freedink_xpm.h paths.c paths.h log.c log.h	\
 	gfx_sprites.c gfx_sprites.h vgasys_fon.c vgasys_fon.h msgbox.c	\
 	msgbox.h i18n.c i18n.h meminfo.c meminfo.h screen.c screen.h	\
-	scripting.c scripting.h sp_custom.c	sp_custom.h
+	scripting.c scripting.h script_bindings.c script_bindings.h	\
+	sp_custom.c sp_custom.h
 
 if HAVE_ZZIPLIB
 COMMON_OBJS+=SDL_rwops_zzip.c SDL_rwops_zzip.h

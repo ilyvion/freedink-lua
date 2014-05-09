@@ -64,7 +64,7 @@ extern void strip_beginning_spaces(char *str);
 //extern /*bool*/int locate(int script, char* proc_lookup);
 extern /*bool*/int locate_goto(char* expr, int script);
 extern long decipher(char* variable, int script);
-extern int add_callback(char name[20], int n1, int n2, int script);
+//extern int add_callback(char name[20], int n1, int n2, int script);
 //extern void kill_script(int k);
 //extern void kill_all_scripts_for_real(void);
 extern char* read_next_line(int script);

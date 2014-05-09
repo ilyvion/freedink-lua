@@ -48,6 +48,6 @@ extern void SaySmall(char thing[500], int px, int py, int r, int g, int b);
 extern void Say(char thing[500], int px, int py);
 
 /* DinkC binding */
-extern int initfont(char* fontname);
+extern int initfont(const char* fontname);
 extern void set_font_color(int no, int red, int green, int blue);
 #endif

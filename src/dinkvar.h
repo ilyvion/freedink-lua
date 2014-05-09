@@ -224,10 +224,10 @@ extern void kill_sprite_all (int sprite);
 extern int find_sprite(int editor_sprite);
 
 /* Scripts */
-extern int say_text_xy(char text[200], int mx, int my, int script);
+extern int say_text_xy(const char text[200], int mx, int my, int script);
 extern void kill_all_scripts_for_real(void);
 extern void kill_returning_stuff(int script);
-extern int say_text(char text[200], int h, int script);
+extern int say_text(const char text[200], int h, int script);
 
 /* Map */
 extern unsigned char get_hard(int x1, int y1);
@@ -252,7 +252,7 @@ extern int g_b_kill_app;
 
 /* Startup */
 extern void pre_figure_out(char* line);
-extern void figure_out(char* line);
+extern void figure_out(const char* line);
 
 /* Metadata */
 extern int burn_revision;
@@ -291,11 +291,11 @@ extern void fill_screen(int num);
 /* Used by dinkc_bindings.c only */
 enum item_type { ITEM_REGULAR, ITEM_MAGIC };
 extern void clear_talk(void);
-extern void add_item(char name[10], int mseq, int mframe, enum item_type type);
-extern void kill_item_script(char* name);
-extern void kill_mitem_script(char* name);
-extern void show_bmp(char name[80], int showdot, int script);
-extern void copy_bmp( char name[80]);
+extern void add_item(const char name[10], int mseq, int mframe, enum item_type type);
+extern void kill_item_script(const char* name);
+extern void kill_mitem_script(const char* name);
+extern void show_bmp(const char name[80], int showdot, int script);
+extern void copy_bmp(const char name[80]);
 extern void kill_cur_item( void );
 extern void kill_cur_magic( void );
 extern /*bool*/int text_owned_by(int sprite);

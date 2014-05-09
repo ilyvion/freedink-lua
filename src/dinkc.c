@@ -603,37 +603,6 @@ void decipher_string(char** line_p, int script)
 }
 
 /**
- * 
- * name: name of the procedure() to call
- * n1: wait at least n1 milliseconds before callback
- * n2: wait at most n1+n2 milliseconds before callback
- * script: number of the script currently running
- **/
-int add_callback(char name[20], int n1, int n2, int script)
-{
-  int k;
-  for (k = 1; k < MAX_CALLBACKS; k++)
-    {
-      if (callback[k].active == /*false*/0)
-	{
-	  memset(&callback[k], 0, sizeof(callback[k]));
-	  
-	  callback[k].active = /*true*/1;
-	  callback[k].min = n1;
-	  callback[k].max = n2;
-	  callback[k].owner = script;
-	  strcpy(callback[k].name, name);
-	  
-	  log_debug("Callback added to %d.", k);
-	  return(k);
-	}
-    }
-  
-  log_error("Couldn't add callback, all out of space");
-  return 0;
-}
-
-/**
  * Kill all scripts including those attached to pseudo-sprite 1000
  */
 /*void kill_all_scripts_for_real(void)

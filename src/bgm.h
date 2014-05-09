@@ -30,7 +30,7 @@ extern int cdplaying();
 extern int killcd();
 extern int PlayCD(int cd_track);
 extern int something_playing(void);
-extern int PlayMidi(char *sFileName);
+extern int PlayMidi(const char *sFileName);
 extern int PauseMidi();
 extern int ResumeMidi();
 extern int StopMidi();

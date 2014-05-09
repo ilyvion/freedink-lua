@@ -131,7 +131,7 @@ static void callback_HookMusicFinished()
 /**
  * Thing to play the midi
  */
-int PlayMidi(char *midi_filename)
+int PlayMidi(const char *midi_filename)
 {
   char relpath[256];
   char *fullpath = NULL;

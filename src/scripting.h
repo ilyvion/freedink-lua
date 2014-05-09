@@ -27,58 +27,74 @@
 #define MAX_SCRIPTS 200
 #define MAX_CALLBACKS 100
 
-/*struct refinfo
-{
-  char* name;
-  long location;
-  long current; // current offset
-  int cur_line; // current line
-  int cur_col;  // current column (position within ligne)
-  int debug_line; // last parsed line (whereas cur_line == next-to-be-read)
-  int level;
-  long end; // size of the text, == strlen(rbuf[i])
-  int sprite; //if more than 0, it was spawned and is owned by a sprite, if 1000 doesn't die
-  *bool*int skipnext;
-  int onlevel;
-  int proc_return;
-  * v1.08 arguments for user-defined functions *
-  int arg1;
-  int arg2;
-  int arg3;
-  int arg4;
-  int arg5;
-  int arg6;
-  int arg7;
-  int arg8;
-  int arg9;
-
-#ifdef HAVE_LUA
-  int islua;
-  char* luaproc;
-  int lua_script_loaded;
-  int lua_script_index;
-#endif
-};*/
-
 struct script_engine
 {
   int active;
+
+  /*
+   * Name of the script.
+   */
   char *name;
-  char **extensions; // Array of file extensions supported by engine, don't forget NULL sentinel
 
-  int (*allocate_data)(void **data); // Create pointer to engine-specific data storage,
-                                     // accessible through sinfo[#]->data later. Returning 0
-                                     // indicates an error condition. Setting *data to NULL
-                                     // results in free_data() never being called.
+  /*
+   * Array of file extensions supported by engine, don't forget NULL sentinel
+   * This array and its entires should all be allocated in such a way that they
+   * can be free'd safely. In other words, use malloc or strdup or other
+   * functions that return free-able pointers.
+   */
+  char **extensions;
 
-  void (*free_data)(void *data); // Free data previously created by allocate_data(); If you don't
-                                 // use the data field (i.e. data is NULL), this can be left unset.
-  
+  /*
+   * Create pointer to engine-specific data storage, accessible through
+   * sinfo[#]->data later. Returning 0 indicates an error condition. Setting
+   * *data to NULL in this function results in free_data() never being called.
+   */
+  int (*allocate_data)(void **data);
+
+  /*
+   * Free data previously created by allocate_data(); If you don't use the data
+   * field (i.e. *data is set to NULL in allocate_data()), this pointer can be
+   * left unset.
+   */
+  void (*free_data)(void *data);
+
+  /*
+   * Called to load a script, receives the path to the script, and the script
+   * number this script is assigned to. Returning 0 indicates that an error
+   * occured during the script loading.
+   * 
+   * At the point this function is called, sinfo[script] is intialized, as is
+   * sinfo[script]->data, using the allocate_data() function.
+   */
   int (*load_script)(const char *path, int script);
+
+  /*
+   * Nothing has to be done in this function, but it's a way for you to clean
+   * up things you hold on to associated with the script that is not in
+   * sinfo[script]->data (which is cleaned up automatically, using the
+   * free_data() function)
+   */
   void (*kill_script)(int script);
-  
+
+  /*
+   * Return 0 if the procedure does not exist in the script, otherwise,
+   * return 1. Not that this function is not necessarily called before
+   * run_script_proc() is called, and only exists because the Dink engine
+   * occasionally makes decisions depending on whether a script function
+   * exists or not before actually running the function.
+   */
   int (*script_proc_exists)(int script, const char *proc);
+
+  /*
+   * Run the procedure in the given script. The return value of this
+   * function should be as with script_proc_exists. In addition to
+   * checking for existence, however, this function also runs the procedure.
+   */
   int (*run_script_proc)(int script, const char *proc);
+
+  /*
+   * Resumes a script after the script has yielded.
+   */
   void (*resume_script)(int script);
 };
 
@@ -127,7 +143,7 @@ struct global_function
 
 extern char scripting_error[255];
 
-extern void decipher_string(char** line_p, int script);
+//extern void decipher_string(char** line_p, int script);
 extern int var_exists(const char name[20], int scope);
 extern int scripting_make_int(const char name[80], int value, int scope);
 extern int search_var_with_this_scope(char* variable, int scope);
@@ -144,6 +160,7 @@ extern void scripting_resume_script(int script);
 extern void scripting_kill_scripts_owned_by(int sprite);
 extern void scripting_kill_all_scripts(void);
 extern void scripting_kill_all_scripts_for_real(void);
+extern int scripting_add_callback(const char name[20], int n1, int n2, int script);
 extern void scripting_kill_callbacks(int script);
 extern void scripting_kill_callback(int cb);
 extern void scripting_kill_callbacks_owned_by_script(int script);

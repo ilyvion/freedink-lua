@@ -124,7 +124,7 @@ void strchar(char *string, char ch)
  * string is not found. Several 'sep' enclose empty words
  * (e.g. separators are not collapsed, unlike 'get_word(...)').
  */
-char* separate_string (char* line, int num, char sep)
+char* separate_string (const char* line, int num, char sep)
 {
   int l;
   int k;

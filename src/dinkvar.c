@@ -1659,7 +1659,7 @@ void kill_cur_item()
     }
 }
 
-void kill_item_script(char* name)
+void kill_item_script(const char* name)
 {
   int select = 0;
   {
@@ -1696,7 +1696,7 @@ void kill_item_script(char* name)
 }
 
 
-void kill_mitem_script(char* name)
+void kill_mitem_script(const char* name)
 {
   int select = 0;
   {
@@ -2043,7 +2043,7 @@ void pre_figure_out(char* line)
  * Parse a delayed seq[].ini or a DinkC init("...") , and act
  * immediately
  */
-void figure_out(char* line)
+void figure_out(const char* line)
 {
   int myseq = 0, myframe = 0;
   int special = 0;
@@ -3115,7 +3115,7 @@ void check_sprite_status_full(int sprite_no)
 
 
 /* say_text, say_text_xy: used by the game only (not the editor) */
-int add_text_sprite(char* text, int script, int sprite_owner, int mx, int my)
+int add_text_sprite(const char* text, int script, int sprite_owner, int mx, int my)
 {
   int tsprite = add_sprite(mx, my, 8, 0, 0);
   if (tsprite == 0)
@@ -3140,7 +3140,7 @@ int add_text_sprite(char* text, int script, int sprite_owner, int mx, int my)
   return tsprite;
 }
 
-int say_text(char* text, int sprite_owner, int script)
+int say_text(const char* text, int sprite_owner, int script)
 {
   int tsprite;
   if (sprite_owner == 1000)
@@ -3166,7 +3166,7 @@ int say_text(char* text, int sprite_owner, int script)
 }
 
 
-int say_text_xy(char* text, int mx, int my, int script)
+int say_text_xy(const char* text, int mx, int my, int script)
 {
   int sprite_owner = 1000;
   return add_text_sprite(text, script, sprite_owner, mx, my);
@@ -3787,7 +3787,7 @@ void update_status_all(void)
 }
 
 
-void show_bmp(char* name, int showdot, int script)
+void show_bmp(const char* name, int showdot, int script)
 {
   char* fullpath = paths_dmodfile(name);
   SDL_Surface* image = IMG_Load(fullpath);
@@ -3837,7 +3837,7 @@ void show_bmp(char* name, int showdot, int script)
    show_cmp: does not set showb.* (wait for button), install the image
    to lpDDSTwo (background) and not lpDDSBack (screen double
    buffer) */
-void copy_bmp(char* name)
+void copy_bmp(const char* name)
 {
   char* fullpath = paths_dmodfile(name);
   SDL_Surface* image = IMG_Load(fullpath);
@@ -3929,7 +3929,7 @@ void copy_bmp(char* name)
         }
 
 
-void add_item(char* name, int mseq, int mframe, enum item_type type)
+void add_item(const char* name, int mseq, int mframe, enum item_type type)
 {
   if (type == ITEM_REGULAR)
     {

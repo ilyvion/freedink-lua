@@ -23,10 +23,17 @@
 #ifndef _DINKLUA_H
 #define _DINKLUA_H
 
-extern void dinklua_init();
-extern void lua_dink_quit();
-extern int lua_load_script(struct refinfo* rinfo, char* script);
-extern int lua_run_script(struct refinfo* rinfo);
-extern void lua_kill_script(struct refinfo* rinfo);
+#include <lua.h>
+
+#include "scripting.h"
+
+struct luainfo
+{
+  int script_loaded;
+};
+
+extern void dinklua_initialize(struct script_engine *script_engine);
+extern void dinklua_quit();
+extern int dinklua_get_current_line(lua_State *l);
 
 #endif

@@ -353,14 +353,14 @@ const char *paths_getexefile(void)
 }
 
 
-char* paths_dmodfile(char *file)
+char* paths_dmodfile(const char *file)
 {
   char *fullpath = br_build_path(dmoddir, file);
   ciconvert(fullpath);
   return fullpath;
 }
 
-FILE* paths_dmodfile_fopen(char *file, char *mode)
+FILE* paths_dmodfile_fopen(const char *file, const char *mode)
 {
   char *fullpath = paths_dmodfile(file);
   FILE *result = fopen(fullpath, mode);
@@ -368,14 +368,14 @@ FILE* paths_dmodfile_fopen(char *file, char *mode)
   return result;
 }
 
-char* paths_fallbackfile(char *file)
+char* paths_fallbackfile(const char *file)
 {
   char *fullpath = br_build_path(fallbackdir, file);
   ciconvert(fullpath);
   return fullpath;
 }
 
-FILE* paths_fallbackfile_fopen(char *file, char *mode)
+FILE* paths_fallbackfile_fopen(const char *file, const char *mode)
 {
   char *fullpath = paths_fallbackfile(file);
   FILE *result = fopen(fullpath, mode);
@@ -383,14 +383,14 @@ FILE* paths_fallbackfile_fopen(char *file, char *mode)
   return result;
 }
 
-char* paths_defaultpkgdatafile(char *file)
+char* paths_defaultpkgdatafile(const char *file)
 {
   char *fullpath = br_build_path(defaultpkgdatadir, file);
   ciconvert(fullpath);
   return fullpath;
 }
 
-FILE* paths_defaultpkgdatafile_fopen(char *file, char *mode)
+FILE* paths_defaultpkgdatafile_fopen(const char *file, const char *mode)
 {
   char *fullpath = paths_defaultpkgdatafile(file);
   FILE *result = fopen(fullpath, mode);
@@ -398,14 +398,14 @@ FILE* paths_defaultpkgdatafile_fopen(char *file, char *mode)
   return result;
 }
 
-char* paths_pkgdatafile(char *file)
+char* paths_pkgdatafile(const char *file)
 {
   char *fullpath = br_build_path(pkgdatadir, file);
   ciconvert(fullpath);
   return fullpath;
 }
 
-FILE* paths_pkgdatafile_fopen(char *file, char *mode)
+FILE* paths_pkgdatafile_fopen(const char *file, const char *mode)
 {
   char *fullpath = paths_pkgdatafile(file);
   FILE *result = fopen(fullpath, mode);
@@ -413,14 +413,14 @@ FILE* paths_pkgdatafile_fopen(char *file, char *mode)
   return result;
 }
 
-char* paths_exedirfile(char *file)
+char* paths_exedirfile(const char *file)
 {
   char *fullpath = br_build_path(exedir, file);
   ciconvert(fullpath);
   return fullpath;
 }
 
-FILE* paths_exedirfile_fopen(char *file, char *mode)
+FILE* paths_exedirfile_fopen(const char *file, const char *mode)
 {
   char *fullpath = paths_exedirfile(file);
   FILE *result = fopen(fullpath, mode);
@@ -428,7 +428,7 @@ FILE* paths_exedirfile_fopen(char *file, char *mode)
   return result;
 }
 
-FILE *paths_savegame_fopen(int num, char *mode)
+FILE *paths_savegame_fopen(int num, const char *mode)
 {
   char *fullpath_in_dmoddir = NULL;
   char *fullpath_in_userappdir = NULL;

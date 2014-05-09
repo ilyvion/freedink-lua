@@ -77,7 +77,7 @@ static struct font_color font_colors[16];
 /* Get filename for canonical font name 'fontname'. Return NULL if the
    font cannot be found (for correctness, no alternate font will be
    provided). */
-char* get_fontconfig_path(char* fontname)
+char* get_fontconfig_path(const char* fontname)
 {
   char* filename = NULL;
   FcPattern* p = NULL;
@@ -244,7 +244,7 @@ static TTF_Font *load_default_font() {
 /**
  * Change the current dialog font (DinkC initfont() command)
  */
-int initfont(char* fontname) {
+int initfont(const char* fontname) {
   TTF_Font *new_font = NULL;
   char* ext = ".ttf";
   char* filename = malloc(strlen(fontname) + strlen(ext) + 1);

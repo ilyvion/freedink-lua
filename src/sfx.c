@@ -334,7 +334,7 @@ void sfx_cleanup_finished_channels()
  * current hardware (soundcard) format so that sound rate can be
  * altered with minimal overhead when playing the sound.
  */
-int CreateBufferFromWaveFile(char* filename, int index)
+int CreateBufferFromWaveFile(const char* filename, int index)
 {
   /* Open the wave file */
   char path[150];

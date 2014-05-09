@@ -632,7 +632,7 @@ void load_sprites(char seq_path_prefix[100], int seq_no, int delay, int xoffset,
 /**
  * Set the dink.ini / init() line for this sequence.
  */
-void seq_set_ini(int seq_no, char *line)
+void seq_set_ini(int seq_no, const char *line)
 {
   /* Check if we are not attempting to replace a line by itself
      (e.g. when a sequence is lazy-loaded) and free previous line. */

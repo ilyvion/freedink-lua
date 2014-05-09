@@ -58,6 +58,7 @@
 #include "log.h"
 #include "dinkc_console.h"
 #include "i18n.h"
+#include "script_bindings.h"
 
 /* store current procedure arguments expanded values of type 'int' (see get_parms) */
 static long nlist[10];
@@ -436,31 +437,12 @@ void dc_sp_kill_wait(int script, int* yield, int* preturnint, int sprite)
 
 void dc_sp_script(int script, int* yield, int* preturnint, int sprite, char* dcscript)
 {
-  // (sprite, direction, until, nohard);
-  if (sprite <= 0 || (sprite >= MAX_SPRITES_AT_ONCE && sprite != 1000))
-    {
-      log_error("[DinkC] sp_script cannot process sprite %d??", sprite);
-      return;
-    }
-  scripting_kill_scripts_owned_by(sprite);
-  if (scripting_load_script(dcscript, sprite, /*true*/1) == 0)
-    {
-      *preturnint = 0;
-      return;
-    }
-
-  int tempreturn = 0;
-  if (sprite != 1000)
-    {
-      if (no_running_main == /*true*/1)
-	log_info("Not running %s until later..", sinfo[spr[sprite].script]->name);
-      if (no_running_main == /*false*/0)
-      {
-	    scripting_run_proc(spr[sprite].script, "MAIN");
-        tempreturn = spr[sprite].script;
-      }
-    }
-    
+  int tempreturn = scripting_sp_script(sprite, dcscript);
+  if (tempreturn == -1)
+  {
+    log_error("[DinkC] sp_script %s??", scripting_error);
+    return;
+  }
   *preturnint = tempreturn;
 }
 
@@ -487,7 +469,7 @@ void dc_freeze(int script, int* yield, int* preturnint, int sprite)
 
 void dc_set_callback_random(int script, int* yield, int* preturnint, char* procedure, int base, int range)
 {
-  int retval = add_callback(procedure, base, range, script);
+  int retval = scripting_add_callback(procedure, base, range, script);
   if (dversion >= 108)
     *preturnint = retval;
 }
@@ -736,7 +718,7 @@ void dc_draw_screen(int script, int* yield, int* preturnint)
 {
   /* only refresh screen if not in a cut-scene */
   /* do it before draw_map_game() because that one calls
-     kill_all_scripts(), which NULLifies rinfo(script) */
+     kill_all_scripts(), which NULLifies sinfo(script) */
   if (sinfo[script]->sprite != 1000)
     *yield = 1;
   draw_map_game();
@@ -825,7 +807,7 @@ void dc_restart_game(int script, int* yield, int* preturnint)
 void dc_wait(int script, int* yield, int* preturnint, int delayms)
 {
   scripting_kill_callbacks(script);
-  add_callback("", delayms, 0, script);
+  scripting_add_callback("", delayms, 0, script);
   *yield = 1;
 }
 
@@ -1178,41 +1160,7 @@ void dc_run_script_by_number(int script, int* yield, int* preturnint,
 void dc_playmidi(int script, int* yield, int* preturnint,
 		 char* midi_file)
 {
-  //StopMidi();
-  int regm = atol(midi_file);
-  log_debug("Processing playmidi command.");
-  if (regm > 1000)
-    //cd directive
-    {
-      int cd_track = regm - 1000;
-      log_info("playmidi - cd play command detected.");
-      
-      if (cd_inserted)
-	{
-	  if (cd_track == last_cd_track
-	      && cdplaying())
-	    {
-	      *yield = 1;
-	      return;
-	    }
-	  
-	  log_info("Playing CD track %d.", cd_track);
-	  if (PlayCD(cd_track) >= 0)
-	    return;
-	}
-      else
-	{
-	  //cd isn't instered, can't play CD song!!!
-	  char buf[10+4+1];
-	  sprintf(buf, "%d.mid", cd_track);
-	  log_info("Playing midi %s.", buf);
-	  PlayMidi(buf);
-	  // then try to play 'midi_file' as well:
-	  // (necessary for START.c:playmidi("1003.mid"))
-	}
-    }
-  log_info("Playing midi %s.", midi_file);
-  PlayMidi(midi_file);
+  *yield = scripting_playmidi(midi_file);
 }
 
 void dc_playsound(int script, int* yield, int* preturnint,
@@ -1273,7 +1221,7 @@ void dc_load_game(int script, int* yield, int* preturnint, int game_slot)
   scripting_kill_all_scripts_for_real();
   *preturnint = load_game(game_slot);
   log_info("load completed.");
-  if (rinfo(script) == NULL)
+  if (sinfo[script] == NULL)
     log_error("[DinkC] Script %d is suddenly null!", script);
   *pupdate_status = 1;
   draw_status_all();
@@ -1310,11 +1258,7 @@ void dc_move_stop(int script, int* yield, int* preturnint,
 void dc_load_sound(int script, int* yield, int* preturnint,
 		   char* wav_file, int sound_index)
 {
-  if (sound_on)
-    {
-      log_info("getting %s..", wav_file);
-      CreateBufferFromWaveFile(wav_file, sound_index);
-    }
+  scripting_load_sound(wav_file, sound_index);
 }
 
 void dc_debug(int script, int* yield, int* preturnint,
@@ -1819,7 +1763,7 @@ void dc_load_palette(int script, int* yield, int* preturnint, char* bmp_file)
 {
   // load a pallete from any bmp
   char *name = bmp_file;
-  char* fullpath = paths_dmodfile(name);
+  char* fullpath = paths_dmodfile(name); // XXX: Should this be free'd?
   
   if (gfx_palette_set_from_bmp(fullpath) < 0)
     log_error("[DinkC] Couldn't load palette from '%s': %s", name, SDL_GetError());

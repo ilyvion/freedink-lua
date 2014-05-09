@@ -278,7 +278,7 @@ void var_replace(char** line_p, int scope)
 }
 
 // XXX: Always set to one number higher than possible simultaneous engines,
-// thus leaving room for one sentinel entry (engine->active == 0)
+// thus leaving room for one sentinel entry (where engine->active == 0)
 struct script_engine script_engines[3];
 
 void scripting_init()
@@ -289,16 +289,17 @@ void scripting_init()
   struct script_engine *script_engine = &script_engines[cur_engine_num];
 
 #ifdef HAVE_LUA
-  script_engine->active = 1;
-  script_engine->name = strdup("Lua");
-  script_engine->extensions = XNMALLOC(2, char*);
-  script_engine->extensions[0] = strdup("lua");
-  script_engine->extensions[1] = NULL;
-  
-  cur_engine_num++;
-  script_engine = &script_engines[cur_engine_num];
-  
-  dinklua_init();
+  if (dversion >= 108)
+  {
+    dinklua_initialize(script_engine);
+    
+    cur_engine_num++;
+    script_engine = &script_engines[cur_engine_num];
+  }
+  else
+  {
+    log_warn("Lua support is disabled when running in 1.07 compatibility mode");
+  }
 #endif
 #ifdef HAVE_DINKC
   dinkc_init(script_engine);
@@ -319,6 +320,18 @@ void scripting_quit()
 #ifdef HAVE_DINKC
   dinkc_quit();
 #endif
+
+  // Clean up engine name and file extensions
+  struct script_engine *script_engine;
+  for (int i = 0; (script_engine = &script_engines[i])->active; i++)
+  {
+    for (int j = 0; script_engine->extensions[j]; j++)
+    {
+      free(script_engine->extensions[j]);
+    }
+    free(script_engine->extensions);
+    free(script_engine->name);
+  }
 }
 
 int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_sprite)
@@ -371,10 +384,9 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
 
   if (!script_found)
   {
-    log_error("Could not load script %s, no candidate files found for available engines.", filename);
+    log_error("Could not load script %s, no candidate file(s) found for available script engines.", filename);
     log_debug("Available script engines:");
 
-    const char *engine_fmt = "\t- %s, supported extensions: %s";
     for (int i = 0; (script_engine = &script_engines[i])->active; i++)
     {
       char exts[50] = "";
@@ -385,7 +397,7 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
         else
           sprintf(exts, "%s, .%s", exts, script_engine->extensions[j]);
       }
-      log_debug(engine_fmt, script_engine->name, exts);
+      log_debug("\t- %s, supported extensions: %s", script_engine->name, exts);
     }
     return 0;
   }
@@ -432,7 +444,7 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
   }
 
   sinfo[script]->engine = script_engine;
-  sinfo[script]->name = strdup(filename);
+  sinfo[script]->name = strdup(filename); strtolower(sinfo[script]->name);
   sinfo[script]->sprite = sprite;
   {
     int load_retval = script_engine->load_script(script_full_path, script);
@@ -628,6 +640,37 @@ void scripting_kill_callbacks_owned_by_script(int script)
 	  callback[i].active = /*false*/0;
 	}
     }
+}
+
+/**
+ * 
+ * name: name of the procedure() to call
+ * n1: wait at least n1 milliseconds before callback
+ * n2: wait at most n1+n2 milliseconds before callback
+ * script: number of the script currently running
+ **/
+int scripting_add_callback(const char name[20], int n1, int n2, int script)
+{
+  int k;
+  for (k = 1; k < MAX_CALLBACKS; k++)
+  {
+    if (callback[k].active == /*false*/0)
+	{
+	  memset(&callback[k], 0, sizeof(callback[k]));
+	  
+	  callback[k].active = /*true*/1;
+	  callback[k].min = n1;
+	  callback[k].max = n2;
+	  callback[k].owner = script;
+	  strcpy(callback[k].name, name);
+	  
+	  log_debug("Callback added to %d.", k);
+	  return k;
+	}
+  }
+  
+  log_error("Couldn't add callback, all out of space");
+  return 0;
 }
 
 /**
