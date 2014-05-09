@@ -1,9 +1,24 @@
-/*
- *      Copyright (c) 2001 Guido Draheim <guidod@gmx.de>
- *      Copyright (C) 2007, 2008, 2009  Sylvain Beucler
- *      Use freely under the restrictions of the ZLIB License
- *
- *      (this example uses errno which might not be multithreaded everywhere)
+/**
+ * zziplib data source for SDL_RWops
+
+ * Copyright (C) 2001  Guido Draheim <guidod@gmx.de>
+ * Copyright (C) 2007, 2008, 2009  Sylvain Beucler
+
+ * This file is part of GNU FreeDink
+
+ * GNU FreeDink is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+
+ * GNU FreeDink is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H

@@ -135,7 +135,7 @@ int gfx_fonts_init_failsafe()
   /* Load system font from compiled data */
   if (system_font == NULL)
     {
-      system_font = TTF_OpenFontRW(SDL_RWFromMem(vgasys_fon, sizeof(vgasys_fon)),
+      system_font = TTF_OpenFontRW(SDL_RWFromConstMem(vgasys_fon, sizeof(vgasys_fon)),
 				   1, FONT_SIZE);
       if (system_font == NULL)
 	return -1;
@@ -156,7 +156,7 @@ int gfx_fonts_init()
   }
 
   /* Load system font from compiled data */
-  system_font = TTF_OpenFontRW(SDL_RWFromMem(vgasys_fon, sizeof(vgasys_fon)),
+  system_font = TTF_OpenFontRW(SDL_RWFromConstMem(vgasys_fon, sizeof(vgasys_fon)),
 			       1, FONT_SIZE);
   if (system_font == NULL)
     {
@@ -188,7 +188,9 @@ void gfx_fonts_quit(void)
     }
   if (system_font != NULL)
     {
-      TTF_CloseFont(system_font);
+      // Uncomment when FreeType 2.5.3 is widespread
+      // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=747002
+      //TTF_CloseFont(system_font);
       system_font = NULL;
     }
 

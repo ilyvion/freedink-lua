@@ -1,4 +1,7 @@
 # Set of available languages.
 fr nb fi es pl da vi nl id de el it cs eo sl sr hr ca eu pt_BR
+
 # cf. (gettext.info.gz)po/LINGUAS
-en@quot en@boldquot
+# ... but disabling because freebsd adds spurious \n and fails check,
+# plus we don't have any quotes
+# en@quot en@boldquot

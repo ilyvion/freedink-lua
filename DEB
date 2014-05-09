@@ -1,8 +1,0 @@
-The Debian packaging files in 'debian/' are not included in release
-tarballs because this is preferred by Debian maintainers:
-http://lists.debian.org/debian-mentors/2008/08/msg00323.html
-
-
-Get them from the Git repository if you need them:
-
-  git clone git://git.savannah.gnu.org/freedink.git

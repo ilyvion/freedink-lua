@@ -24,9 +24,10 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_MALLINFO
 #include <malloc.h>
-
 #include "log.h"
+#endif
 
 void meminfo_log_mallinfo()
 {

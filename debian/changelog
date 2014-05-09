@@ -1,5 +1,6 @@
-freedink (1.08.20130235-1) UNRELEASED; urgency=low
+freedink (1.08.20121232-1) UNRELEASED; urgency=low
 
+  * New Upstream Version
   * Depend on fonts-liberation rather than on renamed ttf-liberation
     (Closes: #722357)
   * Bump compat to 9 to address lintian 'hardening-no-relro'

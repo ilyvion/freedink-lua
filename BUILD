@@ -15,21 +15,19 @@ On a minimal Debian system
 # Source code:
 apt-get install git-core
 git clone git://git.sv.gnu.org/freedink
-cd freedink
+cd freedink/
 
 # Gnulib
 (cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
 # or:
 #apt-get install gnulib
 
-# autotools
-apt-get install autoconf automake
-
-apt-get install pkg-config # for PKG_CHECK_MODULES
-apt-get install libsdl1.2-dev # for sdl.m4
-apt-get install help2man # to rebuild manpages
-apt-get install gettext cvs # for i18n
-apt-get install autopoint   # for i18n, >= Squeeze
+# autoconf automake: base autotools
+# pkg-config: for PKG_CHECK_MODULES
+# libsdl1.2-dev: for sdl.m4
+# help2man: to rebuild manpages
+# gettext autopoint: for i18n
+apt-get install autoconf automake pkg-config libsdl1.2-dev help2man gettext autopoint
 sh bootstrap
 
 
@@ -68,25 +66,24 @@ apt-get install timidity freepats
 On a minimal Fedora system
 ==========================
 
-(use 'pkcon' or 'yum' indifferently)
+(use 'yum' or 'pkcon' indifferently)
 
 ## Bootstrap
 # Source code:
-pkcon install git-core
+yum install git-core
 git clone git://git.sv.gnu.org/freedink
-cd freedink
+cd freedink/
 
 # Gnulib
 (cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
 # No Fedora package, but there's no need for one.
 
-# autotools
-pkcon install autoconf automake
-
-pkcon install pkg-config # for PKG_CHECK_MODULES
-pkcon install SDL_devel # for sdl.m4
-pkcon install help2man # to rebuild manpages
-pkcon install gettext-devel cvs # for i18n
+# autoconf automake: base autotools
+# pkg-config: for PKG_CHECK_MODULES
+# SDL_devel: for sdl.m4
+# help2man: to rebuild manpages
+# gettext autpoint: for i18n
+yum install autoconf automake pkg-config SDL_devel help2man gettext-devel
 sh bootstrap
 
 
@@ -95,15 +92,15 @@ sh bootstrap
 # Note: 'groupinstall' not working with pkcon yet
 yum groupinstall 'Development Tools'
 # or just:
-#pkcon install make gcc
+#yum install make gcc
 # Required: SDL, libzip | zziplib
 # No libzip package yet AFAIK
-pkcon install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
+yum install SDL-devel SDL_gfx-devel SDL_ttf-devel SDL_image-devel \
   SDL_mixer-devel fontconfig-devel zziplib-devel zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs
-pkcon install upx bzip2
+yum install upx bzip2
 
 ## Compilation
 ./configure
@@ -147,7 +144,6 @@ cd freedink
 emerge libsdl # for sdl.m4
 emerge help2man # to rebuild manpages
 emerge pkgconfig # for PKG_CHECK_MODULES
-emerge gettext cvs # for i18n
 sh bootstrap
 
 
@@ -202,7 +198,7 @@ pacman -S base-devel
 
 pacman -S sdl # for sdl.m4
 pacman -S help2man # to rebuild manpages
-pacman -S gettext cvs # for i18n
+pacman -S gettext # for i18n
 sh bootstrap
 
 
@@ -237,49 +233,39 @@ cp /etc/timidity++/timidity-eawpats.cfg /etc/timidity++/timidity.cfg
 # :)
 
 
-On a minimal FreeBSD 6.3 system
+On a minimal FreeBSD 10.0 system
 ===============================
 
 ## Bootstrap
 # Source code:
-pkg_add -r git
+pkg install -y git
 git clone git://git.sv.gnu.org/freedink
-cd freedink
+cd freedink/
 
 # Gnulib
 (cd /usr/src && git clone git://git.sv.gnu.org/gnulib)
 
-# autotools
-# Note: you need to specify explicit versions
-pkg_add -r autoconf261 automake19
-
-pkg_add -r pkg-config # for PKG_CHECK_MODULES
-pkg_add -r sdl # for sdl.m4
-pkg_add -r help2man # to rebuild manpages
-pkg_add -r gettext # i18n - I assume you have 'cvs' installed :)
+# autoconf automake: base autotools
+# pkgconf: for PKG_CHECK_MODULES
+# libsdl1.2-dev: for sdl.m4
+# help2man: to rebuild manpages
+# gettext autopoint: for i18n
+pkg install -y autoconf automake pkgconf sdl help2man gettext
 sh bootstrap
 
 
 ## Dependencies
 # I assume you already have GCC and Make ;)
 # Required: SDL, libzip | zziplib
-pkg_add -r sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
-# TODO: gettext+libiconv?  Not bundled in the libc for this platform.
-# Note: SDL_ttf is tool old (2.0.8 < 2.0.9), you'll need to upgrade
-#   it manually:
-pkg_add -r wget
-wget http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.9.tar.gz
-tar xzf SDL_ttf-2.0.9.tar.gz
-cd SDL_ttf-2.0.9
-./configure && make && make install
+pkg install -y sdl sdl_gfx sdl_ttf sdl_image sdl_mixer fontconfig libzip zip
 # Optional:
 # - upx compresses binary
 # - bzip is for .tar.bz2 release tarballs (included in base FreeBSD)
-pkg_add -r upx
+pkg install -y upx
 
 ./configure
-make
-make install
+make -k  # TODO: issue with spurious newlines added by msgmerge
+make install -k
 
 ## Release tests
 make dist
@@ -287,10 +273,13 @@ make distcheck
 
 ## Optional: software MIDI support, used by SDL_mixer
 # Check doc/sound.txt for details
-pkg_add -r timidity++
-# No freepats package! :(
-pkg_add -r timidity-eawpats # non-free, uses Gentoo sources
-pkg_add -r timidity-eawplus # non-free, different .cfg file
+# timidity already installed as dependencies
+#   from SDL_mixer
+pkg install -y freepats
+
+# To test, see http://www.freebsd.org/doc/en/books/handbook/x-config.html
+# pkg install x11
+# startx
 
 # :)
 
