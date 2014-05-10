@@ -33,6 +33,7 @@ struct luainfo
 };
 
 extern int dinklua_enabled;
+extern struct script_engine *lua_engine;
 
 extern void dinklua_initialize(struct script_engine *script_engine);
 extern void dinklua_quit();

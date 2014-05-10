@@ -334,6 +334,43 @@ void scripting_quit()
   }
 }
 
+char*
+scripting_find_script_for_engine(struct script_engine *script_engine, const char* filename)
+{
+  char script_path[100];
+  char *script_full_path;
+  
+  for (int j = 0; script_engine->extensions[j]; j++)
+  {
+    sprintf(script_path, "story/%s.%s", filename, script_engine->extensions[j]);
+    script_full_path = paths_dmodfile(script_path);
+    log_debug("[Scripting] Checking %s", script_full_path);
+
+    if (access(script_full_path, F_OK) == 0)
+    {
+      return script_full_path;
+    }
+    
+    free(script_full_path);
+  }
+  
+  for (int j = 0; script_engine->extensions[j]; j++)
+  {
+    sprintf(script_path, "story/%s.%s", filename, script_engine->extensions[j]);
+    script_full_path = paths_fallbackfile(script_path);
+    log_debug("[Scripting] Checking %s", script_full_path);
+
+    if (access(script_full_path, F_OK) == 0)
+    {
+      return script_full_path;
+    }
+    
+    free(script_full_path);
+  }
+
+  return NULL;
+}
+
 int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_sprite)
 {
   log_debug("[Scripting] scripting_load_script(%s, %d, %d)", filename, sprite, set_sprite);
@@ -341,48 +378,15 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
 
   char script_path[100];
   char *script_full_path;
-  int script_found = 0;
   struct script_engine *script_engine;
   for (int i = 0; (script_engine = &script_engines[i])->active; i++)
   {
-    for (int j = 0; script_engine->extensions[j]; j++)
-    {
-      sprintf(script_path, "story/%s.%s", filename, script_engine->extensions[j]);
-      script_full_path = paths_dmodfile(script_path);
-      log_debug("[Scripting] Checking %s", script_full_path);
-
-      if (access(script_full_path, F_OK) == 0)
-      {
-        script_found = 1;
-        break;
-      }
-      
-      free(script_full_path);
-    }
-
-    if (script_found)
-      break;
-    
-    for (int j = 0; script_engine->extensions[j]; j++)
-    {
-      sprintf(script_path, "story/%s.%s", filename, script_engine->extensions[j]);
-      script_full_path = paths_fallbackfile(script_path);
-      log_debug("[Scripting] Checking %s", script_full_path);
-
-      if (access(script_full_path, F_OK) == 0)
-      {
-        script_found = 1;
-        break;
-      }
-      
-      free(script_full_path);
-    }
-
-    if (script_found)
+    script_full_path = scripting_find_script_for_engine(script_engine, filename);
+    if (script_full_path != NULL)
       break;
   }
 
-  if (!script_found)
+  if (script_full_path == NULL)
   {
     log_error("Could not load script %s, no candidate file(s) found for available script engines.", filename);
 

@@ -44,6 +44,7 @@
 #include "dinklua_bindings.h"
 
 int dinklua_enabled = 1;
+struct script_engine *lua_engine = NULL;
 
 lua_State* luaVM;
 
@@ -345,6 +346,8 @@ static void lua_kill_script(int script)
 
 void dinklua_initialize(struct script_engine *script_engine)
 {
+  lua_engine = script_engine;
+  
   script_engine->active = 1;
   script_engine->name = strdup("Lua");
   script_engine->extensions = XNMALLOC(2, char*);
@@ -392,6 +395,7 @@ void dinklua_initialize(struct script_engine *script_engine)
 void dinklua_quit()
 {
   lua_close(luaVM);
+  lua_engine = NULL;
   log_info("Closed Lua.");
 }
 

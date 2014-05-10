@@ -153,6 +153,7 @@ extern int search_var_with_this_scope(char* variable, int scope);
 extern int search_var_with_this_scope_108(char* variable, int var_scope);
 extern /*bool*/int load_game_small(int num, char line[196], int *mytime);
 extern void var_replace(char** line_p, int scope);
+extern char* scripting_find_script_for_engine(struct script_engine *script_engine, const char* filename);
 
 extern void scripting_init();
 extern void scripting_quit();

@@ -42,6 +42,7 @@
 #include "gfx_sprites.h"
 #include "sfx.h"
 #include "script_bindings.h"
+#include "scripting.h"
 #include "dinklua.h"
 #include "screen.h"
 #include "input.h"
@@ -2665,6 +2666,25 @@ static int dinklua_choice_menu_show(lua_State *l)
   return 0;
 }
 
+static int dinklua_engine_find_script(lua_State *l)
+{
+  const char *filename = luaL_checkstring(l, -1);
+  
+  char *script_full_path;
+  script_full_path = scripting_find_script_for_engine(lua_engine, filename);
+
+  if (script_full_path == NULL)
+  {
+    lua_pushnil(l);
+  }
+  else
+  {
+    lua_pushstring(l, script_full_path);
+    free(script_full_path);
+  }
+  return 1;
+}
+
 void dinklua_bind_init()
 {
   luaL_Reg dink_funcs[] =
@@ -2825,4 +2845,12 @@ void dinklua_bind_init()
   };
   luaL_newlib(luaVM, choice_menu_funcs);
   lua_setglobal(luaVM, "choice_menu");
+  
+  luaL_Reg engine_funcs[] =
+  {
+    {"find_script", dinklua_engine_find_script},
+    {NULL, NULL}
+  };
+  luaL_newlib(luaVM, engine_funcs);
+  lua_setglobal(luaVM, "engine");
 }

@@ -5,6 +5,12 @@
 -- "run_script", "proc_exists" and "load_script". For more details on their use
 -- and expected functionality and parameters, see the file "dinklua.c".
 --
+-- Be careful when editing this file. Mistakes in this file are hard to catch,
+-- because the Dink Engine often has trouble reporting where the problem lies.
+-- Make small, incremental edits and run Dink often in order to catch mistakes
+-- early. Lots of productive time has been lost simply due to a forgotten
+-- 'then' in an if statement...
+--
 -- The tables "object", "yield", "choice_menu" and "dink" are set in the file
 -- "dinklua_bindings.c", in the method named "dinklua_bind_init", and they
 -- contain pointers to the C functions that are used to communicate with the
@@ -815,33 +821,23 @@ function create_environment(script_number, path, sprite_number)
 end
 
 function include(path, script_name, script_number)
-  -- TODO: This needs to work like script loading in C: Try both current dmod
-  -- and dink base directory, as well as support case-insensitivity. Create
-  -- a C function to replace this line:
-  local script_path = dirname(path)..script_name..".lua"
+  local script_path = engine.find_script(script_name)
+  if script_path == nil then
+    error("Could not include script "..script_name..".lua: not found", 2)
+  end
 
   -- This loads the script in its own environment, but gives it access to the
   -- environment of the script it is being loaded from as well.
   local include_env = setmetatable({}, {__index = script[script_number]})
   local chunk, message = loadfile(script_path, 't', include_env)
   if not chunk then
-    error("Could not include script "..script_name..":"..message, 3)
+    error("Could not include script "..script_name..".lua: "..message, 2)
   end
   local success, pmessage = pcall(chunk)
   if not success then
-    error("Could not include script "..script_name..":"..pmessage, 3)
+    error("Could not include script "..script_name..".lua: "..pmessage, 2)
   end
   return include_env
-end
-
--- TODO: Delete when include() has been properly fixed.
-function dirname(str)
-  if str:match(".-/.-") then
-    local name = string.gsub(str, "(.*/)(.*)", "%1")
-    return name
-  else
-    return ''
-  end
 end
 
 -- Script cache
