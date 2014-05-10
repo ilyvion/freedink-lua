@@ -38,13 +38,8 @@
 #define _(String) gettext (String)
 
 #include "scripting.h"
-
-#ifdef HAVE_DINKC
 #include "dinkc.h"
-#endif
-#ifdef HAVE_LUA
 #include "dinklua.h"
-#endif
 
 int returnint = 0;
 
@@ -279,6 +274,10 @@ void var_replace(char** line_p, int scope)
 
 // XXX: Always set to one number higher than possible simultaneous engines,
 // thus leaving room for one sentinel entry (where engine->active == 0)
+//
+// Current possible engines:
+//   - DinkC
+//   - DinkLua
 struct script_engine script_engines[3];
 
 void scripting_init()
@@ -288,38 +287,39 @@ void scripting_init()
   int cur_engine_num = 0;
   struct script_engine *script_engine = &script_engines[cur_engine_num];
 
-#ifdef HAVE_LUA
   if (dversion >= 108)
   {
-    dinklua_initialize(script_engine);
-    
-    cur_engine_num++;
-    script_engine = &script_engines[cur_engine_num];
+    if (dinklua_enabled)
+    {
+      dinklua_initialize(script_engine);
+      
+      cur_engine_num++;
+      script_engine = &script_engines[cur_engine_num];
+    }
   }
-  else
+  else if (dinklua_enabled)
   {
     log_warn("Lua support is disabled when running in 1.07 compatibility mode");
   }
-#endif
-#ifdef HAVE_DINKC
-  dinkc_init(script_engine);
-  
+
+  if (dinkc_enabled)
+    dinkc_init(script_engine);
+
+  // Configure engine sentinel entry
   cur_engine_num++;
   script_engine = &script_engines[cur_engine_num];
-#endif
-
   script_engine->active = 0;
 }
 
 void scripting_quit()
 {
   log_debug("[Scripting] scripting_quit()");
-#ifdef HAVE_LUA
-  dinklua_quit();
-#endif
-#ifdef HAVE_DINKC
-  dinkc_quit();
-#endif
+
+  if (dinklua_enabled)
+    dinklua_quit();
+
+  if (dinkc_enabled)
+    dinkc_quit();
 
   // Clean up engine name and file extensions
   struct script_engine *script_engine;
@@ -385,19 +385,27 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
   if (!script_found)
   {
     log_error("Could not load script %s, no candidate file(s) found for available script engines.", filename);
-    log_debug("Available script engines:");
 
-    for (int i = 0; (script_engine = &script_engines[i])->active; i++)
+    if (!script_engines[0].active)
     {
-      char exts[50] = "";
-      for (int j = 0; script_engine->extensions[j]; j++)
+      log_error("No script engines enabled!");
+    }
+    else
+    {
+      log_debug("Available script engines:");
+
+      for (int i = 0; (script_engine = &script_engines[i])->active; i++)
       {
-        if (j == 0)
-          sprintf(exts, ".%s", script_engine->extensions[j]);
-        else
-          sprintf(exts, "%s, .%s", exts, script_engine->extensions[j]);
+        char exts[50] = "";
+        for (int j = 0; script_engine->extensions[j]; j++)
+        {
+          if (j == 0)
+            sprintf(exts, ".%s", script_engine->extensions[j]);
+          else
+            sprintf(exts, "%s, .%s", exts, script_engine->extensions[j]);
+        }
+        log_debug("\t- %s, supported extensions: %s", script_engine->name, exts);
       }
-      log_debug("\t- %s, supported extensions: %s", script_engine->name, exts);
     }
     return 0;
   }

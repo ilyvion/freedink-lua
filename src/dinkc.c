@@ -45,6 +45,8 @@
 #include "log.h"
 #include "scripting.h"
 
+int dinkc_enabled = 1;
+
 int bKeepReturnInt = 0;
 char returnstring[200];
 

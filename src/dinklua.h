@@ -32,6 +32,8 @@ struct luainfo
   int script_loaded;
 };
 
+extern int dinklua_enabled;
+
 extern void dinklua_initialize(struct script_engine *script_engine);
 extern void dinklua_quit();
 extern int dinklua_get_current_line(lua_State *l);

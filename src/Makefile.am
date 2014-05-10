@@ -33,21 +33,15 @@ COMMON_OBJS=bgm.c bgm.h dinkini.c dinkini.h dinkvar.c		\
 	gfx_sprites.c gfx_sprites.h vgasys_fon.c vgasys_fon.h msgbox.c	\
 	msgbox.h i18n.c i18n.h meminfo.c meminfo.h screen.c screen.h	\
 	scripting.c scripting.h script_bindings.c script_bindings.h	\
-	sp_custom.c sp_custom.h
+	sp_custom.c sp_custom.h dinkc.c dinkc.h dinkc_bindings.c	\
+	dinkc_bindings.h dinkc_console.c dinkc_console.h dinklua.c	\
+	dinklua.h dinklua_bindings.c dinklua_bindings.h
 
 if HAVE_ZZIPLIB
 COMMON_OBJS+=SDL_rwops_zzip.c SDL_rwops_zzip.h
 endif
 if HAVE_LIBZIP
 COMMON_OBJS+=SDL_rwops_libzip.c SDL_rwops_libzip.h
-endif
-
-if HAVE_DINKC
-COMMON_OBJS+=dinkc.c dinkc.h dinkc_bindings.c dinkc_bindings.h	\
-	dinkc_console.c	dinkc_console.h 
-endif
-if HAVE_LUA
-COMMON_OBJS+=dinklua.c dinklua.h dinklua_bindings.c dinklua_bindings.h
 endif
 
 bin_PROGRAMS = freedink freedinkedit

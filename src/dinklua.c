@@ -43,6 +43,8 @@
 #include "dinklua.h"
 #include "dinklua_bindings.h"
 
+int dinklua_enabled = 1;
+
 lua_State* luaVM;
 
 int current_lua_script = -1;

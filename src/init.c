@@ -60,6 +60,9 @@
 #include "init.h"
 #include "msgbox.h"
 
+#include "dinkc.h"
+#include "dinklua.h"
+
 #if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -221,18 +224,20 @@ static int check_arg(int argc, char *argv[])
      backward compatibility with the original game */
   struct option long_options[] = 
     {
-      {"debug",     no_argument,       NULL, 'd'},
-      {"refdir",    required_argument, NULL, 'r'},
-      {"game",      required_argument, NULL, 'g'},
-      {"help",      no_argument,       NULL, 'h'},
-      {"noini",     no_argument,       NULL, 'i'},
-      {"nojoy",     no_argument,       NULL, 'j'},
-      {"nosound",   no_argument,       NULL, 's'},
-      {"version",   no_argument,       NULL, 'v'},
-      {"window",    no_argument,       NULL, 'w'},
-      {"v1.07",     no_argument,       NULL, '7'},
-      {"truecolor", no_argument,       NULL, 't'},
-      {"nomovie"  , no_argument,       NULL, ','},
+      {"debug",         no_argument,       NULL, 'd'},
+      {"refdir",        required_argument, NULL, 'r'},
+      {"game",          required_argument, NULL, 'g'},
+      {"help",          no_argument,       NULL, 'h'},
+      {"noini",         no_argument,       NULL, 'i'},
+      {"nojoy",         no_argument,       NULL, 'j'},
+      {"nosound",       no_argument,       NULL, 's'},
+      {"version",       no_argument,       NULL, 'v'},
+      {"window",        no_argument,       NULL, 'w'},
+      {"v1.07",         no_argument,       NULL, '7'},
+      {"truecolor",     no_argument,       NULL, 't'},
+      {"nomovie",       no_argument,       NULL, ','},
+      {"disable-dinkc", no_argument,       NULL, 'c'},
+      {"disable-lua",   no_argument,       NULL, 'l'},
       {0, 0, 0, 0}
     };
   
@@ -240,50 +245,56 @@ static int check_arg(int argc, char *argv[])
 
   /* Loop through each argument */
   while ((c = getopt_long_only (argc, argv, short_options, long_options, NULL)) != EOF)
-    {
-      switch (c) {
-      case 'd':
-	debug_p = 1;
-        /* Enable early debugging, before we can locate DEBUG.txt */
-        log_set_priority(LOG_PRIORITY_DEBUG);
-	break;
-      case 'r':
-	refdir_opt = strdup(optarg);
-	break;
-      case 'g':
-	dmoddir_opt = strdup(optarg);
-	break;
-      case 'h':
-	print_help(argc, argv);
-	break;
-      case 'j':
-	joystick = 0;
-	break;
-      case 'i':
-	g_b_no_write_ini = 1;
-	break;
-      case 's':
-	sound_on = 0;
-	break;
-      case 'v':
-	print_version();
-	break;
-      case 'w':
-	windowed = 1;
-	break;
-      case '7':
-	dversion = 107;
-	break;
-      case 't':
-	truecolor = 1;
-	break;
-      case ',':
-        printf(_("Note: -nomovie is accepted for compatiblity, but has no effect.\n"));
-	break;
-      default:
-	exit(EXIT_FAILURE);
-      }
+  {
+  switch (c) {
+    case 'd':
+      debug_p = 1;
+      /* Enable early debugging, before we can locate DEBUG.txt */
+      log_set_priority(LOG_PRIORITY_DEBUG);
+      break;
+    case 'r':
+      refdir_opt = strdup(optarg);
+      break;
+    case 'g':
+      dmoddir_opt = strdup(optarg);
+      break;
+    case 'h':
+      print_help(argc, argv);
+      break;
+    case 'j':
+      joystick = 0;
+      break;
+    case 'i':
+      g_b_no_write_ini = 1;
+      break;
+    case 's':
+      sound_on = 0;
+      break;
+    case 'v':
+      print_version();
+      break;
+    case 'w':
+      windowed = 1;
+      break;
+    case '7':
+      dversion = 107;
+      break;
+    case 't':
+      truecolor = 1;
+      break;
+    case ',':
+      printf(_("Note: -nomovie is accepted for compatiblity, but has no effect.\n"));
+      break;
+    case 'c':
+      dinkc_enabled = 0;
+      break;
+    case 'l':
+      dinklua_enabled = 0;
+      break;
+    default:
+      exit(EXIT_FAILURE);
     }
+  }
   
   if (optind < argc) {
     fprintf(stderr, "Invalid additional argument: ");

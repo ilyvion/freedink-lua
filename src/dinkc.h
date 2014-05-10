@@ -55,6 +55,8 @@ struct refinfo
   int arg9;
 };
 
+extern int dinkc_enabled;
+
 extern void dinkc_init(struct script_engine *engine);
 extern void dinkc_quit();
 //extern void* dinkc_allocate_data();

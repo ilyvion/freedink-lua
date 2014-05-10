@@ -29,6 +29,9 @@
 
 struct script_engine
 {
+  /*
+   * Sentinel entry indicator (should always be true on non-sentinel entries)
+   */
   int active;
 
   /*
