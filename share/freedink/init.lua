@@ -521,9 +521,10 @@ end
 
 choice_metatable = {
   __newindex = function(t, key, value)
-    -- TODO: Add success function parameter
     if key == "condition" then
       rawset(t, "_condition", value)
+    elseif key == "on_success" then
+      rawset(t, "_success", value)
     else
       error("Choices do not have a "..key.." property", 2)
     end
@@ -531,6 +532,8 @@ choice_metatable = {
   __index = function(t, key)
     if key == "condition" then
       return rawget(t, "_condition")
+    elseif key == "on_success" then
+      rawget(t, "_success")
     else
       error("Choices do not have a "..key.." property", 2)
     end
@@ -538,7 +541,7 @@ choice_metatable = {
 }
 
 function create_choice(index, text, condition)
-  return setmetatable({_index = index, _text = text, _condition = condition}, choice_metatable)
+  return setmetatable({_index = index, _text = text, _condition = condition, _success = nil}, choice_metatable)
 end
 
 choice_menu_metatable = {
@@ -615,7 +618,15 @@ choice_menu_metatable = {
         -- corresponding choice object.
         local result_index = object.get_global_variable_value("result")
         for _, c in ipairs(self._choices) do
-          if c._index == result_index then return c end
+          if c._index == result_index then
+            -- If the scripter has set an on_success event, it runs before the
+            -- show() method returns
+            local success = rawget(c, "_success") 
+            if success ~= nil and type(success) == "function" then
+              success()
+            end
+            return c
+          end
         end
 
         -- Should never be reached, but let's just make sure we know if it does.
