@@ -35,13 +35,13 @@ struct script_engine
   int active;
 
   /*
-   * Name of the script.
+   * Name of the script engine.
    */
   char *name;
 
   /*
-   * Array of file extensions supported by engine, don't forget NULL sentinel
-   * This array and its entires should all be allocated in such a way that they
+   * Array of file extensions supported by engine, don't forget NULL sentinel.
+   * This array and its entries should all be allocated in such a way that they
    * can be free'd safely. In other words, use malloc or strdup or other
    * functions that return free-able pointers.
    */
@@ -64,9 +64,9 @@ struct script_engine
   /*
    * Called to load a script, receives the path to the script, and the script
    * number this script is assigned to. Returning 0 indicates that an error
-   * occured during the script loading.
+   * occurred during the script loading.
    * 
-   * At the point this function is called, sinfo[script] is intialized, as is
+   * At the point this function is called, sinfo[script] is initialized, as is
    * sinfo[script]->data, using the allocate_data() function.
    */
   int (*load_script)(const char *path, int script);

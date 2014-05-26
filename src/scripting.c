@@ -447,6 +447,7 @@ int scripting_load_script(const char filename[15], int sprite, /*bool*/int set_s
 
     if (allocate_retval == 0)
     {
+      log_error("Couldn't allocate data for script %d.", script);
       free(sinfo[script]);
       sinfo[script] = NULL;
       free(script_full_path);

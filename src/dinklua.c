@@ -52,7 +52,7 @@ int current_lua_script = -1;
 int lua_script_stack[MAX_SCRIPTS];
 int lua_script_p = -1;
 
-/* DinkC script data conversion */
+/* DinkLua script data conversion */
 #define luainfo(script) ((struct luainfo*)(sinfo[script]->data))
 
 static void lua_report_error(const char* error_intro, const char* error_message)
